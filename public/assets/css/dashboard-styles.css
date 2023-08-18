@@ -1,0 +1,73 @@
+.card {
+  background: #364658;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
+  border: none;
+}
+
+.card-header {
+  background: #3aaf5c;
+  color: white !important;
+  border-bottom: none;
+}
+
+.card-header-text {
+  color: white !important;
+}
+
+.card-text {
+  color: white;
+}
+
+#content {
+  background: #2c3a4a;
+}
+
+.sticky-footer {
+  background: #2c3a4a !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
+}
+
+.ui-btn {
+  background: #3aaf5c;
+  border: none;
+}
+
+th,
+td {
+  background: #364658 !important;
+  color: white !important;
+}
+
+.heading-container {
+  overflow: auto;
+  margin-bottom: 35px;
+  vertical-align: middle;
+}
+
+.tenant-info {
+  text-align: left;
+  font-size: 12pt;
+  margin: 5px 0;
+}
+
+.tenant-info-heading {
+  text-align: left;
+  font-weight: 700;
+  font-size: 15pt;
+}
+
+.property-col-img-container {
+  height: 175px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.form-control {
+  background: #2c3a4a !important;
+  color: white !important;
+  border: none !important;
+}
+.top-bar-searchbar{
+  background: #364658 !important;
+  color: white !important;
+  border: none !important;
+}
