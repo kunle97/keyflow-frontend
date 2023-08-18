@@ -1,18 +1,18 @@
-import Dashboard from "./components/Landlord/Dashboard";
-import MaintenanceRequests from "./components/Landlord/MaintenanceRequests/MaintenanceRequests";
-import CreateMaintenanceRequest from "./components/Landlord/MaintenanceRequests/CreateMaintenanceRequest";
+import Dashboard from "./components/Dashboard/Landlord/Dashboard";
+import MaintenanceRequests from "./components/Dashboard/Landlord/MaintenanceRequests/MaintenanceRequests";
+import CreateMaintenanceRequest from "./components/Dashboard/Landlord/MaintenanceRequests/CreateMaintenanceRequest";
 import { createBrowserRouter } from "react-router-dom";
-import Properties from "./components/Landlord/Properties/Properties";
-import CreateProperty from "./components/Landlord/Properties/CreateProperty";
-import ManageProperty from "./components/Landlord/Properties/ManageProperty";
-import Units from "./components/Landlord/Properties/Units";
-import Tenants from "./components/Landlord/Tenants/Tenants";
-import ManageTenant from "./components/Landlord/Tenants/ManageTenant";
-import CreateUnit from "./components/Landlord/Properties/CreateUnit";
-import MyAccount from "./components/MyAccount";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import ForgotPassword from "./components/ForgotPassword";
+import Properties from "./components/Dashboard/Landlord/Properties/Properties";
+import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
+import ManageProperty from "./components/Dashboard/Landlord/Properties/ManageProperty";
+import Units from "./components/Dashboard/Landlord/Properties/Units";
+import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
+import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
+import CreateUnit from "./components/Dashboard/Landlord/Properties/CreateUnit";
+import MyAccount from "./components/Dashboard/MyAccount";
+import Login from "./components/Dashboard/Login";
+import Register from "./components/Dashboard/Register";
+import ForgotPassword from "./components/Dashboard/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
 
 export const router = createBrowserRouter([
