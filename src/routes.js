@@ -14,62 +14,127 @@ import Login from "./components/Dashboard/Login";
 import Register from "./components/Dashboard/Register";
 import ForgotPassword from "./components/Dashboard/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
+import LandingPage from "./components/Landing/LandingPage";
+import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
+import LoggedInRedirect from "./components/LoggedInRedirect";
+//retrieve token from storage
+const token = localStorage.getItem("accessToken");
 
 export const router = createBrowserRouter([
   {
+    path: "/",
+    element: <LandingPage />,
+  },
+  {
     path: "/dashboard/login",
-    element: <Login />,
+    element: (
+      <LoggedInRedirect token={token}>
+        <Login />
+      </LoggedInRedirect>
+    ),
   },
   {
     path: "/dashboard/register",
-    element: <Register />,
+    element: (
+      <LoggedInRedirect token={token}>
+        <Register />
+      </LoggedInRedirect>
+    ),
   },
   {
     path: "/dashboard/forgot-password",
-    element: <ForgotPassword />,
+    element: (
+      <LoggedInRedirect token={token}>
+        <ForgotPassword />
+      </LoggedInRedirect>
+    ),
   },
   {
     path: "/dashboard",
-    element: withDashboardContainer(<Dashboard />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Dashboard />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/my-account",
-    element: withDashboardContainer(<MyAccount />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <MyAccount />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/properties",
-    element: withDashboardContainer(<Properties />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Properties />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/properties/create",
-    element: withDashboardContainer(<CreateProperty />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateProperty />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/properties/:id",
-    element: withDashboardContainer(<ManageProperty />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageProperty />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/units",
-    element: withDashboardContainer(<Units />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Units />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/units/create",
-    element: withDashboardContainer(<CreateUnit />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateUnit />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/tenants",
-    element: withDashboardContainer(<Tenants />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Tenants />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/tenants/:id",
-    element: withDashboardContainer(<ManageTenant />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageTenant />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/maintenance-requests",
-    element: withDashboardContainer(<MaintenanceRequests />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <MaintenanceRequests />
+      </DashboardProtectedRoute>
+    ),
   },
   {
     path: "/dashboard/maintenance-requests/create",
-    element: withDashboardContainer(<CreateMaintenanceRequest />),
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateMaintenanceRequest />
+      </DashboardProtectedRoute>
+    ),
   },
 ]);

@@ -97,6 +97,51 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <div className="row mb-3 ">
+            <div className="col">
+              <div className="card text-white bg-primary shadow">
+                <div className="card-body">
+                  <div className="row mb-2">
+                    <div className="col">
+                      <p className="m-0">Peformance</p>
+                      <p className="m-0">
+                        <strong>65.2%</strong>
+                      </p>
+                    </div>
+                    <div className="col-auto">
+                      <i className="fas fa-rocket fa-2x" />
+                    </div>
+                  </div>
+                  <p className="text-white-50 small m-0">
+                    <i className="fas fa-arrow-up" />
+                    &nbsp;5% since last month
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col">
+              <div className="card text-white bg-success shadow">
+                <div className="card-body">
+                  <div className="row mb-2">
+                    <div className="col">
+                      <p className="m-0">Peformance</p>
+                      <p className="m-0">
+                        <strong>65.2%</strong>
+                      </p>
+                    </div>
+                    <div className="col-auto">
+                      <i className="fas fa-rocket fa-2x" />
+                    </div>
+                  </div>
+                  <p className="text-white-50 small m-0">
+                    <i className="fas fa-arrow-up" />
+                    &nbsp;5% since last month
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
       <div className="row">
         <div className="col-lg-7 col-xl-8">
           <div className="card shadow mb-4">

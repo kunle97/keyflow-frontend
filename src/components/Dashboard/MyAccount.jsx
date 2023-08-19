@@ -1,55 +1,19 @@
 import React from "react";
 
 const MyAccount = () => {
+  //retrieve auth user from local storage
+  const authUser = JSON.parse(localStorage.getItem("authUser"));
+  //Create state for username, email, first name, and last name
+  const [username, setUsername] = React.useState(authUser.username);
+  const [email, setEmail] = React.useState(authUser.email);
+  const [firstName, setFirstName] = React.useState(authUser.first_name);
+  const [lastName, setLastName] = React.useState(authUser.last_name);
+
   return (
     <div className="container">
       <h3 className="text-white mb-4">My Account</h3>
       <div className="row mb-3">
         <div className="col">
-          <div className="row mb-3 d-none">
-            <div className="col">
-              <div className="card text-white bg-primary shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col">
-              <div className="card text-white bg-success shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
           <div className="row">
             <div className="col">
               <div className="card shadow mb-3">
@@ -75,6 +39,8 @@ const MyAccount = () => {
                             id="username"
                             placeholder="user.name"
                             name="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
@@ -96,6 +62,8 @@ const MyAccount = () => {
                             id="email"
                             placeholder="user@example.com"
                             name="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
@@ -119,6 +87,8 @@ const MyAccount = () => {
                             id="first_name"
                             placeholder="John"
                             name="first_name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
@@ -140,6 +110,8 @@ const MyAccount = () => {
                             id="last_name"
                             placeholder="Doe"
                             name="last_name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",

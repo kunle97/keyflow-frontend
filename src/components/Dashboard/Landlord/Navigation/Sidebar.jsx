@@ -61,23 +61,23 @@ const Sidebar = () => {
               <span>Lease Agreements</span>
             </a>
           </li>
-          <li class="nav-item dropdown show">
+          <li className="nav-item dropdown show">
             <a
-              class="dropdown-toggle nav-link"
+              className="dropdown-toggle nav-link"
               aria-expanded="true"
               data-bs-toggle="dropdown"
               href="#"
             >
               Dropdown
             </a>
-            <div class="dropdown-menu " data-bs-popper="none">
-              <a class="dropdown-item" href="#">
+            <div className="dropdown-menu " data-bs-popper="none">
+              <a className="dropdown-item" href="#">
                 Item 1
               </a>
-              <a class="dropdown-item" href="#">
+              <a className="dropdown-item" href="#">
                 Item 2
               </a>
-              <a class="dropdown-item" href="#">
+              <a className="dropdown-item" href="#">
                 Item 3
               </a>
             </div>

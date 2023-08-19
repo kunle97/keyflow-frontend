@@ -1,8 +1,44 @@
-import React from "react";
-
+import React, {useState} from "react";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { logout } from "../../../../api/api";
+import { useNavigate } from "react-router";
+import AlertModal from "../../AlertModal";
+import { Link } from "react-router-dom";
 const Topbar = () => {
+  const [open, setOpen] = useState(false);
+  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+
+    //retrieve token from local storage
+    const token = localStorage.getItem("accessToken");
+
+    //call logout api
+    const response = await logout(token);
+    console.log("Logout funtion return value on Login.jsx: ", response);
+    
+    if (response.status == 200) {
+      //Set authUser and isLoggedIn in context
+      setAuthUser({});
+      setIsLoggedIn(false);
+      setOpen(true);
+    }
+  };
+
   return (
     <div className="container">
+      {open && (
+        <AlertModal
+          open={true}
+          onClose={() => setOpen(false)}
+          title={"Logout Successful!"}
+          message="You have been logged Out Successfully! Click the link below to  return to the home page"
+          btnText="Return Home"
+          to="/dashboard/login"
+        />
+      )}
       <nav
         className="navbar navbar-expand shadow mb-4 topbar static-top navbar-light"
         style={{
@@ -294,28 +330,22 @@ const Topbar = () => {
                   data-bs-popper="none"
                   style={{ borderStyle: "none" }}
                 >
-                  <a
+                  <Link
                     className="dropdown-item"
-                    href="#"
+                    to="/dashboard/my-account"
                     style={{ borderStyle: "none" }}
                   >
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />
-                    &nbsp;Profile
-                  </a>
+                    &nbsp;My Account
+                  </Link>
+                  <div className="dropdown-divider" />
                   <a
                     className="dropdown-item"
                     href="#"
-                    style={{ borderStyle: "none" }}
+                    onClick={(e) => {
+                      handleLogout(e);
+                    }}
                   >
-                    <i className="fas fa-cogs fa-sm fa-fw me-2 text-gray-400" />
-                    &nbsp;Settings
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    <i className="fas fa-list fa-sm fa-fw me-2 text-gray-400" />
-                    &nbsp;Activity log
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
                     <i className="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;Logout
                   </a>
