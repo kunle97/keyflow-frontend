@@ -1,12 +1,15 @@
-import React, { Children, Fragment } from "react";
+import React, { Children, Fragment, useState } from "react";
 import Sidebar from "./Landlord/Navigation/Sidebar";
+
 import Topbar from "./Landlord/Navigation/Topbar";
+import SidebarDrawer from "./Landlord/Navigation/SidebarDrawer";
 
 const DashboardContainer = ({ children }) => {
+  const [muiSidebarMode, setMuiSidebarMode] = useState(false);
   return (
     <div id="wrapper">
       {/* Sidebar nav */}
-      <Sidebar />
+      {muiSidebarMode ? <SidebarDrawer /> : <Sidebar />}
       <div className="d-flex flex-column" id="content-wrapper">
         <div id="content" style={{ background: "#2c3a4a" }}>
           {/* Top Nav */}

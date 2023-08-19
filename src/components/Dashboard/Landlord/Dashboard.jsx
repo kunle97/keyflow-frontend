@@ -1,245 +1,30 @@
 import React from "react";
+import { faker } from "@faker-js/faker";
 
 const Dashboard = () => {
   return (
     <div className="container">
-      <div className="d-sm-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-light mb-0">Dashboard</h3>
-        <a
-          className="btn btn-primary btn-sm d-none d-sm-inline-block"
-          role="button"
-          href="#"
-          style={{ background: "#3aaf5c" }}
-        >
-          <i className="fas fa-download fa-sm text-white-50" />
-          &nbsp;Generate Report
-        </a>
-      </div>
       <div className="row">
-        <div className="col-md-6 col-xl-3 mb-4">
-          <div className="card shadow border-start-primary py-2">
-            <div className="card-body">
-              <div className="row align-items-center no-gutters">
-                <div className="col me-2">
-                  <div className="text-uppercase text-primary fw-bold text-xs mb-1">
-                    <span className="card-header-text">Total Profit</span>
-                  </div>
-                  <div className="text-dark fw-bold h5 mb-0">
-                    <span className="card-text">$40,000</span>
-                  </div>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-chart-bar fa-2x text-gray-300" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6 col-xl-3 mb-4">
-          <div className="card shadow border-start-success py-2">
-            <div className="card-body">
-              <div className="row align-items-center no-gutters">
-                <div className="col me-2">
-                  <div className="text-uppercase text-success fw-bold text-xs mb-1">
-                    <span className="card-header-text">Total Expenses</span>
-                  </div>
-                  <div className="text-dark fw-bold h5 mb-0">
-                    <span className="card-text">$215,000</span>
-                  </div>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-dollar-sign fa-2x text-gray-300" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6 col-xl-3 mb-4">
-          <div className="card shadow border-start-info py-2">
-            <div className="card-body">
-              <div className="row align-items-center no-gutters">
-                <div className="col me-2">
-                  <div className="text-uppercase text-info fw-bold text-xs mb-1">
-                    <span className="card-header-text">Monthly Income</span>
-                  </div>
-                  <div className="row g-0 align-items-center">
-                    <div className="col-auto">
-                      <div className="text-dark fw-bold h5 mb-0 me-3">
-                        <span className="card-text">50%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-chart-line fa-2x text-gray-300" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6 col-xl-3 mb-4">
-          <div className="card shadow border-start-warning py-2">
-            <div className="card-body">
-              <div className="row align-items-center no-gutters">
-                <div className="col me-2">
-                  <div className="text-uppercase text-warning fw-bold text-xs mb-1">
-                    <span className="card-header-text">Requests</span>
-                  </div>
-                  <div className="text-dark fw-bold h5 mb-0">
-                    <span className="card-text">18</span>
-                  </div>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-comments fa-2x text-gray-300" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row mb-3 ">
-            <div className="col">
-              <div className="card text-white bg-primary shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col">
-              <div className="card text-white bg-success shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-      <div className="row">
-        <div className="col-lg-7 col-xl-8">
-          <div className="card shadow mb-4">
-            <div className="card-header d-flex justify-content-between align-items-center">
+        <div className="col-md-12 ">
+          <div className="card shadow ">
+            {/* <div className="card-header d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 card-header-text">
                 Earnings Overview
               </h6>
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
+            </div> */}
             <div className="card-body">
-              <div
-                className="chart-area"
-                style={{ background: "#3aaf5c", color: "rgb(58,175,92)" }}
-              >
+              <div className="chart-area" style={{ color: "rgb(58,175,92)" }}>
                 <canvas data-bss-chart='{"type":"line","data":{"labels":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],"datasets":[{"label":"Earnings","fill":true,"data":["0","10000","5000","15000","10000","20000","15000","25000"],"backgroundColor":"rgba(78, 115, 223, 0.05)","borderColor":"rgba(78, 115, 223, 1)"}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"},"scales":{"xAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":true,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"],"drawOnChartArea":false},"ticks":{"fontColor":"#ffffff","fontStyle":"normal","padding":20}}],"yAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":true,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"]},"ticks":{"fontColor":"#ffffff","fontStyle":"normal","padding":20}}]}}}' />
               </div>
             </div>
           </div>
         </div>
-        <div className="col-lg-5 col-xl-4">
-          <div className="card shadow mb-4">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Revenue Sources
-              </h6>
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="card-body">
-              <div className="chart-area">
-                <canvas data-bss-chart='{"type":"doughnut","data":{"labels":["Direct","Social","Referral"],"datasets":[{"label":"","backgroundColor":["#4e73df","#1cc88a","#36b9cc"],"borderColor":["#ffffff","#ffffff","#ffffff"],"data":["50","30","15"]}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"}}}' />
-              </div>
-              <div className="text-center small mt-4">
-                <span className="me-2">
-                  <i className="fas fa-circle text-primary" />
-                  &nbsp;Property 1
-                </span>
-                <span className="me-2">
-                  <i className="fas fa-circle text-success" />
-                  &nbsp;House 2
-                </span>
-                <span className="me-2">
-                  <i className="fas fa-circle text-info" />
-                  &nbsp;House 3
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
+      <div className="d-sm-flex justify-content-between align-items-center mb-4"></div>
+
+      <div className="row">
+        {" "}
         <div className="col-lg-7 col-xl-8">
-          <div />
           <div className="card shadow">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 card-header-text">
@@ -586,11 +371,150 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        <div className="col-lg-5 col-xl-4">
+        <div className="col-lg-5  col-xl-4">
+          <div className="row mb-3 ">
+            <div className="col-6 mb-4">
+              <div className="card text-white bg-primary shadow">
+                <div className="card-body">
+                  <div className="row mb-2">
+                    <div className="col">
+                      <p className="m-0">Total Profit</p>
+                      <p className="m-0">
+                        <strong>${faker.finance.accountNumber(6)}</strong>
+                      </p>
+                    </div>
+                    <div className="col-auto">
+                      <i className="fas fa-chart-bar fa-2x text-gray-300" />
+                    </div>
+                  </div>
+                  <p className="text-white-50 small m-0">
+                    <i className="fas fa-arrow-up" />
+                    &nbsp;5% since last month
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 mb-4">
+              <div className="card text-white bg-success shadow">
+                <div className="card-body">
+                  <div className="row mb-2">
+                    <div className="col">
+                      <p className="m-0">Expense</p>
+                      <p className="m-0">
+                        <strong>${faker.finance.accountNumber(5)}</strong>
+                      </p>
+                    </div>
+                    <div className="col-auto">
+                      <i className="fas fa-dollar-sign fa-2x text-gray-300" />
+                    </div>
+                  </div>
+                  <p className="text-white-50 small m-0">
+                    <i className="fas fa-arrow-up" />
+                    &nbsp;5% since last month
+                  </p>
+                </div>
+              </div>
+            </div>{" "}
+            <div className="col-6 mb-4">
+              <div className="card text-white bg-success shadow">
+                <div className="card-body">
+                  <div className="row mb-2">
+                    <div className="col">
+                      <p className="m-0">Total Revenue</p>
+                      <p className="m-0">
+                        <strong>${faker.finance.accountNumber(7)}</strong>
+                      </p>
+                    </div>
+                    <div className="col-auto">
+                      <i className="fas fa-dollar-sign fa-2x text-gray-300" />
+                    </div>
+                  </div>
+                  <p className="text-white-50 small m-0">
+                    <i className="fas fa-arrow-up" />
+                    &nbsp;5% since last month
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 mb-4">
+              <div className="card text-white bg-primary shadow">
+                <div className="card-body">
+                  <div className="row mb-2">
+                    <div className="col">
+                      <p className="m-0">Peformance</p>
+                      <p className="m-0">
+                        <strong>65</strong>
+                      </p>
+                    </div>
+                    <div className="col-auto">
+                      <i className="fas fa-comments fa-2x text-gray-300" />
+                    </div>
+                  </div>
+                  <p className="text-white-50 small m-0">
+                    <i className="fas fa-arrow-up" />
+                    &nbsp;5% since last month
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="card shadow mb-4">
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h6 className="text-primary fw-bold m-0 card-header-text">
+                Revenue Sources
+              </h6>
+              <div className="dropdown no-arrow">
+                <button
+                  className="btn btn-link btn-sm dropdown-toggle"
+                  aria-expanded="false"
+                  data-bs-toggle="dropdown"
+                  type="button"
+                >
+                  <i className="fas fa-ellipsis-v text-gray-400" />
+                </button>
+                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                  <p className="text-center dropdown-header">
+                    dropdown header:
+                  </p>
+                  <a className="dropdown-item" href="#">
+                    &nbsp;Action
+                  </a>
+                  <a className="dropdown-item" href="#">
+                    &nbsp;Another action
+                  </a>
+                  <div className="dropdown-divider" />
+                  <a className="dropdown-item" href="#">
+                    &nbsp;Something else here
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="chart-area">
+                <canvas data-bss-chart='{"type":"doughnut","data":{"labels":["Direct","Social","Referral"],"datasets":[{"label":"","backgroundColor":["#4e73df","#1cc88a","#36b9cc"],"borderColor":["#ffffff","#ffffff","#ffffff"],"data":["50","30","15"]}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"}}}' />
+              </div>
+              <div className="text-center small mt-4">
+                <span className="me-2">
+                  <i className="fas fa-circle text-primary" />
+                  &nbsp;Property 1
+                </span>
+                <span className="me-2">
+                  <i className="fas fa-circle text-success" />
+                  &nbsp;House 2
+                </span>
+                <span className="me-2">
+                  <i className="fas fa-circle text-info" />
+                  &nbsp;House 3
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-5 col-xl-4 pt-4">
           <div className="card">
             <div className="card-header py-3">
               <h6 className="text-primary fw-bold m-0 card-header-text">
-                Rent Over Due
+                Rent Over Due Notice
               </h6>
             </div>
             <div className="card-body">

@@ -1,8 +1,7 @@
 import React from "react";
+import { authUser } from "../../constants";
 
 const MyAccount = () => {
-  //retrieve auth user from local storage
-  const authUser = JSON.parse(localStorage.getItem("authUser"));
   //Create state for username, email, first name, and last name
   const [username, setUsername] = React.useState(authUser.username);
   const [email, setEmail] = React.useState(authUser.email);

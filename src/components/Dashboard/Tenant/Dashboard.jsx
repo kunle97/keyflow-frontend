@@ -6,7 +6,7 @@ const Dashboard = () => {
       <div className="d-sm-flex justify-content-between align-items-center mb-4">
         <h3 className="text-light mb-0">Dashboard</h3>
         <a
-          className="btn btn-primary btn-sm d-none d-sm-inline-block"
+          className="btn btn-primary btn-sm d-none d-sm-inline-block border"
           role="button"
           href="#"
           style={{ background: "#3aaf5c" }}

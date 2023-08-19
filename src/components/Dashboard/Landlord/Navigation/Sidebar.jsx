@@ -1,5 +1,5 @@
-import React from "react";
-
+import React, {useState} from "react";
+import { Link } from "react-router-dom";
 const Sidebar = () => {
   return (
     <nav
@@ -32,54 +32,54 @@ const Sidebar = () => {
         <hr className="sidebar-divider my-0" />
         <ul className="navbar-nav text-light" id="accordionSidebar">
           <li className="nav-item">
-            <a className="nav-link" href="/dashboard">
+            <Link className="nav-link" to="/dashboard">
               <i className="fas fa-tachometer-alt" />
               <span>Dashboard</span>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/dashboard/tenants">
+            <Link className="nav-link" to="/dashboard/tenants">
               <i className="fa fa-group" />
               <span>Tenants</span>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/dashboard/properties">
+            <Link className="nav-link" to="/dashboard/properties">
               <i className="fa fa-home" />
               <span>Properties</span>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/dashboard/maintenance-requests">
+            <Link className="nav-link" to="/dashboard/maintenance-requests">
               <i className="fas fa-tools" />
               <span>Maintenance Requests</span>
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="/dashboard">
+            <Link className="nav-link" to="/dashboard">
               <i className="fas fa-user-circle" />
               <span>Lease Agreements</span>
-            </a>
+            </Link>
           </li>
           <li className="nav-item dropdown show">
-            <a
+            <Link
               className="dropdown-toggle nav-link"
               aria-expanded="true"
               data-bs-toggle="dropdown"
-              href="#"
+              to="#"
             >
               Dropdown
-            </a>
+            </Link>
             <div className="dropdown-menu " data-bs-popper="none">
-              <a className="dropdown-item" href="#">
+              <Link className="dropdown-item" to="#">
                 Item 1
-              </a>
-              <a className="dropdown-item" href="#">
+              </Link>
+              <Link className="dropdown-item" to="#">
                 Item 2
-              </a>
-              <a className="dropdown-item" href="#">
+              </Link>
+              <Link className="dropdown-item" to="#">
                 Item 3
-              </a>
+              </Link>
             </div>
           </li>
         </ul>

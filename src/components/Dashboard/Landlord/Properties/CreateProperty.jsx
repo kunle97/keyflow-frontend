@@ -1,14 +1,51 @@
-import React from "react";
-
+import React, { useState } from "react";
+import { createProperty } from "../../../../api/api";
+import { faker } from "@faker-js/faker";
+import { Typography } from "@mui/material";
+import { authUser } from "../../../../constants";
+import { useNavigate } from "react-router";
 const CreateProperty = () => {
+  //Create state variable that is a boolean to determine if we usee faker or not
+  const [enableFaker, setEnableFaker] = useState(true);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
+  
+  const navigate = useNavigate();
+
+  //Create a handle function to handle the form submission of creating a property
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    console.log(data);
+    const res = await createProperty(
+      data.name,
+      data.address,
+      data.city,
+      data.state,
+      data.zipcode,
+      data.country
+    );
+    console.log(res);
+    if(res.status === 200){
+      navigate("/dashboard/properties");
+    }
+  };
+
   return (
     <div className="container-fluid">
       <div className="row mb-3">
         <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">
-          <h3 className="text-white mb-4">Add Property</h3>
           <div className="card shadow mb-3">
+            <div className="card-header py-3">
+              <Typography>Add A Property</Typography>
+            </div>
             <div className="card-body">
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label text-white" htmlFor="address">
                     <strong>Name</strong>
@@ -20,12 +57,14 @@ const CreateProperty = () => {
                     placeholder="Lynx Society Highrises"
                     required
                     name="name"
+                    value={enableFaker ? faker.company.name() : name}
+                    onChange={(e) => setName(e.target.value)}
                     style={{ borderStyle: "none" }}
                   />
                 </div>
                 <div className="mb-3">
                   <label className="form-label text-white" htmlFor="address">
-                    <strong>Address</strong>
+                    <strong>Street Address</strong>
                   </label>
                   <input
                     className="form-control"
@@ -33,6 +72,10 @@ const CreateProperty = () => {
                     id="address-1"
                     placeholder="Sunset Blvd, 38"
                     name="address"
+                    value={
+                      enableFaker ? faker.location.streetAddress() : address
+                    }
+                    onChange={(e) => setAddress(e.target.value)}
                     required
                     style={{ borderStyle: "none" }}
                   />
@@ -49,6 +92,26 @@ const CreateProperty = () => {
                         id="city"
                         placeholder="Los Angeles"
                         name="city"
+                        value={enableFaker ? faker.location.city() : city}
+                        onChange={(e) => setCity(e.target.value)}
+                        required
+                        style={{ borderStyle: "none" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="col">
+                    <div className="mb-3">
+                      <label className="form-label text-white" htmlFor="state">
+                        <strong>State</strong>
+                      </label>
+                      <input
+                        className="form-control"
+                        type="text"
+                        id="state"
+                        placeholder="Los Angeles"
+                        name="state"
+                        value={enableFaker ? faker.location.state() : state}
+                        onChange={(e) => setState(e.target.value)}
                         required
                         style={{ borderStyle: "none" }}
                       />
@@ -58,67 +121,24 @@ const CreateProperty = () => {
                     <div className="mb-3">
                       <label
                         className="form-label text-white"
-                        htmlFor="country"
+                        htmlFor="zipcode"
                       >
-                        <strong>State</strong>
+                        <strong>Zip Code</strong>
                       </label>
-                      <select className="form-select">
-                        <option value>--</option>
-                        <option value="AL">Alabama</option>
-                        <option value="AK">Alaska</option>
-                        <option value="AZ">Arizona</option>
-                        <option value="AR">Arkansas</option>
-                        <option value="CA">California</option>
-                        <option value="CO">Colorado</option>
-                        <option value="CT">Connecticut</option>
-                        <option value="DE">Delaware</option>
-                        <option value="DC">District Of Columbia</option>
-                        <option value="FL">Florida</option>
-                        <option value="GA">Georgia</option>
-                        <option value="HI">Hawaii</option>
-                        <option value="ID">Idaho</option>
-                        <option value="IL">Illinois</option>
-                        <option value="IN">Indiana</option>
-                        <option value="IA">Iowa</option>
-                        <option value="KS">Kansas</option>
-                        <option value="KY">Kentucky</option>
-                        <option value="LA">Louisiana</option>
-                        <option value="ME">Maine</option>
-                        <option value="MD">Maryland</option>
-                        <option value="MA">Massachusetts</option>
-                        <option value="MI">Michigan</option>
-                        <option value="MN">Minnesota</option>
-                        <option value="MS">Mississippi</option>
-                        <option value="MO">Missouri</option>
-                        <option value="MT">Montana</option>
-                        <option value="NE">Nebraska</option>
-                        <option value="NV">Nevada</option>
-                        <option value="NH">New Hampshire</option>
-                        <option value="NJ">New Jersey</option>
-                        <option value="NM">New Mexico</option>
-                        <option value="NY">New York</option>
-                        <option value="NC">North Carolina</option>
-                        <option value="ND">North Dakota</option>
-                        <option value="OH">Ohio</option>
-                        <option value="OK">Oklahoma</option>
-                        <option value="OR">Oregon</option>
-                        <option value="PA">Pennsylvania</option>
-                        <option value="RI">Rhode Island</option>
-                        <option value="SC">South Carolina</option>
-                        <option value="SD">South Dakota</option>
-                        <option value="TN">Tennessee</option>
-                        <option value="TX">Texas</option>
-                        <option value="UT">Utah</option>
-                        <option value="VT">Vermont</option>
-                        <option value="VA">Virginia</option>
-                        <option value="WA">Washington</option>
-                        <option value="WV">West Virginia</option>
-                        <option value="WI">Wisconsin</option>
-                        <option value="WY">Wyoming</option>
-                      </select>
+                      <input
+                        className="form-control"
+                        type="text"
+                        id="zipcode"
+                        placeholder="90210"
+                        name="zipcode"
+                        value={enableFaker ? faker.location.zipCode() : zip}
+                        onChange={(e) => setZip(e.target.value)}
+                        required
+                        style={{ borderStyle: "none" }}
+                      />
                     </div>
                   </div>
-                  <div className="col">
+                  <div className="col-md-12">
                     <div className="mb-3">
                       <label
                         className="form-label text-white"
@@ -129,63 +149,10 @@ const CreateProperty = () => {
                       <input
                         className="form-control"
                         type="text"
-                        id="country-1"
-                        placeholder="USA"
+                        id="country"
+                        placeholder="United States"
+                        value={"United States"}
                         name="country"
-                        required
-                        style={{ borderStyle: "none" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col">
-                    <div>
-                      <label className="form-label text-white">Beds</label>
-                      <input
-                        className="form-control form-control"
-                        type="number"
-                        name="beds"
-                        defaultValue={1}
-                        required
-                        style={{ borderStyle: "none" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="col">
-                    <div>
-                      <label className="form-label text-white">Baths</label>
-                      <input
-                        className="form-control form-control"
-                        type="number"
-                        name="baths"
-                        defaultValue={1}
-                        required
-                        style={{ borderStyle: "none" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col">
-                    <div className="mt-3">
-                      <label className="form-label text-white">
-                        Property Value (Original)
-                      </label>
-                      <input
-                        className="form-control form-control"
-                        type="text"
-                        required
-                        style={{ borderStyle: "none" }}
-                      />
-                    </div>
-                    <div className="mt-3">
-                      <label className="form-label text-white">
-                        MLS# (Optional)
-                      </label>
-                      <input
-                        className="form-control form-control"
-                        type="text"
                         required
                         style={{ borderStyle: "none" }}
                       />

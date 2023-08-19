@@ -98,7 +98,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/units/create",
+    path: "/dashboard/units/create/:property_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateUnit />

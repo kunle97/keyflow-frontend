@@ -4,16 +4,17 @@ import { logout } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import AlertModal from "../../AlertModal";
 import { Link } from "react-router-dom";
+import { authUser, token } from "../../../../constants";
 const Topbar = () => {
+  //Retrieve authUser from localStorage
+  
   const [open, setOpen] = useState(false);
-  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
+  // const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
     e.preventDefault();
 
-    //retrieve token from local storage
-    const token = localStorage.getItem("accessToken");
 
     //call logout api
     const response = await logout(token);
@@ -21,8 +22,8 @@ const Topbar = () => {
     
     if (response.status == 200) {
       //Set authUser and isLoggedIn in context
-      setAuthUser({});
-      setIsLoggedIn(false);
+      // setAuthUser({});
+      // setIsLoggedIn(false);
       setOpen(true);
     }
   };
@@ -318,7 +319,7 @@ const Topbar = () => {
                   href="#"
                 >
                   <span className="d-none d-lg-inline me-2 text-gray-600 small">
-                    Valerie Luna
+                    {authUser.first_name} {authUser.last_name}
                   </span>
                   <img
                     className="border rounded-circle img-profile"

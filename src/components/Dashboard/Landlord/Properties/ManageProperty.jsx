@@ -1,60 +1,85 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import { getProperty } from "../../../../api/api";
+import { CircularProgress, Typography } from "@mui/material";
+import { updateProperty } from "../../../../api/api";
+import { useNavigate } from "react-router";
+import MUIDataTable from "mui-datatables";
+import { Box, Button } from "@mui/material";
+import { Link } from "react-router-dom";
+import UIButton from "../../UIButton";
+import { getUnits } from "../../../../api/api";
 
 const ManageProperty = () => {
+  const { id } = useParams();
+  const [property, setProperty] = useState({});
+  //Create state variables for each property field
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
+  const [units, setUnits] = useState([]);
+  //create a loading variable to display a loading message while the units are  being retrieved
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const columns = ["name", "beds", "baths", "rent"];
+
+  useEffect(() => {
+    getProperty(id).then((res) => {
+      console.log(res);
+      setProperty(res);
+      setName(res.name);
+      setAddress(res.address);
+      setCity(res.city);
+      setState(res.state);
+      setZip(res.zip_code);
+      setCountry(res.country);
+      setUnits(res.units);
+      
+    });
+    //Retireve the units for the property
+    getUnits(id).then((res) => {
+      console.log(res);
+      setUnits(res.data);
+      setIsLoading(false);
+    });
+
+  }, []);
+  const handleRowClick = (rowData, rowMeta) => {
+    console.log(rowData);
+  };
+  const options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+  };
+
+  //Create a handle function to handle the form submission of updating property info
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    console.log(data);
+    const res = await updateProperty(id, data);
+    console.log(res);
+    if (res.status === 200) {
+      navigate(`/dashboard/properties/${id}`);
+    }
+  };
+
   return (
     <div className="container">
       <div className="row mb-3">
         <div className="col-lg-12">
-          <div className="row mb-3 d-none">
-            <div className="col">
-              <div className="card text-white bg-primary shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col">
-              <div className="card text-white bg-success shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
           <div className="row">
             <div className="col">
               <div className="card shadow mb-3">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h6 className="text-primary fw-bold m-0 card-header-text">
-                    Address
+                      Address
                   </h6>
                   <div className="dropdown no-arrow">
                     <button
@@ -83,7 +108,22 @@ const ManageProperty = () => {
                   </div>
                 </div>
                 <div className="card-body">
-                  <form>
+                  <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                      <label className="form-label text-white" htmlFor="name">
+                        <strong>Name</strong>
+                      </label>
+                      <input
+                        className="form-control"
+                        type="text"
+                        id="name"
+                        placeholder="Sunset Blvd, 38"
+                        name="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        style={{ borderStyle: "none" }}
+                      />
+                    </div>
                     <div className="mb-3">
                       <label
                         className="form-label text-white"
@@ -97,6 +137,8 @@ const ManageProperty = () => {
                         id="address"
                         placeholder="Sunset Blvd, 38"
                         name="address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
                         style={{ borderStyle: "none" }}
                       />
                     </div>
@@ -115,6 +157,8 @@ const ManageProperty = () => {
                             id="city"
                             placeholder="Los Angeles"
                             name="city"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
                             style={{ borderStyle: "none" }}
                           />
                         </div>
@@ -123,67 +167,43 @@ const ManageProperty = () => {
                         <div className="mb-3">
                           <label
                             className="form-label text-white"
-                            htmlFor="country"
+                            htmlFor="state"
                           >
                             <strong>State</strong>
                           </label>
-                          <select className="form-select">
-                            <option value>--</option>
-                            <option value="AL">Alabama</option>
-                            <option value="AK">Alaska</option>
-                            <option value="AZ">Arizona</option>
-                            <option value="AR">Arkansas</option>
-                            <option value="CA">California</option>
-                            <option value="CO">Colorado</option>
-                            <option value="CT">Connecticut</option>
-                            <option value="DE">Delaware</option>
-                            <option value="DC">District Of Columbia</option>
-                            <option value="FL">Florida</option>
-                            <option value="GA">Georgia</option>
-                            <option value="HI">Hawaii</option>
-                            <option value="ID">Idaho</option>
-                            <option value="IL">Illinois</option>
-                            <option value="IN">Indiana</option>
-                            <option value="IA">Iowa</option>
-                            <option value="KS">Kansas</option>
-                            <option value="KY">Kentucky</option>
-                            <option value="LA">Louisiana</option>
-                            <option value="ME">Maine</option>
-                            <option value="MD">Maryland</option>
-                            <option value="MA">Massachusetts</option>
-                            <option value="MI">Michigan</option>
-                            <option value="MN">Minnesota</option>
-                            <option value="MS">Mississippi</option>
-                            <option value="MO">Missouri</option>
-                            <option value="MT">Montana</option>
-                            <option value="NE">Nebraska</option>
-                            <option value="NV">Nevada</option>
-                            <option value="NH">New Hampshire</option>
-                            <option value="NJ">New Jersey</option>
-                            <option value="NM">New Mexico</option>
-                            <option value="NY">New York</option>
-                            <option value="NC">North Carolina</option>
-                            <option value="ND">North Dakota</option>
-                            <option value="OH">Ohio</option>
-                            <option value="OK">Oklahoma</option>
-                            <option value="OR">Oregon</option>
-                            <option value="PA">Pennsylvania</option>
-                            <option value="RI">Rhode Island</option>
-                            <option value="SC">South Carolina</option>
-                            <option value="SD">South Dakota</option>
-                            <option value="TN">Tennessee</option>
-                            <option value="TX">Texas</option>
-                            <option value="UT">Utah</option>
-                            <option value="VT">Vermont</option>
-                            <option value="VA">Virginia</option>
-                            <option value="WA">Washington</option>
-                            <option value="WV">West Virginia</option>
-                            <option value="WI">Wisconsin</option>
-                            <option value="WY">Wyoming</option>
-                          </select>
+                          <input
+                            className="form-control"
+                            type="text"
+                            id="state"
+                            placeholder="California"
+                            name="state"
+                            value={state}
+                            onChange={(e) => setState(e.target.value)}
+                            style={{ borderStyle: "none" }}
+                          />
                         </div>
                       </div>
                       <div className="col-sm-12 col-md-4 col-lg-4">
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="zipcode"
+                          >
+                            <strong>Zip Code</strong>
+                          </label>
+                          <input
+                            className="form-control"
+                            type="text"
+                            id="zip_code"
+                            placeholder="USA"
+                            name="zip_code"
+                            value={zip}
+                            onChange={(e) => setZip(e.target.value)}
+                            style={{ borderStyle: "none" }}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-sm-12 col-md-12 col-lg-12">
                         <div className="mb-3">
                           <label
                             className="form-label text-white"
@@ -197,6 +217,8 @@ const ManageProperty = () => {
                             id="country-1"
                             placeholder="USA"
                             name="country"
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
                             style={{ borderStyle: "none" }}
                           />
                         </div>
@@ -363,405 +385,42 @@ const ManageProperty = () => {
                 </div>
                 <div className="col-md-8 col-sm-12">
                   <div className="card shadow">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      <h6 className="text-primary fw-bold m-0 card-header-text">
-                        Units
-                      </h6>
-                      <div className="dropdown no-arrow">
-                        <button
-                          className="btn btn-link btn-sm dropdown-toggle"
-                          aria-expanded="false"
-                          data-bs-toggle="dropdown"
-                          type="button"
-                        >
-                          <i className="fas fa-ellipsis-v text-gray-400" />
-                        </button>
-                        <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                          <p className="text-center dropdown-header">
-                            dropdown header:
-                          </p>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Action
-                          </a>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Another action
-                          </a>
-                          <div className="dropdown-divider" />
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Something else here
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="card-body">
-                      <div className="heading-container overflow-auto mb-3">
-                        <a
-                          className="btn btn-primary float-end ui-btn"
-                          role="button"
-                          href="/dashboard/units/create"
-                        >
-                          Add New Unit
-                        </a>
-                      </div>
-                      <div className="row">
-                        <div className="col-md-6 text-nowrap">
-                          <div
-                            id="dataTable_length"
-                            className="dataTables_length"
-                            aria-controls="dataTable"
-                          >
-                            <label className="form-label text-white">
-                              Show&nbsp;
-                              <select
-                                className="d-inline-block form-select form-select-sm"
-                                style={{ borderStyle: "none" }}
+
+                    {isLoading ? (
+                      <Box sx={{ display: "flex" }}>
+                        <Box m={"55px auto"}>
+                          <CircularProgress sx={{color:"#3aaf5c"}}/>
+                        </Box>
+                      </Box>
+                    ) : (
+                      <>
+                        {" "}
+                        {units.length === 0 ? (
+                          <Box display={"flex"}>
+                            <Box m={"auto"}>
+                              <Typography
+                                mt={5}
+                                color={"white"}
+                                textAlign={"center"}
                               >
-                                <option value={10} selected>
-                                  10
-                                </option>
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
-                              </select>
-                              &nbsp;
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div
-                            className="text-md-end dataTables_filter"
-                            id="dataTable_filter"
-                          >
-                            <label className="form-label">
-                              <input
-                                type="search"
-                                className="form-control form-control-sm"
-                                aria-controls="dataTable"
-                                placeholder="Search"
-                                style={{
-                                  borderStyle: "none",
-                                  color: "rgb(255,255,255)",
-                                }}
+                                No units created
+                              </Typography>
+                              <UIButton
+                                to={`/dashboard/units/create/${id}`}
+                                btnText="Create Unit"
                               />
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className="table-responsive table mt-2"
-                        id="dataTable-1"
-                        role="grid"
-                        aria-describedby="dataTable_info"
-                      >
-                        <table
-                          className="table table-hover my-0"
-                          id="dataTable"
-                        >
-                          <thead>
-                            <tr>
-                              <th>Occupant</th>
-                              <th>Rent Payment</th>
-                              <th>Lease End</th>
-                              <th>Unit #</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar1.jpeg"
-                                />
-                                Airi Satou
-                              </td>
-                              <td>Accountant</td>
-                              <td>Tokyo</td>
-                              <td>33</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar2.jpeg"
-                                />
-                                Angelica Ramos
-                              </td>
-                              <td>Chief Executive Officer(CEO)</td>
-                              <td>London</td>
-                              <td>47</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar3.jpeg"
-                                />
-                                Ashton Cox
-                              </td>
-                              <td>Junior Technical Author</td>
-                              <td>San Francisco</td>
-                              <td>66</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar4.jpeg"
-                                />
-                                Bradley Greer
-                              </td>
-                              <td>Software Engineer</td>
-                              <td>London</td>
-                              <td>41</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar5.jpeg"
-                                />
-                                Brenden Wagner
-                              </td>
-                              <td>Software Engineer</td>
-                              <td>San Francisco</td>
-                              <td>28</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar1.jpeg"
-                                />
-                                Brielle Williamson
-                              </td>
-                              <td>Integration Specialist</td>
-                              <td>New York</td>
-                              <td>61</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar2.jpeg"
-                                />
-                                Bruno Nash
-                                <br />
-                              </td>
-                              <td>Software Engineer</td>
-                              <td>London</td>
-                              <td>38</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar3.jpeg"
-                                />
-                                Caesar Vance
-                              </td>
-                              <td>Pre-Sales Support</td>
-                              <td>New York</td>
-                              <td>21</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar4.jpeg"
-                                />
-                                Cara Stevens
-                              </td>
-                              <td>Sales Assistant</td>
-                              <td>New York</td>
-                              <td>46</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <img
-                                  className="rounded-circle me-2"
-                                  width={30}
-                                  height={30}
-                                  src="../assets/img/avatars/avatar5.jpeg"
-                                />
-                                Cedric Kelly
-                              </td>
-                              <td>Senior JavaScript Developer</td>
-                              <td>Edinburgh</td>
-                              <td>22</td>
-                              <td>
-                                <button
-                                  className="btn btn-primary ui-btn"
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                          </tbody>
-                          <tfoot>
-                            <tr>
-                              <td>
-                                <strong>Occupant</strong>
-                              </td>
-                              <td>
-                                <strong>Position</strong>
-                              </td>
-                              <td>
-                                <strong>Office</strong>
-                              </td>
-                              <td>
-                                <strong>Unit #</strong>
-                              </td>
-                              <td>
-                                <strong>Action</strong>
-                              </td>
-                            </tr>
-                          </tfoot>
-                        </table>
-                      </div>
-                      <div className="row">
-                        <div className="col-md-6 align-self-center">
-                          <p
-                            className="text-white dataTables_info"
-                            id="dataTable_info"
-                            role="status"
-                            aria-live="polite"
-                          >
-                            Showing 1 to 10 of 27
-                          </p>
-                        </div>
-                        <div className="col-md-6">
-                          <nav className="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
-                            <ul className="pagination">
-                              <li className="page-item disabled">
-                                <a
-                                  className="page-link"
-                                  aria-label="Previous"
-                                  href="#"
-                                >
-                                  <span aria-hidden="true">«</span>
-                                </a>
-                              </li>
-                              <li className="page-item active">
-                                <a className="page-link" href="#">
-                                  1
-                                </a>
-                              </li>
-                              <li className="page-item">
-                                <a className="page-link" href="#">
-                                  2
-                                </a>
-                              </li>
-                              <li className="page-item">
-                                <a className="page-link" href="#">
-                                  3
-                                </a>
-                              </li>
-                              <li className="page-item">
-                                <a
-                                  className="page-link"
-                                  aria-label="Next"
-                                  href="#"
-                                >
-                                  <span aria-hidden="true">»</span>
-                                </a>
-                              </li>
-                            </ul>
-                          </nav>
-                        </div>
-                      </div>
-                    </div>
+                            </Box>
+                          </Box>
+                        ) : (
+                          <MUIDataTable
+                            title={"Units"}
+                            data={units}
+                            columns={columns}
+                            options={options}
+                          />
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
