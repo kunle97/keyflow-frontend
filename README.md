@@ -2,7 +2,7 @@
 
 ## Setup
 1. Upon cloning or donwloading navigate to project folder and run `npm install`
-2. After installation run `npm runs start` to run the application
+2. After installation run `npm run start` to run the application
 
  ## How To Run  
 1. Set up database and run the backend applciation. See [here](https://github.com/kunle97/keyflow-backend)
