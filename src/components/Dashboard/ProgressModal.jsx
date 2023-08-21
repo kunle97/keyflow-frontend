@@ -1,6 +1,10 @@
 import React from "react";
-import { Modal, Box, Typography, Button } from "@mui/material";
-import { Link } from "react-router-dom";
+import {
+  Modal,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { uiGreen } from "../../constants";
 
 const style = {
@@ -15,7 +19,7 @@ const style = {
   p: 4,
 };
 
-const AlertModal = (props) => {
+const ProgressModal = (props) => {
   return (
     <Modal
       open={props.open}
@@ -27,23 +31,14 @@ const AlertModal = (props) => {
         <Typography id="modal-modal-title" variant="h6" component="h2">
           {props.title}
         </Typography>
-        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          {props.message}
-        </Typography>
-        <a href={props.to}>
-          <Button
-            style={{
-              marginTop: "20px",
-              backgroundColor: uiGreen,
-            }}
-            variant="contained"
-          >
-            {props.btnText}
-          </Button>
-        </a>
+        <Box sx={{ display: "flex" }}>
+          <Box m={"55px auto"}>
+            <CircularProgress sx={{ color: uiGreen }} />
+          </Box>
+        </Box>
       </Box>
     </Modal>
   );
 };
 
-export default AlertModal;
+export default ProgressModal;

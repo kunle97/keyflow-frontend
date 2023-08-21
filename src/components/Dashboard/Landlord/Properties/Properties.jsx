@@ -4,6 +4,7 @@ import { getProperties } from "../../../../api/api";
 import MUIDataTable from "mui-datatables";
 import { Typography, CircularProgress, Box } from "@mui/material";
 import { green } from "@mui/material/colors";
+import { uiGreen } from "../../../../constants";
 const Properties = () => {
   const [properties, setProperties] = React.useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +53,7 @@ const Properties = () => {
         {isLoading ? (
           <Box sx={{ display: "flex" }}>
             <Box m={"55px auto"}>
-              <CircularProgress sx={{color:"#3aaf5c"}} />
+              <CircularProgress sx={{color:uiGreen}} />
             </Box>
           </Box>
         ) : (

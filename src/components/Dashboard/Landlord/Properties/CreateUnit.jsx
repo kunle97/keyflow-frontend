@@ -1,15 +1,19 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { createUnit } from "../../../../api/api";
 import { useNavigate, useParams } from "react-router-dom";
+import { faker } from "@faker-js/faker";
+import BackButton from "../../BackButton";
+
 const CreateUnit = () => {
   //Create a state for the form data
+  const [nameGen, setNameGen] = useState(true);
   const [name, setName] = useState("");
   const [rent, setRent] = useState(1000);
   const [beds, setBeds] = useState(1);
   const [baths, setBaths] = useState(1);
   const navigate = useNavigate();
-  const {property_id} = useParams();
-//Call the create unit api function and pass the form data
+  const { property_id } = useParams();
+  //Call the create unit api function and pass the form data
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -23,18 +27,23 @@ const CreateUnit = () => {
   };
 
   return (
-    <div className="container-fluid">
+    <div className="container">
       <div className="row mb-3">
         <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">
-          <div className="card shadow mb-3">
-          <div className="card-header p-3">
-            <h6 className="text-primary fw-bold m-0 card-header-text">
-              Create Unit
-            </h6>
-          </div>
+          <BackButton />
+          <div className="card shadow my-3">
+            <div className="card-header p-3">
+              <h6 className="text-primary fw-bold m-0 card-header-text">
+                Create Unit
+              </h6>
+            </div>
             <div className="card-body">
-              <form onSubmit={handleSubmit}> 
-                <input type="hidden" name="rental_property" value={property_id} />
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="hidden"
+                  name="rental_property"
+                  value={property_id}
+                />
                 <div className="mb-3">
                   <label className="form-label text-white" htmlFor="name">
                     <strong>Unit #/Name</strong>
@@ -46,6 +55,14 @@ const CreateUnit = () => {
                     placeholder="5B"
                     name="name"
                     required
+                    value={
+                      nameGen
+                        ? `${faker.string.alpha()}${faker.finance.accountNumber(
+                            1
+                          )}`
+                        : `${name}`
+                    }
+                    onChange={(e) => setName(e.target.value)}
                     style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
                   />
                 </div>
@@ -59,8 +76,8 @@ const CreateUnit = () => {
                     id="rent"
                     placeholder="Sunset Blvd, 38"
                     name="rent"
-                    value={rent}
-                    onChange={(e) => setRent(e.target.value) }
+                    value={nameGen ? faker.finance.accountNumber(4) : rent}
+                    onChange={(e) => setRent(e.target.value)}
                     required
                     style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
                   />
@@ -80,7 +97,8 @@ const CreateUnit = () => {
                           borderStyle: "none",
                           color: "rgb(255,255,255)",
                         }}
-                        min="1" step="1"
+                        min="1"
+                        step="1"
                       />
                     </div>
                   </div>
@@ -98,7 +116,8 @@ const CreateUnit = () => {
                           borderStyle: "none",
                           color: "rgb(255,255,255)",
                         }}
-                        min="1" step="1"
+                        min="1"
+                        step="1"
                       />
                     </div>
                   </div>

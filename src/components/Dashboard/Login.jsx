@@ -4,6 +4,9 @@ import { useNavigate } from "react-router";
 import { login, logout } from "../../api/api";
 import { useAuth } from "../../contexts/AuthContext";
 import AlertModal from "./AlertModal";
+import { uiGreen } from "../../constants";
+import { Input, Button, Typography } from "@mui/material";
+import UIButton from "./UIButton";
 const Login = () => {
   const [email, setEmail] = useState("testlandlord3@email.com");
   const [password, setPassword] = useState("password");
@@ -23,14 +26,6 @@ const Login = () => {
       localStorage.setItem("accessToken", response.token);
       //Save auth user in local storage
       localStorage.setItem("authUser", JSON.stringify(response.userData));
-      console.log(
-        "Local storage Access token",
-        localStorage.getItem("accessToken")
-      );
-      console.log(
-        "Local storage User Data",
-        localStorage.getItem("authUser")
-      );
       setAuthUser(response.userData);
       setIsLoggedIn(true);
 
@@ -40,11 +35,10 @@ const Login = () => {
       setErrMsg(response.message);
     }
     setOpen(true);
-    
   };
 
   return (
-    <div className="container">
+    <div className="container-fluid" style={{ padding: 0 }}>
       {open && (
         <AlertModal
           open={true}
@@ -55,94 +49,105 @@ const Login = () => {
           to="/dashboard"
         />
       )}
-      <div className="row justify-content-center">
-        <div className="col-md-6 col-lg-6 col-xl-10">
-          <div className="card shadow-lg o-hidden border-0 my-5">
-            <div className="card-body p-0">
-              <div className="row">
-                <div className="col-lg-12">
-                  <div className="p-5">
-                    <div className="text-center">
-                      <h4
-                        className="text-light mb-4"
-                        style={{ color: "rgb(255,255,255)" }}
+      <div className="row">
+        <div
+          className="col-md-8 d-xs-none d-sm-none d-md-block "
+          style={{
+            background: "url('/assets/img/login-page-banner.jpg')",
+            backgroundSize: "cover",
+            height: "100vh",
+          }}
+        >
+          {/* <img style={{width:"100%"}} src="/assets/img/login-page-banner.jpg" /> */}
+        </div>
+        {/* d-flex justify-content-center */}
+
+        <div className="col-md-4 login-col " style={{paddingTop: "400px", paddingLeft:"100px", paddingRight:"200px"}}>
+          <div className="row">
+            <div className=" ">
+              <img
+                style={{ width: "350px", marginBottom: "25px" }}
+                src="/assets/img/key-flow-logo-white-transparent.png"
+              />
+              <form className="user" onSubmit={(e) => handleSubmit(e)}>
+                <div className="mb-3">
+                  <Input
+                    className="form-control form-control-user"
+                    type="email"
+                    id="exampleInputEmail"
+                    aria-describedby="emailHelp"
+                    placeholder="Enter Email Address..."
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <Input
+                    className="form-control form-control-user"
+                    type="password"
+                    id="exampleInputPassword"
+                    placeholder="Password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <div className="custom-control custom-checkbox small">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input custom-control-input"
+                        type="checkbox"
+                        id="formCheck-1"
+                      />
+                      <label
+                        className="form-check-label custom-control-label"
+                        htmlFor="formCheck-1"
                       >
-                        Login
-                      </h4>
-                    </div>
-                    <form className="user" onSubmit={(e) => handleSubmit(e)}>
-                      <div className="mb-3">
-                        <input
-                          className="form-control form-control-user"
-                          type="email"
-                          id="exampleInputEmail"
-                          aria-describedby="emailHelp"
-                          placeholder="Enter Email Address..."
-                          name="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
-                      <div className="mb-3">
-                        <input
-                          className="form-control form-control-user"
-                          type="password"
-                          id="exampleInputPassword"
-                          placeholder="Password"
-                          name="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </div>
-                      <div className="mb-3">
-                        <div className="custom-control custom-checkbox small">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input custom-control-input"
-                              type="checkbox"
-                              id="formCheck-1"
-                            />
-                            <label
-                              className="form-check-label custom-control-label"
-                              htmlFor="formCheck-1"
-                            >
-                              Remember Me
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      {errMsg && (
-                        <p className="mb-2 text-error w-full text-center text-danger">
-                          {errMsg}
-                        </p>
-                      )}
-                      <button
-                        className="btn btn-primary d-block btn-user w-100 ui-btn"
-                        type="submit"
-                      >
-                        Login
-                      </button>
-                    </form>
-                    <div className="text-center">
-                      <a
-                        className="small"
-                        href="forgot-password.html"
-                        style={{ color: "#3aaf5c" }}
-                      >
-                        Forgot Password?
-                      </a>
-                    </div>
-                    <div className="text-center">
-                      <a
-                        className="small"
-                        href="register.html"
-                        style={{ color: "#3aaf5c" }}
-                      >
-                        Create an Account!
-                      </a>
+                        Remember Me
+                      </label>
                     </div>
                   </div>
                 </div>
+                {errMsg && (
+                  <p className="mb-2 text-error w-full text-center text-danger">
+                    {errMsg}
+                  </p>
+                )}
+                <Button
+                  className="d-block w-100 ui-btN"
+                  type="submit"
+                  style={{
+                    backgroundColor: uiGreen,
+                    textTransform: "none",
+                    padding: "10px",
+                    fontSize: "12pt",
+                    fontWeight: "lighter",
+                    margin: "25px 0"
+                  }}
+                  variant="contained"
+                >
+                  Login
+                </Button>
+              </form>
+              <div className="mb-2">
+                <a
+                  className="small"
+                  href="forgot-password.html"
+                  style={{ color: uiGreen }}
+                >
+                  Forgot Password?
+                </a>
+              </div>
+              <div className="mb-2">
+                <a
+                  className="small"
+                  href="/dashboard/register"
+                  style={{ color: uiGreen }}
+                >
+                  Create an Account!
+                </a>
               </div>
             </div>
           </div>

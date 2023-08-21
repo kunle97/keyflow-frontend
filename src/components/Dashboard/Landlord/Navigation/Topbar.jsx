@@ -4,7 +4,8 @@ import { logout } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import AlertModal from "../../AlertModal";
 import { Link } from "react-router-dom";
-import { authUser, token } from "../../../../constants";
+import { authUser, token, uiGreen } from "../../../../constants";
+import { faker } from "@faker-js/faker";
 const Topbar = () => {
   //Retrieve authUser from localStorage
   
@@ -66,7 +67,7 @@ const Topbar = () => {
               <button
                 className="btn btn-primary py-0"
                 type="button"
-                style={{ background: "#3aaf5c", borderStyle: "none" }}
+                style={{ background: uiGreen, borderStyle: "none" }}
               >
                 <i className="fas fa-search" />
               </button>
@@ -116,7 +117,7 @@ const Topbar = () => {
                 <div className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
                   <h6
                     className="dropdown-header"
-                    style={{ background: "#3aaf5c", borderStyle: "none" }}
+                    style={{ background: uiGreen, borderStyle: "none" }}
                   >
                     alerts center
                   </h6>
@@ -197,7 +198,7 @@ const Topbar = () => {
                 >
                   <h6
                     className="dropdown-header"
-                    style={{ background: "#3aaf5c", borderStyle: "none" }}
+                    style={{ background: uiGreen, borderStyle: "none" }}
                   >
                     Messages
                   </h6>
@@ -323,7 +324,7 @@ const Topbar = () => {
                   </span>
                   <img
                     className="border rounded-circle img-profile"
-                    src="../assets/img/avatars/avatar1.jpeg"
+                    src={faker.internet.avatar()}
                   />
                 </a>
                 <div

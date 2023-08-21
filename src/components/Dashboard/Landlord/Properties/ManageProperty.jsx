@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { getProperty } from "../../../../api/api";
-import { CircularProgress, Typography } from "@mui/material";
+import {
+  Alert,
+  Card,
+  CircularProgress,
+  Snackbar,
+  Typography,
+} from "@mui/material";
 import { updateProperty } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import MUIDataTable from "mui-datatables";
@@ -9,6 +15,8 @@ import { Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import UIButton from "../../UIButton";
 import { getUnits } from "../../../../api/api";
+import { uiGreen } from "../../../../constants";
+import BackButton from "../../BackButton";
 
 const ManageProperty = () => {
   const { id } = useParams();
@@ -25,7 +33,19 @@ const ManageProperty = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const columns = ["name", "beds", "baths", "rent"];
+  const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
+  const [responseMessage, setResponseMessage] = useState("Property updated");
+  const [alertSeverity, setAlertSeverity] = useState("success");
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setShowUpdateSuccess(false);
+  };
+
+  const columns = ["id", "name", "beds", "baths", "rent"];
 
   useEffect(() => {
     getProperty(id).then((res) => {
@@ -38,18 +58,21 @@ const ManageProperty = () => {
       setZip(res.zip_code);
       setCountry(res.country);
       setUnits(res.units);
-      
     });
+  }, []);
+
+  useEffect(() => {
     //Retireve the units for the property
     getUnits(id).then((res) => {
       console.log(res);
       setUnits(res.data);
       setIsLoading(false);
     });
+  }, [property]);
 
-  }, []);
   const handleRowClick = (rowData, rowMeta) => {
-    console.log(rowData);
+    const navlink = `/dashboard/units/${rowData[0]}/${property.id}`;
+    navigate(navlink);
   };
   const options = {
     filter: true,
@@ -65,21 +88,41 @@ const ManageProperty = () => {
     console.log(data);
     const res = await updateProperty(id, data);
     console.log(res);
-    if (res.status === 200) {
-      navigate(`/dashboard/properties/${id}`);
+    if (res.id) {
+      setShowUpdateSuccess(true);
+      setAlertSeverity("success");
+      setResponseMessage("Property updated");
+    } else {
+      setShowUpdateSuccess(true);
+      setAlertSeverity("error");
+      setResponseMessage("Something went wrong");
     }
   };
 
   return (
     <div className="container">
+      <Snackbar
+        open={showUpdateSuccess}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={alertSeverity}
+          sx={{ width: "100%" }}
+        >
+          <>{responseMessage}</>
+        </Alert>
+      </Snackbar>
       <div className="row mb-3">
         <div className="col-lg-12">
+          <BackButton />
           <div className="row">
             <div className="col">
               <div className="card shadow mb-3">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h6 className="text-primary fw-bold m-0 card-header-text">
-                      Address
+                    Address
                   </h6>
                   <div className="dropdown no-arrow">
                     <button
@@ -384,44 +427,60 @@ const ManageProperty = () => {
                   </div>
                 </div>
                 <div className="col-md-8 col-sm-12">
-                  <div className="card shadow">
-
-                    {isLoading ? (
-                      <Box sx={{ display: "flex" }}>
-                        <Box m={"55px auto"}>
-                          <CircularProgress sx={{color:"#3aaf5c"}}/>
-                        </Box>
+                  {isLoading ? (
+                    <Box sx={{ display: "flex" }}>
+                      <Box m={"55px auto"}>
+                        <CircularProgress sx={{ color: uiGreen }} />
                       </Box>
-                    ) : (
-                      <>
-                        {" "}
-                        {units.length === 0 ? (
-                          <Box display={"flex"}>
-                            <Box m={"auto"}>
-                              <Typography
-                                mt={5}
-                                color={"white"}
-                                textAlign={"center"}
-                              >
-                                No units created
-                              </Typography>
-                              <UIButton
-                                to={`/dashboard/units/create/${id}`}
-                                btnText="Create Unit"
-                              />
-                            </Box>
+                    </Box>
+                  ) : (
+                    <>
+                      {" "}
+                      {units.length === 0 ? (
+                        <Box display={"flex"}>
+                          <Box m={"auto"}>
+                            <Typography
+                              mt={5}
+                              color={"white"}
+                              textAlign={"center"}
+                            >
+                              No units created
+                            </Typography>
+                            <UIButton
+                              to={`/dashboard/units/create/${id}`}
+                              btnText="Create Unit"
+                            />
                           </Box>
-                        ) : (
-                          <MUIDataTable
-                            title={"Units"}
-                            data={units}
-                            columns={columns}
-                            options={options}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
+                        </Box>
+                      ) : (
+                        <>
+                          <Box sx={{overflow:"auto"}} >
+                            <Link to={`/dashboard/units/create/${id}`}>
+                              <Button
+                                style={{
+                                  marginBottom: "20px",
+                                  backgroundColor: uiGreen,
+                                  float: "right",
+                                  color:"white",
+                                  textTransform:"none"
+                                }}
+                              >
+                                Add Unit
+                              </Button>
+                            </Link>
+                          </Box>
+                          <Card>
+                            <MUIDataTable
+                              title={"Units"}
+                              data={units}
+                              columns={columns}
+                              options={options}
+                            />
+                          </Card>
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>

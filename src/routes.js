@@ -6,6 +6,7 @@ import Properties from "./components/Dashboard/Landlord/Properties/Properties";
 import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
 import ManageProperty from "./components/Dashboard/Landlord/Properties/ManageProperty";
 import Units from "./components/Dashboard/Landlord/Properties/Units";
+import ManageUnit from "./components/Dashboard/Landlord/Properties/ManageUnit";
 import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
 import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
 import CreateUnit from "./components/Dashboard/Landlord/Properties/CreateUnit";
@@ -94,6 +95,14 @@ export const router = createBrowserRouter([
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Units />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/units/:unit_id/:property_id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageUnit />
       </DashboardProtectedRoute>
     ),
   },

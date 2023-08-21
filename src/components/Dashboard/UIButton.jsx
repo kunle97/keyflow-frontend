@@ -1,13 +1,15 @@
 import React from 'react'
 import { Button} from "@mui/material";
 import { Link } from 'react-router-dom';
+import { uiGreen } from '../../constants';
  const UIButton = (props) => {
     return (
         <Link to={props.to}>
           <Button
+          
             style={{
               margin: "25px",
-              backgroundColor: "#3aaf5c",
+              backgroundColor: uiGreen,
             }}
             variant="contained"
           >

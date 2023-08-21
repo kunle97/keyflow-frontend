@@ -248,7 +248,7 @@ const MyAccount = () => {
                             className="btn btn-primary ui-btn d-block"
                             type="button"
                           >
-                            Connect/Manage Account
+                            Manage Payments
                           </button>
                         </div>
                       </div>

@@ -3,6 +3,7 @@ import Sidebar from "./Landlord/Navigation/Sidebar";
 
 import Topbar from "./Landlord/Navigation/Topbar";
 import SidebarDrawer from "./Landlord/Navigation/SidebarDrawer";
+import { uiGreen } from "../../constants";
 
 const DashboardContainer = ({ children }) => {
   const [muiSidebarMode, setMuiSidebarMode] = useState(false);
@@ -18,18 +19,15 @@ const DashboardContainer = ({ children }) => {
         </div>
         <footer
           className="bg-white sticky-footer"
-          style={{ background: "#2c3a4a", color: "#3aaf5c" }}
+          style={{ background: "#2c3a4a", color: uiGreen}}
         >
           <div className="container my-auto">
             <div className="text-center my-auto copyright">
-              <span className="text-white">Copyright © KeyFlow 2023</span>
+              <span className="text-white">Copyright © KeyFlow {new Date().getFullYear()}</span>
             </div>
           </div>
         </footer>
       </div>
-      <a className="border rounded d-inline scroll-to-top" href="#page-top">
-        <i className="fas fa-angle-up" />
-      </a>
     </div>
   );
 };

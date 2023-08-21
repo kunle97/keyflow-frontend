@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { BASE_API_URL } from "../constants";
 import { token, authUser } from "../constants";
 
+///-----------------AUTH API FUNCTIONS---------------------------///
 export async function login(email, password) {
   try {
     const res = await axios
@@ -40,7 +41,6 @@ export async function login(email, password) {
     return error.response.data;
   }
 }
-
 // create an api function to logout
 export async function logout(accessToken) {
   let message = "";
@@ -76,32 +76,38 @@ export async function logout(accessToken) {
   }
 }
 // create an api function to register
-export async function register(
-  first_name,
-  last_name,
-  username,
-  email,
-  password,
-  account_type
-) {
+export async function register(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/auth/register/`, {
-        first_name,
-        last_name,
-        username,
-        email,
-        password,
-        account_type,
-      })
+      .post(`${BASE_API_URL}/auth/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
         return response;
       });
+      localStorage.setItem("accessToken", res.token);
+
+      //Check for response code before storing data in context
+      const userData = {
+        id: res.user.id,
+        first_name: res.user.first_name,
+        last_name: res.user.last_name,
+        username: res.user.username,
+        email: res.user.email,
+        account_type: res.user.account_type,
+        stripe_account_id: res.user.stripe_account_id,
+        isAuthenticated: res.isAuthenticated,
+        accessToken: res.token,
+      };
+
+      //Stripe Account link example:"https://connect.stripe.com/setup/e/acct_1NhHAgEC6FRVgr2l/fgLinlMm0Xio"
+      localStorage.setItem("stripe_onoboarding_link", res.onboarding_link.url);
+
+      return { userData: userData, message: res.message, token: res.token, stripe_onboarding_link:res.onboarding_link };
+
   } catch (error) {
     console.log("Register Error: ", error);
-    return error.response.data;
+    return error;
   }
 }
 
@@ -240,12 +246,11 @@ export async function deleteProperty(propertyId) {
     return error.response.data;
   }
 }
-///----------------- END PROPERTY API FUNCTIONS---------------------------///
 
 ///-----------------UNIT API FUNCTIONS---------------------------///
 //create a function to create a unit
 export async function createUnit(data) {
-  console.log('create unit data: ', data)
+  console.log("create unit data: ", data);
   try {
     const res = await axios
       .post(
@@ -297,6 +302,79 @@ export async function getUnits(propertyId) {
     return res;
   } catch (error) {
     console.log("Get Units Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create function to retrieve one specific unit
+export async function getUnit(unitId) {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/units/${unitId}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Get Unit Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create function to update a unit with patch method
+export async function updateUnit(unitId, data) {
+  try {
+    const res = await axios
+      .patch(`${BASE_API_URL}/units/${unitId}/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Update Unit Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create function to delete a unit
+export async function deleteUnit(propertyId, unitId) {
+  try {
+    const res = await axios
+      .delete(
+        `${BASE_API_URL}/units/${unitId}/`,
+        { rental_property: propertyId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Delete Unit Error: ", error);
     return error.response.data;
   }
 }

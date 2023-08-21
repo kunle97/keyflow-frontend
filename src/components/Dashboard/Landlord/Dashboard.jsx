@@ -1,5 +1,6 @@
 import React from "react";
 import { faker } from "@faker-js/faker";
+import { uiGreen } from "../../../constants";
 
 const Dashboard = () => {
   return (
@@ -521,7 +522,7 @@ const Dashboard = () => {
               <p className="card-text">
                 John Doe is 3 Days overdue for their rent payment.
               </p>
-              <a className="card-link" href="#" style={{ color: "#3aaf5c" }}>
+              <a className="card-link" href="#" style={{ color: uiGreen }}>
                 Dismiss
               </a>
             </div>
