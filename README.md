@@ -1,4 +1,4 @@
-# Keyflow Frontend
+# Keyflow Frontend React Application
 
 ## Setup
 1. Upon cloning or donwloading navigate to project folder and run `npm install`
