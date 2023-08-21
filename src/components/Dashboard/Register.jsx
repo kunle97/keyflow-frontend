@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { uiGreen } from "../../constants";
 import { faker } from "@faker-js/faker";
 import { register } from "../../api/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AlertModal from "./AlertModal";
 import ProgressModal from "./ProgressModal";
+import { Input, Button } from "@mui/material";
 
 const Register = () => {
   //Create a state for the form data
@@ -22,6 +23,7 @@ const Register = () => {
   const [errorMode, setErrorMode] = useState(false);
   const [stripeRedirectLink, setStripeRedirectLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState();
 
   const navigate = useNavigate();
 
@@ -55,8 +57,12 @@ const Register = () => {
   };
 
   return (
-    <div className="container">
-      <ProgressModal open={isLoading} onClose={()=>setIsLoading} title="Registering Your Account..."   />
+    <div className="container-fluid">
+      <ProgressModal
+        open={isLoading}
+        onClose={() => setIsLoading}
+        title="Registering Your Account..."
+      />
       {open && (
         <>
           {errorMode ? (
@@ -82,118 +88,136 @@ const Register = () => {
           )}
         </>
       )}
-      <div className="card shadow-lg o-hidden border-0 my-5">
-        <div className="card-body p-0">
+
+      <div className="row">
+        {" "}
+        <div className="col-md-4 col-sm-12 login-col " style={{}}>
           <div className="row">
-            <div className="col-lg-12">
-              <div className="p-5">
-                <div className="text-center">
-                  <h4 className="text-light mb-4">Create an Account!</h4>
-                </div>
-                <form className="user" onSubmit={handleSubmit}>
-                  <input type="hidden" name="account_type" value="landlord" />
-                  <div className="row mb-3">
-                    <div className="col-sm-6 mb-3 mb-sm-0">
-                      <input
-                        className="form-control form-control-user"
-                        type="text"
-                        id="exampleFirstName"
-                        placeholder="First Name"
-                        name="first_name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                      />
-                    </div>
-                    <div className="col-sm-6">
-                      <input
-                        className="form-control form-control-user"
-                        type="text"
-                        id="exampleLastName"
-                        placeholder="Last Name"
-                        name="last_name"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <input
+            <div className=" ">
+              <img
+                style={{ width: "60%", marginBottom: "25px" }}
+                src="/assets/img/key-flow-logo-white-transparent.png"
+              />
+              <form className="user" onSubmit={handleSubmit}>
+                <input type="hidden" name="account_type" value="landlord" />
+                <div className="row mb-3">
+                  <div className="col-sm-6 mb-3 mb-sm-0">
+                    <Input
                       className="form-control form-control-user"
                       type="text"
-                      id="exampleInputUsername"
-                      aria-describedby="usernameHelp"
-                      placeholder="Username"
-                      name="username"
-                      value={userName}
-                      onChange={(e) => setUserName(e.target.value)}
+                      id="exampleFirstName"
+                      placeholder="First Name"
+                      name="first_name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                     />
                   </div>
-                  <div className="mb-3">
-                    <input
+                  <div className="col-sm-6">
+                    <Input
                       className="form-control form-control-user"
-                      type="email"
-                      id="exampleInputEmail"
-                      aria-describedby="emailHelp"
-                      placeholder="Email Address"
-                      name="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                      id="exampleLastName"
+                      placeholder="Last Name"
+                      name="last_name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                     />
                   </div>
-                  <div className="row mb-3">
-                    <div className="col-sm-6 mb-3 mb-sm-0">
-                      <input
-                        className="form-control form-control-user"
-                        type="password"
-                        id="examplePasswordInput"
-                        placeholder="Password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    <div className="col-sm-6">
-                      <input
-                        className="form-control form-control-user"
-                        type="password"
-                        id="exampleRepeatPasswordInput"
-                        placeholder="Repeat Password"
-                        name="password_repeat"
-                        value={password2}
-                        onChange={(e) => setPassword2(e.target.value)}
-                      />
-                    </div>
+                </div>
+                <div className="mb-3">
+                  <Input
+                    className="form-control form-control-user"
+                    type="text"
+                    id="exampleInputUsername"
+                    aria-describedby="usernameHelp"
+                    placeholder="Username"
+                    name="username"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <Input
+                    className="form-control form-control-user"
+                    type="email"
+                    id="exampleInputEmail"
+                    aria-describedby="emailHelp"
+                    placeholder="Email Address"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="row mb-3">
+                  <div className="col-sm-6 mb-3 mb-sm-0">
+                    <Input
+                      className="form-control form-control-user"
+                      type="password"
+                      id="examplePasswordInput"
+                      placeholder="Password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
                   </div>
-                  <button
-                    className="btn btn-primary d-block btn-user w-100"
-                    type="submit"
-                    style={{ background: uiGreen, border: "none" }}
-                  >
-                    Register Account
-                  </button>
-                </form>
-                <div className="text-center">
-                  <a
-                    className="small"
-                    href="forgot-password.html"
-                    style={{ color: uiGreen }}
-                  >
-                    Forgot Password?
-                  </a>
+                  <div className="col-sm-6">
+                    <Input
+                      className="form-control form-control-user"
+                      type="password"
+                      id="exampleRepeatPasswordInput"
+                      placeholder="Repeat Password"
+                      name="password_repeat"
+                      value={password2}
+                      onChange={(e) => setPassword2(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="text-center">
-                  <a
-                    className="small"
-                    href="/dashboard/login"
-                    style={{ color: uiGreen }}
-                  >
-                    Already have an account? Login!
-                  </a>
-                </div>
+                <Button
+                  className="btn btn-primary d-block  w-100 mb-2"
+                  type="submit"
+                  style={{
+                    background: uiGreen,
+                    border: "none",
+                    textTransform: "none",
+                    color: "white",
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </form>
+              <div className="mb-2">
+                <a
+                  className="small"
+                  href="forgot-password.html"
+                  style={{ color: uiGreen }}
+                >
+                  Forgot Password?
+                </a>
+              </div>
+              <div className="mb-2">
+                <Link
+                  className="small"
+                  to="/dashboard/login"
+                  style={{ color: uiGreen }}
+                >
+                  Already have an account? Login!
+                </Link>
               </div>
             </div>
           </div>
         </div>
+        <div
+          className="col-md-8 banner-col  d-none d-md-block"
+          style={{
+            background: "url('/assets/img/register-page-banner-1.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "100vh",
+          }}
+        >
+          {/* <img style={{width:"100%"}} src="/assets/img/login-page-banner.jpg" /> */}
+        </div>
+        {/* d-flex justify-content-center */}
       </div>
     </div>
   );

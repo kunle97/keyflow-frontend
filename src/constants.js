@@ -5,3 +5,4 @@ export const stripe_onboarding_link = localStorage.getItem("stripe_onboarding_li
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c";
 export const uiGrey1 = "#2c3a4a";
+export const uiGrey2 = "#364658";

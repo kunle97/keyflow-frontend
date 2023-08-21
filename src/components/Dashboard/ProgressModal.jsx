@@ -6,19 +6,19 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { uiGreen } from "../../constants";
-
+import { uiGrey1 } from "../../constants";
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
+  bgcolor: uiGrey1,
+  color: "white",
+  borderRadius: "10px",
   boxShadow: 24,
   p: 4,
 };
-
 const ProgressModal = (props) => {
   return (
     <Modal

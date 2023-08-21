@@ -457,6 +457,7 @@ const ManageProperty = () => {
                           <Box sx={{overflow:"auto"}} >
                             <Link to={`/dashboard/units/create/${id}`}>
                               <Button
+                              className="w-full"
                                 style={{
                                   marginBottom: "20px",
                                   backgroundColor: uiGreen,

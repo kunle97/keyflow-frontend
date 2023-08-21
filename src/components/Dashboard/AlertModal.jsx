@@ -1,7 +1,8 @@
 import React from "react";
-import { Modal, Box, Typography, Button } from "@mui/material";
+import { Modal } from "@mui/base/Modal";
+import { Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import { uiGreen } from "../../constants";
+import { uiGreen, uiGrey1 } from "../../constants";
 
 const style = {
   position: "absolute",
@@ -9,8 +10,9 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
+  bgcolor: uiGrey1,
+  color: "white",
+  borderRadius: "10px",
   boxShadow: 24,
   p: 4,
 };

@@ -7,6 +7,7 @@ import AlertModal from "./AlertModal";
 import { uiGreen } from "../../constants";
 import { Input, Button, Typography } from "@mui/material";
 import UIButton from "./UIButton";
+import { Link } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("testlandlord3@email.com");
   const [password, setPassword] = useState("password");
@@ -38,7 +39,10 @@ const Login = () => {
   };
 
   return (
-    <div className="container-fluid" style={{ padding: 0 }}>
+    <div
+      className="container-fluid "
+      style={{ padding: 0, overflow: "hidden" }}
+    >
       {open && (
         <AlertModal
           open={true}
@@ -51,10 +55,11 @@ const Login = () => {
       )}
       <div className="row">
         <div
-          className="col-md-8 d-xs-none d-sm-none d-md-block "
+          className="col-md-8 banner-col  d-none d-md-block"
           style={{
             background: "url('/assets/img/login-page-banner.jpg')",
             backgroundSize: "cover",
+            backgroundPosition: "center",
             height: "100vh",
           }}
         >
@@ -62,11 +67,11 @@ const Login = () => {
         </div>
         {/* d-flex justify-content-center */}
 
-        <div className="col-md-4 login-col " style={{paddingTop: "400px", paddingLeft:"100px", paddingRight:"200px"}}>
+        <div className="col-md-4 col-sm-12 login-col " style={{}}>
           <div className="row">
             <div className=" ">
               <img
-                style={{ width: "350px", marginBottom: "25px" }}
+                style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
               <form className="user" onSubmit={(e) => handleSubmit(e)}>
@@ -85,6 +90,7 @@ const Login = () => {
                 <div className="mb-3">
                   <Input
                     className="form-control form-control-user"
+                    sx={{ borderColor: uiGreen }}
                     type="password"
                     id="exampleInputPassword"
                     placeholder="Password"
@@ -124,7 +130,7 @@ const Login = () => {
                     padding: "10px",
                     fontSize: "12pt",
                     fontWeight: "lighter",
-                    margin: "25px 0"
+                    margin: "25px 0",
                   }}
                   variant="contained"
                 >
@@ -141,13 +147,13 @@ const Login = () => {
                 </a>
               </div>
               <div className="mb-2">
-                <a
+                <Link
                   className="small"
-                  href="/dashboard/register"
+                  to="/dashboard/register"
                   style={{ color: uiGreen }}
                 >
                   Create an Account!
-                </a>
+                </Link>
               </div>
             </div>
           </div>
