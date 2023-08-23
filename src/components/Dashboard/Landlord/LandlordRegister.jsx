@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { uiGreen } from "../../constants";
+import { uiGreen } from "../../../constants";
 import { faker } from "@faker-js/faker";
-import { register } from "../../api/api";
+import { register } from "../../../api/api";
 import { Link, useNavigate } from "react-router-dom";
-import AlertModal from "./AlertModal";
-import ProgressModal from "./ProgressModal";
+import AlertModal from "../AlertModal";
+import ProgressModal from "../ProgressModal";
 import { Input, Button } from "@mui/material";
 
-const Register = () => {
+const LandlordRegister = () => {
   //Create a state for the form data
   const [firstName, setFirstName] = useState(faker.person.firstName());
   const [lastName, setLastName] = useState(faker.person.lastName());
@@ -223,4 +223,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default LandlordRegister;

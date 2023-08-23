@@ -1,25 +1,29 @@
 import { useState } from "react";
-import { authPost, loginPost } from "../../api/apiClient";
+import { authPost, loginPost } from "../../../api/apiClient";
 import { useNavigate } from "react-router";
-import { login, logout } from "../../api/api";
-import { useAuth } from "../../contexts/AuthContext";
-import AlertModal from "./AlertModal";
-import { uiGreen } from "../../constants";
+import { login, logout } from "../../../api/api";
+import { useAuth } from "../../../contexts/AuthContext";
+import AlertModal from "../AlertModal";
+import { uiGreen } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
-import UIButton from "./UIButton";
+import UIButton from "../UIButton";
 import { Link } from "react-router-dom";
-const Login = () => {
+import ProgressModal from "../ProgressModal";
+
+const TenantLogin = () => {
   const [email, setEmail] = useState("testlandlord3@email.com");
   const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [redirectURL, setRedirectURL] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await login(email, password);
-    console.log("Login funtion return value on Login.jsx: ", response);
+    setIsLoading(true);
 
     //if token is returned, set it in local storage
     if (response.token) {
@@ -27,13 +31,15 @@ const Login = () => {
       localStorage.setItem("accessToken", response.token);
       //Save auth user in local storage
       localStorage.setItem("authUser", JSON.stringify(response.userData));
+      setRedirectURL("/dashboard/tenant");
       setAuthUser(response.userData);
       setIsLoggedIn(true);
-
+      setIsLoading(false);
       //Navigate to dashboard
       setOpen(true);
     } else {
       setErrMsg(response.message);
+      setIsLoading(false);
     }
     setOpen(true);
   };
@@ -43,23 +49,28 @@ const Login = () => {
       className="container-fluid "
       style={{ padding: 0, overflow: "hidden" }}
     >
-      {open && (
-        <AlertModal
-          open={true}
-          onClose={() => setOpen(false)}
-          title={"Login Successful!"}
-          message="You have been logged in Successfully! Click the link below to view your dashboard"
-          btnText="Go to Dashboard"
-          to="/dashboard"
-        />
-      )}
+      <ProgressModal
+        open={isLoading}
+        handleCLose={() => setIsLoading(false)}
+        title="Logging you in..."
+      />
+
+      <AlertModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={"Login Successful!"}
+        message="You have been logged in Successfully! Click the link below to view your dashboard"
+        btnText="Go to Dashboard"
+        to={redirectURL}
+      />
+
       <div className="row">
         <div
           className="col-md-8 banner-col  d-none d-md-block"
           style={{
-            background: "url('/assets/img/login-page-banner.jpg')",
+            background: "url('/assets/img/tenant-login-page-banner-1.jpg')",
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "50%",
             height: "100vh",
           }}
         >
@@ -74,6 +85,7 @@ const Login = () => {
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
+              <Typography color="white"  className="mb-4 ml-4"  >Tenant Login</Typography>
               <form className="user" onSubmit={(e) => handleSubmit(e)}>
                 <div className="mb-3">
                   <Input
@@ -117,9 +129,13 @@ const Login = () => {
                   </div>
                 </div>
                 {errMsg && (
-                  <p className="mb-2 text-error w-full text-center text-danger">
-                    {errMsg}
-                  </p>
+                  <AlertModal
+                    open={true}
+                    onClose={() => setErrMsg(null)}
+                    title={"Login Failed!"}
+                    message={errMsg}
+                    btnText="Close"
+                  />
                 )}
                 <Button
                   className="d-block w-100 ui-btN"
@@ -149,7 +165,7 @@ const Login = () => {
               <div className="mb-2">
                 <Link
                   className="small"
-                  to="/dashboard/register"
+                  to="/dashboard/tenant/register"
                   style={{ color: uiGreen }}
                 >
                   Create an Account!
@@ -163,4 +179,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default TenantLogin;
