@@ -11,13 +11,16 @@ import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
 import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
 import CreateUnit from "./components/Dashboard/Landlord/Properties/CreateUnit";
 import MyAccount from "./components/Dashboard/MyAccount";
-import Login from "./components/Dashboard/Login";
-import Register from "./components/Dashboard/Register";
+import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
+import LandlordRegister from "./components/Dashboard/Landlord/LandlordRegister";
 import ForgotPassword from "./components/Dashboard/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
 import LandingPage from "./components/Landing/LandingPage";
 import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
 import LoggedInRedirect from "./components/LoggedInRedirect";
+import TenantRegister from "./components/Dashboard/Tenant/TenantRegister";
+import TenantDashboard from "./components/Dashboard/Tenant/TenantDashboard";
+import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -27,18 +30,34 @@ export const router = createBrowserRouter([
     element: <LandingPage />,
   },
   {
-    path: "/dashboard/login",
+    path: "/dashboard/landlord/login",
     element: (
       <LoggedInRedirect token={token}>
-        <Login />
+        <LandlordLogin />
       </LoggedInRedirect>
     ),
   },
   {
-    path: "/dashboard/register",
+    path: "/dashboard/landlord/register",
     element: (
       <LoggedInRedirect token={token}>
-        <Register />
+        <LandlordRegister />
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/register",
+    element: (
+      <LoggedInRedirect token={token}>
+        <TenantRegister />
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/login",
+    element: (
+      <LoggedInRedirect token={token}>
+        <TenantLogin />
       </LoggedInRedirect>
     ),
   },
@@ -51,7 +70,15 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard",
+    path: "/dashboard/tenant",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantDashboard />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Dashboard />

@@ -30,9 +30,11 @@ export async function login(email, password) {
         accessToken: res.token,
       };
 
+      const redirect_url = res.user.account_type === "landlord" ? "/dashboard/landlord" : "/dashboard/tenant";
+
       console.log(userData);
       console.log("res. ", res);
-      return { userData: userData, message: res.message, token: res.token };
+      return { userData: userData, message: res.message, token: res.token, redirect_url: redirect_url };
     } else {
       return res.message;
     }
@@ -75,7 +77,7 @@ export async function logout(accessToken) {
     return error;
   }
 }
-// create an api function to register
+// create an api function to register a landlord
 export async function register(data) {
   try {
     const res = await axios
@@ -104,6 +106,38 @@ export async function register(data) {
       localStorage.setItem("stripe_onoboarding_link", res.onboarding_link.url);
 
       return { userData: userData, message: res.message, token: res.token, stripe_onboarding_link:res.onboarding_link };
+
+  } catch (error) {
+    console.log("Register Error: ", error);
+    return error;
+  }
+}
+
+// create an api function to register a tenant
+export async function register_tenant(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/auth/register/`, data)
+      .then((res) => {
+        const response = res.data;
+        console.log("axios register response ", response);
+        return response;
+      });
+      localStorage.setItem("accessToken", res.token);
+
+      //Check for response code before storing data in context
+      const userData = {
+        id: res.user.id,
+        first_name: res.user.first_name,
+        last_name: res.user.last_name,
+        username: res.user.username,
+        email: res.user.email,
+        account_type: res.user.account_type,
+        isAuthenticated: res.isAuthenticated,
+        accessToken: res.token,
+      };
+
+      return { userData: userData, message: res.message, token: res.token };
 
   } catch (error) {
     console.log("Register Error: ", error);
