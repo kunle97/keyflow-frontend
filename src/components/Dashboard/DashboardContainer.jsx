@@ -10,12 +10,15 @@ const DashboardContainer = ({ children }) => {
   return (
     <div id="wrapper">
       {/* Sidebar nav */}
-      {muiMode ? <SidebarDrawer />: <Sidebar />}
+      {muiMode ? <SidebarDrawer /> : <Sidebar />}
       <div className="d-flex flex-column" id="content-wrapper">
         <div id="content" style={{ background: "#2c3a4a" }}>
           {/* Top Nav */}
           {muiMode ? <TopBarMUI /> : <Topbar />}
-          {children}
+          <div className="container">
+            {/* Page Content */}
+            {children}
+          </div>
         </div>
         <footer
           className="bg-white sticky-footer"

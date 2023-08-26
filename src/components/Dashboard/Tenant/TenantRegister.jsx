@@ -6,7 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import AlertModal from "../AlertModal";
 import ProgressModal from "../ProgressModal";
 import { Input, Button } from "@mui/material";
-
+import AddPaymentDetails from "../../AddPaymentDetails";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import IconButton from "@mui/material/IconButton";
 const TenantRegister = () => {
   //Create a state for the form data
   const [firstName, setFirstName] = useState(faker.person.firstName());
@@ -23,6 +25,8 @@ const TenantRegister = () => {
   const [errorMode, setErrorMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errMsg, setErrMsg] = useState();
+  const [showStep1, setShowStep1] = useState(true);
+  const [showStep2, setShowStep2] = useState(false);
 
   const navigate = useNavigate();
 
@@ -80,7 +84,7 @@ const TenantRegister = () => {
               message="You have been registered Successfully! Be sure to check your email
               for confirmation to activate your account. Click the link below to navioate to your dashboard."
               btnText="Continue"
-              to={'/dashboard/tenant/'}
+              to={"/dashboard/tenant/"}
             />
           )}
         </>
@@ -97,90 +101,126 @@ const TenantRegister = () => {
               />
               <form className="user" onSubmit={handleSubmit}>
                 <input type="hidden" name="account_type" value="tenant" />
-                <div className="row mb-3">
-                  <div className="col-sm-6 mb-3 mb-sm-0">
-                    <Input
-                      className="form-control form-control-user"
-                      type="text"
-                      id="exampleFirstName"
-                      placeholder="First Name"
-                      name="first_name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
+
+                {showStep1 && (
+                  <div className="step-1">
+                    <h5>Personal Information</h5>
+                    <div className="row mb-3">
+                      <div className="col-sm-6 mb-3 mb-sm-0">
+                        <Input
+                          className="form-control form-control-user"
+                          type="text"
+                          id="exampleFirstName"
+                          placeholder="First Name"
+                          name="first_name"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                        />
+                      </div>
+                      <div className="col-sm-6">
+                        <Input
+                          className="form-control form-control-user"
+                          type="text"
+                          id="exampleLastName"
+                          placeholder="Last Name"
+                          name="last_name"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <Input
+                        className="form-control form-control-user"
+                        type="text"
+                        id="exampleInputUsername"
+                        aria-describedby="usernameHelp"
+                        placeholder="Username"
+                        name="username"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <Input
+                        className="form-control form-control-user"
+                        type="email"
+                        id="exampleInputEmail"
+                        aria-describedby="emailHelp"
+                        placeholder="Email Address"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="row mb-3">
+                      <div className="col-sm-6 mb-3 mb-sm-0">
+                        <Input
+                          className="form-control form-control-user"
+                          type="password"
+                          id="examplePasswordInput"
+                          placeholder="Password"
+                          name="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </div>
+                      <div className="col-sm-6">
+                        <Input
+                          className="form-control form-control-user"
+                          type="password"
+                          id="exampleRepeatPasswordInput"
+                          placeholder="Repeat Password"
+                          name="password_repeat"
+                          value={password2}
+                          onChange={(e) => setPassword2(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      className="btn btn-primary d-block  w-100 mb-2"
+                      type="button"
+                      style={{
+                        background: uiGreen,
+                        border: "none",
+                        textTransform: "none",
+                        color: "white",
+                      }}
+                      onClick={() => {
+                        setShowStep1(false);
+                        setShowStep2(true);
+                      }}
+                    >
+                      Add Payment Details
+                    </Button>
                   </div>
-                  <div className="col-sm-6">
-                    <Input
-                      className="form-control form-control-user"
-                      type="text"
-                      id="exampleLastName"
-                      placeholder="Last Name"
-                      name="last_name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
+                )}
+                {showStep2 && (
+                  <div className="step-2">
+                    <IconButton
+                      onClick={() => {
+                        setShowStep1(true);
+                        setShowStep2(false);
+                      }}
+                    >
+                      <ArrowBackIcon sx={{ color: uiGreen }} />
+                    </IconButton>
+                    <h5>Payment Information</h5>
+                    <AddPaymentDetails />
+                    <Button
+                      className="btn btn-primary d-block  w-100 mb-2"
+                      type="submit"
+                      style={{
+                        background: uiGreen,
+                        border: "none",
+                        textTransform: "none",
+                        color: "white",
+                      }}
+                    >
+                      Sign Up
+                    </Button>
                   </div>
-                </div>
-                <div className="mb-3">
-                  <Input
-                    className="form-control form-control-user"
-                    type="text"
-                    id="exampleInputUsername"
-                    aria-describedby="usernameHelp"
-                    placeholder="Username"
-                    name="username"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <Input
-                    className="form-control form-control-user"
-                    type="email"
-                    id="exampleInputEmail"
-                    aria-describedby="emailHelp"
-                    placeholder="Email Address"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="row mb-3">
-                  <div className="col-sm-6 mb-3 mb-sm-0">
-                    <Input
-                      className="form-control form-control-user"
-                      type="password"
-                      id="examplePasswordInput"
-                      placeholder="Password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="col-sm-6">
-                    <Input
-                      className="form-control form-control-user"
-                      type="password"
-                      id="exampleRepeatPasswordInput"
-                      placeholder="Repeat Password"
-                      name="password_repeat"
-                      value={password2}
-                      onChange={(e) => setPassword2(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <Button
-                  className="btn btn-primary d-block  w-100 mb-2"
-                  type="submit"
-                  style={{
-                    background: uiGreen,
-                    border: "none",
-                    textTransform: "none",
-                    color: "white",
-                  }}
-                >
-                  Sign Up
-                </Button>
+                )}
               </form>
               <div className="mb-2">
                 <a

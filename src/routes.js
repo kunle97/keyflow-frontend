@@ -21,6 +21,14 @@ import LoggedInRedirect from "./components/LoggedInRedirect";
 import TenantRegister from "./components/Dashboard/Tenant/TenantRegister";
 import TenantDashboard from "./components/Dashboard/Tenant/TenantDashboard";
 import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
+import TenantMyAccount from "./components/Dashboard/Tenant/TenantMyAccount";
+import CreateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/CreateLeaseTerm";
+import LeaseTerms from "./components/Dashboard/Landlord/LeaseTerm/LeaseTerms";
+import ViewRentalApplication from "./components/Dashboard/Landlord/RentalApplications/ViewRentalApplication";
+import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
+import RentalApplications from "./components/Dashboard/Landlord/RentalApplications/RentalApplications";
+
+
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -86,10 +94,18 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/my-account",
+    path: "/dashboard/landlord/my-account",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyAccount />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/my-account",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantMyAccount />
       </DashboardProtectedRoute>
     ),
   },
@@ -142,7 +158,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/tenants",
+    path: "/dashboard/landlord/tenants",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Tenants />
@@ -172,5 +188,41 @@ export const router = createBrowserRouter([
         <CreateMaintenanceRequest />
       </DashboardProtectedRoute>
     ),
+  },
+  {
+    path: "/dashboard/landlord/lease-terms/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateLeaseTerm />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/lease-terms/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseTerms />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/rental-applications/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ViewRentalApplication />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/rental-applications/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <RentalApplications />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/rental-application/:unit_id",
+    element: <CreateRentalApplication />,
   },
 ]);
