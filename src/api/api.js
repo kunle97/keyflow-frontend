@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import { BASE_API_URL } from "../constants";
 import { token, authUser } from "../constants";
-import { stringToBoolean } from "../helpers/utils";
+import { createApprovalHash, stringToBoolean } from "../helpers/utils";
 
 ///-----------------AUTH API FUNCTIONS---------------------------///
 export async function login(email, password) {
@@ -551,8 +551,9 @@ export async function getRentalApplicationById(rentalAppId) {
 export async function approveRentalApplication(rentalAppId) {
   try {
     const res = await axios
-      .post(
-        `${BASE_API_URL}/rental-applications/${rentalAppId}/approve-rental-application/`,
+      .patch(
+        `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
+        { is_approved: true, approval_hash: createApprovalHash(32) },
         {
           headers: {
             "Content-Type": "application/json",
@@ -581,10 +582,12 @@ export async function approveRentalApplication(rentalAppId) {
 export async function rejectRentalApplication(rentalAppId) {
   try {
     const res = await axios
-      .post(
-        `${BASE_API_URL}/rental-applications/${rentalAppId}/reject-rental-application/`,
+      .patch(
+        `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
+        { is_approved: false },
         {
           user_id: authUser.id,
+          approval_hash: ''
         },
         {
           headers: {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Stack } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import { useParams } from "react-router";
-import { approveRentalApplication, getRentalApplicationById } from "../../../../api/api";
+import { approveRentalApplication, getRentalApplicationById, rejectRentalApplication } from "../../../../api/api";
 import ProgressModal from "../../ProgressModal";
 
 const ViewRentalApplication = () => {
@@ -26,8 +26,18 @@ const ViewRentalApplication = () => {
 
   //create a function to accept the appplciation
   const handleAccept = () => {
-    console.log("Accepting Application");
+    console.log("Accepting Application...");
     approveRentalApplication(id).then((res) => {
+      if (res) {
+        console.log(res);
+      }
+    });
+  };
+
+//create a function to reject the appplciation
+  const handleReject = () => {
+    console.log("Rejecting Application...");
+    rejectRentalApplication(id).then((res) => {
       if (res) {
         console.log(res);
       }
@@ -44,7 +54,7 @@ const ViewRentalApplication = () => {
             <h4 style={{ float: "left" }}>
               {" "}
               {rentalApplication.first_name} {rentalApplication.last_name}{" "}
-              Rental Application
+              Rental Application (Status : {rentalApplication.is_approved ? "Approved" : "Pending"})
             </h4>
             <Button
               variant="contained"
@@ -240,7 +250,7 @@ const ViewRentalApplication = () => {
             </div>
           </div>
           <Stack direction="row" gap={2}>
-            <Button  variant="contained" sx={{ background: "red" }}>
+            <Button onClick={handleReject} variant="contained" sx={{ background: "red" }}>
               Reject
             </Button>
             <Button onClick={handleAccept} variant="contained" sx={{ background: uiGreen }}>
