@@ -12,10 +12,10 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import MapsHomeWorkOutlinedIcon from "@mui/icons-material/MapsHomeWorkOutlined";
-import { uiGrey1 } from "../../../../constants";
+import { landlordMenuItems, uiGrey1 } from "../../../../constants";
 import { Link } from "react-router-dom";
 
-export default function SidebarDrawer() {
+export default function SidebarDrawer(props) {
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -51,7 +51,24 @@ export default function SidebarDrawer() {
         />
       </Box>
       <List>
-        <ListItem disablePadding>
+        {landlordMenuItems.map((item, index) => {
+          return (
+            <ListItem key={index} disablePadding>
+              <Link
+                to={item.link}
+                style={{ width: "100%", textDecoration: "none" }}
+              >
+                <ListItemButton>
+                  <ListItemIcon>
+                    <i className={item.icon} />
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} sx={{ color: "white" }} />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          );
+        })}
+        {/* <ListItem disablePadding>
           <Link
             to={"/dashboard/"}
             style={{ width: "100%", textDecoration: "none" }}
@@ -76,7 +93,7 @@ export default function SidebarDrawer() {
               <ListItemText primary={"Properties"} sx={{ color: "white" }} />
             </ListItemButton>
           </Link>
-        </ListItem>
+        </ListItem> */}
         {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
@@ -106,7 +123,7 @@ export default function SidebarDrawer() {
 
   return (
     <div className="buttonx">
-      {["left", "right", "top", "bottom"].map((anchor) => (
+      {["left", "left", "left", "left"].map((anchor) => (
         <React.Fragment key={anchor}>
           <Button
             sx={{ marginTop: "150px" }}
@@ -115,8 +132,8 @@ export default function SidebarDrawer() {
             {anchor}
           </Button>
           <Drawer
-            anchor={anchor}
-            open={state[anchor]}
+            anchor={"left"}
+            open={props.open}
             onClose={toggleDrawer(anchor, false)}
             // sx={{ "& .MuiDrawer-paper": { backgroundColor: uiGrey1 } }}
           >

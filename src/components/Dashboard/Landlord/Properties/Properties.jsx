@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { getProperties } from "../../../../api/api";
 import MUIDataTable from "mui-datatables";
 import { Typography, CircularProgress, Box } from "@mui/material";
-import { green } from "@mui/material/colors";
 import { uiGreen } from "../../../../constants";
 const Properties = () => {
   const [properties, setProperties] = React.useState([]);

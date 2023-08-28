@@ -15,7 +15,7 @@ const RentalHistorySection = (props) => {
     <div className="card mb-3">
       <div className="row card-body">
         <div className="col-md-12 mb-4">
-          <label className="mb-2"> Address</label>
+          <label className="mb-2">Full Address (Street, City, State, Zip)</label>
           <input
             className="form-control"
             name="address"

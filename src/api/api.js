@@ -374,7 +374,7 @@ export async function getUnit(unitId) {
     return res.data;
   } catch (error) {
     console.log("Get Unit Error: ", error);
-    return error.response.data;
+    return error.response;
   }
 }
 
@@ -428,6 +428,8 @@ export async function deleteUnit(propertyId, unitId) {
   }
 }
 
+//----------------RENTAL APPLICATION API FUNCTIONS------------------------///
+
 //Create a function to create a rental application
 export async function createRentalApplication(data) {
   try {
@@ -439,9 +441,10 @@ export async function createRentalApplication(data) {
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
+          date_of_birth: data.date_of_birth,
           phone_number: data.phone,
           desired_move_in_date: data.desired_move_in_date,
-          other_occupants:data.other_occupants,
+          other_occupants: data.other_occupants,
           pets: stringToBoolean(data.pets),
           vehicles: stringToBoolean(data.vehicles),
           convicted: stringToBoolean(data.crime),
@@ -449,6 +452,7 @@ export async function createRentalApplication(data) {
           evicted: stringToBoolean(data.evicted),
           employment_history: JSON.stringify(data.employment_history),
           residential_history: JSON.stringify(data.residential_history),
+          landlord: data.landlord_id,
         },
         {
           headers: {
@@ -459,11 +463,149 @@ export async function createRentalApplication(data) {
       .then((res) => {
         const response = res.data;
         console.log("axios create rental app response ", response);
-        return response;
+        return {
+          response: response,
+          message: "Rental app created successfully",
+          status: 200,
+        };
       });
     return { message: "Rental app created successfully", status: 200 };
   } catch (error) {
-    console.log("Create Unit Error: ", error);
+    console.log("Create Rental App Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+//Create a function to get all rental applications for a specific unit
+export async function getRentalApplications(unitId) {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/units/${unitId}/rental-applications/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Rental Applications Error: ", error);
     return error.response.data;
+  }
+}
+
+//Create a function to get all rental ids for logged in user
+export async function getRentalApplicationsByUser() {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/users/${authUser.id}/rental-applications/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Rental Applications Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to get one specific rental application by its id
+export async function getRentalApplicationById(rentalAppId) {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/rental-applications/${rentalAppId}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Get Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//Create A function to approve a rental application
+export async function approveRentalApplication(rentalAppId) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/rental-applications/${rentalAppId}/approve-rental-application/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          return {
+            data: res.data,
+            message: "Rental application approved successfully",
+            status: 200,
+          };
+        }
+        return { data: [] };
+      });
+    return res;
+  } catch (error) {
+    console.log("Approve Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//Create A function to reject a rental application
+export async function rejectRentalApplication(rentalAppId) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/rental-applications/${rentalAppId}/reject-rental-application/`,
+        {
+          user_id: authUser.id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          return {
+            data: res.data,
+            message: "Rental application rejectd successfully",
+            status: 200,
+          };
+        }
+        return { data: [] };
+      });
+    return res;
+  } catch (error) {
+    console.log("Approve Rental Application Error: ", error);
+    return error.response;
   }
 }
