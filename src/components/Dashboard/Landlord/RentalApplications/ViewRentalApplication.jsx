@@ -1,137 +1,255 @@
+import React, { useState, useEffect } from "react";
 import { Button, Stack } from "@mui/material";
-import React from "react";
 import { uiGreen } from "../../../../constants";
+import { useParams } from "react-router";
+import { approveRentalApplication, getRentalApplicationById } from "../../../../api/api";
+import ProgressModal from "../../ProgressModal";
 
 const ViewRentalApplication = () => {
-  return (
-    <div>
-      <div className="mb-3" style={{ overflow: "auto" }}>
-        <h4 style={{ float: "left" }}>[Name] Rental Application</h4>
-        <Button
-          variant="contained"
-          sx={{ background: uiGreen, float: "right" }}
-        >
-          View Full Report
-        </Button>
-      </div>
-      <div className="mb-4">
-        <h5 className="mb-2">Personal Information</h5>
-        <div className="card">
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-6">
-                <h6>Full Name</h6>
-                <p>John Doe</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Email</h6>
-                <p>johndoe@email.com</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Date Of Birth</h6>
-                <p>02/23/02</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Phone</h6>
-                <p>555-555-5555</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  const { id } = useParams();
+  const [rentalApplication, setRentalApplication] = useState({});
+  const [employmentHistory, setEmploymentHistory] = useState({});
+  const [residentialHistory, setResidentialHistory] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-      <div className="mb-4">
-        <h5 className="mb-2">Questionaire Answers</h5>
-        <div className="card">
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-6">
-                <h6>Other Occupants</h6>
-                <p>No</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Pets</h6>
-                <p>No</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Do you have any vehicles?</h6>
-                <p>No</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Ever Convicted?</h6>
-                <p>No</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Ever Filed for bankrupcy?</h6>
-                <p>No</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Ever evicted?</h6>
-                <p>No</p>
+  useEffect(() => {
+    //Retrieve rental application by id
+    getRentalApplicationById(id).then((res) => {
+      if (res) {
+        setRentalApplication(res);
+        setEmploymentHistory(JSON.parse(res.employment_history));
+        setResidentialHistory(JSON.parse(res.residential_history));
+        setIsLoading(false);
+      }
+    });
+  }, []);
+
+  //create a function to accept the appplciation
+  const handleAccept = () => {
+    console.log("Accepting Application");
+    approveRentalApplication(id).then((res) => {
+      if (res) {
+        console.log(res);
+      }
+    });
+  };
+
+  return (
+    <>
+      {isLoading ? (
+        <ProgressModal title="Loading Application Data..." open={isLoading} />
+      ) : (
+        <div>
+          <div className="mb-3" style={{ overflow: "auto" }}>
+            <h4 style={{ float: "left" }}>
+              {" "}
+              {rentalApplication.first_name} {rentalApplication.last_name}{" "}
+              Rental Application
+            </h4>
+            <Button
+              variant="contained"
+              sx={{ background: uiGreen, float: "right" }}
+            >
+              View Full Report
+            </Button>
+          </div>
+          <div className="mb-4">
+            <h4 className="mb-4">Personal Information</h4>
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Full Name</b>
+                    </h6>
+                    <p>
+                      {rentalApplication.first_name}{" "}
+                      {rentalApplication.last_name}
+                    </p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Email</b>
+                    </h6>
+                    <p>{rentalApplication.email}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Date Of Birth</b>
+                    </h6>
+                    <p>{rentalApplication.date_of_birth}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Phone</b>
+                    </h6>
+                    <p>{rentalApplication.phone_number}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className="mb-4">
-        <h5 className="mb-2">Employment Information</h5>
-        <div className="card">
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-6">
-                <h6>Full Name</h6>
-                <p>John Doe</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Email</h6>
-                <p>johndoe@email.com</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Date Of Birth</h6>
-                <p>02/23/02</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Phone</h6>
-                <p>555-555-5555</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="mb-4">
-        <h5 className="mb-2">Residential History</h5>
-        <div className="card">
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-6">
-                <h6>Full Name</h6>
-                <p>John Doe</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Email</h6>
-                <p>johndoe@email.com</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Date Of Birth</h6>
-                <p>02/23/02</p>
-              </div>
-              <div className="col-md-6">
-                <h6>Phone</h6>
-                <p>555-555-5555</p>
+
+          <div className="mb-4">
+            <h5 className="mb-4">Questionaire Answers</h5>
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Other Occupants</b>
+                    </h6>
+                    <p>{rentalApplication.other_occupants ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Pets</b>
+                    </h6>
+                    <p>{rentalApplication.pets ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Do you have any vehicles?</b>
+                    </h6>
+                    <p>{rentalApplication.vehicles ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Ever Convicted?</b>
+                    </h6>
+                    <p>{rentalApplication.conviceted ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Ever Filed for bankrupcy?</b>
+                    </h6>
+                    <p>{rentalApplication.bankrupcy_filed ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6>
+                      <b>Ever evicted?</b>
+                    </h6>
+                    <p>{rentalApplication.evicted ? "Yes" : "No"}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          <div className="mb-4">
+            <h5 className="mb-4">Employment History</h5>
+            <div className="card">
+              <div className="card-body">
+                {employmentHistory.map((item, index) => {
+                  return (
+                    <div className="row mb-3">
+                      <h5 className="mb-3">
+                        <b>
+                          {item.companyName} ({item.startDate} - {item.endDate})
+                        </b>
+                      </h5>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Company Address</b>
+                        </h6>
+                        <p>{item.companyAddress}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Position</b>
+                        </h6>
+                        <p>{item.position}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Income</b>
+                        </h6>
+                        <p>${Intl.NumberFormat("en-US").format(item.income)}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Supervisor</b>
+                        </h6>
+                        <p>{item.supervisorName}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Supervisor Email</b>
+                        </h6>
+                        <p>{item.supervisorEmail}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Supervisor Phone</b>
+                        </h6>
+                        <p>{item.supervisorPhone}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <h5 className="mb-4">Residential History</h5>
+            <div className="card">
+              <div className="card-body">
+                {residentialHistory.map((item, index) => {
+                  return (
+                    <div className="row">
+                      <div className="col-md-12">
+                        <h6>
+                          <b>Address</b>
+                        </h6>
+                        <p>{item.address}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Start Date</b>
+                        </h6>
+                        <p>{item.startDate}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>End Date</b>
+                        </h6>
+                        <p>{item.endDate}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Landlord Name</b>
+                        </h6>
+                        <p>{item.landlordName}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Landlord Phone</b>
+                        </h6>
+                        <p>{item.landlordPhone}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Landlord Email</b>
+                        </h6>
+                        <p>{item.landlordEmail}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <Stack direction="row" gap={2}>
+            <Button  variant="contained" sx={{ background: "red" }}>
+              Reject
+            </Button>
+            <Button onClick={handleAccept} variant="contained" sx={{ background: uiGreen }}>
+              Accept
+            </Button>
+          </Stack>
         </div>
-      </div>
-      <Stack direction="row" gap={2}>
-        <Button variant="contained" sx={{ background: "red" }}>
-          Reject
-        </Button>
-        <Button variant="contained" sx={{ background: uiGreen }}>
-          Accept
-        </Button>
-      </Stack>
-    </div>
+      )}
+    </>
   );
 };
 

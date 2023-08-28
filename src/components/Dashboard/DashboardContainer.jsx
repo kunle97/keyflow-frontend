@@ -7,15 +7,17 @@ import { uiGreen } from "../../constants";
 
 const DashboardContainer = ({ children }) => {
   const [muiMode, setMuiSidebarMode] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const style = { paddingTop: muiMode ? "80px " : "" };
   return (
     <div id="wrapper">
       {/* Sidebar nav */}
-      {muiMode ? <SidebarDrawer /> : <Sidebar />}
+      {muiMode ? <SidebarDrawer open={menuOpen} onClose={setMenuOpen} /> : <Sidebar />}
       <div className="d-flex flex-column" id="content-wrapper">
         <div id="content" style={{ background: "#2c3a4a" }}>
           {/* Top Nav */}
-          {muiMode ? <TopBarMUI /> : <Topbar />}
-          <div className="container">
+          {muiMode ? <TopBarMUI openMenu={setMenuOpen} /> : <Topbar />}
+          <div className={`container `} style={style}>
             {/* Page Content */}
             {children}
           </div>

@@ -1,58 +1,81 @@
-import { Hidden } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import { uiGrey2 } from "../../../../constants";
+import {
+  getRentalApplications,
+  getRentalApplicationsByUser,
+} from "../../../../api/api";
+import { CircularProgress, Box } from "@mui/material";
+import { uiGreen } from "../../../../constants";
+import { useNavigate } from "react-router";
 const RentalApplications = () => {
+  const [rentalApplications, setRentalApplications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
   const columns = [
     {
-      name: "Name",
-      selector: (row) => row.name,
+      name: "First Name",
+      selector: (row) => row.first_name,
       sortable: true,
     },
     {
-      name: "Rent",
-      selector: (row) => row.rent,
+      name: "Last Name",
+      selector: (row) => row.last_name,
       sortable: true,
     },
     {
-      name: "Duration",
-      selector: (row) => row.duration,
+      name: "Email",
+      selector: (row) => row.email,
       sortable: true,
     },
     {
-      name: "Late Fee",
-      selector: (row) => row.late_fee,
+      name: "Phone",
+      selector: (row) => row.phone_number,
       sortable: true,
     },
     {
-      name: "Security Deposit",
-      selector: (row) => row.security_deposit,
+      name: "Unit",
+      selector: (row) => row.unit,
+      sortable: true,
+    },
+    {
+      name: "Desired Move In Date",
+      selector: (row) => row.desired_move_in_date,
       sortable: true,
     },
   ];
 
-  const data = [
-    {
-      id: 1,
-      name: "Beetlejuice",
-      rent: "$2400",
-      duration: "12 months",
-      late_fee: "$350",
-      security_deposit: "$1250",
-    },
-  ];
 
+  //Createa
+  useEffect(() => {
+    getRentalApplicationsByUser().then((res) => {
+      console.log(res);
+      if (res) {
+        setRentalApplications(res.data);
+        setIsLoading(false);
+      }
+      console.log("Rental Applications: ", rentalApplications);
+    });
+  }, []);
   return (
     <>
-      <h4 >Rental Applications</h4>
+      <h4>Rental Applications</h4>
       <div className="card" style={{ overflow: "hidden" }}>
-        <DataTable
-          columns={columns}
-          data={data}
-          theme="dark"
-          pagination
-          onRowClicked={(row) => console.log(row)}
-        />
+        {isLoading ? (
+          <Box sx={{ display: "flex" }}>
+            <Box m={"55px auto"}>
+              <CircularProgress sx={{ color: uiGreen }} />
+            </Box>
+          </Box>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={rentalApplications}
+            theme="dark"
+            pagination
+            onRowClicked={(row) => navigate(`/dashboard/landlord/rental-applications/${row.id}`)}
+          />
+        )}
       </div>
     </>
   );

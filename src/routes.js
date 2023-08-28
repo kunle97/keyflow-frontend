@@ -222,7 +222,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/rental-application/:unit_id",
+    path: "/rental-application/:unit_id/:landlord_id",
     element: <CreateRentalApplication />,
   },
 ]);

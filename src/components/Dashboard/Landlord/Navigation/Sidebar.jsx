@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import { Link } from "react-router-dom";
+import { landlordMenuItems } from "../../../../constants";
 const Sidebar = () => {
   return (
     <nav
@@ -19,57 +20,16 @@ const Sidebar = () => {
         </a>
         <hr className="sidebar-divider my-0" />
         <ul className="navbar-nav text-light" id="accordionSidebar">
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard">
-              <i className="fas fa-tachometer-alt" />
-              <span>Dashboard</span>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard/tenants">
-              <i className="fa fa-group" />
-              <span>Tenants</span>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard/properties">
-              <i className="fa fa-home" />
-              <span>Properties</span>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard/maintenance-requests">
-              <i className="fas fa-tools" />
-              <span>Maintenance Requests</span>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard">
-              <i className="fas fa-user-circle" />
-              <span>Lease Agreements</span>
-            </Link>
-          </li>
-          <li className="nav-item dropdown show">
-            <Link
-              className="dropdown-toggle nav-link"
-              aria-expanded="true"
-              data-bs-toggle="dropdown"
-              to="#"
-            >
-              Dropdown
-            </Link>
-            <div className="dropdown-menu " data-bs-popper="none">
-              <Link className="dropdown-item" to="#">
-                Item 1
-              </Link>
-              <Link className="dropdown-item" to="#">
-                Item 2
-              </Link>
-              <Link className="dropdown-item" to="#">
-                Item 3
-              </Link>
-            </div>
-          </li>
+          {landlordMenuItems.map((item, index) => {
+            return (
+              <li className="nav-item" key={index}>
+                <Link className="nav-link" to={item.link}>
+                  <i className={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         <div className="text-center d-none d-md-inline">
           <button
