@@ -27,6 +27,7 @@ import LeaseTerms from "./components/Dashboard/Landlord/LeaseTerm/LeaseTerms";
 import ViewRentalApplication from "./components/Dashboard/Landlord/RentalApplications/ViewRentalApplication";
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
 import RentalApplications from "./components/Dashboard/Landlord/RentalApplications/RentalApplications";
+import SignLeaseAgreement from "./components/SignLeaseAgreement";
 
 
 //retrieve token from storage
@@ -224,5 +225,9 @@ export const router = createBrowserRouter([
   {
     path: "/rental-application/:unit_id/:landlord_id",
     element: <CreateRentalApplication />,
+  },
+  {
+    path: "/sign-lease-agreeement/:lease_agreement_id/",
+    element: <SignLeaseAgreement />,
   },
 ]);
