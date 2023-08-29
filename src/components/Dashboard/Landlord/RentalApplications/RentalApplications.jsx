@@ -43,14 +43,22 @@ const RentalApplications = () => {
       selector: (row) => row.desired_move_in_date,
       sortable: true,
     },
+    {
+      name: "Date Subitted",
+      selector: (row) => new Date(row.created_at).toISOString().split("T")[0],
+      sortable: true,
+    },
   ];
 
 
-  //Createa
   useEffect(() => {
     getRentalApplicationsByUser().then((res) => {
       console.log(res);
       if (res) {
+        //Create a new array that only holds data with the is_arhived property set to false
+        const filteredData = res.data.filter((data) => {
+          return data.is_archived === false;
+        });
         setRentalApplications(res.data);
         setIsLoading(false);
       }
@@ -74,6 +82,7 @@ const RentalApplications = () => {
             theme="dark"
             pagination
             onRowClicked={(row) => navigate(`/dashboard/landlord/rental-applications/${row.id}`)}
+
           />
         )}
       </div>

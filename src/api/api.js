@@ -553,7 +553,11 @@ export async function approveRentalApplication(rentalAppId) {
     const res = await axios
       .patch(
         `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
-        { is_approved: true, approval_hash: createApprovalHash(32) },
+        {
+          is_approved: true,
+          approval_hash: createApprovalHash(32),
+          is_archived: true,
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -562,6 +566,7 @@ export async function approveRentalApplication(rentalAppId) {
         }
       )
       .then((res) => {
+        console.log(res)
         if (res.status == 200) {
           return {
             data: res.data,
@@ -571,7 +576,7 @@ export async function approveRentalApplication(rentalAppId) {
         }
         return { data: [] };
       });
-    return res;
+      return res;
   } catch (error) {
     console.log("Approve Rental Application Error: ", error);
     return error.response;
@@ -582,12 +587,74 @@ export async function approveRentalApplication(rentalAppId) {
 export async function rejectRentalApplication(rentalAppId) {
   try {
     const res = await axios
-      .patch(
+      .delete(
         `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
-        { is_approved: false },
+        // {
+        //   is_approved: false,
+        //   user_id: authUser.id,
+        //   approval_hash: "",
+        // },
         {
-          user_id: authUser.id,
-          approval_hash: ''
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application rejected.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Approve Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+
+//Create a function to delete all other rental applications other than the one that was approved
+export async function deleteOtherRentalApplications(rentalAppId) {
+  try {
+    const res = await axios
+      .delete(
+        `${BASE_API_URL}/rental-applications/${rentalAppId}/delete-remaining-rental-applications/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Remaining Rental applications deleted.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Approve Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//-------------------LEASE AGREEMENT API FUNCTIONS------------------------///
+//Create a function that creates a lease agreement
+export async function createLeaseAgreement(data) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/lease-agreements/`,
+        {
+          rental_application: data.rental_application_id,
+          rental_unit: data.unit_id,
+          user: authUser.id,
+          approval_hash: data.approval_hash,
         },
         {
           headers: {
@@ -597,18 +664,17 @@ export async function rejectRentalApplication(rentalAppId) {
         }
       )
       .then((res) => {
-        if (res.status == 200) {
-          return {
-            data: res.data,
-            message: "Rental application rejectd successfully",
-            status: 200,
-          };
-        }
-        return { data: [] };
+        const response = res.data;
+        console.log("axios create lease agreement response ", response);
+        return {
+          response: response,
+          message: "Lease agreement created successfully",
+          status: 200,
+        };
       });
-    return res;
+    return { message: "Lease agreement created successfully", status: 200 };
   } catch (error) {
-    console.log("Approve Rental Application Error: ", error);
-    return error.response;
+    console.log("Create Lease Agreement Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
   }
 }

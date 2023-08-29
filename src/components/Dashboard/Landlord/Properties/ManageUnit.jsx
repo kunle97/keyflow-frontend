@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "../../BackButton";
 import { Alert, Button } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
+import { authUser } from "../../../../constants";
 
 const CreateUnit = () => {
   //Create a state for the form data
@@ -167,6 +168,18 @@ const CreateUnit = () => {
           </div>
         </div>
 
+        <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">
+          <div className="card shadow mb-3">
+            <div className="card-header p-3">
+              <h6 className="text-primary fw-bold m-0 card-header-text">
+                Rental Application Link
+              </h6>
+            </div>
+            <div className="card-body">
+              <input className="form-control"   value={`http://localhost:3000/rental-application/${unit_id}/${authUser.id}/`} />
+            </div>
+          </div>
+        </div>
         <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">
           <div className="card shadow mb-3">
             <div className="card-header p-3">
