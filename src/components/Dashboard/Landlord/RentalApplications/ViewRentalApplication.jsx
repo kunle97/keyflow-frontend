@@ -7,6 +7,7 @@ import {
   createLeaseAgreement,
   deleteOtherRentalApplications,
   getRentalApplicationById,
+  getUnit,
   rejectRentalApplication,
 } from "../../../../api/api";
 import ProgressModal from "../../ProgressModal";
@@ -46,17 +47,22 @@ const ViewRentalApplication = () => {
       if (res.status === 200) {
         console.log(res);
         setOpenAcceptModal(false);
+        let lease_terms = null;
+        getUnit(res.data.unit).then((res) => {
+          console.log("unit", res);
+          lease_terms = res.lease_term;
+        });
         const leaseAgreementData = {
           rental_application_id: res.data.id,
           approval_hash: res.data.approval_hash,
           unit_id: res.data.unit,
           //TODO: Store lease_terms from Unit in the lease agreement
+          lease_terms: lease_terms,
         };
         //Create Lease Agreement row in databse that stores the approval_hash
         createLeaseAgreement(leaseAgreementData).then((res) => {
-          console.log("Create lease agreement response",res);
-        }
-        );
+          console.log("Create lease agreement response", res);
+        });
         //Send lease agreement to applicant
         //Delete all other applications
         deleteOtherRentalApplications(id).then((res) => {
@@ -137,14 +143,14 @@ const ViewRentalApplication = () => {
               {" "}
               {rentalApplication.first_name} {rentalApplication.last_name}{" "}
               Rental Application (Status :{" "}
-              {rentalApplication.is_approved ? "Approved" : "Pending"}) {" "}
+              {rentalApplication.is_approved ? "Approved" : "Pending"}){" "}
               {rentalApplication.is_archived ? "(Archived)" : ""}
             </h4>
             <Button
               variant="contained"
               sx={{ background: uiGreen, float: "right" }}
             >
-              View Full Report 
+              View Full Report
             </Button>
           </div>
           <div className="mb-4">
