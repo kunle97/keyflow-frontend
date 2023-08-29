@@ -2,15 +2,27 @@ import React, { useState, useEffect } from "react";
 import { Button, Stack } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import { useParams } from "react-router";
-import { approveRentalApplication, getRentalApplicationById, rejectRentalApplication } from "../../../../api/api";
+import {
+  approveRentalApplication,
+  createLeaseAgreement,
+  deleteOtherRentalApplications,
+  getRentalApplicationById,
+  rejectRentalApplication,
+} from "../../../../api/api";
 import ProgressModal from "../../ProgressModal";
-
+import ConfirmModal from "../../ConfirmModal";
+import AlertModal from "../../AlertModal";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const [rentalApplication, setRentalApplication] = useState({});
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [openAcceptModal, setOpenAcceptModal] = useState(false);
+  const [openRejectModal, setOpenRejectModal] = useState(false);
+  const [openAlertModal, setOpenAlertModal] = useState(false);
+  const [aletModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
 
   useEffect(() => {
     //Retrieve rental application by id
@@ -27,19 +39,57 @@ const ViewRentalApplication = () => {
   //create a function to accept the appplciation
   const handleAccept = () => {
     console.log("Accepting Application...");
+    //Approve and Archive this application
     approveRentalApplication(id).then((res) => {
-      if (res) {
+      setIsLoading(true);
+      console.log(res);
+      if (res.status === 200) {
         console.log(res);
+        setOpenAcceptModal(false);
+        const leaseAgreementData = {
+          rental_application_id: res.data.id,
+          approval_hash: res.data.approval_hash,
+          unit_id: res.data.unit,
+          //TODO: Store lease_terms from Unit in the lease agreement
+        };
+        //Create Lease Agreement row in databse that stores the approval_hash
+        createLeaseAgreement(leaseAgreementData).then((res) => {
+          console.log("Create lease agreement response",res);
+        }
+        );
+        //Send lease agreement to applicant
+        //Delete all other applications
+        deleteOtherRentalApplications(id).then((res) => {
+          if (res.status === 200) {
+            console.log(res);
+          } else {
+            console.log(res);
+          }
+        });
+        setAlertModalTitle(res.message);
+        setOpenAlertModal(true);
+      } else {
+        setAlertModalTitle("An error occured");
+        setOpenAlertModal(true);
       }
+      setIsLoading(false);
     });
   };
 
-//create a function to reject the appplciation
+  //create a function to reject the appplciation
   const handleReject = () => {
     console.log("Rejecting Application...");
     rejectRentalApplication(id).then((res) => {
-      if (res) {
+      if (res.status === 200) {
         console.log(res);
+        setOpenRejectModal(false);
+        //TODO: Delete this application
+        setAlertModalTitle(res.message);
+        setOpenAlertModal(true);
+      } else {
+        console.log(res);
+        setAlertModalTitle("An error occured");
+        setOpenAlertModal(true);
       }
     });
   };
@@ -50,17 +100,51 @@ const ViewRentalApplication = () => {
         <ProgressModal title="Loading Application Data..." open={isLoading} />
       ) : (
         <div>
+          <AlertModal
+            open={openAlertModal}
+            title={aletModalTitle}
+            message={alertModalMessage}
+            btnText="Ok"
+            handleClose={() => setOpenAlertModal(false)}
+            to="/dashboard/landlord/rental-applications"
+          />
+          <ConfirmModal
+            open={openAcceptModal}
+            title={"Are you sure you want to accept this application?"}
+            message={
+              "Accepting this application will will send a lease agreement to the applicant and this application will be archived. The remaining applications will be deleted. Do you wish to continue?"
+            }
+            cancelBtnText="Cancel"
+            conformBtnText="Confirm"
+            handleClose={() => setOpenAcceptModal(false)}
+            handleConfirm={handleAccept}
+            handleCancel={() => setOpenAcceptModal(false)}
+          />
+          <ConfirmModal
+            open={openRejectModal}
+            title={"Are you sure you want to reject this application?"}
+            message={
+              "Rejecting this application will permenantly delete it fdorm your records. Do you wish to continue?"
+            }
+            cancelBtnText="Cancel"
+            conformBtnText="Confirm"
+            handleClose={() => setOpenRejectModal(false)}
+            handleConfirm={handleReject}
+            handleCancel={() => setOpenRejectModal(false)}
+          />
           <div className="mb-3" style={{ overflow: "auto" }}>
             <h4 style={{ float: "left" }}>
               {" "}
               {rentalApplication.first_name} {rentalApplication.last_name}{" "}
-              Rental Application (Status : {rentalApplication.is_approved ? "Approved" : "Pending"})
+              Rental Application (Status :{" "}
+              {rentalApplication.is_approved ? "Approved" : "Pending"}) {" "}
+              {rentalApplication.is_archived ? "(Archived)" : ""}
             </h4>
             <Button
               variant="contained"
               sx={{ background: uiGreen, float: "right" }}
             >
-              View Full Report
+              View Full Report 
             </Button>
           </div>
           <div className="mb-4">
@@ -250,10 +334,18 @@ const ViewRentalApplication = () => {
             </div>
           </div>
           <Stack direction="row" gap={2}>
-            <Button onClick={handleReject} variant="contained" sx={{ background: "red" }}>
+            <Button
+              onClick={setOpenRejectModal}
+              variant="contained"
+              sx={{ background: "red" }}
+            >
               Reject
             </Button>
-            <Button onClick={handleAccept} variant="contained" sx={{ background: uiGreen }}>
+            <Button
+              onClick={setOpenAcceptModal}
+              variant="contained"
+              sx={{ background: uiGreen }}
+            >
               Accept
             </Button>
           </Stack>

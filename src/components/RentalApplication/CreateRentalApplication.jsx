@@ -1,9 +1,7 @@
 import { Button, Stack, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { uiGreen } from "../../constants";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import IconButton from "@mui/material/IconButton";
+import { fakeData, uiGreen } from "../../constants";
 import UIBinaryRadioGroup from "../Dashboard/UIBinaryRadioGroup";
 import EmploymentHistorySection from "./EmploymentHistorySection";
 import RentalHistorySection from "./RentalHistorySection";
@@ -13,7 +11,7 @@ import { useEffect } from "react";
 import { createRentalApplication, getProperty } from "../../api/api";
 import { useParams } from "react-router-dom";
 import { getUnit } from "../../api/api";
-
+import ProgressModal from "../Dashboard/ProgressModal";
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
 
@@ -74,25 +72,26 @@ const CreateRentalApplication = () => {
   const [currentStep, setCurrentStep] = useState(1); // current step of the form
   const [employmentHistory, setEmploymentHistory] = useState([
     {
-      companyName: "",
-      position: "",
-      companyAddress: "",
-      income: "",
-      startDate: "",
-      endDate: "",
-      supervisorName: "",
-      supervisorPhone: "",
-      supervisorEmail: "",
+      companyName: fakeData.fakeCompanyName,
+      position: fakeData.fakePosition,
+      companyAddress: fakeData.fakeAddress,
+      income: fakeData.fakeFinanceAmount,
+      startDate: fakeData.fakePastDate,
+      endDate: fakeData.fakePastDate,
+      supervisorName: `${fakeData.fakeFirstName} ${fakeData.fakeLastName}`,
+      supervisorPhone: fakeData.fakePhoneNumber,
+      supervisorEmail: fakeData.fakeEmail,
     },
   ]);
+  console.log(employmentHistory);
   const [residenceHistory, setResidenceHistory] = useState([
     {
-      address: "",
-      startDate: "",
-      endDate: "",
-      landlordName: "",
-      landlordPhone: "",
-      landlordEmail: "",
+      address: faker.address.streetAddress(),
+      startDate: faker.date.past().toISOString().split("T")[0],
+      endDate: faker.date.past().toISOString().split("T")[0],
+      landlordName: `${faker.person.firstName()} ${faker.person.lastName()}`,
+      landlordPhone: faker.phone.number('###-###-####'),
+      landlordEmail: faker.internet.email(),
     },
   ]);
 
@@ -106,15 +105,15 @@ const CreateRentalApplication = () => {
 
   const addEmploymentInfoNode = () => {
     const newEmployment = {
-      companyName: "",
-      position: "",
-      companyAddress: "",
-      income: "",
-      startDate: "",
-      endDate: "",
-      supervisorName: "",
-      supervisorPhone: "",
-      supervisorEmail: "",
+      companyName: faker.company.name(),
+      position: faker.name.jobTitle(),
+      companyAddress: faker.address.streetAddress(),
+      income: faker.finance.amount(),
+      startDate: faker.date.past().toISOString().split("T")[0],
+      endDate: fakeData.fakePastDate,
+      supervisorName: `${faker.person.firstName()} ${faker.person.lastName()}`,
+      supervisorPhone: faker.phone.number('###-###-####'),
+      supervisorEmail: faker.internet.email(),
     };
     setEmploymentHistory([...employmentHistory, newEmployment]);
   };
@@ -136,12 +135,12 @@ const CreateRentalApplication = () => {
 
   const addRentalHistoryNode = () => {
     const newRentalHistory = {
-      address: "",
-      startDate: "",
-      endDate: "",
-      landlordName: "",
-      landlordPhone: "",
-      landlordEmail: "",
+      address: faker.address.streetAddress(),
+      startDate: faker.date.past().toISOString().split("T")[0],
+      endDate: faker.date.past().toISOString().split("T")[0],
+      landlordName: `${faker.person.firstName()} ${faker.person.lastName()}`,
+      landlordPhone: faker.phone.number('###-###-####'),
+      landlordEmail: faker.internet.email(),
     };
     setResidenceHistory([...residenceHistory, newRentalHistory]);
   };
@@ -164,16 +163,19 @@ const CreateRentalApplication = () => {
     console.log(data);
     const res = await createRentalApplication(data);
     setIsLoading(true);
-    if (res.id !== undefined) {
+    console.log(res);
+    if (res.status == 200) {
       // show a success message
-      // setIsLoading(false);
-      setSubmissionMessage("Application Submitted Successfully. You will be contacted shortly.");
-      // setShowSubmissionMessage(true);
+      setIsLoading(false);
+      setSubmissionMessage(
+        "Application Submitted Successfully. You will be contacted shortly."
+      );
+      setShowSubmissionMessage(true);
     } else {
       //Show error message
-      // setIsLoading(false);
+      setIsLoading(false);
       setSubmissionMessage("Error Submitting Application");
-      // setShowSubmissionMessage(true);
+      setShowSubmissionMessage(true);
     }
   };
 
@@ -196,7 +198,8 @@ const CreateRentalApplication = () => {
           ></div>
           {property && unit ? (
             <>
-              {!showSubmissionMessage ? (
+            {isLoading && <ProgressModal open={isLoading} title="Submitting Application" />}
+              {!showSubmissionMessage && !isLoading ? (
                 <div
                   className="col-md-4  justify-content-center align-items-center"
                   style={{ overflowY: "auto", maxHeight: "100vh" }}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authPost, loginPost } from "../../../api/apiClient";
+import { authPost, loginPost } from "../apiClient";
 import { useNavigate } from "react-router";
 import { login, logout } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
