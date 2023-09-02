@@ -66,8 +66,19 @@ td {
   color: white !important;
   border: none !important;
 }
-.top-bar-searchbar{
+.top-bar-searchbar {
   background: #364658 !important;
   color: white !important;
   border: none !important;
+}
+
+.ui-btn {
+  background: #3aaf5c;
+  border: none;
+  color: white;
+  text-transform: none;
+}
+.rental-application-lease-heading{
+  font-weight: bold;
+  font-size: 13pt;
 }

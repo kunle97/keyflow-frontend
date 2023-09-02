@@ -1,26 +1,22 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { logout } from "../../../../api/api";
 import { useNavigate } from "react-router";
-import AlertModal from "../../AlertModal";
+import AlertModal from "../../Modals/AlertModal";
 import { Link } from "react-router-dom";
 import { authUser, token, uiGreen } from "../../../../constants";
 import { faker } from "@faker-js/faker";
 const Topbar = () => {
-  //Retrieve authUser from localStorage
-  
   const [open, setOpen] = useState(false);
-  // const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
     e.preventDefault();
 
-
     //call logout api
     const response = await logout(token);
     console.log("Logout funtion return value on Login.jsx: ", response);
-    
+
     if (response.status == 200) {
       //Set authUser and isLoggedIn in context
       // setAuthUser({});
@@ -38,7 +34,11 @@ const Topbar = () => {
           title={"Logout Successful!"}
           message="You have been logged Out Successfully! Click the link below to  return to the home page"
           btnText="Return Home"
-          to="/dashboard/login"
+          to={
+            authUser.account_type === "landlord"
+              ? "/dashboard/landlord/login"
+              : "/dashboard/tenant/login"
+          }
         />
       )}
       <nav
@@ -334,7 +334,11 @@ const Topbar = () => {
                 >
                   <Link
                     className="dropdown-item"
-                    to="/dashboard/my-account"
+                    to={
+                      authUser.account_type === "landlord"
+                        ? "/dashboard/landlord/my-account"
+                        : "/dashboard/tenant/my-account"
+                    }
                     style={{ borderStyle: "none" }}
                   >
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />

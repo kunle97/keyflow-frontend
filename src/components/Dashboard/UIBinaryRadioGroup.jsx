@@ -6,10 +6,10 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { uiGreen } from "../../constants";
 const UIBinaryRadioGroup = (props) => {
-
-  useEffect(() => {
-
-  }, []);
+  const handleChange = (event) => {
+    console.log(event.target.value);
+    props.onSet(event.target.value);
+  };
 
   return (
     <FormControl>
@@ -21,6 +21,7 @@ const UIBinaryRadioGroup = (props) => {
         aria-labelledby={props.name}
         name={props.name}
         defaultValue={props.default_value}
+        onChange={(event) => handleChange(event)}
       >
         <FormControlLabel
           value={props.radio_one_value}
@@ -32,7 +33,6 @@ const UIBinaryRadioGroup = (props) => {
                   color: uiGreen,
                 },
               }}
-              // onClick={()=>{console.log(props.radio_one_value)}}
               onClick={props.onSet(props.radio_one_value)}
             />
           }
@@ -49,10 +49,7 @@ const UIBinaryRadioGroup = (props) => {
                   color: uiGreen,
                 },
               }}
-              onSelect={props.onSet(props.radio_two_value)}
-              // onClick={()=>{console.log(props.radio_two_value)}}
               onClick={props.onSet(props.radio_two_value)}
-
             />
           }
           label={props.radio_two_label}

@@ -45,7 +45,7 @@ const ManageProperty = () => {
     setShowUpdateSuccess(false);
   };
 
-  const columns = ["id", "name", "beds", "baths", "rent"];
+  const columns = ["id", "name", "beds", "baths", "is_occupied"];
 
   useEffect(() => {
     getProperty(id).then((res) => {
@@ -71,7 +71,7 @@ const ManageProperty = () => {
   }, [property]);
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/units/${rowData[0]}/${property.id}`;
+    const navlink = `/dashboard/landlord/units/${rowData[0]}/${property.id}`;
     navigate(navlink);
   };
   const options = {
@@ -447,7 +447,7 @@ const ManageProperty = () => {
                               No units created
                             </Typography>
                             <UIButton
-                              to={`/dashboard/units/create/${id}`}
+                              to={`/dashboard/landlord/units/create/${id}`}
                               btnText="Create Unit"
                             />
                           </Box>
@@ -455,7 +455,7 @@ const ManageProperty = () => {
                       ) : (
                         <>
                           <Box sx={{overflow:"auto"}} >
-                            <Link to={`/dashboard/units/create/${id}`}>
+                            <Link to={`/dashboard/landlord/units/create/${id}`}>
                               <Button
                               className="w-full"
                                 style={{

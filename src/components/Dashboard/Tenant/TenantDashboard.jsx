@@ -1,16 +1,14 @@
-import React from "react";
-import { uiGreen, uiGrey1, uiGrey2 } from "../../../constants";
+import React, { useEffect, useState } from "react";
+import { uiGreen, uiGrey2 } from "../../../constants";
 import { authUser } from "../../../constants";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ReportIcon from "@mui/icons-material/Report";
 import PaymentCalendar from "./PaymentCalendar";
-import UIButton from "../UIButton";
-import { Link } from "react-router-dom";
+import { listStripePaymentMethods } from "../../../api/api";
+import AlertModal from "../Modals/AlertModal";
 
 const TenantDashboard = () => {
   const bull = (
@@ -39,8 +37,8 @@ const TenantDashboard = () => {
           }
         >
           {" "}
-          <Box sx={{ display: "flex", margin:"10px 0" }}>
-            <Typography sx={{marginRight: "5px"}} >Visa ****4455</Typography>
+          <Box sx={{ display: "flex", margin: "10px 0" }}>
+            <Typography sx={{ marginRight: "5px" }}>Visa ****4455</Typography>
             <a
               sx={{ color: uiGreen, textTransform: "none", float: "right" }}
               href="#"
@@ -65,8 +63,31 @@ const TenantDashboard = () => {
     </>
   );
 
+  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
+    useState(false);
+
+  useEffect(() => {
+    //Get the payment methods for the user and check if they at least have one
+    listStripePaymentMethods(`${authUser.id}`).then((res) => {
+      if (res.data.length < 1) {
+        setShowAddPaymentMethodAlert(true);
+      }
+    });
+  }, []);
+
   return (
     <div className="container">
+      <AlertModal
+        open={showAddPaymentMethodAlert}
+        onClose={() => {}}
+        title="Add Payment Method"
+        message="Welcome to the Keyflow Dashbaord! Here you will be able to pay your rent, 
+        manage your account, view your payment history, and submit maintenance requests. 
+        In order to pay your rent, you must first add a payment method. Click the button 
+        below to add a payment method."
+        to="/dashboard/tenant/add-payment-method"
+        btnText="Add Payment Method"
+      />
       <div className="d-sm-flex justify-content-between align-items-center mb-4">
         <h3 className="text-light mb-0">
           Good Afternoon, {`${authUser.first_name}!`}
@@ -92,7 +113,7 @@ const TenantDashboard = () => {
                 className=" m-0 card-header-text p-2"
                 style={{ fontSize: "17pt", fontWeight: "400" }}
               >
-               Payment History
+                Payment History
               </p>
             </div>
             <div className="card-body">
@@ -418,7 +439,7 @@ const TenantDashboard = () => {
                 className="m-0 card-header-text p-2"
                 style={{ fontSize: "17pt", fontWeight: "400" }}
               >
-                 Maintenance Requests
+                Maintenance Requests
               </h6>
             </div>
             <div className="card-body">

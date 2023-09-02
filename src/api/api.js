@@ -77,6 +77,8 @@ export async function logout(accessToken) {
         if (response.status === 200) {
           //redirect to login page on Login.jsx
           localStorage.removeItem("accessToken");
+          localStorage.removeItem("authUser");
+          localStorage.removeItem("stripe_onoboarding_link");
           message = response.message;
           status = response.status;
         } else {
@@ -133,7 +135,7 @@ export async function register(data) {
 export async function register_tenant(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/auth/register/`, data)
+      .post(`${BASE_API_URL}/auth/tenant/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
@@ -157,6 +159,87 @@ export async function register_tenant(data) {
   } catch (error) {
     console.log("Register Error: ", error);
     return error;
+  }
+}
+
+//Create a funtion to create a plaid link token that will be used in the Playid Link component
+export async function createPlaidLinkToken(user_id) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/plaid/create-link-token/`,
+        { user_id: user_id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`, //Keep comented when testing
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Create Plaid Link Token Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to add a payment method to a users stripe account
+export async function addStripePaymentMethod(data) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/stripe/add-payment-method/`,
+        {
+          user_id: data.user_id,
+          payment_method_id: data.payment_method_id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Add Payment Method Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to list styripe payment methods using the endpoint /stripe/list-payment-methods/
+export async function listStripePaymentMethods(user_id) {
+  try {
+    const res = await axios
+
+      .post(
+        `${BASE_API_URL}/stripe/list-payment-methods/`,
+        {
+          user_id: user_id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("List Payment Methods Error: ", error);
+    return error.response;
   }
 }
 
@@ -196,7 +279,7 @@ export async function createProperty(
         console.log("axios create property response ", response);
         return response;
       });
-    return { message: "Property created successfully", status: 200 };
+    return { message: "Property created successfully", status: 200, res: res };
   } catch (error) {
     console.log("Create Property Error: ", error);
     return error.response.data;
@@ -324,7 +407,7 @@ export async function createUnit(data) {
         console.log("axios create unit response ", response);
         return response;
       });
-    return { message: "Unit created successfully", status: 200 };
+    return { message: "Unit created successfully", status: 200, res: res };
   } catch (error) {
     console.log("Create Unit Error: ", error);
     return error.response.data;
@@ -453,6 +536,7 @@ export async function createRentalApplication(data) {
           employment_history: JSON.stringify(data.employment_history),
           residential_history: JSON.stringify(data.residential_history),
           landlord: data.landlord_id,
+          comments: data.comments,
         },
         {
           headers: {
@@ -463,13 +547,13 @@ export async function createRentalApplication(data) {
       .then((res) => {
         const response = res.data;
         console.log("axios create rental app response ", response);
-        return {
-          response: response,
-          message: "Rental app created successfully",
-          status: 200,
-        };
+        return response;
       });
-    return { message: "Rental app created successfully", status: 200 };
+    return {
+      message: "Rental app created successfully",
+      status: 200,
+      res: res,
+    };
   } catch (error) {
     console.log("Create Rental App Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
@@ -546,6 +630,32 @@ export async function getRentalApplicationById(rentalAppId) {
     return error.response;
   }
 }
+//Retreives Approval Hash. Used to populate form data when tenant registers for the first time
+export async function getRentalApplicationByApprovalHash(approval_hash) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/auth/tenant/register/retrieve-rental-application/`,
+        { approval_hash: approval_hash },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Get Rental Application Error: ", error);
+    return error.response;
+  }
+}
 
 //Create A function to approve a rental application
 export async function approveRentalApplication(rentalAppId) {
@@ -555,7 +665,7 @@ export async function approveRentalApplication(rentalAppId) {
         `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
         {
           is_approved: true,
-          approval_hash: createApprovalHash(32),
+          approval_hash: createApprovalHash(64),
           is_archived: true,
         },
         {
@@ -566,17 +676,11 @@ export async function approveRentalApplication(rentalAppId) {
         }
       )
       .then((res) => {
-        console.log(res)
-        if (res.status == 200) {
-          return {
-            data: res.data,
-            message: "Rental application approved successfully",
-            status: 200,
-          };
-        }
-        return { data: [] };
+        console.log(res);
+        return res.data;
       });
-      return res;
+    console.log("Rental Application Approved", res);
+    return res;
   } catch (error) {
     console.log("Approve Rental Application Error: ", error);
     return error.response;
@@ -615,7 +719,6 @@ export async function rejectRentalApplication(rentalAppId) {
   }
 }
 
-
 //Create a function to delete all other rental applications other than the one that was approved
 export async function deleteOtherRentalApplications(rentalAppId) {
   try {
@@ -650,12 +753,14 @@ export async function createLeaseAgreement(data) {
     const res = await axios
       .post(
         `${BASE_API_URL}/lease-agreements/`,
-        {
-          rental_application: data.rental_application_id,
-          rental_unit: data.unit_id,
-          user: authUser.id,
-          approval_hash: data.approval_hash,
-        },
+        // {
+        //   rental_application: data.rental_application,
+        //   rental_unit: data.rental_unit,
+        //   user: authUser.id,
+        //   approval_hash: data.approval_hash,
+        //   lease_term: data.lease_term,
+        // },
+        data,
         {
           headers: {
             "Content-Type": "application/json",
@@ -666,15 +771,221 @@ export async function createLeaseAgreement(data) {
       .then((res) => {
         const response = res.data;
         console.log("axios create lease agreement response ", response);
-        return {
-          response: response,
-          message: "Lease agreement created successfully",
-          status: 200,
-        };
+        return response;
       });
-    return { message: "Lease agreement created successfully", status: 200 };
+    return {
+      message: "Lease agreement created successfully",
+      status: 200,
+      response: res,
+    };
   } catch (error) {
     console.log("Create Lease Agreement Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+//Create an API function to update a lease agreement
+export async function updateLeaseAgreement(leaseAgreementId, data) {
+  try {
+    const res = await axios
+      .patch(`${BASE_API_URL}/lease-agreements/${leaseAgreementId}/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        const response = res.data;
+        console.log("axios update lease agreement response ", response);
+        return {
+          response: response,
+          message: "Lease agreement updated successfully",
+          status: 200,
+        };
+      });
+    return {
+      message: "Lease agreement updated successfully",
+      status: 200,
+      res: res,
+    };
+  } catch (error) {
+    console.log("Update Lease Agreement Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+//Create a funtion that retrieves a lease agreement by its id
+export async function getLeaseAgreementById(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/retrieve-lease-agreement/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Get Lease Agreement Error: ", error);
+    return error.response;
+  }
+}
+
+///------------LEASE TERM API FUNCTIONS-----------------///
+//Create a function that creates a lease term
+export async function createLeaseTerm(data) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/lease-terms/`,
+        {
+          user: authUser.id,
+          rent: parseFloat(data.rent),
+          term: data.term,
+          description: "_",
+          security_deposit: data.security_deposit,
+          late_fee: data.late_fee,
+          water_included: stringToBoolean(data.water_included),
+          electric_included: stringToBoolean(data.electricity_included),
+          repairs_included: stringToBoolean(data.repairs_included),
+          lease_cancellation_notice_period:
+            data.lease_cancellation_notice_period,
+          lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
+          is_active: true,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        const response = res.data;
+        console.log("axios create lease term response ", response);
+        return response;
+      });
+    return {
+      message: "Lease term created successfully",
+      status: 200,
+      res: res,
+    };
+  } catch (error) {
+    console.log("Create Lease Term Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+//Create a function that gets all lease terms for a specific user
+export async function getLeaseTermsByUser() {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/users/${authUser.id}/lease-terms/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        // console.log(res);
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Lease Terms Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to retrieve one specific lease term by its id
+export async function getLeaseTermById(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/retrieve-lease-term/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Error Retrieving LEase Term: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that updates a lease term
+export async function updateLeaseTerm(leaseTermId, data) {
+  try {
+    const res = await axios
+      .patch(`${BASE_API_URL}/lease-terms/${leaseTermId}/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Update Lease Term Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to sign lease agreement
+export async function signLeaseAgreement(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/sign-lease-agreement/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Sign Lease Agreement Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to verify the tenant registration via the approval hash and lease agreement id
+export async function verifyTenantRegistrationCredentials(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/auth/tenant/register/verify/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Sign Lease Agreement Error: ", error);
+    return error.response;
   }
 }

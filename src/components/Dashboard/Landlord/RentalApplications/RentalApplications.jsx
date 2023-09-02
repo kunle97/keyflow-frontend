@@ -59,7 +59,7 @@ const RentalApplications = () => {
         const filteredData = res.data.filter((data) => {
           return data.is_archived === false;
         });
-        setRentalApplications(res.data);
+        setRentalApplications(filteredData);
         setIsLoading(false);
       }
       console.log("Rental Applications: ", rentalApplications);

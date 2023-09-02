@@ -1,15 +1,23 @@
 import React, { useState } from "react";
-import { uiGreen } from "../../../constants";
+import { authUser, uiGreen } from "../../../constants";
 import { faker } from "@faker-js/faker";
-import { register_tenant } from "../../../api/api";
-import { Link, useNavigate } from "react-router-dom";
-import AlertModal from "../AlertModal";
-import ProgressModal from "../ProgressModal";
-import { Input, Button } from "@mui/material";
-import AddPaymentDetails from "../../AddPaymentDetails";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import IconButton from "@mui/material/IconButton";
+import {
+  getRentalApplicationByApprovalHash,
+  register_tenant,
+  updateUnit,
+  verifyTenantRegistrationCredentials,
+} from "../../../api/api";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import AlertModal from "../Modals/AlertModal";
+import ProgressModal from "../Modals/ProgressModal";
+import { Button } from "@mui/material";
+import { useEffect } from "react";
+import SingleButtonConfirmModal from "../Modals/SingleButtonConfirmModal";
+import AddPaymentMethod from "./AddPaymentMethod";
+
 const TenantRegister = () => {
+  const { lease_agreement_id, approval_hash } = useParams();
+
   //Create a state for the form data
   const [firstName, setFirstName] = useState(faker.person.firstName());
   const [lastName, setLastName] = useState(faker.person.lastName());
@@ -24,11 +32,33 @@ const TenantRegister = () => {
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errMsg, setErrMsg] = useState();
   const [showStep1, setShowStep1] = useState(true);
   const [showStep2, setShowStep2] = useState(false);
-
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
+  //Veryfy that the lease agreement id and approval hash are valid on page load
+  useEffect(() => {
+    verifyTenantRegistrationCredentials({
+      lease_agreement_id,
+      approval_hash,
+    }).then((res) => {
+      if (res.status !== 200) {
+        //TODO: Show error message modal to make the tenant contact thier landlord
+      }
+    });
+    //TODO: Populate the form with rental application data
+    //Retrieve users rental application data using the approval_hash
+    getRentalApplicationByApprovalHash(approval_hash).then((res) => {
+      console.log(res);
+      if (res.id) {
+        //Populate the form with the rental application data
+        setFirstName(res.first_name);
+        setLastName(res.last_name);
+        setEmail(res.email);
+        setUserName(faker.internet.userName({ firstName, lastName }));
+      }
+    });
+  }, []);
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const handleSubmit = async (e) => {
@@ -36,8 +66,17 @@ const TenantRegister = () => {
     setIsLoading(true);
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
+    data.first_name = firstName;
+    data.last_name = lastName;
+    data.username = userName;
+    data.email = email;
+    data.password = password;
     console.log(data);
     //Call the API to create a new user
+    //     //Show success message
+    setErrorMode(false);
+    setOpen(true);
+    setIsLoading(false);
     const response = await register_tenant(data).then((res) => {
       console.log(res);
       if (res.token) {
@@ -45,10 +84,20 @@ const TenantRegister = () => {
         localStorage.setItem("accessToken", res.token);
         localStorage.setItem("authUser", JSON.stringify(res.userData));
 
+        //Update Unit to have tenant id of newly created user
+        updateUnit(res.id, { tenant_id: res.userData.id }).then((res) => {
+          console.log("Update Unit Response", res);
+        });
+        
+        setUserId(authUser.id);
         //Show success message
         setErrorMode(false);
         setOpen(true);
         setIsLoading(false);
+        //TODO: update unit model to attach new tenant
+        //TODO: On submit update lease agrrement model to attach newly created user, etc.
+        //TODO: On submit, send email to tenant to confirm email address
+        //TODO: On submit, send email to landlord to confirm new tenant
       } else {
         //TODO: Show error message moodal
         setErrorMode(true);
@@ -71,20 +120,19 @@ const TenantRegister = () => {
             <AlertModal
               open={true}
               onClose={() => setOpen(false)}
-              title={"Registration Failed!"}
+              title={"Registration Failed"}
               message="Registration failed. Please try again"
               btnText="Close"
-              to="/dashboard/register"
+              to={`/dashboard/tenant/register/${lease_agreement_id}/${approval_hash}/`}
             />
           ) : (
             <AlertModal
               open={true}
               onClose={() => setOpen(false)}
               title={"Registration Successful!"}
-              message="You have been registered Successfully! Be sure to check your email
-              for confirmation to activate your account. Click the link below to navioate to your dashboard."
-              btnText="Continue"
-              to={"/dashboard/tenant/"}
+              message="Your account has been created successfully! Be Sure to check for your confirmation email to activate your account. Click the link below to be redirected to your dashboard."
+              btnText="Go To Dashboard"
+              to={`/dashboard/tenant/`}
             />
           )}
         </>
@@ -94,151 +142,110 @@ const TenantRegister = () => {
         {" "}
         <div className="col-md-4 col-sm-12 login-col " style={{}}>
           <div className="row">
-            <div className=" ">
-              <img
-                style={{ width: "60%", marginBottom: "25px" }}
-                src="/assets/img/key-flow-logo-white-transparent.png"
-              />
-              <form className="user" onSubmit={handleSubmit}>
-                <input type="hidden" name="account_type" value="tenant" />
+            <div className="card">
+              <div className="card-body">
+                <img
+                  style={{ maxWidth: "250px", marginBottom: "25px" }}
+                  src="/assets/img/key-flow-logo-white-transparent.png"
+                />
 
-                {showStep1 && (
-                  <div className="step-1">
-                    <h5>Personal Information</h5>
-                    <div className="row mb-3">
-                      <div className="col-sm-6 mb-3 mb-sm-0">
-                        <Input
-                          className="form-control form-control-user"
-                          type="text"
-                          id="exampleFirstName"
-                          placeholder="First Name"
-                          name="first_name"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
+                <form className="user" onSubmit={handleSubmit}>
+                  <input type="hidden" name="account_type" value="tenant" />
+
+                  {showStep1 && (
+                    <div className="step-1">
+                      <h5 className="mb-3"> Create Your Account</h5>
+                      <div className="row mb-3">
+                        <div className="col-sm-6 mb-3 mb-sm-0">
+                          <label className="form-label">First Name</label>
+                          <input
+                            className="form-control"
+                            type="text"
+                            id="exampleFirstName"
+                            placeholder="First Name"
+                            name="first_name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                          />
+                        </div>
+                        <div className="col-sm-6">
+                          <label className="form-label">Last Name</label>
+                          <input
+                            className="form-control"
+                            type="text"
+                            id="exampleLastName"
+                            placeholder="Last Name"
+                            name="last_name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">E-mail</label>
+                        <input
+                          className="form-control"
+                          type="email"
+                          id="exampleInputEmail"
+                          aria-describedby="emailHelp"
+                          placeholder="Email Address"
+                          name="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                         />
                       </div>
-                      <div className="col-sm-6">
-                        <Input
-                          className="form-control form-control-user"
-                          type="text"
-                          id="exampleLastName"
-                          placeholder="Last Name"
-                          name="last_name"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                        />
+                      <div className="row mb-3">
+                        <div className="col-sm-12 col-md-6 mb-3 mb-sm-0">
+                          <label className="form-label">Password</label>
+                          <input
+                            className="form-control"
+                            type="password"
+                            id="examplePasswordInput"
+                            placeholder="Password"
+                            name="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                          />
+                        </div>
+                        <div className="col-sm-12 col-md-6">
+                          <label className="form-label">Retype Password</label>
+                          <input
+                            className="form-control"
+                            type="password"
+                            id="exampleRepeatPasswordInput"
+                            placeholder="Repeat Password"
+                            name="password_repeat"
+                            value={password2}
+                            onChange={(e) => setPassword2(e.target.value)}
+                          />
+                        </div>
                       </div>
+                      <Button
+                        className="btn btn-primary d-block  w-100 mb-2"
+                        type="submit"
+                        style={{
+                          marginTop: "20px",
+                          background: uiGreen,
+                          border: "none",
+                          textTransform: "none",
+                          color: "white",
+                        }}
+                      >
+                        Sign Up
+                      </Button>
+                      {/* <div className="mb-2">
+                        <Link
+                          className="small"
+                          to="/dashboard/tenant/login"
+                          style={{ color: uiGreen }}
+                        >
+                          Already have an account? Login!
+                        </Link>
+                      </div> */}
                     </div>
-                    <div className="mb-3">
-                      <Input
-                        className="form-control form-control-user"
-                        type="text"
-                        id="exampleInputUsername"
-                        aria-describedby="usernameHelp"
-                        placeholder="Username"
-                        name="username"
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <Input
-                        className="form-control form-control-user"
-                        type="email"
-                        id="exampleInputEmail"
-                        aria-describedby="emailHelp"
-                        placeholder="Email Address"
-                        name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    <div className="row mb-3">
-                      <div className="col-sm-6 mb-3 mb-sm-0">
-                        <Input
-                          className="form-control form-control-user"
-                          type="password"
-                          id="examplePasswordInput"
-                          placeholder="Password"
-                          name="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </div>
-                      <div className="col-sm-6">
-                        <Input
-                          className="form-control form-control-user"
-                          type="password"
-                          id="exampleRepeatPasswordInput"
-                          placeholder="Repeat Password"
-                          name="password_repeat"
-                          value={password2}
-                          onChange={(e) => setPassword2(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      className="btn btn-primary d-block  w-100 mb-2"
-                      type="button"
-                      style={{
-                        background: uiGreen,
-                        border: "none",
-                        textTransform: "none",
-                        color: "white",
-                      }}
-                      onClick={() => {
-                        setShowStep1(false);
-                        setShowStep2(true);
-                      }}
-                    >
-                      Add Payment Details
-                    </Button>
-                  </div>
-                )}
-                {showStep2 && (
-                  <div className="step-2">
-                    <IconButton
-                      onClick={() => {
-                        setShowStep1(true);
-                        setShowStep2(false);
-                      }}
-                    >
-                      <ArrowBackIcon sx={{ color: uiGreen }} />
-                    </IconButton>
-                    <h5>Payment Information</h5>
-                    <AddPaymentDetails />
-                    <Button
-                      className="btn btn-primary d-block  w-100 mb-2"
-                      type="submit"
-                      style={{
-                        background: uiGreen,
-                        border: "none",
-                        textTransform: "none",
-                        color: "white",
-                      }}
-                    >
-                      Sign Up
-                    </Button>
-                  </div>
-                )}
-              </form>
-              <div className="mb-2">
-                <a
-                  className="small"
-                  href="forgot-password.html"
-                  style={{ color: uiGreen }}
-                >
-                  Forgot Password?
-                </a>
-              </div>
-              <div className="mb-2">
-                <Link
-                  className="small"
-                  to="/dashboard/tenant/login"
-                  style={{ color: uiGreen }}
-                >
-                  Already have an account? Login!
-                </Link>
+                  )}
+                  {showStep2 && <AddPaymentMethod user_id={userId} />}
+                </form>
               </div>
             </div>
           </div>
@@ -251,10 +258,7 @@ const TenantRegister = () => {
             backgroundPosition: "5%",
             height: "100vh",
           }}
-        >
-          {/* <img style={{width:"100%"}} src="/assets/img/login-page-banner.jpg" /> */}
-        </div>
-        {/* d-flex justify-content-center */}
+        ></div>
       </div>
     </div>
   );

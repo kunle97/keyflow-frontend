@@ -1,7 +1,14 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { landlordMenuItems } from "../../../../constants";
+import {
+  authUser,
+  landlordMenuItems,
+  tenantMenuItems,
+} from "../../../../constants";
 const Sidebar = () => {
+  const menuItems =
+    authUser.account_type === "landlord" ? landlordMenuItems : tenantMenuItems;
+
   return (
     <nav
       className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
@@ -12,15 +19,16 @@ const Sidebar = () => {
           className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
           href="#"
         >
-         
           <div className="sidebar-brand-text mx-3">
-          <img src='/assets/img/key-flow-logo-white-transparent.png' style={{width:"150px"}} />
-
+            <img
+              src="/assets/img/key-flow-logo-white-transparent.png"
+              style={{ width: "150px" }}
+            />
           </div>
         </a>
         <hr className="sidebar-divider my-0" />
         <ul className="navbar-nav text-light" id="accordionSidebar">
-          {landlordMenuItems.map((item, index) => {
+          {menuItems.map((item, index) => {
             return (
               <li className="nav-item" key={index}>
                 <Link className="nav-link" to={item.link}>

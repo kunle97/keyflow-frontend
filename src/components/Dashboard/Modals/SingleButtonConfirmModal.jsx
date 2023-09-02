@@ -1,9 +1,9 @@
 import React from "react";
 import { Modal } from "@mui/base/Modal";
 import { Button, Box, Typography, Stack } from "@mui/material";
-import { uiGreen, uiGrey1 } from "../../constants";
+import { uiGreen, uiGrey1 } from "../../../constants";
 
-const ConfirmModal = (props) => {
+const SingleButtonConfirmModal = (props) => {
   const style = {
     position: "absolute",
     top: "50%",
@@ -29,22 +29,12 @@ const ConfirmModal = (props) => {
           </Typography>
           <Stack direction="row">
             <Button
-              onClick={props.handleCancel}
-              style={{
-                marginTop: "20px",
-                backgroundColor: "red",
-                marginRight: "20px",
-              }}
-              variant="contained"
-            >
-              {props.cancelBtnText}
-            </Button>
-            <Button
               onClick={props.handleConfirm}
               style={{
                 marginTop: "20px",
                 backgroundColor: uiGreen,
                 marginRight: "20px",
+                textTransform: "none",
               }}
               variant="contained"
             >
@@ -57,4 +47,4 @@ const ConfirmModal = (props) => {
   );
 };
 
-export default ConfirmModal;
+export default SingleButtonConfirmModal;

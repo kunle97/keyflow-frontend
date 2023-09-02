@@ -1,18 +1,18 @@
 .login-col {
-  padding-top: 400px;
+  padding-top: 200px;
   padding-left: 100px;
-  padding-right: 200px;
+  padding-right: 100px;
 }
 @media screen and (max-width: 1850px) {
   .login-col {
-    padding-top: 400px;
+    padding-top: 100px;
     padding-left: 100px;
     padding-right: 150px;
   }
 }
 @media screen and (max-width: 1500px) {
   .login-col {
-    padding-top: 400px;
+    padding-top: 100px;
     padding-left: 50px;
     padding-right: 50px;
   }
@@ -23,7 +23,7 @@
     display: none;
   }
   .login-col {
-    padding-top: 200px;
+    padding-top: 75px;
     padding-left: 50px;
     padding-right: 50px;
   }

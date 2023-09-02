@@ -8,10 +8,14 @@ import RentalHistorySection from "./RentalHistorySection";
 import { HelpOutline } from "@mui/icons-material";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
-import { createRentalApplication, getProperty } from "../../api/api";
+import {
+  createRentalApplication,
+  getLeaseTermById,
+  getProperty,
+} from "../../api/api";
 import { useParams } from "react-router-dom";
 import { getUnit } from "../../api/api";
-import ProgressModal from "../Dashboard/ProgressModal";
+import ProgressModal from "../Dashboard/Modals/ProgressModal";
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
 
@@ -20,8 +24,15 @@ const CreateRentalApplication = () => {
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
   const [isLoading, setIsLoading] = useState(false); // loading state
   const [showSubmissionMessage, setShowSubmissionMessage] = useState(false); // show submission message state
-
+  const [leaseTerm, setLeaseTerm] = useState({}); // lease terms
   useEffect(() => {
+    /**
+     *
+     * TODO: Check if approval hash has been created for a rental application for this unit.
+     * If so, redirect to 404 screen.
+     *
+     * */
+
     // get unit data
     getUnit(unit_id).then((unit_res) => {
       if (unit_res) {
@@ -41,6 +52,10 @@ const CreateRentalApplication = () => {
           }
         });
       }
+    });
+    //Retrieve Lease Term for the unit
+    getLeaseTermById(unit.lease_term).then((res) => {
+      setLeaseTerm(res);
     });
   }, []);
 
@@ -68,8 +83,6 @@ const CreateRentalApplication = () => {
   const [evicted, setEvicted] = useState("false"); // have you been evicted
 
   //Step 3
-
-  const [currentStep, setCurrentStep] = useState(1); // current step of the form
   const [employmentHistory, setEmploymentHistory] = useState([
     {
       companyName: fakeData.fakeCompanyName,
@@ -90,7 +103,7 @@ const CreateRentalApplication = () => {
       startDate: faker.date.past().toISOString().split("T")[0],
       endDate: faker.date.past().toISOString().split("T")[0],
       landlordName: `${faker.person.firstName()} ${faker.person.lastName()}`,
-      landlordPhone: faker.phone.number('###-###-####'),
+      landlordPhone: faker.phone.number("###-###-####"),
       landlordEmail: faker.internet.email(),
     },
   ]);
@@ -112,7 +125,7 @@ const CreateRentalApplication = () => {
       startDate: faker.date.past().toISOString().split("T")[0],
       endDate: fakeData.fakePastDate,
       supervisorName: `${faker.person.firstName()} ${faker.person.lastName()}`,
-      supervisorPhone: faker.phone.number('###-###-####'),
+      supervisorPhone: faker.phone.number("###-###-####"),
       supervisorEmail: faker.internet.email(),
     };
     setEmploymentHistory([...employmentHistory, newEmployment]);
@@ -139,7 +152,7 @@ const CreateRentalApplication = () => {
       startDate: faker.date.past().toISOString().split("T")[0],
       endDate: faker.date.past().toISOString().split("T")[0],
       landlordName: `${faker.person.firstName()} ${faker.person.lastName()}`,
-      landlordPhone: faker.phone.number('###-###-####'),
+      landlordPhone: faker.phone.number("###-###-####"),
       landlordEmail: faker.internet.email(),
     };
     setResidenceHistory([...residenceHistory, newRentalHistory]);
@@ -161,6 +174,7 @@ const CreateRentalApplication = () => {
     data.unit_id = unit_id;
     data.landlord_id = landlord_id;
     console.log(data);
+
     const res = await createRentalApplication(data);
     setIsLoading(true);
     console.log(res);
@@ -185,34 +199,106 @@ const CreateRentalApplication = () => {
 
   return (
     <>
-      <div className="container-fluid">
+      <div className="container py-4">
         <div className="row">
-          <div
-            className="col-md-8 banner-col  d-none d-md-block"
-            style={{
-              background: "url('/assets/img/tenant-application-banner.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              height: "100vh",
-            }}
-          ></div>
+          <div className="col-md-6 ">
+            <h2>
+              Unit {unit.name} at {property.address}
+            </h2>
+            <div className="card mb-3">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">Rent</h6>$
+                    {leaseTerm.rent}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">Term</h6>
+                    {leaseTerm.term} Months
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Late Fee
+                    </h6>
+                    {`$${leaseTerm.late_fee}`}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Security Deposit
+                    </h6>
+                    {`$${leaseTerm.security_deposit}`}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Gas Included?
+                    </h6>
+                    {`${leaseTerm.gas_included ? "Yes" : "No"}`}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Electric Included?
+                    </h6>
+                    {`${leaseTerm.electric_included ? "Yes" : "No"}`}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Water Included?
+                    </h6>
+                    {`${leaseTerm.water_included ? "Yes" : "No"}`}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Lease Cancellation Fee
+                    </h6>
+                    {`$${leaseTerm.lease_cancellation_fee}`}
+                  </div>
+                  <div className="col-sm-6 col-md-6 mb-4">
+                    <h6 className="rental-application-lease-heading">
+                      Lease Cancellation Notice period
+                    </h6>
+                    {`${leaseTerm.lease_cancellation_notice_period} Month(s)`}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              className="banner-col  d-none d-md-block"
+              style={{
+                height: "600px",
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src="/assets/img/tenant-application-banner.jpg"
+                width="100%"
+              />
+            </div>
+            <div className="mt-4">
+              <Typography sx={{ color: "white" }}>
+                Powered by{" "}
+                <Link to="/">
+                  <img
+                    src="/assets/img/key-flow-logo-white-transparent.png"
+                    width={150}
+                  />
+                </Link>
+              </Typography>
+            </div>
+          </div>
+          {/* */}
           {property && unit ? (
             <>
-            {isLoading && <ProgressModal open={isLoading} title="Submitting Application" />}
+              {isLoading && (
+                <ProgressModal
+                  open={isLoading}
+                  title="Submitting Application"
+                />
+              )}
               {!showSubmissionMessage && !isLoading ? (
-                <div
-                  className="col-md-4  justify-content-center align-items-center"
-                  style={{ overflowY: "auto", maxHeight: "100vh" }}
-                >
+                <div className="col-md-6  justify-content-center align-items-center">
                   <div>
-                    <h2>
-                      Rental Application for Unit {unit.name} at{" "}
-                      {property.address}
-                    </h2>
-                    <p>Enter descriuption here...</p>
                     <form onSubmit={handleSubmit}>
                       <>
-                        <h5>Basic Information</h5>
                         <div className="card mb-3">
                           <div className="card-body">
                             <div className="row">
@@ -543,6 +629,18 @@ const CreateRentalApplication = () => {
                           </Button>
                         </Stack>
                       </>
+                      <div className="mt-4">
+                        <div className="card">
+                          <div className="card-body">
+                            <h5>Additional Comments</h5>
+                            <textarea
+                              name="comments"
+                              className="form-control"
+                              rows={10}
+                            ></textarea>
+                          </div>
+                        </div>
+                      </div>
                       <Button
                         variant="contained"
                         sx={{
@@ -556,21 +654,11 @@ const CreateRentalApplication = () => {
                         Submit
                       </Button>
                     </form>
-                    <div className="mt-4">
-                      <Typography sx={{ color: "white" }}>
-                        Powered by{" "}
-                        <Link to="/">
-                          <img
-                            src="/assets/img/key-flow-logo-white-transparent.png"
-                            width={150}
-                          />
-                        </Link>
-                      </Typography>
-                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="col-md-4">
+                  <h2>Success!</h2>
                   <div className="card">
                     <div className="card-body">
                       <center>
