@@ -2,7 +2,7 @@ import React from "react";
 import { Modal } from "@mui/base/Modal";
 import { Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import { uiGreen, uiGrey1 } from "../../constants";
+import { uiGreen, uiGrey1 } from "../../../constants";
 
 const style = {
   position: "absolute",
@@ -15,6 +15,7 @@ const style = {
   borderRadius: "10px",
   boxShadow: 24,
   p: 4,
+  zIndex: 1000,
 };
 
 const AlertModal = (props) => {
@@ -24,6 +25,7 @@ const AlertModal = (props) => {
       onClose={props.handleClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      hideBackdrop={false}
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">

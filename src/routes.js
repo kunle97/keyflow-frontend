@@ -5,11 +5,11 @@ import { createBrowserRouter } from "react-router-dom";
 import Properties from "./components/Dashboard/Landlord/Properties/Properties";
 import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
 import ManageProperty from "./components/Dashboard/Landlord/Properties/ManageProperty";
-import Units from "./components/Dashboard/Landlord/Properties/Units";
-import ManageUnit from "./components/Dashboard/Landlord/Properties/ManageUnit";
+import Units from "./components/Dashboard/Landlord/Units/Units";
+import ManageUnit from "./components/Dashboard/Landlord/Units/ManageUnit";
 import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
 import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
-import CreateUnit from "./components/Dashboard/Landlord/Properties/CreateUnit";
+import CreateUnit from "./components/Dashboard/Landlord/Units/CreateUnit";
 import MyAccount from "./components/Dashboard/MyAccount";
 import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
 import LandlordRegister from "./components/Dashboard/Landlord/LandlordRegister";
@@ -28,7 +28,9 @@ import ViewRentalApplication from "./components/Dashboard/Landlord/RentalApplica
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
 import RentalApplications from "./components/Dashboard/Landlord/RentalApplications/RentalApplications";
 import SignLeaseAgreement from "./components/SignLeaseAgreement";
-
+import { Elements } from "@stripe/react-stripe-js";
+import { stripePromise } from "./constants";
+import AddPaymentMethod from "./components/Dashboard/Tenant/AddPaymentMethod";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -55,10 +57,12 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/tenant/register",
+    path: "/dashboard/tenant/register/:lease_agreement_id/:approval_hash",
     element: (
       <LoggedInRedirect token={token}>
-        <TenantRegister />
+        <Elements stripe={stripePromise}>
+          <TenantRegister />
+        </Elements>
       </LoggedInRedirect>
     ),
   },
@@ -83,6 +87,16 @@ export const router = createBrowserRouter([
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <TenantDashboard />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/add-payment-method",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Elements stripe={stripePromise}>
+          <AddPaymentMethod />
+        </Elements>
       </DashboardProtectedRoute>
     ),
   },
@@ -135,7 +149,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/units",
+    path: "/dashboard/landlord/units",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Units />
@@ -143,7 +157,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/units/:unit_id/:property_id",
+    path: "/dashboard/landlord/units/:unit_id/:property_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageUnit />
@@ -151,7 +165,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/units/create/:property_id",
+    path: "/dashboard/landlord/units/create/:property_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateUnit />
@@ -227,7 +241,7 @@ export const router = createBrowserRouter([
     element: <CreateRentalApplication />,
   },
   {
-    path: "/sign-lease-agreeement/:lease_agreement_id/",
+    path: "/sign-lease-agreement/:lease_agreement_id/:approval_hash",
     element: <SignLeaseAgreement />,
   },
 ]);

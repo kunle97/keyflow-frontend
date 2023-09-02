@@ -1,12 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { authUser } from "../../constants";
-
+import { listStripePaymentMethods } from "../../api/api";
+import { Box,Typography, Button } from "@mui/material";
+import { ListDivider } from "@mui/joy";
+import { uiGreen } from "../../constants";
 const MyAccount = () => {
   //Create state for username, email, first name, and last name
-  const [username, setUsername] = React.useState(authUser.username);
-  const [email, setEmail] = React.useState(authUser.email);
-  const [firstName, setFirstName] = React.useState(authUser.first_name);
-  const [lastName, setLastName] = React.useState(authUser.last_name);
+  const [username, setUsername] = useState(authUser.username);
+  const [email, setEmail] = useState(authUser.email);
+  const [firstName, setFirstName] = useState(authUser.first_name);
+  const [lastName, setLastName] = useState(authUser.last_name);
+  const [paymentMethods, setPaymentMethods] = useState(null); //Value of either the Stripe token or the Plaid token
+
+  useEffect(() => {
+    //Get the payment methods for the user
+    listStripePaymentMethods(`${authUser.id}`).then((res) => {
+      console.log(res);
+      setPaymentMethods(res);
+    });
+  }, []);
 
   return (
     <div className="container">
@@ -16,11 +28,6 @@ const MyAccount = () => {
           <div className="row">
             <div className="col">
               <div className="card shadow mb-3">
-                <div className="card-header py-3">
-                  <h6 className="text-primary fw-bold m-0 card-header-text">
-                    Basic Info
-                  </h6>
-                </div>
                 <div className="card-body">
                   <form>
                     <div className="row">
@@ -131,12 +138,10 @@ const MyAccount = () => {
                   </form>
                 </div>
               </div>
+              <h6 className="text-primary fw-bold m-0 card-header-text">
+                Change Password
+              </h6>
               <div className="card shadow mb-3">
-                <div className="card-header py-3">
-                  <h6 className="text-primary fw-bold m-0 card-header-text">
-                    Change Password
-                  </h6>
-                </div>
                 <div className="card-body">
                   <form>
                     <div className="row">
@@ -256,6 +261,47 @@ const MyAccount = () => {
                   </form>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <h5 className="text-primary  mb-2 card-header-text">
+            Payment Methods
+          </h5>
+          <div className="card shadow mb-3">
+            <div className="card-body">
+              <form>
+                <div className="row">
+                  {paymentMethods.map((paymentMethod) => {
+                    return (
+                      <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
+                        <Box className="mb-3" sx={{ display: "flex" }}>
+                          <Box sx={{ flex: "2" }}>
+                            <Typography className="text-white">
+                              {paymentMethod.card.brand} ending in{" "}
+                              {paymentMethod.card.last4}
+                            </Typography>
+                            <Typography
+                              sx={{ fontSize: "10pt" }}
+                              className="text-white"
+                            >
+                              Expires {paymentMethod.card.exp_month}/
+                              {paymentMethod.card.exp_year} 
+                              {/* <span style={{ color: uiGreen }}>
+                                 {" "} - {" "}  Primary Method
+                                  </span> */}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Button sx={{ color: uiGreen }}>Edit</Button>
+                          </Box>
+                        </Box>
+                        <ListDivider sx={{ color: "white" }} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </form>
             </div>
           </div>
         </div>

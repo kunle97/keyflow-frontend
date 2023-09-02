@@ -3,8 +3,8 @@ import { uiGreen } from "../../../constants";
 import { faker } from "@faker-js/faker";
 import { register } from "../../../api/api";
 import { Link, useNavigate } from "react-router-dom";
-import AlertModal from "../AlertModal";
-import ProgressModal from "../ProgressModal";
+import AlertModal from "../Modals/AlertModal";
+import ProgressModal from "../Modals/ProgressModal";
 import { Input, Button } from "@mui/material";
 
 const LandlordRegister = () => {

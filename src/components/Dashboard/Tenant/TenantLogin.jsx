@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { authPost, loginPost } from "../apiClient";
 import { useNavigate } from "react-router";
-import { login, logout } from "../../../api/api";
+import { login } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
-import AlertModal from "../AlertModal";
+import AlertModal from "../Modals/AlertModal";
 import { uiGreen } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
-import UIButton from "../UIButton";
 import { Link } from "react-router-dom";
-import ProgressModal from "../ProgressModal";
+import ProgressModal from "../Modals/ProgressModal";
 
 const TenantLogin = () => {
-  const [email, setEmail] = useState("testlandlord3@email.com");
+  const [email, setEmail] = useState("Sallie.Smith@yahoo.com");
   const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);

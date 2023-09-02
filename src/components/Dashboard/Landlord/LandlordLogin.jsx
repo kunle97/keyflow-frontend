@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { authPost, loginPost } from "../apiClient";
 import { useNavigate } from "react-router";
 import { login, logout } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
-import AlertModal from "../AlertModal";
+import AlertModal from "../Modals/AlertModal";
 import { uiGreen } from "../../../constants";
-import { Input, Button, Typography } from "@mui/material";
-import UIButton from "../UIButton";
+import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import ProgressModal from "../ProgressModal";
+import ProgressModal from "../Modals/ProgressModal";
 
 const LandlordLogin = () => {
   const [email, setEmail] = useState("testlandlord3@email.com");

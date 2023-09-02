@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Stack } from "@mui/material";
-import { uiGreen } from "../../../../constants";
+import { authUser, uiGreen } from "../../../../constants";
 import { useParams } from "react-router";
 import {
   approveRentalApplication,
@@ -9,10 +9,11 @@ import {
   getRentalApplicationById,
   getUnit,
   rejectRentalApplication,
+  updateUnit,
 } from "../../../../api/api";
-import ProgressModal from "../../ProgressModal";
-import ConfirmModal from "../../ConfirmModal";
-import AlertModal from "../../AlertModal";
+import ProgressModal from "../../Modals/ProgressModal";
+import ConfirmModal from "../../Modals/ConfirmModal";
+import AlertModal from "../../Modals/AlertModal";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const [rentalApplication, setRentalApplication] = useState({});
@@ -27,7 +28,7 @@ const ViewRentalApplication = () => {
 
   useEffect(() => {
     //Retrieve rental application by id
-    getRentalApplicationById(id).then((res) => {
+    getRentalApplicationById(id).then((res) => {//WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN 
       if (res) {
         setRentalApplication(res);
         setEmploymentHistory(JSON.parse(res.employment_history));
@@ -44,26 +45,44 @@ const ViewRentalApplication = () => {
     approveRentalApplication(id).then((res) => {
       setIsLoading(true);
       console.log(res);
-      if (res.status === 200) {
+      if (res.hasOwnProperty("id")) {
         console.log(res);
         setOpenAcceptModal(false);
-        let lease_terms = null;
-        getUnit(res.data.unit).then((res) => {
+        let approval_hash = res.approval_hash;
+        console.log("ApprovalHash", approval_hash);
+        getUnit(res.unit).then((res) => {
           console.log("unit", res);
-          lease_terms = res.lease_term;
+          //Retrieve Lease Term from the unit to be stored in lease agreement
+          let lease_term = null;
+          lease_term = res.lease_term;
+          const leaseAgreementData = {
+            rental_application: parseInt(id),
+            rental_unit: res.id,
+            user: authUser.id,
+            approval_hash: approval_hash,
+            lease_term: lease_term, //TODO: Store lease_terms from Unit in the lease agreement
+          };
+          console.log("Lease Agreement Data", leaseAgreementData);
+          //Create Lease Agreement row in databse that stores the approval_hash
+          createLeaseAgreement(leaseAgreementData).then((res) => {
+            console.log("Create lease agreement response", res);
+            //Generate link & Send lease agreement to applicant
+            const signLink =
+              "http://localhost:3000/sign-lease-agreement/" +
+              res.response.id +
+              "/" +
+              res.response.approval_hash +
+              "/";
+            console.log("Sign Link", signLink);
+          });
+
+          //Update Unit to be occupied
+          updateUnit(res.id, { is_occupied: true }).then((res) => {
+            console.log("Update Unit Response", res);
+          });
+          
         });
-        const leaseAgreementData = {
-          rental_application_id: res.data.id,
-          approval_hash: res.data.approval_hash,
-          unit_id: res.data.unit,
-          //TODO: Store lease_terms from Unit in the lease agreement
-          lease_terms: lease_terms,
-        };
-        //Create Lease Agreement row in databse that stores the approval_hash
-        createLeaseAgreement(leaseAgreementData).then((res) => {
-          console.log("Create lease agreement response", res);
-        });
-        //Send lease agreement to applicant
+
         //Delete all other applications
         deleteOtherRentalApplications(id).then((res) => {
           if (res.status === 200) {
@@ -72,9 +91,10 @@ const ViewRentalApplication = () => {
             console.log(res);
           }
         });
-        setAlertModalTitle(res.message);
+        setAlertModalTitle("Application Approved");
         setOpenAlertModal(true);
       } else {
+        console.log(res);
         setAlertModalTitle("An error occured");
         setOpenAlertModal(true);
       }
@@ -296,24 +316,13 @@ const ViewRentalApplication = () => {
               <div className="card-body">
                 {residentialHistory.map((item, index) => {
                   return (
-                    <div className="row">
+                    <div className="row mb-3">
                       <div className="col-md-12">
-                        <h6>
-                          <b>Address</b>
-                        </h6>
-                        <p>{item.address}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Start Date</b>
-                        </h6>
-                        <p>{item.startDate}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>End Date</b>
-                        </h6>
-                        <p>{item.endDate}</p>
+                        <h5>
+                          <b>
+                            {item.address} ({item.startDate} - {item.endDate})
+                          </b>
+                        </h5>
                       </div>
                       <div className="col-md-6">
                         <h6>
@@ -337,6 +346,12 @@ const ViewRentalApplication = () => {
                   );
                 })}
               </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <h5 className="mb-4">Additional Comments</h5>
+            <div className="card">
+              <div className="card-body">{rentalApplication.comments}</div>
             </div>
           </div>
           <Stack direction="row" gap={2}>

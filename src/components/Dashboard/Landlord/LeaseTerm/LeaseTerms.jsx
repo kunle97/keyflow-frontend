@@ -1,14 +1,13 @@
-import { Hidden } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import DataTable from "react-data-table-component";
-import { uiGrey2 } from "../../../../constants";
+import { Button } from "@mui/material";
+import { token, uiGreen } from "../../../../constants";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { getLeaseTermsByUser } from "../../../../api/api";
 const LeaseTerms = () => {
+  const [leaseTerms, setLeaseTerms] = useState([]);
   const columns = [
-    {
-      name: "Name",
-      selector: (row) => row.name,
-      sortable: true,
-    },
     {
       name: "Rent",
       selector: (row) => row.rent,
@@ -16,7 +15,9 @@ const LeaseTerms = () => {
     },
     {
       name: "Duration",
-      selector: (row) => row.duration,
+      selector: (row) => {
+        return row.term + " months";
+      },
       sortable: true,
     },
     {
@@ -42,13 +43,34 @@ const LeaseTerms = () => {
     },
   ];
 
+  console.log(token);
+
+  //Retrieve user's lease terms
+  useEffect(() => {
+    //retrieve lease terms that the user has created
+    getLeaseTermsByUser().then((res) => {
+      setLeaseTerms(res.data);
+      console.log(res);
+    });
+  }, []);
+
   return (
     <>
-      <h4 >Lease Terms</h4>
+      <div style={{ overflow: "auto", padding: "25px 0" }}>
+        <h4 style={{ float: "left" }}>Lease Terms</h4>
+        <Link to="/dashboard/landlord/lease-terms/create">
+          <Button
+            style={{ background: uiGreen, float: "right" }}
+            variant="contained"
+          >
+            Create Lease Term
+          </Button>
+        </Link>
+      </div>
       <div className="card" style={{ overflow: "hidden" }}>
         <DataTable
           columns={columns}
-          data={data}
+          data={leaseTerms}
           theme="dark"
           pagination
           onRowClicked={(row) => console.log(row)}

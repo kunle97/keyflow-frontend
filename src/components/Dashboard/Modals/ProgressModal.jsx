@@ -5,8 +5,7 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { uiGreen } from "../../constants";
-import { uiGrey1 } from "../../constants";
+import { uiGreen, uiGrey1} from "../../../constants";
 const style = {
   position: "absolute",
   top: "50%",
