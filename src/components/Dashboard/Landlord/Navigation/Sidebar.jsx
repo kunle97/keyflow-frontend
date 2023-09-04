@@ -29,14 +29,40 @@ const Sidebar = () => {
         <hr className="sidebar-divider my-0" />
         <ul className="navbar-nav text-light" id="accordionSidebar">
           {menuItems.map((item, index) => {
-            return (
-              <li className="nav-item" key={index}>
-                <Link className="nav-link" to={item.link}>
-                  <i className={item.icon} />
-                  <span>{item.label}</span>
-                </Link>
-              </li>
-            );
+            if (item.subMenuItems) {
+              return (
+                <li class="nav-item dropdown show">
+                  <a
+                    class="dropdown-toggle nav-link"
+                    aria-expanded="true"
+                    data-bs-toggle="dropdown"
+                    href="#"
+                  >
+                    <i className={item.icon} />
+                    {item.label}
+                  </a>
+                  <div class="dropdown-menu " data-bs-popper="none">
+                    {item.subMenuItems.map((subItem, index) => {
+                      return (
+                        <a class="dropdown-item" href="#">
+                          <i className={subItem.icon} />{" "}
+                          <span>{subItem.label}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </li>
+              );
+            } else {
+              return (
+                <li className="nav-item" key={index}>
+                  <Link className="nav-link" to={item.link}>
+                    <i className={item.icon} />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              );
+            }
           })}
         </ul>
         <div className="text-center d-none d-md-inline">

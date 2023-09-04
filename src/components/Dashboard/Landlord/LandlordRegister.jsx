@@ -25,7 +25,7 @@ const LandlordRegister = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errMsg, setErrMsg] = useState();
 
-  const navigate = useNavigate();
+  //TODO: Add plan selector and add payment method to onboarding flow
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const handleSubmit = async (e) => {
@@ -197,7 +197,7 @@ const LandlordRegister = () => {
               <div className="mb-2">
                 <Link
                   className="small"
-                  to="/dashboard/login"
+                  to="/dashboard/landlord/login"
                   style={{ color: uiGreen }}
                 >
                   Already have an account? Login!

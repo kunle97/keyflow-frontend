@@ -76,11 +76,7 @@ const ViewRentalApplication = () => {
             console.log("Sign Link", signLink);
           });
 
-          //Update Unit to be occupied
-          updateUnit(res.id, { is_occupied: true }).then((res) => {
-            console.log("Update Unit Response", res);
-          });
-          
+
         });
 
         //Delete all other applications

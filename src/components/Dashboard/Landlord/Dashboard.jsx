@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { faker } from "@faker-js/faker";
 import { uiGreen, uiGrey1, uiGrey2 } from "../../../constants";
 import { RevenueChart } from "./Charts/RevenueChart";
@@ -6,7 +6,59 @@ import { data1, data2, data3 } from "../../../mockData";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
+import MUIDataTable from "mui-datatables";
+import { useEffect } from "react";
+import { getTransactionsByUser } from "../../../api/api";
+import { useNavigate } from "react-router";
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const [transactions, setTransactions] = useState([]);
+  //Create MUI DataTable columsn for transactions using amount, description, rental_property, rental_unit, type, created_at, and tenant_id
+  const columns = [
+    { name: "id", label: "ID", options: { display: false } },
+    { name: "amount", label: "Amount" },
+    {
+      name: "type",
+      label: "Transaction",
+      options: {
+        customBodyRender: (value) => {
+          if (value === "revenue") {
+            return <span>Income</span>;
+          } else {
+            return <span>Expense</span>;
+          }
+        },
+      },
+    },
+    { name: "description", label: "Description" },
+    {
+      name: "created_at",
+      label: "Date",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
+
+  const handleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/`;
+    navigate(navlink);
+  };
+  const options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+  };
+
+  useEffect(() => {
+    //retrieve transactions from api
+    getTransactionsByUser().then((res) => {
+      console.log(res);
+      setTransactions(res.data);
+    });
+  }, []);
   return (
     <div className="container">
       <div className="row mb-3 ">
@@ -133,7 +185,16 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: "20pt", color: "white", marginLeft: "15px", marginBottom:0 }}>$45,000</p>
+            <p
+              style={{
+                fontSize: "20pt",
+                color: "white",
+                marginLeft: "15px",
+                marginBottom: 0,
+              }}
+            >
+              $45,000
+            </p>
             <ResponsiveLine
               data={data1}
               curve="cardinal"
@@ -508,351 +569,8 @@ const Dashboard = () => {
           </div>
         </div>
         <div className="col-lg-7 col-xl-8">
-          <div className="card shadow">
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Recent Transactions
-              </h6>
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="card-body">
-              <div className="row">
-                <div className="col-md-6 text-nowrap">
-                  <div
-                    id="dataTable_length"
-                    className="dataTables_length"
-                    aria-controls="dataTable"
-                  >
-                    <label className="form-label text-white">
-                      Show&nbsp;
-                      <select className="d-inline-block form-select form-select-sm">
-                        <option value={10} selected>
-                          10
-                        </option>
-                        <option value={25}>25</option>
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                      </select>
-                      &nbsp;
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-6">
-                  <div
-                    className="text-md-end dataTables_filter"
-                    id="dataTable_filter"
-                  >
-                    <label className="form-label">
-                      <input
-                        type="search"
-                        className="form-control form-control-sm"
-                        aria-controls="dataTable"
-                        placeholder="Search"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div
-                className="table-responsive table mt-2"
-                id="dataTable-1"
-                role="grid"
-                aria-describedby="dataTable_info"
-              >
-                <table className="table table-hover my-0" id="dataTable">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Position</th>
-                      <th>Office</th>
-                      <th>Age</th>
-                      <th>Start date</th>
-                      <th>Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar1.jpeg"
-                        />
-                        Airi Satou
-                      </td>
-                      <td>Accountant</td>
-                      <td>Tokyo</td>
-                      <td>33</td>
-                      <td>2008/11/28</td>
-                      <td>$162,700</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar2.jpeg"
-                        />
-                        Angelica Ramos
-                      </td>
-                      <td>Chief Executive Officer(CEO)</td>
-                      <td>London</td>
-                      <td>47</td>
-                      <td>
-                        2009/10/09
-                        <br />
-                      </td>
-                      <td>$1,200,000</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar3.jpeg"
-                        />
-                        Ashton Cox
-                      </td>
-                      <td>Junior Technical Author</td>
-                      <td>San Francisco</td>
-                      <td>66</td>
-                      <td>
-                        2009/01/12
-                        <br />
-                      </td>
-                      <td>$86,000</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar4.jpeg"
-                        />
-                        Bradley Greer
-                      </td>
-                      <td>Software Engineer</td>
-                      <td>London</td>
-                      <td>41</td>
-                      <td>
-                        2012/10/13
-                        <br />
-                      </td>
-                      <td>$132,000</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar5.jpeg"
-                        />
-                        Brenden Wagner
-                      </td>
-                      <td>Software Engineer</td>
-                      <td>San Francisco</td>
-                      <td>28</td>
-                      <td>
-                        2011/06/07
-                        <br />
-                      </td>
-                      <td>$206,850</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar1.jpeg"
-                        />
-                        Brielle Williamson
-                      </td>
-                      <td>Integration Specialist</td>
-                      <td>New York</td>
-                      <td>61</td>
-                      <td>
-                        2012/12/02
-                        <br />
-                      </td>
-                      <td>$372,000</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar2.jpeg"
-                        />
-                        Bruno Nash
-                        <br />
-                      </td>
-                      <td>Software Engineer</td>
-                      <td>London</td>
-                      <td>38</td>
-                      <td>
-                        2011/05/03
-                        <br />
-                      </td>
-                      <td>$163,500</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar3.jpeg"
-                        />
-                        Caesar Vance
-                      </td>
-                      <td>Pre-Sales Support</td>
-                      <td>New York</td>
-                      <td>21</td>
-                      <td>
-                        2011/12/12
-                        <br />
-                      </td>
-                      <td>$106,450</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar4.jpeg"
-                        />
-                        Cara Stevens
-                      </td>
-                      <td>Sales Assistant</td>
-                      <td>New York</td>
-                      <td>46</td>
-                      <td>
-                        2011/12/06
-                        <br />
-                      </td>
-                      <td>$145,600</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <img
-                          className="rounded-circle me-2"
-                          width={30}
-                          height={30}
-                          src="assets/img/avatars/avatar5.jpeg"
-                        />
-                        Cedric Kelly
-                      </td>
-                      <td>Senior JavaScript Developer</td>
-                      <td>Edinburgh</td>
-                      <td>22</td>
-                      <td>
-                        2012/03/29
-                        <br />
-                      </td>
-                      <td>$433,060</td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td>
-                        <strong>Name</strong>
-                      </td>
-                      <td>
-                        <strong>Position</strong>
-                      </td>
-                      <td>
-                        <strong>Office</strong>
-                      </td>
-                      <td>
-                        <strong>Age</strong>
-                      </td>
-                      <td>
-                        <strong>Start date</strong>
-                      </td>
-                      <td>
-                        <strong>Amount</strong>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-              <div className="row">
-                <div className="col-md-6 align-self-center">
-                  <p
-                    id="dataTable_info"
-                    className="dataTables_info"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    Showing 1 to 10 of 27
-                  </p>
-                </div>
-                <div className="col-md-6">
-                  <nav className="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
-                    <ul className="pagination">
-                      <li className="page-item disabled">
-                        <a className="page-link" aria-label="Previous" href="#">
-                          <span aria-hidden="true">«</span>
-                        </a>
-                      </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" aria-label="Next" href="#">
-                          <span aria-hidden="true">»</span>
-                        </a>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
-            </div>
-          </div>
+          <h4 className="">Recent Transactions</h4>
+          <MUIDataTable data={transactions} columns={columns} options={options} />
         </div>
         <div className="col-lg-5 col-xl-4 pt-4">
           <div className="card">

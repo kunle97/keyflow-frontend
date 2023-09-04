@@ -33,6 +33,18 @@ export const landlordMenuItems = [
     label: "Maintenance Requests",
     link: "/dashboard/maintenance-requests",
     icon: "fas fa-tools",
+    subMenuItems: [   
+      {
+        label: "Create New",
+        link: "/dashboard/maintenance-requests/create",
+        icon: "fas fa-tools",
+      },
+      {
+        label: "View All",
+        link: "/dashboard/maintenance-requests/",
+        icon: "fas fa-tools",
+      },
+    ],
   },
   {
     label: "Lease Agreements",

@@ -45,11 +45,37 @@ const ManageProperty = () => {
     setShowUpdateSuccess(false);
   };
 
-  const columns = ["id", "name", "beds", "baths", "is_occupied"];
-
+  const columns = [
+    { name: "id", label: "ID", options: { display: false } },
+    { name: "name", label: "Name" },
+    { name: "beds", label: "Beds" },
+    { name: "baths", label: "Baths" },
+    {
+      name: "is_occupied",
+      label: "Occupied",
+      options: {
+        customBodyRender: (value) => {
+          if (value === true) {
+            return <span>Yes</span>;
+          } else {
+            return <span>No</span>;
+          }
+        },
+      },
+    },
+  ];
+  const handleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/units/${rowData[0]}/${property.id}`;
+    navigate(navlink);
+  };
+  const options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+  };
+  console.log(units);
   useEffect(() => {
     getProperty(id).then((res) => {
-      console.log(res);
       setProperty(res);
       setName(res.name);
       setAddress(res.address);
@@ -63,31 +89,22 @@ const ManageProperty = () => {
 
   useEffect(() => {
     //Retireve the units for the property
-    getUnits(id).then((res) => {
-      console.log(res);
-      setUnits(res.data);
-      setIsLoading(false);
-    });
+    getUnits(id)
+      .then((res) => {
+        setUnits(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [property]);
-
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/units/${rowData[0]}/${property.id}`;
-    navigate(navlink);
-  };
-  const options = {
-    filter: true,
-    sort: true,
-    onRowClick: handleRowClick,
-  };
 
   //Create a handle function to handle the form submission of updating property info
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
-    console.log(data);
     const res = await updateProperty(id, data);
-    console.log(res);
     if (res.id) {
       setShowUpdateSuccess(true);
       setAlertSeverity("success");
@@ -447,23 +464,28 @@ const ManageProperty = () => {
                               No units created
                             </Typography>
                             <UIButton
-                              to={`/dashboard/landlord/units/create/${id}`}
+                              style={{ marginTop: "20px" }}
+                              onClick={() => {
+                                navigate(
+                                  `/dashboard/landlord/units/create/${id}`
+                                );
+                              }}
                               btnText="Create Unit"
                             />
                           </Box>
                         </Box>
                       ) : (
                         <>
-                          <Box sx={{overflow:"auto"}} >
+                          <Box sx={{ overflow: "auto" }}>
                             <Link to={`/dashboard/landlord/units/create/${id}`}>
                               <Button
-                              className="w-full"
+                                className="w-full"
                                 style={{
                                   marginBottom: "20px",
                                   backgroundColor: uiGreen,
                                   float: "right",
-                                  color:"white",
-                                  textTransform:"none"
+                                  color: "white",
+                                  textTransform: "none",
                                 }}
                               >
                                 Add Unit

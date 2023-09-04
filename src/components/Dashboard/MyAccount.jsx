@@ -16,7 +16,7 @@ const MyAccount = () => {
     //Get the payment methods for the user
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
       console.log(res);
-      setPaymentMethods(res);
+      setPaymentMethods(res.data);
     });
   }, []);
 
@@ -272,7 +272,7 @@ const MyAccount = () => {
             <div className="card-body">
               <form>
                 <div className="row">
-                  {paymentMethods.map((paymentMethod) => {
+                  {/* {paymentMethods.map((paymentMethod) => {
                     return (
                       <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
                         <Box className="mb-3" sx={{ display: "flex" }}>
@@ -287,9 +287,7 @@ const MyAccount = () => {
                             >
                               Expires {paymentMethod.card.exp_month}/
                               {paymentMethod.card.exp_year} 
-                              {/* <span style={{ color: uiGreen }}>
-                                 {" "} - {" "}  Primary Method
-                                  </span> */}
+
                             </Typography>
                           </Box>
                           <Box>
@@ -299,7 +297,7 @@ const MyAccount = () => {
                         <ListDivider sx={{ color: "white" }} />
                       </div>
                     );
-                  })}
+                  })} */}
                 </div>
               </form>
             </div>

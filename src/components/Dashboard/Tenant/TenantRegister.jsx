@@ -12,11 +12,10 @@ import AlertModal from "../Modals/AlertModal";
 import ProgressModal from "../Modals/ProgressModal";
 import { Button } from "@mui/material";
 import { useEffect } from "react";
-import SingleButtonConfirmModal from "../Modals/SingleButtonConfirmModal";
 import AddPaymentMethod from "./AddPaymentMethod";
 
 const TenantRegister = () => {
-  const { lease_agreement_id, approval_hash } = useParams();
+  const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
   //Create a state for the form data
   const [firstName, setFirstName] = useState(faker.person.firstName());
@@ -71,12 +70,15 @@ const TenantRegister = () => {
     data.username = userName;
     data.email = email;
     data.password = password;
+    data.unit_id = unit_id;
+    data.lease_agreement_id = lease_agreement_id;
+    data.approval_hash = approval_hash;
     console.log(data);
-    //Call the API to create a new user
-    //     //Show success message
+    //Show success message
     setErrorMode(false);
     setOpen(true);
     setIsLoading(false);
+    //Call the API to create a new user
     const response = await register_tenant(data).then((res) => {
       console.log(res);
       if (res.token) {
@@ -85,16 +87,16 @@ const TenantRegister = () => {
         localStorage.setItem("authUser", JSON.stringify(res.userData));
 
         //Update Unit to have tenant id of newly created user
-        updateUnit(res.id, { tenant_id: res.userData.id }).then((res) => {
-          console.log("Update Unit Response", res);
-        });
-        
+        // console.log("token", localStorage.getItem("accessToken"));
+        // updateUnit(unit_id, { tenant_id: res.userData.id }).then((res) => {
+        //   console.log("Update Unit Response", res);
+        // });
+        //
         setUserId(authUser.id);
         //Show success message
         setErrorMode(false);
         setOpen(true);
         setIsLoading(false);
-        //TODO: update unit model to attach new tenant
         //TODO: On submit update lease agrrement model to attach newly created user, etc.
         //TODO: On submit, send email to tenant to confirm email address
         //TODO: On submit, send email to landlord to confirm new tenant
