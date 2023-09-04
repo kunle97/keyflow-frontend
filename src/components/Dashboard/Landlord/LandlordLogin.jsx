@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import ProgressModal from "../Modals/ProgressModal";
 
 const LandlordLogin = () => {
-  const [email, setEmail] = useState("testlandlord3@email.com");
+  const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
   const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
@@ -162,10 +162,19 @@ const LandlordLogin = () => {
               <div className="mb-2">
                 <Link
                   className="small"
-                  to="/dashboard/register"
+                  to="/dashboard/landlord/register"
                   style={{ color: uiGreen }}
                 >
                   Create an Account!
+                </Link>
+              </div>
+              <div className="mb-2">
+                <Link
+                  className="small"
+                  to="/dashboard/tenant/login"
+                  style={{ color: uiGreen }}
+                >
+                  Tenant Login
                 </Link>
               </div>
             </div>

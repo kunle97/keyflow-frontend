@@ -1,11 +1,11 @@
 import React from "react";
 import { addMonths, uiGreen } from "../constants";
 import { Button } from "@mui/material";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
 import {
-  getLeaseAgreementById,
-  getLeaseTermById,
+  getLeaseAgreementByIdAndApprovalHash,
+  getLeaseTermByIdAndApprovalHash,
   signLeaseAgreement,
 } from "../api/api";
 import { useState } from "react";
@@ -20,6 +20,7 @@ const SignLeaseAgreement = () => {
   const [signResponseMessage, setSignResponseMessage] = useState("");
   const [showSignResponse, setShowSignResponse] = useState(false);
   const [redirectLink, setRedirectLink] = useState("");
+  const navigate = useNavigate();
 
   //Create a function to sign the lease agreement which calls the API to update the lease agreement
   const handleSignLeaseAgreement = () => {
@@ -44,6 +45,8 @@ const SignLeaseAgreement = () => {
       "/" +
       leaseAgreement.id +
       "/" +
+      leaseAgreement.rental_unit +
+      "/" +
       leaseAgreement.approval_hash;
     console.log(redirectLink);
     console.log("Lease Agreement", leaseAgreement);
@@ -65,20 +68,28 @@ const SignLeaseAgreement = () => {
 
   useEffect(() => {
     // Get Lease Agreement from API
-    getLeaseAgreementById({ lease_agreement_id, approval_hash }).then((res) => {
+    getLeaseAgreementByIdAndApprovalHash({
+      lease_agreement_id,
+      approval_hash,
+    }).then((res) => {
       console.log(res);
       if (res.id) {
         setLeaseAgreement(res);
-        getLeaseTermById({ lease_term_id: res.lease_term, approval_hash }).then(
-          (res) => {
-            console.log(res);
-            setLeaseTerm(res);
-          }
-        );
+        getLeaseTermByIdAndApprovalHash({
+          lease_term_id: res.lease_term,
+          approval_hash,
+        }).then((res) => {
+          console.log(res);
+          setLeaseTerm(res);
+        });
         //Check that the approval_hash matches the lease agreement's approval_hash
         if (res.approval_hash !== approval_hash) {
           //Display an error message
           setDisplayError(true);
+        }
+        if (res.is_active) {
+          //Display an error message
+          // navigate("/*");
         }
       } else {
         setDisplayError(true);

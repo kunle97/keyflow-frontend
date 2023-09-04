@@ -7,6 +7,7 @@ import {
 import { CircularProgress, Box } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import { useNavigate } from "react-router";
+import MUIDataTable from "mui-datatables";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,43 +15,69 @@ const RentalApplications = () => {
 
   const columns = [
     {
-      name: "First Name",
+      name: "id",
+      label: "ID",
+      selector: (row) => row.id,
+      sortable: true,
+      options: { display: false },
+    },
+    {
+      name: "first_name",
+      label: "First Name",
       selector: (row) => row.first_name,
       sortable: true,
     },
     {
-      name: "Last Name",
+      label: "Last Name",
+      name: "last_name",
       selector: (row) => row.last_name,
       sortable: true,
     },
     {
-      name: "Email",
+      label: "Email",
+      name: "email",
       selector: (row) => row.email,
       sortable: true,
     },
     {
-      name: "Phone",
+      label: "Phone",
+      name: "phone_number",
       selector: (row) => row.phone_number,
       sortable: true,
     },
     {
-      name: "Unit",
+      label: "Unit",
+      name: "unit",
       selector: (row) => row.unit,
       sortable: true,
     },
     {
-      name: "Desired Move In Date",
+      label: "Desired Move In Date",
+      name: "desired_move_in_date",
       selector: (row) => row.desired_move_in_date,
       sortable: true,
     },
     {
-      name: "Date Subitted",
+      label: "Date Subitted",
+      name: "created_at",
+      options: {
+        customBodyRender: (value) => {
+          return new Date(value).toISOString().split("T")[0];
+        },
+      },
       selector: (row) => new Date(row.created_at).toISOString().split("T")[0],
       sortable: true,
     },
   ];
-
-
+  const handleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/rental-applications/${rowData[0]}`;
+    navigate(navlink);
+  };
+  const options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+  };
   useEffect(() => {
     getRentalApplicationsByUser().then((res) => {
       console.log(res);
@@ -76,14 +103,14 @@ const RentalApplications = () => {
             </Box>
           </Box>
         ) : (
-          <DataTable
-            columns={columns}
-            data={rentalApplications}
-            theme="dark"
-            pagination
-            onRowClicked={(row) => navigate(`/dashboard/landlord/rental-applications/${row.id}`)}
-
-          />
+          <>
+            <MUIDataTable
+              title={"Rental Applications"}
+              columns={columns}
+              data={rentalApplications}
+              options={options}
+            />
+          </>
         )}
       </div>
     </>

@@ -31,11 +31,16 @@ import SignLeaseAgreement from "./components/SignLeaseAgreement";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "./constants";
 import AddPaymentMethod from "./components/Dashboard/Tenant/AddPaymentMethod";
+import PageNotFound from "./components/Errors/PageNotFound";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
 export const router = createBrowserRouter([
+  {
+    path: "*",
+    element: <PageNotFound />,
+  },
   {
     path: "/",
     element: <LandingPage />,
@@ -57,7 +62,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/tenant/register/:lease_agreement_id/:approval_hash",
+    path: "/dashboard/tenant/register/:lease_agreement_id/:unit_id/:approval_hash/",
     element: (
       <LoggedInRedirect token={token}>
         <Elements stripe={stripePromise}>

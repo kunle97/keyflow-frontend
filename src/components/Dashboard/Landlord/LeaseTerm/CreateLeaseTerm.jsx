@@ -46,7 +46,7 @@ const CreateLeaseTerm = () => {
       security_deposit: securityDeposit,
       gas_included: gasIncluded,
       water_included: waterIncluded,
-      electricity_included: electricityIncluded,
+      electric_included: electricityIncluded,
       repairs_included: repairsIncluded,
       lease_cancellation_notice_period: leaseCancellationNoticePeriod,
       lease_cancellation_fee: leaseCancellationFee,

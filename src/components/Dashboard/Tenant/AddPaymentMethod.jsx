@@ -195,7 +195,7 @@ const AddPaymentMethod = (props) => {
                 {message && (
                   <div
                     className="error-message"
-                    style={{ fontSize: "14pt", width: "100%", color: "red" }}
+                    style={{ fontSize: "14pt", width: "100%", color:  uiGreen}}
                   >
                     {message}
                   </div>

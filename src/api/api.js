@@ -333,6 +333,33 @@ export async function getProperty(propertyId) {
   }
 }
 
+//Create a function that retrieves a unit by its id without the use of an authorization token
+export async function getPropertyUnauthenticated(propertyId) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/retrieve-property/`,
+        { property_id: propertyId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Proprty Error: ", error);
+    return error.response.data;
+  }
+}
+
 //create function to update a property with patch method
 export async function updateProperty(propertyId, data) {
   try {
@@ -376,6 +403,53 @@ export async function deleteProperty(propertyId) {
   } catch (error) {
     console.log("Get Properties Error: ", error);
     return error.response.data;
+  }
+}
+
+//--------------TENANT API FUNCTION -----------------///
+
+//Create a function that makes a payment for a tenant using the endpoint /tenant/make-payment/
+export async function makePayment(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/tenants/${authUser.id}/make-payment/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Make Payment Error: ", error);
+    return error.response;
+  }
+}
+// Create a function to get all necessary data for the tenant dashboard  using the endpoint /retrieve-tenant-dashboard-data/
+export async function getTenantDashboardData() {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/retrieve-tenant-dashboard-data/`,
+        { user_id: authUser.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Tenant Dashboard Data Error: ", error);
+    return error.response;
   }
 }
 
@@ -448,6 +522,61 @@ export async function getUnit(unitId) {
           Authorization: `Token ${token}`,
         },
       })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Get Unit Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that retrieves a unit by its id without the use of an authorization token
+export async function getUnitUnauthenticated(unitId) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/retrieve-unit/`,
+        { unit_id: unitId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Units Error: ", error);
+    return error.response.data;
+  }
+}
+
+
+
+//Create function to retrieve one lease term from one specific
+export async function getLeaseTermByUnitId(unitId) {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/retrieve-lease-term-unit/`,
+        { unit_id: unitId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -815,13 +944,35 @@ export async function updateLeaseAgreement(leaseAgreementId, data) {
 }
 
 //Create a funtion that retrieves a lease agreement by its id
-export async function getLeaseAgreementById(data) {
+// export async function getLeaseAgreementById(data) {
+//   try {
+//     const res = await axios
+//       .post(`${BASE_API_URL}/retrieve-lease-agreement/`, data, {
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Token ${token}`,
+//         },
+//       })
+//       .then((res) => {
+//         if (res.status == 200) {
+//           return { data: res.data };
+//         }
+//         return { data: [] };
+//       });
+//     return res.data;
+//   } catch (error) {
+//     console.log("Get Lease Agreement Error: ", error);
+//     return error.response;
+//   }
+// }
+
+//Create a function to retrieve one specific lease term by its id
+export async function getLeaseAgreementByIdAndApprovalHash(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/retrieve-lease-agreement/`, data, {
+      .post(`${BASE_API_URL}/retrieve-lease-agreement-approval/`, data, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -832,10 +983,11 @@ export async function getLeaseAgreementById(data) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Lease Agreement Error: ", error);
+    console.log("Error Retrieving LEase Term: ", error);
     return error.response;
   }
 }
+
 
 ///------------LEASE TERM API FUNCTIONS-----------------///
 //Create a function that creates a lease term
@@ -843,19 +995,19 @@ export async function createLeaseTerm(data) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/lease-terms/`,
+        `${BASE_API_URL}/create-lease-term/`,
         {
-          user: authUser.id,
+          user_id: authUser.id,
           rent: parseFloat(data.rent),
           term: data.term,
           description: "_",
           security_deposit: data.security_deposit,
           late_fee: data.late_fee,
+          gas_included: stringToBoolean(data.gas_included),
           water_included: stringToBoolean(data.water_included),
-          electric_included: stringToBoolean(data.electricity_included),
+          electric_included: stringToBoolean(data.electric_included),
           repairs_included: stringToBoolean(data.repairs_included),
-          lease_cancellation_notice_period:
-            data.lease_cancellation_notice_period,
+          lease_cancellation_notice_period: data.lease_cancellation_notice_period,
           lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
           is_active: true,
         },
@@ -904,12 +1056,35 @@ export async function getLeaseTermsByUser() {
 }
 
 //Create a function to retrieve one specific lease term by its id
+export async function getLeaseTermByIdAndApprovalHash(data) {
+  try {
+    const res = await axios
+      .post(`${BASE_API_URL}/retrieve-lease-term-and-approval/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Error Retrieving LEase Term: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to retrieve one specific lease term by its id
 export async function getLeaseTermById(data) {
   try {
     const res = await axios
       .post(`${BASE_API_URL}/retrieve-lease-term/`, data, {
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -986,6 +1161,47 @@ export async function verifyTenantRegistrationCredentials(data) {
     return res;
   } catch (error) {
     console.log("Sign Lease Agreement Error: ", error);
+    return error.response;
+  }
+}
+
+//---------TRANSACTION API FUNCTIONS-----------------///
+//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/transactions/ 
+export async function getTransactionsByUser() {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/users/${authUser.id}/transactions/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Transactions Error: ", error);
+    return error.response;
+  }
+}
+
+//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/tenant-transactions/
+export async function getTenantTransactionsByUser() {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/users/${authUser.id}/tenant-transactions/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Transactions Error: ", error);
     return error.response;
   }
 }

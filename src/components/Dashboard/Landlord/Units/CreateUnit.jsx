@@ -8,9 +8,8 @@ const CreateUnit = () => {
   //Create a state for the form data
   const [nameGen, setNameGen] = useState(true);
   const [name, setName] = useState("");
-  const [rent, setRent] = useState(1000);
-  const [beds, setBeds] = useState(1);
-  const [baths, setBaths] = useState(1);
+  const [beds, setBeds] = useState(faker.number.int({ min: 4, max: 10 }));
+  const [baths, setBaths] = useState(faker.number.int({ min: 4, max: 6 }));
   const navigate = useNavigate();
   const { property_id } = useParams();
   //Call the create unit api function and pass the form data
@@ -66,22 +65,7 @@ const CreateUnit = () => {
                     style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
                   />
                 </div>
-                <div className="mb-3">
-                  <label className="form-label text-white" htmlFor="rent">
-                    <strong>Rent Price</strong>
-                  </label>
-                  <input
-                    className="form-control text-black"
-                    type="number"
-                    id="rent"
-                    placeholder="Sunset Blvd, 38"
-                    name="rent"
-                    value={nameGen ? faker.finance.accountNumber(4) : rent}
-                    onChange={(e) => setRent(e.target.value)}
-                    required
-                    style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
-                  />
-                </div>
+
                 <div className="row">
                   <div className="col-md-12">
                     <div>

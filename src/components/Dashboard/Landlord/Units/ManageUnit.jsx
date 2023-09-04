@@ -36,7 +36,6 @@ const CreateUnit = () => {
     "Unit updated successfully"
   );
   const [alertSeverity, setAlertSeverity] = useState("success");
-  const navigate = useNavigate();
   const { unit_id, property_id } = useParams();
   const [isOccupided, setIsOccupied] = useState(true);
   const [leaseTerms, setLeaseTerms] = useState([]);
@@ -61,7 +60,10 @@ const CreateUnit = () => {
       setBaths(res.baths);
       setIsOccupied(res.is_occupied);
       if (res.lease_term) {
-        getLeaseTermById(res.lease_term).then((res) => {
+        getLeaseTermById({
+          lease_term_id: res.lease_term,
+          user_id: authUser.id,
+        }).then((res) => {
           setCurrentLeaseTerm(res);
         });
       }
@@ -76,9 +78,7 @@ const CreateUnit = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
-    // console.log(data);
     const res = await updateUnit(unit_id, data);
-    // console.log(res);
     if (res.id) {
       setShowUpdateSuccess(true);
       setAlertSeverity("success");
