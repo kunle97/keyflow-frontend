@@ -2,13 +2,18 @@ import React, { useState, useEffect } from "react";
 import { getTransactionsByUser } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import MUIDataTable from "mui-datatables";
-import RevenueChart from "../Charts/RevenueChart";
+import { RevenueExpenseBarChart } from "./Charts/RevenueExpenseBarChart";
+import { RevenueByPropertyPieChart } from "./Charts/RevenueByPropertyPieChart";
+import { ExpenseByPropertyPieChart } from "./Charts/ExpenseByPropertyPieChart";
+import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
+import TitleCard from "../../../TitleCard";
 const LandlordTransactions = () => {
   let revenueData = [];
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [revenueChartData, setRevenueChartData] = useState([{ x: 0, y: 0 }]);
-
+  const barChartHeight = "430px";
+  const pieChartHeight = "468px";
   const data = [
     {
       id: "money",
@@ -113,57 +118,75 @@ const LandlordTransactions = () => {
   ]);
   return (
     <div>
-      <div className="row">
+      <div className="row mb-5">
         <div className="col-md-4">
-          <div className="card">
+          <TitleCard
+            title="Total Profit"
+            value={`$
+            ${(
+              calculateTotalRevenue() - calculateTotalExpenses()
+            ).toLocaleString("en-US")}`}
+            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
+            backgroundColor={uiGrey2}
+            subtext={"% since last month"}
+            style={{ marginBottom: "1rem" }}
+          />
+          <TitleCard
+            title="Total Revenue"
+            value={`$
+            ${calculateTotalRevenue().toLocaleString("en-US")}`}
+            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
+            backgroundColor={uiGreen}
+            subtext={"% since last month"}
+            style={{ marginBottom: "1rem" }}
+          />
+          <TitleCard
+            title="Total Expenses"
+            value={`$
+            ${calculateTotalExpenses().toLocaleString("en-US")}`}
+            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
+            backgroundColor={uiRed}
+            subtext={"% since last month"}
+            style={{ marginBottom: "1rem" }}
+          />
+        </div>
+        <div className="col-md-8">
+          <div
+            className="card"
+            style={{ overflow: "auto", height: barChartHeight }}
+          >
+            <div className="card-header">
+              <h5 className="mt-2">Monthly Profit</h5>
+            </div>
             <div className="card-body">
-              <div className="row">
-                <div className="col-md-12 mb-4">
-                  <h6 className="card-title">
-                    <strong>Total profit</strong>
-                  </h6>
-                  <p className="card-text">
-                    $
-                    {(
-                      calculateTotalRevenue() - calculateTotalExpenses()
-                    ).toLocaleString("en-US")}
-                  </p>
-                </div>
-                <div className="col-md-12 mb-4">
-                  <h6 className="card-title">
-                    <strong>Total Revenue</strong>
-                  </h6>
-                  <p className="card-text">
-                    ${calculateTotalRevenue().toLocaleString("en-US")}
-                  </p>
-                </div>
-                <div className="col-md-12 mb-4">
-                  <h6 className="card-title">
-                    <strong>Total Expenses</strong>
-                  </h6>
-                  <p className="card-text">
-                    ${calculateTotalExpenses().toLocaleString("en-US")}
-                  </p>
-                </div>
-              </div>
+              <RevenueExpenseBarChart />
             </div>
           </div>
         </div>
-        <div className="col-md-8">
-          <RevenueChart
-            data={
-              [
-                {
-                  id: "revenue",
-                  data: revenueChartData,
-                },
-              ]
-              // data
-            }
-          />
+      </div>
+      <div className="row">
+        <div className="col-md-4">
+          <div className="card mb-3" style={{ height: pieChartHeight }}>
+            <div className="card-header">
+              <h5 className="mt-2">Revenue By Property</h5>
+            </div>
+            <div className="card-body">
+              <RevenueByPropertyPieChart />
+            </div>
+          </div>
+          <div className="card mb-3" style={{ height: pieChartHeight }}>
+            <div className="card-header">
+              <h5 className="mt-2">Expense By Property</h5>
+            </div>
+            <div className="card-body">
+              <ExpenseByPropertyPieChart />
+            </div>
+          </div>
         </div>
-        <div className="col-md-12">
+
+        <div className="col-md-8">
           <MUIDataTable
+            title={"Transactions"}
             data={transactions}
             columns={columns}
             options={options}
