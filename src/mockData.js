@@ -1,3 +1,5 @@
+
+
 export const data1 = [
   {
     id: "japan",
@@ -54,58 +56,58 @@ export const data1 = [
     ],
   },
   {
-    "id": "france",
-    "color": "hsl(135, 70%, 50%)",
-    "data": [
+    id: "france",
+    color: "hsl(135, 70%, 50%)",
+    data: [
       {
-        "x": "plane",
-        "y": 25
+        x: "plane",
+        y: 25,
       },
       {
-        "x": "helicopter",
-        "y": 172
+        x: "helicopter",
+        y: 172,
       },
       {
-        "x": "boat",
-        "y": 125
+        x: "boat",
+        y: 125,
       },
       {
-        "x": "train",
-        "y": 76
+        x: "train",
+        y: 76,
       },
       {
-        "x": "subway",
-        "y": 294
+        x: "subway",
+        y: 294,
       },
       {
-        "x": "bus",
-        "y": 252
+        x: "bus",
+        y: 252,
       },
       {
-        "x": "car",
-        "y": 227
+        x: "car",
+        y: 227,
       },
       {
-        "x": "moto",
-        "y": 33
+        x: "moto",
+        y: 33,
       },
       {
-        "x": "bicycle",
-        "y": 285
+        x: "bicycle",
+        y: 285,
       },
       {
-        "x": "horse",
-        "y": 56
+        x: "horse",
+        y: 56,
       },
       {
-        "x": "skateboard",
-        "y": 62
+        x: "skateboard",
+        y: 62,
       },
       {
-        "x": "others",
-        "y": 104
-      }
-    ]
+        x: "others",
+        y: 104,
+      },
+    ],
   },
   // {
   //   "id": "us",
@@ -411,3 +413,177 @@ export const data3 = [
     color: "hsl(325, 70%, 50%)",
   },
 ];
+
+export const barChartData = [
+  {
+    country: "AD",
+    "hot dog": 22,
+    "hot dogColor": "hsl(55, 70%, 50%)",
+    burger: 177,
+    burgerColor: "hsl(16, 70%, 50%)",
+    sandwich: 162,
+    sandwichColor: "hsl(298, 70%, 50%)",
+    kebab: 107,
+    kebabColor: "hsl(332, 70%, 50%)",
+    fries: 167,
+    friesColor: "hsl(349, 70%, 50%)",
+    donut: 53,
+    donutColor: "hsl(192, 70%, 50%)",
+  },
+  {
+    country: "AE",
+    "hot dog": 15,
+    "hot dogColor": "hsl(182, 70%, 50%)",
+    burger: 167,
+    burgerColor: "hsl(14, 70%, 50%)",
+    sandwich: 117,
+    sandwichColor: "hsl(23, 70%, 50%)",
+    kebab: 131,
+    kebabColor: "hsl(317, 70%, 50%)",
+    fries: 22,
+    friesColor: "hsl(79, 70%, 50%)",
+    donut: 139,
+    donutColor: "hsl(231, 70%, 50%)",
+  },
+  {
+    country: "AF",
+    "hot dog": 184,
+    "hot dogColor": "hsl(71, 70%, 50%)",
+    burger: 65,
+    burgerColor: "hsl(147, 70%, 50%)",
+    sandwich: 42,
+    sandwichColor: "hsl(240, 70%, 50%)",
+    kebab: 112,
+    kebabColor: "hsl(162, 70%, 50%)",
+    fries: 167,
+    friesColor: "hsl(72, 70%, 50%)",
+    donut: 134,
+    donutColor: "hsl(334, 70%, 50%)",
+  },
+  {
+    country: "AG",
+    "hot dog": 165,
+    "hot dogColor": "hsl(105, 70%, 50%)",
+    burger: 197,
+    burgerColor: "hsl(78, 70%, 50%)",
+    sandwich: 152,
+    sandwichColor: "hsl(346, 70%, 50%)",
+    kebab: 131,
+    kebabColor: "hsl(269, 70%, 50%)",
+    fries: 76,
+    friesColor: "hsl(140, 70%, 50%)",
+    donut: 79,
+    donutColor: "hsl(293, 70%, 50%)",
+  },
+  {
+    country: "AI",
+    "hot dog": 9,
+    "hot dogColor": "hsl(147, 70%, 50%)",
+    burger: 47,
+    burgerColor: "hsl(345, 70%, 50%)",
+    sandwich: 176,
+    sandwichColor: "hsl(72, 70%, 50%)",
+    kebab: 53,
+    kebabColor: "hsl(348, 70%, 50%)",
+    fries: 144,
+    friesColor: "hsl(65, 70%, 50%)",
+    donut: 174,
+    donutColor: "hsl(161, 70%, 50%)",
+  },
+  {
+    country: "AL",
+    "hot dog": 137,
+    "hot dogColor": "hsl(121, 70%, 50%)",
+    burger: 110,
+    burgerColor: "hsl(221, 70%, 50%)",
+    sandwich: 88,
+    sandwichColor: "hsl(27, 70%, 50%)",
+    kebab: 13,
+    kebabColor: "hsl(355, 70%, 50%)",
+    fries: 147,
+    friesColor: "hsl(225, 70%, 50%)",
+    donut: 86,
+    donutColor: "hsl(202, 70%, 50%)",
+  },
+  {
+    country: "AM",
+    "hot dog": 146,
+    "hot dogColor": "hsl(273, 70%, 50%)",
+    burger: 151,
+    burgerColor: "hsl(192, 70%, 50%)",
+    sandwich: 73,
+    sandwichColor: "hsl(51, 70%, 50%)",
+    kebab: 25,
+    kebabColor: "hsl(254, 70%, 50%)",
+    fries: 170,
+    friesColor: "hsl(320, 70%, 50%)",
+    donut: 166,
+    donutColor: "hsl(293, 70%, 50%)",
+  },
+];
+
+export const pieChartData1 = [
+  {
+    id: "python",
+    label: "python",
+    value: 476,
+    color: "hsl(303, 70%, 50%)",
+  },
+  {
+    id: "elixir",
+    label: "elixir",
+    value: 29,
+    color: "hsl(247, 70%, 50%)",
+  },
+  {
+    id: "scala",
+    label: "scala",
+    value: 413,
+    color: "hsl(132, 70%, 50%)",
+  },
+  {
+    id: "rust",
+    label: "rust",
+    value: 205,
+    color: "hsl(187, 70%, 50%)",
+  },
+  {
+    id: "ruby",
+    label: "ruby",
+    value: 122,
+    color: "hsl(244, 70%, 50%)",
+  },
+];
+
+export const pieChartData2 = [
+  {
+    "id": "c",
+    "label": "c",
+    "value": 181,
+    "color": "hsl(72, 70%, 50%)"
+  },
+  {
+    "id": "scala",
+    "label": "scala",
+    "value": 62,
+    "color": "hsl(77, 70%, 50%)"
+  },
+  {
+    "id": "rust",
+    "label": "rust",
+    "value": 456,
+    "color": "hsl(23, 70%, 50%)"
+  },
+  {
+    "id": "php",
+    "label": "php",
+    "value": 429,
+    "color": "hsl(327, 70%, 50%)"
+  },
+  {
+    "id": "haskell",
+    "label": "haskell",
+    "value": 406,
+    "color": "hsl(249, 70%, 50%)"
+  }
+]

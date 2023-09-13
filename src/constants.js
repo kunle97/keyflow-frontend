@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { createMuiTheme } from "@mui/material";
 import { loadStripe } from "@stripe/stripe-js";
 export const BASE_API_URL = "http://127.0.0.1:8000/api";
 export const authUser = localStorage.getItem("authUser")
@@ -22,6 +23,38 @@ export const validationMessageStyle = {
   color: "red",
   fontSize: "14px",
 };
+
+export const muiDataTableTheme = createMuiTheme({
+  overrides: {
+    // Define your custom styles here
+    MUIDataTable: {
+      root: {
+        backgroundColor: "#2c3a4a",
+        color: "#fff",
+
+        "& .MuiToolbar-root": {
+          backgroundColor: "#2c3a4a",
+          color: "#fff",
+
+          "& .MuiIconButton-root": {
+            color: "#fff",
+          },
+        },
+      },
+    },
+  },
+  // palette: {
+  //   primary: {
+  //     main: "#3aaf5c", // Header background color
+  //   },
+  //   secondary: {
+  //     main: "#2c3a4a", // Table row background color
+  //   },
+  //   text: {
+  //     primary: "#fff", // Text color
+  //   },
+  // },
+});
 
 export const landlordMenuItems = [
   {
