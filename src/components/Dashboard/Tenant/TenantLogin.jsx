@@ -7,7 +7,8 @@ import { uiGreen } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../Modals/ProgressModal";
-
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../constants";
 const TenantLogin = () => {
   const [email, setEmail] = useState("Rashawn31@yahoo.com");
   const [password, setPassword] = useState("password");
@@ -17,10 +18,14 @@ const TenantLogin = () => {
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await login(email, password);
+  const onSubmit = async (data) => {
+    const response = await login(data.email, data.password);
     setIsLoading(true);
 
     //if token is returned, set it in local storage
@@ -83,31 +88,45 @@ const TenantLogin = () => {
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
-              <Typography color="white"  className="mb-4 ml-4"  >Tenant Login</Typography>
-              <form className="user" onSubmit={(e) => handleSubmit(e)}>
+              <Typography color="white" className="mb-4 ml-4">
+                Tenant Login
+              </Typography>
+              <form className="user" onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3">
                   <Input
+                    {...register("email", {
+                      required: "This is a required field",
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Please enter a valid email",
+                      },
+                    })}
                     className="form-control form-control-user"
                     type="email"
                     id="exampleInputEmail"
                     aria-describedby="emailHelp"
                     placeholder="Enter Email Address..."
                     name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                   />
+                  <span style={validationMessageStyle}>
+                    {errors.email && errors.email.message}
+                  </span>
                 </div>
                 <div className="mb-3">
                   <Input
+                    {...register("password", {
+                      required: "This is a required field",
+                    })}
                     className="form-control form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
                     id="exampleInputPassword"
                     placeholder="Password"
                     name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                   />
+                  <span style={validationMessageStyle}>
+                    {errors.password && errors.password.message}
+                  </span>
                 </div>
                 <div className="mb-3">
                   <div className="custom-control custom-checkbox small">
@@ -149,7 +168,7 @@ const TenantLogin = () => {
                   variant="contained"
                 >
                   Login
-              </Button>
+                </Button>
               </form>
               <div className="mb-2">
                 <a

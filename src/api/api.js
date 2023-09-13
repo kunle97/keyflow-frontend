@@ -92,7 +92,7 @@ export async function logout(accessToken) {
   }
 }
 // create an api function to register a landlord
-export async function register(data) {
+export async function registerLandlord(data) {
   try {
     const res = await axios
       .post(`${BASE_API_URL}/auth/register/`, data)
@@ -108,7 +108,6 @@ export async function register(data) {
       id: res.user.id,
       first_name: res.user.first_name,
       last_name: res.user.last_name,
-      username: res.user.username,
       email: res.user.email,
       account_type: res.user.account_type,
       stripe_account_id: res.user.stripe_account_id,
@@ -132,7 +131,7 @@ export async function register(data) {
 }
 
 // create an api function to register a tenant
-export async function register_tenant(data) {
+export async function registerTenant(data) {
   try {
     const res = await axios
       .post(`${BASE_API_URL}/auth/tenant/register/`, data)
@@ -243,12 +242,57 @@ export async function listStripePaymentMethods(user_id) {
   }
 }
 
-///-----------------PROPERTY API FUNCTIONS---------------------------///
+//Create a function to retrieve a users data
+export async function getUserData(user_id) {
+  try {
+    const res = await axios
+      .get(
+        `${BASE_API_URL}/users/${authUser.id}/tenant/`,
+        { tenant_id: user_id, landlord_id: authUser.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get User Data Error: ", error);
+    return error.response;
+  }
+}
+//Create a function to update a users data
+export async function updateUserData( data) {
+  try {
+    const res = await axios
+      .patch(`${BASE_API_URL}/users/${authUser.id}/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update User Data Error: ", error);
+    return error.response;
+  }
+}
+
+//-----------------PROPERTY API FUNCTIONS---------------------------///
 
 // create an api function to create a property
 export async function createProperty(
   name,
-  address,
+  street,
   city,
   state,
   zip_code,
@@ -261,7 +305,7 @@ export async function createProperty(
         {
           name,
           user: authUser.id,
-          address,
+          street,
           city,
           state,
           zip_code,
@@ -562,8 +606,6 @@ export async function getUnitUnauthenticated(unitId) {
   }
 }
 
-
-
 //Create function to retrieve one lease term from one specific
 export async function getLeaseTermByUnitId(unitId) {
   try {
@@ -769,7 +811,6 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
           },
         }
       )
@@ -988,7 +1029,6 @@ export async function getLeaseAgreementByIdAndApprovalHash(data) {
   }
 }
 
-
 ///------------LEASE TERM API FUNCTIONS-----------------///
 //Create a function that creates a lease term
 export async function createLeaseTerm(data) {
@@ -1007,7 +1047,8 @@ export async function createLeaseTerm(data) {
           water_included: stringToBoolean(data.water_included),
           electric_included: stringToBoolean(data.electric_included),
           repairs_included: stringToBoolean(data.repairs_included),
-          lease_cancellation_notice_period: data.lease_cancellation_notice_period,
+          lease_cancellation_notice_period:
+            data.lease_cancellation_notice_period,
           lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
           is_active: true,
         },
@@ -1130,7 +1171,6 @@ export async function signLeaseAgreement(data) {
       .post(`${BASE_API_URL}/sign-lease-agreement/`, data, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -1151,7 +1191,6 @@ export async function verifyTenantRegistrationCredentials(data) {
       .post(`${BASE_API_URL}/auth/tenant/register/verify/`, data, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -1166,7 +1205,7 @@ export async function verifyTenantRegistrationCredentials(data) {
 }
 
 //---------TRANSACTION API FUNCTIONS-----------------///
-//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/transactions/ 
+//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/transactions/
 export async function getTransactionsByUser() {
   try {
     const res = await axios
@@ -1203,5 +1242,199 @@ export async function getTenantTransactionsByUser() {
   } catch (error) {
     console.log("Get Transactions Error: ", error);
     return error.response;
+  }
+}
+
+//Create a funtion to retrieve a transaction by its id
+export async function getTransactionById(transactionId) {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/transactions/${transactionId}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Transaction Error: ", error);
+    return error.response;
+  }
+}
+
+//--------------------MAINTENANCE REQUEST API FUNCTIONS----------------------///
+//Create a function to create a maintenance request
+export async function createMaintenanceRequest(data) {
+  try {
+    const res = await axios.post(
+      `${BASE_API_URL}/maintenance-requests/`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return {
+      message: "Maintenance request created successfully",
+      status: 201,
+      data: res,
+    };
+  } catch (error) {
+    console.log("Create Maintenance Request Error: ", error);
+    return {
+      response: error.response,
+      message:
+        "There was an error creating your maintenance request. Please Try again.",
+      status: 400,
+    };
+  }
+}
+//Create a function to list all maintenance requests for a specific unit
+export async function getMaintenanceRequests(unitId) {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/units/${unitId}/maintenance-requests/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Maintenance Requests Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to list all maintenance requests for a specific tenant user
+export async function getMaintenanceRequestsByUser() {
+  try {
+    const res = await axios
+      .get(
+        `${BASE_API_URL}/users/${authUser.id}/tenant-maintenance-requests/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Maintenance Requests Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to list all maintenance requests for a specific landlord user
+export async function getMaintenanceRequestsByLandlord() {
+  try {
+    const res = await axios
+      .get(
+        `${BASE_API_URL}/users/${authUser.id}/landlord-maintenance-requests/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Maintenance Requests Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to get maintenance request by its id
+export async function getMaintenanceRequestById(maintenanceRequestId) {
+  try {
+    const res = await axios
+      .get(`${BASE_API_URL}/maintenance-requests/${maintenanceRequestId}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Maintenance Request Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to mark a maintenance request as resolved
+export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
+  try {
+    const res = await axios
+      .patch(
+        `${BASE_API_URL}/maintenance-requests/${maintenanceRequestId}/`,
+        { is_resolved: true, is_archived: true },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Mark Maintenance Request As Resolved Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to mark a maintenance request as unresolved and unarchive it
+export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
+  try {
+    const res = await axios
+      .patch(
+        `${BASE_API_URL}/maintenance-requests/${maintenanceRequestId}/`,
+        { is_resolved: false, is_archived: false },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Mark Maintenance Request As Resolved Error: ", error);
+    return error.response.data;
   }
 }

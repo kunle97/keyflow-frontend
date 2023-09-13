@@ -3,24 +3,35 @@ import { useNavigate } from "react-router";
 import { login, logout } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../Modals/AlertModal";
-import { uiGreen } from "../../../constants";
+import { uiGreen, validationMessageStyle } from "../../../constants";
 import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../Modals/ProgressModal";
+import { useForm } from "react-hook-form";
 
 const LandlordLogin = () => {
   const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
   const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
+  const [openError, setOpenError] = useState(false);
   const navigate = useNavigate();
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await login(email, password);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "Madalyn_Murray@gmail.com",
+      password: "password",
+    }}
+  );
+  const onSubmit = async (data) => {
+    console.log(data);
+    const response = await login(data.email, data.password);
     setIsLoading(true);
 
     //if token is returned, set it in local storage
@@ -34,12 +45,14 @@ const LandlordLogin = () => {
       setIsLoggedIn(true);
       setIsLoading(false);
       //Navigate to dashboard
+      setOpenError(false);
       setOpen(true);
     } else {
-      setErrMsg(response.message);
+      setErrMsg("Email or password is incorrect");
       setIsLoading(false);
+      setOpen(false);
+      setOpenError(true);
     }
-    setOpen(true);
   };
 
   return (
@@ -52,7 +65,6 @@ const LandlordLogin = () => {
         handleCLose={() => setIsLoading(false)}
         title="Logging you in..."
       />
-
       <AlertModal
         open={open}
         onClose={() => setOpen(false)}
@@ -61,7 +73,6 @@ const LandlordLogin = () => {
         btnText="Go to Dashboard"
         to={redirectURL}
       />
-
       <div className="row">
         <div
           className="col-md-8 banner-col  d-none d-md-block"
@@ -83,9 +94,17 @@ const LandlordLogin = () => {
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
-              <form className="user" onSubmit={(e) => handleSubmit(e)}>
+              <form className="user" onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3">
                   <Input
+                    input
+                    {...register("email", {
+                      required: "This is a required field",
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Please enter a valid email address",
+                      },
+                    })}
                     className="form-control form-control-user"
                     type="email"
                     id="exampleInputEmail"
@@ -95,18 +114,24 @@ const LandlordLogin = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  <span style={validationMessageStyle}>
+                    {errors.email && errors.email.message}
+                  </span>
                 </div>
                 <div className="mb-3">
                   <Input
+                    {...register("password", {
+                      required: "This is a required field",
+                    })}
                     className="form-control form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
                     id="exampleInputPassword"
                     placeholder="Password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                   />
+                  <span style={validationMessageStyle}>
+                    {errors.password && errors.password.message}
+                  </span>
                 </div>
                 <div className="mb-3">
                   <div className="custom-control custom-checkbox small">
@@ -125,15 +150,14 @@ const LandlordLogin = () => {
                     </div>
                   </div>
                 </div>
-                {errMsg && (
-                  <AlertModal
-                    open={true}
-                    onClose={() => setErrMsg(null)}
-                    title={"Login Failed!"}
-                    message={errMsg}
-                    btnText="Close"
-                  />
-                )}
+                <AlertModal
+                  open={openError && errMsg}
+                  onClose={() => setErrMsg(null)}
+                  title={"Login Failed"}
+                  message={errMsg}
+                  onClick={() => setErrMsg(null)}
+                  btnText="Close"
+                />
                 <Button
                   className="d-block w-100 ui-btN"
                   type="submit"

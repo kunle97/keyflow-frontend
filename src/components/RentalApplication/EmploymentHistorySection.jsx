@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { faker } from "@faker-js/faker";
+import { validationMessageStyle } from "../../constants";
 const EmploymentHistorySection = (props) => {
   const [fakeMode, setFakeMode] = useState(false);
 
@@ -43,6 +44,9 @@ const EmploymentHistorySection = (props) => {
         <div className="col-md-6 mb-4">
           <label className="mb-2">Company Name</label>
           <input
+            {...props.register(`companyName_${props.id}`, {
+              required: "This is a required field",
+            })}
             className="form-control"
             name="companyName"
             value={companyName}
@@ -50,10 +54,16 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Company Name"
           />
+          <span style={validationMessageStyle}>
+            {props.companyNameErrors && props.companyNameErrors.message}
+          </span>
         </div>
         <div className="col-md-6 mb-4">
           <label className="mb-2">Title/Position</label>
           <input
+            {...props.register(`position_${props.id}`, {
+              required: "This is a required field",
+            })}
             className="form-control"
             name="position"
             value={fakeMode ? fakePosition : position}
@@ -61,10 +71,16 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Title/Position"
           />
+          <span style={validationMessageStyle}>
+            {props.positionErrors && props.positionErrors.message}
+          </span>
         </div>
         <div className="col-md-12 mb-4">
           <label className="mb-2">Company Address</label>
           <input
+            {...props.register(`companyAddress_${props.id}`, {
+              required: "This is a required field",
+            })}
             className="form-control"
             name="companyAddress"
             value={fakeMode ? fakecompanyAddress : companyAddress}
@@ -72,10 +88,20 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Company Address"
           />
+          <span style={validationMessageStyle}>
+            {props.companyAddressErrors && props.companyAddressErrors.message}
+          </span>
         </div>
         <div className="col-md-6 mb-4">
           <label className="mb-2">Start Date</label>
           <input
+            {...props.register(`startDate_${props.id}`, {
+              required: "This is a required field",
+              pattern: {
+                value: /\d{4}-\d{2}-\d{2}/,
+                message: "Please enter a valid date",
+              },
+            })}
             type="date"
             className="form-control"
             name="startDate"
@@ -84,10 +110,25 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Start Date"
           />
+          <span style={validationMessageStyle}>
+            {props.startDateErrors && props.startDateErrors.message}
+          </span>
         </div>
         <div className="col-md-6 mb-4">
           <label className="mb-2">End Date</label>
           <input
+            {...props.register(`endDate_${props.id}`, {
+              required: "This is a required field",
+              pattern: {
+                value: /\d{4}-\d{2}-\d{2}/,
+                message: "Please enter a valid date",
+              },
+              validate: (value) => {
+                return (
+                  value >= startDate || "End date must be after start date"
+                );
+              },
+            })}
             type="date"
             className="form-control"
             name="endDate"
@@ -96,10 +137,21 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="End Date"
           />
+          <span style={validationMessageStyle}>
+            {props.endDateErrors && props.endDateErrors.message}
+          </span>
         </div>
         <div className="col-md-12 mb-4">
           <label className="mb-2">Income</label>
           <input
+            {...props.register(`income_${props.id}`, {
+              required: "This is a required field",
+              //Create a pattern that only allows numbers and decimals
+              pattern: {
+                value: /^\d+(\.\d{1,2})?$/,
+                message: "Please enter a number",
+              },
+            })}
             className="form-control"
             name="income"
             value={fakeMode ? fakeIncome : income}
@@ -107,11 +159,17 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Income"
           />
+          <span style={validationMessageStyle}>
+            {props.incomeErrors && props.incomeErrors.message}
+          </span>
         </div>
 
         <div className="col-md-12 mb-4">
           <label className="mb-2">Supervisor Name</label>
           <input
+            {...props.register(`supervisorName_${props.id}`, {
+              required: "This is a required field",
+            })}
             className="form-control"
             name="supervisorName"
             value={fakeMode ? fakeSupervisorName : supervisorName}
@@ -119,10 +177,20 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Supervisor Name"
           />
+          <span style={validationMessageStyle}>
+            {props.supervisorNameErrors && props.supervisorNameErrors.message}
+          </span>
         </div>
         <div className="col-md-6 mb-4">
           <label className="mb-2">Supervisor Phone</label>
           <input
+            {...props.register(`supervisorPhone_${props.id}`, {
+              required: "This is a required field",
+              pattern: {
+                value: /\d{3}-\d{3}-\d{4}/,
+                message: "Please enter a valid phone number",
+              },
+            })}
             className="form-control"
             name="supervisorPhone"
             value={fakeMode ? fakeSupervisorPhone : supervisorPhone}
@@ -130,10 +198,20 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Supervisor Phone"
           />
+          <span style={validationMessageStyle}>
+            {props.supervisorPhoneErrors && props.supervisorPhoneErrors.message}
+          </span>
         </div>
         <div className="col-md-6 mb-4">
           <label className="mb-2">Supervisor Email</label>
           <input
+            {...props.register(`supervisorEmail_${props.id}`, {
+              required: "This is a required field",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "Please enter a valid email address",
+              },
+            })}
             className="form-control"
             name="supervisorEmail"
             value={fakeMode ? fakeSupervisorEmail : supervisorEmail}
@@ -141,8 +219,11 @@ const EmploymentHistorySection = (props) => {
             sx={{ color: "white", width: "100%" }}
             placeholder="Supervisor Email"
           />
+          <span style={validationMessageStyle}>
+            {props.supervisorEmailErrors && props.supervisorEmailErrors.message}
+          </span>
         </div>
-        <div  >{props.removeBtn}</div>
+        <div>{props.removeBtn}</div>
       </div>
     </div>
   );

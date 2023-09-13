@@ -18,6 +18,7 @@ import ProgressModal from "../Modals/ProgressModal";
 import AlertModal from "../Modals/AlertModal";
 import { ArrowBack } from "@mui/icons-material";
 import BackButton from "../BackButton";
+import { useNavigate } from "react-router";
 const AddPaymentMethod = (props) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -37,7 +38,7 @@ const AddPaymentMethod = (props) => {
       //Set the return token to the Plaid token
     });
   }, []);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     setIsLoading(true);
     e.preventDefault();
@@ -70,15 +71,19 @@ const AddPaymentMethod = (props) => {
           if (res.status === 200) {
             setMessage(res.message);
             setSuccessMode(true);
+            setIsLoading(false);
+            //If success redirect to dashboard
           }
-          //If success redirect to dashboard
-          setIsLoading(false);
         });
-        setIsLoading(false);
       } else {
       }
     } catch (err) {
-      setMessage(err.message);
+      console.log(err);
+      if (cardMode) {
+        setMessage("Please enter a valid card number");
+      } else {
+        setMessage("Error Adding your bank account");
+      }
       setErrorMode(true);
       setSuccessMode(false);
       setIsLoading(false);
@@ -102,6 +107,7 @@ const AddPaymentMethod = (props) => {
         title="Error"
         message={message}
         handleClose={() => setErrorMode(false)}
+        onClick={() => setErrorMode(false)}
         btnText="Close"
       />
       <AlertModal
@@ -109,8 +115,9 @@ const AddPaymentMethod = (props) => {
         title="Success"
         message={message}
         handleClose={() => setSuccessMode(false)}
+        onClick={() => navigate("/dashboard/tenant")}
         btnText="Close"
-        to="/dashboard/tenant/"
+        to={props.returnTo}
       />
 
       <div className="card">
@@ -195,7 +202,7 @@ const AddPaymentMethod = (props) => {
                 {message && (
                   <div
                     className="error-message"
-                    style={{ fontSize: "14pt", width: "100%", color:  uiGreen}}
+                    style={{ fontSize: "14pt", width: "100%", color: uiGreen }}
                   >
                     {message}
                   </div>

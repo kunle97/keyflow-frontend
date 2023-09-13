@@ -1,76 +1,97 @@
-// install (please try to align the version of installed @nivo packages)
-// yarn add @nivo/line
-import { ResponsiveLine } from '@nivo/line'
-import { data1 } from '../../../../mockData'
-// make sure parent container have a defined height when using
-// responsive component, otherwise height will be 0 and
-// no chart will be rendered.
-// website examples showcase many properties,
-// you'll often use just a few of them.
-export const RevenueChart = ({ data /* see data tab */ }) => (
+import React from "react";
+import { ResponsiveLine } from "@nivo/line";
+import { useState } from "react";
 
+const RevenueChart = ({ data }) => {
+  const [selectedPeriod, setSelectedPeriod] = useState("pastMonth"); // Default to 'pastMonth'
 
-    <ResponsiveLine
-        data={data1}
-        margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-        xScale={{ type: 'point' }}
-        yScale={{
-            type: 'linear',
-            min: 'auto',
-            max: 'auto',
+  let filteredData = data; // Default to full data
+
+  const handlePeriodChange = (event) => {
+    console.log(filteredData);
+    setSelectedPeriod(event.target.value);
+  };
+  if (selectedPeriod === "pastMonth") {
+    // Filter data for the past month
+    const today = new Date();
+    const lastMonth = new Date(today);
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    const lastMonthStr = lastMonth.toISOString().substring(0, 7); // Get YYYY-MM
+    filteredData = data.filter((entry) => entry.x >= lastMonthStr);
+  } else if (selectedPeriod === "pastYear") {
+    // Filter data for the past year
+    const today = new Date();
+    const lastYear = new Date(today);
+    lastYear.setFullYear(lastYear.getFullYear() - 1);
+    const lastYearStr = lastYear.toISOString().substring(0, 7); // Get YYYY-MM
+    filteredData = data.filter((entry) => entry.x >= lastYearStr);
+  } else if (selectedPeriod === "pastWeek") {
+    // Filter data for the past week
+    const today = new Date();
+    const lastWeek = new Date(today);
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const lastWeekStr = lastWeek.toISOString().substring(0, 10); // Get YYYY-MM-DD
+    filteredData = data.filter((entry) => entry.x >= lastWeekStr);
+  }
+
+  return (
+    <>
+      <div>
+        <label htmlFor="period">Select Period: </label>
+        <select
+          id="period"
+          value={selectedPeriod}
+          onChange={handlePeriodChange}
+        >
+          <option value="pastMonth">Past Month</option>
+          <option value="pastYear">Past Year</option>
+          <option value="pastWeek">Past Week</option>
+        </select>
+      </div>
+      <div style={{ height: "400px" }}>
+        <ResponsiveLine
+          curve="cardinal"
+          enableArea={true}
+          data={filteredData}
+          margin={{ top: 20, right: 20, bottom: 60, left: 80 }}
+          xScale={{ type: "time", format: "%Y-%m-%d" }}
+          xFormat="time:%Y-%m-%d"
+          yScale={{
+            type: "linear",
+            min: "auto",
+            max: "auto",
             stacked: true,
-            reverse: false
-        }}
-        yFormat=" >-.2f"
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
+            reverse: false,
+          }}
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            format: "%b %d",
+            tickValues: "every 1 week",
+          }}
+          axisLeft={{
+            orient: "left",
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'transportation',
-            legendOffset: 36,
-            legendPosition: 'middle'
-        }}
-        axisLeft={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: 'count',
-            legendOffset: -40,
-            legendPosition: 'middle'
-        }}
-        pointSize={10}
-        pointColor={{ theme: 'background' }}
-        pointBorderWidth={2}
-        pointBorderColor={{ from: 'serieColor' }}
-        pointLabelYOffset={-12}
-        useMesh={true}
-        legends={[
-            {
-                anchor: 'bottom-right',
-                direction: 'column',
-                justify: false,
-                translateX: 100,
-                translateY: 0,
-                itemsSpacing: 0,
-                itemDirection: 'left-to-right',
-                itemWidth: 80,
-                itemHeight: 20,
-                itemOpacity: 0.75,
-                symbolSize: 12,
-                symbolShape: 'circle',
-                symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                effects: [
-                    {
-                        on: 'hover',
-                        style: {
-                            itemBackground: 'rgba(0, 0, 0, .03)',
-                            itemOpacity: 1
-                        }
-                    }
-                ]
-            }
-        ]}
-    />
-)
+            legend: "Amount",
+            legendOffset: -60,
+            legendPosition: "middle",
+          }}
+          colors={{ scheme: "category10" }}
+          pointSize={10}
+          pointColor={{ theme: "background" }}
+          pointBorderWidth={2}
+          pointBorderColor={{ from: "serieColor" }}
+          pointLabelYOffset={-12}
+          useMesh={true}
+          enableSlices="x"
+          enableGridX={false}
+          enableGridY={true}
+        />
+      </div>
+    </>
+  );
+};
+
+export default RevenueChart;

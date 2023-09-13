@@ -34,6 +34,7 @@ const ConfirmModal = (props) => {
                 marginTop: "20px",
                 backgroundColor: "red",
                 marginRight: "20px",
+                textTransform: "none",
               }}
               variant="contained"
             >
@@ -45,6 +46,7 @@ const ConfirmModal = (props) => {
                 marginTop: "20px",
                 backgroundColor: uiGreen,
                 marginRight: "20px",
+                textTransform: "none",
               }}
               variant="contained"
             >

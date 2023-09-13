@@ -14,8 +14,14 @@ export const stripe_onboarding_link = localStorage.getItem(
   : {};
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c";
+export const uiRed = "#FF4040";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
+
+export const validationMessageStyle = {
+  color: "red",
+  fontSize: "14px",
+};
 
 export const landlordMenuItems = [
   {
@@ -31,38 +37,48 @@ export const landlordMenuItems = [
   { label: "Properties", link: "/dashboard/properties", icon: "fa fa-home" },
   {
     label: "Maintenance Requests",
-    link: "/dashboard/maintenance-requests",
+    link: "/dashboard/landlord/maintenance-requests",
     icon: "fas fa-tools",
-    subMenuItems: [   
-      {
-        label: "Create New",
-        link: "/dashboard/maintenance-requests/create",
-        icon: "fas fa-tools",
-      },
-      {
-        label: "View All",
-        link: "/dashboard/maintenance-requests/",
-        icon: "fas fa-tools",
-      },
-    ],
   },
   {
     label: "Lease Agreements",
     link: "/dashboard/landlord",
     icon: "fas fa-user-circle",
-  },
-  {
-    label: "Lease Terms",
-    link: "/dashboard/landlord/lease-terms",
-    icon: "fas fa-user-circle",
+    subMenuItems: [
+      {
+        label: "Create New",
+        link: "/dashboard/landlord/lease-agreements/create",
+        icon: "fas fa-tools",
+      },
+      {
+        label: "Lease Terms",
+        link: "/dashboard/landlord/lease-terms",
+        icon: "fas fa-user-circle",
+      },
+    ],
   },
   {
     label: "Rental Applications",
     link: "/dashboard/landlord/rental-applications",
     icon: "fas fa-tachometer-alt",
   },
-  { label: "Finances", link: "#", icon: "fas fa-tachometer-alt" }, //TODO: page for finances: income, expenses, transaction breakdowns, etc
-  { label: "Accounting", link: "#", icon: "fas fa-tachometer-alt" }, //TODO: page for accounting: taxes, etc
+  {
+    label: "Finances",
+    link: "#",
+    icon: "fas fa-tachometer-alt",
+    subMenuItems: [
+      {
+        label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
+        link: "/dashboard/landlord/transactions",
+        icon: "fas fa-tools",
+      },
+      {
+        label: "Accounting", //TODO: page for accounting: taxes, etc
+        link: "/dashboard/maintenance-requests/",
+        icon: "fas fa-tools",
+      },
+    ],
+  },
 ];
 export const tenantMenuItems = [
   {
@@ -72,13 +88,22 @@ export const tenantMenuItems = [
   },
   {
     label: "Maintenance Requests",
-    // link: "/dashboard/tenant/maintenance-requests",
-    link: "/dashboard/tenant/",
+    link: "#",
+    subMenuItems: [
+      {
+        label: "Create New",
+        link: "/dashboard/tenant/maintenance-requests/create",
+      },
+      {
+        label: "View All",
+        link: "/dashboard/tenant/maintenance-requests/",
+      },
+    ],
     icon: "fas fa-tools",
   },
   {
     label: "My Lease Agreement",
-    link: "/dashboard/tenant",
+    link: "/dashboard/tenant/my-lease",
     icon: "fas fa-user-circle",
   },
 ];

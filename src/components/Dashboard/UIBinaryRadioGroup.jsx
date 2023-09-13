@@ -20,7 +20,7 @@ const UIBinaryRadioGroup = (props) => {
         row
         aria-labelledby={props.name}
         name={props.name}
-        defaultValue={props.default_value}
+        defaultValue={props.defaultValue}
         onChange={(event) => handleChange(event)}
       >
         <FormControlLabel

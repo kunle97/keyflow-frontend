@@ -6,12 +6,11 @@ import {
   getLeaseTermById,
   createLeaseTerm,
 } from "../../../../api/api";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import BackButton from "../../BackButton";
 import {
   Alert,
   Button,
-  CircularProgress,
   Divider,
   IconButton,
   List,
@@ -24,6 +23,8 @@ import { authUser, uiGreen } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
 import { CloseOutlined } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../../constants";
 const CreateUnit = () => {
   //Create a state for the form data
   const [unit, setUnit] = useState({});
@@ -41,12 +42,24 @@ const CreateUnit = () => {
   const [leaseTerms, setLeaseTerms] = useState([]);
   const [currentLeaseTerm, setCurrentLeaseTerm] = useState(null);
   const [showLeaseTermSelector, setShowLeaseTermSelector] = useState(false);
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: unit.name,
+      beds: unit.beds,
+      baths: unit.baths,
+      rental_property: property_id,
+    },
+  });
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
-
     setShowUpdateSuccess(false);
   };
 
@@ -54,10 +67,16 @@ const CreateUnit = () => {
     //Retrieve Unit Information
     getUnit(unit_id).then((res) => {
       setUnit(res);
-      setName(res.name);
-      setRent(res.rent);
-      setBeds(res.beds);
-      setBaths(res.baths);
+      const preloadedData = {
+        name: res.name,
+        beds: res.beds,
+        baths: res.baths,
+        rental_property: property_id,
+      };
+      // Set the preloaded data in the form using setValue
+      Object.keys(preloadedData).forEach((key) => {
+        setValue(key, preloadedData[key]);
+      });
       setIsOccupied(res.is_occupied);
       if (res.lease_term) {
         getLeaseTermById({
@@ -74,10 +93,8 @@ const CreateUnit = () => {
     });
   }, []);
   //Create a function to handle the form submission to update unit information
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
+  const onSubmit = async (data) => {
+    console.log(data);
     const res = await updateUnit(unit_id, data);
     if (res.id) {
       setShowUpdateSuccess(true);
@@ -91,7 +108,6 @@ const CreateUnit = () => {
   };
 
   const handleChangeLeaseTerm = (id) => {
-    console.log(id);
     //set Current Lease Term
     setCurrentLeaseTerm(leaseTerms.find((term) => term.id === id));
     //Update the unit with the new lease term with the api
@@ -224,85 +240,72 @@ const CreateUnit = () => {
           <h4 className="mb-2">Manage Unit</h4>
           <div className="card shadow mb-3">
             <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <input
-                  type="hidden"
-                  name="rental_property"
-                  value={property_id}
-                />
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3">
                   <label className="form-label text-white" htmlFor="name">
                     <strong>Unit #/Name</strong>
                   </label>
                   <input
+                    {...register("name", {
+                      required: "This is a required field",
+                    })}
+                    // defaultValue={unit.name}
                     className="form-control text-black"
                     type="text"
                     id="name"
                     placeholder="5B"
-                    name="name"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
                     style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
                   />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label text-white" htmlFor="rent">
-                    <strong>Rent Price</strong>
-                  </label>
-                  <input
-                    className="form-control text-black"
-                    type="number"
-                    id="rent"
-                    placeholder="Sunset Blvd, 38"
-                    name="rent"
-                    value={rent}
-                    onChange={(e) => setRent(e.target.value)}
-                    required
-                    style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
-                  />
+                  <span style={validationMessageStyle}>
+                    {errors.name && errors.name.message}
+                  </span>
                 </div>
                 <div className="row mb-3">
                   <div className="col-md-12">
                     <div>
                       <label className="form-label text-white">Beds</label>
                       <input
-                        className="form-control text-black "
+                        {...register("beds", {
+                          required: "This is a required field",
+                        })}
+                        className="form-control text-black"
                         type="number"
-                        name="beds"
-                        value={beds}
-                        onChange={(e) => setBeds(e.target.value)}
-                        required
                         style={{
                           borderStyle: "none",
                           color: "rgb(255,255,255)",
                         }}
+                        // defaultValue={unit.beds}
                         min="1"
                         step="1"
                       />
+                      <span style={validationMessageStyle}>
+                        {errors.beds && errors.beds.message}
+                      </span>
                     </div>
                   </div>
                   <div className="col-md-12">
                     <div>
                       <label className="form-label text-white">Baths</label>
                       <input
+                        {...register("baths", {
+                          required: "This is a required field",
+                        })}
                         className="form-control text-black "
                         type="number"
-                        name="baths"
-                        value={baths}
-                        onChange={(e) => setBaths(e.target.value)}
-                        required
                         style={{
                           borderStyle: "none",
                           color: "rgb(255,255,255)",
                         }}
+                        // defaultValue={unit.baths}
                         min="1"
                         step="1"
                       />
+                      <span style={validationMessageStyle}>
+                        {errors.baths && errors.baths.message}
+                      </span>
                     </div>
                   </div>
                 </div>
-
                 <div className="text-end my-3">
                   <button className="btn btn-primary ui-btn" type="submit">
                     Update Unit
