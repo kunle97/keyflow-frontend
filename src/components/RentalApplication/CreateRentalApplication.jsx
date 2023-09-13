@@ -11,15 +11,14 @@ import { useEffect } from "react";
 import {
   createRentalApplication,
   getLeaseTermByUnitId,
-  getProperty,
   getPropertyUnauthenticated,
   getUnitUnauthenticated,
 } from "../../api/api";
 import { useParams } from "react-router-dom";
-import { getUnit } from "../../api/api";
 import ProgressModal from "../Dashboard/Modals/ProgressModal";
 import AlertModal from "../Dashboard/Modals/AlertModal";
-
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../constants";
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
 
@@ -33,13 +32,15 @@ const CreateRentalApplication = () => {
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
   const [leaseTerm, setLeaseTerm] = useState({}); // lease terms
   const navigate = useNavigate();
+  const [errorMode, setErrorMode] = useState(false); // error mode state
+
   useEffect(() => {
     /**
      * TODO: Add Steps to the form with progress bar so that it can fit the page better. Use react-hook-forms for validation
      *  Reference: https://makerkit.dev/blog/tutorials/multi-step-forms-reactjs
-     * 
+     *
      * TODO: Create a functioning checkbox for the employment history and residence history sections for current employment and current residence
-     * 
+     *
      * */
 
     // get unit data
@@ -63,7 +64,10 @@ const CreateRentalApplication = () => {
               if (property_res.data) {
                 setProperty(property_res.data);
                 setIsLoading(false);
+                setErrorMode(false);
               } else {
+                setIsLoading(false);
+                setErrorMode(true);
                 setProperty(null);
               }
             }
@@ -98,6 +102,22 @@ const CreateRentalApplication = () => {
   const [bankrupcy, setBankrupcy] = useState("false"); // have you ever filed for bankrupcy
   const [evicted, setEvicted] = useState("false"); // have you been evicted
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      first_name: firstName,
+      last_name: lastName,
+      email: faker.internet.email({ firstName, lastName }),
+      phone: faker.phone.number("###-###-####"),
+      ssn: faker.phone.number("###-##-####"),
+      date_of_birth: faker.date.past().toISOString().split("T")[0],
+      desired_move_in_date: faker.date.future().toISOString().split("T")[0],
+    },
+  });
+
   //Step 3
   const [employmentHistory, setEmploymentHistory] = useState([
     {
@@ -113,7 +133,6 @@ const CreateRentalApplication = () => {
       isCurrent: false,
     },
   ]);
-  console.log(employmentHistory);
   const [residenceHistory, setResidenceHistory] = useState([
     {
       address: faker.address.streetAddress(),
@@ -185,14 +204,14 @@ const CreateRentalApplication = () => {
     setResidenceHistory(updatedHistory);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
+  const onSubmit = async (data) => {
     data.employment_history = employmentHistory;
     data.residential_history = residenceHistory;
     data.unit_id = unit_id;
     data.landlord_id = landlord_id;
+
+    console.log(data);
+
     const res = await createRentalApplication(data);
     setIsLoading(true);
     console.log(res);
@@ -229,492 +248,646 @@ const CreateRentalApplication = () => {
         <ProgressModal open={isLoading} title="Loading Application" />
       ) : (
         <div className="container py-4">
-          <div className="row">
-            <div className="col-md-6 ">
-              <h2>
-                Unit {unit.name} at {property.address}
-              </h2>
-              <div className="card mb-3">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">Rent</h6>
-                      ${leaseTerm.rent}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">Term</h6>
-                      {leaseTerm.term} Months
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Late Fee
-                      </h6>
-                      {`$${leaseTerm.late_fee}`}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Security Deposit
-                      </h6>
-                      {`$${leaseTerm.security_deposit}`}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Gas Included?
-                      </h6>
-                      {`${leaseTerm.gas_included ? "Yes" : "No"}`}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Electric Included?
-                      </h6>
-                      {`${leaseTerm.electric_included ? "Yes" : "No"}`}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Water Included?
-                      </h6>
-                      {`${leaseTerm.water_included ? "Yes" : "No"}`}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Lease Cancellation Fee
-                      </h6>
-                      {`$${leaseTerm.lease_cancellation_fee}`}
-                    </div>
-                    <div className="col-sm-6 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Lease Cancellation Notice period
-                      </h6>
-                      {`${leaseTerm.lease_cancellation_notice_period} Month(s)`}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                className="banner-col  d-none d-md-block"
-                style={{
-                  height: "600px",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src="/assets/img/tenant-application-banner.jpg"
-                  width="100%"
-                />
-              </div>
-              <div className="mt-4">
-                <Typography sx={{ color: "white" }}>
-                  Powered by{" "}
-                  <Link to="/">
-                    <img
-                      src="/assets/img/key-flow-logo-white-transparent.png"
-                      width={150}
-                    />
-                  </Link>
-                </Typography>
-              </div>
-            </div>
-            {/* */}
-            {property && unit ? (
-              <>
-                {isLoading && (
-                  <ProgressModal
-                    open={isLoading}
-                    title="Submitting Application"
-                  />
-                )}
-                {!isLoading && (
-                  <div className="col-md-6  justify-content-center align-items-center">
-                    <div>
-                      <form onSubmit={handleSubmit}>
-                        <>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div className="row">
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <label className="mb-2">First Name</label>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      id="firstName"
-                                      placeholder="First Name"
-                                      name="first_name"
-                                      value={firstName}
-                                      onChange={(e) =>
-                                        setFirstName(e.target.value)
-                                      }
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <label className="mb-2">Last Name</label>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      id="lastName"
-                                      placeholder="Last Name"
-                                      name="last_name"
-                                      value={lastName}
-                                      onChange={(e) =>
-                                        setLastName(e.target.value)
-                                      }
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <label className="mb-2">
-                                      Date Of Birth
-                                    </label>
-                                    <input
-                                      type="date"
-                                      className=" form-control"
-                                      id="dateOfBirth"
-                                      placeholder="Date of Birth"
-                                      name="date_of_birth"
-                                      value={dateOfBirth}
-                                      onChange={(e) =>
-                                        setDateOfBirth(e.target.value)
-                                      }
-                                      required
-                                      style={{
-                                        border: "none",
-                                        borderBottom:
-                                          "1px solid white !important",
-                                        borderRadius: "5px",
-                                        padding: "10px",
-                                        width: "100%",
-                                        background: "transparent",
-                                        color: "white",
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <input
-                                      type="email"
-                                      className="form-control form-control-user"
-                                      id="email"
-                                      placeholder="E-mail"
-                                      name="email"
-                                      value={email}
-                                      onChange={(e) => setEmail(e.target.value)}
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      id="phone"
-                                      placeholder="Phone Number"
-                                      name="phone"
-                                      value={phone}
-                                      onChange={(e) => setPhone(e.target.value)}
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <label className="mb-2">
-                                      Social Security Number{" "}
-                                      <Tooltip title="Your social security number will not be stored on KeyFlow servers. It will only be used for creedit reporting.">
-                                        <HelpOutline
-                                          sx={{
-                                            marginLeft: "5px",
-                                            width: "20px",
-                                          }}
-                                        />
-                                      </Tooltip>
-                                    </label>
-
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      id="ssn"
-                                      placeholder="SSN"
-                                      name="ssn"
-                                      value={ssn}
-                                      onChange={(e) => setSsn(e.target.value)}
-                                      required
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-12 mb-4">
-                                  <div className="form-group">
-                                    <label className="mb-2">
-                                      Desired Move-in Date
-                                    </label>
-                                    <input
-                                      type="date"
-                                      className=" form-control"
-                                      id="dateOfBirth"
-                                      placeholder="Desired Move-in Date"
-                                      name="desired_move_in_date"
-                                      required
-                                      value={desiredMoveInDate}
-                                      onChange={(e) =>
-                                        setDesiredMoveInDate(e.target.value)
-                                      }
-                                      style={{
-                                        border: "none",
-                                        borderBottom:
-                                          "1px solid white !important",
-                                        borderRadius: "5px",
-                                        padding: "10px",
-                                        width: "100%",
-                                        background: "transparent",
-                                        color: "white",
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-
-                        <>
-                          <h5 className="my-4 ml-5">Additional Information</h5>
-                          <div className="card mb-3">
-                            <div className="card-body">
-                              <div className="row">
-                                <div className="form-group col-md-6 mb-4">
-                                  <UIBinaryRadioGroup
-                                    label="Will there be any other occupants?"
-                                    name="other_occupants"
-                                    default_value={otherOccupants}
-                                    radio_one_value="true"
-                                    radio_one_label="Yes"
-                                    radio_two_value="false"
-                                    radio_two_label="No"
-                                    onSet={handleOtherOccupants}
-                                  />
-                                </div>
-
-                                <div className="form-group col-md-6 mb-4">
-                                  <UIBinaryRadioGroup
-                                    label="Do you plan on having any pets?"
-                                    name="pets"
-                                    default_value={pets}
-                                    radio_one_value="true"
-                                    radio_one_label="Yes"
-                                    radio_two_value="false"
-                                    radio_two_label="No"
-                                    onSet={setPets}
-                                  />
-                                </div>
-
-                                <div className="form-group col-md-6 mb-4">
-                                  <UIBinaryRadioGroup
-                                    label="Do you plan on having/storing any vehicles?"
-                                    name="vehicles"
-                                    default_value={vehicles}
-                                    radio_one_value="true"
-                                    radio_one_label="Yes"
-                                    radio_two_value="false"
-                                    radio_two_label="No"
-                                    onSet={setVehicles}
-                                  />
-                                </div>
-
-                                <div className="form-group col-md-6 mb-4">
-                                  <UIBinaryRadioGroup
-                                    label="Have you ever been convicted of a crime?"
-                                    name="crime"
-                                    default_value={convicted}
-                                    radio_one_value="true"
-                                    radio_one_label="Yes"
-                                    radio_two_value="false"
-                                    radio_two_label="No"
-                                    onSet={setConvicted}
-                                  />
-                                </div>
-
-                                <div className="form-group col-md-6 mb-4">
-                                  <UIBinaryRadioGroup
-                                    label="Have you ever filed for bankrupcy?"
-                                    name="bankrupcy"
-                                    default_value={bankrupcy}
-                                    radio_one_value="true"
-                                    radio_one_label="Yes"
-                                    radio_two_value="false"
-                                    radio_two_label="No"
-                                    onSet={setBankrupcy}
-                                  />
-                                </div>
-
-                                <div className="form-group col-md-6 mb-4">
-                                  <UIBinaryRadioGroup
-                                    label="Have you been evicted?"
-                                    name="evicted"
-                                    default_value={evicted}
-                                    radio_one_value="true"
-                                    radio_one_label="Yes"
-                                    radio_two_value="false"
-                                    radio_two_label="No"
-                                    onSet={setEvicted}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-
-                        <>
-                          <div className="information">
-                            <h5 className="my-4 ml-5">Employment History</h5>
-                            <div className="">
-                              {employmentHistory.map((employment, index) => {
-                                return (
-                                  <>
-                                    <EmploymentHistorySection
-                                      employment={employment}
-                                      onPositionChange={(e) =>
-                                        handleEmploymentChange(e, index)
-                                      }
-                                      removeBtn={
-                                        index !== 0 && (
-                                          <Button
-                                            sx={{
-                                              background: uiGreen,
-                                              textTransform: "none",
-                                            }}
-                                            variant="contained"
-                                            onClick={() =>
-                                              removeEmploymentInfoNode(index)
-                                            }
-                                          >
-                                            Remove
-                                          </Button>
-                                        )
-                                      }
-                                    />
-                                  </>
-                                );
-                              })}
-                            </div>
-                          </div>
-                          <Stack direction="row" gap={2}>
-                            <Button
-                              sx={{
-                                background: uiGreen,
-                                textTransform: "none",
-                              }}
-                              variant="contained"
-                              onClick={addEmploymentInfoNode}
-                            >
-                              Add
-                            </Button>
-                          </Stack>
-                        </>
-
-                        <>
-                          <div className="information">
-                            <h5 className="my-4 ml-5">Residence History</h5>
-
-                            <div className="">
-                              {residenceHistory.map((residence, index) => {
-                                return (
-                                  <>
-                                    <RentalHistorySection
-                                      residence={residence}
-                                      onResidenceChange={(e) =>
-                                        handleResidenceChange(e, index)
-                                      }
-                                      removeBtn={
-                                        index !== 0 && (
-                                          <Button
-                                            sx={{
-                                              background: uiGreen,
-                                              textTransform: "none",
-                                            }}
-                                            variant="contained"
-                                            onClick={() =>
-                                              removeRentalHistoryNode(index)
-                                            }
-                                          >
-                                            Remove
-                                          </Button>
-                                        )
-                                      }
-                                    />
-                                  </>
-                                );
-                              })}
-                            </div>
-                          </div>
-                          <Stack direction="row" gap={2}>
-                            <Button
-                              sx={{
-                                background: uiGreen,
-                                textTransform: "none",
-                              }}
-                              variant="contained"
-                              onClick={addRentalHistoryNode}
-                            >
-                              Add
-                            </Button>
-                          </Stack>
-                        </>
-                        <div className="mt-4">
-                          <div className="card">
-                            <div className="card-body">
-                              <h5>Additional Comments</h5>
-                              <textarea
-                                name="comments"
-                                className="form-control"
-                                rows={10}
-                              ></textarea>
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          variant="contained"
-                          sx={{
-                            color: "white",
-                            width: "100%",
-                            background: uiGreen,
-                            marginTop: "20px",
-                          }}
-                          type="submit"
-                        >
-                          Submit
-                        </Button>
-                      </form>
-                    </div>
-                  </div>
-                )}
-                <AlertModal
-                  open={showSubmissionMessage}
-                  title={alertTitle}
-                  message={submissionMessage}
-                  onClose={() => navigate("/")}
-                  to={submissionMessageLink}
-                  btnText={alertButtonText}
-                />
-              </>
-            ) : (
-              <div className="col-md-4">
-                <div className="card mt-2">
+          {errorMode ? (
+            <AlertModal
+              open={errorMode}
+              title="Application Error"
+              message="Error loading application"
+              btnText="Okay"
+            />
+          ) : (
+            <div className="row">
+              <div className="col-md-6 ">
+                <h2>
+                  Unit {unit.name} at {property.street}
+                </h2>
+                <div className="card mb-3">
                   <div className="card-body">
-                    <center>
-                      <h4>Error Loading Application Data</h4>
-                    </center>
+                    <div className="row">
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Rent
+                        </h6>
+                        ${leaseTerm.rent}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Term
+                        </h6>
+                        {leaseTerm.term} Months
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Late Fee
+                        </h6>
+                        {`$${leaseTerm.late_fee}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Security Deposit
+                        </h6>
+                        {`$${leaseTerm.security_deposit}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Gas Included?
+                        </h6>
+                        {`${leaseTerm.gas_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Electric Included?
+                        </h6>
+                        {`${leaseTerm.electric_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Water Included?
+                        </h6>
+                        {`${leaseTerm.water_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Lease Cancellation Fee
+                        </h6>
+                        {`$${leaseTerm.lease_cancellation_fee}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4">
+                        <h6 className="rental-application-lease-heading">
+                          Lease Cancellation Notice period
+                        </h6>
+                        {`${leaseTerm.lease_cancellation_notice_period} Month(s)`}
+                      </div>
+                    </div>
                   </div>
                 </div>
+                <div
+                  className="banner-col  d-none d-md-block"
+                  style={{
+                    height: "600px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    src="/assets/img/tenant-application-banner.jpg"
+                    width="100%"
+                  />
+                </div>
+                <div className="mt-4">
+                  <Typography sx={{ color: "white" }}>
+                    Powered by{" "}
+                    <Link to="/">
+                      <img
+                        src="/assets/img/key-flow-logo-white-transparent.png"
+                        width={150}
+                      />
+                    </Link>
+                  </Typography>
+                </div>
               </div>
-            )}
-          </div>
+              {/* */}
+              {property && unit ? (
+                <>
+                  {isLoading && (
+                    <ProgressModal
+                      open={isLoading}
+                      title="Submitting Application"
+                    />
+                  )}
+                  {!isLoading && (
+                    <div className="col-md-6  justify-content-center align-items-center">
+                      <div>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                          <>
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div className="row">
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">First Name</label>
+                                      <input
+                                        {...register("first_name", {
+                                          required: "This is a required field",
+                                        })}
+                                        type="text"
+                                        className="form-control"
+                                        id="firstName"
+                                        placeholder="First Name"
+                                        name="first_name"
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.first_name &&
+                                          errors.first_name.message}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">Last Name</label>
+                                      <input
+                                        {...register("last_name", {
+                                          required: "This is a required field",
+                                        })}
+                                        type="text"
+                                        className="form-control"
+                                        id="lastName"
+                                        placeholder="Last Name"
+                                        name="last_name"
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.last_name &&
+                                          errors.last_name.message}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">
+                                        Date Of Birth
+                                      </label>
+                                      <input
+                                        {...register("date_of_birth", {
+                                          required: "This is a required field",
+                                          pattern: {
+                                            value: /\d{4}-\d{2}-\d{2}/,
+                                            message:
+                                              "Please enter a valid date",
+                                          },
+                                        })}
+                                        type="date"
+                                        className=" form-control"
+                                        id="dateOfBirth"
+                                        placeholder="Date of Birth"
+                                        name="date_of_birth"
+                                        style={{
+                                          border: "none",
+                                          borderBottom:
+                                            "1px solid white !important",
+                                          borderRadius: "5px",
+                                          padding: "10px",
+                                          width: "100%",
+                                          background: "transparent",
+                                          color: "white",
+                                        }}
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.date_of_birth &&
+                                          errors.date_of_birth.message}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">E-mail</label>
+                                      <input
+                                        {...register("email", {
+                                          required: "This is a required field",
+                                          pattern: {
+                                            value: /\S+@\S+\.\S+/,
+                                            message:
+                                              "Please enter a valid email address",
+                                          },
+                                        })}
+                                        type="email"
+                                        className="form-control form-control-user"
+                                        id="email"
+                                        placeholder="E-mail"
+                                        name="email"
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.email && errors.email.message}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">
+                                        Phone Number
+                                      </label>
+                                      <input
+                                        {...register("phone", {
+                                          required: "This is a required field",
+                                          pattern: {
+                                            value: /\d{3}-\d{3}-\d{4}/,
+                                            message:
+                                              "Please enter a valid phone number",
+                                          },
+                                        })}
+                                        type="text"
+                                        className="form-control"
+                                        id="phone"
+                                        placeholder="Phone Number"
+                                        name="phone"
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.phone && errors.phone.message}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">
+                                        Social Security Number{" "}
+                                        <Tooltip title="Your social security number will not be stored on KeyFlow servers. It will only be used for credit reporting and background checks.">
+                                          <HelpOutline
+                                            sx={{
+                                              marginLeft: "5px",
+                                              width: "20px",
+                                            }}
+                                          />
+                                        </Tooltip>
+                                      </label>
+                                      <input
+                                        {...register("ssn", {
+                                          required: "This is a required field",
+                                          pattern: {
+                                            value: /\d{3}-\d{2}-\d{4}/,
+                                            message:
+                                              "Please enter a valid social security number",
+                                          },
+                                        })}
+                                        type="text"
+                                        className="form-control"
+                                        id="ssn"
+                                        placeholder="SSN"
+                                        name="ssn"
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.ssn && errors.ssn.message}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="col-md-12 mb-4">
+                                    <div className="form-group">
+                                      <label className="mb-2">
+                                        Desired Move-in Date
+                                      </label>
+                                      <input
+                                        {...register("desired_move_in_date", {
+                                          required: "This is a required field",
+                                          pattern: {
+                                            value: /\d{4}-\d{2}-\d{2}/,
+                                            message:
+                                              "Please enter a valid date",
+                                          },
+                                        })}
+                                        type="date"
+                                        className=" form-control"
+                                        id="dateOfBirth"
+                                        placeholder="Desired Move-in Date"
+                                        name="desired_move_in_date"
+                                        required
+                                        value={desiredMoveInDate}
+                                        onChange={(e) =>
+                                          setDesiredMoveInDate(e.target.value)
+                                        }
+                                        style={{
+                                          border: "none",
+                                          borderBottom:
+                                            "1px solid white !important",
+                                          borderRadius: "5px",
+                                          padding: "10px",
+                                          width: "100%",
+                                          background: "transparent",
+                                          color: "white",
+                                        }}
+                                      />
+                                      <span style={validationMessageStyle}>
+                                        {errors.desired_move_in_date &&
+                                          errors.desired_move_in_date.message}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+
+                          <>
+                            <h5 className="my-4 ml-5">
+                              Additional Information
+                            </h5>
+                            <div className="card mb-3">
+                              <div className="card-body">
+                                <div className="row">
+                                  <div className="form-group col-md-6 mb-4">
+                                    <label className="mb-2">
+                                      Will there be any other occupants?
+                                    </label>
+                                    <select
+                                      {...register("other_occupants", {
+                                        required: "This is a required field",
+                                      })}
+                                      className="form-select"
+                                    >
+                                      <option value="">Select One</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                    <span style={validationMessageStyle}>
+                                      {errors.other_occupants &&
+                                        errors.other_occupants.message}
+                                    </span>
+                                  </div>
+
+                                  <div className="form-group col-md-6 mb-4">
+                                    <label className="mb-2">
+                                      Do you plan on having any pets during your
+                                      lease?
+                                    </label>
+                                    <select
+                                      {...register("pets", {
+                                        required: "This is a required field",
+                                      })}
+                                      className="form-select"
+                                    >
+                                      <option value="">Select One</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                    <span style={validationMessageStyle}>
+                                      {errors.pets && errors.pets.message}
+                                    </span>
+                                  </div>
+
+                                  <div className="form-group col-md-6 mb-4">
+                                    <label className="mb-2">
+                                      Do you plan on having/storing any
+                                      vehicles?
+                                    </label>
+                                    <select
+                                      {...register("vehicles", {
+                                        required: "This is a required field",
+                                      })}
+                                      className="form-select"
+                                    >
+                                      <option value="">Select One</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                    <span style={validationMessageStyle}>
+                                      {errors.vehicles &&
+                                        errors.vehicles.message}
+                                    </span>
+                                  </div>
+
+                                  <div className="form-group col-md-6 mb-4">
+                                    <label className="mb-2">
+                                      Have you ever been convicted of a crime?
+                                    </label>
+                                    <select
+                                      {...register("crime", {
+                                        required: "This is a required field",
+                                      })}
+                                      className="form-select"
+                                    >
+                                      <option value="">Select One</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                    <span style={validationMessageStyle}>
+                                      {errors.crime && errors.crime.message}
+                                    </span>
+                                  </div>
+
+                                  <div className="form-group col-md-6 mb-4">
+                                    <label className="mb-2">
+                                      Have you ever filed for bankrupcy?
+                                    </label>
+                                    <select
+                                      {...register("bankrupcy", {
+                                        required: "This is a required field",
+                                      })}
+                                      className="form-select"
+                                    >
+                                      <option value="">Select One</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                    <span style={validationMessageStyle}>
+                                      {errors.bankrupcy &&
+                                        errors.bankrupcy.message}
+                                    </span>
+                                  </div>
+
+                                  <div className="form-group col-md-6 mb-4">
+                                    <label className="mb-2">
+                                      Have you been evicted from aprevious
+                                      residence?
+                                    </label>
+                                    <select
+                                      {...register("evicted", {
+                                        required: "This is a required field",
+                                      })}
+                                      className="form-select"
+                                    >
+                                      <option value="">Select One</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                    <span style={validationMessageStyle}>
+                                      {errors.evicted && errors.evicted.message}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+
+                          <>
+                            <div className="information">
+                              <h5 className="my-4 ml-5">Employment History</h5>
+                              <div className="">
+                                {employmentHistory.map((employment, index) => {
+                                  return (
+                                    <>
+                                      <EmploymentHistorySection
+                                        id={index}
+                                        register={register}
+                                        companyNameErrors={
+                                          errors[`companyName_${index}`]
+                                        }
+                                        positionErrors={
+                                          errors[`position_${index}`]
+                                        }
+                                        companyAddressErrors={
+                                          errors[`companyAddress_${index}`]
+                                        }
+                                        incomeErrors={errors[`income_${index}`]}
+                                        startDateErrors={
+                                          errors[`startDate_${index}`]
+                                        }
+                                        endDateErrors={
+                                          errors[`endDate_${index}`]
+                                        }
+                                        supervisorNameErrors={
+                                          errors[`supervisorName_${index}`]
+                                        }
+                                        supervisorPhoneErrors={
+                                          errors[`supervisorPhone_${index}`]
+                                        }
+                                        supervisorEmailErrors={
+                                          errors[`supervisorEmail_${index}`]
+                                        }
+                                        employment={employment}
+                                        onPositionChange={(e) =>
+                                          handleEmploymentChange(e, index)
+                                        }
+                                        removeBtn={
+                                          index !== 0 && (
+                                            <Button
+                                              sx={{
+                                                background: uiGreen,
+                                                textTransform: "none",
+                                              }}
+                                              variant="contained"
+                                              onClick={() =>
+                                                removeEmploymentInfoNode(index)
+                                              }
+                                            >
+                                              Remove
+                                            </Button>
+                                          )
+                                        }
+                                      />
+                                    </>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            <Stack direction="row" gap={2}>
+                              <Button
+                                sx={{
+                                  background: uiGreen,
+                                  textTransform: "none",
+                                }}
+                                variant="contained"
+                                onClick={addEmploymentInfoNode}
+                              >
+                                Add
+                              </Button>
+                            </Stack>
+                          </>
+
+                          <>
+                            <div className="information">
+                              <h5 className="my-4 ml-5">Residence History</h5>
+
+                              <div className="">
+                                {residenceHistory.map((residence, index) => {
+                                  return (
+                                    <>
+                                      <RentalHistorySection
+                                        id={index}
+                                        register={register}
+                                        addressErrors={
+                                          errors[`address_${index}`]
+                                        }
+                                        startDateErrors={
+                                          errors[`startDate_${index}`]
+                                        }
+                                        endDateErrors={
+                                          errors[`endDate_${index}`]
+                                        }
+                                        landlordNameErrors={
+                                          errors[`landlordName_${index}`]
+                                        }
+                                        landlordPhoneErrors={
+                                          errors[`landlordPhone_${index}`]
+                                        }
+                                        landlordEmailErrors={
+                                          errors[`landlordEmail_${index}`]
+                                        }
+                                        residence={residence}
+                                        onResidenceChange={(e) =>
+                                          handleResidenceChange(e, index)
+                                        }
+                                        removeBtn={
+                                          index !== 0 && (
+                                            <Button
+                                              sx={{
+                                                background: uiGreen,
+                                                textTransform: "none",
+                                              }}
+                                              variant="contained"
+                                              onClick={() =>
+                                                removeRentalHistoryNode(index)
+                                              }
+                                            >
+                                              Remove
+                                            </Button>
+                                          )
+                                        }
+                                      />
+                                    </>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            <Stack direction="row" gap={2}>
+                              <Button
+                                sx={{
+                                  background: uiGreen,
+                                  textTransform: "none",
+                                }}
+                                variant="contained"
+                                onClick={addRentalHistoryNode}
+                              >
+                                Add
+                              </Button>
+                            </Stack>
+                          </>
+                          <div className="mt-4">
+                            <h5>Additional Comments</h5>
+                            <div className="card">
+                              <div className="card-body">
+                                <textarea
+                                  name="comments"
+                                  className="form-control"
+                                  rows={10}
+                                ></textarea>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="contained"
+                            sx={{
+                              color: "white",
+                              width: "100%",
+                              background: uiGreen,
+                              marginTop: "20px",
+                            }}
+                            type="submit"
+                          >
+                            Submit
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+                  <AlertModal
+                    open={showSubmissionMessage}
+                    title={alertTitle}
+                    message={submissionMessage}
+                    onClose={() => navigate("/")}
+                    to={submissionMessageLink}
+                    btnText={alertButtonText}
+                  />
+                </>
+              ) : (
+                <div className="col-md-4">
+                  <div className="card mt-2">
+                    <div className="card-body">
+                      <center>
+                        <h4>Error Loading Application Data</h4>
+                      </center>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </>

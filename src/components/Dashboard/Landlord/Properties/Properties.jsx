@@ -9,13 +9,13 @@ const Properties = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const columns = [
-    "id",
-    "name",
-    "address",
-    "city",
-    "state",
-    "zip_code",
-    "country",
+    { name: "id", options: { display: false } },
+    { name: "name" },
+    { name: "street", label: "Street Address" },
+    { name: "city" },
+    { name: "state" },
+    { name: "zip_code", label: "Zip Code" },
+    { name: "country" },
   ];
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/properties/${rowData[0]}`;
@@ -52,7 +52,7 @@ const Properties = () => {
         {isLoading ? (
           <Box sx={{ display: "flex" }}>
             <Box m={"55px auto"}>
-              <CircularProgress sx={{color:uiGreen}} />
+              <CircularProgress sx={{ color: uiGreen }} />
             </Box>
           </Box>
         ) : (

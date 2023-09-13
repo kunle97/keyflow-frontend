@@ -1,41 +1,48 @@
 import React, { useState } from "react";
 import { uiGreen } from "../../../constants";
-import { faker } from "@faker-js/faker";
-import { register } from "../../../api/api";
+import { fa, faker } from "@faker-js/faker";
+import { registerLandlord } from "../../../api/api";
 import { Link, useNavigate } from "react-router-dom";
 import AlertModal from "../Modals/AlertModal";
 import ProgressModal from "../Modals/ProgressModal";
 import { Input, Button } from "@mui/material";
-
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../constants";
 const LandlordRegister = () => {
   //Create a state for the form data
   const [firstName, setFirstName] = useState(faker.person.firstName());
   const [lastName, setLastName] = useState(faker.person.lastName());
-  const [userName, setUserName] = useState(
-    faker.internet.userName({ firstName, lastName })
-  );
-  const [email, setEmail] = useState(
-    faker.internet.email({ firstName, lastName })
-  );
-  const [password, setPassword] = useState("password");
-  const [password2, setPassword2] = useState("password");
+
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [stripeRedirectLink, setStripeRedirectLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errMsg, setErrMsg] = useState();
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      first_name: firstName,
+      last_name: lastName,
+      email: faker.internet.email({ firstName, lastName }),
+      username: faker.internet.userName({ firstName, lastName }),
+      password: "password",
+      password_repeat: "password",
+    },
+  });
+
   //TODO: Add plan selector and add payment method to onboarding flow
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setIsLoading(true);
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
     console.log(data);
     //Call the API to create a new user
-    const response = await register(data).then((res) => {
+    const response = await registerLandlord(data).then((res) => {
       console.log(res);
       if (res.token) {
         // If the user was created successfully, set token in local storage and redirect to dashboard
@@ -72,7 +79,7 @@ const LandlordRegister = () => {
               title={"Registration Failed!"}
               message="Registration failed. Please try again"
               btnText="Close"
-              to="/dashboard/register"
+              to="/dashboard/landlord/register"
             />
           ) : (
             <AlertModal
@@ -90,86 +97,139 @@ const LandlordRegister = () => {
       )}
 
       <div className="row">
-        {" "}
         <div className="col-md-4 col-sm-12 login-col " style={{}}>
-          <div className="row">
+          <div className="row card py-3">
             <div className=" ">
               <img
-                style={{ width: "60%", marginBottom: "25px" }}
+                style={{ maxWidth: "175px", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
-              <form className="user" onSubmit={handleSubmit}>
-                <input type="hidden" name="account_type" value="landlord" />
+              <form className="user " onSubmit={handleSubmit(onSubmit)}>
+                <input
+                  {...register("account_type")}
+                  type="hidden"
+                  name="account_type"
+                  defaultValue="landlord"
+                />
                 <div className="row mb-3">
                   <div className="col-sm-6 mb-3 mb-sm-0">
-                    <Input
-                      className="form-control form-control-user"
+                    <input
+                      {...register("first_name", {
+                        required: "This is a required field",
+                        minLength: {
+                          value: 3,
+                          message: "Minimum length should be 3 characters",
+                        },
+                      })}
                       type="text"
-                      id="exampleFirstName"
+                      className="form-control"
                       placeholder="First Name"
-                      name="first_name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
                     />
+                    <span style={validationMessageStyle}>
+                      {errors.first_name && errors.first_name.message}
+                    </span>
                   </div>
                   <div className="col-sm-6">
-                    <Input
-                      className="form-control form-control-user"
+                    <input
+                      {...register("last_name", {
+                        required: "This is a required field",
+                        minLength: {
+                          value: 3,
+                          message: "Minimum length should be 3 characters",
+                        },
+                      })}
+                      className="form-control "
                       type="text"
-                      id="exampleLastName"
                       placeholder="Last Name"
-                      name="last_name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
                     />
+                    <span style={validationMessageStyle}>
+                      {errors.last_name && errors.last_name.message}
+                    </span>
                   </div>
                 </div>
                 <div className="mb-3">
-                  <Input
-                    className="form-control form-control-user"
+                  <input
+                    {...register("username", {
+                      required: "This is a required field",
+                      minLength: {
+                        value: 3,
+                        message: "Minimum length should be 3 characters",
+                      },
+                    })}
+                    className="form-control"
                     type="text"
-                    id="exampleInputUsername"
-                    aria-describedby="usernameHelp"
                     placeholder="Username"
-                    name="username"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
                   />
+                  <span style={validationMessageStyle}>
+                    {errors.username && errors.username.message}
+                  </span>
                 </div>
                 <div className="mb-3">
-                  <Input
-                    className="form-control form-control-user"
+                  <input
+                    {...register("email", {
+                      required: "This is a required field",
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Please enter a valid email address",
+                      },
+                    })}
+                    className="form-control"
                     type="email"
                     id="exampleInputEmail"
                     aria-describedby="emailHelp"
                     placeholder="Email Address"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                   />
+                  <span style={validationMessageStyle}>
+                    {errors.email && errors.email.message}
+                  </span>
                 </div>
                 <div className="row mb-3">
                   <div className="col-sm-6 mb-3 mb-sm-0">
-                    <Input
-                      className="form-control form-control-user"
+                    <input
+                      {...register("password", {
+                        required: "This is a required field",
+                        minLength: {
+                          value: 6,
+                          message: "Minimum length should be 6 characters",
+                        },
+                        pattern: {
+                          value:
+                            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                          message:
+                            "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+                        },
+                      })}
+                      className="form-control"
                       type="password"
                       id="examplePasswordInput"
                       placeholder="Password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
                     />
+                    <span style={validationMessageStyle}>
+                      {errors.password && errors.password.message}
+                    </span>
                   </div>
                   <div className="col-sm-6">
-                    <Input
-                      className="form-control form-control-user"
+                    <input
+                      {...register("password_repeat", {
+                        required: "This is a required field",
+                        minLength: {
+                          value: 6,
+                          message: "Minimum length should be 6 characters",
+                        },
+                        validate: (val) => {
+                          if (watch("password") != val) {
+                            return "Your passwords do not match";
+                          }
+                        },
+                      })}
+                      className="form-control"
                       type="password"
                       id="exampleRepeatPasswordInput"
                       placeholder="Repeat Password"
-                      name="password_repeat"
-                      value={password2}
-                      onChange={(e) => setPassword2(e.target.value)}
                     />
+                    <span style={validationMessageStyle}>
+                      {errors.password_repeat && errors.password_repeat.message}
+                    </span>
                   </div>
                 </div>
                 <Button

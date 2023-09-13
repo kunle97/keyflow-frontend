@@ -44,10 +44,10 @@ const Sidebar = () => {
                   <div class="dropdown-menu " data-bs-popper="none">
                     {item.subMenuItems.map((subItem, index) => {
                       return (
-                        <a class="dropdown-item" href="#">
+                        <Link class="dropdown-item" to={subItem.link}>
                           <i className={subItem.icon} />{" "}
                           <span>{subItem.label}</span>
-                        </a>
+                        </Link>
                       );
                     })}
                   </div>

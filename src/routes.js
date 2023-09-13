@@ -1,6 +1,6 @@
 import Dashboard from "./components/Dashboard/Landlord/Dashboard";
-import MaintenanceRequests from "./components/Dashboard/Landlord/MaintenanceRequests/MaintenanceRequests";
-import CreateMaintenanceRequest from "./components/Dashboard/Landlord/MaintenanceRequests/CreateMaintenanceRequest";
+import MaintenanceRequests from "./components/Dashboard/Tenant/MaintenanceRequests/MaintenanceRequests";
+import CreateMaintenanceRequest from "./components/Dashboard/Tenant/MaintenanceRequests/CreateMaintenanceRequest";
 import { createBrowserRouter } from "react-router-dom";
 import Properties from "./components/Dashboard/Landlord/Properties/Properties";
 import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
@@ -32,6 +32,11 @@ import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "./constants";
 import AddPaymentMethod from "./components/Dashboard/Tenant/AddPaymentMethod";
 import PageNotFound from "./components/Errors/PageNotFound";
+import MyLeaseAgreement from "./components/Dashboard/Tenant/MyLeaseAgreement";
+import LandlordTransactions from "./components/Dashboard/Landlord/Transactions/LandlordTransactions";
+import LandlordTransactionDetail from "./components/Dashboard/Landlord/Transactions/LandlordTransactionDetail";
+import LandlordMaintenanceRequests from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequests";
+import LandlordMaintenanceRequestDetail from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequestDetail";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -63,6 +68,16 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard/tenant/register/:lease_agreement_id/:unit_id/:approval_hash/",
+    element: (
+      <LoggedInRedirect token={token}>
+        <Elements stripe={stripePromise}>
+          <TenantRegister />
+        </Elements>
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/register/test",
     element: (
       <LoggedInRedirect token={token}>
         <Elements stripe={stripePromise}>
@@ -186,15 +201,42 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/tenants/:id",
+    path: "/dashboard/landlord/tenants/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageTenant />
       </DashboardProtectedRoute>
     ),
   },
+  
   {
-    path: "/dashboard/maintenance-requests",
+    path: "/dashboard/landlord/maintenance-requests",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LandlordMaintenanceRequests />
+      </DashboardProtectedRoute>
+    ),
+  },
+  
+  {
+    path: "/dashboard/landlord/maintenance-requests/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LandlordMaintenanceRequestDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+
+  {
+    path: "/dashboard/tenant/my-lease",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <MyLeaseAgreement />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/maintenance-requests",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MaintenanceRequests />
@@ -202,7 +244,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/maintenance-requests/create",
+    path: "/dashboard/tenant/maintenance-requests/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateMaintenanceRequest />
@@ -248,5 +290,21 @@ export const router = createBrowserRouter([
   {
     path: "/sign-lease-agreement/:lease_agreement_id/:approval_hash",
     element: <SignLeaseAgreement />,
+  },
+  {
+    path: "/dashboard/landlord/transactions",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LandlordTransactions />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/transactions/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LandlordTransactionDetail />
+      </DashboardProtectedRoute>
+    ),
   },
 ]);

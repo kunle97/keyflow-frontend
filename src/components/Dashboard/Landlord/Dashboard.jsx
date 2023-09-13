@@ -41,7 +41,21 @@ const Dashboard = () => {
       },
     },
   ];
+  const chartData = [];
 
+  chartData[0] = {
+    id: "revenue",
+    color: "hsl(53, 70%, 50%)",
+    data: transactions.map((transaction, index) => {
+      if (transaction.type === "revenue") {
+        return {
+          x: new Date(transaction.created_at).toLocaleDateString(),
+          y: transaction.amount,
+        };
+      }
+    }),
+  };
+  console.log(chartData);
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/landlord/`;
     navigate(navlink);
@@ -196,14 +210,14 @@ const Dashboard = () => {
               $45,000
             </p>
             <ResponsiveLine
-              data={data1}
+              data={chartData}
               curve="cardinal"
               enableArea={true}
               enableGridX={false}
               enableGridY={false}
               enablePoints={false}
               // margin={{ top: 15, right: 25, bottom: 25, left: 25 }}
-              margin={{ top: 15, right: 0, bottom: 1, left: 0 }}
+              margin={{ top: 15, right: 0, bottom: 45, left: 0 }}
               xScale={{ type: "point" }}
               yScale={{
                 type: "linear",
@@ -570,7 +584,11 @@ const Dashboard = () => {
         </div>
         <div className="col-lg-7 col-xl-8">
           <h4 className="">Recent Transactions</h4>
-          <MUIDataTable data={transactions} columns={columns} options={options} />
+          <MUIDataTable
+            data={transactions}
+            columns={columns}
+            options={options}
+          />
         </div>
         <div className="col-lg-5 col-xl-4 pt-4">
           <div className="card">

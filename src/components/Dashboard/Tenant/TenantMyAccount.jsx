@@ -1,17 +1,54 @@
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { authUser, uiGreen } from "../../../constants";
-import { listStripePaymentMethods } from "../../../api/api";
+import { listStripePaymentMethods, updateUserData } from "../../../api/api";
 import { ListDivider } from "@mui/joy";
 import UIButton from "../UIButton";
 import { useNavigate } from "react-router";
-
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../constants";
+import AlertModal from "../Modals/AlertModal";
 const TenantMyAccount = () => {
   const [email, setEmail] = useState(authUser.email);
   const [firstName, setFirstName] = useState(authUser.first_name);
   const [lastName, setLastName] = useState(authUser.last_name);
   const [paymentMethods, setPaymentMethods] = useState([]); //Value of either the Stripe token or the Plaid token
+  const [showResponseModal, setShowResponseModal] = useState(false);
+  const [responseMessage, setResponseMessage] = useState(null);
   const navigate = useNavigate();
+  const {
+    register: registerAccountUpdate,
+    handleSubmit: handleSubmitAccountUpdate,
+    formState: { errors: errorsAccountUpdate },
+  } = useForm({
+    defaultValues: {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+    },
+  });
+  const {
+    register: registerChangePassword,
+    watch: watchChangePassword,
+    handleSubmit: handleSubmitChangePassword,
+    formState: { errors: errorsChangePassword },
+  } = useForm();
+
+  const onSubmitUpdateAccount = (data) => {
+    console.log(data);
+    updateUserData(data).then((res) => {
+      console.log(res);
+      if (res.status === 200) {
+        setResponseMessage("Account updated successfully");
+        setShowResponseModal(true);
+      }
+    });
+  };
+
+  const onSubmitChangePassword = (data) => {
+    console.log(data);
+  };
+
   useEffect(() => {
     //Get the payment methods for the user
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
@@ -22,6 +59,14 @@ const TenantMyAccount = () => {
 
   return (
     <div className="container">
+      <AlertModal
+        title="Success"
+        message={responseMessage}
+        open={showResponseModal}
+        btnText="Okay"
+        handleClose={() => setShowResponseModal(false)}
+        onClick={() => setShowResponseModal(false)}
+      />
       <h3 className="text-white mb-4">My Account</h3>
       <div className="row mb-3">
         <div className="col">
@@ -29,7 +74,9 @@ const TenantMyAccount = () => {
             <div className="col">
               <div className="card shadow mb-3">
                 <div className="card-body">
-                  <form>
+                  <form
+                    onSubmit={handleSubmitAccountUpdate(onSubmitUpdateAccount)}
+                  >
                     {" "}
                     <div className="row">
                       <div className="col">
@@ -41,18 +88,23 @@ const TenantMyAccount = () => {
                             First Name
                           </label>
                           <input
+                            {...registerAccountUpdate("first_name", {
+                              required: "This is a required field",
+                            })}
                             className="form-control"
                             type="text"
                             id="first_name"
                             placeholder="John"
                             name="first_name"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
                             }}
                           />
+                          <span style={validationMessageStyle}>
+                            {errorsAccountUpdate.first_name &&
+                              errorsAccountUpdate.first_name.message}
+                          </span>
                         </div>
                       </div>
                       <div className="col">
@@ -64,18 +116,23 @@ const TenantMyAccount = () => {
                             Last Name
                           </label>
                           <input
+                            {...registerAccountUpdate("last_name", {
+                              required: "This is a required field",
+                            })}
                             className="form-control"
                             type="text"
                             id="last_name"
                             placeholder="Doe"
                             name="last_name"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
                             }}
                           />
+                          <span style={validationMessageStyle}>
+                            {errorsAccountUpdate.last_name &&
+                              errorsAccountUpdate.last_name.message}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -89,18 +146,26 @@ const TenantMyAccount = () => {
                             Email Address
                           </label>
                           <input
+                            {...registerAccountUpdate("email", {
+                              required: "This is a required field",
+                              pattern: {
+                                value: /\S+@\S+\.\S+/,
+                                message: "Please enter a valid email",
+                              },
+                            })}
                             className="form-control"
                             type="email"
                             id="email"
                             placeholder="user@example.com"
-                            name="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
                             style={{
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
                             }}
                           />
+                          <span style={validationMessageStyle}>
+                            {errorsAccountUpdate.email &&
+                              errorsAccountUpdate.email.message}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -125,7 +190,11 @@ const TenantMyAccount = () => {
               </h5>
               <div className="card shadow mb-3">
                 <div className="card-body">
-                  <form>
+                  <form
+                    onSubmit={handleSubmitChangePassword(
+                      onSubmitChangePassword
+                    )}
+                  >
                     <div className="row">
                       <div className="col-12">
                         <div className="mb-3">
@@ -136,9 +205,16 @@ const TenantMyAccount = () => {
                             Current Password
                           </label>
                           <input
+                            {...registerChangePassword("password", {
+                              required: "This is a required field",
+                            })}
                             className="form-control border-0"
                             type="password"
                           />
+                          <span style={validationMessageStyle}>
+                            {errorsChangePassword.password &&
+                              errorsChangePassword.password.message}
+                          </span>
                         </div>
                       </div>
                       <div className="col-12">
@@ -150,9 +226,21 @@ const TenantMyAccount = () => {
                             Retype-Current Password
                           </label>
                           <input
+                            {...registerChangePassword("repeat_password", {
+                              required: "This is a required field",
+                              validate: (val) => {
+                                if (watchChangePassword("password") != val) {
+                                  return "Your passwords do not match";
+                                }
+                              },
+                            })}
                             className="form-control border-0"
                             type="password"
                           />
+                          <span style={validationMessageStyle}>
+                            {errorsChangePassword.repeat_password &&
+                              errorsChangePassword.repeat_password.message}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -166,9 +254,27 @@ const TenantMyAccount = () => {
                             New Password
                           </label>
                           <input
+                            {...registerChangePassword("new_password", {
+                              required: "This is a required field",
+                              minLength: {
+                                value: 8,
+                                message:
+                                  "Password must be at least 8 characters",
+                              },
+                              pattern: {
+                                value:
+                                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                message:
+                                  "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+                              },
+                            })}
                             className="form-control border-0"
                             type="password"
                           />
+                          <span style={validationMessageStyle}>
+                            {errorsChangePassword.new_password &&
+                              errorsChangePassword.new_password.message}
+                          </span>
                         </div>
                       </div>
                     </div>

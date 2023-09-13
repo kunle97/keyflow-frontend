@@ -1,14 +1,15 @@
 import { Button, Input, Typography } from "@mui/material";
 import React from "react";
 import { MenuItem, Select } from "@mui/material";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 import { uiGreen } from "../../../../constants";
-import { Textarea } from "@mui/joy";
+import { useForm } from "react-hook-form";
 const CreateLeaseTerm = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   return (
     <div className="container">
       <h2 style={{ color: "white" }}>Create Lease Term</h2>
@@ -24,6 +25,10 @@ const CreateLeaseTerm = () => {
                 Rent (Dollar Amount)
               </Typography>
               <Input
+                {...register("rent", {
+                  required: true,
+                  pattern: /^[0-9]*$/i,
+                })}
                 type="text"
                 className="form-control"
                 id="rent"
@@ -40,6 +45,9 @@ const CreateLeaseTerm = () => {
                 Term Duration
               </Typography>
               <Select
+                {...register("term", {
+                  required: true,
+                })}
                 // value={age}
                 // onChange={handleChange}
                 // displayEmpty

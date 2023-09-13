@@ -1,19 +1,30 @@
 import React, { useState } from "react";
-import { authUser, uiGreen } from "../../../constants";
+import { authUser, uiGreen, uiGrey1 } from "../../../constants";
 import { faker } from "@faker-js/faker";
 import {
   getRentalApplicationByApprovalHash,
-  register_tenant,
-  updateUnit,
+  registerTenant,
   verifyTenantRegistrationCredentials,
 } from "../../../api/api";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../Modals/AlertModal";
 import ProgressModal from "../Modals/ProgressModal";
 import { Button } from "@mui/material";
 import { useEffect } from "react";
-import AddPaymentMethod from "./AddPaymentMethod";
-
+import { CardElement } from "@stripe/react-stripe-js";
+import { useStripe, useElements } from "@stripe/react-stripe-js";
+import { PlaidLink } from "react-plaid-link";
+import {
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  IconButton,
+  Radio,
+  RadioGroup,
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../constants";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -35,6 +46,103 @@ const TenantRegister = () => {
   const [showStep2, setShowStep2] = useState(false);
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    trigger,
+    watch,
+    formState: { errors },
+  } = useForm({});
+  //Cards state variables
+  const stripe = useStripe();
+  const elements = useElements();
+  const [message, setMessage] = useState(null);
+  const [cardMode, setCardMode] = useState(true);
+  const [returnToken, setReturnToken] = useState(null); //Value of either the Stripe token or the Plaid token
+  const [successMode, setSuccessMode] = useState(false); //If true, display error message
+  const [paymentMethodId, setPaymentMethodId] = useState(null); //If true, display error message
+  const handlePlaidSuccess = (token, metadata) => {
+    console.log(token);
+    console.log(metadata);
+    setReturnToken(token);
+  };
+
+  //Create handlSubmit() function to handle form submission to create a new user using the API
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    let payload = {};
+    //Captuere form data
+
+    // data.first_name = firstName;
+    // data.last_name = lastName;
+    // data.username = userName;
+    // data.email = email;
+    // data.password = password;
+    data.unit_id = unit_id;
+    data.lease_agreement_id = lease_agreement_id;
+    data.approval_hash = approval_hash;
+    console.log(data);
+
+    //Handle stripe elements
+    if (!stripe || !elements) {
+      // Stripe.js has not yet loaded.
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+
+    try {
+      if (cardMode) {
+        const { paymentMethod } = await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement,
+        });
+        setPaymentMethodId(paymentMethod.id);
+        console.log(paymentMethod.id);
+        console.log("Return Token:", returnToken);
+        console.log("PaymentMethod:", paymentMethod);
+        data.payment_method_id = paymentMethod.id;
+
+        console.log("COMPLETE FORM DATA", data);
+      } else {
+      }
+    } catch (err) {
+      setMessage("Error adding your payment method");
+      console.log(err);
+      setErrorMode(true);
+      setSuccessMode(false);
+      setIsLoading(false);
+      return;
+    }
+
+    const response = await registerTenant(data).then((res) => {
+      console.log(res);
+      if (res.token) {
+        // If the user was created successfully, set token in local storage and redirect to dashboard
+        localStorage.setItem("accessToken", res.token);
+        localStorage.setItem("authUser", JSON.stringify(res.userData));
+
+        setUserId(authUser.id);
+
+        //Show success message
+        setMessage("Your account has been created successfully!");
+        setErrorMode(false);
+        setOpen(true);
+        setIsLoading(false);
+        //TODO: On submit update lease agrrement model to attach newly created user, etc.
+        //TODO: On submit, send email to tenant to confirm email address
+        //TODO: On submit, send email to landlord to confirm new tenant
+      } else {
+        //TODO: Show error message moodal
+        setErrorMode(true);
+        setOpen(true);
+        setIsLoading(false);
+        return;
+      }
+    });
+  };
+
   //Veryfy that the lease agreement id and approval hash are valid on page load
   useEffect(() => {
     verifyTenantRegistrationCredentials({
@@ -51,64 +159,25 @@ const TenantRegister = () => {
       console.log(res);
       if (res.id) {
         //Populate the form with the rental application data
-        setFirstName(res.first_name);
-        setLastName(res.last_name);
-        setEmail(res.email);
-        setUserName(faker.internet.userName({ firstName, lastName }));
+        const first_name = res.first_name;
+        const last_name = res.last_name;
+        const preloadedData = {
+          first_name: res.first_name,
+          last_name: res.last_name,
+          email: res.email,
+          account_type: "tenant",
+          //Mock Data bleow
+          username: faker.internet.userName({ first_name, last_name }),
+          password: "password",
+          password_repeat: "password",
+        };
+        // Set the preloaded data in the form using setValue
+        Object.keys(preloadedData).forEach((key) => {
+          setValue(key, preloadedData[key]);
+        });
       }
     });
   }, []);
-
-  //Create handlSubmit() function to handle form submission to create a new user using the API
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    data.first_name = firstName;
-    data.last_name = lastName;
-    data.username = userName;
-    data.email = email;
-    data.password = password;
-    data.unit_id = unit_id;
-    data.lease_agreement_id = lease_agreement_id;
-    data.approval_hash = approval_hash;
-    console.log(data);
-    //Show success message
-    setErrorMode(false);
-    setOpen(true);
-    setIsLoading(false);
-    //Call the API to create a new user
-    const response = await register_tenant(data).then((res) => {
-      console.log(res);
-      if (res.token) {
-        // If the user was created successfully, set token in local storage and redirect to dashboard
-        localStorage.setItem("accessToken", res.token);
-        localStorage.setItem("authUser", JSON.stringify(res.userData));
-
-        //Update Unit to have tenant id of newly created user
-        // console.log("token", localStorage.getItem("accessToken"));
-        // updateUnit(unit_id, { tenant_id: res.userData.id }).then((res) => {
-        //   console.log("Update Unit Response", res);
-        // });
-        //
-        setUserId(authUser.id);
-        //Show success message
-        setErrorMode(false);
-        setOpen(true);
-        setIsLoading(false);
-        //TODO: On submit update lease agrrement model to attach newly created user, etc.
-        //TODO: On submit, send email to tenant to confirm email address
-        //TODO: On submit, send email to landlord to confirm new tenant
-      } else {
-        //TODO: Show error message moodal
-        setErrorMode(true);
-        setOpen(true);
-        setIsLoading(false);
-      }
-    });
-  };
-
   return (
     <div className="container-fluid">
       <ProgressModal
@@ -150,10 +219,8 @@ const TenantRegister = () => {
                   style={{ maxWidth: "250px", marginBottom: "25px" }}
                   src="/assets/img/key-flow-logo-white-transparent.png"
                 />
-
-                <form className="user" onSubmit={handleSubmit}>
+                <form className="user" onSubmit={handleSubmit(onSubmit)}>
                   <input type="hidden" name="account_type" value="tenant" />
-
                   {showStep1 && (
                     <div className="step-1">
                       <h5 className="mb-3"> Create Your Account</h5>
@@ -161,70 +228,158 @@ const TenantRegister = () => {
                         <div className="col-sm-6 mb-3 mb-sm-0">
                           <label className="form-label">First Name</label>
                           <input
+                            {...register("first_name", {
+                              required: "This is a required field",
+                              minLength: {
+                                value: 3,
+                                message: "First name must be at least 3 chars",
+                              },
+                            })}
                             className="form-control"
                             type="text"
                             id="exampleFirstName"
                             placeholder="First Name"
-                            name="first_name"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.first_name && errors.first_name.message}
+                          </span>
                         </div>
                         <div className="col-sm-6">
                           <label className="form-label">Last Name</label>
                           <input
+                            {...register("last_name", {
+                              required: "This is a required field",
+                              minLength: {
+                                value: 3,
+                                message: "Last name must be at least 3 chars",
+                              },
+                            })}
                             className="form-control"
                             type="text"
                             id="exampleLastName"
                             placeholder="Last Name"
-                            name="last_name"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.last_name && errors.last_name.message}
+                          </span>
                         </div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Username</label>
+                        <input
+                          {...register("username", {
+                            required: "This is a required field",
+                            minLength: {
+                              value: 3,
+                              message: "Minimum length should be 3 characters",
+                            },
+                          })}
+                          className="form-control"
+                          type="text"
+                          placeholder="Username"
+                        />
+                        <span style={validationMessageStyle}>
+                          {errors.username && errors.username.message}
+                        </span>
                       </div>
                       <div className="mb-3">
                         <label className="form-label">E-mail</label>
                         <input
+                          {...register("email", {
+                            required: "This is a required field",
+                            pattern: {
+                              value: /\S+@\S+\.\S+/,
+                              message: "Please enter a valid email address",
+                            },
+                          })}
                           className="form-control"
                           type="email"
                           id="exampleInputEmail"
                           aria-describedby="emailHelp"
                           placeholder="Email Address"
-                          name="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
                         />
+                        <span style={validationMessageStyle}>
+                          {errors.email && errors.email.message}
+                        </span>
                       </div>
                       <div className="row mb-3">
                         <div className="col-sm-12 col-md-6 mb-3 mb-sm-0">
                           <label className="form-label">Password</label>
                           <input
+                            {...register("password", {
+                              required: "This is a required field",
+                              minLength: {
+                                value: 6,
+                                message:
+                                  "Minimum length should be 6 characters",
+                              },
+                              pattern: {
+                                value:
+                                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                                message:
+                                  "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+                              },
+                            })}
                             className="form-control"
                             type="password"
                             id="examplePasswordInput"
                             placeholder="Password"
-                            name="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.password && errors.password.message}
+                          </span>
                         </div>
                         <div className="col-sm-12 col-md-6">
                           <label className="form-label">Retype Password</label>
                           <input
+                            {...register("password_repeat", {
+                              required: "This is a required field",
+                              minLength: {
+                                value: 6,
+                                message:
+                                  "Minimum length should be 6 characters",
+                              },
+                              validate: (val) => {
+                                if (watch("password") != val) {
+                                  return "Your passwords do not match";
+                                }
+                              },
+                            })}
                             className="form-control"
                             type="password"
                             id="exampleRepeatPasswordInput"
                             placeholder="Repeat Password"
-                            name="password_repeat"
-                            value={password2}
-                            onChange={(e) => setPassword2(e.target.value)}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.password_repeat &&
+                              errors.password_repeat.message}
+                          </span>
                         </div>
                       </div>
                       <Button
+                        onClick={() => {
+                          trigger([
+                            "first_name",
+                            "last_name",
+                            "username",
+                            "email",
+                            "password",
+                            "password_repeat",
+                          ]);
+                          if (
+                            !errors.firstName &&
+                            !errors.lastName &&
+                            !errors.username &&
+                            !errors.email &&
+                            !errors.password &&
+                            !errors.password_repeat
+                          ) {
+                            setShowStep1(false);
+                            setShowStep2(true);
+                          }
+                        }}
                         className="btn btn-primary d-block  w-100 mb-2"
-                        type="submit"
+                        type="button"
                         style={{
                           marginTop: "20px",
                           background: uiGreen,
@@ -233,8 +388,9 @@ const TenantRegister = () => {
                           color: "white",
                         }}
                       >
-                        Sign Up
+                        Next
                       </Button>
+
                       {/* <div className="mb-2">
                         <Link
                           className="small"
@@ -246,7 +402,165 @@ const TenantRegister = () => {
                       </div> */}
                     </div>
                   )}
-                  {showStep2 && <AddPaymentMethod user_id={userId} />}
+                  {showStep2 && (
+                    <div className="">
+                      <IconButton>
+                        <ArrowBack
+                          sx={{ color: uiGreen }}
+                          onClick={() => {
+                            setShowStep1(true);
+                            setShowStep2(false);
+                          }}
+                        />
+                      </IconButton>
+                      <h5 className="mb-3">Add A Payment Method</h5>
+                      <p>
+                        This will be used to pay for your rent monthly and all
+                        other expenses.
+                      </p>
+                      <ProgressModal open={isLoading} />
+                      <AlertModal
+                        open={errorMode}
+                        title="Error"
+                        message={message}
+                        handleClose={() => setErrorMode(false)}
+                        btnText="Close"
+                        onClick={() => setErrorMode(false)}
+                      />
+                      <AlertModal
+                        open={successMode}
+                        title="Success"
+                        message={message}
+                        handleClose={() => setSuccessMode(false)}
+                        btnText="Close"
+                        to="/dashboard/tenant/"
+                      />
+
+                      <div className="">
+                        <FormControl sx={{ marginBottom: "10px" }}>
+                          <FormLabel
+                            sx={{ color: "white", fontSize: "12pt" }}
+                            id="payment-type"
+                          >
+                            Method Type
+                          </FormLabel>
+                          <RadioGroup
+                            row
+                            defaultValue={"card"}
+                            aria-labelledby="payment-type"
+                            name="payment_method"
+                          >
+                            <FormControlLabel
+                              value="card"
+                              control={
+                                <Radio
+                                  onClick={() => setCardMode(true)}
+                                  onSelect={() => setCardMode(true)}
+                                  sx={{
+                                    color: "white",
+                                    "&.Mui-checked": {
+                                      color: uiGreen,
+                                    },
+                                  }}
+                                />
+                              }
+                              label="Debit/Credit Card"
+                              sx={{ color: "white" }}
+                            />
+                            <FormControlLabel
+                              value="bank_account"
+                              control={
+                                <Radio
+                                  onClick={() => setCardMode(false)}
+                                  onSelect={() => setCardMode(false)}
+                                  sx={{
+                                    color: "white",
+                                    "&.Mui-checked": {
+                                      color: uiGreen,
+                                    },
+                                  }}
+                                />
+                              }
+                              label="Bank Account"
+                              sx={{ color: "white" }}
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                        <div className="stripeSection">
+                          {cardMode ? (
+                            <>
+                              {" "}
+                              <div className="form-row">
+                                <label
+                                  className="form-label"
+                                  htmlFor="card-element"
+                                >
+                                  Credit or Debit Card
+                                </label>
+                                <div
+                                  style={{
+                                    backgroundColor: uiGrey1,
+                                    padding: "10px",
+                                    borderRadius: "5px",
+                                  }}
+                                >
+                                  <CardElement
+                                    options={{
+                                      style: {
+                                        base: {
+                                          fontSize: "16px",
+                                          color: "white",
+                                          marginBottom: "15px",
+                                        },
+                                      },
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              {errorMode && message && (
+                                <div
+                                  className="error-message"
+                                  style={{
+                                    fontSize: "14pt",
+                                    width: "100%",
+                                    color: uiGreen,
+                                  }}
+                                >
+                                  {message}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <PlaidLink
+                              token={`${process.env.REACT_APP_PLAID_CLIENT_ID}`}
+                              onSuccess={handlePlaidSuccess}
+                              // Additional Plaid Link configuration options
+                            >
+                              Add Bank Account
+                            </PlaidLink>
+                          )}
+                          {/* <UIButton
+                              onClick={handleSubmit}
+                              btnText="Add Payment Method"
+                              style={{ marginTop: "15px", width: "100%" }}
+                            /> */}
+                          <Button
+                            className="btn btn-primary d-block  w-100 mb-2"
+                            type="submit"
+                            style={{
+                              marginTop: "20px",
+                              background: uiGreen,
+                              border: "none",
+                              textTransform: "none",
+                              color: "white",
+                            }}
+                          >
+                            Sign Up
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </form>
               </div>
             </div>

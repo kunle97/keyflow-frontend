@@ -17,31 +17,22 @@ import UIButton from "../../UIButton";
 import { getUnits } from "../../../../api/api";
 import { uiGreen } from "../../../../constants";
 import BackButton from "../../BackButton";
-
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../../constants";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState({});
-  //Create state variables for each property field
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zip, setZip] = useState("");
-  const [country, setCountry] = useState("");
   const [units, setUnits] = useState([]);
-  //create a loading variable to display a loading message while the units are  being retrieved
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-
+  const [isLoading, setIsLoading] = useState(true); //create a loading variable to display a loading message while the units are  being retrieved
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
   const [responseMessage, setResponseMessage] = useState("Property updated");
   const [alertSeverity, setAlertSeverity] = useState("success");
+  const navigate = useNavigate();
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
-
     setShowUpdateSuccess(false);
   };
 
@@ -74,36 +65,43 @@ const ManageProperty = () => {
     onRowClick: handleRowClick,
   };
   console.log(units);
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   useEffect(() => {
     getProperty(id).then((res) => {
       setProperty(res);
-      setName(res.name);
-      setAddress(res.address);
-      setCity(res.city);
-      setState(res.state);
-      setZip(res.zip_code);
-      setCountry(res.country);
+      const preloadedData = {
+        name: res.name,
+        street: res.street,
+        city: res.city,
+        state: res.state,
+        zip_code: res.zip_code,
+        country: res.country,
+      };
+      // Set the preloaded data in the form using setValue
+      Object.keys(preloadedData).forEach((key) => {
+        setValue(key, preloadedData[key]);
+      });
       setUnits(res.units);
+      //Retireve the units for the property
+      getUnits(id)
+        .then((res) => {
+          setUnits(res.data);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   }, []);
 
-  useEffect(() => {
-    //Retireve the units for the property
-    getUnits(id)
-      .then((res) => {
-        setUnits(res.data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [property]);
-
   //Create a handle function to handle the form submission of updating property info
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
+  const onSubmit = async (data) => {
     const res = await updateProperty(id, data);
     if (res.id) {
       setShowUpdateSuccess(true);
@@ -141,66 +139,59 @@ const ManageProperty = () => {
                   <h6 className="text-primary fw-bold m-0 card-header-text">
                     Address
                   </h6>
-                  <div className="dropdown no-arrow">
-                    <button
-                      className="btn btn-link btn-sm dropdown-toggle"
-                      aria-expanded="false"
-                      data-bs-toggle="dropdown"
-                      type="button"
-                    >
-                      <i className="fas fa-ellipsis-v text-gray-400" />
-                    </button>
-                    <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                      <p className="text-center dropdown-header">
-                        dropdown header:
-                      </p>
-                      <a className="dropdown-item" href="#">
-                        &nbsp;Action
-                      </a>
-                      <a className="dropdown-item" href="#">
-                        &nbsp;Another action
-                      </a>
-                      <div className="dropdown-divider" />
-                      <a className="dropdown-item" href="#">
-                        &nbsp;Something else here
-                      </a>
-                    </div>
-                  </div>
                 </div>
                 <div className="card-body">
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-3">
                       <label className="form-label text-white" htmlFor="name">
                         <strong>Name</strong>
                       </label>
                       <input
+                        {...register("name", {
+                          required: "This is a required field",
+                        })}
+                        // defaultValue={property.name}
+                        name="name"
                         className="form-control"
                         type="text"
                         id="name"
                         placeholder="Sunset Blvd, 38"
-                        name="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
                         style={{ borderStyle: "none" }}
                       />
+                      <span style={validationMessageStyle}>
+                        {errors.name && errors.name.message}
+                      </span>
                     </div>
                     <div className="mb-3">
                       <label
                         className="form-label text-white"
                         htmlFor="address"
                       >
-                        <strong>Address</strong>
+                        <strong>Street Address</strong>
                       </label>
                       <input
+                        {...register("street", {
+                          required: "This is a required field",
+                          minLength: {
+                            value: 3,
+                            message: "Must be at least 3 characters long",
+                          },
+                          //Create pattern to only be in street address format
+                          pattern: {
+                            value: /^[a-zA-Z0-9\s,'-]*$/,
+                            message: "Must be in street address format",
+                          },
+                        })}
+                        name="street"
+                        // defaultValue={property.street}
                         className="form-control"
                         type="text"
-                        id="address"
                         placeholder="Sunset Blvd, 38"
-                        name="address"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
                         style={{ borderStyle: "none" }}
                       />
+                      <span style={validationMessageStyle}>
+                        {errors.street && errors.street.message}
+                      </span>
                     </div>
                     <div className="row">
                       <div className="col-sm-12 col-md-4 col-lg-4">
@@ -212,15 +203,18 @@ const ManageProperty = () => {
                             <strong>City</strong>
                           </label>
                           <input
+                            {...register("city", {
+                              required: "This is a required field",
+                            })}
+                            // defaultValue={property.city}
                             className="form-control"
                             type="text"
-                            id="city"
                             placeholder="Los Angeles"
-                            name="city"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
                             style={{ borderStyle: "none" }}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.city && errors.city.message}
+                          </span>
                         </div>
                       </div>
                       <div className="col-sm-12 col-md-4 col-lg-4">
@@ -232,13 +226,14 @@ const ManageProperty = () => {
                             <strong>State</strong>
                           </label>
                           <input
+                            {...register("state", {
+                              required: "This is a required field",
+                            })}
+                            // defaultValue={property.state}
                             className="form-control"
                             type="text"
                             id="state"
                             placeholder="California"
-                            name="state"
-                            value={state}
-                            onChange={(e) => setState(e.target.value)}
                             style={{ borderStyle: "none" }}
                           />
                         </div>
@@ -252,15 +247,19 @@ const ManageProperty = () => {
                             <strong>Zip Code</strong>
                           </label>
                           <input
+                            {...register("zip_code", {
+                              required: "This is a required field",
+                            })}
+                            // defaultValue={property.zip_code}
                             className="form-control"
                             type="text"
                             id="zip_code"
                             placeholder="USA"
-                            name="zip_code"
-                            value={zip}
-                            onChange={(e) => setZip(e.target.value)}
                             style={{ borderStyle: "none" }}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.zip_code && errors.zip_code.message}
+                          </span>
                         </div>
                       </div>
                       <div className="col-sm-12 col-md-12 col-lg-12">
@@ -272,15 +271,19 @@ const ManageProperty = () => {
                             <strong>Country</strong>
                           </label>
                           <input
+                            {...register("country", {
+                              required: "This is a required field",
+                            })}
+                            // defaultValue={property.country}
                             className="form-control"
                             type="text"
                             id="country-1"
                             placeholder="USA"
-                            name="country"
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
                             style={{ borderStyle: "none" }}
                           />
+                          <span style={validationMessageStyle}>
+                            {errors.country && errors.country.message}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -302,31 +305,6 @@ const ManageProperty = () => {
                       <h6 className="text-primary fw-bold m-0 card-header-text">
                         Proeprty Information
                       </h6>
-                      <div className="dropdown no-arrow">
-                        <button
-                          className="btn btn-link btn-sm dropdown-toggle"
-                          aria-expanded="false"
-                          data-bs-toggle="dropdown"
-                          type="button"
-                        >
-                          <i className="fas fa-ellipsis-v text-gray-400" />
-                        </button>
-                        <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                          <p className="text-center dropdown-header">
-                            dropdown header:
-                          </p>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Action
-                          </a>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Another action
-                          </a>
-                          <div className="dropdown-divider" />
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Something else here
-                          </a>
-                        </div>
-                      </div>
                     </div>
                     <div className="card-body">
                       <form>

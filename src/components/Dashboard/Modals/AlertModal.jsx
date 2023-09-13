@@ -17,7 +17,12 @@ const style = {
   p: 4,
   zIndex: 1000,
 };
-
+const buttonStyle = {
+  backgroundColor: uiGreen,
+  color: "white",
+  textTransform: "none",
+  marginTop: "20px",
+};
 const AlertModal = (props) => {
   return (
     <Modal
@@ -34,17 +39,31 @@ const AlertModal = (props) => {
         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
           {props.message}
         </Typography>
-        <a href={props.to}>
+
+        {props.to ? (
+          <a href={props.to}>
+            <Button
+              style={{
+                ...buttonStyle,
+                ...props.style,
+              }}
+              variant="contained"
+            >
+              {props.btnText}
+            </Button>
+          </a>
+        ) : (
           <Button
+            onClick={props.onClick}
             style={{
-              marginTop: "20px",
-              backgroundColor: uiGreen,
+              ...buttonStyle,
+              ...props.style,
             }}
             variant="contained"
           >
             {props.btnText}
           </Button>
-        </a>
+        )}
       </Box>
     </Modal>
   );
