@@ -580,6 +580,7 @@ const CreateRentalApplication = () => {
                                         required: "This is a required field",
                                       })}
                                       className="form-select"
+                                      defaultValue="false"
                                     >
                                       <option value="">Select One</option>
                                       <option value="true">Yes</option>
@@ -601,6 +602,7 @@ const CreateRentalApplication = () => {
                                         required: "This is a required field",
                                       })}
                                       className="form-select"
+                                      defaultValue="false"
                                     >
                                       <option value="">Select One</option>
                                       <option value="true">Yes</option>
@@ -621,6 +623,7 @@ const CreateRentalApplication = () => {
                                         required: "This is a required field",
                                       })}
                                       className="form-select"
+                                      defaultValue="false"
                                     >
                                       <option value="">Select One</option>
                                       <option value="true">Yes</option>
@@ -641,6 +644,7 @@ const CreateRentalApplication = () => {
                                         required: "This is a required field",
                                       })}
                                       className="form-select"
+                                      defaultValue="false"
                                     >
                                       <option value="">Select One</option>
                                       <option value="true">Yes</option>
@@ -660,6 +664,7 @@ const CreateRentalApplication = () => {
                                         required: "This is a required field",
                                       })}
                                       className="form-select"
+                                      defaultValue="false"
                                     >
                                       <option value="">Select One</option>
                                       <option value="true">Yes</option>
@@ -681,6 +686,7 @@ const CreateRentalApplication = () => {
                                         required: "This is a required field",
                                       })}
                                       className="form-select"
+                                      defaultValue="false"
                                     >
                                       <option value="">Select One</option>
                                       <option value="true">Yes</option>

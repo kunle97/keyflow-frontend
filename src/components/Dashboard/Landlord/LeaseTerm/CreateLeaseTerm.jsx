@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Typography, Alert } from "@mui/material";
+import { Button, Typography, Alert, Tooltip } from "@mui/material";
 import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
 import { createLeaseTerm } from "../../../../api/api";
 import { faker } from "@faker-js/faker";
@@ -8,6 +8,7 @@ import Snackbar from "@mui/material/Snackbar";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import { useNavigate } from "react-router";
+import { HelpOutline } from "@mui/icons-material";
 const CreateLeaseTerm = () => {
   const [rent, setRent] = useState(faker.finance.account(4));
   const [term, setTerm] = useState(12);
@@ -35,16 +36,17 @@ const CreateLeaseTerm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // rent: faker.finance.account(4),
-      // term: 12,
-      // late_fee: faker.finance.account(3),
-      // security_deposit: faker.finance.account(4),
-      // gas_included: "false",
-      // water_included: "false",
-      // electric_included: "false",
-      // repairs_included: "false",
-      // lease_cancellation_notice_period: 12,
-      // lease_cancellation_fee: faker.finance.account(4),
+      rent: faker.finance.account(4),
+      term: 12,
+      late_fee: faker.finance.account(3),
+      security_deposit: faker.finance.account(4),
+      gas_included: "false",
+      water_included: "false",
+      electric_included: "false",
+      repairs_included: "false",
+      grace_period: 0,
+      lease_cancellation_notice_period: 12,
+      lease_cancellation_fee: faker.finance.account(4),
     },
   });
 
@@ -130,7 +132,7 @@ const CreateLeaseTerm = () => {
                 sx={{ width: "100%", color: "white", background: uiGrey2 }}
                 name="term"
               >
-                <option value="" >Select One</option>
+                <option value="">Select One</option>
                 <option value={6}>6 Months</option>
                 <option value={12}>12 Months</option>
                 <option value={13}>13 Months</option>
@@ -202,7 +204,7 @@ const CreateLeaseTerm = () => {
                 name="gas_included"
                 className="form-control"
               >
-                <option value="" >Select One</option>
+                <option value="">Select One</option>
                 <option value="true">Yes</option>
                 <option value="false">No</option>
               </select>
@@ -219,7 +221,7 @@ const CreateLeaseTerm = () => {
                 })}
                 className="form-control"
               >
-                <option value="" >Select One</option>
+                <option value="">Select One</option>
                 <option value="true">Yes</option>
                 <option value="false">No</option>
               </select>
@@ -235,7 +237,7 @@ const CreateLeaseTerm = () => {
                 })}
                 className="form-control"
               >
-                <option value="" >Select One</option>
+                <option value="">Select One</option>
                 <option value="true">Yes</option>
                 <option value="false">No</option>
               </select>
@@ -251,12 +253,54 @@ const CreateLeaseTerm = () => {
                 })}
                 className="form-control"
               >
-                <option value="" >Select One</option>
+                <option value="">Select One</option>
                 <option value="true">Yes</option>
                 <option value="false">No</option>
               </select>
               <span style={validationMessageStyle}>
                 {errors.repairs_included && errors.repairs_included.message}
+              </span>
+            </div>
+            <div className="form-group col-md-12 mb-4">
+              <Typography
+                className="mb-2"
+                sx={{ color: "white", fontSize: "12pt" }}
+                htmlFor="rent"
+              >
+                Grace Period
+                <Tooltip title="The grace period is the amount of time you give a tenant until they mus pay for thier first rent payment.">
+                  <HelpOutline
+                    sx={{
+                      marginLeft: "5px",
+                      width: "20px",
+                    }}
+                  />
+                </Tooltip>
+              </Typography>
+              <select
+                {...register("grace_period", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
+                })}
+                className="form-select"
+                sx={{ width: "100%", color: "white" }}
+              >
+                <option value="">Select One</option>
+                <option value={0} selected>
+                  None
+                </option>
+                <option value={1}>1 Months</option>
+                <option value={2}>2 Months</option>
+                <option value={3}>3 Months</option>
+                <option value={4}>4 Months</option>
+                <option value={5}>5 Months</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.lease_cancellation_notice_period &&
+                  errors.lease_cancellation_notice_period.message}
               </span>
             </div>
             <div className="form-group col-md-12 mb-4">
@@ -278,7 +322,7 @@ const CreateLeaseTerm = () => {
                 className="form-select"
                 sx={{ width: "100%", color: "white" }}
               >
-                <option value="" >Select One</option>
+                <option value="">Select One</option>
                 <option value={6}>6 Months</option>
                 <option value={12}>12 Months</option>
                 <option value={13}>13 Months</option>
