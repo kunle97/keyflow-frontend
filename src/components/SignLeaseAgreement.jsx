@@ -89,7 +89,7 @@ const SignLeaseAgreement = () => {
         }
         if (res.is_active) {
           //Display an error message
-          // navigate("/*");
+          navigate("/*");
         }
       } else {
         setDisplayError(true);
@@ -175,6 +175,12 @@ const SignLeaseAgreement = () => {
                         Lease Cancellation Notice period
                       </h6>
                       {`${leaseTerm.lease_cancellation_notice_period} Month(s)`}
+                    </div>
+                    <div className="col-sm-6 col-md-4 mb-4">
+                      <h6 className="rental-application-lease-heading">
+                        Grace period
+                      </h6>
+                      {`${leaseTerm.grace_period} Month(s)`}
                     </div>
                   </div>
                 )}

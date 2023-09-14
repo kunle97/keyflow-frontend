@@ -267,7 +267,7 @@ export async function getUserData(user_id) {
   }
 }
 //Create a function to update a users data
-export async function updateUserData( data) {
+export async function updateUserData(data) {
   try {
     const res = await axios
       .patch(`${BASE_API_URL}/users/${authUser.id}/`, data, {
@@ -1050,6 +1050,7 @@ export async function createLeaseTerm(data) {
           lease_cancellation_notice_period:
             data.lease_cancellation_notice_period,
           lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
+          grace_period: parseInt(data.grace_period),
           is_active: true,
         },
         {

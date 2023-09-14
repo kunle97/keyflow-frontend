@@ -358,9 +358,14 @@ const CreateUnit = () => {
                                   secondary={
                                     <React.Fragment>
                                       <h6 style={{ fontSize: "10pt" }}>
-                                        Security Deposit: $
-                                        {leaseTerm.security_deposit}. Late Fee:
-                                        ${leaseTerm.late_fee}
+                                        Security Deposit: ${" "}
+                                        {leaseTerm.security_deposit} | Late Fee:
+                                        ${leaseTerm.late_fee} | Grace Period:{" "}
+                                        {leaseTerm.grace_period === 0 ? (
+                                          "None"
+                                        ) : (
+                                          <>{`${leaseTerm.grace_period} Month(s)`}</>
+                                        )}
                                       </h6>
                                       <div style={{ overflow: "auto" }}>
                                         <div
@@ -455,6 +460,14 @@ const CreateUnit = () => {
                     <div className="col-md-4 mb-4">
                       <h6>Lease Cancellation Notice period</h6>
                       {`${currentLeaseTerm.lease_cancellation_notice_period} Month(s)`}
+                    </div>
+                    <div className="col-md-4 mb-4">
+                      <h6>Grace period</h6>
+                      {currentLeaseTerm.grace_period === 0 ? (
+                        "None"
+                      ) : (
+                        <>{`${currentLeaseTerm.grace_period} Month(s)`}</>
+                      )}
                     </div>
                     <div className="col-md-12 mb-4">
                       {!isOccupided && (
