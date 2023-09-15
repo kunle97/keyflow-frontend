@@ -1485,3 +1485,27 @@ export async function turnOnAutoPay() {
     return error.response.data;
   }
 }
+
+//Create a function to get the next payment date for a subscription from endpoint /manage-lease/next-payment-date/
+export async function getNextPaymentDate() {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/manage-lease/next-payment-date/`,
+        { user_id: authUser.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Next Payment Date Error: ", error);
+    return error.response.data;
+  }
+}

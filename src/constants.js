@@ -42,7 +42,6 @@ export const muiDataTableTheme = createMuiTheme({
       },
     },
   },
-
 });
 
 export const landlordMenuItems = [
@@ -160,6 +159,23 @@ export const fakeData = {
   fakeFutureDate: faker.date.future().toISOString().split("T")[0],
   fakeFinanceAmount: faker.finance.amount(),
 };
+export function dateDiffForHumans(targetDate) {
+  const currentDate = new Date();
+  const timeDifference = targetDate - currentDate;
+  const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+  if (daysDifference === 0) {
+    return "today";
+  } else if (daysDifference === 1) {
+    return "tomorrow";
+  } else if (daysDifference === -1) {
+    return "yesterday";
+  } else if (daysDifference > 0) {
+    return `in ${daysDifference} days`;
+  } else {
+    return `${-daysDifference} days ago`;
+  }
+}
 
 export function addMonths(date, months) {
   const newDate = date.setMonth(date.getMonth() + months);

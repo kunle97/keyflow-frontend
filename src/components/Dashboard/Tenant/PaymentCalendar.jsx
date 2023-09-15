@@ -14,11 +14,6 @@ const PaymentCalendar = () => {
     );
   };
   return (
-    <div className="card" style={{ color: "white" }}>
-      <div className="card-header" style={{ backgroundColor: "#2e2e2e" }}>
-        Payment Schedule
-      </div>
-      <div className="card-body">
         <FullCalendar
           plugins={[dayGridPlugin]}
           initialView="dayGridMonth"
@@ -26,8 +21,7 @@ const PaymentCalendar = () => {
           events={events}
           eventContent={renderEventContent}
         />
-      </div>
-    </div>
+
   );
 };
 
