@@ -1,11 +1,15 @@
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { authUser, uiGreen } from "../../../constants";
-import { listStripePaymentMethods, updateUserData } from "../../../api/api";
+import {
+  changePassword,
+  listStripePaymentMethods,
+  updateUserData,
+} from "../../../api/api";
 import { ListDivider } from "@mui/joy";
 import UIButton from "../UIButton";
 import { useNavigate } from "react-router";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../Modals/AlertModal";
 const TenantMyAccount = () => {
@@ -14,6 +18,7 @@ const TenantMyAccount = () => {
   const [lastName, setLastName] = useState(authUser.last_name);
   const [paymentMethods, setPaymentMethods] = useState([]); //Value of either the Stripe token or the Plaid token
   const [showResponseModal, setShowResponseModal] = useState(false);
+  const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
   const navigate = useNavigate();
   const {
@@ -39,6 +44,7 @@ const TenantMyAccount = () => {
     updateUserData(data).then((res) => {
       console.log(res);
       if (res.status === 200) {
+        setResponseTitle("Success");
         setResponseMessage("Account updated successfully");
         setShowResponseModal(true);
       }
@@ -47,6 +53,18 @@ const TenantMyAccount = () => {
 
   const onSubmitChangePassword = (data) => {
     console.log(data);
+    changePassword(data).then((res) => {
+      console.log(res);
+      if (res.status === 200) {
+        setResponseTitle("Success");
+        setResponseMessage("Password changed successfully");
+        setShowResponseModal(true);
+      } else {
+        setResponseTitle("Error");
+        setResponseMessage("Error changing your password");
+        setShowResponseModal(true);
+      }
+    });
   };
 
   useEffect(() => {
@@ -60,7 +78,7 @@ const TenantMyAccount = () => {
   return (
     <div className="container">
       <AlertModal
-        title="Success"
+        title={responseTitle}
         message={responseMessage}
         open={showResponseModal}
         btnText="Okay"
@@ -205,15 +223,15 @@ const TenantMyAccount = () => {
                             Current Password
                           </label>
                           <input
-                            {...registerChangePassword("password", {
+                            {...registerChangePassword("old_password", {
                               required: "This is a required field",
                             })}
                             className="form-control border-0"
                             type="password"
                           />
                           <span style={validationMessageStyle}>
-                            {errorsChangePassword.password &&
-                              errorsChangePassword.password.message}
+                            {errorsChangePassword.old_password &&
+                              errorsChangePassword.old_password.message}
                           </span>
                         </div>
                       </div>
@@ -229,7 +247,9 @@ const TenantMyAccount = () => {
                             {...registerChangePassword("repeat_password", {
                               required: "This is a required field",
                               validate: (val) => {
-                                if (watchChangePassword("password") != val) {
+                                if (
+                                  watchChangePassword("old_password") != val
+                                ) {
                                   return "Your passwords do not match";
                                 }
                               },

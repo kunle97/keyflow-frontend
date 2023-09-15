@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import { token, authUser } from "../constants";
 import { createApprovalHash, stringToBoolean } from "../helpers/utils";
-const  API_HOST = process.env.REACT_APP_API_HOSTNAME
+const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 ///-----------------AUTH API FUNCTIONS---------------------------///
 export async function login(email, password) {
   try {
@@ -282,6 +282,34 @@ export async function updateUserData(data) {
     return res;
   } catch (error) {
     console.log("Update User Data Error: ", error);
+    return error.response;
+  }
+}
+//Create a function to change a user's password using enpoint /users/{user_id}/change-password/
+export async function changePassword(data) {
+  try {
+    const res = await axios
+
+      .post(
+        `${API_HOST}/users/${authUser.id}/change-password/`,
+        {
+          old_password: data.old_password,
+          new_password: data.new_password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Change Password Error: ", error);
     return error.response;
   }
 }
@@ -1272,16 +1300,12 @@ export async function getTransactionById(transactionId) {
 //Create a function to create a maintenance request
 export async function createMaintenanceRequest(data) {
   try {
-    const res = await axios.post(
-      `${API_HOST}/maintenance-requests/`,
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      }
-    );
+    const res = await axios.post(`${API_HOST}/maintenance-requests/`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
 
     return {
       message: "Maintenance request created successfully",
@@ -1326,15 +1350,12 @@ export async function getMaintenanceRequests(unitId) {
 export async function getMaintenanceRequestsByUser() {
   try {
     const res = await axios
-      .get(
-        `${API_HOST}/users/${authUser.id}/tenant-maintenance-requests/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      .get(`${API_HOST}/users/${authUser.id}/tenant-maintenance-requests/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
       .then((res) => {
         return res;
       });
@@ -1349,15 +1370,12 @@ export async function getMaintenanceRequestsByUser() {
 export async function getMaintenanceRequestsByLandlord() {
   try {
     const res = await axios
-      .get(
-        `${API_HOST}/users/${authUser.id}/landlord-maintenance-requests/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      .get(`${API_HOST}/users/${authUser.id}/landlord-maintenance-requests/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
       .then((res) => {
         return res;
       });

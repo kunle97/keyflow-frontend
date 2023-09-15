@@ -81,6 +81,7 @@ const TenantDashboard = () => {
       turnOffAutoPay().then((res) => {
         console.log(res.data);
         if (res.data && res.data.status === 200) {
+          navigate(0);
           setAutoPayIsLoading(false);
         }
       });
@@ -88,6 +89,7 @@ const TenantDashboard = () => {
       turnOnAutoPay().then((res) => {
         console.log(res.data);
         if (res.data && res.data.status === 200) {
+          navigate(0);
           setAutoPayIsLoading(false);
         }
       });
@@ -125,7 +127,7 @@ const TenantDashboard = () => {
       console.log("nExt pay date data", res);
       setNextPaymentDate(res.data.next_payment_date);
     });
-  }, [leaseAgreement]);
+  }, []);
 
   return (
     <div className="container">

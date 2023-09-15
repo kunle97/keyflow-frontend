@@ -26,7 +26,7 @@ const LandlordLogin = () => {
   } = useForm({
     defaultValues: {
       email: "Madalyn_Murray@gmail.com",
-      password: "password",
+      password: "Password1",
     }}
   );
   const onSubmit = async (data) => {
