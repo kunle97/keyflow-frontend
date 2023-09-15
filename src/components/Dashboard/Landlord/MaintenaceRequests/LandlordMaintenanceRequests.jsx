@@ -2,13 +2,11 @@ import React from "react";
 import { useEffect } from "react";
 import {
   getMaintenanceRequestsByLandlord,
-  getProperty,
 } from "../../../../api/api";
 import { useState } from "react";
 import MUIDataTable from "mui-datatables";
-import UIButton from "../../UIButton";
+import UIButton from "../../UIComponents/UIButton";
 import { useNavigate } from "react-router-dom";
-import { faker } from "@faker-js/faker";
 import { uiGreen, uiRed } from "../../../../constants";
 
 const LandlordMaintenanceRequests = () => {

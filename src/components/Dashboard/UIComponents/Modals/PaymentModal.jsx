@@ -12,9 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { makePayment } from "../../../api/api";
-import { authUser } from "../../../constants";
-import { uiGreen, uiGrey1 } from "../../../constants";
+import { makePayment } from "../../../../api/api";
+import { uiGreen, uiGrey1, authUser } from "../../../../constants";
 import UIButton from "../UIButton";
 const PaymentModal = (props) => {
   /*

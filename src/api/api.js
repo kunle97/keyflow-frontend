@@ -2,9 +2,8 @@
  * API functions for the frontend
  * **/
 import axios from "axios";
-import { useNavigate } from "react-router";
 import { token, authUser } from "../constants";
-import { createApprovalHash, stringToBoolean } from "../helpers/utils";
+import { makeId, stringToBoolean } from "../helpers/utils";
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 ///-----------------AUTH API FUNCTIONS---------------------------///
 export async function login(email, password) {
@@ -310,6 +309,86 @@ export async function changePassword(data) {
     return res;
   } catch (error) {
     console.log("Change Password Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to send a password reset email using the endpoint /password-reset/
+export async function sendPasswordResetEmail(data) {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/password-reset/create-reset-token/`,
+        {
+          email: data.email,
+          token: data.token,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Reset Password Error: ", error);
+    return error.response;
+  }
+}
+//Create a function to reset a users password using the endpoint /password-reset/validate-token/
+export async function resetPassword(data) {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/password-reset/reset-password/`,
+        {
+          email: data.email,
+          token: data.token,
+          new_password: data.new_password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Reset Password Error: ", error);
+    return error.response;
+  }
+}
+//Create a post funciton to validate a password reset token using the endpoint /password-reset/validate-token/
+export async function validatePasswordResetToken(token) {
+  try {
+    const res = await axios
+
+      .post(
+        `${API_HOST}/password-reset/validate-token/`,
+        {
+          token: token,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Validate Password Reset Token Error: ", error);
     return error.response;
   }
 }
@@ -862,7 +941,7 @@ export async function approveRentalApplication(rentalAppId) {
         `${API_HOST}/rental-applications/${rentalAppId}/`,
         {
           is_approved: true,
-          approval_hash: createApprovalHash(64),
+          approval_hash: makeId(64),
           is_archived: true,
         },
         {

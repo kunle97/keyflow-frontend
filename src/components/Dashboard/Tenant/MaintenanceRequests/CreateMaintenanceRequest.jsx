@@ -6,8 +6,8 @@ import {
 import { create } from "@mui/material/styles/createTransitions";
 import { authUser, validationMessageStyle } from "../../../../constants";
 import { Alert } from "@mui/material";
-import AlertModal from "../../Modals/AlertModal";
-import ProgressModal from "../../Modals/ProgressModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
 
 const CreateMaintenanceRequest = () => {

@@ -2,13 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { login, logout } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
-import AlertModal from "../Modals/AlertModal";
+import AlertModal from "../UIComponents/Modals/AlertModal";
 import { uiGreen, validationMessageStyle } from "../../../constants";
 import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import ProgressModal from "../Modals/ProgressModal";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
-
 const LandlordLogin = () => {
   const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
   const [password, setPassword] = useState("password");
@@ -175,13 +174,13 @@ const LandlordLogin = () => {
                 </Button>
               </form>
               <div className="mb-2">
-                <a
+                <Link
                   className="small"
-                  href="forgot-password.html"
+                  to="/dashboard/forgot-password/"
                   style={{ color: uiGreen }}
                 >
                   Forgot Password?
-                </a>
+                </Link>
               </div>
               <div className="mb-2">
                 <Link

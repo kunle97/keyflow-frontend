@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { logout } from "../../../../api/api";
 import { useNavigate } from "react-router";
-import AlertModal from "../../Modals/AlertModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link } from "react-router-dom";
 import { authUser, token, uiGreen } from "../../../../constants";
 import { faker } from "@faker-js/faker";

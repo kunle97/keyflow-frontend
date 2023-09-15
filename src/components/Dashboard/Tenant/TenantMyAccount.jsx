@@ -7,11 +7,11 @@ import {
   updateUserData,
 } from "../../../api/api";
 import { ListDivider } from "@mui/joy";
-import UIButton from "../UIButton";
+import UIButton from "../UIComponents/UIButton";
 import { useNavigate } from "react-router";
 import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
-import AlertModal from "../Modals/AlertModal";
+import AlertModal from "../UIComponents/Modals/AlertModal";
 const TenantMyAccount = () => {
   const [email, setEmail] = useState(authUser.email);
   const [firstName, setFirstName] = useState(authUser.first_name);

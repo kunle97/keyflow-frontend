@@ -6,12 +6,12 @@ import {
   markMaintenanceRequestAsResolved,
   markMaintenanceRequestAsUnresolved,
 } from "../../../../api/api";
-import ProgressModal from "../../Modals/ProgressModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useParams } from "react-router";
-import UIButton from "../../UIButton";
-import AlertModal from "../../Modals/AlertModal";
-import ConfirmModal from "../../Modals/ConfirmModal";
-import BackButton from "../../BackButton";
+import UIButton from "../../UIComponents/UIButton";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import BackButton from "../../UIComponents/BackButton";
 import { Button } from "@mui/material";
 import { uiRed } from "../../../../constants";
 

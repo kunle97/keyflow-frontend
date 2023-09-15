@@ -9,8 +9,8 @@ import {
   signLeaseAgreement,
 } from "../api/api";
 import { useState } from "react";
-import AlertModal from "./Dashboard/Modals/AlertModal";
-import ConfirmModal from "./Dashboard/Modals/ConfirmModal";
+import AlertModal from "./Dashboard/UIComponents/Modals/AlertModal";
+import ConfirmModal from "./Dashboard/UIComponents/Modals/ConfirmModal";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);

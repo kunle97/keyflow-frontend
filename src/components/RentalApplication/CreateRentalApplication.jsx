@@ -2,7 +2,7 @@ import { Button, Stack, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fakeData, uiGreen } from "../../constants";
-import UIBinaryRadioGroup from "../Dashboard/UIBinaryRadioGroup";
+import UIBinaryRadioGroup from "../Dashboard/UIComponents/UIBinaryRadioGroup";
 import EmploymentHistorySection from "./EmploymentHistorySection";
 import RentalHistorySection from "./RentalHistorySection";
 import { HelpOutline } from "@mui/icons-material";
@@ -15,8 +15,8 @@ import {
   getUnitUnauthenticated,
 } from "../../api/api";
 import { useParams } from "react-router-dom";
-import ProgressModal from "../Dashboard/Modals/ProgressModal";
-import AlertModal from "../Dashboard/Modals/AlertModal";
+import ProgressModal from "../Dashboard/UIComponents/Modals/ProgressModal";
+import AlertModal from "../Dashboard/UIComponents/Modals/AlertModal";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../constants";
 const CreateRentalApplication = () => {

@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { login } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
-import AlertModal from "../Modals/AlertModal";
+import AlertModal from "../UIComponents/Modals/AlertModal";
 import { uiGreen } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import ProgressModal from "../Modals/ProgressModal";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 const TenantLogin = () => {

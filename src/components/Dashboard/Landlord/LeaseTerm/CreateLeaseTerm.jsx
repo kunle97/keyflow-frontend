@@ -3,7 +3,7 @@ import { Button, Typography, Alert, Tooltip } from "@mui/material";
 import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
 import { createLeaseTerm } from "../../../../api/api";
 import { faker } from "@faker-js/faker";
-import BackButton from "../../BackButton";
+import BackButton from "../../UIComponents/BackButton";
 import Snackbar from "@mui/material/Snackbar";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";

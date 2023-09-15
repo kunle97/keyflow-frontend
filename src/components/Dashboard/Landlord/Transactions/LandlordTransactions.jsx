@@ -6,7 +6,7 @@ import { RevenueExpenseBarChart } from "./Charts/RevenueExpenseBarChart";
 import { RevenueByPropertyPieChart } from "./Charts/RevenueByPropertyPieChart";
 import { ExpenseByPropertyPieChart } from "./Charts/ExpenseByPropertyPieChart";
 import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
-import TitleCard from "../../../TitleCard";
+import TitleCard from "../../../Dashboard/UIComponents/TitleCard";
 const LandlordTransactions = () => {
   let revenueData = [];
   const navigate = useNavigate();
