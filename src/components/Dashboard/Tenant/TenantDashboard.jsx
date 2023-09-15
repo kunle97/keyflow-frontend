@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { uiGreen, uiGrey2 } from "../../../constants";
+import { dateDiffForHumans, uiGreen, uiGrey2 } from "../../../constants";
 import { authUser } from "../../../constants";
 import Box from "@mui/material/Box";
 import CardContent from "@mui/material/CardContent";
@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import ReportIcon from "@mui/icons-material/Report";
 import PaymentCalendar from "./PaymentCalendar";
 import {
+  getNextPaymentDate,
   getTenantDashboardData,
   getTenantTransactionsByUser,
   getUnit,
@@ -35,6 +36,7 @@ const TenantDashboard = () => {
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
   const [autoPayIsLoading, setAutoPayIsLoading] = useState(false);
+  const [nextPaymentDate, setNextPaymentDate] = useState(null);
   const columns = [
     { name: "id", label: "ID", options: { display: false } },
     { name: "amount", label: "Amount" },
@@ -118,6 +120,11 @@ const TenantDashboard = () => {
       console.log(res);
       setTransactions(res.data);
     });
+    //Retrieve next payment date
+    getNextPaymentDate().then((res) => {
+      console.log("nExt pay date data", res);
+      setNextPaymentDate(res.data.next_payment_date);
+    });
   }, [leaseAgreement]);
 
   return (
@@ -157,7 +164,10 @@ const TenantDashboard = () => {
               <>
                 <CardContent>
                   <Typography sx={{ fontSize: 20 }} gutterBottom>
-                    <ReportIcon sx={{ color: "red" }} /> Rent Due in 3 days
+                    {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
+                      <ReportIcon sx={{ color: "red" }} />
+                    )}{" "}
+                    Rent due in {dateDiffForHumans(new Date(nextPaymentDate))}
                   </Typography>
 
                   <Box
@@ -169,6 +179,34 @@ const TenantDashboard = () => {
                       }
                     }
                   >
+                    <div className="my-2">
+                      <FormControlLabel
+                        value="end"
+                        control={
+                          <UISwitch
+                            checked={
+                              leaseAgreement &&
+                              leaseAgreement.stripe_subscription_id
+                            }
+                            onChange={handleAutoPayChange}
+                            inputProps={{ "aria-label": "controlled" }}
+                          />
+                        }
+                        label={`AutoPay ${
+                          leaseAgreement &&
+                          leaseAgreement.stripe_subscription_id
+                            ? "Enabled"
+                            : "Disabled"
+                        }`}
+                        labelPlacement="end"
+                      />{" "}
+                      {autoPayIsLoading && (
+                        <CircularProgress
+                          size="1rem"
+                          sx={{ color: uiGreen, top: 5, position: "relative" }}
+                        />
+                      )}
+                    </div>{" "}
                     {leaseAgreement &&
                       !leaseAgreement.stripe_subscription_id && (
                         <Button
@@ -185,45 +223,27 @@ const TenantDashboard = () => {
                           Pay Now
                         </Button>
                       )}
-                    <div className="mt-2">
-                      <FormControlLabel
-                        value="end"
-                        control={
-                          <UISwitch
-                            checked={
-                              leaseAgreement &&
-                              leaseAgreement.stripe_subscription_id
-                            }
-                            onChange={handleAutoPayChange}
-                            inputProps={{ "aria-label": "controlled" }}
-                          />
-                        }
-                        label="Enable AutoPay"
-                        labelPlacement="end"
-                      />{" "}
-                      {autoPayIsLoading && (
-                        <CircularProgress
-                          size="1rem"
-                          sx={{ color: uiGreen, top: 5, position: "relative" }}
-                        />
-                      )}
-                    </div>
                   </Box>
                 </CardContent>
               </>
             </div>
           </Box>
-          <PaymentCalendar />
+          {/* TODO: Insert a better Maintenance Requests Component Here */}
+          {/* <MaintenanceRequests /> */}
         </div>
         <div className="col-lg-7 col-xl-8 mb-4">
+          <div className="card" style={{ color: "white" }}>
+            <div className="card-body">
+              <PaymentCalendar />
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-12 col-xl-12 mb-4">
           <MUIDataTable
             data={transactions}
             columns={columns}
             options={options}
           />
-        </div>
-        <div className="col-lg-12 col-xl-12 mb-4">
-          <MaintenanceRequests />
         </div>
       </div>
     </div>
