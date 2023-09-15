@@ -143,6 +143,24 @@ export const modalStyle = {
   pb: 3,
 };
 
+export const fakeData = {
+  fakeFirstName: faker.person.firstName(),
+  fakeLastName: faker.person.lastName(),
+  fakeEmail: faker.internet.email(),
+  fakePassword: faker.internet.password(),
+  fakePhoneNumber: faker.phone.number("###-###-####"),
+  fakeAddress: faker.address.streetAddress(),
+  fakeCity: faker.address.city(),
+  fakeState: faker.address.state(),
+  fakeZipCode: faker.address.zipCode(),
+  fakeCountry: faker.address.country(),
+  fakeCompanyName: faker.company.name(),
+  fakePosition: faker.name.jobTitle(),
+  fakePastDate: faker.date.past().toISOString().split("T")[0],
+  fakeFutureDate: faker.date.future().toISOString().split("T")[0],
+  fakeFinanceAmount: faker.finance.amount(),
+};
+
 export function addMonths(date, months) {
   const newDate = date.setMonth(date.getMonth() + months);
   return newDate;
