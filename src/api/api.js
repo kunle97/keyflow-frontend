@@ -3,15 +3,14 @@
  * **/
 import axios from "axios";
 import { useNavigate } from "react-router";
-import { BASE_API_URL } from "../constants";
 import { token, authUser } from "../constants";
 import { createApprovalHash, stringToBoolean } from "../helpers/utils";
-
+const  API_HOST = process.env.REACT_APP_API_HOSTNAME
 ///-----------------AUTH API FUNCTIONS---------------------------///
 export async function login(email, password) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/auth/login/`, { email, password })
+      .post(`${API_HOST}/auth/login/`, { email, password })
       .then((res) => {
         const response = res.data;
         console.log("axios login response ", response);
@@ -62,7 +61,7 @@ export async function logout(accessToken) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/auth/logout/`,
+        `${API_HOST}/auth/logout/`,
         {},
         {
           headers: {
@@ -95,7 +94,7 @@ export async function logout(accessToken) {
 export async function registerLandlord(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/auth/register/`, data)
+      .post(`${API_HOST}/auth/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
@@ -134,7 +133,7 @@ export async function registerLandlord(data) {
 export async function registerTenant(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/auth/tenant/register/`, data)
+      .post(`${API_HOST}/auth/tenant/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
@@ -166,7 +165,7 @@ export async function createPlaidLinkToken(user_id) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/plaid/create-link-token/`,
+        `${API_HOST}/plaid/create-link-token/`,
         { user_id: user_id },
         {
           headers: {
@@ -191,7 +190,7 @@ export async function addStripePaymentMethod(data) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/stripe/add-payment-method/`,
+        `${API_HOST}/stripe/add-payment-method/`,
         {
           user_id: data.user_id,
           payment_method_id: data.payment_method_id,
@@ -220,7 +219,7 @@ export async function listStripePaymentMethods(user_id) {
     const res = await axios
 
       .post(
-        `${BASE_API_URL}/stripe/list-payment-methods/`,
+        `${API_HOST}/stripe/list-payment-methods/`,
         {
           user_id: user_id,
         },
@@ -247,7 +246,7 @@ export async function getUserData(user_id) {
   try {
     const res = await axios
       .get(
-        `${BASE_API_URL}/users/${authUser.id}/tenant/`,
+        `${API_HOST}/users/${authUser.id}/tenant/`,
         { tenant_id: user_id, landlord_id: authUser.id },
         {
           headers: {
@@ -270,7 +269,7 @@ export async function getUserData(user_id) {
 export async function updateUserData(data) {
   try {
     const res = await axios
-      .patch(`${BASE_API_URL}/users/${authUser.id}/`, data, {
+      .patch(`${API_HOST}/users/${authUser.id}/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -301,7 +300,7 @@ export async function createProperty(
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/properties/`,
+        `${API_HOST}/properties/`,
         {
           name,
           user: authUser.id,
@@ -334,7 +333,7 @@ export async function createProperty(
 export async function getProperties() {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/users/${authUser.id}/properties/`, {
+      .get(`${API_HOST}/users/${authUser.id}/properties/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -358,7 +357,7 @@ export async function getProperties() {
 export async function getProperty(propertyId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/properties/${propertyId}/`, {
+      .get(`${API_HOST}/properties/${propertyId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -382,7 +381,7 @@ export async function getPropertyUnauthenticated(propertyId) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/retrieve-property/`,
+        `${API_HOST}/retrieve-property/`,
         { property_id: propertyId },
         {
           headers: {
@@ -408,7 +407,7 @@ export async function getPropertyUnauthenticated(propertyId) {
 export async function updateProperty(propertyId, data) {
   try {
     const res = await axios
-      .patch(`${BASE_API_URL}/properties/${propertyId}/`, data, {
+      .patch(`${API_HOST}/properties/${propertyId}/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -431,7 +430,7 @@ export async function updateProperty(propertyId, data) {
 export async function deleteProperty(propertyId) {
   try {
     const res = await axios
-      .delete(`${BASE_API_URL}/properties/${propertyId}/`, {
+      .delete(`${API_HOST}/properties/${propertyId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -456,7 +455,7 @@ export async function deleteProperty(propertyId) {
 export async function makePayment(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/tenants/${authUser.id}/make-payment/`, data, {
+      .post(`${API_HOST}/tenants/${authUser.id}/make-payment/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -477,7 +476,7 @@ export async function getTenantDashboardData() {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/retrieve-tenant-dashboard-data/`,
+        `${API_HOST}/retrieve-tenant-dashboard-data/`,
         { user_id: authUser.id },
         {
           headers: {
@@ -504,7 +503,7 @@ export async function createUnit(data) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/units/`,
+        `${API_HOST}/units/`,
         {
           name: data.name,
           rental_property: data.rental_property,
@@ -536,7 +535,7 @@ export async function createUnit(data) {
 export async function getUnits(propertyId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/properties/${propertyId}/units/`, {
+      .get(`${API_HOST}/properties/${propertyId}/units/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -560,7 +559,7 @@ export async function getUnits(propertyId) {
 export async function getUnit(unitId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/units/${unitId}/`, {
+      .get(`${API_HOST}/units/${unitId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -584,7 +583,7 @@ export async function getUnitUnauthenticated(unitId) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/retrieve-unit/`,
+        `${API_HOST}/retrieve-unit/`,
         { unit_id: unitId },
         {
           headers: {
@@ -611,7 +610,7 @@ export async function getLeaseTermByUnitId(unitId) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/retrieve-lease-term-unit/`,
+        `${API_HOST}/retrieve-lease-term-unit/`,
         { unit_id: unitId },
         {
           headers: {
@@ -636,7 +635,7 @@ export async function getLeaseTermByUnitId(unitId) {
 export async function updateUnit(unitId, data) {
   try {
     const res = await axios
-      .patch(`${BASE_API_URL}/units/${unitId}/`, data, {
+      .patch(`${API_HOST}/units/${unitId}/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -660,7 +659,7 @@ export async function deleteUnit(propertyId, unitId) {
   try {
     const res = await axios
       .delete(
-        `${BASE_API_URL}/units/${unitId}/`,
+        `${API_HOST}/units/${unitId}/`,
         { rental_property: propertyId },
         {
           headers: {
@@ -689,7 +688,7 @@ export async function createRentalApplication(data) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/rental-applications/`,
+        `${API_HOST}/rental-applications/`,
         {
           unit: data.unit_id,
           first_name: data.first_name,
@@ -735,7 +734,7 @@ export async function createRentalApplication(data) {
 export async function getRentalApplications(unitId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/units/${unitId}/rental-applications/`, {
+      .get(`${API_HOST}/units/${unitId}/rental-applications/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -759,7 +758,7 @@ export async function getRentalApplications(unitId) {
 export async function getRentalApplicationsByUser() {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/users/${authUser.id}/rental-applications/`, {
+      .get(`${API_HOST}/users/${authUser.id}/rental-applications/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -783,7 +782,7 @@ export async function getRentalApplicationsByUser() {
 export async function getRentalApplicationById(rentalAppId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/rental-applications/${rentalAppId}/`, {
+      .get(`${API_HOST}/rental-applications/${rentalAppId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -806,7 +805,7 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/auth/tenant/register/retrieve-rental-application/`,
+        `${API_HOST}/auth/tenant/register/retrieve-rental-application/`,
         { approval_hash: approval_hash },
         {
           headers: {
@@ -832,7 +831,7 @@ export async function approveRentalApplication(rentalAppId) {
   try {
     const res = await axios
       .patch(
-        `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
+        `${API_HOST}/rental-applications/${rentalAppId}/`,
         {
           is_approved: true,
           approval_hash: createApprovalHash(64),
@@ -862,7 +861,7 @@ export async function rejectRentalApplication(rentalAppId) {
   try {
     const res = await axios
       .delete(
-        `${BASE_API_URL}/rental-applications/${rentalAppId}/`,
+        `${API_HOST}/rental-applications/${rentalAppId}/`,
         // {
         //   is_approved: false,
         //   user_id: authUser.id,
@@ -894,7 +893,7 @@ export async function deleteOtherRentalApplications(rentalAppId) {
   try {
     const res = await axios
       .delete(
-        `${BASE_API_URL}/rental-applications/${rentalAppId}/delete-remaining-rental-applications/`,
+        `${API_HOST}/rental-applications/${rentalAppId}/delete-remaining-rental-applications/`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -922,7 +921,7 @@ export async function createLeaseAgreement(data) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/lease-agreements/`,
+        `${API_HOST}/lease-agreements/`,
         // {
         //   rental_application: data.rental_application,
         //   rental_unit: data.rental_unit,
@@ -958,7 +957,7 @@ export async function createLeaseAgreement(data) {
 export async function updateLeaseAgreement(leaseAgreementId, data) {
   try {
     const res = await axios
-      .patch(`${BASE_API_URL}/lease-agreements/${leaseAgreementId}/`, data, {
+      .patch(`${API_HOST}/lease-agreements/${leaseAgreementId}/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -988,7 +987,7 @@ export async function updateLeaseAgreement(leaseAgreementId, data) {
 // export async function getLeaseAgreementById(data) {
 //   try {
 //     const res = await axios
-//       .post(`${BASE_API_URL}/retrieve-lease-agreement/`, data, {
+//       .post(`${API_HOST}/retrieve-lease-agreement/`, data, {
 //         headers: {
 //           "Content-Type": "application/json",
 //           Authorization: `Token ${token}`,
@@ -1011,7 +1010,7 @@ export async function updateLeaseAgreement(leaseAgreementId, data) {
 export async function getLeaseAgreementByIdAndApprovalHash(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/retrieve-lease-agreement-approval/`, data, {
+      .post(`${API_HOST}/retrieve-lease-agreement-approval/`, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -1035,7 +1034,7 @@ export async function createLeaseTerm(data) {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/create-lease-term/`,
+        `${API_HOST}/create-lease-term/`,
         {
           user_id: authUser.id,
           rent: parseFloat(data.rent),
@@ -1080,7 +1079,7 @@ export async function createLeaseTerm(data) {
 export async function getLeaseTermsByUser() {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/users/${authUser.id}/lease-terms/`, {
+      .get(`${API_HOST}/users/${authUser.id}/lease-terms/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1101,7 +1100,7 @@ export async function getLeaseTermsByUser() {
 export async function getLeaseTermByIdAndApprovalHash(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/retrieve-lease-term-and-approval/`, data, {
+      .post(`${API_HOST}/retrieve-lease-term-and-approval/`, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -1123,7 +1122,7 @@ export async function getLeaseTermByIdAndApprovalHash(data) {
 export async function getLeaseTermById(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/retrieve-lease-term/`, data, {
+      .post(`${API_HOST}/retrieve-lease-term/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1146,7 +1145,7 @@ export async function getLeaseTermById(data) {
 export async function updateLeaseTerm(leaseTermId, data) {
   try {
     const res = await axios
-      .patch(`${BASE_API_URL}/lease-terms/${leaseTermId}/`, data, {
+      .patch(`${API_HOST}/lease-terms/${leaseTermId}/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1169,7 +1168,7 @@ export async function updateLeaseTerm(leaseTermId, data) {
 export async function signLeaseAgreement(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/sign-lease-agreement/`, data, {
+      .post(`${API_HOST}/sign-lease-agreement/`, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -1189,7 +1188,7 @@ export async function signLeaseAgreement(data) {
 export async function verifyTenantRegistrationCredentials(data) {
   try {
     const res = await axios
-      .post(`${BASE_API_URL}/auth/tenant/register/verify/`, data, {
+      .post(`${API_HOST}/auth/tenant/register/verify/`, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -1210,7 +1209,7 @@ export async function verifyTenantRegistrationCredentials(data) {
 export async function getTransactionsByUser() {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/users/${authUser.id}/transactions/`, {
+      .get(`${API_HOST}/users/${authUser.id}/transactions/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1230,7 +1229,7 @@ export async function getTransactionsByUser() {
 export async function getTenantTransactionsByUser() {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/users/${authUser.id}/tenant-transactions/`, {
+      .get(`${API_HOST}/users/${authUser.id}/tenant-transactions/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1250,7 +1249,7 @@ export async function getTenantTransactionsByUser() {
 export async function getTransactionById(transactionId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/transactions/${transactionId}/`, {
+      .get(`${API_HOST}/transactions/${transactionId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1274,7 +1273,7 @@ export async function getTransactionById(transactionId) {
 export async function createMaintenanceRequest(data) {
   try {
     const res = await axios.post(
-      `${BASE_API_URL}/maintenance-requests/`,
+      `${API_HOST}/maintenance-requests/`,
       data,
       {
         headers: {
@@ -1303,7 +1302,7 @@ export async function createMaintenanceRequest(data) {
 export async function getMaintenanceRequests(unitId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/units/${unitId}/maintenance-requests/`, {
+      .get(`${API_HOST}/units/${unitId}/maintenance-requests/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1328,7 +1327,7 @@ export async function getMaintenanceRequestsByUser() {
   try {
     const res = await axios
       .get(
-        `${BASE_API_URL}/users/${authUser.id}/tenant-maintenance-requests/`,
+        `${API_HOST}/users/${authUser.id}/tenant-maintenance-requests/`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -1351,7 +1350,7 @@ export async function getMaintenanceRequestsByLandlord() {
   try {
     const res = await axios
       .get(
-        `${BASE_API_URL}/users/${authUser.id}/landlord-maintenance-requests/`,
+        `${API_HOST}/users/${authUser.id}/landlord-maintenance-requests/`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -1373,7 +1372,7 @@ export async function getMaintenanceRequestsByLandlord() {
 export async function getMaintenanceRequestById(maintenanceRequestId) {
   try {
     const res = await axios
-      .get(`${BASE_API_URL}/maintenance-requests/${maintenanceRequestId}/`, {
+      .get(`${API_HOST}/maintenance-requests/${maintenanceRequestId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1397,7 +1396,7 @@ export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
   try {
     const res = await axios
       .patch(
-        `${BASE_API_URL}/maintenance-requests/${maintenanceRequestId}/`,
+        `${API_HOST}/maintenance-requests/${maintenanceRequestId}/`,
         { is_resolved: true, is_archived: true },
         {
           headers: {
@@ -1421,7 +1420,7 @@ export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
   try {
     const res = await axios
       .patch(
-        `${BASE_API_URL}/maintenance-requests/${maintenanceRequestId}/`,
+        `${API_HOST}/maintenance-requests/${maintenanceRequestId}/`,
         { is_resolved: false, is_archived: false },
         {
           headers: {
@@ -1445,7 +1444,7 @@ export async function turnOffAutoPay() {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/manage-lease/turn-off-autopay/`,
+        `${API_HOST}/manage-lease/turn-off-autopay/`,
         { user_id: authUser.id },
         {
           headers: {
@@ -1468,7 +1467,7 @@ export async function turnOnAutoPay() {
   try {
     const res = await axios
       .post(
-        `${BASE_API_URL}/manage-lease/turn-on-autopay/`,
+        `${API_HOST}/manage-lease/turn-on-autopay/`,
         { user_id: authUser.id },
         {
           headers: {

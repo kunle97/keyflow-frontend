@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { createMuiTheme } from "@mui/material";
 import { loadStripe } from "@stripe/stripe-js";
-export const BASE_API_URL = "http://127.0.0.1:8000/api";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -142,24 +141,6 @@ export const modalStyle = {
   pt: 2,
   px: 4,
   pb: 3,
-};
-
-export const fakeData = {
-  fakeFirstName: faker.person.firstName(),
-  fakeLastName: faker.person.lastName(),
-  fakeEmail: faker.internet.email(),
-  fakePassword: faker.internet.password(),
-  fakePhoneNumber: faker.phone.number("###-###-####"),
-  fakeAddress: faker.address.streetAddress(),
-  fakeCity: faker.address.city(),
-  fakeState: faker.address.state(),
-  fakeZipCode: faker.address.zipCode(),
-  fakeCountry: faker.address.country(),
-  fakeCompanyName: faker.company.name(),
-  fakePosition: faker.name.jobTitle(),
-  fakePastDate: faker.date.past().toISOString().split("T")[0],
-  fakeFutureDate: faker.date.future().toISOString().split("T")[0],
-  fakeFinanceAmount: faker.finance.amount(),
 };
 
 export function addMonths(date, months) {
