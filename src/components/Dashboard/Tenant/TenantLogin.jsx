@@ -22,7 +22,12 @@ const TenantLogin = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      email: "Kamille86@yahoo.com",
+      password: "Password1",
+    },
+  });
 
   const onSubmit = async (data) => {
     const response = await login(data.email, data.password);
@@ -44,7 +49,6 @@ const TenantLogin = () => {
       setErrMsg(response.message);
       setIsLoading(false);
     }
-    setOpen(true);
   };
 
   return (
@@ -149,6 +153,7 @@ const TenantLogin = () => {
                   <AlertModal
                     open={true}
                     onClose={() => setErrMsg(null)}
+                    onClick={() => setErrMsg(null)}
                     title={"Login Failed!"}
                     message={errMsg}
                     btnText="Close"
