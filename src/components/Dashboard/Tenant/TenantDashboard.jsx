@@ -20,8 +20,9 @@ import PaymentModal from "../Modals/PaymentModal";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router";
 import MaintenanceRequests from "./MaintenanceRequests/MaintenanceRequests";
-import { FormControlLabel, Switch } from "@mui/material";
+import { CircularProgress, FormControlLabel, Switch } from "@mui/material";
 import { set } from "react-hook-form";
+import UISwitch from "../../UISwitch";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -33,9 +34,7 @@ const TenantDashboard = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
-  const [checked, setChecked] = useState(
-    leaseAgreement && leaseAgreement.stripe_subscription_id
-  );
+  const [autoPayIsLoading, setAutoPayIsLoading] = useState(false);
   const columns = [
     { name: "id", label: "ID", options: { display: false } },
     { name: "amount", label: "Amount" },
@@ -74,41 +73,25 @@ const TenantDashboard = () => {
     onRowClick: handleRowClick,
   };
 
-  const handleTurnOffAutoPay = () => {
-    turnOffAutoPay().then((res) => {
-      console.log(res.data);
-      if (res.data && res.data.status === 200) {
-        navigate(0);
-      }
-    });
-  };
-  const handleTurnOnAutoPay = () => {
-    turnOnAutoPay().then((res) => {
-      console.log(res.data);
-      if (res.data && res.data.status === 200) {
-        navigate(0);
-      }
-    });
-  };
-
   const handleAutoPayChange = () => {
-    setChecked(!checked);
+    setAutoPayIsLoading(true);
     if (leaseAgreement && leaseAgreement.stripe_subscription_id) {
       turnOffAutoPay().then((res) => {
         console.log(res.data);
         if (res.data && res.data.status === 200) {
-          // navigate(0);
+          setAutoPayIsLoading(false);
         }
       });
     } else {
       turnOnAutoPay().then((res) => {
         console.log(res.data);
         if (res.data && res.data.status === 200) {
-          // navigate(0);
+          setAutoPayIsLoading(false);
         }
       });
     }
   };
+
   useEffect(() => {
     //Get the payment methods for the user and check if they at least have one
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
@@ -186,49 +169,44 @@ const TenantDashboard = () => {
                       }
                     }
                   >
-                    {" "}
-                    {leaseAgreement && leaseAgreement.stripe_subscription_id ? (
-                      <div className="pt-2">
-                        {console.log("zx", leaseAgreement)}
-                        {/* {leaseAgreement &&
-                        leaseAgreement.stripe_subscription_id ? (
-                          <Button onClick={handleTurnOffAutoPay}>
-                            Turn Off Autopay
-                          </Button>
-                        ) : (
-                          <Button onClick={handleTurnOnAutoPay}>
-                            Turn On Autopay
-                          </Button>
-                        )} */}
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={() => setShowPaymentModal(true)}
-                        sx={{
-                          color: "white",
-                          textTransform: "none",
-                          backgroundColor: uiGreen,
-                        }}
-                        btnText="Pay Now"
-                        to="#"
-                        variant="contained"
-                      >
-                        Pay Now
-                      </Button>
-                    )}
+                    {leaseAgreement &&
+                      !leaseAgreement.stripe_subscription_id && (
+                        <Button
+                          onClick={() => setShowPaymentModal(true)}
+                          sx={{
+                            color: "white",
+                            textTransform: "none",
+                            backgroundColor: uiGreen,
+                          }}
+                          btnText="Pay Now"
+                          to="#"
+                          variant="contained"
+                        >
+                          Pay Now
+                        </Button>
+                      )}
                     <div className="mt-2">
                       <FormControlLabel
                         value="end"
                         control={
-                          <Switch
-                            checked={checked}
+                          <UISwitch
+                            checked={
+                              leaseAgreement &&
+                              leaseAgreement.stripe_subscription_id
+                            }
                             onChange={handleAutoPayChange}
                             inputProps={{ "aria-label": "controlled" }}
                           />
                         }
                         label="Enable AutoPay"
                         labelPlacement="end"
-                      />
+                      />{" "}
+                      {autoPayIsLoading && (
+                        <CircularProgress
+                          size="1rem"
+                          sx={{ color: uiGreen, top: 5, position: "relative" }}
+                        />
+                      )}
                     </div>
                   </Box>
                 </CardContent>

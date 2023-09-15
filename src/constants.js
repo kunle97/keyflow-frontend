@@ -43,17 +43,7 @@ export const muiDataTableTheme = createMuiTheme({
       },
     },
   },
-  // palette: {
-  //   primary: {
-  //     main: "#3aaf5c", // Header background color
-  //   },
-  //   secondary: {
-  //     main: "#2c3a4a", // Table row background color
-  //   },
-  //   text: {
-  //     primary: "#fff", // Text color
-  //   },
-  // },
+
 });
 
 export const landlordMenuItems = [
