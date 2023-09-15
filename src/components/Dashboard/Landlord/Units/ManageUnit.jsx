@@ -7,7 +7,7 @@ import {
   createLeaseTerm,
 } from "../../../../api/api";
 import { Link, useParams } from "react-router-dom";
-import BackButton from "../../BackButton";
+import BackButton from "../../UIComponents/BackButton";
 import {
   Alert,
   Button,

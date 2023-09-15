@@ -13,11 +13,11 @@ import {
   RadioGroup,
 } from "@mui/material";
 import { authUser, uiGreen, uiGrey1 } from "../../../constants";
-import UIButton from "../UIButton";
-import ProgressModal from "../Modals/ProgressModal";
-import AlertModal from "../Modals/AlertModal";
+import UIButton from "../UIComponents/UIButton";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
+import AlertModal from "../UIComponents/Modals/AlertModal";
 import { ArrowBack } from "@mui/icons-material";
-import BackButton from "../BackButton";
+import BackButton from "../UIComponents/BackButton";
 import { useNavigate } from "react-router";
 const AddPaymentMethod = (props) => {
   const stripe = useStripe();

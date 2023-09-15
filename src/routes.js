@@ -13,7 +13,7 @@ import CreateUnit from "./components/Dashboard/Landlord/Units/CreateUnit";
 import MyAccount from "./components/Dashboard/MyAccount";
 import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
 import LandlordRegister from "./components/Dashboard/Landlord/LandlordRegister";
-import ForgotPassword from "./components/Dashboard/ForgotPassword";
+import ForgotPassword from "./components/Dashboard/PasswordReset/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
 import LandingPage from "./components/Landing/LandingPage";
 import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
@@ -37,6 +37,7 @@ import LandlordTransactions from "./components/Dashboard/Landlord/Transactions/L
 import LandlordTransactionDetail from "./components/Dashboard/Landlord/Transactions/LandlordTransactionDetail";
 import LandlordMaintenanceRequests from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequests";
 import LandlordMaintenanceRequestDetail from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequestDetail";
+import ResetPassword from "./components/Dashboard/PasswordReset/ResetPassword";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -99,6 +100,14 @@ export const router = createBrowserRouter([
     element: (
       <LoggedInRedirect token={token}>
         <ForgotPassword />
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/reset-password/:token/",
+    element: (
+      <LoggedInRedirect token={token}>
+        <ResetPassword />
       </LoggedInRedirect>
     ),
   },

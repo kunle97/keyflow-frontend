@@ -22,7 +22,7 @@ export function stringToBoolean(string) {
   }
 }
 
-export function createApprovalHash(length) {
+export function makeId(length) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;

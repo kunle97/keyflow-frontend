@@ -8,7 +8,7 @@ import {
   getUserData,
 } from "../../../../api/api";
 import { useState } from "react";
-import BackButton from "../../BackButton";
+import BackButton from "../../UIComponents/BackButton";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { uiGreen } from "../../../../constants";
 const LandlordTransactionDetail = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { uiGreen } from "../../constants";
+import { uiGreen } from "../../../constants";
 const UIButton = (props) => {
   const defaultStyle = {
     backgroundColor: uiGreen,
@@ -10,8 +10,9 @@ const UIButton = (props) => {
     <Button
       disabled={props.disabled}
       onClick={props.onClick}
-      style={{ ...defaultStyle, ...props.style }}
+      sx={{ ...defaultStyle, ...props.style }}
       variant="contained"
+      type={props.type}
     >
       {props.btnText}
     </Button>

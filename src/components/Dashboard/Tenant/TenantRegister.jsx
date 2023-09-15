@@ -7,8 +7,8 @@ import {
   verifyTenantRegistrationCredentials,
 } from "../../../api/api";
 import { useNavigate, useParams } from "react-router-dom";
-import AlertModal from "../Modals/AlertModal";
-import ProgressModal from "../Modals/ProgressModal";
+import AlertModal from "../UIComponents/Modals/AlertModal";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { Button } from "@mui/material";
 import { useEffect } from "react";
 import { CardElement } from "@stripe/react-stripe-js";

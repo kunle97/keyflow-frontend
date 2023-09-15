@@ -2,7 +2,7 @@ import React from "react";
 import { Modal } from "@mui/base/Modal";
 import { Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import { uiGreen, uiGrey1 } from "../../../constants";
+import { uiGreen, uiGrey1 } from "../../../../constants";
 
 const style = {
   position: "absolute",

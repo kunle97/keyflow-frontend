@@ -11,9 +11,9 @@ import {
   rejectRentalApplication,
   updateUnit,
 } from "../../../../api/api";
-import ProgressModal from "../../Modals/ProgressModal";
-import ConfirmModal from "../../Modals/ConfirmModal";
-import AlertModal from "../../Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const [rentalApplication, setRentalApplication] = useState({});

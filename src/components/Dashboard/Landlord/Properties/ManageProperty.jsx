@@ -13,10 +13,10 @@ import { useNavigate } from "react-router";
 import MUIDataTable from "mui-datatables";
 import { Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import UIButton from "../../UIButton";
+import UIButton from "../../UIComponents/UIButton";
 import { getUnits } from "../../../../api/api";
 import { uiGreen } from "../../../../constants";
-import BackButton from "../../BackButton";
+import BackButton from "../../UIComponents/BackButton";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 const ManageProperty = () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal } from "@mui/base/Modal";
 import { Button, Box, Typography, Stack } from "@mui/material";
-import { uiGreen, uiGrey1 } from "../../../constants";
+import { uiGreen, uiGrey1 } from "../../../../constants";
 
 const ConfirmModal = (props) => {
   const style = {

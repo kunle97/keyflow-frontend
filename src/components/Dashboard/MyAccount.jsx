@@ -6,7 +6,7 @@ import {
   updateUserData,
 } from "../../api/api";
 import { set, useForm } from "react-hook-form";
-import AlertModal from "./Modals/AlertModal";
+import AlertModal from "./UIComponents/Modals/AlertModal";
 const MyAccount = () => {
   const [paymentMethods, setPaymentMethods] = useState(null); //Value of either the Stripe token or the Plaid token
   const [showResponseModal, setShowResponseModal] = useState(false);
