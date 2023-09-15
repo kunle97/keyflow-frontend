@@ -12,12 +12,16 @@ import {
   getTenantTransactionsByUser,
   getUnit,
   listStripePaymentMethods,
+  turnOffAutoPay,
+  turnOnAutoPay,
 } from "../../../api/api";
 import AlertModal from "../Modals/AlertModal";
 import PaymentModal from "../Modals/PaymentModal";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router";
 import MaintenanceRequests from "./MaintenanceRequests/MaintenanceRequests";
+import { FormControlLabel, Switch } from "@mui/material";
+import { set } from "react-hook-form";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -29,6 +33,9 @@ const TenantDashboard = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
+  const [checked, setChecked] = useState(
+    leaseAgreement && leaseAgreement.stripe_subscription_id
+  );
   const columns = [
     { name: "id", label: "ID", options: { display: false } },
     { name: "amount", label: "Amount" },
@@ -66,58 +73,42 @@ const TenantDashboard = () => {
     sort: true,
     onRowClick: handleRowClick,
   };
-  const bull = (
-    <Box
-      component="span"
-      sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
-    >
-      •
-    </Box>
-  );
 
-  const card = (
-    <>
-      <CardContent>
-        <Typography sx={{ fontSize: 20 }} gutterBottom>
-          <ReportIcon sx={{ color: "red" }} /> Rent Due in 3 days
-        </Typography>
+  const handleTurnOffAutoPay = () => {
+    turnOffAutoPay().then((res) => {
+      console.log(res.data);
+      if (res.data && res.data.status === 200) {
+        navigate(0);
+      }
+    });
+  };
+  const handleTurnOnAutoPay = () => {
+    turnOnAutoPay().then((res) => {
+      console.log(res.data);
+      if (res.data && res.data.status === 200) {
+        navigate(0);
+      }
+    });
+  };
 
-        <Box
-          sx={
-            {
-              // display: "flex",
-              // justifyContent: "flex-start",
-              // alignItems: "flex-start",
-            }
-          }
-        >
-          {" "}
-          <Box sx={{ display: "flex", margin: "10px 0" }}>
-            <a
-              sx={{ color: uiGreen, textTransform: "none", float: "right" }}
-              href="#"
-            >
-              Change
-            </a>
-          </Box>
-          <Button
-            onClick={() => setShowPaymentModal(true)}
-            sx={{
-              color: "white",
-              textTransform: "none",
-              backgroundColor: uiGreen,
-            }}
-            btnText="Pay Now"
-            to="#"
-            variant="contained"
-          >
-            Pay Now
-          </Button>
-        </Box>
-      </CardContent>
-    </>
-  );
-
+  const handleAutoPayChange = () => {
+    setChecked(!checked);
+    if (leaseAgreement && leaseAgreement.stripe_subscription_id) {
+      turnOffAutoPay().then((res) => {
+        console.log(res.data);
+        if (res.data && res.data.status === 200) {
+          // navigate(0);
+        }
+      });
+    } else {
+      turnOnAutoPay().then((res) => {
+        console.log(res.data);
+        if (res.data && res.data.status === 200) {
+          // navigate(0);
+        }
+      });
+    }
+  };
   useEffect(() => {
     //Get the payment methods for the user and check if they at least have one
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
@@ -136,6 +127,7 @@ const TenantDashboard = () => {
       console.log(res);
       setUnit(res.unit);
       setLeaseAgreement(res.lease_agreement);
+      console.log(res.lease_agreement);
       setLeaseTerm(res.lease_term);
     });
     //Retrieve Tenant Transactions
@@ -143,7 +135,7 @@ const TenantDashboard = () => {
       console.log(res);
       setTransactions(res.data);
     });
-  }, []);
+  }, [leaseAgreement]);
 
   return (
     <div className="container">
@@ -179,7 +171,68 @@ const TenantDashboard = () => {
               variant="outlined"
               style={{ background: uiGrey2, color: "white" }}
             >
-              {card}
+              <>
+                <CardContent>
+                  <Typography sx={{ fontSize: 20 }} gutterBottom>
+                    <ReportIcon sx={{ color: "red" }} /> Rent Due in 3 days
+                  </Typography>
+
+                  <Box
+                    sx={
+                      {
+                        // display: "flex",
+                        // justifyContent: "flex-start",
+                        // alignItems: "flex-start",
+                      }
+                    }
+                  >
+                    {" "}
+                    {leaseAgreement && leaseAgreement.stripe_subscription_id ? (
+                      <div className="pt-2">
+                        {console.log("zx", leaseAgreement)}
+                        {/* {leaseAgreement &&
+                        leaseAgreement.stripe_subscription_id ? (
+                          <Button onClick={handleTurnOffAutoPay}>
+                            Turn Off Autopay
+                          </Button>
+                        ) : (
+                          <Button onClick={handleTurnOnAutoPay}>
+                            Turn On Autopay
+                          </Button>
+                        )} */}
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => setShowPaymentModal(true)}
+                        sx={{
+                          color: "white",
+                          textTransform: "none",
+                          backgroundColor: uiGreen,
+                        }}
+                        btnText="Pay Now"
+                        to="#"
+                        variant="contained"
+                      >
+                        Pay Now
+                      </Button>
+                    )}
+                    <div className="mt-2">
+                      <FormControlLabel
+                        value="end"
+                        control={
+                          <Switch
+                            checked={checked}
+                            onChange={handleAutoPayChange}
+                            inputProps={{ "aria-label": "controlled" }}
+                          />
+                        }
+                        label="Enable AutoPay"
+                        labelPlacement="end"
+                      />
+                    </div>
+                  </Box>
+                </CardContent>
+              </>
             </div>
           </Box>
           <PaymentCalendar />

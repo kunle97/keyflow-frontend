@@ -1439,3 +1439,50 @@ export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
     return error.response.data;
   }
 }
+//--------------MANAGE SUBSCRIPTION  API FUNCTIONS-----------------///
+//Create a function to turn off auto pay on a subscription from endpoint /manage-lease/turn-off-auto-pay/
+export async function turnOffAutoPay() {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/manage-lease/turn-off-autopay/`,
+        { user_id: authUser.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Turn Off Auto Pay Error: ", error);
+    return error.response.data;
+  }
+}
+//Create a function to turn on auto pay on a subscription from endpoint /manage-lease/turn-on-auto-pay/
+export async function turnOnAutoPay() {
+  try {
+    const res = await axios
+      .post(
+        `${BASE_API_URL}/manage-lease/turn-on-autopay/`,
+        { user_id: authUser.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Turn On Auto Pay Error: ", error);
+    return error.response.data;
+  }
+}
