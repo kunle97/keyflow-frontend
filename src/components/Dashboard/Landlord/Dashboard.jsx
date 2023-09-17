@@ -57,7 +57,7 @@ const Dashboard = () => {
   };
   console.log(chartData);
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/`;
+    const navlink = `/dashboard/landlord/transactions/${rowData[0]}`;
     navigate(navlink);
   };
   const options = {

@@ -1,6 +1,108 @@
-import React from "react";
-
+import React, { useState } from "react";
+import UIButton from "../../UIComponents/UIButton";
+import { useParams } from "react-router-dom";
+import TitleCard from "../../UIComponents/TitleCard";
+import { dateDiffForHumans, uiGreen, uiRed } from "../../../../constants";
+import { useEffect } from "react";
+import { getLandlordTenant } from "../../../../api/api";
+import { faker } from "@faker-js/faker";
+import MUIDataTable from "mui-datatables";
+import { useNavigate } from "react-router-dom";
 const ManageTenant = () => {
+  const { tenant_id } = useParams();
+  const navigate = useNavigate();
+  const [tenant, setTenant] = useState({});
+  const [unit, setUnit] = useState({});
+  const [property, setProperty] = useState({});
+  const [lease, setLease] = useState({});
+  const [transactions, setTransactions] = useState([]);
+  const [maintenanceRequests, setMaintenanceRequests] = useState([]);
+  const transaction_columns = [
+    { name: "id", label: "ID", options: { display: false } },
+    { name: "amount", label: "Amount" },
+    {
+      name: "type",
+      label: "Transaction",
+      options: {
+        customBodyRender: (value) => {
+          if (value === "revenue") {
+            return <span>Income</span>;
+          } else {
+            return <span>Expense</span>;
+          }
+        },
+      },
+    },
+    { name: "description", label: "Description" },
+    {
+      name: "created_at",
+      label: "Date",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
+  const transactionHandleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/transactions/${rowData[0]}`;
+    navigate(navlink);
+  };
+  const transaction_options = {
+    filter: true,
+    sort: true,
+    onRowClick: transactionHandleRowClick,
+  };
+
+  const maintenance_request_columns = [
+    { name: "id", label: "ID", options: { display: false } },
+    { name: "description", label: "Issue" },
+    { name: "type", label: "Type" },
+    {
+      name: "is_resolved",
+      label: "Status",
+      options: {
+        customBodyRender: (value) => {
+          if (value === true) {
+            return <span className="text-success">Resolved</span>;
+          } else {
+            return <span className="text-danger">Pending</span>;
+          }
+        },
+      },
+    },
+    {
+      name: "created_at",
+      label: "Date",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
+
+  const maintenanceRequestHandleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/maintenance-requests/${rowData[0]}`;
+    navigate(navlink);
+  };
+  const maintenance_request_options = {
+    filter: true,
+    sort: true,
+    onRowClick: maintenanceRequestHandleRowClick,
+  };
+
+  useEffect(() => {
+    getLandlordTenant(tenant_id).then((res) => {
+      console.log(res);
+      setTenant(res.data.tenant);
+      setUnit(res.data.unit);
+      setProperty(res.data.property);
+      setLease(res.data.lease_agreement);
+      setTransactions(res.data.transactions);
+      setMaintenanceRequests(res.data.maintenance_requests);
+    });
+  }, []);
   return (
     <div className="container">
       <div className="row mb-3">
@@ -10,73 +112,72 @@ const ManageTenant = () => {
               <div className="property-col-img-container">
                 <img
                   className="rounded-circle h-100"
-                  src="../assets/img/avatars/avatar1.jpeg"
+                  src={faker.image.avatar()}
                 />
               </div>
+              <h4
+                className="text-white tenant-info-heading"
+                style={{ width: "100%" }}
+              >
+                <center>
+                  {tenant.first_name} {tenant.last_name}
+                </center>
+              </h4>
               <div className="mb-3">
-                <button className="btn btn-primary btn-sm ui-btn" type="button">
-                  Change Photo
-                </button>
+                <a href={`mailto:${tenant.email}`}>
+                  <UIButton sx={{ margin: "0 10px" }} btnText="Email" />
+                </a>
+                <UIButton sx={{ margin: "0 10px" }} btnText="Text" />
               </div>
-              <h4 className="text-white tenant-info-heading">Jane Doe</h4>
-              <p className="text-white tenant-info">jsdoe@gmail.com</p>
-              <p className="text-white tenant-info">555-555-5555</p>
-              <h4 className="text-white tenant-info-heading">Property</h4>
-              <p className="text-white tenant-info">
-                123 Bleaker St. Englishtown, NJ 02123
-              </p>
-              <h4 className="text-white tenant-info-heading">Unit</h4>
-              <p className="text-white tenant-info">#2A</p>
+            </div>
+          </div>
+          <div className="card shadow mb-3">
+            <div className="card-body">
+              <div>
+                <h5>Property</h5>
+                <p className="text-white">{property.name}</p>
+              </div>
+              <div>
+                <h5>Unit</h5>
+                <p className="text-white">{unit.name}</p>
+              </div>
+              <div>
+                <h5>Lease Start Date</h5>
+                <p className="text-white">{lease.start_date}</p>
+              </div>
+              <div>
+                <h5>Lease End Date</h5>
+                <p className="text-white">{lease.end_date}</p>
+              </div>
+              <div>
+                <h5>Time Left</h5>
+                <p className="text-white">
+                  Lease ends {dateDiffForHumans(new Date(lease.end_date))}
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
         <div className="col-lg-8">
-          <div className="row mb-3 d-none">
-            <div className="col">
-              <div className="card text-white bg-primary shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col">
-              <div className="card text-white bg-success shadow">
-                <div className="card-body">
-                  <div className="row mb-2">
-                    <div className="col">
-                      <p className="m-0">Peformance</p>
-                      <p className="m-0">
-                        <strong>65.2%</strong>
-                      </p>
-                    </div>
-                    <div className="col-auto">
-                      <i className="fas fa-rocket fa-2x" />
-                    </div>
-                  </div>
-                  <p className="text-white-50 small m-0">
-                    <i className="fas fa-arrow-up" />
-                    &nbsp;5% since last month
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
           <div className="row">
             <div className="col-sm-12">
+              <div className="row">
+                <div className="col-sm-12 col-md-6 mb-4">
+                  <TitleCard
+                    title="Total Payments"
+                    backgroundColor={uiGreen}
+                    value={`$23,432`}
+                  />
+                </div>
+                <div className="col-sm-12 col-md-6 mb-4">
+                  <TitleCard
+                    title="Total Late Payments"
+                    backgroundColor={uiRed}
+                    value={`3`}
+                  />
+                </div>
+              </div>
               <div className="card shadow mb-3">
                 <div className="card-body">
                   <form>
@@ -130,337 +231,21 @@ const ManageTenant = () => {
                   </form>
                 </div>
               </div>
-              <div className="heading-container">
-                <h4 className="text-white float-start mb-0">
-                  Maintainance Requests
-                </h4>
+              <div className="mb-3 card" style={{ overflow: "hidden" }}>
+                <MUIDataTable
+                  title={"Transactions"}
+                  data={transactions}
+                  columns={transaction_columns}
+                  options={transaction_options}
+                />
               </div>
-              <div className="card shadow">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-6 text-nowrap">
-                      <div
-                        id="dataTable_length"
-                        className="dataTables_length"
-                        aria-controls="dataTable"
-                      >
-                        <label className="form-label text-white">
-                          Show&nbsp;
-                          <select
-                            className="d-inline-block form-select form-select-sm"
-                            style={{ borderStyle: "none" }}
-                          >
-                            <option value={10} selected>
-                              10
-                            </option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
-                            <option value={100}>100</option>
-                          </select>
-                          &nbsp;
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div
-                        className="text-md-end dataTables_filter"
-                        id="dataTable_filter"
-                      >
-                        <label className="form-label">
-                          <input
-                            type="search"
-                            className="form-control form-control-sm"
-                            aria-controls="dataTable"
-                            placeholder="Search"
-                            style={{
-                              borderStyle: "none",
-                              color: "var(--bs-card-cap-bg)",
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="table-responsive table mt-2"
-                    id="dataTable-1"
-                    role="grid"
-                    aria-describedby="dataTable_info"
-                  >
-                    <table className="table table-hover my-0" id="dataTable">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Issue</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar1.jpeg"
-                            />
-                            Airi Satou
-                          </td>
-                          <td>Accountant</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar2.jpeg"
-                            />
-                            Angelica Ramos
-                          </td>
-                          <td>Chief Executive Officer(CEO)</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar3.jpeg"
-                            />
-                            Ashton Cox
-                          </td>
-                          <td>Junior Technical Author</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar4.jpeg"
-                            />
-                            Bradley Greer
-                          </td>
-                          <td>Software Engineer</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar5.jpeg"
-                            />
-                            Brenden Wagner
-                          </td>
-                          <td>Software Engineer</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar1.jpeg"
-                            />
-                            Brielle Williamson
-                          </td>
-                          <td>Integration Specialist</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar2.jpeg"
-                            />
-                            Bruno Nash
-                            <br />
-                          </td>
-                          <td>Software Engineer</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar3.jpeg"
-                            />
-                            Caesar Vance
-                          </td>
-                          <td>Pre-Sales Support</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar4.jpeg"
-                            />
-                            Cara Stevens
-                          </td>
-                          <td>Sales Assistant</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <img
-                              className="rounded-circle me-2"
-                              width={30}
-                              height={30}
-                              src="../assets/img/avatars/avatar5.jpeg"
-                            />
-                            Cedric Kelly
-                          </td>
-                          <td>Senior JavaScript Developer</td>
-                          <td>
-                            <button
-                              className="btn btn-primary ui-btn"
-                              type="button"
-                            >
-                              Set Resolved
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td>
-                            <strong>Occupant</strong>
-                          </td>
-                          <td>
-                            <strong>Position</strong>
-                          </td>
-                          <td>
-                            <strong>Action</strong>
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6 align-self-center">
-                      <p
-                        className="text-white dataTables_info"
-                        id="dataTable_info"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        Showing 1 to 10 of 27
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <nav className="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
-                        <ul className="pagination">
-                          <li className="page-item disabled">
-                            <a
-                              className="page-link"
-                              aria-label="Previous"
-                              href="#"
-                            >
-                              <span aria-hidden="true">«</span>
-                            </a>
-                          </li>
-                          <li className="page-item active">
-                            <a className="page-link" href="#">
-                              1
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              2
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              3
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" aria-label="Next" href="#">
-                              <span aria-hidden="true">»</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
+              <div className="mb-3 card" style={{ overflow: "hidden" }}>
+                <MUIDataTable 
+                  title={"Maintenance Requests"}
+                  data={maintenanceRequests}
+                  columns={maintenance_request_columns}
+                  options={maintenance_request_options}
+                />
               </div>
             </div>
           </div>

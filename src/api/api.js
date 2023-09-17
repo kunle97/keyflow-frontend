@@ -393,6 +393,68 @@ export async function validatePasswordResetToken(token) {
   }
 }
 
+//-----------------LANDLORD API FUNCTIONS---------------------------///
+//Create a function that retrieves landlords tenants using the endpoint /users/{landlord_id}/landlord-tenants/
+export async function getLandlordTenants() {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/landlord-tenant-list/`,
+        {
+          landlord_id: authUser.id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Landlord Tenants Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function that retrieves a specific landlord tenant using the endpoint /users/{landlord_id}/tenant/
+export async function getLandlordTenant(tenantId) {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/landlord-tenant-detail/`,
+        {
+          tenant_id: tenantId,
+          landlord_id: authUser.id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Landlord Tenant Error: ", error);
+    return error.response.data;
+  }
+}
+
 //-----------------PROPERTY API FUNCTIONS---------------------------///
 
 // create an api function to create a property
