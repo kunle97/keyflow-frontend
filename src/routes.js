@@ -210,7 +210,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/landlord/tenants/:id",
+    path: "/dashboard/landlord/tenants/:tenant_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageTenant />
