@@ -10,8 +10,8 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 const LandlordRegister = () => {
   //Create a state for the form data
-  const [firstName, setFirstName] = useState(faker.person.firstName());
-  const [lastName, setLastName] = useState(faker.person.lastName());
+  const [firstName, setFirstName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName());
+  const [lastName, setLastName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName());
 
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
@@ -28,8 +28,8 @@ const LandlordRegister = () => {
     defaultValues: {
       first_name: firstName,
       last_name: lastName,
-      email: faker.internet.email({ firstName, lastName }),
-      username: faker.internet.userName({ firstName, lastName }),
+      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email({ firstName, lastName }),
+      username: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.userName({ firstName, lastName }),
       password: "password",
       password_repeat: "password",
     },

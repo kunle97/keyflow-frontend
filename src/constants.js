@@ -143,21 +143,21 @@ export const modalStyle = {
 };
 
 export const fakeData = {
-  fakeFirstName: faker.person.firstName(),
-  fakeLastName: faker.person.lastName(),
-  fakeEmail: faker.internet.email(),
-  fakePassword: faker.internet.password(),
-  fakePhoneNumber: faker.phone.number("###-###-####"),
-  fakeAddress: faker.address.streetAddress(),
-  fakeCity: faker.address.city(),
-  fakeState: faker.address.state(),
-  fakeZipCode: faker.address.zipCode(),
-  fakeCountry: faker.address.country(),
-  fakeCompanyName: faker.company.name(),
-  fakePosition: faker.name.jobTitle(),
-  fakePastDate: faker.date.past().toISOString().split("T")[0],
-  fakeFutureDate: faker.date.future().toISOString().split("T")[0],
-  fakeFinanceAmount: faker.finance.amount(),
+  fakeFirstName:  process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName(),
+  fakeLastName: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName(),
+  fakeEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
+  fakePassword: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.password(),
+  fakePhoneNumber: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
+  fakeAddress: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
+  fakeCity: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.city(),
+  fakeState: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.state(),
+  fakeZipCode: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.zipCode(),
+  fakeCountry: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.country(),
+  fakeCompanyName: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.company.name(),
+  fakePosition: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.name.jobTitle(),
+  fakePastDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+  fakeFutureDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0],
+  fakeFinanceAmount: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.amount(),
 };
 export function dateDiffForHumans(targetDate) {
   const currentDate = new Date();

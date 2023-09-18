@@ -24,10 +24,14 @@ const LandlordLogin = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "Madalyn_Murray@gmail.com",
-      password: "Password1",
-    }}
-  );
+      email:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : "Madalyn_Murray@gmail.com",
+      password:
+        process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
+    },
+  });
   const onSubmit = async (data) => {
     console.log(data);
     const response = await login(data.email, data.password);

@@ -80,18 +80,18 @@ const CreateRentalApplication = () => {
   }, []);
 
   //Step one data
-  const [firstName, setFirstName] = useState(faker.person.firstName()); // first name of the applicant
-  const [lastName, setLastName] = useState(faker.person.lastName()); // last name of the applicant
+  const [firstName, setFirstName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()); // first name of the applicant
+  const [lastName, setLastName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()); // last name of the applicant
   const [dateOfBirth, setDateOfBirth] = useState(
-    faker.date.past().toISOString().split("T")[0]
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0]
   ); // date of birth of the applicant
   const [email, setEmail] = useState(
-    faker.internet.email({ firstName, lastName })
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email({ firstName, lastName })
   ); // email of the applicant
-  const [phone, setPhone] = useState(faker.phone.number("###-###-####")); // phone number of the applicant
-  const [ssn, setSsn] = useState(faker.phone.number("###-##-####")); // social security number of the applicant
+  const [phone, setPhone] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####")); // phone number of the applicant
+  const [ssn, setSsn] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-##-####")); // social security number of the applicant
   const [desiredMoveInDate, setDesiredMoveInDate] = useState(
-    faker.date.future().toISOString().split("T")[0]
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0]
   ); // desired move in date of the applicant
 
   //Step two  data
@@ -110,11 +110,11 @@ const CreateRentalApplication = () => {
     defaultValues: {
       first_name: firstName,
       last_name: lastName,
-      email: faker.internet.email({ firstName, lastName }),
-      phone: faker.phone.number("###-###-####"),
-      ssn: faker.phone.number("###-##-####"),
-      date_of_birth: faker.date.past().toISOString().split("T")[0],
-      desired_move_in_date: faker.date.future().toISOString().split("T")[0],
+      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email({ firstName, lastName }),
+      phone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
+      ssn: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-##-####"),
+      date_of_birth: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+      desired_move_in_date: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0],
     },
   });
 
@@ -135,12 +135,12 @@ const CreateRentalApplication = () => {
   ]);
   const [residenceHistory, setResidenceHistory] = useState([
     {
-      address: faker.address.streetAddress(),
-      startDate: faker.date.past().toISOString().split("T")[0],
-      endDate: faker.date.past().toISOString().split("T")[0],
-      landlordName: `${faker.person.firstName()} ${faker.person.lastName()}`,
-      landlordPhone: faker.phone.number("###-###-####"),
-      landlordEmail: faker.internet.email(),
+      address: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
+      startDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+      endDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+      landlordName: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()} ${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()}`,
+      landlordPhone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
+      landlordEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
       isCurrent: false,
     },
   ]);
@@ -155,15 +155,15 @@ const CreateRentalApplication = () => {
 
   const addEmploymentInfoNode = () => {
     const newEmployment = {
-      companyName: faker.company.name(),
-      position: faker.name.jobTitle(),
-      companyAddress: faker.address.streetAddress(),
-      income: faker.finance.amount(),
-      startDate: faker.date.past().toISOString().split("T")[0],
+      companyName: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.company.name(),
+      position: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.name.jobTitle(),
+      companyAddress: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
+      income: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.amount(),
+      startDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
       endDate: fakeData.fakePastDate,
-      supervisorName: `${faker.person.firstName()} ${faker.person.lastName()}`,
-      supervisorPhone: faker.phone.number("###-###-####"),
-      supervisorEmail: faker.internet.email(),
+      supervisorName: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()} ${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()}`,
+      supervisorPhone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
+      supervisorEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
       isCurrent: false,
     };
     setEmploymentHistory([...employmentHistory, newEmployment]);
@@ -186,12 +186,12 @@ const CreateRentalApplication = () => {
 
   const addRentalHistoryNode = () => {
     const newRentalHistory = {
-      address: faker.address.streetAddress(),
-      startDate: faker.date.past().toISOString().split("T")[0],
-      endDate: faker.date.past().toISOString().split("T")[0],
-      landlordName: `${faker.person.firstName()} ${faker.person.lastName()}`,
-      landlordPhone: faker.phone.number("###-###-####"),
-      landlordEmail: faker.internet.email(),
+      address: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
+      startDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+      endDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+      landlordName: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()} ${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()}`,
+      landlordPhone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
+      landlordEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
       isCurrent: false,
     };
     setResidenceHistory([...residenceHistory, newRentalHistory]);

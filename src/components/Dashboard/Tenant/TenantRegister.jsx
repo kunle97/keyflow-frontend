@@ -29,13 +29,25 @@ const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
   //Create a state for the form data
-  const [firstName, setFirstName] = useState(faker.person.firstName());
-  const [lastName, setLastName] = useState(faker.person.lastName());
+  const [firstName, setFirstName] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.firstName()
+  );
+  const [lastName, setLastName] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.lastName()
+  );
   const [userName, setUserName] = useState(
-    faker.internet.userName({ firstName, lastName })
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.internet.userName({ firstName, lastName })
   );
   const [email, setEmail] = useState(
-    faker.internet.email({ firstName, lastName })
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.internet.email({ firstName, lastName })
   );
   const [password, setPassword] = useState("password");
   const [password2, setPassword2] = useState("password");
@@ -167,9 +179,18 @@ const TenantRegister = () => {
           email: res.email,
           account_type: "tenant",
           //Mock Data bleow
-          username: faker.internet.userName({ first_name, last_name }),
-          password: "password",
-          password_repeat: "password",
+          username:
+            process.env.REACT_APP_ENVIRONMENT !== "development"
+              ? ""
+              : faker.internet.userName({ first_name, last_name }),
+          password:
+            process.env.REACT_APP_ENVIRONMENT !== "development"
+              ? ""
+              : "password",
+          password_repeat:
+            process.env.REACT_APP_ENVIRONMENT !== "development"
+              ? ""
+              : "password",
         };
         // Set the preloaded data in the form using setValue
         Object.keys(preloadedData).forEach((key) => {

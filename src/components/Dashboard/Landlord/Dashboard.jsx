@@ -83,7 +83,7 @@ const Dashboard = () => {
                 <div className="col">
                   <p className="m-0">Total Profit</p>
                   <p className="m-0">
-                    <strong>${faker.finance.accountNumber(6)}</strong>
+                    <strong>${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(6)}</strong>
                   </p>
                 </div>
                 <div className="col-auto">
@@ -104,7 +104,7 @@ const Dashboard = () => {
                 <div className="col">
                   <p className="m-0">Expense</p>
                   <p className="m-0">
-                    <strong>${faker.finance.accountNumber(5)}</strong>
+                    <strong>${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(5)}</strong>
                   </p>
                 </div>
                 <div className="col-auto">
@@ -125,7 +125,7 @@ const Dashboard = () => {
                 <div className="col">
                   <p className="m-0">Total Revenue</p>
                   <p className="m-0">
-                    <strong>${faker.finance.accountNumber(7)}</strong>
+                    <strong>${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(7)}</strong>
                   </p>
                 </div>
                 <div className="col-auto">
@@ -580,18 +580,8 @@ const Dashboard = () => {
                 },
               ]}
             />
-          </div>
-        </div>
-        <div className="col-lg-7 col-xl-8">
-          <h4 className="">Recent Transactions</h4>
-          <MUIDataTable
-            data={transactions}
-            columns={columns}
-            options={options}
-          />
-        </div>
-        <div className="col-lg-5 col-xl-4 pt-4">
-          <div className="card">
+          </div>{" "}
+          <div className="card mt-3">
             <div className="card-header py-3">
               <h6 className="text-primary fw-bold m-0 card-header-text">
                 Rent Over Due Notice
@@ -688,6 +678,15 @@ const Dashboard = () => {
             View All Notifications
           </button>
         </div>
+        <div className="col-lg-7 col-xl-8">
+          <h4 className="">Recent Transactions</h4>
+          <MUIDataTable
+            data={transactions}
+            columns={columns}
+            options={options}
+          />
+        </div>
+        <div className="col-lg-5 col-xl-4 pt-4"></div>
       </div>
     </div>
   );

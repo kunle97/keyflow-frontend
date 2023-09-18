@@ -10,11 +10,11 @@ import { validationMessageStyle } from "../../../../constants";
 import { useNavigate } from "react-router";
 import { HelpOutline } from "@mui/icons-material";
 const CreateLeaseTerm = () => {
-  const [rent, setRent] = useState(faker.finance.account(4));
+  const [rent, setRent] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(4));
   const [term, setTerm] = useState(12);
-  const [lateFee, setLateFee] = useState(faker.finance.account(3));
+  const [lateFee, setLateFee] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(3));
   const [securityDeposit, setSecurityDeposit] = useState(
-    faker.finance.account(4)
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(4)
   );
   const [gasIncluded, setGasIncluded] = useState("false");
   const [waterIncluded, setWaterIncluded] = useState("false");
@@ -23,7 +23,7 @@ const CreateLeaseTerm = () => {
   const [leaseCancellationNoticePeriod, setLeaseCancellationNoticePeriod] =
     useState(0);
   const [leaseCancellationFee, setLeaseCancellationFee] = useState(
-    faker.finance.account(4)
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(4)
   );
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
   const [responseMessage, setResponseMessage] = useState(
@@ -36,17 +36,17 @@ const CreateLeaseTerm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      rent: faker.finance.account(4),
+      rent: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(4),
       term: 12,
-      late_fee: faker.finance.account(3),
-      security_deposit: faker.finance.account(4),
+      late_fee: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(3),
+      security_deposit: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(4),
       gas_included: "false",
       water_included: "false",
       electric_included: "false",
       repairs_included: "false",
       grace_period: 0,
       lease_cancellation_notice_period: 12,
-      lease_cancellation_fee: faker.finance.account(4),
+      lease_cancellation_fee: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.account(4),
     },
   });
 
