@@ -4,26 +4,26 @@ import { validationMessageStyle } from "../../constants";
 const EmploymentHistorySection = (props) => {
   const [fakeMode, setFakeMode] = useState(false);
 
-  const [fakeCompanyName, setCompanyName] = useState(faker.company.name());
-  const [fakePosition, setPosition] = useState(faker.name.jobTitle());
+  const [fakeCompanyName, setCompanyName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.company.name());
+  const [fakePosition, setPosition] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.name.jobTitle());
   const [fakecompanyAddress, setCompanyAddress] = useState(
-    faker.address.streetAddress()
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress()
   );
   const [fakeStartDate, setStartDate] = useState(
-    faker.date.past().toISOString().split("T")[0]
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0]
   );
   const [fakeEndDate, setEndDate] = useState(
-    faker.date.future().toISOString().split("T")[0]
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0]
   );
-  const [fakeIncome, setIncome] = useState(faker.finance.amount());
+  const [fakeIncome, setIncome] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.amount());
   const [fakeSupervisorName, setSupervisorName] = useState(
-    faker.person.fullName()
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.fullName()
   );
   const [fakeSupervisorPhone, setSupervisorPhone] = useState(
-    faker.phone.number("###-###-####")
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####")
   );
   const [fakeSupervisorEmail, setSupervisorEmail] = useState(
-    faker.internet.email()
+    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email()
   );
 
   const {

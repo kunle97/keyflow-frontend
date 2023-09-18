@@ -63,7 +63,7 @@ const TenantDashboard = () => {
   ];
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/`;
+    const navlink = `/dashboard/tenant/`;
     navigate(navlink);
   };
   const options = {

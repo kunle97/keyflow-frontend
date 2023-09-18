@@ -112,7 +112,7 @@ const ManageTenant = () => {
               <div className="property-col-img-container">
                 <img
                   className="rounded-circle h-100"
-                  src={faker.image.avatar()}
+                  src={process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.image.avatar()}
                 />
               </div>
               <h4

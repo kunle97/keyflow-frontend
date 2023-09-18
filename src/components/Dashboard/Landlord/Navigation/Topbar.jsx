@@ -324,7 +324,7 @@ const Topbar = () => {
                   </span>
                   <img
                     className="border rounded-circle img-profile"
-                    src={faker.internet.avatar()}
+                    src={process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.avatar()}
                   />
                 </a>
                 <div

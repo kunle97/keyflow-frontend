@@ -22,11 +22,11 @@ const CreateProperty = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: faker.company.name(),
-      street: faker.location.streetAddress(),
-      city: faker.location.city(),
-      state: faker.location.state(),
-      zipcode: faker.location.zipCode(),
+      name: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.company.name(),
+      street: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.location.streetAddress(),
+      city: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.location.city(),
+      state: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.location.state(),
+      zipcode: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.location.zipCode(),
       country: "United States",
     },
   });
@@ -149,8 +149,8 @@ const CreateProperty = () => {
                         })}
                         className="form-select"
                       >
-                        <option selected value={faker.location.state()}>
-                          {faker.location.state()}
+                        <option selected value={process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.location.state()}>
+                          {process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.location.state()}
                         </option>
                         <option value="">Select One</option>
                         <option value="AL">Alabama</option>

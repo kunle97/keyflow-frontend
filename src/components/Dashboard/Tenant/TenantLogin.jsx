@@ -10,8 +10,6 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 const TenantLogin = () => {
-  const [email, setEmail] = useState("Rashawn31@yahoo.com");
-  const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -24,8 +22,8 @@ const TenantLogin = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "Kamille86@yahoo.com",
-      password: "Password1",
+      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" :"Kamille86@yahoo.com",
+      password: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" :"Password1",
     },
   });
 

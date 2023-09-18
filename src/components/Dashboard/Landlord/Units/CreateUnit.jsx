@@ -17,9 +17,9 @@ const CreateUnit = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: `${faker.string.alpha()}${faker.finance.accountNumber(1)}`,
-      beds: faker.number.int({ min: 4, max: 10 }),
-      baths: faker.number.int({ min: 4, max: 6 }),
+      name: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.string.alpha()}${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(1)}`,
+      beds: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.number.int({ min: 4, max: 10 }),
+      baths: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.number.int({ min: 4, max: 6 }),
     },
   });
 
