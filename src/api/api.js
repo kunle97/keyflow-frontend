@@ -1668,3 +1668,27 @@ export async function getNextPaymentDate() {
     return error.response.data;
   }
 }
+
+//Create a function to get all payment date for a subscription from endpoint /manage-lease/payment-dates/
+export async function getPaymentDates() {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/manage-lease/payment-dates/`,
+        { user_id: authUser.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Payment Dates Error: ", error);
+    return error.response.data;
+  }
+}
