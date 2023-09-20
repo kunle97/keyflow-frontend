@@ -6,7 +6,7 @@ import {
   registerTenant,
   verifyTenantRegistrationCredentials,
 } from "../../../api/api";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { Button } from "@mui/material";
@@ -25,6 +25,8 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
+import { makeId } from "../../../helpers/utils";
+import { send } from "@emailjs/browser";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -85,15 +87,10 @@ const TenantRegister = () => {
     setIsLoading(true);
     let payload = {};
     //Captuere form data
-
-    // data.first_name = firstName;
-    // data.last_name = lastName;
-    // data.username = userName;
-    // data.email = email;
-    // data.password = password;
     data.unit_id = unit_id;
     data.lease_agreement_id = lease_agreement_id;
     data.approval_hash = approval_hash;
+    data.activation_token = makeId(32);
     console.log(data);
 
     //Handle stripe elements
@@ -130,11 +127,7 @@ const TenantRegister = () => {
 
     const response = await registerTenant(data).then((res) => {
       console.log(res);
-      if (res.token) {
-        // If the user was created successfully, set token in local storage and redirect to dashboard
-        localStorage.setItem("accessToken", res.token);
-        localStorage.setItem("authUser", JSON.stringify(res.userData));
-
+      if (res.status === 200) {
         setUserId(authUser.id);
 
         //Show success message
@@ -142,6 +135,25 @@ const TenantRegister = () => {
         setErrorMode(false);
         setOpen(true);
         setIsLoading(false);
+        //Send actication email
+        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${data.activation_token}`;
+        console.log(activation_link);
+        const email_data = {
+          to_email: data.email,
+          reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,
+          subject: "Activate Your KeyFlow Account",
+          html_message: `Hi ${data.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
+        };
+        //Send activation email using emailJS
+        send(
+          process.env.REACT_APP_EMAIL_JS_SERVICE_ID,
+          process.env.REACT_APP_EMAIL_JS_TEMPLATE_ID,
+          email_data,
+          process.env.REACT_APP_EMAIL_JS_API_KEY
+        ).then((res) => {
+          console.log("Email sent successfully", res);
+        });
+
         //TODO: On submit update lease agrrement model to attach newly created user, etc.
         //TODO: On submit, send email to tenant to confirm email address
         //TODO: On submit, send email to landlord to confirm new tenant
@@ -186,11 +198,11 @@ const TenantRegister = () => {
           password:
             process.env.REACT_APP_ENVIRONMENT !== "development"
               ? ""
-              : "password",
+              : "Password1",
           password_repeat:
             process.env.REACT_APP_ENVIRONMENT !== "development"
               ? ""
-              : "password",
+              : "Password1",
         };
         // Set the preloaded data in the form using setValue
         Object.keys(preloadedData).forEach((key) => {
@@ -218,14 +230,15 @@ const TenantRegister = () => {
               to={`/dashboard/tenant/register/${lease_agreement_id}/${approval_hash}/`}
             />
           ) : (
-            <AlertModal
-              open={true}
-              onClose={() => setOpen(false)}
-              title={"Registration Successful!"}
-              message="Your account has been created successfully! Be Sure to check for your confirmation email to activate your account. Click the link below to be redirected to your dashboard."
-              btnText="Go To Dashboard"
-              to={`/dashboard/tenant/`}
-            />
+            // <AlertModal
+            //   open={true}
+            //   onClose={() => setOpen(false)}
+            //   title={"Registration Successful!"}
+            //   message="Your account has been created successfully! Be Sure to check for your confirmation email to activate your account. Click the link below to be redirected to your dashboard."
+            //   btnText="Go To Dashboard"
+            //   to={`/dashboard/tenant/`}
+            // />
+            <Navigate to={`/dashboard/activate-account/`} replace />
           )}
         </>
       )}

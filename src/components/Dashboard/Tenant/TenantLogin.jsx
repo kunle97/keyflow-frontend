@@ -10,7 +10,7 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 const TenantLogin = () => {
-  const [errMsg, setErrMsg] = useState();
+  const [errMsg, setErrMsg] = useState(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();

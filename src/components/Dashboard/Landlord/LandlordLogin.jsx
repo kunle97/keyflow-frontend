@@ -51,7 +51,7 @@ const LandlordLogin = () => {
       setOpenError(false);
       setOpen(true);
     } else {
-      setErrMsg("Email or password is incorrect");
+      setErrMsg(response.message);
       setIsLoading(false);
       setOpen(false);
       setOpenError(true);

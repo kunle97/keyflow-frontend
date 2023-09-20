@@ -38,6 +38,7 @@ const ForgotPassword = () => {
             process.env.REACT_APP_EMAIL_JS_SERVICE_ID,
             process.env.REACT_APP_EMAIL_JS_TEMPLATE_ID,
             {
+              to_email: data.email,
               subject: "KeyFlow Account Password Reset",
               html_message: emailMessage,
               reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,

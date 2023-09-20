@@ -38,7 +38,8 @@ import LandlordTransactionDetail from "./components/Dashboard/Landlord/Transacti
 import LandlordMaintenanceRequests from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequests";
 import LandlordMaintenanceRequestDetail from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequestDetail";
 import ResetPassword from "./components/Dashboard/PasswordReset/ResetPassword";
-
+import ActivateAccount from "./components/Dashboard/AccountActivation/ActivateAccount";
+import ActivateAccountMessage from "./components/Dashboard/AccountActivation/ActivateAccountMessage";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -78,14 +79,12 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/tenant/register/test",
-    element: (
-      <LoggedInRedirect token={token}>
-        <Elements stripe={stripePromise}>
-          <TenantRegister />
-        </Elements>
-      </LoggedInRedirect>
-    ),
+    path: "/dashboard/activate-account/",
+    element: <ActivateAccountMessage />,
+  },
+  {
+    path: "/dashboard/activate-user-account/:token/",
+    element: <ActivateAccount />,
   },
   {
     path: "/dashboard/tenant/login",
@@ -217,7 +216,7 @@ export const router = createBrowserRouter([
       </DashboardProtectedRoute>
     ),
   },
-  
+
   {
     path: "/dashboard/landlord/maintenance-requests",
     element: withDashboardContainer(
@@ -226,7 +225,7 @@ export const router = createBrowserRouter([
       </DashboardProtectedRoute>
     ),
   },
-  
+
   {
     path: "/dashboard/landlord/maintenance-requests/:id",
     element: withDashboardContainer(

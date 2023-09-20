@@ -29,6 +29,7 @@ export async function login(email, password) {
         account_type: res.user.account_type,
         stripe_account_id: res.user.stripe_account_id,
         isAuthenticated: res.isAuthenticated,
+        is_active: res.user.is_active,
         accessToken: res.token,
       };
 
@@ -99,28 +100,14 @@ export async function registerLandlord(data) {
         console.log("axios register response ", response);
         return response;
       });
-    localStorage.setItem("accessToken", res.token);
-
-    //Check for response code before storing data in context
-    const userData = {
-      id: res.user.id,
-      first_name: res.user.first_name,
-      last_name: res.user.last_name,
-      email: res.user.email,
-      account_type: res.user.account_type,
-      stripe_account_id: res.user.stripe_account_id,
-      isAuthenticated: res.isAuthenticated,
-      accessToken: res.token,
-    };
 
     //Stripe Account link example:"https://connect.stripe.com/setup/e/acct_1NhHAgEC6FRVgr2l/fgLinlMm0Xio"
     localStorage.setItem("stripe_onoboarding_link", res.onboarding_link.url);
 
     return {
-      userData: userData,
       message: res.message,
-      token: res.token,
       stripe_onboarding_link: res.onboarding_link,
+      status: 200
     };
   } catch (error) {
     console.log("Register Error: ", error);
@@ -132,29 +119,49 @@ export async function registerLandlord(data) {
 export async function registerTenant(data) {
   try {
     const res = await axios
-      .post(`${API_HOST}/auth/tenant/register/`, data)
+      .post(
+        `${API_HOST}/auth/tenant/register/`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
         return response;
       });
-    localStorage.setItem("accessToken", res.token);
 
-    //Check for response code before storing data in context
-    const userData = {
-      id: res.user.id,
-      first_name: res.user.first_name,
-      last_name: res.user.last_name,
-      username: res.user.username,
-      email: res.user.email,
-      account_type: res.user.account_type,
-      isAuthenticated: res.isAuthenticated,
-      accessToken: res.token,
-    };
-
-    return { userData: userData, message: res.message, token: res.token };
+    return { message: res.message, status:200 };
   } catch (error) {
     console.log("Register Error: ", error);
+    return error;
+  }
+}
+
+//Create a function to activate a user account using the endpoint /auth/activate-account/
+export async function activateAccount(token) {
+  try {
+    const res = await axios
+      .post(
+        `${API_HOST}/auth/activate-account/`,
+        { activation_token: token },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        const response = res.data;
+        console.log("axios activate account response ", response);
+        return response;
+      });
+    return res;
+  } catch (error) {
+    console.log("Activate Account Error: ", error);
     return error;
   }
 }
