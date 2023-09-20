@@ -8,10 +8,20 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { Input, Button } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
+import { makeId } from "../../../helpers/utils";
+import { send } from "@emailjs/browser";
 const LandlordRegister = () => {
   //Create a state for the form data
-  const [firstName, setFirstName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName());
-  const [lastName, setLastName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName());
+  const [firstName, setFirstName] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.firstName()
+  );
+  const [lastName, setLastName] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.lastName()
+  );
 
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
@@ -28,10 +38,16 @@ const LandlordRegister = () => {
     defaultValues: {
       first_name: firstName,
       last_name: lastName,
-      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email({ firstName, lastName }),
-      username: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.userName({ firstName, lastName }),
-      password: "password",
-      password_repeat: "password",
+      email:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.internet.email({ firstName, lastName }),
+      username:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.internet.userName({ firstName, lastName }),
+      password: "Password1",
+      password_repeat: "Password1",
     },
   });
 
@@ -41,13 +57,29 @@ const LandlordRegister = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     console.log(data);
+    data.activation_token = makeId(32);
     //Call the API to create a new user
     const response = await registerLandlord(data).then((res) => {
       console.log(res);
-      if (res.token) {
-        // If the user was created successfully, set token in local storage and redirect to dashboard
-        localStorage.setItem("accessToken", res.token);
-        localStorage.setItem("authUser", JSON.stringify(res.userData));
+      if (res.status === 200) {
+        //Send actication email
+        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${data.activation_token}`;
+        console.log(activation_link);
+        const email_data = {
+          to_email: data.email,
+          reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,
+          subject: "Activate Your KeyFlow Account",
+          message: `Hi ${data.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
+        };
+        //Send activation email using emailJS
+        send(
+          process.env.REACT_APP_EMAIL_JS_SERVICE_ID,
+          process.env.REACT_APP_EMAIL_JS_TEMPLATE_ID,
+          email_data,
+          process.env.REACT_APP_EMAIL_JS_API_KEY
+        ).then((res) => {
+          console.log("Email sent successfully", res);
+        });
 
         //Show success message
         setErrorMode(false);
