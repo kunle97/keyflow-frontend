@@ -451,6 +451,12 @@ const ManageProperty = () => {
                               btnText="Create Unit"
                             />
                           </Box>
+                          <Button
+                            sx={{ background: uiRed, textTransform: "none", float: "right" }}
+                            variant="contained"
+                          >
+                            Delete Unit
+                          </Button>
                         </Box>
                       ) : (
                         <>
