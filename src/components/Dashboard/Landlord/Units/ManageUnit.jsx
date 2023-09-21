@@ -19,7 +19,7 @@ import {
   Modal,
 } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
-import { authUser, uiGreen } from "../../../../constants";
+import { authUser, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
 import { CloseOutlined } from "@mui/icons-material";
@@ -508,6 +508,14 @@ const CreateUnit = () => {
               </div>
             </div>
           </div>
+          {!isOccupided && (
+            <Button
+              sx={{ background: uiRed, textTransform: "none", float: "right" }}
+              variant="contained"
+            >
+              Delete Unit
+            </Button>
+          )}
         </div>
       </div>
     </div>

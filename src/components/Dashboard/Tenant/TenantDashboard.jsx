@@ -74,7 +74,7 @@ const TenantDashboard = () => {
 
   const handleAutoPayChange = () => {
     setAutoPayIsLoading(true);
-    if (leaseAgreement && leaseAgreement.stripe_subscription_id) {
+    if (leaseAgreement && leaseAgreement.auto_pay_is_enabled) {
       turnOffAutoPay().then((res) => {
         console.log(res.data);
         if (res.data && res.data.status === 200) {
@@ -185,7 +185,7 @@ const TenantDashboard = () => {
                           <UISwitch
                             checked={
                               leaseAgreement &&
-                              leaseAgreement.stripe_subscription_id
+                              leaseAgreement.auto_pay_is_enabled
                             }
                             onChange={handleAutoPayChange}
                             inputProps={{ "aria-label": "controlled" }}
@@ -193,7 +193,7 @@ const TenantDashboard = () => {
                         }
                         label={`AutoPay ${
                           leaseAgreement &&
-                          leaseAgreement.stripe_subscription_id
+                          leaseAgreement.auto_pay_is_enabled
                             ? "Enabled"
                             : "Disabled"
                         }`}
@@ -207,7 +207,7 @@ const TenantDashboard = () => {
                       )}
                     </div>{" "}
                     {leaseAgreement &&
-                      !leaseAgreement.stripe_subscription_id && (
+                      !leaseAgreement.auto_pay_is_enabled && (
                         <Button
                           onClick={() => setShowPaymentModal(true)}
                           sx={{
