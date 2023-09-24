@@ -6,6 +6,7 @@ import {
   getLeaseTermById,
   createLeaseTerm,
   deleteUnit,
+  getUserData,
 } from "../../../../api/api";
 import { Link, useParams } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
@@ -30,6 +31,7 @@ import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import UIButton from "../../UIComponents/UIButton";
 const CreateUnit = () => {
   //Create a state for the form data
   const [unit, setUnit] = useState({});
@@ -50,6 +52,7 @@ const CreateUnit = () => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+  const [tenant, setTenant] = useState({});
   const navigate = useNavigate();
   const {
     register,
@@ -93,6 +96,12 @@ const CreateUnit = () => {
           user_id: authUser.id,
         }).then((res) => {
           setCurrentLeaseTerm(res);
+        });
+      }
+      if (isOccupided) {
+        getUserData(res.tenant).then((res) => {
+          console.log("Tenant", res);
+          setTenant(res);
         });
       }
     });
@@ -147,7 +156,6 @@ const CreateUnit = () => {
       navigate(`/dashboard/landlord/properties/${property_id}`);
     }
   };
-
   const createLeaseTermButton = (
     <Link to="/dashboard/landlord/lease-terms/create">
       {" "}
@@ -200,7 +208,7 @@ const CreateUnit = () => {
                     Name
                   </h6>
                   <p style={{ fontSize: "11pt" }} className="text-white m-0">
-                    John Doe
+                    {tenant.first_name} {tenant.last_name}
                   </p>
                 </div>
                 <div className="mb-4">
@@ -211,29 +219,21 @@ const CreateUnit = () => {
                     Email
                   </h6>
                   <p style={{ fontSize: "11pt" }} className="text-white m-0">
-                    jdoe@email.com
+                    {tenant.email}
                   </p>
                 </div>
-                <div className="mb-4">
-                  <h6
-                    style={{ fontSize: "11pt" }}
-                    className="text-white fw-bold m-0"
-                  >
-                    Phone
-                  </h6>
-                  <p style={{ fontSize: "11pt" }} className="text-white m-0">
-                    555-555-5555
-                  </p>
-                </div>
-                <Button
+
+                <UIButton
                   style={{
                     background: uiGreen,
                     color: "white",
                     textTransform: "none",
                   }}
-                >
-                  Manage Tenant
-                </Button>
+                  btnText="View Tenant Information"
+                  onClick={() => {
+                    navigate(`/dashboard/landlord/tenants/${tenant.id}`);
+                  }}
+                />
               </div>
             </div>
           ) : (

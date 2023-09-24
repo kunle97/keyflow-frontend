@@ -266,7 +266,7 @@ export async function getStripeSubscription(subscription_id) {
 export async function getUserData(user_id) {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.id}/tenant/`, {
+      .post(`/users/${authUser.id}/tenant/`, {
         tenant_id: user_id,
         landlord_id: authUser.id,
       })
