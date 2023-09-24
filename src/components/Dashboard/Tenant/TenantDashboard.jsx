@@ -70,6 +70,10 @@ const TenantDashboard = () => {
     filter: true,
     sort: true,
     onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
   };
 
   const handleAutoPayChange = () => {
@@ -192,8 +196,7 @@ const TenantDashboard = () => {
                           />
                         }
                         label={`AutoPay ${
-                          leaseAgreement &&
-                          leaseAgreement.auto_pay_is_enabled
+                          leaseAgreement && leaseAgreement.auto_pay_is_enabled
                             ? "Enabled"
                             : "Disabled"
                         }`}
@@ -206,22 +209,21 @@ const TenantDashboard = () => {
                         />
                       )}
                     </div>{" "}
-                    {leaseAgreement &&
-                      !leaseAgreement.auto_pay_is_enabled && (
-                        <Button
-                          onClick={() => setShowPaymentModal(true)}
-                          sx={{
-                            color: "white",
-                            textTransform: "none",
-                            backgroundColor: uiGreen,
-                          }}
-                          btnText="Pay Now"
-                          to="#"
-                          variant="contained"
-                        >
-                          Pay Now
-                        </Button>
-                      )}
+                    {leaseAgreement && !leaseAgreement.auto_pay_is_enabled && (
+                      <Button
+                        onClick={() => setShowPaymentModal(true)}
+                        sx={{
+                          color: "white",
+                          textTransform: "none",
+                          backgroundColor: uiGreen,
+                        }}
+                        btnText="Pay Now"
+                        to="#"
+                        variant="contained"
+                      >
+                        Pay Now
+                      </Button>
+                    )}
                   </Box>
                 </CardContent>
               </>

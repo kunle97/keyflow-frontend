@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
+  changeMaintenanceRequestStatus,
+  deleteMaintenanceRequest,
   getMaintenanceRequestById,
   getProperty,
   getUnit,
@@ -7,13 +9,14 @@ import {
   markMaintenanceRequestAsUnresolved,
 } from "../../../../api/api";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import BackButton from "../../UIComponents/BackButton";
-import { Button } from "@mui/material";
-import { uiRed } from "../../../../constants";
+import { Alert, Button } from "@mui/material";
+import { uiGreen, uiRed } from "../../../../constants";
+import { set, useForm } from "react-hook-form";
 
 const LandlordMaintenanceRequestDetail = () => {
   const { id } = useParams();
@@ -25,30 +28,56 @@ const LandlordMaintenanceRequestDetail = () => {
   const [openSetResolveModal, setOpenSetResolveModal] = useState(false);
   const [openSetUnresolveModal, setOpenSetUnresolveModal] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteError, setShowDeleteError] = useState(false);
+  const [showDeleteErrorMessage, setShowDeleteErrorMessage] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSetResolved = () => {
-    markMaintenanceRequestAsResolved(id).then((res) => {
-      setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const handleChangeStatus = (data) => {
+    console.log(data.status);
+    const status = data.status;
+    let is_archived = false;
+    if (status === "completed") {
+      is_archived = true;
+    }
+    const payload = {
+      status: status,
+      is_archived: is_archived,
+    };
+    changeMaintenanceRequestStatus(id, payload).then((res) => {
       console.log(res);
-      if (res.status == 200) {
-        setConfirmMessage("Maintenance Request has been marked as resolved");
-        setOpenSetResolveModal(false);
+      if (res.status === 200) {
+        setConfirmMessage("Maintenance Request status has been changed");
         setShowAlertModal(true);
-        setIsLoading(false);
+        navigate(0);
       }
     });
   };
 
-  //Create a funtion handleSetUnresolved to  set the maintenance request as unresolved
-  const handleSetUnresolved = () => {
-    markMaintenanceRequestAsUnresolved(id).then((res) => {
-      setIsLoading(true);
+  const handleDeleteMaintenanceRequest = () => {
+    //Check if maintenance request is in progress
+    if (maintenanceRequest.status === "in_progress") {
+      setShowDeleteErrorMessage(
+        "Cannot delete maintenance request that is in progress"
+      );
+      setShowDeleteError(true);
+      setShowDeleteConfirm(false);
+      return;
+    }
+    deleteMaintenanceRequest(id).then((res) => {
       console.log(res);
-      if (res.status == 200) {
-        setConfirmMessage("Maintenance Request has been marked as unresolved");
-        setOpenSetUnresolveModal(false);
+      if (res.status === 204) {
+        setConfirmMessage("Maintenance Request has been deleted. You will be redirected to the maintenance requests page.");
         setShowAlertModal(true);
-        setIsLoading(false);
+        navigate("/dashboard/landlord/maintenance-requests");
+      } else {
+        setShowDeleteError(true);
       }
     });
   };
@@ -70,7 +99,7 @@ const LandlordMaintenanceRequestDetail = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [maintenanceRequest]);
+  }, []);
 
   //TODO: Add component that allows user to search for service providers
 
@@ -88,31 +117,6 @@ const LandlordMaintenanceRequestDetail = () => {
             title="Maintenance Request"
             message={confirmMessage}
             btnText="Okay"
-          />
-          {/* Create a ConfirmModal that confirms action */}
-          <ConfirmModal
-            open={openSetResolveModal}
-            title={"Set Maintenance Request as Resolved"}
-            message={
-              "Are you sure you want to set this maintenance request as resolved?"
-            }
-            cancelBtnText="Cancel"
-            conformBtnText="Confirm"
-            handleClose={() => setOpenSetResolveModal(false)}
-            handleCancel={() => setOpenSetResolveModal(false)}
-            handleConfirm={handleSetResolved}
-          />
-          <ConfirmModal
-            open={openSetUnresolveModal}
-            title={"Set Maintenance Request as Unresolved"}
-            message={
-              "Are you sure you want to set this maintenance request as unresolved?"
-            }
-            cancelBtnText="Cancel"
-            conformBtnText="Confirm"
-            handleClose={() => setOpenSetUnresolveModal(false)}
-            handleCancel={() => setOpenSetUnresolveModal(false)}
-            handleConfirm={handleSetUnresolved}
           />
           <div className="row">
             <div className="col-md-4">
@@ -161,35 +165,86 @@ const LandlordMaintenanceRequestDetail = () => {
                         <strong>Status</strong>
                       </h6>
                       <p>
-                        {maintenanceRequest.is_resolved ? (
-                          <span className="text-success">Resolved</span>
-                        ) : (
-                          <span className="text-danger">Unresolved</span>
+                        {maintenanceRequest.status === "pending" && (
+                          <span className="text-warning">Pending</span>
                         )}
+                        {maintenanceRequest.status === "in_progress" && (
+                          <span className="text-info">In Progress</span>
+                        )}
+                        {maintenanceRequest.status === "completed" && (
+                          <span className="text-success">Completed</span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="col-md-4">
+                      <h6>
+                        <strong>Change Status</strong>
+                      </h6>
+                      <p style={{ textTransform: "capitalize" }}>
+                        <form onSubmit={handleSubmit(handleChangeStatus)}>
+                          <select
+                            {...register("status", { required: true })}
+                            className="form-select"
+                          >
+                            <option value={maintenanceRequest.status}>
+                              Select One
+                            </option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                          </select>
+                          {errors.status && (
+                            <p className="text-danger">
+                              Please select a status
+                            </p>
+                          )}
+                          <UIButton
+                            type="submit"
+                            className="btn btn-primary mt-3"
+                            btnText="Change Status"
+                            style={{ marginTop: "15px", width: "100%" }}
+                          />
+                        </form>
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              {maintenanceRequest.is_resolved ? (
-                // Already Resolved
-                <Button
-                  onClick={() => {
-                    setOpenSetUnresolveModal(true);
-                  }}
-                  variant="contained"
-                  sx={{ background: uiRed, textTransform: "none" }}
-                >
-                  Set Unresolved
-                </Button>
-              ) : (
-                <UIButton
-                  onClick={() => {
-                    setOpenSetResolveModal(true);
-                  }}
-                  btnText="Mark As Resolved"
-                />
-              )}
+              <AlertModal
+                open={showDeleteError}
+                handleClose={() => setShowDeleteError(false)}
+                onClick={() => setShowDeleteError(false)}
+                title="Error"
+                message={showDeleteErrorMessage}
+                btnText="Okay"
+              />
+              <ConfirmModal
+                open={showDeleteConfirm}
+                title={"Delete Maintenance Request"}
+                message={
+                  "Are you sure you want to delete this maintenance request?"
+                }
+                cancelBtnText="Cancel"
+                confirmBtnText="Confirm"
+                cancelBtnStyle={{ background: uiGreen }}
+                confirmBtnStyle={{ background: uiRed }}
+                handleClose={() => setShowDeleteConfirm(false)}
+                handleCancel={() => setShowDeleteConfirm(false)}
+                handleConfirm={handleDeleteMaintenanceRequest}
+              />
+              <Button
+                onClick={() => {
+                  setShowDeleteConfirm(true);
+                }}
+                variant="contained"
+                sx={{
+                  background: uiRed,
+                  textTransform: "none",
+                  marginLeft: "10px",
+                }}
+              >
+                Delete Request
+              </Button>
             </div>
           </div>
         </div>

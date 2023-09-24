@@ -153,7 +153,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/properties",
+    path: "/dashboard/landlord/properties",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Properties />
@@ -161,7 +161,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/properties/create",
+    path: "/dashboard/landlord/properties/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateProperty />
@@ -169,7 +169,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard/properties/:id",
+    path: "/dashboard/landlord/properties/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageProperty />

@@ -83,7 +83,7 @@ export default function SidebarDrawer(props) {
         </ListItem>
         <ListItem disablePadding>
           <Link
-            to={"/dashboard/properties"}
+            to={"/dashboard/landlord/properties"}
             style={{ width: "100%", textDecoration: "none" }}
           >
             <ListItemButton>

@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { createMuiTheme } from "@mui/material";
 import { loadStripe } from "@stripe/stripe-js";
+import { createTheme } from "react-data-table-component";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -23,7 +24,7 @@ export const validationMessageStyle = {
   fontSize: "14px",
 };
 
-export const muiDataTableTheme = createMuiTheme({
+export const muiDataTableTheme = createTheme({
   overrides: {
     // Define your custom styles here
     MUIDataTable: {
@@ -55,7 +56,7 @@ export const landlordMenuItems = [
     link: "/dashboard/landlord/tenants",
     icon: "fa fa-group",
   },
-  { label: "Properties", link: "/dashboard/properties", icon: "fa fa-home" },
+  { label: "Properties", link: "/dashboard/landlord/properties", icon: "fa fa-home" },
   {
     label: "Maintenance Requests",
     link: "/dashboard/landlord/maintenance-requests",

@@ -64,6 +64,10 @@ const Dashboard = () => {
     filter: true,
     sort: true,
     onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
   };
 
   useEffect(() => {
@@ -83,7 +87,12 @@ const Dashboard = () => {
                 <div className="col">
                   <p className="m-0">Total Profit</p>
                   <p className="m-0">
-                    <strong>${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(6)}</strong>
+                    <strong>
+                      $
+                      {process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.finance.accountNumber(6)}
+                    </strong>
                   </p>
                 </div>
                 <div className="col-auto">
@@ -104,7 +113,12 @@ const Dashboard = () => {
                 <div className="col">
                   <p className="m-0">Expense</p>
                   <p className="m-0">
-                    <strong>${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(5)}</strong>
+                    <strong>
+                      $
+                      {process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.finance.accountNumber(5)}
+                    </strong>
                   </p>
                 </div>
                 <div className="col-auto">
@@ -125,7 +139,12 @@ const Dashboard = () => {
                 <div className="col">
                   <p className="m-0">Total Revenue</p>
                   <p className="m-0">
-                    <strong>${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.accountNumber(7)}</strong>
+                    <strong>
+                      $
+                      {process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.finance.accountNumber(7)}
+                    </strong>
                   </p>
                 </div>
                 <div className="col-auto">
@@ -163,7 +182,7 @@ const Dashboard = () => {
       </div>
       <div className="row">
         {" "}
-        <div className="col-md-8 ">
+        <div className="col-md-12 ">
           <div className="card shadow mb-4" style={{ height: "400px" }}>
             <div
               className="card-header d-flex justify-content-between align-items-center"
@@ -210,7 +229,7 @@ const Dashboard = () => {
               $45,000
             </p>
             <ResponsiveLine
-              data={chartData}
+              data={data1}
               curve="cardinal"
               enableArea={true}
               enableGridX={false}
@@ -280,9 +299,15 @@ const Dashboard = () => {
             />
           </div>
         </div>
-        <div className="col-md-4 ">
+        <div className="col-md-4 "></div>
+      </div>
+      <div className="d-sm-flex justify-content-between align-items-center mb-4"></div>
+
+      <div className="row">
+        {" "}
+        <div className="col-lg-5  col-xl-4">
           <div
-            className="card shadow "
+            className="card shadow mb-4"
             style={{ height: "400px", background: "white" }}
           >
             <div className="card-header d-flex justify-content-between align-items-center">
@@ -425,13 +450,6 @@ const Dashboard = () => {
               }
             />
           </div>
-        </div>
-      </div>
-      <div className="d-sm-flex justify-content-between align-items-center mb-4"></div>
-
-      <div className="row">
-        {" "}
-        <div className="col-lg-5  col-xl-4">
           <div className="card shadow mb-4" style={{ height: "450px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 card-header-text">

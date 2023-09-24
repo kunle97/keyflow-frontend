@@ -76,6 +76,10 @@ const RentalApplications = () => {
   const options = {
     filter: true,
     sort: true,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
     onRowClick: handleRowClick,
   };
   useEffect(() => {

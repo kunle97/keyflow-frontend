@@ -92,6 +92,10 @@ const LandlordTransactions = () => {
     filter: true,
     sort: true,
     onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
   };
   useEffect(() => {
     //retrieve transactions from api

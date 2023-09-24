@@ -21,6 +21,10 @@ const Tenants = () => {
     filter: true,
     sort: true,
     onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
   };
 
   useEffect(() => {
@@ -38,13 +42,25 @@ const Tenants = () => {
         <div className="col-sm-12 col-md-8 col-lg-8">
           <div className="row">
             <div className="col-md-4 mb-4">
-              <TitleCard backgroundColor={uiGreen} title="Total Tenants" value={tenants.length} />
+              <TitleCard
+                backgroundColor={uiGreen}
+                title="Total Tenants"
+                value={tenants.length}
+              />
             </div>
             <div className="col-md-4 mb-4">
-              <TitleCard backgroundColor={uiGreen} title="Total Requests" value={523} />
+              <TitleCard
+                backgroundColor={uiGreen}
+                title="Total Requests"
+                value={523}
+              />
             </div>
             <div className="col-md-4 mb-4">
-              <TitleCard backgroundColor={uiGreen} title="Lease Renewals" value={58} />
+              <TitleCard
+                backgroundColor={uiGreen}
+                title="Lease Renewals"
+                value={58}
+              />
             </div>
           </div>
 
@@ -72,7 +88,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 12, 2019</span>
-                <p className="text-white" >John Doe Just paid $2679 for rent</p>
+                <p className="text-white">John Doe Just paid $2679 for rent</p>
               </div>{" "}
             </a>
             <a className="menu-item d-flex align-items-center p-3" href="#">
@@ -83,7 +99,9 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 7, 2019</span>
-                <p className="text-white" >$290.29 has been deposited into your account!</p>
+                <p className="text-white">
+                  $290.29 has been deposited into your account!
+                </p>
               </div>{" "}
             </a>
             <a className="menu-item d-flex align-items-center p-3" href="#">
@@ -94,7 +112,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 2, 2019</span>
-                <p className="text-white" >
+                <p className="text-white">
                   Spending Alert: We've noticed unusually high spending for your
                   account.
                 </p>
@@ -122,7 +140,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 12, 2019</span>
-                <p className="text-white" >John Doe Just paid $2679 for rent</p>
+                <p className="text-white">John Doe Just paid $2679 for rent</p>
               </div>{" "}
             </a>
             <a className="menu-item d-flex align-items-center p-3" href="#">
@@ -133,7 +151,9 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 7, 2019</span>
-                <p className="text-white" >$290.29 has been deposited into your account!</p>
+                <p className="text-white">
+                  $290.29 has been deposited into your account!
+                </p>
               </div>{" "}
             </a>
             <a className="menu-item d-flex align-items-center p-3" href="#">
@@ -144,7 +164,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 2, 2019</span>
-                <p className="text-white" >
+                <p className="text-white">
                   Spending Alert: We've noticed unusually high spending for your
                   account.
                 </p>

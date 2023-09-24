@@ -30,7 +30,7 @@ const CreateUnit = () => {
 
     console.log(res);
     if (res.status === 200) {
-      navigate(`/dashboard/properties/${property_id}`);
+      navigate(`/dashboard/landlord/properties/${property_id}`);
     }
   };
 
