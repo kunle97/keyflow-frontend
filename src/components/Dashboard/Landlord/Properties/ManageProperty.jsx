@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { getProperty } from "../../../../api/api";
+import { deleteProperty, deleteUnit, getProperty } from "../../../../api/api";
 import {
   Alert,
   Card,
@@ -15,10 +15,13 @@ import { Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import UIButton from "../../UIComponents/UIButton";
 import { getUnits } from "../../../../api/api";
-import { uiGreen } from "../../../../constants";
+import { uiGreen, uiRed } from "../../../../constants";
 import BackButton from "../../UIComponents/BackButton";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import DeleteButton from "../../UIComponents/DeleteButton";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState({});
@@ -27,6 +30,9 @@ const ManageProperty = () => {
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
   const [responseMessage, setResponseMessage] = useState("Property updated");
   const [alertSeverity, setAlertSeverity] = useState("success");
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showDeleteError, setShowDeleteError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleClose = (event, reason) => {
@@ -62,7 +68,39 @@ const ManageProperty = () => {
   const options = {
     filter: true,
     sort: true,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
     onRowClick: handleRowClick,
+    //CREate a function to handle the row delete
+    onRowsDelete: (rowsDeleted, data) => {
+      console.log(rowsDeleted);
+      //Create an array to hold the ids of the rows to be deleted
+      const idsToDelete = [];
+      //Loop through the rows to be deleted and push the ids to the idsToDelete array
+      rowsDeleted.data.map((row) => {
+        //Check if the unit is occupied before deleting
+        if (units[row.dataIndex].is_occupied === true) {
+          setShowDeleteError(true);
+          setErrorMessage(
+            `One or more of the units you have selected is occupied. Please make sure the unit is vacant before deleting it.`
+          );
+          return false;
+        } else {
+          idsToDelete.push(units[row.dataIndex].id);
+        }
+      });
+      //Delete Unit if it is not occupied
+      idsToDelete.map((id) => {
+        deleteUnit(id).then((res) => {
+          console.log(res);
+          //If the delete was successful, remove the deleted rows from the properties state
+          const newUnits = units.filter((unit) => unit.id !== id);
+          setUnits(newUnits);
+        });
+      });
+    },
   };
   console.log(units);
   const {
@@ -111,6 +149,23 @@ const ManageProperty = () => {
       setShowUpdateSuccess(true);
       setAlertSeverity("error");
       setResponseMessage("Something went wrong");
+    }
+  };
+
+  const handleDeleteProperty = async () => {
+    //Check if property has units before deleting
+    if (units.length > 0) {
+      //Hide confirm modal
+      setShowDeleteAlert(false);
+      setShowDeleteError(true);
+      setErrorMessage(
+        `This property has units. Please delete units first before deleting the property.`
+      );
+    } else {
+      deleteProperty(id).then((res) => {
+        console.log(res);
+        navigate("/dashboard/landlord/properties");
+      });
     }
   };
 
@@ -451,12 +506,6 @@ const ManageProperty = () => {
                               btnText="Create Unit"
                             />
                           </Box>
-                          <Button
-                            sx={{ background: uiRed, textTransform: "none", float: "right" }}
-                            variant="contained"
-                          >
-                            Delete Unit
-                          </Button>
                         </Box>
                       ) : (
                         <>
@@ -492,6 +541,49 @@ const ManageProperty = () => {
               </div>
             </div>
           </div>
+          {/* {units.length === 0 && ( */}
+          {true && (
+            <>
+              <AlertModal
+                open={showDeleteError}
+                setOpen={setShowDeleteError}
+                title={"Error"}
+                message={errorMessage}
+                btnText={"Ok"}
+                onClick={() => setShowDeleteError(false)}
+              />
+              <ConfirmModal
+                open={showDeleteAlert}
+                title="Delete Property"
+                message="Are you sure you want to delete this property?"
+                confirmBtnText="Delete"
+                cancelBtnText="Cancel"
+                confirmBtnStyle={{
+                  backgroundColor: uiRed,
+                  color: "white",
+                }}
+                cancelBtnStyle={{
+                  backgroundColor: uiGreen,
+                  color: "white",
+                }}
+                handleCancel={() => {
+                  setShowDeleteAlert(false);
+                }}
+                handleConfirm={handleDeleteProperty}
+              />
+              <DeleteButton
+                style={{
+                  background: uiRed,
+                  textTransform: "none",
+                  float: "right",
+                }}
+                onClick={() => {
+                  setShowDeleteAlert(true);
+                }}
+                btnText="Delete Property"
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   getLeaseTermsByUser,
   getLeaseTermById,
   createLeaseTerm,
+  deleteUnit,
 } from "../../../../api/api";
 import { Link, useParams } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
@@ -23,8 +24,12 @@ import { authUser, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
 import { CloseOutlined } from "@mui/icons-material";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
+import DeleteButton from "../../UIComponents/DeleteButton";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import { useNavigate } from "react-router-dom";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const CreateUnit = () => {
   //Create a state for the form data
   const [unit, setUnit] = useState({});
@@ -42,6 +47,10 @@ const CreateUnit = () => {
   const [leaseTerms, setLeaseTerms] = useState([]);
   const [currentLeaseTerm, setCurrentLeaseTerm] = useState(null);
   const [showLeaseTermSelector, setShowLeaseTermSelector] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showDeleteError, setShowDeleteError] = useState(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+  const navigate = useNavigate();
   const {
     register,
     setValue,
@@ -116,6 +125,27 @@ const CreateUnit = () => {
     });
     //Close the lease term selector
     setShowLeaseTermSelector(false);
+  };
+
+  //Create a function to handle the deletion of a unit
+  const handleDeleteUnit = () => {
+    //Check if unit is occupied
+    if (isOccupided) {
+      //Show an error message in the alert modal
+      setShowDeleteAlert(false);
+      setShowDeleteError(true);
+      setDeleteErrorMessage(
+        "This unit is occupied. Please remove the tenant before deleting this unit."
+      );
+      return false;
+    } else {
+      //Delete the unit with the api
+      deleteUnit(unit_id).then((res) => {
+        console.log(res);
+      });
+      //Redirect to the property page
+      navigate(`/dashboard/landlord/properties/${property_id}`);
+    }
   };
 
   const createLeaseTermButton = (
@@ -508,13 +538,47 @@ const CreateUnit = () => {
               </div>
             </div>
           </div>
-          {!isOccupided && (
-            <Button
-              sx={{ background: uiRed, textTransform: "none", float: "right" }}
-              variant="contained"
-            >
-              Delete Unit
-            </Button>
+          {/* {!isOccupided && ( */}
+          {true && (
+            <>
+              <AlertModal
+                open={showDeleteError}
+                setOpen={setShowDeleteError}
+                title={"Error"}
+                message={deleteErrorMessage}
+                btnText={"Ok"}
+                onClick={() => setShowDeleteError(false)}
+              />
+              <DeleteButton
+                sx={{
+                  background: uiRed,
+                  textTransform: "none",
+                  float: "right",
+                }}
+                variant="contained"
+                btnText="Delete Unit"
+                onClick={() => setShowDeleteAlert(true)}
+              />
+              <ConfirmModal
+                open={showDeleteAlert}
+                title="Delete Unit"
+                message="Are you sure you want to delete this unit?"
+                confirmBtnText="Delete"
+                cancelBtnText="Cancel"
+                confirmBtnStyle={{
+                  backgroundColor: uiRed,
+                  color: "white",
+                }}
+                cancelBtnStyle={{
+                  backgroundColor: uiGreen,
+                  color: "white",
+                }}
+                handleCancel={() => {
+                  setShowDeleteAlert(false);
+                }}
+                handleConfirm={handleDeleteUnit}
+              />
+            </>
           )}
         </div>
       </div>

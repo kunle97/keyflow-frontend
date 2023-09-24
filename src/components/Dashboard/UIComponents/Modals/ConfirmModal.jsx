@@ -17,6 +17,20 @@ const ConfirmModal = (props) => {
     p: 4,
   };
 
+  const confirmBtnStyle = {
+    marginTop: "20px",
+    backgroundColor: uiGreen,
+    marginRight: "20px",
+    textTransform: "none",
+  };
+
+  const cancelBtnStyle = {
+    marginTop: "20px",
+    backgroundColor: "red",
+    marginRight: "20px",
+    textTransform: "none",
+  };
+
   return (
     <div>
       <Modal open={props.open} onClose={props.handleClose}>
@@ -30,27 +44,17 @@ const ConfirmModal = (props) => {
           <Stack direction="row">
             <Button
               onClick={props.handleCancel}
-              style={{
-                marginTop: "20px",
-                backgroundColor: "red",
-                marginRight: "20px",
-                textTransform: "none",
-              }}
+              style={{ ...cancelBtnStyle, ...props.cancelBtnStyle }}
               variant="contained"
             >
               {props.cancelBtnText}
             </Button>
             <Button
               onClick={props.handleConfirm}
-              style={{
-                marginTop: "20px",
-                backgroundColor: uiGreen,
-                marginRight: "20px",
-                textTransform: "none",
-              }}
+              style={{ ...confirmBtnStyle, ...props.confirmBtnStyle }}
               variant="contained"
             >
-              {props.conformBtnText}
+              {props.confirmBtnText}
             </Button>
           </Stack>
         </Box>

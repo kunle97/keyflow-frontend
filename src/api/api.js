@@ -5,11 +5,27 @@ import axios from "axios";
 import { token, authUser } from "../constants";
 import { makeId, stringToBoolean } from "../helpers/utils";
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
+
+const authenticatedInstance = axios.create({
+  baseURL: API_HOST,
+  timeout: 1000,
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Token ${token}`,
+  },
+});
+const unauthenticatedInstance = axios.create({
+  baseURL: API_HOST,
+  timeout: 1000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 ///-----------------AUTH API FUNCTIONS---------------------------///
 export async function login(email, password) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/auth/login/`, { email, password })
+    const res = await unauthenticatedInstance
+      .post(`/auth/login/`, { email, password })
       .then((res) => {
         const response = res.data;
         console.log("axios login response ", response);
@@ -59,17 +75,8 @@ export async function logout(accessToken) {
   let message = "";
   let status = 0;
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/auth/logout/`,
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${accessToken}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/auth/logout/`)
       .then((res) => {
         const response = res.data;
         console.log("axios logout response ", response);
@@ -93,8 +100,8 @@ export async function logout(accessToken) {
 // create an api function to register a landlord
 export async function registerLandlord(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/auth/register/`, data)
+    const res = await authenticatedInstance
+      .post(`/auth/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
@@ -107,7 +114,7 @@ export async function registerLandlord(data) {
     return {
       message: res.message,
       stripe_onboarding_link: res.onboarding_link,
-      status: 200
+      status: 200,
     };
   } catch (error) {
     console.log("Register Error: ", error);
@@ -118,23 +125,15 @@ export async function registerLandlord(data) {
 // create an api function to register a tenant
 export async function registerTenant(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/auth/tenant/register/`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/auth/tenant/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
         return response;
       });
 
-    return { message: res.message, status:200 };
+    return { message: res.message, status: 200 };
   } catch (error) {
     console.log("Register Error: ", error);
     return error;
@@ -144,16 +143,8 @@ export async function registerTenant(data) {
 //Create a function to activate a user account using the endpoint /auth/activate-account/
 export async function activateAccount(token) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/auth/activate-account/`,
-        { activation_token: token },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/auth/activate-account/`, { activation_token: token })
       .then((res) => {
         const response = res.data;
         console.log("axios activate account response ", response);
@@ -169,17 +160,8 @@ export async function activateAccount(token) {
 //Create a funtion to create a plaid link token that will be used in the Playid Link component
 export async function createPlaidLinkToken(user_id) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/plaid/create-link-token/`,
-        { user_id: user_id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`, //Keep comented when testing
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/plaid/create-link-token/`, { user_id: user_id })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -194,20 +176,11 @@ export async function createPlaidLinkToken(user_id) {
 //Create a function to add a payment method to a users stripe account
 export async function addStripePaymentMethod(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/stripe/add-payment-method/`,
-        {
-          user_id: data.user_id,
-          payment_method_id: data.payment_method_id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/stripe/add-payment-method/`, {
+        user_id: data.user_id,
+        payment_method_id: data.payment_method_id,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -222,20 +195,10 @@ export async function addStripePaymentMethod(data) {
 //Create a function to list styripe payment methods using the endpoint /stripe/list-payment-methods/
 export async function listStripePaymentMethods(user_id) {
   try {
-    const res = await axios
-
-      .post(
-        `${API_HOST}/stripe/list-payment-methods/`,
-        {
-          user_id: user_id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/stripe/list-payment-methods/`, {
+        user_id: user_id,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -246,21 +209,67 @@ export async function listStripePaymentMethods(user_id) {
     return error.response;
   }
 }
+//Create a function to delete a stripe payment method using the endpoint /stripe/delete-payment-method/
+export async function deleteStripePaymentMethod(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/stripe/delete-payment-method/`, {
+        user_id: authUser.id,
+        payment_method_id: data.payment_method_id,
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Delete Payment Method Error: ", error);
+    return error.response;
+  }
+}
 
+//Create A function to set payment method as default using the endpoint /stripe/set-default-payment-method/
+export async function setDefaultPaymentMethod(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/stripe/set-default-payment-method/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Set Default Payment Method Error: ", error);
+    return error.response;
+  }
+}
+//Create a function to retrieve a stripe subscripion
+export async function getStripeSubscription(subscription_id) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/stripe/retrieve-subscription/`, {
+        subscription_id: subscription_id,
+        user_id: authUser.id,
+      })
+
+      .then((res) => {  
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Stripe Subscription Error: ", error);
+    return error.response;
+  }
+}
 //Create a function to retrieve a users data
 export async function getUserData(user_id) {
   try {
-    const res = await axios
-      .get(
-        `${API_HOST}/users/${authUser.id}/tenant/`,
-        { tenant_id: user_id, landlord_id: authUser.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/tenant/`, {
+        tenant_id: user_id,
+        landlord_id: authUser.id,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -274,13 +283,8 @@ export async function getUserData(user_id) {
 //Create a function to update a users data
 export async function updateUserData(data) {
   try {
-    const res = await axios
-      .patch(`${API_HOST}/users/${authUser.id}/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .patch(`/users/${authUser.id}/`, data)
       .then((res) => {
         console.log(res);
         return res;
@@ -294,21 +298,11 @@ export async function updateUserData(data) {
 //Create a function to change a user's password using enpoint /users/{user_id}/change-password/
 export async function changePassword(data) {
   try {
-    const res = await axios
-
-      .post(
-        `${API_HOST}/users/${authUser.id}/change-password/`,
-        {
-          old_password: data.old_password,
-          new_password: data.new_password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/users/${authUser.id}/change-password/`, {
+        old_password: data.old_password,
+        new_password: data.new_password,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -323,19 +317,11 @@ export async function changePassword(data) {
 //Create a function to send a password reset email using the endpoint /password-reset/
 export async function sendPasswordResetEmail(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/password-reset/create-reset-token/`,
-        {
-          email: data.email,
-          token: data.token,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/password-reset/create-reset-token/`, {
+        email: data.email,
+        token: data.token,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -349,20 +335,12 @@ export async function sendPasswordResetEmail(data) {
 //Create a function to reset a users password using the endpoint /password-reset/validate-token/
 export async function resetPassword(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/password-reset/reset-password/`,
-        {
-          email: data.email,
-          token: data.token,
-          new_password: data.new_password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`${API_HOST}/password-reset/reset-password/`, {
+        email: data.email,
+        token: data.token,
+        new_password: data.new_password,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -376,19 +354,10 @@ export async function resetPassword(data) {
 //Create a post funciton to validate a password reset token using the endpoint /password-reset/validate-token/
 export async function validatePasswordResetToken(token) {
   try {
-    const res = await axios
-
-      .post(
-        `${API_HOST}/password-reset/validate-token/`,
-        {
-          token: token,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/password-reset/validate-token/`, {
+        token: token,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -404,19 +373,10 @@ export async function validatePasswordResetToken(token) {
 //Create a function that retrieves landlords tenants using the endpoint /users/{landlord_id}/landlord-tenants/
 export async function getLandlordTenants() {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/landlord-tenant-list/`,
-        {
-          landlord_id: authUser.id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/landlord-tenant-list/`, {
+        landlord_id: authUser.id,
+      })
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -434,20 +394,11 @@ export async function getLandlordTenants() {
 //Create a function that retrieves a specific landlord tenant using the endpoint /users/{landlord_id}/tenant/
 export async function getLandlordTenant(tenantId) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/landlord-tenant-detail/`,
-        {
-          tenant_id: tenantId,
-          landlord_id: authUser.id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/landlord-tenant-detail/`, {
+        tenant_id: tenantId,
+        landlord_id: authUser.id,
+      })
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -474,25 +425,16 @@ export async function createProperty(
   country
 ) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/properties/`,
-        {
-          name,
-          user: authUser.id,
-          street,
-          city,
-          state,
-          zip_code,
-          country,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${authUser.accessToken}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/properties/`, {
+        name,
+        user: authUser.id,
+        street,
+        city,
+        state,
+        zip_code,
+        country,
+      })
       .then((res) => {
         const response = res.data;
         console.log("axios create property response ", response);
@@ -508,13 +450,8 @@ export async function createProperty(
 //Create function to get all properties for this user
 export async function getProperties() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/properties/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/properties/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -529,16 +466,32 @@ export async function getProperties() {
   }
 }
 
+//Create a funtion to get all units for a specific landlord using the endpoint /users/{landlord_id}/units/
+export async function getLandlordUnits() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/units/`)
+      .then((res) => {
+        console.log(res);
+
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+
+    return res;
+  } catch (error) {
+    console.log("Get Landlord Units Error: ", error);
+    return error.response.data;
+  }
+}
+
 //Create function to retrieve one specific property
 export async function getProperty(propertyId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/properties/${propertyId}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/properties/${propertyId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -555,16 +508,8 @@ export async function getProperty(propertyId) {
 //Create a function that retrieves a unit by its id without the use of an authorization token
 export async function getPropertyUnauthenticated(propertyId) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/retrieve-property/`,
-        { property_id: propertyId },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/retrieve-property/`, { property_id: propertyId })
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -582,13 +527,8 @@ export async function getPropertyUnauthenticated(propertyId) {
 //create function to update a property with patch method
 export async function updateProperty(propertyId, data) {
   try {
-    const res = await axios
-      .patch(`${API_HOST}/properties/${propertyId}/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .patch(`/properties/${propertyId}/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -605,13 +545,9 @@ export async function updateProperty(propertyId, data) {
 //create function to delete a property
 export async function deleteProperty(propertyId) {
   try {
-    const res = await axios
-      .delete(`${API_HOST}/properties/${propertyId}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    // const res = await axios
+    const res = await authenticatedInstance
+      .delete(`/properties/${propertyId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -630,13 +566,8 @@ export async function deleteProperty(propertyId) {
 //Create a function that makes a payment for a tenant using the endpoint /tenant/make-payment/
 export async function makePayment(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/tenants/${authUser.id}/make-payment/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .post(`/tenants/${authUser.id}/make-payment/`, data)
       .then((res) => {
         console.log(res);
         return res.data;
@@ -650,17 +581,8 @@ export async function makePayment(data) {
 // Create a function to get all necessary data for the tenant dashboard  using the endpoint /retrieve-tenant-dashboard-data/
 export async function getTenantDashboardData() {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/retrieve-tenant-dashboard-data/`,
-        { user_id: authUser.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/retrieve-tenant-dashboard-data/`, { user_id: authUser.id })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -677,24 +599,15 @@ export async function getTenantDashboardData() {
 export async function createUnit(data) {
   console.log("create unit data: ", data);
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/units/`,
-        {
-          name: data.name,
-          rental_property: data.rental_property,
-          beds: data.beds,
-          baths: data.baths,
-          rent: data.rent,
-          user: authUser.id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${authUser.accessToken}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`${API_HOST}/units/`, {
+        name: data.name,
+        rental_property: data.rental_property,
+        beds: data.beds,
+        baths: data.baths,
+        rent: data.rent,
+        user: authUser.id,
+      })
       .then((res) => {
         const response = res.data;
         console.log("axios create unit response ", response);
@@ -710,13 +623,8 @@ export async function createUnit(data) {
 //Create function to get all units for the specific property
 export async function getUnits(propertyId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/properties/${propertyId}/units/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/properties/${propertyId}/units/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -734,13 +642,8 @@ export async function getUnits(propertyId) {
 //Create function to retrieve one specific unit
 export async function getUnit(unitId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/units/${unitId}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/units/${unitId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -757,16 +660,8 @@ export async function getUnit(unitId) {
 //Create a function that retrieves a unit by its id without the use of an authorization token
 export async function getUnitUnauthenticated(unitId) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/retrieve-unit/`,
-        { unit_id: unitId },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/retrieve-unit/`, { unit_id: unitId })
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -784,16 +679,8 @@ export async function getUnitUnauthenticated(unitId) {
 //Create function to retrieve one lease term from one specific
 export async function getLeaseTermByUnitId(unitId) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/retrieve-lease-term-unit/`,
-        { unit_id: unitId },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/retrieve-lease-term-unit/`, { unit_id: unitId })
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -810,13 +697,8 @@ export async function getLeaseTermByUnitId(unitId) {
 //Create function to update a unit with patch method
 export async function updateUnit(unitId, data) {
   try {
-    const res = await axios
-      .patch(`${API_HOST}/units/${unitId}/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .patch(`/units/${unitId}/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -831,19 +713,10 @@ export async function updateUnit(unitId, data) {
 }
 
 //Create function to delete a unit
-export async function deleteUnit(propertyId, unitId) {
+export async function deleteUnit(unitId) {
   try {
-    const res = await axios
-      .delete(
-        `${API_HOST}/units/${unitId}/`,
-        { rental_property: propertyId },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .delete(`/units/${unitId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -862,34 +735,26 @@ export async function deleteUnit(propertyId, unitId) {
 //Create a function to create a rental application
 export async function createRentalApplication(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/rental-applications/`,
-        {
-          unit: data.unit_id,
-          first_name: data.first_name,
-          last_name: data.last_name,
-          email: data.email,
-          date_of_birth: data.date_of_birth,
-          phone_number: data.phone,
-          desired_move_in_date: data.desired_move_in_date,
-          other_occupants: data.other_occupants,
-          pets: stringToBoolean(data.pets),
-          vehicles: stringToBoolean(data.vehicles),
-          convicted: stringToBoolean(data.crime),
-          bankrupcy_filed: stringToBoolean(data.bankrupcy),
-          evicted: stringToBoolean(data.evicted),
-          employment_history: JSON.stringify(data.employment_history),
-          residential_history: JSON.stringify(data.residential_history),
-          landlord: data.landlord_id,
-          comments: data.comments,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`${API_HOST}/rental-applications/`, {
+        unit: data.unit_id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        date_of_birth: data.date_of_birth,
+        phone_number: data.phone,
+        desired_move_in_date: data.desired_move_in_date,
+        other_occupants: data.other_occupants,
+        pets: stringToBoolean(data.pets),
+        vehicles: stringToBoolean(data.vehicles),
+        convicted: stringToBoolean(data.crime),
+        bankrupcy_filed: stringToBoolean(data.bankrupcy),
+        evicted: stringToBoolean(data.evicted),
+        employment_history: JSON.stringify(data.employment_history),
+        residential_history: JSON.stringify(data.residential_history),
+        landlord: data.landlord_id,
+        comments: data.comments,
+      })
       .then((res) => {
         const response = res.data;
         console.log("axios create rental app response ", response);
@@ -909,13 +774,8 @@ export async function createRentalApplication(data) {
 //Create a function to get all rental applications for a specific unit
 export async function getRentalApplications(unitId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/units/${unitId}/rental-applications/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`${API_HOST}/units/${unitId}/rental-applications/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -933,13 +793,8 @@ export async function getRentalApplications(unitId) {
 //Create a function to get all rental ids for logged in user
 export async function getRentalApplicationsByUser() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/rental-applications/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/rental-applications/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -957,13 +812,8 @@ export async function getRentalApplicationsByUser() {
 //Create a function to get one specific rental application by its id
 export async function getRentalApplicationById(rentalAppId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/rental-applications/${rentalAppId}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/rental-applications/${rentalAppId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -979,16 +829,10 @@ export async function getRentalApplicationById(rentalAppId) {
 //Retreives Approval Hash. Used to populate form data when tenant registers for the first time
 export async function getRentalApplicationByApprovalHash(approval_hash) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/auth/tenant/register/retrieve-rental-application/`,
-        { approval_hash: approval_hash },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    const res = await unauthenticatedInstance
+      .post(`/auth/tenant/register/retrieve-rental-application/`, {
+        approval_hash: approval_hash,
+      })
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -1005,21 +849,12 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
 //Create A function to approve a rental application
 export async function approveRentalApplication(rentalAppId) {
   try {
-    const res = await axios
-      .patch(
-        `${API_HOST}/rental-applications/${rentalAppId}/`,
-        {
-          is_approved: true,
-          approval_hash: makeId(64),
-          is_archived: true,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .patch(`/rental-applications/${rentalAppId}/`, {
+        is_approved: true,
+        approval_hash: makeId(64),
+        is_archived: true,
+      })
       .then((res) => {
         console.log(res);
         return res.data;
@@ -1035,21 +870,8 @@ export async function approveRentalApplication(rentalAppId) {
 //Create A function to reject a rental application
 export async function rejectRentalApplication(rentalAppId) {
   try {
-    const res = await axios
-      .delete(
-        `${API_HOST}/rental-applications/${rentalAppId}/`,
-        // {
-        //   is_approved: false,
-        //   user_id: authUser.id,
-        //   approval_hash: "",
-        // },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .delete(`/rental-applications/${rentalAppId}/`)
       .then((res) => {
         return {
           data: res.data,
@@ -1067,15 +889,9 @@ export async function rejectRentalApplication(rentalAppId) {
 //Create a function to delete all other rental applications other than the one that was approved
 export async function deleteOtherRentalApplications(rentalAppId) {
   try {
-    const res = await axios
+    const res = await authenticatedInstance
       .delete(
-        `${API_HOST}/rental-applications/${rentalAppId}/delete-remaining-rental-applications/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
+        `/rental-applications/${rentalAppId}/delete-remaining-rental-applications/`
       )
       .then((res) => {
         return {
@@ -1095,24 +911,8 @@ export async function deleteOtherRentalApplications(rentalAppId) {
 //Create a function that creates a lease agreement
 export async function createLeaseAgreement(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/lease-agreements/`,
-        // {
-        //   rental_application: data.rental_application,
-        //   rental_unit: data.rental_unit,
-        //   user: authUser.id,
-        //   approval_hash: data.approval_hash,
-        //   lease_term: data.lease_term,
-        // },
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`${API_HOST}/lease-agreements/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios create lease agreement response ", response);
@@ -1132,13 +932,8 @@ export async function createLeaseAgreement(data) {
 //Create an API function to update a lease agreement
 export async function updateLeaseAgreement(leaseAgreementId, data) {
   try {
-    const res = await axios
-      .patch(`${API_HOST}/lease-agreements/${leaseAgreementId}/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .patch(`/lease-agreements/${leaseAgreementId}/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios update lease agreement response ", response);
@@ -1159,38 +954,11 @@ export async function updateLeaseAgreement(leaseAgreementId, data) {
   }
 }
 
-//Create a funtion that retrieves a lease agreement by its id
-// export async function getLeaseAgreementById(data) {
-//   try {
-//     const res = await axios
-//       .post(`${API_HOST}/retrieve-lease-agreement/`, data, {
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Token ${token}`,
-//         },
-//       })
-//       .then((res) => {
-//         if (res.status == 200) {
-//           return { data: res.data };
-//         }
-//         return { data: [] };
-//       });
-//     return res.data;
-//   } catch (error) {
-//     console.log("Get Lease Agreement Error: ", error);
-//     return error.response;
-//   }
-// }
-
 //Create a function to retrieve one specific lease term by its id
 export async function getLeaseAgreementByIdAndApprovalHash(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/retrieve-lease-agreement-approval/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+    const res = await unauthenticatedInstance
+      .post(`/retrieve-lease-agreement-approval/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -1208,33 +976,23 @@ export async function getLeaseAgreementByIdAndApprovalHash(data) {
 //Create a function that creates a lease term
 export async function createLeaseTerm(data) {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/create-lease-term/`,
-        {
-          user_id: authUser.id,
-          rent: parseFloat(data.rent),
-          term: data.term,
-          description: "_",
-          security_deposit: data.security_deposit,
-          late_fee: data.late_fee,
-          gas_included: stringToBoolean(data.gas_included),
-          water_included: stringToBoolean(data.water_included),
-          electric_included: stringToBoolean(data.electric_included),
-          repairs_included: stringToBoolean(data.repairs_included),
-          lease_cancellation_notice_period:
-            data.lease_cancellation_notice_period,
-          lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
-          grace_period: parseInt(data.grace_period),
-          is_active: true,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/create-lease-term/`, {
+        user_id: authUser.id,
+        rent: parseFloat(data.rent),
+        term: data.term,
+        description: "_",
+        security_deposit: data.security_deposit,
+        late_fee: data.late_fee,
+        gas_included: stringToBoolean(data.gas_included),
+        water_included: stringToBoolean(data.water_included),
+        electric_included: stringToBoolean(data.electric_included),
+        repairs_included: stringToBoolean(data.repairs_included),
+        lease_cancellation_notice_period: data.lease_cancellation_notice_period,
+        lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
+        grace_period: parseInt(data.grace_period),
+        is_active: true,
+      })
       .then((res) => {
         const response = res.data;
         console.log("axios create lease term response ", response);
@@ -1254,8 +1012,8 @@ export async function createLeaseTerm(data) {
 //Create a function that gets all lease terms for a specific user
 export async function getLeaseTermsByUser() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/lease-terms/`, {
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/lease-terms/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -1275,12 +1033,8 @@ export async function getLeaseTermsByUser() {
 //Create a function to retrieve one specific lease term by its id
 export async function getLeaseTermByIdAndApprovalHash(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/retrieve-lease-term-and-approval/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+    const res = await unauthenticatedInstance
+      .post(`/retrieve-lease-term-and-approval/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -1297,13 +1051,8 @@ export async function getLeaseTermByIdAndApprovalHash(data) {
 //Create a function to retrieve one specific lease term by its id
 export async function getLeaseTermById(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/retrieve-lease-term/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .post(`/retrieve-lease-term/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -1320,7 +1069,7 @@ export async function getLeaseTermById(data) {
 //Create a function that updates a lease term
 export async function updateLeaseTerm(leaseTermId, data) {
   try {
-    const res = await axios
+    const res = await authenticatedInstance
       .patch(`${API_HOST}/lease-terms/${leaseTermId}/`, data, {
         headers: {
           "Content-Type": "application/json",
@@ -1339,16 +1088,33 @@ export async function updateLeaseTerm(leaseTermId, data) {
     return error.response.data;
   }
 }
+//Create a function tpo delete a lease term
+export async function deleteLeaseTerm(leaseTermId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/delete-lease-term/`, {
+        lease_term_id: leaseTermId,
+        user_id: authUser.id,
+      })
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Lease term deleted.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Delete Lease Term Error: ", error);
+    return error.response.data;
+  }
+}
 
 //Create a function to sign lease agreement
 export async function signLeaseAgreement(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/sign-lease-agreement/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+    const res = await unauthenticatedInstance
+      .post(`/sign-lease-agreement/`, data)
       .then((res) => {
         console.log(res);
         return res.data;
@@ -1363,12 +1129,8 @@ export async function signLeaseAgreement(data) {
 //Create a function to verify the tenant registration via the approval hash and lease agreement id
 export async function verifyTenantRegistrationCredentials(data) {
   try {
-    const res = await axios
-      .post(`${API_HOST}/auth/tenant/register/verify/`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+    const res = await unauthenticatedInstance
+      .post(`/auth/tenant/register/verify/`, data)
       .then((res) => {
         console.log(res);
         return res.data;
@@ -1384,13 +1146,8 @@ export async function verifyTenantRegistrationCredentials(data) {
 //Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/transactions/
 export async function getTransactionsByUser() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/transactions/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/transactions/`)
       .then((res) => {
         return res;
       });
@@ -1404,13 +1161,8 @@ export async function getTransactionsByUser() {
 //Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/tenant-transactions/
 export async function getTenantTransactionsByUser() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/tenant-transactions/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/tenant-transactions/`)
       .then((res) => {
         return res;
       });
@@ -1424,13 +1176,8 @@ export async function getTenantTransactionsByUser() {
 //Create a funtion to retrieve a transaction by its id
 export async function getTransactionById(transactionId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/transactions/${transactionId}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/transactions/${transactionId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -1448,12 +1195,10 @@ export async function getTransactionById(transactionId) {
 //Create a function to create a maintenance request
 export async function createMaintenanceRequest(data) {
   try {
-    const res = await axios.post(`${API_HOST}/maintenance-requests/`, data, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-    });
+    const res = await authenticatedInstance.post(
+      `/maintenance-requests/`,
+      data
+    );
 
     return {
       message: "Maintenance request created successfully",
@@ -1473,13 +1218,8 @@ export async function createMaintenanceRequest(data) {
 //Create a function to list all maintenance requests for a specific unit
 export async function getMaintenanceRequests(unitId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/units/${unitId}/maintenance-requests/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/units/${unitId}/maintenance-requests/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -1497,13 +1237,8 @@ export async function getMaintenanceRequests(unitId) {
 //Create a function to list all maintenance requests for a specific tenant user
 export async function getMaintenanceRequestsByUser() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/tenant-maintenance-requests/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/tenant-maintenance-requests/`)
       .then((res) => {
         return res;
       });
@@ -1517,13 +1252,8 @@ export async function getMaintenanceRequestsByUser() {
 //Create a function to list all maintenance requests for a specific landlord user
 export async function getMaintenanceRequestsByLandlord() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${authUser.id}/landlord-maintenance-requests/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/landlord-maintenance-requests/`)
       .then((res) => {
         return res;
       });
@@ -1537,13 +1267,8 @@ export async function getMaintenanceRequestsByLandlord() {
 //Create a function to get maintenance request by its id
 export async function getMaintenanceRequestById(maintenanceRequestId) {
   try {
-    const res = await axios
-      .get(`${API_HOST}/maintenance-requests/${maintenanceRequestId}/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/maintenance-requests/${maintenanceRequestId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -1560,17 +1285,11 @@ export async function getMaintenanceRequestById(maintenanceRequestId) {
 //Create a function to mark a maintenance request as resolved
 export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
   try {
-    const res = await axios
-      .patch(
-        `${API_HOST}/maintenance-requests/${maintenanceRequestId}/`,
-        { is_resolved: true, is_archived: true },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .patch(`/maintenance-requests/${maintenanceRequestId}/`, {
+        is_resolved: true,
+        is_archived: true,
+      })
       .then((res) => {
         return res;
       });
@@ -1584,17 +1303,11 @@ export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
 //Create a function to mark a maintenance request as unresolved and unarchive it
 export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
   try {
-    const res = await axios
-      .patch(
-        `${API_HOST}/maintenance-requests/${maintenanceRequestId}/`,
-        { is_resolved: false, is_archived: false },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .patch(`/maintenance-requests/${maintenanceRequestId}/`, {
+        is_resolved: false,
+        is_archived: false,
+      })
       .then((res) => {
         return res;
       });
@@ -1604,21 +1317,48 @@ export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
     return error.response.data;
   }
 }
+
+//Create a function to change the status of a maintenance request
+export async function changeMaintenanceRequestStatus(
+  maintenanceRequestId,
+  data
+) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/maintenance-requests/${maintenanceRequestId}/`, data)
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Change Maintenance Request Status Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to delete a maintenance request
+export async function deleteMaintenanceRequest(maintenanceRequestId) {
+  try {
+    const res = await authenticatedInstance
+      .delete(`/maintenance-requests/${maintenanceRequestId}/`)
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Delete Maintenance Request Error: ", error);
+    return error.response.data;
+  }
+}
+
 //--------------MANAGE SUBSCRIPTION  API FUNCTIONS-----------------///
 //Create a function to turn off auto pay on a subscription from endpoint /manage-lease/turn-off-auto-pay/
 export async function turnOffAutoPay() {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/manage-lease/turn-off-autopay/`,
-        { user_id: authUser.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`${API_HOST}/manage-lease/turn-off-autopay/`, {
+        user_id: authUser.id,
+      })
       .then((res) => {
         return res;
       });
@@ -1631,17 +1371,8 @@ export async function turnOffAutoPay() {
 //Create a function to turn on auto pay on a subscription from endpoint /manage-lease/turn-on-auto-pay/
 export async function turnOnAutoPay() {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/manage-lease/turn-on-autopay/`,
-        { user_id: authUser.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/manage-lease/turn-on-autopay/`, { user_id: authUser.id })
       .then((res) => {
         return res;
       });
@@ -1655,17 +1386,8 @@ export async function turnOnAutoPay() {
 //Create a function to get the next payment date for a subscription from endpoint /manage-lease/next-payment-date/
 export async function getNextPaymentDate() {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/manage-lease/next-payment-date/`,
-        { user_id: authUser.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/manage-lease/next-payment-date/`, { user_id: authUser.id })
       .then((res) => {
         return res;
       });
@@ -1679,17 +1401,8 @@ export async function getNextPaymentDate() {
 //Create a function to get all payment date for a subscription from endpoint /manage-lease/payment-dates/
 export async function getPaymentDates() {
   try {
-    const res = await axios
-      .post(
-        `${API_HOST}/manage-lease/payment-dates/`,
-        { user_id: authUser.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+    const res = await authenticatedInstance
+      .post(`/manage-lease/payment-dates/`, { user_id: authUser.id })
       .then((res) => {
         return res;
       });
@@ -1699,3 +1412,6 @@ export async function getPaymentDates() {
     return error.response.data;
   }
 }
+
+//-------------------MANAGE PAYMENT METHOD API FUNCTIONS----------------------///
+//Create a function to create a payment method

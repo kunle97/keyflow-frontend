@@ -51,6 +51,10 @@ const ManageTenant = () => {
   const transaction_options = {
     filter: true,
     sort: true,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
     onRowClick: transactionHandleRowClick,
   };
 
@@ -89,6 +93,10 @@ const ManageTenant = () => {
   const maintenance_request_options = {
     filter: true,
     sort: true,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
     onRowClick: maintenanceRequestHandleRowClick,
   };
 
@@ -112,7 +120,11 @@ const ManageTenant = () => {
               <div className="property-col-img-container">
                 <img
                   className="rounded-circle h-100"
-                  src={process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.image.avatar()}
+                  src={
+                    process.env.REACT_APP_ENVIRONMENT !== "development"
+                      ? ""
+                      : faker.image.avatar()
+                  }
                 />
               </div>
               <h4
@@ -240,7 +252,7 @@ const ManageTenant = () => {
                 />
               </div>
               <div className="mb-3 card" style={{ overflow: "hidden" }}>
-                <MUIDataTable 
+                <MUIDataTable
                   title={"Maintenance Requests"}
                   data={maintenanceRequests}
                   columns={maintenance_request_columns}

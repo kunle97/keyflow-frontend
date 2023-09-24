@@ -43,7 +43,7 @@ const CreateProperty = () => {
     );
     console.log(res);
     if (res.status === 200) {
-      navigate("/dashboard/properties");
+      navigate("/dashboard/landlord/properties");
     }
   };
 
