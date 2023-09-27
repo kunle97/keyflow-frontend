@@ -2,6 +2,14 @@ import { faker } from "@faker-js/faker";
 import { createMuiTheme } from "@mui/material";
 import { loadStripe } from "@stripe/stripe-js";
 import { createTheme } from "react-data-table-component";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -50,54 +58,85 @@ export const landlordMenuItems = [
     label: "Dashboard",
     link: "/dashboard/landlord",
     icon: "fas fa-tachometer-alt",
+    muiIcon: <DashboardOutlinedIcon />,
+    description: "View your dashboard",
+    isSearchable: true,
   },
   {
     label: "Tenants",
     link: "/dashboard/landlord/tenants",
     icon: "fa fa-group",
+    muiIcon: <PeopleAltOutlinedIcon />,
+    description: "View your tenants",
+    isSearchable: true,
   },
-  { label: "Properties", link: "/dashboard/landlord/properties", icon: "fa fa-home" },
+  {
+    label: "Properties",
+    link: "/dashboard/landlord/properties",
+    muiIcon: <HomeWorkOutlinedIcon />,
+    description: "View your properties",
+    icon: "fa fa-home",
+    isSearchable: true,
+  },
   {
     label: "Maintenance Requests",
     link: "/dashboard/landlord/maintenance-requests",
+    muiIcon: <HandymanOutlinedIcon />,
+    description: "View all maintenance requests",
     icon: "fas fa-tools",
+    isSearchable: true,
   },
   {
     label: "Lease Agreements",
-    link: "/dashboard/landlord",
+    link: "/dashboard/landlord/lease-terms",
+    muiIcon: <DescriptionOutlinedIcon />,
+    description: "View your lease terms",
     icon: "fas fa-user-circle",
+    isSearchable: true,
     subMenuItems: [
       {
         label: "Create New",
         link: "/dashboard/landlord/lease-agreements/create",
+        muiIcon: <DescriptionOutlinedIcon />,
+        description: "Create a new lease agreement",
         icon: "fas fa-tools",
+        isSearchable: true,
       },
       {
         label: "Lease Terms",
         link: "/dashboard/landlord/lease-terms",
+        muiIcon: <DescriptionOutlinedIcon />,
+        description: "View your lease terms",
         icon: "fas fa-user-circle",
+        isSearchable: true,
       },
     ],
   },
   {
     label: "Rental Applications",
     link: "/dashboard/landlord/rental-applications",
+    muiIcon: <ReceiptLongOutlinedIcon />,
+    description: "View your rental applications",
     icon: "fas fa-tachometer-alt",
+    isSearchable: true,
   },
   {
     label: "Finances",
     link: "#",
     icon: "fas fa-tachometer-alt",
+    isSearchable: false,
     subMenuItems: [
       {
         label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
         link: "/dashboard/landlord/transactions",
         icon: "fas fa-tools",
+        isSearchable: true,
       },
       {
         label: "Accounting", //TODO: page for accounting: taxes, etc
         link: "/dashboard/maintenance-requests/",
         icon: "fas fa-tools",
+        isSearchable: false,
       },
     ],
   },
@@ -107,6 +146,7 @@ export const tenantMenuItems = [
     label: "Dashboard",
     link: "/dashboard/tenant",
     icon: "fas fa-tachometer-alt",
+    isSearchable: true,
   },
   {
     label: "Maintenance Requests",
@@ -115,10 +155,14 @@ export const tenantMenuItems = [
       {
         label: "Create New",
         link: "/dashboard/tenant/maintenance-requests/create",
+        icon: "fas fa-tools",
+        isSearchable: true,
       },
       {
         label: "View All",
         link: "/dashboard/tenant/maintenance-requests/",
+        icon: "fas fa-tools",
+        isSearchable: true,
       },
     ],
     icon: "fas fa-tools",
@@ -127,6 +171,7 @@ export const tenantMenuItems = [
     label: "My Lease Agreement",
     link: "/dashboard/tenant/my-lease",
     icon: "fas fa-user-circle",
+    isSearchable: true,
   },
 ];
 
@@ -144,21 +189,66 @@ export const modalStyle = {
 };
 
 export const fakeData = {
-  fakeFirstName:  process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName(),
-  fakeLastName: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName(),
-  fakeEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
-  fakePassword: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.password(),
-  fakePhoneNumber: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
-  fakeAddress: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
-  fakeCity: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.city(),
-  fakeState: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.state(),
-  fakeZipCode: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.zipCode(),
-  fakeCountry: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.country(),
-  fakeCompanyName: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.company.name(),
-  fakePosition: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.name.jobTitle(),
-  fakePastDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
-  fakeFutureDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0],
-  fakeFinanceAmount: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.amount(),
+  fakeFirstName:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.firstName(),
+  fakeLastName:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.lastName(),
+  fakeEmail:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.internet.email(),
+  fakePassword:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.internet.password(),
+  fakePhoneNumber:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.phone.number("###-###-####"),
+  fakeAddress:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.address.streetAddress(),
+  fakeCity:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.address.city(),
+  fakeState:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.address.state(),
+  fakeZipCode:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.address.zipCode(),
+  fakeCountry:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.address.country(),
+  fakeCompanyName:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.company.name(),
+  fakePosition:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.name.jobTitle(),
+  fakePastDate:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.date.past().toISOString().split("T")[0],
+  fakeFutureDate:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.date.future().toISOString().split("T")[0],
+  fakeFinanceAmount:
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.finance.amount(),
 };
 export function dateDiffForHumans(targetDate) {
   const currentDate = new Date();

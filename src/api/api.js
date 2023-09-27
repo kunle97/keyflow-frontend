@@ -6,7 +6,7 @@ import { token, authUser } from "../constants";
 import { makeId, stringToBoolean } from "../helpers/utils";
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 
-const authenticatedInstance = axios.create({
+export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
   timeout: 1000,
   headers: {
@@ -14,7 +14,7 @@ const authenticatedInstance = axios.create({
     Authorization: `Token ${token}`,
   },
 });
-const unauthenticatedInstance = axios.create({
+export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
   timeout: 1000,
   headers: {

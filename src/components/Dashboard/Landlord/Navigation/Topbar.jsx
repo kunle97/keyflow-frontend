@@ -4,8 +4,16 @@ import { logout } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link } from "react-router-dom";
-import { authUser, token, uiGreen } from "../../../../constants";
+import {
+  authUser,
+  token,
+  uiGreen,
+  uiGrey1,
+  uiGrey2,
+} from "../../../../constants";
 import { faker } from "@faker-js/faker";
+import { set } from "react-hook-form";
+import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -59,20 +67,10 @@ const Topbar = () => {
           </button>
           <form className="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div className="input-group">
-              <input
-                className="bg-light form-control border-0 small top-bar-searchbar"
-                type="text"
-                placeholder="Search for ..."
-              />
-              <button
-                className="btn btn-primary py-0"
-                type="button"
-                style={{ background: uiGreen, borderStyle: "none" }}
-              >
-                <i className="fas fa-search" />
-              </button>
+
             </div>
           </form>
+
           <ul className="navbar-nav flex-nowrap ms-auto">
             <li className="nav-item dropdown d-sm-none no-arrow">
               <a
@@ -324,7 +322,11 @@ const Topbar = () => {
                   </span>
                   <img
                     className="border rounded-circle img-profile"
-                    src={process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.avatar()}
+                    src={
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.internet.avatar()
+                    }
                   />
                 </a>
                 <div
