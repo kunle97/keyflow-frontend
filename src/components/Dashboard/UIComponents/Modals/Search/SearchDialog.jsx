@@ -52,6 +52,8 @@ const SearchDialog = (props) => {
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [rentalApplications, setRentalApplications] = useState([]);
   const [transactions, setTransactions] = useState([]);
+
+  //TODO: Add this to util.js helpers file
   //Create a filter function to filter the tenants based on the search value
   const filterTenants = () => {
     return tenants.filter((tenant) => {
@@ -62,6 +64,7 @@ const SearchDialog = (props) => {
       );
     });
   };
+  //TODO: Add this to util.js helpers file
   //Create a filter function for dashboard pages based on the search value
   const filterDashboardPages = () => {
     return dashboardPages.filter((page) => {
