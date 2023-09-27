@@ -5,15 +5,24 @@ import {
   landlordMenuItems,
   tenantMenuItems,
 } from "../../../../constants";
+import UIButton from "../../UIComponents/UIButton";
+import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
 const Sidebar = () => {
   const menuItems =
     authUser.account_type === "landlord" ? landlordMenuItems : tenantMenuItems;
+  const [showSearchMenu, setShowSearchMenu] = useState(false);
 
   return (
     <nav
       className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
       style={{ background: "#364658" }}
     >
+      {showSearchMenu && (
+        <SearchDialog
+          open={showSearchMenu}
+          handleClose={() => setShowSearchMenu(false)}
+        />
+      )}
       <div className="container-fluid d-flex flex-column p-0">
         <a
           className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
@@ -28,6 +37,19 @@ const Sidebar = () => {
         </a>
         <hr className="sidebar-divider my-0" />
         <ul className="navbar-nav text-light" id="accordionSidebar">
+          <li className="nav-item">
+            <center>
+              <UIButton
+                style={{ width: "200px" }}
+                onClick={() => setShowSearchMenu(true)}
+                btnText={
+                  <>
+                    <i className="fas fa-search" /> Search
+                  </>
+                }
+              />
+            </center>
+          </li>
           {menuItems.map((item, index) => {
             if (item.subMenuItems) {
               return (
