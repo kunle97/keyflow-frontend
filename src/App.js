@@ -1,12 +1,13 @@
 import "./App.css";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
-import { AuthProvider } from "./contexts/AuthContext";
-
+import { GlobalSearchProvider } from "./contexts/SearchContext";
 
 function App() {
   return (
+    <GlobalSearchProvider>
       <RouterProvider router={router} />
+    </GlobalSearchProvider>
   );
 }
 

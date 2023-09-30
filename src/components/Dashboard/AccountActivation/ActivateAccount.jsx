@@ -10,7 +10,6 @@ const ActivateAccount = () => {
   useEffect(() => {
     //Activate users account
     activateAccount(token).then((res) => {
-      console.log(res);
       if (res.status === 200) {
         console.log("Account activated");
         //Log user out if logged in

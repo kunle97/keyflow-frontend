@@ -5,7 +5,15 @@ import SidebarDrawer from "./Landlord/Navigation/SidebarDrawer";
 import TopBarMUI from "../Dashboard/Landlord/Navigation/TopBarMUI";
 import { authUser, uiGreen } from "../../constants";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useHistoryList } from "../../hooks/useHistoryList";
 const DashboardContainer = ({ children }) => {
+  const { historyList, goToPage } = useHistoryList();
+  console.log("History ", historyList);
+  //Console.log the local storage history list
+  console.log(
+    "History List LOcal Storage",
+    localStorage.getItem("historyList")
+  );
   const [muiMode, setMuiSidebarMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();

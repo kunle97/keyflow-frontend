@@ -96,7 +96,7 @@ export const landlordMenuItems = [
     subMenuItems: [
       {
         label: "Create New",
-        link: "/dashboard/landlord/lease-agreements/create",
+        link: "/dashboard/landlord/lease-terms/create",
         muiIcon: <DescriptionOutlinedIcon />,
         description: "Create a new lease agreement",
         icon: "fas fa-tools",

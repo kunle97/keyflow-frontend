@@ -3,8 +3,10 @@ import { Button } from "@mui/material";
 import { uiGreen } from "../../../constants";
 const UIButton = (props) => {
   const defaultStyle = {
-    backgroundColor: uiGreen,
-    textTransform: "none",
+    backgroundColor: `${uiGreen} !important`,
+    textTransform: "none !important",
+    color: "white !important",
+    borderRadius: "5px !important",
   };
   return (
     <Button
