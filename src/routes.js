@@ -40,17 +40,37 @@ import LandlordMaintenanceRequestDetail from "./components/Dashboard/Landlord/Ma
 import ResetPassword from "./components/Dashboard/PasswordReset/ResetPassword";
 import ActivateAccount from "./components/Dashboard/AccountActivation/ActivateAccount";
 import ActivateAccountMessage from "./components/Dashboard/AccountActivation/ActivateAccountMessage";
+import DashboardOutlined from "@mui/icons-material/DashboardOutlined";
+import PeopleAltOutlined from "@mui/icons-material/PeopleAltOutlined";
+import HomeWorkOutlined from "@mui/icons-material/HomeWorkOutlined";
+import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import WeekendOutlined from "@mui/icons-material/WeekendOutlined";
+import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
+import PaidOutlined from "@mui/icons-material/PaidOutlined";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import {
+  AddHome,
+  AddHomeOutlined,
+  AddHomeWorkOutlined,
+  DomainAddOutlined,
+  HolidayVillageOutlined,
+} from "@mui/icons-material";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
-export const router = createBrowserRouter([
+export const routes = [
   {
     path: "*",
     element: <PageNotFound />,
+    isSearchable: false,
+    label: "Page Not Found",
   },
   {
     path: "/",
     element: <LandingPage />,
+    isSearchable: false,
+    label: "Home",
   },
   {
     path: "/dashboard/landlord/login",
@@ -59,6 +79,8 @@ export const router = createBrowserRouter([
         <LandlordLogin />
       </LoggedInRedirect>
     ),
+    isSearchable: false,
+    label: "Landlord Login",
   },
   {
     path: "/dashboard/landlord/register",
@@ -135,6 +157,11 @@ export const router = createBrowserRouter([
         <Dashboard />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Dashboard",
+    description: "An overview of your properties",
+    isQuickLink: true,
+    muiIcon: <DashboardOutlined />,
   },
   {
     path: "/dashboard/landlord/my-account",
@@ -143,6 +170,11 @@ export const router = createBrowserRouter([
         <MyAccount />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "My Account",
+    description: "Manage your account",
+    isQuickLink: true,
+    muiIcon: <PeopleAltOutlined />,
   },
   {
     path: "/dashboard/tenant/my-account",
@@ -151,6 +183,8 @@ export const router = createBrowserRouter([
         <TenantMyAccount />
       </DashboardProtectedRoute>
     ),
+    isSearchable: false,
+    label: "My Account (Tenant)",
   },
   {
     path: "/dashboard/landlord/properties",
@@ -159,6 +193,11 @@ export const router = createBrowserRouter([
         <Properties />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Properties",
+    description: "Manage your properties",
+    isQuickLink: true,
+    muiIcon: <HomeWorkOutlined />,
   },
   {
     path: "/dashboard/landlord/properties/create",
@@ -167,6 +206,11 @@ export const router = createBrowserRouter([
         <CreateProperty />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Create Property",
+    description: "Create a new property",
+    isQuickLink: true,
+    muiIcon: <AddHomeWorkOutlined />,
   },
   {
     path: "/dashboard/landlord/properties/:id",
@@ -183,6 +227,11 @@ export const router = createBrowserRouter([
         <Units />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Units",
+    description: "Manage your units",
+    isQuickLink: true,
+    muiIcon: <HolidayVillageOutlined />,
   },
   {
     path: "/dashboard/landlord/units/:unit_id/:property_id",
@@ -199,6 +248,11 @@ export const router = createBrowserRouter([
         <CreateUnit />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Create Unit",
+    description: "Create a new unit",
+    isQuickLink: false,
+    muiIcon: <AddHomeOutlined />,
   },
   {
     path: "/dashboard/landlord/tenants",
@@ -207,6 +261,11 @@ export const router = createBrowserRouter([
         <Tenants />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Tenants",
+    description: "Manage your tenants",
+    isQuickLink: true,
+    muiIcon: <PeopleAltOutlined />,
   },
   {
     path: "/dashboard/landlord/tenants/:tenant_id",
@@ -224,6 +283,11 @@ export const router = createBrowserRouter([
         <LandlordMaintenanceRequests />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Maintenance Requests",
+    description: "Manage your maintenance requests",
+    isQuickLink: true,
+    muiIcon: <HandymanOutlinedIcon />,
   },
 
   {
@@ -266,6 +330,11 @@ export const router = createBrowserRouter([
         <CreateLeaseTerm />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Create Lease Term",
+    description: "Create a new lease term",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
   },
   {
     path: "/dashboard/landlord/lease-terms/",
@@ -274,6 +343,11 @@ export const router = createBrowserRouter([
         <LeaseTerms />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Lease Terms",
+    description: "Manage your lease terms",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
   },
   {
     path: "/dashboard/landlord/rental-applications/:id",
@@ -290,6 +364,11 @@ export const router = createBrowserRouter([
         <RentalApplications />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Rental Applications",
+    description: "Manage your rental applications",
+    isQuickLink: true,
+    muiIcon: <ReceiptLongOutlined />,
   },
   {
     path: "/rental-application/:unit_id/:landlord_id",
@@ -306,6 +385,11 @@ export const router = createBrowserRouter([
         <LandlordTransactions />
       </DashboardProtectedRoute>
     ),
+    isSearchable: true,
+    label: "Transactions",
+    description: "Manage your transactions",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
   },
   {
     path: "/dashboard/landlord/transactions/:id",
@@ -315,4 +399,6 @@ export const router = createBrowserRouter([
       </DashboardProtectedRoute>
     ),
   },
-]);
+];
+
+export const router = createBrowserRouter(routes);

@@ -26,7 +26,6 @@ const SignLeaseAgreement = () => {
   const handleSignLeaseAgreement = () => {
     //(update the Lease Agreement with the start_date,  end_date, approval_hash, is_active, signed_date,etc)
     let date = new Date();
-    console.log(leaseTerm.term);
     let end_date = date.setMonth(date.getMonth() + leaseTerm.term);
     const data = {
       lease_agreement_id: leaseAgreement.id,
@@ -37,8 +36,6 @@ const SignLeaseAgreement = () => {
       signed_date: new Date().toISOString().split("T")[0],
       // document_id: getDocumentIdFromDocuSignOrSomthing(),
     };
-
-    console.log(data);
     let redirectLink =
       process.env.REACT_APP_HOSTNAME +
       "/dashboard/tenant/register" +
@@ -48,14 +45,10 @@ const SignLeaseAgreement = () => {
       leaseAgreement.rental_unit +
       "/" +
       leaseAgreement.approval_hash;
-    console.log(redirectLink);
-    console.log("Lease Agreement", leaseAgreement);
 
     signLeaseAgreement(data).then((res) => {
-      console.log(res);
       if (res.status === 200) {
         //On update success redirect to tenant registration page with approval_hash
-        console.log(res);
         setRedirectLink(redirectLink);
         setShowSignResponse(true);
         setShowSignConfirmation(false);
@@ -72,14 +65,12 @@ const SignLeaseAgreement = () => {
       lease_agreement_id,
       approval_hash,
     }).then((res) => {
-      console.log(res);
       if (res.id) {
         setLeaseAgreement(res);
         getLeaseTermByIdAndApprovalHash({
           lease_term_id: res.lease_term,
           approval_hash,
         }).then((res) => {
-          console.log(res);
           setLeaseTerm(res);
         });
         //Check that the approval_hash matches the lease agreement's approval_hash
