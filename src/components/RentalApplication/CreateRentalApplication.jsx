@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fakeData, uiGreen } from "../../constants";
 import UIBinaryRadioGroup from "../Dashboard/UIComponents/UIBinaryRadioGroup";
-import EmploymentHistorySection from "./EmploymentHistorySection";
-import RentalHistorySection from "./RentalHistorySection";
+import EmploymentHistorySection from "./ApplicationSections/EmploymentHistorySection";
+import RentalHistorySection from "./ApplicationSections/RentalHistorySection";
 import { HelpOutline } from "@mui/icons-material";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
@@ -19,9 +19,20 @@ import ProgressModal from "../Dashboard/UIComponents/Modals/ProgressModal";
 import AlertModal from "../Dashboard/UIComponents/Modals/AlertModal";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../constants";
+import BasicInfoSection from "./ApplicationSections/BasicInfoSection";
+import AdditionalInformationSection from "./ApplicationSections/AdditionalInformationSection";
+import UIButton from "../Dashboard/UIComponents/UIButton";
+import UIStepper from "../Dashboard/UIComponents/UIStepper";
+
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
 
+  const [step, setStep] = useState(0); // step state
+  const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
+  const [step1IsValid, setStep1IsValid] = useState(false); // step 2 validation state
+  const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
+  const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
+  const [step4IsValid, setStep4IsValid] = useState(false); // step 5 validation state
   const [unit, setUnit] = useState({}); // unit data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
@@ -80,18 +91,40 @@ const CreateRentalApplication = () => {
   }, []);
 
   //Step one data
-  const [firstName, setFirstName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()); // first name of the applicant
-  const [lastName, setLastName] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()); // last name of the applicant
+  const [firstName, setFirstName] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.firstName()
+  ); // first name of the applicant
+  const [lastName, setLastName] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.person.lastName()
+  ); // last name of the applicant
   const [dateOfBirth, setDateOfBirth] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0]
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.date.past().toISOString().split("T")[0]
   ); // date of birth of the applicant
   const [email, setEmail] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email({ firstName, lastName })
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.internet.email({ firstName, lastName })
   ); // email of the applicant
-  const [phone, setPhone] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####")); // phone number of the applicant
-  const [ssn, setSsn] = useState(process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-##-####")); // social security number of the applicant
+  const [phone, setPhone] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.phone.number("###-###-####")
+  ); // phone number of the applicant
+  const [ssn, setSsn] = useState(
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.phone.number("###-##-####")
+  ); // social security number of the applicant
   const [desiredMoveInDate, setDesiredMoveInDate] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0]
+    process.env.REACT_APP_ENVIRONMENT !== "development"
+      ? ""
+      : faker.date.future().toISOString().split("T")[0]
   ); // desired move in date of the applicant
 
   //Step two  data
@@ -105,16 +138,33 @@ const CreateRentalApplication = () => {
   const {
     register,
     handleSubmit,
+    trigger,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
       first_name: firstName,
       last_name: lastName,
-      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email({ firstName, lastName }),
-      phone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
-      ssn: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-##-####"),
-      date_of_birth: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
-      desired_move_in_date: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.future().toISOString().split("T")[0],
+      email:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.internet.email({ firstName, lastName }),
+      phone:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.phone.number("###-###-####"),
+      ssn:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.phone.number("###-##-####"),
+      date_of_birth:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.past().toISOString().split("T")[0],
+      desired_move_in_date:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.future().toISOString().split("T")[0],
     },
   });
 
@@ -135,12 +185,35 @@ const CreateRentalApplication = () => {
   ]);
   const [residenceHistory, setResidenceHistory] = useState([
     {
-      address: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
-      startDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
-      endDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
-      landlordName: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()} ${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()}`,
-      landlordPhone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
-      landlordEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
+      address:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.address.streetAddress(),
+      startDate:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.past().toISOString().split("T")[0],
+      endDate:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.past().toISOString().split("T")[0],
+      landlordName: `${
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.person.firstName()
+      } ${
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.person.lastName()
+      }`,
+      landlordPhone:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.phone.number("###-###-####"),
+      landlordEmail:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.internet.email(),
       isCurrent: false,
     },
   ]);
@@ -155,15 +228,44 @@ const CreateRentalApplication = () => {
 
   const addEmploymentInfoNode = () => {
     const newEmployment = {
-      companyName: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.company.name(),
-      position: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.name.jobTitle(),
-      companyAddress: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
-      income: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.finance.amount(),
-      startDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
+      companyName:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.company.name(),
+      position:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.name.jobTitle(),
+      companyAddress:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.address.streetAddress(),
+      income:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.finance.amount(),
+      startDate:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.past().toISOString().split("T")[0],
       endDate: fakeData.fakePastDate,
-      supervisorName: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()} ${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()}`,
-      supervisorPhone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
-      supervisorEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
+      supervisorName: `${
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.person.firstName()
+      } ${
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.person.lastName()
+      }`,
+      supervisorPhone:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.phone.number("###-###-####"),
+      supervisorEmail:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.internet.email(),
       isCurrent: false,
     };
     setEmploymentHistory([...employmentHistory, newEmployment]);
@@ -186,12 +288,35 @@ const CreateRentalApplication = () => {
 
   const addRentalHistoryNode = () => {
     const newRentalHistory = {
-      address: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.address.streetAddress(),
-      startDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
-      endDate: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.date.past().toISOString().split("T")[0],
-      landlordName: `${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.firstName()} ${process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.person.lastName()}`,
-      landlordPhone: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.phone.number("###-###-####"),
-      landlordEmail: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : faker.internet.email(),
+      address:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.address.streetAddress(),
+      startDate:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.past().toISOString().split("T")[0],
+      endDate:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.past().toISOString().split("T")[0],
+      landlordName: `${
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.person.firstName()
+      } ${
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.person.lastName()
+      }`,
+      landlordPhone:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.phone.number("###-###-####"),
+      landlordEmail:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.internet.email(),
       isCurrent: false,
     };
     setResidenceHistory([...residenceHistory, newRentalHistory]);
@@ -356,520 +481,300 @@ const CreateRentalApplication = () => {
                   )}
                   {!isLoading && (
                     <div className="col-md-6  justify-content-center align-items-center">
+                      <UIStepper step={step} />
                       <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
-                          <>
-                            <div className="card mb-3">
-                              <div className="card-body">
-                                <div className="row">
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">First Name</label>
-                                      <input
-                                        {...register("first_name", {
-                                          required: "This is a required field",
-                                        })}
-                                        type="text"
-                                        className="form-control"
-                                        id="firstName"
-                                        placeholder="First Name"
-                                        name="first_name"
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.first_name &&
-                                          errors.first_name.message}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">Last Name</label>
-                                      <input
-                                        {...register("last_name", {
-                                          required: "This is a required field",
-                                        })}
-                                        type="text"
-                                        className="form-control"
-                                        id="lastName"
-                                        placeholder="Last Name"
-                                        name="last_name"
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.last_name &&
-                                          errors.last_name.message}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">
-                                        Date Of Birth
-                                      </label>
-                                      <input
-                                        {...register("date_of_birth", {
-                                          required: "This is a required field",
-                                          pattern: {
-                                            value: /\d{4}-\d{2}-\d{2}/,
-                                            message:
-                                              "Please enter a valid date",
-                                          },
-                                        })}
-                                        type="date"
-                                        className=" form-control"
-                                        id="dateOfBirth"
-                                        placeholder="Date of Birth"
-                                        name="date_of_birth"
-                                        style={{
-                                          border: "none",
-                                          borderBottom:
-                                            "1px solid white !important",
-                                          borderRadius: "5px",
-                                          padding: "10px",
-                                          width: "100%",
-                                          background: "transparent",
-                                          color: "white",
-                                        }}
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.date_of_birth &&
-                                          errors.date_of_birth.message}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">E-mail</label>
-                                      <input
-                                        {...register("email", {
-                                          required: "This is a required field",
-                                          pattern: {
-                                            value: /\S+@\S+\.\S+/,
-                                            message:
-                                              "Please enter a valid email address",
-                                          },
-                                        })}
-                                        type="email"
-                                        className="form-control form-control-user"
-                                        id="email"
-                                        placeholder="E-mail"
-                                        name="email"
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.email && errors.email.message}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">
-                                        Phone Number
-                                      </label>
-                                      <input
-                                        {...register("phone", {
-                                          required: "This is a required field",
-                                          pattern: {
-                                            value: /\d{3}-\d{3}-\d{4}/,
-                                            message:
-                                              "Please enter a valid phone number",
-                                          },
-                                        })}
-                                        type="text"
-                                        className="form-control"
-                                        id="phone"
-                                        placeholder="Phone Number"
-                                        name="phone"
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.phone && errors.phone.message}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">
-                                        Social Security Number{" "}
-                                        <Tooltip title="Your social security number will not be stored on KeyFlow servers. It will only be used for credit reporting and background checks.">
-                                          <HelpOutline
-                                            sx={{
-                                              marginLeft: "5px",
-                                              width: "20px",
-                                            }}
+                          {step === 0 && (
+                            <>
+                              <BasicInfoSection
+                                register={register}
+                                errors={errors}
+                              />
+                              <UIButton
+                                style={{ width: "100%" }}
+                                btnText="Next"
+                                type="button"
+                                onClick={() => {
+                                  trigger([
+                                    "first_name",
+                                    "last_name",
+                                    "date_of_birth",
+                                    "email",
+                                    "phone",
+                                    "ssn",
+                                    "desired_move_in_date",
+                                  ]);
+                                  if (
+                                    errors.first_name ||
+                                    errors.last_name ||
+                                    errors.date_of_birth ||
+                                    errors.email ||
+                                    errors.phone ||
+                                    errors.ssn ||
+                                    errors.desired_move_in_date
+                                  ) {
+                                    setStep0IsValid(false);
+                                  } else {
+                                    setStep0IsValid(true);
+                                  }
+                                  if (step0IsValid) {
+                                    setStep(1);
+                                  }
+                                }}
+                              />
+                            </>
+                          )}
+                          {step === 1 && (
+                            <>
+                              <AdditionalInformationSection
+                                register={register}
+                                errors={errors}
+                              />
+                              <Stack direction="row" spacing={2}>
+                                <UIButton
+                                  style={{ width: "100%" }}
+                                  btnText="Back"
+                                  onClick={() => setStep(0)}
+                                  type="button"
+                                />
+                                <UIButton
+                                  style={{ width: "100%" }}
+                                  btnText="Next"
+                                  onClick={() => {
+                                    trigger([
+                                      "other_occupants",
+                                      "pets",
+                                      "vehicles",
+                                      "crime",
+                                      "bankrupcy",
+                                      "evicted",
+                                    ]);
+                                    if (
+                                      errors.other_occupants &&
+                                      errors.pets &&
+                                      errors.vehicles &&
+                                      errors.crime &&
+                                      errors.bankrupcy &&
+                                      errors.evicted
+                                    ) {
+                                      setStep1IsValid(false);
+                                    } else {
+                                      setStep1IsValid(true);
+                                    }
+                                    if (step1IsValid) {
+                                      setStep(2);
+                                    }
+                                  }}
+                                  type="button"
+                                />
+                              </Stack>
+                            </>
+                          )}
+                          {step === 2 && (
+                            <div id="employment-history-section">
+                              <div className="information">
+                                <h5 className="my-4 ml-5">
+                                  Employment History
+                                </h5>
+                                <div className="">
+                                  {employmentHistory.map(
+                                    (employment, index) => {
+                                      return (
+                                        <>
+                                          <EmploymentHistorySection
+                                            id={index}
+                                            register={register}
+                                            companyNameErrors={
+                                              errors[`companyName_${index}`]
+                                            }
+                                            positionErrors={
+                                              errors[`position_${index}`]
+                                            }
+                                            companyAddressErrors={
+                                              errors[`companyAddress_${index}`]
+                                            }
+                                            incomeErrors={
+                                              errors[`income_${index}`]
+                                            }
+                                            employmentStartDateErrors={
+                                              errors[
+                                                `employmentStartDate_${index}`
+                                              ]
+                                            }
+                                            employmentEndDateErrors={
+                                              errors[
+                                                `employmentEndDate_${index}`
+                                              ]
+                                            }
+                                            supervisorNameErrors={
+                                              errors[`supervisorName_${index}`]
+                                            }
+                                            supervisorPhoneErrors={
+                                              errors[`supervisorPhone_${index}`]
+                                            }
+                                            supervisorEmailErrors={
+                                              errors[`supervisorEmail_${index}`]
+                                            }
+                                            employment={employment}
+                                            onPositionChange={(e) =>
+                                              handleEmploymentChange(e, index)
+                                            }
+                                            removeBtn={
+                                              index !== 0 && (
+                                                <Button
+                                                  sx={{
+                                                    background: uiGreen,
+                                                    textTransform: "none",
+                                                  }}
+                                                  variant="contained"
+                                                  onClick={() =>
+                                                    removeEmploymentInfoNode(
+                                                      index
+                                                    )
+                                                  }
+                                                >
+                                                  Remove
+                                                </Button>
+                                              )
+                                            }
+                                            showStepButtons={
+                                              index ===
+                                              employmentHistory.length - 1
+                                            }
+                                            isValid={step2IsValid}
+                                            setIsValid={setStep2IsValid}
+                                            previousStep={() => setStep(1)}
+                                            nextStep={() => setStep(3)}
+                                            trigger={trigger}
+                                            watch={watch}
+                                            addEmploymentInfoNode={
+                                              addEmploymentInfoNode
+                                            }
                                           />
-                                        </Tooltip>
-                                      </label>
-                                      <input
-                                        {...register("ssn", {
-                                          required: "This is a required field",
-                                          pattern: {
-                                            value: /\d{3}-\d{2}-\d{4}/,
-                                            message:
-                                              "Please enter a valid social security number",
-                                          },
-                                        })}
-                                        type="text"
-                                        className="form-control"
-                                        id="ssn"
-                                        placeholder="SSN"
-                                        name="ssn"
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.ssn && errors.ssn.message}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12 mb-4">
-                                    <div className="form-group">
-                                      <label className="mb-2">
-                                        Desired Move-in Date
-                                      </label>
-                                      <input
-                                        {...register("desired_move_in_date", {
-                                          required: "This is a required field",
-                                          pattern: {
-                                            value: /\d{4}-\d{2}-\d{2}/,
-                                            message:
-                                              "Please enter a valid date",
-                                          },
-                                        })}
-                                        type="date"
-                                        className=" form-control"
-                                        id="dateOfBirth"
-                                        placeholder="Desired Move-in Date"
-                                        name="desired_move_in_date"
-                                        required
-                                        value={desiredMoveInDate}
-                                        onChange={(e) =>
-                                          setDesiredMoveInDate(e.target.value)
-                                        }
-                                        style={{
-                                          border: "none",
-                                          borderBottom:
-                                            "1px solid white !important",
-                                          borderRadius: "5px",
-                                          padding: "10px",
-                                          width: "100%",
-                                          background: "transparent",
-                                          color: "white",
-                                        }}
-                                      />
-                                      <span style={validationMessageStyle}>
-                                        {errors.desired_move_in_date &&
-                                          errors.desired_move_in_date.message}
-                                      </span>
-                                    </div>
-                                  </div>
+                                        </>
+                                      );
+                                    }
+                                  )}
                                 </div>
                               </div>
                             </div>
-                          </>
+                          )}
+                          {step === 3 && (
+                            <div id="resicence-history-section">
+                              <div className="information">
+                                <h5 className="my-4 ml-5">Residence History</h5>
 
-                          <>
-                            <h5 className="my-4 ml-5">
-                              Additional Information
-                            </h5>
-                            <div className="card mb-3">
-                              <div className="card-body">
-                                <div className="row">
-                                  <div className="form-group col-md-6 mb-4">
-                                    <label className="mb-2">
-                                      Will there be any other occupants?
-                                    </label>
-                                    <select
-                                      {...register("other_occupants", {
-                                        required: "This is a required field",
-                                      })}
-                                      className="form-select"
-                                      defaultValue="false"
-                                    >
-                                      <option value="">Select One</option>
-                                      <option value="true">Yes</option>
-                                      <option value="false">No</option>
-                                    </select>
-                                    <span style={validationMessageStyle}>
-                                      {errors.other_occupants &&
-                                        errors.other_occupants.message}
-                                    </span>
-                                  </div>
-
-                                  <div className="form-group col-md-6 mb-4">
-                                    <label className="mb-2">
-                                      Do you plan on having any pets during your
-                                      lease?
-                                    </label>
-                                    <select
-                                      {...register("pets", {
-                                        required: "This is a required field",
-                                      })}
-                                      className="form-select"
-                                      defaultValue="false"
-                                    >
-                                      <option value="">Select One</option>
-                                      <option value="true">Yes</option>
-                                      <option value="false">No</option>
-                                    </select>
-                                    <span style={validationMessageStyle}>
-                                      {errors.pets && errors.pets.message}
-                                    </span>
-                                  </div>
-
-                                  <div className="form-group col-md-6 mb-4">
-                                    <label className="mb-2">
-                                      Do you plan on having/storing any
-                                      vehicles?
-                                    </label>
-                                    <select
-                                      {...register("vehicles", {
-                                        required: "This is a required field",
-                                      })}
-                                      className="form-select"
-                                      defaultValue="false"
-                                    >
-                                      <option value="">Select One</option>
-                                      <option value="true">Yes</option>
-                                      <option value="false">No</option>
-                                    </select>
-                                    <span style={validationMessageStyle}>
-                                      {errors.vehicles &&
-                                        errors.vehicles.message}
-                                    </span>
-                                  </div>
-
-                                  <div className="form-group col-md-6 mb-4">
-                                    <label className="mb-2">
-                                      Have you ever been convicted of a crime?
-                                    </label>
-                                    <select
-                                      {...register("crime", {
-                                        required: "This is a required field",
-                                      })}
-                                      className="form-select"
-                                      defaultValue="false"
-                                    >
-                                      <option value="">Select One</option>
-                                      <option value="true">Yes</option>
-                                      <option value="false">No</option>
-                                    </select>
-                                    <span style={validationMessageStyle}>
-                                      {errors.crime && errors.crime.message}
-                                    </span>
-                                  </div>
-
-                                  <div className="form-group col-md-6 mb-4">
-                                    <label className="mb-2">
-                                      Have you ever filed for bankrupcy?
-                                    </label>
-                                    <select
-                                      {...register("bankrupcy", {
-                                        required: "This is a required field",
-                                      })}
-                                      className="form-select"
-                                      defaultValue="false"
-                                    >
-                                      <option value="">Select One</option>
-                                      <option value="true">Yes</option>
-                                      <option value="false">No</option>
-                                    </select>
-                                    <span style={validationMessageStyle}>
-                                      {errors.bankrupcy &&
-                                        errors.bankrupcy.message}
-                                    </span>
-                                  </div>
-
-                                  <div className="form-group col-md-6 mb-4">
-                                    <label className="mb-2">
-                                      Have you been evicted from aprevious
-                                      residence?
-                                    </label>
-                                    <select
-                                      {...register("evicted", {
-                                        required: "This is a required field",
-                                      })}
-                                      className="form-select"
-                                      defaultValue="false"
-                                    >
-                                      <option value="">Select One</option>
-                                      <option value="true">Yes</option>
-                                      <option value="false">No</option>
-                                    </select>
-                                    <span style={validationMessageStyle}>
-                                      {errors.evicted && errors.evicted.message}
-                                    </span>
-                                  </div>
+                                <div className="">
+                                  {residenceHistory.map((residence, index) => {
+                                    return (
+                                      <>
+                                        <RentalHistorySection
+                                          id={index}
+                                          register={register}
+                                          addressErrors={
+                                            errors[`address_${index}`]
+                                          }
+                                          residenceStartDateErrors={
+                                            errors[
+                                              `residenceStartDate_${index}`
+                                            ]
+                                          }
+                                          residenceEndDateErrors={
+                                            errors[`residenceEndDate_${index}`]
+                                          }
+                                          landlordNameErrors={
+                                            errors[`landlordName_${index}`]
+                                          }
+                                          landlordPhoneErrors={
+                                            errors[`landlordPhone_${index}`]
+                                          }
+                                          landlordEmailErrors={
+                                            errors[`landlordEmail_${index}`]
+                                          }
+                                          residence={residence}
+                                          onResidenceChange={(e) =>
+                                            handleResidenceChange(e, index)
+                                          }
+                                          removeBtn={
+                                            index !== 0 && (
+                                              <Button
+                                                sx={{
+                                                  background: uiGreen,
+                                                  textTransform: "none",
+                                                }}
+                                                variant="contained"
+                                                onClick={() =>
+                                                  removeRentalHistoryNode(index)
+                                                }
+                                              >
+                                                Remove
+                                              </Button>
+                                            )
+                                          }
+                                          showStepButtons={
+                                            index ===
+                                            residenceHistory.length - 1
+                                          }
+                                          isValid={step3IsValid}
+                                          setIsValid={setStep3IsValid}
+                                          previousStep={() => setStep(2)}
+                                          nextStep={() => setStep(4)}
+                                          trigger={trigger}
+                                          watch={watch}
+                                          addRentalHistoryNode={
+                                            addRentalHistoryNode
+                                          }
+                                        />
+                                      </>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             </div>
-                          </>
-
-                          <>
-                            <div className="information">
-                              <h5 className="my-4 ml-5">Employment History</h5>
-                              <div className="">
-                                {employmentHistory.map((employment, index) => {
-                                  return (
-                                    <>
-                                      <EmploymentHistorySection
-                                        id={index}
-                                        register={register}
-                                        companyNameErrors={
-                                          errors[`companyName_${index}`]
-                                        }
-                                        positionErrors={
-                                          errors[`position_${index}`]
-                                        }
-                                        companyAddressErrors={
-                                          errors[`companyAddress_${index}`]
-                                        }
-                                        incomeErrors={errors[`income_${index}`]}
-                                        startDateErrors={
-                                          errors[`startDate_${index}`]
-                                        }
-                                        endDateErrors={
-                                          errors[`endDate_${index}`]
-                                        }
-                                        supervisorNameErrors={
-                                          errors[`supervisorName_${index}`]
-                                        }
-                                        supervisorPhoneErrors={
-                                          errors[`supervisorPhone_${index}`]
-                                        }
-                                        supervisorEmailErrors={
-                                          errors[`supervisorEmail_${index}`]
-                                        }
-                                        employment={employment}
-                                        onPositionChange={(e) =>
-                                          handleEmploymentChange(e, index)
-                                        }
-                                        removeBtn={
-                                          index !== 0 && (
-                                            <Button
-                                              sx={{
-                                                background: uiGreen,
-                                                textTransform: "none",
-                                              }}
-                                              variant="contained"
-                                              onClick={() =>
-                                                removeEmploymentInfoNode(index)
-                                              }
-                                            >
-                                              Remove
-                                            </Button>
-                                          )
-                                        }
-                                      />
-                                    </>
-                                  );
-                                })}
+                          )}
+                          {step === 4 && (
+                            <>
+                              <div className="mt-4">
+                                <h5>Additional Comments</h5>
+                                <div className="card">
+                                  <div className="card-body">
+                                    <textarea
+                                      name="comments"
+                                      className="form-control"
+                                      rows={10}
+                                    ></textarea>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            <Stack direction="row" gap={2}>
-                              <Button
-                                sx={{
-                                  background: uiGreen,
-                                  textTransform: "none",
-                                }}
-                                variant="contained"
-                                onClick={addEmploymentInfoNode}
+                              <Stack
+                                style={{ marginTop: "20px" }}
+                                direction="row"
+                                spacing={2}
                               >
-                                Add
-                              </Button>
-                            </Stack>
-                          </>
-
-                          <>
-                            <div className="information">
-                              <h5 className="my-4 ml-5">Residence History</h5>
-
-                              <div className="">
-                                {residenceHistory.map((residence, index) => {
-                                  return (
-                                    <>
-                                      <RentalHistorySection
-                                        id={index}
-                                        register={register}
-                                        addressErrors={
-                                          errors[`address_${index}`]
-                                        }
-                                        startDateErrors={
-                                          errors[`startDate_${index}`]
-                                        }
-                                        endDateErrors={
-                                          errors[`endDate_${index}`]
-                                        }
-                                        landlordNameErrors={
-                                          errors[`landlordName_${index}`]
-                                        }
-                                        landlordPhoneErrors={
-                                          errors[`landlordPhone_${index}`]
-                                        }
-                                        landlordEmailErrors={
-                                          errors[`landlordEmail_${index}`]
-                                        }
-                                        residence={residence}
-                                        onResidenceChange={(e) =>
-                                          handleResidenceChange(e, index)
-                                        }
-                                        removeBtn={
-                                          index !== 0 && (
-                                            <Button
-                                              sx={{
-                                                background: uiGreen,
-                                                textTransform: "none",
-                                              }}
-                                              variant="contained"
-                                              onClick={() =>
-                                                removeRentalHistoryNode(index)
-                                              }
-                                            >
-                                              Remove
-                                            </Button>
-                                          )
-                                        }
-                                      />
-                                    </>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                            <Stack direction="row" gap={2}>
-                              <Button
-                                sx={{
-                                  background: uiGreen,
-                                  textTransform: "none",
-                                }}
-                                variant="contained"
-                                onClick={addRentalHistoryNode}
-                              >
-                                Add
-                              </Button>
-                            </Stack>
-                          </>
-                          <div className="mt-4">
-                            <h5>Additional Comments</h5>
-                            <div className="card">
-                              <div className="card-body">
-                                <textarea
-                                  name="comments"
-                                  className="form-control"
-                                  rows={10}
-                                ></textarea>
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            variant="contained"
-                            sx={{
-                              color: "white",
-                              width: "100%",
-                              background: uiGreen,
-                              marginTop: "20px",
-                            }}
-                            type="submit"
-                          >
-                            Submit
-                          </Button>
+                                <UIButton
+                                  style={{ width: "100%" }}
+                                  btnText="Back"
+                                  onClick={() => setStep(3)}
+                                  type="button"
+                                />
+                                <Button
+                                  variant="contained"
+                                  sx={{
+                                    color: "white",
+                                    width: "100%",
+                                    background: uiGreen,
+                                    marginTop: "20px",
+                                  }}
+                                  type="submit"
+                                >
+                                  Submit
+                                </Button>
+                              </Stack>
+                            </>
+                          )}
                         </form>
                       </div>
+                      {console.log(errors)}
                     </div>
                   )}
                   <AlertModal
