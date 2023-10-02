@@ -105,7 +105,7 @@ const SignLeaseAgreement = () => {
             title={"Sign Lease Agreement"}
             message="Are you sure you want to sign this lease agreement? Once signed you are legally bound to the terms of this lease agreement."
             cancelBtnText="Cancel"
-            conformBtnText="Confirm"
+            confirmBtnText="Confirm"
             handleClose={() => setShowSignConfirmation(false)}
             handleConfirm={handleSignLeaseAgreement}
             handleCancel={() => setShowSignConfirmation(false)}

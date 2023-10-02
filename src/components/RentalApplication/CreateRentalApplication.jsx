@@ -367,6 +367,13 @@ const CreateRentalApplication = () => {
     setOtherOccupants(value);
   };
 
+  const steps = [
+    "Basic Information",
+    "Additional Information",
+    "Employment History",
+    "Residence History",
+    "Submit Application",
+  ];
   return (
     <>
       {isLoading ? (
@@ -481,7 +488,7 @@ const CreateRentalApplication = () => {
                   )}
                   {!isLoading && (
                     <div className="col-md-6  justify-content-center align-items-center">
-                      <UIStepper step={step} />
+                      <UIStepper steps={steps} step={step} />
                       <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
                           {step === 0 && (

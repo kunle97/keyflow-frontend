@@ -12,7 +12,7 @@ import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
 import CreateUnit from "./components/Dashboard/Landlord/Units/CreateUnit";
 import MyAccount from "./components/Dashboard/Landlord/MyAccount";
 import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
-import LandlordRegister from "./components/Dashboard/Landlord/LandlordRegister";
+import LandlordRegister from "./components/Dashboard/Landlord/Registration/LandlordRegister";
 import ForgotPassword from "./components/Dashboard/PasswordReset/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
 import LandingPage from "./components/Landing/LandingPage";
@@ -86,7 +86,9 @@ export const routes = [
     path: "/dashboard/landlord/register",
     element: (
       <LoggedInRedirect token={token}>
-        <LandlordRegister />
+        <Elements stripe={stripePromise}>
+          <LandlordRegister />
+        </Elements>
       </LoggedInRedirect>
     ),
   },
