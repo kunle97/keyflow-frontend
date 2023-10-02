@@ -8,7 +8,7 @@ const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 
 export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
-  timeout: 1000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
     Authorization: `Token ${token}`,
@@ -16,7 +16,7 @@ export const authenticatedInstance = axios.create({
 });
 export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
-  timeout: 1000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -100,7 +100,7 @@ export async function logout(accessToken) {
 // create an api function to register a landlord
 export async function registerLandlord(data) {
   try {
-    const res = await authenticatedInstance
+    const res = await unauthenticatedInstance
       .post(`/auth/register/`, data)
       .then((res) => {
         const response = res.data;
@@ -119,6 +119,22 @@ export async function registerLandlord(data) {
   } catch (error) {
     console.log("Register Error: ", error);
     return error;
+  }
+}
+
+//Create a function to retrieve subscription plan prices for landlord registration
+export async function getSubscriptionPlanPrices() {
+  try {
+    const res = await unauthenticatedInstance
+      .post(`/retrieve-landlord-subscription-prices/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Get Subscription Plan Prices Error: ", error);
+    return error.response;
   }
 }
 

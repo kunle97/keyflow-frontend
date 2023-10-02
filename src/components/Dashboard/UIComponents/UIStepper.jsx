@@ -86,13 +86,6 @@ QontoStepIcon.propTypes = {
   completed: PropTypes.bool,
 };
 
-const steps = [
-  "Basic Information",
-  "Additional Information",
-  "Employment History",
-  "Residence History",
-  "Submit Application",
-];
 const styles = {
   // Define your custom styles here
   whiteLabel: {
@@ -101,8 +94,6 @@ const styles = {
 };
 
 function UIStepper(props) {
-
-
   return (
     <Stack sx={{ width: "100%" }} spacing={4}>
       <Stepper
@@ -110,7 +101,7 @@ function UIStepper(props) {
         activeStep={props.step}
         connector={<QontoConnector />}
       >
-        {steps.map((label) => (
+        {props.steps.map((label) => (
           <Step key={label}>
             <StepLabel
               StepIconComponent={QontoStepIcon}

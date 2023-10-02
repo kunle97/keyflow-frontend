@@ -153,7 +153,7 @@ export function GlobalSearchProvider({ children }) {
   };
 
   useEffect(() => {
-    search();
+    
   }, [isLoading]);
 
   return (

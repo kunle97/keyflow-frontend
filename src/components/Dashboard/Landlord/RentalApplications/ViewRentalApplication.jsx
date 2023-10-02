@@ -137,7 +137,7 @@ const ViewRentalApplication = () => {
               "Accepting this application will will send a lease agreement to the applicant and this application will be archived. The remaining applications will be deleted. Do you wish to continue?"
             }
             cancelBtnText="Cancel"
-            conformBtnText="Confirm"
+            confirmBtnText="Confirm"
             handleClose={() => setOpenAcceptModal(false)}
             handleConfirm={handleAccept}
             handleCancel={() => setOpenAcceptModal(false)}
