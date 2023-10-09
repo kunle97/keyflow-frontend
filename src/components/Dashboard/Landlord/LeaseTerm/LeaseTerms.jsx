@@ -11,6 +11,7 @@ import {
 import MUIDataTable from "mui-datatables";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { set } from "react-hook-form";
+import UITable from "../../UIComponents/UITable/UITable";
 const LeaseTerms = () => {
   const [leaseTerms, setLeaseTerms] = useState([]);
   const [units, setUnits] = useState([]);
@@ -129,17 +130,6 @@ const LeaseTerms = () => {
   }, []);
   return (
     <>
-      <div style={{ overflow: "auto", padding: "25px 0" }}>
-        <h4 style={{ float: "left" }}>Lease Terms</h4>
-        <Link to="/dashboard/landlord/lease-terms/create">
-          <Button
-            style={{ background: uiGreen, float: "right" }}
-            variant="contained"
-          >
-            Create Lease Term
-          </Button>
-        </Link>
-      </div>
       <div className="card" style={{ overflow: "hidden" }}>
         <AlertModal
           open={showDeleteError}
@@ -151,13 +141,21 @@ const LeaseTerms = () => {
             setShowDeleteError(false);
           }}
         />
-        <MUIDataTable
+        {/* <MUIDataTable
           title={"Lease Terms"}
           data={leaseTerms}
           columns={columns}
           options={options}
-        />
+        /> */}
       </div>
+      <UITable
+        columns={columns}
+        endpoint="/lease-terms/"
+        title="Lease Terms"
+        createURL="/dashboard/landlord/lease-terms/create"
+        detailURL="/dashboard/landlord/lease-terms/" 
+        showCreate={true}
+      />
     </>
   );
 };

@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { deleteProperty, getProperties, getUnits } from "../../../../api/api";
+import {
+  authenticatedInstance,
+  deleteProperty,
+  getProperties,
+  getPropertyFilters,
+  getUnits,
+} from "../../../../api/api";
 import MUIDataTable from "mui-datatables";
 import { Typography, CircularProgress, Box } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { set } from "react-hook-form";
+import UITable from "../../UIComponents/UITable/UITable";
 const Properties = () => {
   const [properties, setProperties] = useState([]);
+  const [filters, setFilters] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const columns = [
-    { name: "id", options: { display: false } },
-    { name: "name" },
+    { name: "id", label: "ID", options: { display: false } },
+    { name: "name", label: "Property Name" },
     { name: "street", label: "Street Address" },
-    { name: "city" },
-    { name: "state" },
-    { name: "zip_code", label: "Zip Code" },
-    { name: "country" },
+    { name: "city", label: "City" },
+    { name: "state", label: "State" },
   ];
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/landlord/properties/${rowData[0]}`;
@@ -72,59 +78,43 @@ const Properties = () => {
   //Create a useEffect that calls the get propertiees api function and sets the properties state
   useEffect(() => {
     getProperties().then((res) => {
-      console.log(res);
       if (res) {
         setProperties(res.data);
-        setIsLoading(false);
       }
-      console.log("Properties: ", properties);
     });
+    getPropertyFilters().then((res) => {
+      if (res) {
+        setFilters(res);
+      }
+    });
+    setIsLoading(false);
   }, []);
-  console.log(properties);
   return (
     <div className="container">
-      <div className="col overflow-auto mb-4">
-        <Link to="/dashboard/landlord/properties/create">
-          <button className="btn btn-primary float-end ui-btn" type="button">
-            New Property
-          </button>
-        </Link>
-      </div>
-      <div className="card shadow " style={{ overflow: "hidden" }}>
-        {isLoading ? (
-          <Box sx={{ display: "flex" }}>
-            <Box m={"55px auto"}>
-              <CircularProgress sx={{ color: uiGreen }} />
-            </Box>
-          </Box>
-        ) : (
-          <>
-            {" "}
-            {properties.length === 0 ? (
-              <Typography m={5} color={"white"}>
-                No Properties Created
-              </Typography>
-            ) : (
-              <>
-                <AlertModal
-                  open={showDeleteError}
-                  setOpen={setShowDeleteError}
-                  title={"Error"}
-                  message={errorMessage}
-                  btnText={"Ok"}
-                  onClick={() => setShowDeleteError(false)}
-                />
-                <MUIDataTable
-                  title={"Properties"}
-                  data={properties}
-                  columns={columns}
-                  options={options}
-                />
-              </>
-            )}
-          </>
-        )}
-      </div>
+      <AlertModal
+        open={showDeleteError}
+        setOpen={setShowDeleteError}
+        title={"Error"}
+        message={errorMessage}
+        btnText={"Ok"}
+        onClick={() => setShowDeleteError(false)}
+      />
+      <UITable
+        columns={columns}
+        endpoint="/properties/"
+        title="Properties"
+        createURL="/dashboard/landlord/properties/create"
+        detailURL="/dashboard/landlord/properties/"
+        showCreate={true}
+        filters={
+          filters
+            ? [
+                { param: "state", label: "State", values: filters.states },
+                { param: "city", label: "City", values: filters.cities },
+              ]
+            : []
+        }
+      />
     </div>
   );
 };

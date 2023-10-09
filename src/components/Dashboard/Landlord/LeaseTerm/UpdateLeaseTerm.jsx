@@ -1,21 +1,58 @@
-import { Button, Input, Typography } from "@mui/material";
+import { Button, Input, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import { MenuItem, Select } from "@mui/material";
-import { uiGreen } from "../../../../constants";
+import {
+  uiGreen,
+  uiGrey2,
+  validationMessageStyle,
+} from "../../../../constants";
 import { useForm } from "react-hook-form";
-const CreateLeaseTerm = () => {
+import { useParams } from "react-router";
+import { useEffect } from "react";
+import { authenticatedInstance } from "../../../../api/api";
+import UIBinaryRadioGroup from "../../UIComponents/UIBinaryRadioGroup";
+import { useState } from "react";
+import { HelpOutline } from "@mui/icons-material";
+const UpdateLeaseTerm = () => {
+  const { id } = useParams();
+  const [leaseTerm, setLeaseTerm] = useState({});
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      rent: leaseTerm.rent,
+      term: leaseTerm.term,
+      late_fee: leaseTerm.late_fee,
+      security_deposit: leaseTerm.security_deposit,
+      gas_included: leaseTerm.gas_included,
+      water_included: leaseTerm.water_included,
+      electricity_included: leaseTerm.electricity_included,
+      repairs_included: leaseTerm.repairs_included,
+      lease_cancellation_notice_period:
+        leaseTerm.lease_cancellation_notice_period,
+      lease_description: leaseTerm.lease_description,
+    },
+  });
 
+  const onSubmit = async (data) => {
+    await authenticatedInstance.put(`/lease-terms/${id}/`, data).then((res) => {
+      console.log(res);
+    });
+  };
+
+  useEffect(() => {
+    authenticatedInstance.get(`/lease-terms/${id}/`).then((res) => {
+      setLeaseTerm(res.data);
+    });
+  }, []);
   return (
     <div className="container">
-      <h2 style={{ color: "white" }}>Create Lease Term</h2>
+      <h2 style={{ color: "white" }}>Update Lease Term</h2>
       <div className="card">
         <div className="card-body" style={{ overflow: "auto" }}>
-          <form className="row">
+          <form className="row" onSubmit={handleSubmit(onSubmit)}>
             <div className="form-group col-md-6 mb-4">
               <Typography
                 className="mb-2"
@@ -24,17 +61,24 @@ const CreateLeaseTerm = () => {
               >
                 Rent (Dollar Amount)
               </Typography>
-              <Input
+              <input
                 {...register("rent", {
-                  required: true,
-                  pattern: /^[0-9]*$/i,
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
                 })}
-                type="text"
+                defaultValue={leaseTerm.rent}
+                type="number"
                 className="form-control"
                 id="rent"
                 placeholder="$"
                 name="rent"
               />
+              <span style={validationMessageStyle}>
+                {errors.rent && errors.rent.message}
+              </span>
             </div>
             <div className="form-group col-md-6 mb-4">
               <Typography
@@ -44,26 +88,31 @@ const CreateLeaseTerm = () => {
               >
                 Term Duration
               </Typography>
-              <Select
+              <select
                 {...register("term", {
-                  required: true,
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
                 })}
-                // value={age}
-                // onChange={handleChange}
-                // displayEmpty
-                sx={{ width: "100%", color: "white" }}
+                defaultValue={leaseTerm.term}
+                className="form-select"
+                sx={{ width: "100%", color: "white", background: uiGrey2 }}
                 name="term"
               >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={6}>6 Months</MenuItem>
-                <MenuItem value={12}>12 Months</MenuItem>
-                <MenuItem value={13}>13 Months</MenuItem>
-                <MenuItem value={24}>24 Months</MenuItem>
-                <MenuItem value={36}>36 Months</MenuItem>
-              </Select>
+                <option value="">Select One</option>
+                <option value={6}>6 Months</option>
+                <option value={12}>12 Months</option>
+                <option value={13}>13 Months</option>
+                <option value={24}>24 Months</option>
+                <option value={36}>36 Months</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.term && errors.term.message}
+              </span>
             </div>
+
             <div className="form-group col-md-6 mb-4">
               <Typography
                 className="mb-2"
@@ -72,13 +121,24 @@ const CreateLeaseTerm = () => {
               >
                 Late Fee
               </Typography>
-              <Input
+              <input
+                {...register("late_fee", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
+                })}
+                defaultValue={leaseTerm.late_fee}
                 type="text"
                 className="form-control"
                 id="lateFee"
                 placeholder="$"
                 name="late_fee"
               />
+              <span style={validationMessageStyle}>
+                {errors.late_fee && errors.late_fee.message}
+              </span>
             </div>
             <div className="form-group col-md-6 mb-4">
               <Typography
@@ -88,60 +148,137 @@ const CreateLeaseTerm = () => {
               >
                 Security Deposit (Dollar Amount)
               </Typography>
-              <Input
+              <input
+                {...register("security_deposit", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
+                })}
+                defaultValue={leaseTerm.security_deposit}
                 type="text"
                 className="form-control"
-                id="rent"
+                id="security_deposit"
                 placeholder="$"
               />
+              <span style={validationMessageStyle}>
+                {errors.security_deposit && errors.security_deposit.message}
+              </span>
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <UIBinaryRadioGroup
-                label="Gas Included?"
+              <label className="mb-2">Gas Included</label>
+              <select
+                {...register("gas_included", {
+                  required: "This field is required",
+                })}
+                defaultValue={leaseTerm.gas_included}
                 name="gas_included"
-                default_value="false"
-                radio_one_value="true"
-                radio_one_label="Yes"
-                radio_two_value="false"
-                radio_two_label="No"
-              />
+                className="form-control"
+              >
+                <option value="">Select One</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.gas_included && errors.gas_included.message}
+              </span>
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <UIBinaryRadioGroup
-                label="Water Included?"
-                name="water_included"
-                default_value="false"
-                radio_one_value="true"
-                radio_one_label="Yes"
-                radio_two_value="false"
-                radio_two_label="No"
-              />
+              <label className="mb-2">Water Included</label>
+              <select
+                {...register("water_included", {
+                  required: "This field is required",
+                })}
+                className="form-control"
+                defaultValue={leaseTerm.water_included}
+              >
+                <option value="">Select One</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.water_included && errors.water_included.message}
+              </span>
             </div>
-
             <div className="form-group col-md-6 mb-4">
-              <UIBinaryRadioGroup
-                label="Electicity Included?"
-                name="electricity_included"
-                default_value="false"
-                radio_one_value="true"
-                radio_one_label="Yes"
-                radio_two_value="false"
-                radio_two_label="No"
-              />
+              <label className="mb-2">Electric Included</label>
+              <select
+                {...register("electric_included", {
+                  required: "This field is required",
+                })}
+                defaultValue={leaseTerm.electric_included}
+                className="form-control"
+              >
+                <option value="">Select One</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.electric_included && errors.electric_included.message}
+              </span>
             </div>
-
             <div className="form-group col-md-6 mb-4">
-              <UIBinaryRadioGroup
-                label="Maintenance/Reparis Included?"
-                name="repairs_included"
-                default_value="false"
-                radio_one_value="true"
-                radio_one_label="Yes"
-                radio_two_value="false"
-                radio_two_label="No"
-              />
+              <label className="mb-2">Repairs Included</label>
+              <select
+                {...register("repairs_included", {
+                  required: "This field is required",
+                })}
+                defaultValue={leaseTerm.repairs_included}
+                className="form-control"
+              >
+                <option value="">Select One</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.repairs_included && errors.repairs_included.message}
+              </span>
+            </div>
+            <div className="form-group col-md-12 mb-4">
+              <Typography
+                className="mb-2"
+                sx={{ color: "white", fontSize: "12pt" }}
+                htmlFor="rent"
+              >
+                Grace Period
+                <Tooltip title="The grace period is the amount of time you give a tenant until they mus pay for thier first rent payment.">
+                  <HelpOutline
+                    sx={{
+                      marginLeft: "5px",
+                      width: "20px",
+                    }}
+                  />
+                </Tooltip>
+              </Typography>
+              <select
+                {...register("grace_period", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
+                })}
+                defaultValue={leaseTerm.grace_period}
+                className="form-select"
+                sx={{ width: "100%", color: "white" }}
+              >
+                <option value="">Select One</option>
+                <option value={0} selected>
+                  None
+                </option>
+                <option value={1}>1 Months</option>
+                <option value={2}>2 Months</option>
+                <option value={3}>3 Months</option>
+                <option value={4}>4 Months</option>
+                <option value={5}>5 Months</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.lease_cancellation_notice_period &&
+                  errors.lease_cancellation_notice_period.message}
+              </span>
             </div>
             <div className="form-group col-md-12 mb-4">
               <Typography
@@ -151,43 +288,71 @@ const CreateLeaseTerm = () => {
               >
                 Lease Cancellation Notice Period
               </Typography>
-              <Select
-                // value={age}
-                // onChange={handleChange}
-                // displayEmpty
+              <select
+                {...register("lease_cancellation_notice_period", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
+                })}
+                defaultValue={leaseTerm.lease_cancellation_notice_period}
+                className="form-select"
                 sx={{ width: "100%", color: "white" }}
-                name="term"
               >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={6}>6 Months</MenuItem>
-                <MenuItem value={12}>12 Months</MenuItem>
-                <MenuItem value={13}>13 Months</MenuItem>
-                <MenuItem value={24}>24 Months</MenuItem>
-                <MenuItem value={36}>36 Months</MenuItem>
-              </Select>
+                <option value="">Select One</option>
+                <option value={6}>6 Months</option>
+                <option value={12}>12 Months</option>
+                <option value={13}>13 Months</option>
+                <option value={24}>24 Months</option>
+                <option value={36}>36 Months</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors.lease_cancellation_notice_period &&
+                  errors.lease_cancellation_notice_period.message}
+              </span>
             </div>
-            {/* <div className="form-group col-md-12 mb-4">
+            <div className="form-group col-md-12 mb-4">
               <Typography
                 className="mb-2"
                 sx={{ color: "white", fontSize: "12pt" }}
-                htmlFor="rent"
+                htmlFor="leaseCancellationFee"
               >
-                LeaseDescritpion
+                Lease Cancellation Fee
               </Typography>
-              <Textarea></Textarea>
-            </div> */}
-            <Button
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                color: "white",
-                background: uiGreen,
-              }}
-            >
-              Save
-            </Button>
+              <input
+                {...register("lease_cancellation_fee", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[0-9]+$/i,
+                    message: "Please enter a valid number",
+                  },
+                })}
+                defaultValue={leaseTerm.lease_cancellation_fee}
+                type="text"
+                className="form-control"
+                id="leaseCancellationFee"
+                placeholder="$"
+              />
+              <span style={validationMessageStyle}>
+                {errors.lease_cancellation_fee &&
+                  errors.lease_cancellation_fee.message}
+              </span>
+            </div>
+            <div className="form-group col-md-12">
+              <Button
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  color: "white",
+                  background: uiGreen,
+                  float: "right",
+                }}
+                type="submit"
+              >
+                Save
+              </Button>
+            </div>
           </form>
         </div>
       </div>
@@ -195,4 +360,4 @@ const CreateLeaseTerm = () => {
   );
 };
 
-export default CreateLeaseTerm;
+export default UpdateLeaseTerm;

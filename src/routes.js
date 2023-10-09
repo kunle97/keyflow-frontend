@@ -56,6 +56,7 @@ import {
   DomainAddOutlined,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
+import UpdateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/UpdateLeaseTerm";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -343,6 +344,19 @@ export const routes = [
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseTerms />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Lease Terms",
+    description: "Manage your lease terms",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/lease-terms/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <UpdateLeaseTerm />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
