@@ -5,9 +5,10 @@ import {
   getRentalApplicationsByUser,
 } from "../../../../api/api";
 import { CircularProgress, Box } from "@mui/material";
-import { uiGreen } from "../../../../constants";
+import { authUser, uiGreen } from "../../../../constants";
 import { useNavigate } from "react-router";
 import MUIDataTable from "mui-datatables";
+import UITable from "../../UIComponents/UITable/UITable";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,7 +99,7 @@ const RentalApplications = () => {
   }, []);
   return (
     <>
-      <h4>Rental Applications</h4>
+      {/* <h4>Rental Applications</h4>
       <div className="card" style={{ overflow: "hidden" }}>
         {isLoading ? (
           <Box sx={{ display: "flex" }}>
@@ -116,7 +117,15 @@ const RentalApplications = () => {
             />
           </>
         )}
-      </div>
+      </div> */}
+      <UITable
+        columns={columns}
+        
+        endpoint={`/rental-applications/`}
+        title="Rental Applications"
+        detailURL="/dashboard/landlord/rental-applications/"
+        showCreate={false}
+      />
     </>
   );
 };

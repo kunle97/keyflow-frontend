@@ -22,6 +22,7 @@ import { validationMessageStyle } from "../../../../constants";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import UITable from "../../UIComponents/UITable/UITable";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState({});
@@ -509,30 +510,15 @@ const ManageProperty = () => {
                         </Box>
                       ) : (
                         <>
-                          <Box sx={{ overflow: "auto" }}>
-                            <Link to={`/dashboard/landlord/units/create/${id}`}>
-                              <Button
-                                className="w-full"
-                                style={{
-                                  marginBottom: "20px",
-                                  backgroundColor: uiGreen,
-                                  float: "right",
-                                  color: "white",
-                                  textTransform: "none",
-                                }}
-                              >
-                                Add Unit
-                              </Button>
-                            </Link>
-                          </Box>
-                          <Card>
-                            <MUIDataTable
-                              title={"Units"}
-                              data={units}
-                              columns={columns}
-                              options={options}
-                            />
-                          </Card>
+                          <UITable
+                            columns={columns}
+                            endpoint="/units/"
+                            title="Units"
+                            createURL={`/dashboard/landlord/units/create/${id}`}
+                            // detailURL={`/dashboard/landlord/units/${rowData[0]}/${property.id}`}
+                            detailURL={`/`}
+                            showCreate={true}
+                          />
                         </>
                       )}
                     </>

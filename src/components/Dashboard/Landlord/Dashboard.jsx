@@ -10,6 +10,7 @@ import MUIDataTable from "mui-datatables";
 import { useEffect } from "react";
 import { getTransactionsByUser } from "../../../api/api";
 import { useNavigate } from "react-router";
+import UITable from "../UIComponents/UITable/UITable";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
@@ -697,11 +698,12 @@ const Dashboard = () => {
           </button>
         </div>
         <div className="col-lg-7 col-xl-8">
-          <h4 className="">Recent Transactions</h4>
-          <MUIDataTable
-            data={transactions}
+          <UITable
             columns={columns}
-            options={options}
+            endpoint="/transactions/"
+            title="Transactions"
+            detailURL="/dashboard/landlord/transactions/"
+            showCreate={false}
           />
         </div>
         <div className="col-lg-5 col-xl-4 pt-4"></div>

@@ -3,7 +3,8 @@ import { getLandlordTenants } from "../../../../api/api";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import TitleCard from "../../UIComponents/TitleCard";
-import { uiGreen } from "../../../../constants";
+import { authUser, uiGreen } from "../../../../constants";
+import UITable from "../../UIComponents/UITable/UITable";
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Tenants = () => {
   useEffect(() => {
     getLandlordTenants().then((res) => {
       console.log(res);
-      setTenants(res.data.tenants);
+      setTenants(res.data);
       console.log(tenants);
     });
   }, []);
@@ -63,10 +64,17 @@ const Tenants = () => {
               />
             </div>
           </div>
-
+{/* 
           <MUIDataTable
             title={"Tenants"}
             data={tenants}
+            columns={columns}
+            options={options}
+          /> */}
+          <UITable
+            title="Tenants"
+            endpoint={`/users/${authUser.id}/tenants/`}
+            searchFields={["first_name", "last_name", "email"]}
             columns={columns}
             options={options}
           />

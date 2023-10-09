@@ -143,6 +143,7 @@ const CreateLeaseTerm = () => {
                 {errors.term && errors.term.message}
               </span>
             </div>
+            
             <div className="form-group col-md-6 mb-4">
               <Typography
                 className="mb-2"

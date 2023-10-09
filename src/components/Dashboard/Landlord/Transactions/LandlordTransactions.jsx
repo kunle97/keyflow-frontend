@@ -7,6 +7,7 @@ import { RevenueByPropertyPieChart } from "./Charts/RevenueByPropertyPieChart";
 import { ExpenseByPropertyPieChart } from "./Charts/ExpenseByPropertyPieChart";
 import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import TitleCard from "../../../Dashboard/UIComponents/TitleCard";
+import UITable from "../../UIComponents/UITable/UITable";
 const LandlordTransactions = () => {
   let revenueData = [];
   const navigate = useNavigate();
@@ -66,20 +67,19 @@ const LandlordTransactions = () => {
       options: {
         customBodyRender: (value) => {
           if (value === "revenue") {
-            return <span>Income</span>;
+            return <>Income</>;
           } else {
-            return <span>Expense</span>;
+            return <>Expense</>;
           }
         },
       },
     },
-    { name: "description", label: "Description" },
     {
       name: "created_at",
       label: "Date",
       options: {
         customBodyRender: (value) => {
-          return <span>{new Date(value).toLocaleDateString()}</span>;
+          return <>{new Date(value).toLocaleDateString()}</>;
         },
       },
     },
@@ -189,11 +189,12 @@ const LandlordTransactions = () => {
         </div>
 
         <div className="col-md-8">
-          <MUIDataTable
-            title={"Transactions"}
-            data={transactions}
+          <UITable
             columns={columns}
-            options={options}
+            endpoint="/transactions/"
+            title="Transactions"
+            detailURL="/dashboard/landlord/transactions/"
+            showCreate={false}
           />
         </div>
       </div>

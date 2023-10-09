@@ -390,7 +390,7 @@ export async function validatePasswordResetToken(token) {
 export async function getLandlordTenants() {
   try {
     const res = await authenticatedInstance
-      .post(`/landlord-tenant-list/`, {
+      .get(`/users/${authUser.id}/tenants/`, {
         landlord_id: authUser.id,
       })
       .then((res) => {
@@ -478,6 +478,22 @@ export async function getProperties() {
     return res;
   } catch (error) {
     console.log("Get Properties Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function tor retrieve property filters
+export async function getPropertyFilters() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/properties/filters/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Property Filters Error: ", error);
     return error.response.data;
   }
 }

@@ -12,6 +12,7 @@ import { uiGreen, uiRed } from "../../../../constants";
 import TitleCard from "../../UIComponents/TitleCard";
 import { Title } from "@mui/icons-material";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import UITable from "../../UIComponents/UITable/UITable";
 
 const LandlordMaintenanceRequests = () => {
   const navigate = useNavigate();
@@ -165,12 +166,14 @@ const LandlordMaintenanceRequests = () => {
         message={deleteErrorMessage}
         btnText="Close"
       />
-
-      <MUIDataTable
-        title={"Maintenance Requests"}
+        <UITable
         columns={columns}
-        data={maintenanceRequests}
         options={options}
+        data={maintenanceRequests}
+        endpoint="/maintenance-requests/"
+        title="Maintenance Requests"
+        showCreate={false}
+        detailURL="/dashboard/landlord/maintenance-requests/"
       />
     </div>
   );

@@ -34,7 +34,6 @@
 
 th,
 td {
-  background: #364658 !important;
   color: white !important;
 }
 
@@ -78,7 +77,45 @@ td {
   color: white;
   text-transform: none;
 }
-.rental-application-lease-heading{
+.rental-application-lease-heading {
   font-weight: bold;
   font-size: 13pt;
+}
+
+table#ui-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: separate;
+  border-spacing: 0 15px;
+  width: 100%;
+  border: none;
+}
+
+table#ui-table td,
+table#ui-table th {
+  padding: 20px;
+}
+
+table#ui-table th > * {
+  background: none;
+  color: white;
+}
+table#ui-table tr {
+  background-color: #364658;
+  border: none;
+}
+
+table#ui-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #3aaf5c;
+}
+
+table#ui-table td:first-child,
+th:first-child {
+  border-radius: 5px 0 0 5px;
+}
+table#ui-table td:last-child,
+table#ui-table th:last-child {
+  border-radius: 0 5px 5px 0;
 }
