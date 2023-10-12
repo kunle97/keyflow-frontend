@@ -55,7 +55,7 @@ const LandlordMaintenanceRequestDetail = () => {
       if (res.status === 200) {
         setConfirmMessage("Maintenance Request status has been changed");
         setShowAlertModal(true);
-        navigate(0);
+        // navigate(0);
       }
     });
   };

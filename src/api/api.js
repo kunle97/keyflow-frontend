@@ -3,7 +3,11 @@
  * **/
 import axios from "axios";
 import { token, authUser } from "../constants";
-import { makeId, stringToBoolean } from "../helpers/utils";
+import {
+  convertMaintenanceRequestStatus,
+  makeId,
+  stringToBoolean,
+} from "../helpers/utils";
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 
 export const authenticatedInstance = axios.create({
@@ -268,7 +272,7 @@ export async function getStripeSubscription(subscription_id) {
         user_id: authUser.id,
       })
 
-      .then((res) => {  
+      .then((res) => {
         console.log(res);
         return res.data;
       });
@@ -385,6 +389,52 @@ export async function validatePasswordResetToken(token) {
   }
 }
 
+//-----------------NOTIFICATION API FUNCTIONS---------------------------///
+//Create a function to get all notifications for a specific user using the endpoint /users/{user_id}/notifications/
+export async function getNotifications() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/users/${authUser.id}/notifications/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Notifications Error: ", error);
+    return error.response;
+  }
+}
+//Create a function to retrierve specific notification using the endpoint /notifications/{notification_id}/
+export async function getNotification(notification_id) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/notifications/${notification_id}/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Notification Error: ", error);
+    return error.response;
+  }
+}
+//Create a function to label the notification as read by updatting the is_read field to true using the endpoint /notifications/{notification_id}/ ysing patch
+export async function markNotificationAsRead(notification_id) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/notifications/${notification_id}/`, { is_read: true })
+      .then((res) => {
+        console.log(res);
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Mark Notification As Read Error: ", error);
+    return error.response;
+  }
+}
 //-----------------LANDLORD API FUNCTIONS---------------------------///
 //Create a function that retrieves landlords tenants using the endpoint /users/{landlord_id}/landlord-tenants/
 export async function getLandlordTenants() {
@@ -1359,6 +1409,20 @@ export async function changeMaintenanceRequestStatus(
     const res = await authenticatedInstance
       .patch(`/maintenance-requests/${maintenanceRequestId}/`, data)
       .then((res) => {
+        //Create a notification using the authenticatedInstance.post() method and  endpoint  /notifications/ and the . THe parameters are user (The tenant that made the request), title, and message (notifiying the status change)
+        const notification = authenticatedInstance
+          .post(`/notifications/`, {
+            user: res.data.tenant,
+            title: "Maintenance Request Status Change",
+            type: "maintenance_request_status_change",
+            message: `Your maintenance request has been set to ${convertMaintenanceRequestStatus(
+              data.status
+            )}`,
+          })
+          .then((res) => {
+            return res;
+          });
+
         return res;
       });
     return res;

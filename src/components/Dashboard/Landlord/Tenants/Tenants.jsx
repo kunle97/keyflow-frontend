@@ -40,7 +40,7 @@ const Tenants = () => {
     <div className="container">
       <h3 className="text-white mb-4">Tenants</h3>
       <div className="row">
-        <div className="col-sm-12 col-md-8 col-lg-8">
+        <div className="col-sm-12 col-md-12 col-lg-8">
           <div className="row">
             <div className="col-md-4 mb-4">
               <TitleCard
@@ -64,13 +64,7 @@ const Tenants = () => {
               />
             </div>
           </div>
-{/* 
-          <MUIDataTable
-            title={"Tenants"}
-            data={tenants}
-            columns={columns}
-            options={options}
-          /> */}
+          
           <UITable
             title="Tenants"
             endpoint={`/users/${authUser.id}/tenants/`}

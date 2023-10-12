@@ -40,7 +40,7 @@ const Sidebar = () => {
           <li className="nav-item">
             <center>
               <UIButton
-                style={{ width: "200px" }}
+                style={{ maxWidth: "200px" }}
                 onClick={() => setShowSearchMenu(true)}
                 btnText={
                   <>

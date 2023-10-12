@@ -515,8 +515,9 @@ const ManageProperty = () => {
                             endpoint="/units/"
                             title="Units"
                             createURL={`/dashboard/landlord/units/create/${id}`}
-                            // detailURL={`/dashboard/landlord/units/${rowData[0]}/${property.id}`}
-                            detailURL={`/`}
+                            
+                            detailURL={`/dashboard/landlord/units/:detail_id/${property.id}`}
+                            // detailURL={`/`}
                             showCreate={true}
                           />
                         </>

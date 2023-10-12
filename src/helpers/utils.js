@@ -72,3 +72,17 @@ export const checkIfTenantMatchesMaintenanceRequest = (
     return false;
   }
 };
+
+//Create a function to convert maintenance request statuses in_progress, completed, and pending to In Progress, Completed, and Pending
+export const convertMaintenanceRequestStatus = (status) => {
+  switch (status) {
+    case "in_progress":
+      return "In Progress";
+    case "completed":
+      return "Completed";
+    case "pending":
+      return "Pending";
+    default:
+      return status;
+  }
+};

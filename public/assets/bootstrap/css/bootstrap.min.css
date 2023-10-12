@@ -3605,6 +3605,7 @@ fieldset:disabled .btn {
   font-size: 0.875rem;
   color: var(--bs-dropdown-header-color);
   white-space: nowrap;
+  text-transform: none !important;
 }
 .dropdown-item-text {
   display: block;
@@ -12129,7 +12130,7 @@ a:focus {
   font-size: 0.85rem;
 }
 .dropdown .dropdown-menu .dropdown-header {
-  font-weight: 800;
+  /* font-weight: 800; */
   font-size: 0.65rem;
   color: #b7b9cc;
 }
