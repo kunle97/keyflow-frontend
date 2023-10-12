@@ -26,6 +26,7 @@ export const uiGreen = "#3aaf5c";
 export const uiRed = "#FF4040";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
+export const uiGrey3 = "#dcdde3";//Used to set background color of a read notification
 
 export const validationMessageStyle = {
   color: "red",

@@ -1,21 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
-import { logout } from "../../../../api/api";
+import {
+  authenticatedInstance,
+  getNotifications,
+  logout,
+} from "../../../../api/api";
 import { useNavigate } from "react-router";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link } from "react-router-dom";
-import {
-  authUser,
-  token,
-  uiGreen,
-  uiGrey1,
-  uiGrey2,
-} from "../../../../constants";
+import { authUser, token, uiGreen, uiGrey3 } from "../../../../constants";
 import { faker } from "@faker-js/faker";
 import { set } from "react-hook-form";
 import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { IconButton, MenuItem, Stack } from "@mui/material";
+import Badge from "@mui/material/Badge";
+import MailIcon from "@mui/icons-material/Mail";
+import NotificationsList from "./Lists/NotificationsList";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
@@ -26,13 +31,22 @@ const Topbar = () => {
     console.log("Logout funtion return value on Login.jsx: ", response);
 
     if (response.status == 200) {
-      //Set authUser and isLoggedIn in context
-      // setAuthUser({});
-      // setIsLoggedIn(false);
       setOpen(true);
     }
   };
 
+  //REtrieve user notifications
+  useEffect(() => {
+    authenticatedInstance
+      .get("/notifications/?limit=5")
+      .then((response) => {
+        setNotifications(response.data.results);
+        setNotificationCount(response.data.count);
+      })
+      .catch((error) => {
+        console.log("Error: ", error);
+      });
+  }, []);
   return (
     <div className="container">
       {open && (
@@ -66,9 +80,7 @@ const Topbar = () => {
             <i className="fas fa-bars" />
           </button>
           <form className="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
-            <div className="input-group">
-
-            </div>
+            <div className="input-group"></div>
           </form>
 
           <ul className="navbar-nav flex-nowrap ms-auto">
@@ -109,73 +121,63 @@ const Topbar = () => {
                   data-bs-toggle="dropdown"
                   href="#"
                 >
-                  <span className="badge bg-danger badge-counter">3+</span>
+                  {" "}
+                  {notifications.filter((notification) => !notification.is_read)
+                    .length > 0 && (
+                    <span className="badge bg-danger badge-counter">
+                      {notifications.length}
+                    </span>
+                  )}
                   <i className="fas fa-bell fa-fw" />
                 </a>
                 <div className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
-                  <h6
+                  <h5
                     className="dropdown-header"
-                    style={{ background: uiGreen, borderStyle: "none" }}
+                    style={{
+                      background: uiGreen,
+                      borderStyle: "none",
+                      textTransform: "none",
+                      fontSize: "14pt",
+                    }}
                   >
-                    alerts center
-                  </h6>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="me-3">
-                      <div className="bg-primary icon-circle">
-                        <i className="fas fa-file-alt text-white" />
+                    Notifications
+                  </h5>
+                  {notifications.map((notification) => (
+                    <a
+                      className="dropdown-item d-flex align-items-center"
+                      href={`/dashboard/landlord/notifications/${notification.id}`}
+                      style={
+                        notification.is_read
+                          ? { background: uiGrey3 }
+                          : { background: "white" }
+                      }
+                    >
+                      <div className="me-3">
+                        <div className="bg-primary icon-circle">
+                          <i className="fas fa-donate text-white" />
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <span className="small text-gray-500">
-                        December 12, 2019
-                      </span>
-                      <p>A new monthly report is ready to download!</p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
+                      <div>
+                        <span className="small ">
+                          {new Date(
+                            notification.timestamp
+                          ).toLocaleDateString()}
+                        </span>
+                        <p>{notification.message}</p>
+                      </div>{" "}
+                    </a>
+                  ))}
+                  <Link
+                    className="dropdown-item text-center large"
+                    to="/dashboard/landlord/notifications"
+                    style={{
+                      borderStyle: "none",
+                      background: uiGreen,
+                      color: "white",
+                    }}
                   >
-                    <div className="me-3">
-                      <div className="bg-success icon-circle">
-                        <i className="fas fa-donate text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="small text-gray-500">
-                        December 7, 2019
-                      </span>
-                      <p>$290.29 has been deposited into your account!</p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                  >
-                    <div className="me-3">
-                      <div className="bg-warning icon-circle">
-                        <i className="fas fa-exclamation-triangle text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="small text-gray-500">
-                        December 2, 2019
-                      </span>
-                      <p>
-                        Spending Alert: We've noticed unusually high spending
-                        for your account.
-                      </p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item text-center small text-gray-500"
-                    href="#"
-                  >
-                    Show All Alerts
-                  </a>
+                    All Notifications
+                  </Link>
                 </div>
               </div>
             </li>

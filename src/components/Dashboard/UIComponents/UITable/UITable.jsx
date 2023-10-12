@@ -48,7 +48,7 @@ const UITable = (props) => {
   );
   let currentPageEndPoint = `${props.endpoint}?limit=${limit}${
     query ? `&search=${query}` : ""
-  }${orderby ? `&ordering=${orderby}` : ""}`;
+  }`;
 
   const refresh = async (endpoint) => {
     setIsLoading(true);
@@ -56,7 +56,6 @@ const UITable = (props) => {
       .get(endpoint, {
         params: {
           search: query,
-          ordering: orderby,
         },
       })
       .then((res) => {
@@ -67,6 +66,7 @@ const UITable = (props) => {
           setPreviousPageEndPoint(res.data.previous);
           setCount(res.data.count);
           setIsLoading(false);
+          console.log(res.data);
         } else {
           setIsDrfFilterBackend(false);
           setResults(res.data);
@@ -215,7 +215,7 @@ const UITable = (props) => {
   }, []);
 
   return (
-    <div>
+    <div style={{ width: "100%", overflowX: "auto" }}>
       <Stack
         direction="row"
         justifyContent="flex-end"
@@ -331,7 +331,7 @@ const UITable = (props) => {
             {results.length === 0 ? (
               <h2>No results found</h2>
             ) : (
-              <table id="ui-table" className="table">
+              <table id="ui-table" className="" style={{ width: "100%" }}>
                 {/* Table Header  */}
                 <tr>
                   {props.columns.map((column) => {
@@ -376,6 +376,10 @@ const UITable = (props) => {
                             <td>
                               <UIButton
                                 onClick={() => {
+                                  if(props.detailURL.includes(":detail_id")){
+                                    let navlink = props.detailURL.replace(":detail_id", row.id)
+                                    navigate(navlink)
+                                  }
                                   navigate(`${props.detailURL}${row.id}`);
                                 }}
                                 btnText="View"

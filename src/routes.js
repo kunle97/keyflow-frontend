@@ -57,6 +57,8 @@ import {
   HolidayVillageOutlined,
 } from "@mui/icons-material";
 import UpdateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/UpdateLeaseTerm";
+import Notifications from "./components/Dashboard/Notifications/Notifications";
+import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -412,6 +414,22 @@ export const routes = [
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LandlordTransactionDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/notifications",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Notifications />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/notifications/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <NotificationDetail />
       </DashboardProtectedRoute>
     ),
   },
