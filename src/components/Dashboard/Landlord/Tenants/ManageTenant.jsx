@@ -8,6 +8,10 @@ import { getLandlordTenant } from "../../../../api/api";
 import { faker } from "@faker-js/faker";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
+import UITable from "../../UIComponents/UITable/UITable";
+import { StyledTab, StyledTabs } from "../../UIComponents/UITabs";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
@@ -17,8 +21,8 @@ const ManageTenant = () => {
   const [lease, setLease] = useState({});
   const [transactions, setTransactions] = useState([]);
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
+  const [tabPage, setTabPage] = useState(0);
   const transaction_columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "amount", label: "Amount" },
     {
       name: "type",
@@ -44,6 +48,17 @@ const ManageTenant = () => {
       },
     },
   ];
+  const sections = [
+    { name: "transactions", label: "Transactions", icon: <PaidOutlinedIcon /> },
+    {
+      name: "maintenance_requests",
+      label: "Maintenance Requests",
+      icon: <HandymanOutlinedIcon />,
+    },
+  ];
+  const handleChangeTabPage = (event, newValue) => {
+    setTabPage(newValue);
+  };
   const transactionHandleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/landlord/transactions/${rowData[0]}`;
     navigate(navlink);
@@ -59,7 +74,6 @@ const ManageTenant = () => {
   };
 
   const maintenance_request_columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
     {
@@ -87,7 +101,7 @@ const ManageTenant = () => {
   ];
 
   const maintenanceRequestHandleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/maintenance-requests/${rowData[0]}`;
+    const navlink = `/dashboard/landlord/maintenance-requests/${rowData}`;
     navigate(navlink);
   };
   const maintenance_request_options = {
@@ -243,22 +257,42 @@ const ManageTenant = () => {
                   </form>
                 </div>
               </div>
-              <div className="mb-3 card" style={{ overflow: "hidden" }}>
-                <MUIDataTable
-                  title={"Transactions"}
-                  data={transactions}
-                  columns={transaction_columns}
-                  options={transaction_options}
-                />
-              </div>
-              <div className="mb-3 card" style={{ overflow: "hidden" }}>
-                <MUIDataTable
-                  title={"Maintenance Requests"}
-                  data={maintenanceRequests}
-                  columns={maintenance_request_columns}
-                  options={maintenance_request_options}
-                />
-              </div>
+              <StyledTabs
+                value={tabPage}
+                onChange={handleChangeTabPage}
+                variant="fullWidth"
+                scrollButtons="auto"
+                aria-label="scrollable auto tabs example"
+              >
+                {sections.map((page) => (
+                  <StyledTab
+                    key={page.name}
+                    label={page.label}
+                    icon={page.icon}
+                  />
+                ))}
+              </StyledTabs>
+              {tabPage === 0 && (
+                <div className="mb-3" style={{ overflow: "hidden" }}>
+                  <UITable
+                    title="Transactions"
+                    data={transactions}
+                    searchFields={["first_name", "last_name", "email"]}
+                    columns={transaction_columns}
+                    options={transaction_options}
+                  />
+                </div>
+              )}
+              {tabPage === 1 && (
+                <div className="mb-3" style={{ overflow: "hidden" }}>
+                  <UITable
+                    title="Maintenance Requests"
+                    data={maintenanceRequests}
+                    columns={maintenance_request_columns}
+                    options={maintenance_request_options}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

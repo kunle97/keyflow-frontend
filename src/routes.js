@@ -253,6 +253,19 @@ export const routes = [
         <CreateUnit />
       </DashboardProtectedRoute>
     ),
+    isSearchable: false,
+    label: "Create Unit",
+    description: "Create a new unit",
+    isQuickLink: false,
+    muiIcon: <AddHomeOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/units/create/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateUnit />
+      </DashboardProtectedRoute>
+    ),
     isSearchable: true,
     label: "Create Unit",
     description: "Create a new unit",

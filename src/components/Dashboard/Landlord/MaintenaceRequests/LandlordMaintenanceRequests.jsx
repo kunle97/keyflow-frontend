@@ -62,7 +62,7 @@ const LandlordMaintenanceRequests = () => {
   ];
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/maintenance-requests/${rowData[0]}`;
+    const navlink = `/dashboard/landlord/maintenance-requests/${rowData}`;
     navigate(navlink);
     console.log(navlink);
   };
@@ -169,7 +169,6 @@ const LandlordMaintenanceRequests = () => {
         <UITable
         columns={columns}
         options={options}
-        data={maintenanceRequests}
         endpoint="/maintenance-requests/"
         title="Maintenance Requests"
         showCreate={false}

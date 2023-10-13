@@ -42,7 +42,7 @@ const Notifications = () => {
       <UITable
         endpoint="/notifications/"
         columns={columns}
-        options={{}}
+        options={options}
         title="Notification Center"
         detailURL="/dashboard/landlord/notifications/"
         showCreate={false}
