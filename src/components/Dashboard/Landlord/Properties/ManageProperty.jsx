@@ -129,10 +129,10 @@ const ManageProperty = () => {
       setUnits(res.units);
       //Retireve the units for the property
       getUnits(id)
-        .then((res) => {
-          setUnits(res.data);
-          setIsLoading(false);
-        })
+      .then((res) => {
+        setUnits(res.data);
+        setIsLoading(false);
+      })
         .catch((err) => {
           console.log(err);
         });
@@ -513,7 +513,7 @@ const ManageProperty = () => {
                           <UITable
                             columns={columns}
                             options={options}
-                            endpoint="/units/"
+                            data={units}
                             title="Units"
                             createURL={`/dashboard/landlord/units/create/${id}`}
                             showCreate={true}

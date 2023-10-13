@@ -42,6 +42,7 @@ import AllTransactionResults from "./Results/AllTransactionResults";
 import AllMaintenanceRequesResults from "./Results/AllMaintenanceRequestResults";
 import AllUnitResults from "./Results/AllUnitResults";
 import AllRentalApplicationResults from "./Results/AllRentalApplicationResults";
+import { StyledTab, StyledTabs } from "../../UITabs";
 
 const SearchDialog = (props) => {
   //Create a useCallback version of the Transition component
@@ -92,41 +93,6 @@ const SearchDialog = (props) => {
     { name: "tenants", label: "Tenants", icon: <PeopleAltOutlinedIcon /> },
   ];
 
-  const StyledTabs = styled((props) => (
-    <Tabs
-      {...props}
-      TabIndicatorProps={{
-        children: <span className="MuiTabs-indicatorSpan" />,
-      }}
-    />
-  ))({
-    "& .MuiTabs-indicator": {
-      display: "flex",
-      justifyContent: "center",
-      backgroundColor: "transparent",
-    },
-    "& .MuiTabs-indicatorSpan": {
-      maxWidth: 40,
-      width: "100%",
-      backgroundColor: uiGreen,
-    },
-  });
-
-  const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
-    ({ theme }) => ({
-      textTransform: "none",
-      fontWeight: theme.typography.fontWeightRegular,
-      fontSize: theme.typography.pxToRem(15),
-      marginRight: theme.spacing(1),
-      color: "rgba(255, 255, 255, 0.7)",
-      "&.Mui-selected": {
-        color: "#fff",
-      },
-      "&.Mui-focusVisible": {
-        backgroundColor: uiGreen,
-      },
-    })
-  );
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
   };

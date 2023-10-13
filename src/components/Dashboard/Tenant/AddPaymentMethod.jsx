@@ -115,7 +115,7 @@ const AddPaymentMethod = (props) => {
         title="Success"
         message={message}
         handleClose={() => setSuccessMode(false)}
-        onClick={() => navigate("/dashboard/tenant")}
+        onClick={() => navigate(-1)}
         btnText="Close"
         to={props.returnTo}
       />

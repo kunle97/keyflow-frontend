@@ -4,54 +4,6 @@ import { uiGreen, validationMessageStyle } from "../../../constants";
 import { Button, Checkbox, Stack } from "@mui/material";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
 const EmploymentHistorySection = (props) => {
-  const [fakeMode, setFakeMode] = useState(false);
-
-  const [fakeCompanyName, setCompanyName] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.company.name()
-  );
-  const [fakePosition, setPosition] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.name.jobTitle()
-  );
-  const [fakecompanyAddress, setCompanyAddress] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.address.streetAddress()
-  );
-  const [fakeStartDate, setStartDate] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.date.past().toISOString().split("T")[0]
-  );
-  const [fakeEndDate, setEndDate] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.date.future().toISOString().split("T")[0]
-  );
-  const [fakeIncome, setIncome] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.finance.amount()
-  );
-  const [fakeSupervisorName, setSupervisorName] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.person.fullName()
-  );
-  const [fakeSupervisorPhone, setSupervisorPhone] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.phone.number("###-###-####")
-  );
-  const [fakeSupervisorEmail, setSupervisorEmail] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
-      ? ""
-      : faker.internet.email()
-  );
-
   const {
     companyName,
     position,

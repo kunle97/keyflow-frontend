@@ -52,32 +52,41 @@ const UITable = (props) => {
 
   const refresh = async (endpoint) => {
     setIsLoading(true);
-    await authenticatedInstance
-      .get(endpoint, {
-        params: {
-          search: query,
-        },
-      })
-      .then((res) => {
-        if (res.data.results) {
-          setIsDrfFilterBackend(true);
-          setResults(res.data.results);
-          setNextPageEndPoint(res.data.next);
-          setPreviousPageEndPoint(res.data.previous);
-          setCount(res.data.count);
-          setIsLoading(false);
-          console.log(res.data);
-        } else {
-          setIsDrfFilterBackend(false);
-          setResults(res.data);
-          setFilteredData(res.data);
-          setNextPageEndPoint(null);
-          setPreviousPageEndPoint(null);
-          setCount(null);
-          setLimit(null);
-          setIsLoading(false);
-        }
-      });
+    if (props.data) {
+      setResults(props.data);
+      setFilteredData(props.data);
+      setIsDrfFilterBackend(false);
+      setIsLoading(false);
+    } else {
+      await authenticatedInstance
+        .get(endpoint, {
+          params: {
+            search: query,
+          },
+        })
+        .then((res) => {
+          if (res.data.results) {
+            setIsDrfFilterBackend(true);
+            setResults(res.data.results);
+            setNextPageEndPoint(res.data.next);
+            setPreviousPageEndPoint(res.data.previous);
+            setCount(res.data.count);
+            setIsLoading(false);
+            console.log(res.data);
+          } else {
+            setIsDrfFilterBackend(false);
+            setResults(res.data);
+            setFilteredData(res.data);
+            setNextPageEndPoint(null);
+            setPreviousPageEndPoint(null);
+            setCount(null);
+            setLimit(null);
+            setIsLoading(false);
+          }
+        });
+    }
+    console.log('props.data in UTAABLE', props.data)
+    console.log('Results state in UTAABLE', results)
   };
 
   // Sort the data based on the current sorting column and order
@@ -212,7 +221,7 @@ const UITable = (props) => {
 
   useEffect(() => {
     refresh(currentPageEndPoint);
-  }, []);
+  }, [props.data]);
 
   return (
     <div style={{ width: "100%", overflowX: "auto" }}>

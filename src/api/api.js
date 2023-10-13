@@ -687,7 +687,6 @@ export async function createUnit(data) {
         rental_property: data.rental_property,
         beds: data.beds,
         baths: data.baths,
-        rent: data.rent,
         user: authUser.id,
       })
       .then((res) => {

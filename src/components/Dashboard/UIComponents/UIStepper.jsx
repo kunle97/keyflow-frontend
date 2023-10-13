@@ -95,7 +95,7 @@ const styles = {
 
 function UIStepper(props) {
   return (
-    <Stack sx={{ width: "100%" }} spacing={4}>
+    <Stack sx={{ width: "100%", ...props.style }} spacing={4}>
       <Stepper
         alternativeLabel
         activeStep={props.step}

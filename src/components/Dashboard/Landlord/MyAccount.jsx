@@ -1,18 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { authUser, validationMessageStyle } from "../../../constants";
+import { authUser, uiGreen, uiRed, validationMessageStyle } from "../../../constants";
 import {
   changePassword,
+  deleteStripePaymentMethod,
+  getTenantDashboardData,
   listStripePaymentMethods,
+  setDefaultPaymentMethod,
   updateUserData,
 } from "../../../api/api";
 import { set, useForm } from "react-hook-form";
 import AlertModal from "../UIComponents/Modals/AlertModal";
+import { Box, Button, Typography } from "@mui/material";
+import UIButton from "../UIComponents/UIButton";
+import { useNavigate } from "react-router";
+import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
+import { ListDivider } from "@mui/joy";
+
 const MyAccount = () => {
-  const [paymentMethods, setPaymentMethods] = useState(null); //Value of either the Stripe token or the Plaid token
+  
+  const [paymentMethods, setPaymentMethods] = useState([]); 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
-
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [paymentMethodDeleteId, setPaymentMethodDeleteId] = useState(null);
+  const [showDefaultConfirm, setShowDefaultConfirm] = useState(false);
+  const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
+  const [defaultPaymentMethod, setPrimaryPaymentMethod] = useState(null);
+  const navigate = useNavigate();
+  
+  const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
+    getTenantDashboardData().then((res) => {
+      console.log("Set as default PM: ", paymentMethodId);
+      let data = {};
+      data.payment_method_id = paymentMethodId;
+      data.user_id = authUser.id;
+      console.log(res.lease_agreement.id);
+      //Retrieve the lease agreement
+      data.lease_agreement_id = res.lease_agreement.id;
+      console.log("Payload fata", data);
+      setDefaultPaymentMethod(data).then((res) => {
+        console.log(res);
+        setResponseTitle("Alert");
+        setResponseMessage("Payment method set as default");
+        setShowResponseModal(true);
+        //Get the payment methods for the user
+        listStripePaymentMethods(`${authUser.id}`).then((res) => {
+          console.log(res.data);
+          setPaymentMethods(res.data);
+        });
+        navigate(0);
+      });
+    });
+  };
+  const handlePaymentMethodDelete = (paymentMethodId) => {
+    console.log("Deleted PM: ", paymentMethodId);
+    let data = {
+      payment_method_id: paymentMethodId,
+    };
+    deleteStripePaymentMethod(data).then((res) => {
+      console.log(res);
+      setResponseTitle("Alert");
+      setResponseMessage("Payment method deleted");
+      setShowResponseModal(true);
+      //Get the payment methods for the user
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        console.log(res.data);
+        setPaymentMethods(res.data);
+      });
+    });
+  };
   const {
     register: registerAccountUpdate,
     handleSubmit: handleSubmitAccountUpdate,
@@ -385,15 +443,56 @@ const MyAccount = () => {
             </div>
           </div>
         </div>
-        <div className="col-md-6">
-          <h5 className="text-primary  mb-2 card-header-text">
-            Payment Methods
-          </h5>
+        <div className="col-md-6 ">
+          <div className="mb-3" style={{ overflow: "auto" }}>
+            <h5
+              className="text-primary  my-1 card-header-text"
+              style={{ float: "left" }}
+            >
+              Payment Methods
+            </h5>
+            <UIButton
+              style={{ float: "right" }}
+              onClick={() => {
+                navigate("/dashboard/tenant/add-payment-method");
+              }}
+              btnText="Add New"
+            />
+          </div>
           <div className="card shadow mb-3">
             <div className="card-body">
               <form>
                 <div className="row">
-                  {/* {paymentMethods.map((paymentMethod) => {
+                  <ConfirmModal
+                    open={showDefaultConfirm}
+                    handleClose={() => setShowDefaultConfirm(false)}
+                    title="Set As Default Payment Method"
+                    message="Are you sure you want to set this as your default payment method?"
+                    cancelBtnText="Cancel"
+                    confirmBtnText="Set As Default"
+                    handleConfirm={() => {
+                      handleSetDefaultPaymentMethod(paymentMethodDefaultId);
+                      setShowDefaultConfirm(false);
+                    }}
+                    handleCancel={() => setShowDefaultConfirm(false)}
+                  />
+
+                  <ConfirmModal
+                    open={showDeleteConfirm}
+                    handleClose={() => setShowDeleteConfirm(false)}
+                    title="Delete Payment Method"
+                    message="Are you sure you want to delete this payment method?"
+                    cancelBtnText="Cancel"
+                    confirmBtnText="Delete"
+                    confirmBtnStyle={{ backgroundColor: uiRed }}
+                    cancelBtnStyle={{ backgroundColor: uiGreen }}
+                    handleConfirm={() => {
+                      handlePaymentMethodDelete(paymentMethodDeleteId);
+                      setShowDeleteConfirm(false);
+                    }}
+                    handleCancel={() => setShowDeleteConfirm(false)}
+                  />
+                  {paymentMethods.map((paymentMethod) => {
                     return (
                       <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
                         <Box className="mb-3" sx={{ display: "flex" }}>
@@ -407,18 +506,51 @@ const MyAccount = () => {
                               className="text-white"
                             >
                               Expires {paymentMethod.card.exp_month}/
-                              {paymentMethod.card.exp_year} 
-
+                              {paymentMethod.card.exp_year}
+                              {paymentMethod.id === defaultPaymentMethod ? (
+                                <Typography
+                                  sx={{ fontSize: "10pt", color: uiGreen }}
+                                >
+                                  Default Payment Method
+                                </Typography>
+                              ) : (
+                                <>
+                                  <br />
+                                  <UIButton
+                                    sx={{
+                                      color: uiGreen,
+                                      textTransform: "none",
+                                      display: "block",
+                                      fontSize: "6pt",
+                                    }}
+                                    onClick={() => {
+                                      setPaymentMethodDefaultId(
+                                        paymentMethod.id
+                                      );
+                                      setShowDefaultConfirm(true);
+                                    }}
+                                    btnText="Set As Default"
+                                  />
+                                </>
+                              )}
                             </Typography>
                           </Box>
                           <Box>
-                            <Button sx={{ color: uiGreen }}>Edit</Button>
+                            <Button
+                              sx={{ color: uiRed, textTransform: "none" }}
+                              onClick={() => {
+                                setPaymentMethodDeleteId(paymentMethod.id);
+                                setShowDeleteConfirm(true);
+                              }}
+                            >
+                              Delete
+                            </Button>
                           </Box>
                         </Box>
                         <ListDivider sx={{ color: "white" }} />
                       </div>
                     );
-                  })} */}
+                  })}
                 </div>
               </form>
             </div>
