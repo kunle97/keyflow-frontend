@@ -28,7 +28,7 @@ const Properties = () => {
     { name: "state", label: "State" },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/properties/${rowData[0]}`;
+    const navlink = `/dashboard/landlord/properties/${rowData}`;
     navigate(navlink);
   };
   const options = {
@@ -101,6 +101,7 @@ const Properties = () => {
       />
       <UITable
         columns={columns}
+        options={options}
         endpoint="/properties/"
         title="Properties"
         createURL="/dashboard/landlord/properties/create"

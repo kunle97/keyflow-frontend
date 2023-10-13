@@ -1,7 +1,8 @@
 import React from "react";
 import UITable from "../UIComponents/UITable/UITable";
-
+import { useNavigate } from "react-router";
 const Notifications = () => {
+  const navigate = useNavigate();
   const columns = [
     { label: "Notification", name: "title" },
     { label: "Messasge", name: "message" },
@@ -24,11 +25,24 @@ const Notifications = () => {
       },
     },
   ];
+  const options = {
+    filter: true,
+    sort: true,
+    sortOrder: {
+      name: "timestamp",
+      direction: "desc",
+    },
+    onRowClick: (rowData, rowMeta) => {
+      const navlink = `/dashboard/landlord/notifications/${rowData}`;
+      navigate(navlink);
+    },
+  };
   return (
     <div>
       <UITable
         endpoint="/notifications/"
         columns={columns}
+        options={{}}
         title="Notification Center"
         detailURL="/dashboard/landlord/notifications/"
         showCreate={false}

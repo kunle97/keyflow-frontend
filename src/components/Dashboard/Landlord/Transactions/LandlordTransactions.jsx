@@ -85,7 +85,7 @@ const LandlordTransactions = () => {
     },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/transactions/${rowData[0]}`;
+    const navlink = `/dashboard/landlord/transactions/${rowData}`;
     navigate(navlink);
   };
   const options = {
@@ -191,6 +191,7 @@ const LandlordTransactions = () => {
         <div className="col-md-8">
           <UITable
             columns={columns}
+            options={options}
             endpoint="/transactions/"
             title="Transactions"
             detailURL="/dashboard/landlord/transactions/"

@@ -58,7 +58,7 @@ const Dashboard = () => {
   };
   console.log(chartData);
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/transactions/${rowData[0]}`;
+    const navlink = `/dashboard/landlord/transactions/${rowData}`;
     navigate(navlink);
   };
   const options = {
@@ -700,6 +700,7 @@ const Dashboard = () => {
         <div className="col-lg-7 col-xl-8">
           <UITable
             columns={columns}
+            options={options}
             endpoint="/transactions/"
             title="Transactions"
             detailURL="/dashboard/landlord/transactions/"

@@ -15,7 +15,7 @@ const Tenants = () => {
     { name: "email", label: "E-mail" },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/tenants/${rowData[0]}/`;
+    const navlink = `/dashboard/landlord/tenants/${rowData}/`;
     navigate(navlink);
   };
   const options = {

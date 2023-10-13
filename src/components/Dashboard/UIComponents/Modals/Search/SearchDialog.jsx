@@ -7,7 +7,7 @@ import { AccountCircle } from "@mui/icons-material";
 import ClearIcon from "@mui/icons-material/Clear";
 import CloseIcon from "@mui/icons-material/Close";
 import { AppBar, IconButton } from "@material-ui/core";
-import { uiGreen, uiGrey1 } from "../../../../../constants";
+import { authUser, uiGreen, uiGrey1 } from "../../../../../constants";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
@@ -215,9 +215,11 @@ const SearchDialog = (props) => {
   };
 
   useEffect(() => {
-    getLandlordTenants().then((res) => {
-      setTenants(res.data.tenants);
+    authenticatedInstance.get(`/users/${authUser.id}/tenants/`).then((res) => {
+      console.log("Tenant REsponse: ", res);
+      setTenants(res.data);
     });
+    console.log("SEARCH DIOALOIEHG Tenants:", tenants);
     getLandlordUnits().then((res) => {
       setAllUnits(res.data);
     });
@@ -497,7 +499,9 @@ const SearchDialog = (props) => {
               )}
               {maintenanceRequests.length > 0 && tabPage === 0 && (
                 <div id="maintenance" style={{ overflow: "hidden" }}>
-                  <h2>Maintenance Requests ({maintenanceRequestResultCount})</h2>
+                  <h2>
+                    Maintenance Requests ({maintenanceRequestResultCount})
+                  </h2>
                   <div className="row">
                     {maintenanceRequests.map((maintenance_request) => {
                       let tenant = //Retrieve the tenant information for the maintenance request
@@ -597,7 +601,7 @@ const SearchDialog = (props) => {
                   </Button>
                 </div>
               )}
-              {((transactions.length > 0 && tabPage === 0) ) && (
+              {transactions.length > 0 && tabPage === 0 && (
                 <div id="transactions" style={{ overflow: "hidden" }}>
                   <h2>Transactions ({transactionResultCount})</h2>
                   <div className="row">
@@ -692,7 +696,6 @@ const SearchDialog = (props) => {
                     </Button>
                   </div>
                 )}
-
               <div id="see-all-results-pages">
                 {tabPage === 1 && (
                   <AllPageResults
@@ -738,7 +741,8 @@ const SearchDialog = (props) => {
                     handleClose={props.handleClose}
                   />
                 )}
-              </div>
+              </div>{" "}
+              {/**/}
             </>
           )}
         </div>

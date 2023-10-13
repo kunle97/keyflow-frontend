@@ -376,11 +376,12 @@ const UITable = (props) => {
                             <td>
                               <UIButton
                                 onClick={() => {
-                                  if(props.detailURL.includes(":detail_id")){
-                                    let navlink = props.detailURL.replace(":detail_id", row.id)
-                                    navigate(navlink)
-                                  }
-                                  navigate(`${props.detailURL}${row.id}`);
+                                  props.options.onRowClick(row.id);
+                                  // if(props.detailURL.includes(":detail_id")){
+                                  //   let navlink = props.detailURL.replace(":detail_id", row.id)
+                                  //   navigate(navlink)
+                                  // }
+                                  // navigate(`${props.detailURL}${row.id}`);
                                 }}
                                 btnText="View"
                               />
@@ -412,7 +413,8 @@ const UITable = (props) => {
                             <td>
                               <UIButton
                                 onClick={() => {
-                                  navigate(`${props.detailURL}${row.id}`);
+                                  // navigate(`${props.detailURL}${row.id}`);
+                                  props.options.onRowClick(row.id);
                                 }}
                                 btnText="View"
                               />
