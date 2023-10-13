@@ -63,7 +63,7 @@ const ManageProperty = () => {
     },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/units/${rowData[0]}/${property.id}`;
+    const navlink = `/dashboard/landlord/units/${rowData}/${property.id}`;
     navigate(navlink);
   };
   const options = {
@@ -512,12 +512,10 @@ const ManageProperty = () => {
                         <>
                           <UITable
                             columns={columns}
+                            options={options}
                             endpoint="/units/"
                             title="Units"
                             createURL={`/dashboard/landlord/units/create/${id}`}
-                            
-                            detailURL={`/dashboard/landlord/units/:detail_id/${property.id}`}
-                            // detailURL={`/`}
                             showCreate={true}
                           />
                         </>

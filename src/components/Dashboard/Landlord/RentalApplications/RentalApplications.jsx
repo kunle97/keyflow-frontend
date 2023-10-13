@@ -71,7 +71,7 @@ const RentalApplications = () => {
     },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/rental-applications/${rowData[0]}`;
+    const navlink = `/dashboard/landlord/rental-applications/${rowData}`;
     navigate(navlink);
   };
   const options = {
@@ -120,7 +120,7 @@ const RentalApplications = () => {
       </div> */}
       <UITable
         columns={columns}
-        
+        options={options}
         endpoint={`/rental-applications/`}
         title="Rental Applications"
         detailURL="/dashboard/landlord/rental-applications/"

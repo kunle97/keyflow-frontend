@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
 import { token, uiGreen } from "../../../../constants";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import {
   deleteLeaseTerm,
@@ -18,6 +18,7 @@ const LeaseTerms = () => {
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
   const [deleteErrorMessageTitle, setDeleteErrorMessageTitle] = useState("");
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const navigate = useNavigate();
   const columns = [
     { name: "id", label: "ID", options: { display: true } },
     { name: "rent", label: "Rent" },
@@ -70,6 +71,11 @@ const LeaseTerms = () => {
     return { leaseTermIdsToDelete, leaseTermIdsToOmit, leaseTermsInUse };
   }
 
+  const handleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/lease-terms/${rowData}`;
+    navigate(navlink);
+  };
+
   const options = {
     filter: true,
     sort: true,
@@ -77,7 +83,7 @@ const LeaseTerms = () => {
       name: "created_at",
       direction: "desc",
     },
-    // onRowClick: handleRowClick,
+    onRowClick: handleRowClick,
     //CREate a function to handle the row delete
     onRowsDelete: (rowsDeleted, data) => {
       const leaseTermIdsSelected = [];
@@ -150,6 +156,7 @@ const LeaseTerms = () => {
       </div>
       <UITable
         columns={columns}
+        options={options}
         endpoint="/lease-terms/"
         title="Lease Terms"
         createURL="/dashboard/landlord/lease-terms/create"
