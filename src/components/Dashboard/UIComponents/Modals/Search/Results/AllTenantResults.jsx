@@ -8,7 +8,11 @@ const AllTenantResults = (props) => {
   const [tenants, setTenants] = useState([]);
   useEffect(() => {
     getLandlordTenants().then((res) => {
-      setTenants(res.data.tenants);
+      if (res.data.results) {
+        setTenants(res.data.tenants);
+      } else if (res.data) {
+        setTenants(res.data);
+      }
     });
   }, []);
   return (

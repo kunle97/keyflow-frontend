@@ -4,9 +4,9 @@ import {
   getUnit,
   getLeaseTermsByUser,
   getLeaseTermById,
-  createLeaseTerm,
   deleteUnit,
   getUserData,
+  getUserStripeSubscriptions,
 } from "../../../../api/api";
 import { Link, useParams } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
@@ -21,7 +21,7 @@ import {
   Modal,
 } from "@mui/material";
 import Snackbar from "@mui/material/Snackbar";
-import { authUser, uiGreen, uiRed } from "../../../../constants";
+import { authUser, token, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
 import { CloseOutlined } from "@mui/icons-material";
@@ -52,6 +52,9 @@ const CreateUnit = () => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+  const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState({
+    items: { data: [{ plan: { product: "" } }] },
+  });
   const [tenant, setTenant] = useState({});
   const navigate = useNavigate();
   const {
@@ -74,42 +77,16 @@ const CreateUnit = () => {
     }
     setShowUpdateSuccess(false);
   };
+  
+  const retrieveSubscriptionPlan = async () => {
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+      (res) => {
+        setCurrentSubscriptionPlan(res.subscriptions);
+      }
+    );
+    return res;
+  };
 
-  useEffect(() => {
-    //Retrieve Unit Information
-    getUnit(unit_id).then((res) => {
-      setUnit(res);
-      const preloadedData = {
-        name: res.name,
-        beds: res.beds,
-        baths: res.baths,
-        rental_property: property_id,
-      };
-      // Set the preloaded data in the form using setValue
-      Object.keys(preloadedData).forEach((key) => {
-        setValue(key, preloadedData[key]);
-      });
-      setIsOccupied(res.is_occupied);
-      if (res.lease_term) {
-        getLeaseTermById({
-          lease_term_id: res.lease_term,
-          user_id: authUser.id,
-        }).then((res) => {
-          setCurrentLeaseTerm(res);
-        });
-      }
-      if (isOccupided) {
-        getUserData(res.tenant).then((res) => {
-          console.log("Tenant", res);
-          setTenant(res);
-        });
-      }
-    });
-    //retrieve lease terms that the user has created
-    getLeaseTermsByUser().then((res) => {
-      setLeaseTerms(res.data);
-    });
-  }, []);
   //Create a function to handle the form submission to update unit information
   const onSubmit = async (data) => {
     console.log(data);
@@ -148,8 +125,14 @@ const CreateUnit = () => {
       );
       return false;
     } else {
+      let payload = {
+        unit_id: unit_id,
+        rental_property: property_id,
+        product_id: currentSubscriptionPlan.plan.product,
+        subscription_id: currentSubscriptionPlan.id,
+      };
       //Delete the unit with the api
-      deleteUnit(unit_id).then((res) => {
+      deleteUnit(payload).then((res) => {
         console.log(res);
       });
       //Redirect to the property page
@@ -171,6 +154,42 @@ const CreateUnit = () => {
     </Link>
   );
 
+  useEffect(() => {
+    //Retrieve Unit Information
+    getUnit(unit_id).then((res) => {
+      setUnit(res);
+      const preloadedData = {
+        name: res.name,
+        beds: res.beds,
+        baths: res.baths,
+        rental_property: property_id,
+      };
+      // Set the preloaded data in the form using setValue
+      Object.keys(preloadedData).forEach((key) => {
+        setValue(key, preloadedData[key]);
+      });
+      setIsOccupied(res.is_occupied);
+      if (res.lease_term) {
+        getLeaseTermById({
+          lease_term_id: res.lease_term,
+          user_id: authUser.id,
+        }).then((res) => {
+          setCurrentLeaseTerm(res);
+        });
+      }
+      if (isOccupided) {
+        getUserData(res.tenant).then((res) => {
+          console.log("Tenant", res);
+          setTenant(res);
+        });
+      }
+    });
+    //retrieve lease terms that the user has created
+    getLeaseTermsByUser().then((res) => {
+      setLeaseTerms(res.data);
+    });
+    retrieveSubscriptionPlan();
+  }, []);
   return (
     <div className="container">
       <Snackbar

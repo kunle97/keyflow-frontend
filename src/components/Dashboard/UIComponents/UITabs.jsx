@@ -1,7 +1,7 @@
 import { Tab, Tabs } from "@mui/material";
 import styled from "styled-components";
 import { uiGreen } from "../../../constants";
-export const StyledTabs = styled((props) => (
+const StyledTabs = styled((props) => (
   <Tabs
     {...props}
     TabIndicatorProps={{
@@ -21,12 +21,9 @@ export const StyledTabs = styled((props) => (
   },
 });
 
-export const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
+const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
   ({ theme }) => ({
     textTransform: "none !important",
-    // fontWeight: theme.typography.fontWeightRegular,
-    // fontSize: theme.typography.pxToRem(15),
-    // marginRight: theme.spacing(1),
     color: "white !important",
     "&.Mui-selected": {
       color: "#fff",
@@ -36,3 +33,23 @@ export const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
     },
   })
 );
+
+const UITabs = (props) => {
+  return (
+    <div style={{...props.style}} >
+      <StyledTabs
+        value={props.value}
+        onChange={props.handleChange}
+        aria-label={props.ariaLabel}
+        variant={props.variant}
+        scrollButtons={props.scrollButtons}
+      >
+        {props.tabs.map((tab) => (
+          <StyledTab label={tab.label} value={tab.value} icon={tab.icon} />
+        ))}
+      </StyledTabs>
+    </div>
+  );
+};
+
+export default UITabs;

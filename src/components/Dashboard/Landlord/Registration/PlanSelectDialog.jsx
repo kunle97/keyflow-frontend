@@ -1,19 +1,15 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { useState, useEffect } from "react";
-import { Dialog, Slide, Stack } from "@mui/material";
+import { Chip,  Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { uiGreen, uiGrey1 } from "../../../../constants";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { getSubscriptionPlanPrices } from "../../../../api/api";
+import UIDialog from "../../UIComponents/Modals/UIDialog";
 
 const PlanSelectDialog = (props) => {
   const [plans, setPlans] = useState([]);
-  const Transition = useCallback(
-    React.forwardRef(function Transition(props, ref) {
-      return <Slide direction="up" ref={ref} {...props} />;
-    }),
-    []
-  );
+
   useEffect(() => {
     getSubscriptionPlanPrices().then((res) => {
       setPlans(res.products);
@@ -21,16 +17,9 @@ const PlanSelectDialog = (props) => {
     });
   }, []);
   return (
-    <Dialog
-      PaperProps={{
-        style: {
-          backgroundColor: uiGrey1,
-          boxShadow: "none",
-        },
-      }}
+    <UIDialog
       open={props.open}
       onClose={props.onClose}
-      TransitionComponent={Transition}
       maxWidth={"xxl"}
     >
       <div className="row m-3 ">
@@ -39,19 +28,50 @@ const PlanSelectDialog = (props) => {
             <div className="">
               <div className="card-body">
                 <h5>{plan.name}</h5>
+                {plan.product_id ===
+                process.env.REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID ? (
+                  <Chip
+                    label="Best Value"
+                    sx={{
+                      margin: "5px 0",
+                      padding: "0px",
+                      color: "white",
+                      background: uiGreen,
+                    }}
+                  />
+                ) : (
+                  <Chip
+                    label=""
+                    sx={{
+                      margin: "5px 0",
+                      padding: "0px",
+                      color: "white",
+                      background: "none",
+                    }}
+                  />
+                )}
                 <div id="price-info">
                   <Stack
                     direction="row"
                     justifyContent="flex-start"
-                    alignItems="baseline"
-                    spacing={1}
+                    alignItems="center"
+                    spacing={2}
                   >
-                    <h2>${plan.price}</h2>
-                    {plan.billing_scheme.usage_type === "metered" && (
-                      <span style={{ color: "white" }}>per Unit </span>
-                    )}
-                    <span style={{ color: "white" }}>per month</span>
+                    <h2 style={{ fontSize: "27pt" }}>${plan.price}</h2>
+                    <Stack
+                      direction="column"
+                      justifyContent="flex-start"
+                      alignItems="baseline"
+                      spacing={0}
+                    >
+                      {plan.product_id ===
+                        process.env.REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
+                        <span style={{ color: "white" }}>per Rental Unit </span>
+                      )}
+                      <span style={{ color: "white" }}>per month</span>
+                    </Stack>
                   </Stack>
+
                   <UIButton
                     style={{ width: "100%", margin: "10px 0" }}
                     btnText="Select Plan"
@@ -83,7 +103,7 @@ const PlanSelectDialog = (props) => {
           </div>
         ))}
       </div>
-    </Dialog>
+    </UIDialog>
   );
 };
 

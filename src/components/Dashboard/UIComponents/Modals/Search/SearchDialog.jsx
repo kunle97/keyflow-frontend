@@ -42,7 +42,7 @@ import AllTransactionResults from "./Results/AllTransactionResults";
 import AllMaintenanceRequesResults from "./Results/AllMaintenanceRequestResults";
 import AllUnitResults from "./Results/AllUnitResults";
 import AllRentalApplicationResults from "./Results/AllRentalApplicationResults";
-import { StyledTab, StyledTabs } from "../../UITabs";
+import UITabs, { StyledTab, StyledTabs } from "../../UITabs";
 
 const SearchDialog = (props) => {
   //Create a useCallback version of the Transition component
@@ -259,21 +259,14 @@ const SearchDialog = (props) => {
               marginBottom: 2,
             }}
           >
-            <StyledTabs
+            <UITabs
               value={tabPage}
-              onChange={handleChangeTabPage}
+              handleChange={handleChangeTabPage}
+              tabs={pages}
               variant="fullWidth"
               scrollButtons="auto"
-              aria-label="scrollable auto tabs example"
-            >
-              {pages.map((page) => (
-                <StyledTab
-                  key={page.name}
-                  label={page.label}
-                  icon={page.icon}
-                />
-              ))}
-            </StyledTabs>
+              ariaLabel="scrollable auto tabs example"
+            />
           </Box>
 
           {!searchValue ? (
@@ -662,6 +655,7 @@ const SearchDialog = (props) => {
                     </Button>
                   </div>
                 )}
+
               <div id="see-all-results-pages">
                 {tabPage === 1 && (
                   <AllPageResults
@@ -707,8 +701,7 @@ const SearchDialog = (props) => {
                     handleClose={props.handleClose}
                   />
                 )}
-              </div>{" "}
-              {/**/}
+              </div>
             </>
           )}
         </div>

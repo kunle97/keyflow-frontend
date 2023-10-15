@@ -1,25 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { authUser, uiGreen, uiRed, validationMessageStyle } from "../../../constants";
+import {
+  authUser,
+  token,
+  uiGreen,
+  uiRed,
+  validationMessageStyle,
+} from "../../../../constants";
 import {
   changePassword,
   deleteStripePaymentMethod,
+  getSubscriptionPlanPrices,
   getTenantDashboardData,
+  getUserStripeSubscriptions,
   listStripePaymentMethods,
   setDefaultPaymentMethod,
   updateUserData,
-} from "../../../api/api";
+} from "../../../../api/api";
 import { set, useForm } from "react-hook-form";
-import AlertModal from "../UIComponents/Modals/AlertModal";
-import { Box, Button, Typography } from "@mui/material";
-import UIButton from "../UIComponents/UIButton";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import UIButton from "../../UIComponents/UIButton";
 import { useNavigate } from "react-router";
-import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { ListDivider } from "@mui/joy";
+import UITabs from "../../UIComponents/UITabs";
+import UIDialog from "../../UIComponents/Modals/UIDialog";
+import PlanSelectDialog from "../Registration/PlanSelectDialog";
+import PlanChangeDialog from "./PlanChangeDialog";
 
 const MyAccount = () => {
-  
-  const [paymentMethods, setPaymentMethods] = useState([]); 
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [tabPage, setTabPage] = useState(0);
+  const [tabs, setTabs] = useState([
+    { label: "Account" },
+    { label: "Change Password" },
+    { label: "Banking" },
+    { label: "Payment Methods" },
+    { label: "Manage Subscription" },
+    { label: "Preferences" },
+  ]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const [showChangePlanModal, setShowChangePlanModal] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
@@ -28,8 +49,9 @@ const MyAccount = () => {
   const [showDefaultConfirm, setShowDefaultConfirm] = useState(false);
   const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [defaultPaymentMethod, setPrimaryPaymentMethod] = useState(null);
+  const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
   const navigate = useNavigate();
-  
+
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
     getTenantDashboardData().then((res) => {
       console.log("Set as default PM: ", paymentMethodId);
@@ -119,11 +141,20 @@ const MyAccount = () => {
     });
   };
 
+  const handleTabChange = (event, newValue) => {
+    setTabPage(newValue);
+  };
+
   useEffect(() => {
     //Get the payment methods for the user
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
-      console.log(res);
       setPaymentMethods(res.data);
+    });
+    getSubscriptionPlanPrices().then((res) => {
+      setPlans(res.products);
+    });
+    getUserStripeSubscriptions(authUser.id, token).then((res) => {
+      setCurrentSubscriptionPlan(res.subscriptions);
     });
   }, []);
 
@@ -138,8 +169,16 @@ const MyAccount = () => {
         onClick={() => setShowResponseModal(false)}
       />
       <h3 className="text-white mb-4">My Account</h3>
-      <div className="row mb-3">
-        <div className="row">
+
+      <UITabs
+        style={{ marginBottom: "30px" }}
+        value={tabPage}
+        tabs={tabs}
+        handleChange={handleTabChange}
+      />
+
+      {tabPage === 0 && (
+        <div className="row basic-info-row">
           <div className="col-md-12">
             <div className="card shadow mb-3">
               <div className="card-body">
@@ -279,10 +318,12 @@ const MyAccount = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {tabPage === 1 && (
+        <div className="row  change-password-row ">
           <div className="col-md-12">
-            <h6 className="text-primary fw-bold m-0 card-header-text">
-              Change Password
-            </h6>
             <div className="card shadow mb-3">
               <div className="card-body">
                 <form
@@ -382,6 +423,13 @@ const MyAccount = () => {
                 </form>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {tabPage === 2 && (
+        <div className="row ">
+          <div className="col-md-12">
             <div className="card shadow mb-3">
               <div className="card-header py-3">
                 <h6 className="text-primary fw-bold m-0 card-header-text">
@@ -443,120 +491,184 @@ const MyAccount = () => {
             </div>
           </div>
         </div>
-        <div className="col-md-6 ">
-          <div className="mb-3" style={{ overflow: "auto" }}>
-            <h5
-              className="text-primary  my-1 card-header-text"
-              style={{ float: "left" }}
-            >
-              Payment Methods
-            </h5>
-            <UIButton
-              style={{ float: "right" }}
-              onClick={() => {
-                navigate("/dashboard/tenant/add-payment-method");
-              }}
-              btnText="Add New"
-            />
-          </div>
-          <div className="card shadow mb-3">
-            <div className="card-body">
-              <form>
-                <div className="row">
-                  <ConfirmModal
-                    open={showDefaultConfirm}
-                    handleClose={() => setShowDefaultConfirm(false)}
-                    title="Set As Default Payment Method"
-                    message="Are you sure you want to set this as your default payment method?"
-                    cancelBtnText="Cancel"
-                    confirmBtnText="Set As Default"
-                    handleConfirm={() => {
-                      handleSetDefaultPaymentMethod(paymentMethodDefaultId);
-                      setShowDefaultConfirm(false);
-                    }}
-                    handleCancel={() => setShowDefaultConfirm(false)}
-                  />
+      )}
 
-                  <ConfirmModal
-                    open={showDeleteConfirm}
-                    handleClose={() => setShowDeleteConfirm(false)}
-                    title="Delete Payment Method"
-                    message="Are you sure you want to delete this payment method?"
-                    cancelBtnText="Cancel"
-                    confirmBtnText="Delete"
-                    confirmBtnStyle={{ backgroundColor: uiRed }}
-                    cancelBtnStyle={{ backgroundColor: uiGreen }}
-                    handleConfirm={() => {
-                      handlePaymentMethodDelete(paymentMethodDeleteId);
-                      setShowDeleteConfirm(false);
-                    }}
-                    handleCancel={() => setShowDeleteConfirm(false)}
-                  />
-                  {paymentMethods.map((paymentMethod) => {
-                    return (
-                      <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
-                        <Box className="mb-3" sx={{ display: "flex" }}>
-                          <Box sx={{ flex: "2" }}>
-                            <Typography className="text-white">
-                              {paymentMethod.card.brand} ending in{" "}
-                              {paymentMethod.card.last4}
-                            </Typography>
-                            <Typography
-                              sx={{ fontSize: "10pt" }}
-                              className="text-white"
-                            >
-                              Expires {paymentMethod.card.exp_month}/
-                              {paymentMethod.card.exp_year}
-                              {paymentMethod.id === defaultPaymentMethod ? (
-                                <Typography
-                                  sx={{ fontSize: "10pt", color: uiGreen }}
-                                >
-                                  Default Payment Method
-                                </Typography>
-                              ) : (
-                                <>
-                                  <br />
-                                  <UIButton
-                                    sx={{
-                                      color: uiGreen,
-                                      textTransform: "none",
-                                      display: "block",
-                                      fontSize: "6pt",
-                                    }}
-                                    onClick={() => {
-                                      setPaymentMethodDefaultId(
-                                        paymentMethod.id
-                                      );
-                                      setShowDefaultConfirm(true);
-                                    }}
-                                    btnText="Set As Default"
-                                  />
-                                </>
-                              )}
-                            </Typography>
+      {tabPage === 3 && (
+        <div className="row payment-methods-row">
+          <div className="col-md-6 ">
+            <div className="mb-3" style={{ overflow: "auto" }}>
+              <UIButton
+                style={{ float: "right" }}
+                onClick={() => {
+                  navigate("/dashboard/tenant/add-payment-method");
+                }}
+                btnText="Add New"
+              />
+            </div>
+            <div className="card shadow mb-3">
+              <div className="card-body">
+                <form>
+                  <div className="row">
+                    <ConfirmModal
+                      open={showDefaultConfirm}
+                      handleClose={() => setShowDefaultConfirm(false)}
+                      title="Set As Default Payment Method"
+                      message="Are you sure you want to set this as your default payment method?"
+                      cancelBtnText="Cancel"
+                      confirmBtnText="Set As Default"
+                      handleConfirm={() => {
+                        handleSetDefaultPaymentMethod(paymentMethodDefaultId);
+                        setShowDefaultConfirm(false);
+                      }}
+                      handleCancel={() => setShowDefaultConfirm(false)}
+                    />
+
+                    <ConfirmModal
+                      open={showDeleteConfirm}
+                      handleClose={() => setShowDeleteConfirm(false)}
+                      title="Delete Payment Method"
+                      message="Are you sure you want to delete this payment method?"
+                      cancelBtnText="Cancel"
+                      confirmBtnText="Delete"
+                      confirmBtnStyle={{ backgroundColor: uiRed }}
+                      cancelBtnStyle={{ backgroundColor: uiGreen }}
+                      handleConfirm={() => {
+                        handlePaymentMethodDelete(paymentMethodDeleteId);
+                        setShowDeleteConfirm(false);
+                      }}
+                      handleCancel={() => setShowDeleteConfirm(false)}
+                    />
+                    {paymentMethods.map((paymentMethod) => {
+                      return (
+                        <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
+                          <Box className="mb-3" sx={{ display: "flex" }}>
+                            <Box sx={{ flex: "2" }}>
+                              <Typography className="text-white">
+                                {paymentMethod.card.brand} ending in{" "}
+                                {paymentMethod.card.last4}
+                              </Typography>
+                              <Typography
+                                sx={{ fontSize: "10pt" }}
+                                className="text-white"
+                              >
+                                Expires {paymentMethod.card.exp_month}/
+                                {paymentMethod.card.exp_year}
+                                {paymentMethod.id === defaultPaymentMethod ? (
+                                  <Typography
+                                    sx={{ fontSize: "10pt", color: uiGreen }}
+                                  >
+                                    Default Payment Method
+                                  </Typography>
+                                ) : (
+                                  <>
+                                    <br />
+                                    <UIButton
+                                      sx={{
+                                        color: uiGreen,
+                                        textTransform: "none",
+                                        display: "block",
+                                        fontSize: "6pt",
+                                      }}
+                                      onClick={() => {
+                                        setPaymentMethodDefaultId(
+                                          paymentMethod.id
+                                        );
+                                        setShowDefaultConfirm(true);
+                                      }}
+                                      btnText="Set As Default"
+                                    />
+                                  </>
+                                )}
+                              </Typography>
+                            </Box>
+                            <Box>
+                              <Button
+                                sx={{ color: uiRed, textTransform: "none" }}
+                                onClick={() => {
+                                  setPaymentMethodDeleteId(paymentMethod.id);
+                                  setShowDeleteConfirm(true);
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </Box>
                           </Box>
-                          <Box>
-                            <Button
-                              sx={{ color: uiRed, textTransform: "none" }}
-                              onClick={() => {
-                                setPaymentMethodDeleteId(paymentMethod.id);
-                                setShowDeleteConfirm(true);
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </Box>
-                        </Box>
-                        <ListDivider sx={{ color: "white" }} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </form>
+                          <ListDivider sx={{ color: "white" }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+      {tabPage === 4 && (
+        <div className="row">
+          <PlanChangeDialog
+            open={showChangePlanModal}
+            onClose={() => setShowChangePlanModal(false)}
+            plans={plans}
+          />
+          <div className="col-md-6">
+            <div className="card shadow mb-3">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-12">
+                    <div className="mb-3">
+                      {plans.map((plan) => {
+                        if (
+                          plan.product_id ===
+                          currentSubscriptionPlan.items.data[0].plan.product
+                        ) {
+                          return (
+                            <Stack>
+                              <h5 className="text-white">{plan.name}</h5>
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-start"
+                                alignItems="center"
+                                spacing={2}
+                              >
+                                <h4 style={{ fontSize: "25pt" }}>
+                                  ${plan.price}
+                                </h4>
+                                <Stack
+                                  direction="column"
+                                  justifyContent="flex-start"
+                                  alignItems="baseline"
+                                  spacing={0}
+                                >
+                                  {currentSubscriptionPlan.items.data[0].plan
+                                    .product ===
+                                    process.env
+                                      .REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
+                                    <span>per Rental Unit</span>
+                                  )}
+                                  <span>per month</span>
+                                </Stack>
+                              </Stack>
+                            </Stack>
+                          );
+                        }
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <UIButton
+                    onClick={() => {
+                      setShowChangePlanModal(true);
+                    }}
+                    btnText="Change Plan"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
