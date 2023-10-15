@@ -1,15 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { login, logout } from "../../../api/api";
+import { getLandlordsEmails, login, logout } from "../../../api/api";
 import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
-import { uiGreen, validationMessageStyle } from "../../../constants";
+import {
+  uiGreen,
+  uiGrey1,
+  uiGrey2,
+  validationMessageStyle,
+} from "../../../constants";
 import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 const LandlordLogin = () => {
   const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
+  const [landlordsEmails, setLandlordsEmails] = useState([]);
   const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
@@ -39,10 +45,6 @@ const LandlordLogin = () => {
 
     //if token is returned, set it in local storage
     if (response.token) {
-      //Set authUser and isLoggedIn in context
-      localStorage.setItem("accessToken", response.token);
-      //Save auth user in local storage
-      localStorage.setItem("authUser", JSON.stringify(response.userData));
       setRedirectURL("/dashboard/landlord");
       setAuthUser(response.userData);
       setIsLoggedIn(true);
@@ -57,12 +59,16 @@ const LandlordLogin = () => {
       setOpenError(true);
     }
   };
+  useEffect(() => {
+    getLandlordsEmails().then((res) => {
+      if (res) {
+        setLandlordsEmails(res);
+      }
+    });
+  }, []);
 
   return (
-    <div
-      className="container-fluid "
-      style={{ padding: 0, overflow: "hidden" }}
-    >
+    <div className="container-fluid" style={{ padding: 0, overflow: "hidden" }}>
       <ProgressModal
         open={isLoading}
         handleCLose={() => setIsLoading(false)}
@@ -98,29 +104,55 @@ const LandlordLogin = () => {
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
               <form className="user" onSubmit={handleSubmit(onSubmit)}>
-                <div className="mb-3">
-                  <Input
-                    input
-                    {...register("email", {
-                      required: "This is a required field",
-                      pattern: {
-                        value: /\S+@\S+\.\S+/,
-                        message: "Please enter a valid email address",
-                      },
-                    })}
-                    className="form-control form-control-user"
-                    type="email"
-                    id="exampleInputEmail"
-                    aria-describedby="emailHelp"
-                    placeholder="Enter Email Address..."
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <span style={validationMessageStyle}>
-                    {errors.email && errors.email.message}
-                  </span>
-                </div>
+                {process.env.REACT_APP_ENVIRONMENT === "development" ? (
+                  <div>
+                    <select
+                      {...register("email", {
+                        required: "This is a required field",
+                        pattern: {
+                          value: /\S+@\S+\.\S+/,
+                          message: "Please enter a valid email address",
+                        },
+                      })}
+                      className="form-control card"
+                      style={{
+                        background: uiGrey2,
+                        color: "white !important",
+                        marginBottom: "25px",
+                      }}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    >
+                      {landlordsEmails.map((email) => (
+                        <option value={email}>{email}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="mb-3">
+                    <Input
+                      input
+                      {...register("email", {
+                        required: "This is a required field",
+                        pattern: {
+                          value: /\S+@\S+\.\S+/,
+                          message: "Please enter a valid email address",
+                        },
+                      })}
+                      className="form-control form-control-user"
+                      type="email"
+                      id="exampleInputEmail"
+                      aria-describedby="emailHelp"
+                      placeholder="Enter Email Address..."
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <span style={validationMessageStyle}>
+                      {errors.email && errors.email.message}
+                    </span>
+                  </div>
+                )}
                 <div className="mb-3">
                   <Input
                     {...register("password", {

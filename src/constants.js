@@ -1,15 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { createMuiTheme } from "@mui/material";
 import { loadStripe } from "@stripe/stripe-js";
 import { createTheme } from "react-data-table-component";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -21,12 +18,16 @@ export const stripe_onboarding_link = localStorage.getItem(
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
+//CReatea  variable for the ocal storage of the subscriptionPlan
+export const subscriptionPlan = localStorage.getItem("subscriptionPlan")
+  ? JSON.parse(localStorage.getItem("subscriptionPlan"))
+  : {};
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c";
 export const uiRed = "#FF4040";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
-export const uiGrey3 = "#dcdde3";//Used to set background color of a read notification
+export const uiGrey3 = "#dcdde3"; //Used to set background color of a read notification
 
 export const validationMessageStyle = {
   color: "red",

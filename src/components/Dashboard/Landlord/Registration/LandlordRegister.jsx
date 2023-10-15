@@ -170,8 +170,9 @@ const LandlordRegister = () => {
               onClose={() => setOpen(false)}
               title={"Registration Successful!"}
               message="You have been registered Successfully! Be sure to check your email
-              for confirmation to activate your account. Click the link below to continue
-              the registration process"
+              for confirmation to activate your account. \nOn the next screen you will be
+              onboarded to our payment processing platform. YOu will be asked for your industry.
+              Be sure to select property Rentals. Click the link below to continue the registration process"
               btnText="Continue"
               to={stripeRedirectLink}
             />
@@ -383,15 +384,16 @@ const LandlordRegister = () => {
                               >
                                 <h2>${selectedPlan.price}</h2>
                                 <Stack direction="row" spacing={0}>
-                                  {selectedPlan.billing_scheme.usage_type ===
-                                    "metered" && (
+                                  {selectedPlan.product_id ===
+                                    process.env
+                                      .REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
                                     <span
                                       style={{
                                         color: "white",
                                         marginRight: "5px",
                                       }}
                                     >
-                                      per Unit
+                                      per Rental Unit
                                     </span>
                                   )}{" "}
                                   <span style={{ color: "white" }}>

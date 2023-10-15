@@ -15,6 +15,7 @@ const ConfirmModal = (props) => {
     borderRadius: "10px",
     boxShadow: 24,
     p: 4,
+    zIndex: 1000,
   };
 
   const confirmBtnStyle = {

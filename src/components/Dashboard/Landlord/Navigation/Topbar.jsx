@@ -142,31 +142,48 @@ const Topbar = () => {
                   >
                     Notifications
                   </h5>
-                  {notifications.map((notification) => (
-                    <a
-                      className="dropdown-item d-flex align-items-center"
-                      href={`/dashboard/landlord/notifications/${notification.id}`}
-                      style={
-                        notification.is_read
-                          ? { background: uiGrey3 }
-                          : { background: "white" }
-                      }
-                    >
-                      <div className="me-3">
-                        <div className="bg-primary icon-circle">
-                          <i className="fas fa-donate text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <span className="small ">
-                          {new Date(
-                            notification.timestamp
-                          ).toLocaleDateString()}
-                        </span>
-                        <p>{notification.message}</p>
-                      </div>{" "}
-                    </a>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <center>
+                      <span
+                        style={{
+                          borderStyle: "none",
+                          fontSize: "12pt",
+                          color: "grey",
+                          margin: "30px 0",
+                        }}
+                      >
+                        You have no new notifications
+                      </span>
+                    </center>
+                  ) : (
+                    <>
+                      {notifications.map((notification) => (
+                        <a
+                          className="dropdown-item d-flex align-items-center"
+                          href={`/dashboard/landlord/notifications/${notification.id}`}
+                          style={
+                            notification.is_read
+                              ? { background: uiGrey3 }
+                              : { background: "white" }
+                          }
+                        >
+                          <div className="me-3">
+                            <div className="bg-primary icon-circle">
+                              <i className="fas fa-donate text-white" />
+                            </div>
+                          </div>
+                          <div>
+                            <span className="small ">
+                              {new Date(
+                                notification.timestamp
+                              ).toLocaleDateString()}
+                            </span>
+                            <p>{notification.message}</p>
+                          </div>{" "}
+                        </a>
+                      ))}
+                    </>
+                  )}
                   <Link
                     className="dropdown-item text-center large"
                     to="/dashboard/landlord/notifications"

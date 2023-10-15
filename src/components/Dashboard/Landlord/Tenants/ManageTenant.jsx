@@ -9,7 +9,7 @@ import { faker } from "@faker-js/faker";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import UITable from "../../UIComponents/UITable/UITable";
-import { StyledTab, StyledTabs } from "../../UIComponents/UITabs";
+import UITabs, { StyledTab, StyledTabs } from "../../UIComponents/UITabs";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 const ManageTenant = () => {
@@ -257,21 +257,16 @@ const ManageTenant = () => {
                   </form>
                 </div>
               </div>
-              <StyledTabs
+
+              <UITabs
                 value={tabPage}
-                onChange={handleChangeTabPage}
+                handleChange={handleChangeTabPage}
+                tabs={sections}
                 variant="fullWidth"
                 scrollButtons="auto"
-                aria-label="scrollable auto tabs example"
-              >
-                {sections.map((page) => (
-                  <StyledTab
-                    key={page.name}
-                    label={page.label}
-                    icon={page.icon}
-                  />
-                ))}
-              </StyledTabs>
+                ariaLabel=""
+              />
+
               {tabPage === 0 && (
                 <div className="mb-3" style={{ overflow: "hidden" }}>
                   <UITable

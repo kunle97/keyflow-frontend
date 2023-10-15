@@ -10,7 +10,7 @@ import ManageUnit from "./components/Dashboard/Landlord/Units/ManageUnit";
 import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
 import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
 import CreateUnit from "./components/Dashboard/Landlord/Units/CreateUnit";
-import MyAccount from "./components/Dashboard/Landlord/MyAccount";
+import MyAccount from "./components/Dashboard/Landlord/MyAccount/MyAccount";
 import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
 import LandlordRegister from "./components/Dashboard/Landlord/Registration/LandlordRegister";
 import ForgotPassword from "./components/Dashboard/PasswordReset/ForgotPassword";

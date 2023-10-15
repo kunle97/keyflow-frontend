@@ -1,19 +1,33 @@
 import React, { useState } from "react";
-import { createProperty, createUnit } from "../../../../api/api";
+import { createProperty, createUnit, getUserStripeSubscriptions } from "../../../../api/api";
 import { faker } from "@faker-js/faker";
 import { Button, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router";
 import { set, useForm } from "react-hook-form";
-import { uiGreen, uiRed, validationMessageStyle } from "../../../../constants";
+import {
+  authUser,
+  subscriptionPlan,
+  token,
+  uiGreen,
+  uiRed,
+  validationMessageStyle,
+} from "../../../../constants";
 import UIStepper from "../../UIComponents/UIStepper";
 import UIButton from "../../UIComponents/UIButton";
 import UnitRow from "./UnitRow";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import { useEffect } from "react";
 const CreateProperty = () => {
   const navigate = useNavigate();
   const [unitCreateError, setUnitCreateError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const steps = ["Property Information", "Add Units"];
   const [step, setStep] = useState(0);
+  const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState({
+    items: { data: [{ plan: { product: "" } }] },
+  });
   const {
     register,
     handleSubmit,
@@ -115,8 +129,7 @@ const CreateProperty = () => {
   };
   //Create a handle function to handle the form submission of creating a property
   const onSubmit = async (data) => {
-    console.log("units", units);
-    console.log("data", data);
+    setIsLoading(true);
     const res = await createProperty(
       data.name,
       data.street,
@@ -126,39 +139,52 @@ const CreateProperty = () => {
       data.country
     );
     console.log(res);
+    const newPropertyId = res.res.id;
     if (res.status === 200) {
-      //Use a map function to loop through the units array and create a unit for each unit in the array
-      const promises = units.map(async (unit) => {
-        unit.rental_property = res.res.id;
-        return await createUnit(unit);
-      });
-      //Use Promise.all to wait for all the promises to resolve
-      Promise.all(promises).then((values) => {
-        console.log(values);
-        //Loop through the values array and check if the status property in each is 200
-        values.forEach((value) => {
-          if (value.status !== 200) {
-            setUnitCreateError(true);
-          }
-        });
-        if (!unitCreateError) {
-          //Navigate to newly created property
-          navigate(`/dashboard/landlord/properties/${res.res.id}`);
-        }
-      });
+      let payload = {};
+      payload.units = JSON.stringify(units);
+      payload.rental_property = newPropertyId;
+      payload.subscription_id = currentSubscriptionPlan.id;
+      payload.product_id = currentSubscriptionPlan.plan.product;
+      payload.user = authUser.id;
+
+      const res = await createUnit(payload);
+      console.log(res);
+      if (res.status === 200) {
+        setIsLoading(false);
+        navigate(`/dashboard/landlord/properties/${newPropertyId}`);
+      } else {
+        setUnitCreateError(true);
+        setErrorMessage(res.message);
+        setIsLoading(false);
+      }
     }
   };
 
+  const retrieveSubscriptionPlan = async () => {
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+      (res) => {
+        setCurrentSubscriptionPlan(res.subscriptions);
+      }
+    );
+    return res;
+  };
+
+  useEffect(() => {
+    retrieveSubscriptionPlan();
+  }, []);
+
   return (
     <div className="container-fluid">
+      <ProgressModal open={isLoading} title="Creating your property..." />
       <AlertModal
         open={unitCreateError}
-        onClose={() => {
+        onClick={() => {
           setUnitCreateError(false);
           navigate(`/dashboard/landlord/properties/`);
         }}
-        title="Error"
-        body="Your property has been created but there was an error creating one or more your units. Please try again."
+        message={errorMessage}
+        btnText={"Ok"}
       />
       <div className="row mb-3">
         <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">

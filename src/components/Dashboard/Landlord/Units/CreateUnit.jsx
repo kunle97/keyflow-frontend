@@ -1,21 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { createUnit, getProperties } from "../../../../api/api";
+import {
+  createUnit,
+  getProperties,
+  getUserStripeSubscriptions,
+} from "../../../../api/api";
 import { useNavigate, useParams } from "react-router-dom";
 import { faker } from "@faker-js/faker";
 import BackButton from "../../UIComponents/BackButton";
 import { useForm } from "react-hook-form";
-import { uiRed, validationMessageStyle } from "../../../../constants";
+import {
+  authUser,
+  uiRed,
+  validationMessageStyle,
+  token,
+} from "../../../../constants";
 import UnitRow from "../Properties/UnitRow";
 import { Button, Stack } from "@mui/material";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const CreateUnit = () => {
   //Create a state for the form data
+  const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
   const [unitCreateError, setUnitCreateError] = useState(false);
-  const navigate = useNavigate();
   const { property_id } = useParams();
   const [selectedPropertyId, setSelectedPropertyId] = useState(
     property_id ? property_id : null
   );
+  const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState({
+    items: { data: [{ plan: { product: "" } }] },
+  });
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   const [units, setUnits] = useState([
     {
@@ -116,27 +132,27 @@ const CreateUnit = () => {
 
   //Call the create unit api function and pass the form data
   const onSubmit = async (data) => {
+    setIsLoading(true);
+    let payload = {};
+    payload.units = JSON.stringify(units);
+    payload.rental_property = selectedPropertyId;
+    payload.subscription_id = currentSubscriptionPlan.id;
+    payload.product_id = currentSubscriptionPlan.plan.product;
+    payload.user = authUser.id;
     console.log(data);
 
-    //Use a map function to loop through the units array and create a unit for each unit in the array
-    const promises = units.map(async (unit) => {
-      unit.rental_property = selectedPropertyId;
-      return await createUnit(unit);
-    });
-    //Use Promise.all to wait for all the promises to resolve
-    Promise.all(promises).then((values) => {
-      console.log(values);
-      //Loop through the values array and check if the status property in each is 200
-      values.forEach((value) => {
-        if (value.status !== 200) {
-          setUnitCreateError(true);
-        }
-      });
-      if (!unitCreateError) {
-        //Navigate to newly created property
-        navigate(`/dashboard/landlord/properties/${selectedPropertyId}`);
-      }
-    });
+    const res = await createUnit(payload);
+    console.log(res);
+    if (res.status === 200) {
+      setIsLoading(false);
+      navigate(`/dashboard/landlord/properties/${selectedPropertyId}`);
+    } else {
+      setUnitCreateError(true);
+      setErrorMessage(
+        res.message ? res.message : "Something went wrong. Please try again."
+      );
+      setIsLoading(false);
+    }
   };
 
   //Create a function to handle the property select change
@@ -144,16 +160,35 @@ const CreateUnit = () => {
     setSelectedPropertyId(e.target.value);
     console.log(e.target.value);
   };
+  const retrieveSubscriptionPlan = async () => {
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+      (res) => {
+        setCurrentSubscriptionPlan(res.subscriptions);
+      }
+    );
+    return res;
+  };
 
   useEffect(() => {
     //Retrieve all users properties
     getProperties().then((res) => {
       setProperties(res.data);
     });
+    retrieveSubscriptionPlan();
   }, []);
 
   return (
     <>
+      <ProgressModal open={isLoading} title="Adding units..." />
+      <AlertModal
+        open={unitCreateError}
+        onClick={() => {
+          setUnitCreateError(false);
+          navigate(`/dashboard/landlord/properties/`);
+        }}
+        message={errorMessage}
+        btnText="Ok"
+      />
       <div className="container">
         <div className="row mb-3">
           <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">

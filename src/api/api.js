@@ -2,7 +2,7 @@
  * API functions for the frontend
  * **/
 import axios from "axios";
-import { token, authUser } from "../constants";
+import { token, authUser, subscriptionPlan } from "../constants";
 import {
   convertMaintenanceRequestStatus,
   makeId,
@@ -25,7 +25,44 @@ export const unauthenticatedInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
+export async function getLandlordsEmails() {
+  try {
+    const res = await unauthenticatedInstance
+      .get(`/landlords-emails/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Get Landlords Emails Error: ", error);
+    return error.response;
+  }
+}
+
 ///-----------------AUTH API FUNCTIONS---------------------------///
+//Create a function to retrieve a user's stripe subscriptions using the nedn poiint api/users/{id}/subscription
+export async function getUserStripeSubscriptions(user_id, token) {
+  try {
+    const res = await axios
+      .get(`${API_HOST}/users/${user_id}/landlord-subscriptions/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Get User Stripe Subscriptions Error: ", error);
+    return error.response;
+  }
+}
 export async function login(email, password) {
   try {
     const res = await unauthenticatedInstance
@@ -37,10 +74,10 @@ export async function login(email, password) {
       });
 
     if (res.statusCode === 200 && email !== "" && password !== "") {
+      //Set authUser and isLoggedIn in context
       localStorage.setItem("accessToken", res.token);
-
-      //Check for response code before storing data in context
-      const userData = {
+      //Save auth user in local storage
+      let userData = {
         id: res.user.id,
         first_name: res.user.first_name,
         last_name: res.user.last_name,
@@ -51,8 +88,22 @@ export async function login(email, password) {
         isAuthenticated: res.isAuthenticated,
         is_active: res.user.is_active,
         accessToken: res.token,
+        susbcription_plan: {},
       };
-
+      getUserStripeSubscriptions(res.user.id, res.token)
+        .then((res) => {
+          console.log(res.subscriptions.plan);
+          userData.susbcription_plan = res.subscriptions.plan;
+          localStorage.setItem(
+            "subscriptionPlan",
+            JSON.stringify(res.subscriptions)
+          );
+        })
+        .catch((error) => {
+          console.log("Error Retrieveing user subscription plan", error);
+        });
+      localStorage.setItem("authUser", JSON.stringify(userData));
+      //Check for response code before storing data in context
       const redirect_url =
         res.user.account_type === "landlord"
           ? "/dashboard/landlord"
@@ -89,6 +140,7 @@ export async function logout(accessToken) {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("authUser");
           localStorage.removeItem("stripe_onoboarding_link");
+          localStorage.removeItem("subscriptionPlan");
           message = response.message;
           status = response.status;
         } else {
@@ -141,7 +193,21 @@ export async function getSubscriptionPlanPrices() {
     return error.response;
   }
 }
-
+//Create a function to change a user's subscription plan using the endpoint /users/{user_id}/change-subscription-plan/
+export async function changeSubscriptionPlan(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/users/${authUser.id}/change-subscription-plan/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Change Subscription Plan Error: ", error);
+    return error.response;
+  }
+}
 // create an api function to register a tenant
 export async function registerTenant(data) {
   try {
@@ -682,13 +748,7 @@ export async function createUnit(data) {
   console.log("create unit data: ", data);
   try {
     const res = await authenticatedInstance
-      .post(`${API_HOST}/units/`, {
-        name: data.name,
-        rental_property: data.rental_property,
-        beds: data.beds,
-        baths: data.baths,
-        user: authUser.id,
-      })
+      .post(`${API_HOST}/units/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios create unit response ", response);
@@ -794,10 +854,16 @@ export async function updateUnit(unitId, data) {
 }
 
 //Create function to delete a unit
-export async function deleteUnit(unitId) {
+export async function deleteUnit(data) {
   try {
     const res = await authenticatedInstance
-      .delete(`/units/${unitId}/`)
+      .delete(`/units/${data.unit_id}/`, {
+        data: {
+          product_id: data.product_id,
+          subscription_id: data.subscription_id,
+          rental_property: data.rental_property,
+        },
+      })
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
