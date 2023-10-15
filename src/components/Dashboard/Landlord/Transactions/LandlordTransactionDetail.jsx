@@ -1,12 +1,10 @@
 import React from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router";
-import {
-  getProperty,
-  getTransactionById,
-  getUnit,
-  getUserData,
-} from "../../../../api/api";
+import { getProperty } from "../../../../api/properties";
+import { getTransactionById } from "../../../../api/transactions";
+import { getUnit } from "../../../../api/units";
+import { getUserData } from "../../../../api/auth";
 import { useState } from "react";
 import BackButton from "../../UIComponents/BackButton";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";

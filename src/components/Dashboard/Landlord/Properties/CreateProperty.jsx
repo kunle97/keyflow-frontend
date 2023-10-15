@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { createProperty, createUnit, getUserStripeSubscriptions } from "../../../../api/api";
+import {createProperty } from "../../../../api/properties";
+import {createUnit} from "../../../../api/units";
+
+import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { faker } from "@faker-js/faker";
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   authUser,
-  subscriptionPlan,
   token,
-  uiGreen,
   uiRed,
   validationMessageStyle,
 } from "../../../../constants";

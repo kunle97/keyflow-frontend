@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { getPaymentDates } from "../../../api/api";
+import { getPaymentDates } from "../../../api/manage_subscriptions";
 const PaymentCalendar = () => {
   const events = [{ title: "Meeting", start: new Date() }];
   const [dates, setDates] = useState([]);

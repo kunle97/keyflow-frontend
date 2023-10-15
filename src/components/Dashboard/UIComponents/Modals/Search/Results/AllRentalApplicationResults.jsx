@@ -8,7 +8,6 @@ import { authUser, uiGreen } from "../../../../../../constants";
 import { useSearch } from "../../../../../../contexts/SearchContext";
 import { useEffect } from "react";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { getLandlordUnits, getProperties } from "../../../../../../api/api";
 const AllRentalApplicationResults = (props) => {
   const batchEndpoints = [
     {
@@ -49,17 +48,6 @@ const AllRentalApplicationResults = (props) => {
     changeEndpoint(`/rental-applications/`);
     changeSearchLimit(6);
     search();
-    // changeEndpointBatch(batchEndpoints);
-
-    // setSearchQuery(props.searchValue);
-    // setSearchResultsBatch(batchEndpoints);
-    // searchBatch();
-    // getLandlordUnits().then((res) => {
-    //   setAllUnits(res.data);
-    // });
-    // getProperties().then((res) => {
-    //   setAllProperties(res.data);
-    // });
   }, [searchQuery, props.searchValue]);
 
   useEffect(() => {

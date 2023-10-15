@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import { uiGreen, uiGrey1, uiGrey2 } from "../../../../constants";
 import { fa, faker } from "@faker-js/faker";
 import {
-  getSubscriptionPlanPrices,
   registerLandlord,
-} from "../../../../api/api";
-import { Link, useNavigate } from "react-router-dom";
+} from "../../../../api/auth";
+import { Link } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { Input, Button, Stack, IconButton } from "@mui/material";

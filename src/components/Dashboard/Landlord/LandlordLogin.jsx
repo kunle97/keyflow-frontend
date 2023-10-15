@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { getLandlordsEmails, login, logout } from "../../../api/api";
+import { getLandlordsEmails } from "../../../api/api";
+import { login } from "../../../api/auth";
 import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
-import {
-  uiGreen,
-  uiGrey1,
-  uiGrey2,
-  validationMessageStyle,
-} from "../../../constants";
+import { uiGreen, uiGrey2, validationMessageStyle } from "../../../constants";
 import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
@@ -16,12 +11,10 @@ import { set, useForm } from "react-hook-form";
 const LandlordLogin = () => {
   const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
   const [landlordsEmails, setLandlordsEmails] = useState([]);
-  const [password, setPassword] = useState("password");
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const navigate = useNavigate();
-  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
+  const { setAuthUser, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const {

@@ -5,9 +5,9 @@ import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
 import {
   getLeaseAgreementByIdAndApprovalHash,
-  getLeaseTermByIdAndApprovalHash,
   signLeaseAgreement,
-} from "../api/api";
+} from "../api/lease_agreements";
+import {getLeaseTermByIdAndApprovalHash,} from "../api/lease_terms";
 import { useState } from "react";
 import AlertModal from "./Dashboard/UIComponents/Modals/AlertModal";
 import ConfirmModal from "./Dashboard/UIComponents/Modals/ConfirmModal";

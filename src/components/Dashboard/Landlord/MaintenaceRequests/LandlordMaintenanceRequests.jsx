@@ -3,14 +3,11 @@ import { useEffect } from "react";
 import {
   deleteMaintenanceRequest,
   getMaintenanceRequestsByLandlord,
-} from "../../../../api/api";
+} from "../../../../api/maintenance_requests";
 import { useState } from "react";
-import MUIDataTable from "mui-datatables";
-import UIButton from "../../UIComponents/UIButton";
 import { useNavigate } from "react-router-dom";
 import { uiGreen, uiRed } from "../../../../constants";
 import TitleCard from "../../UIComponents/TitleCard";
-import { Title } from "@mui/icons-material";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 

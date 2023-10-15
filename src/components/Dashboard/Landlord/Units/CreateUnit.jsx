@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  createUnit,
-  getProperties,
-  getUserStripeSubscriptions,
-} from "../../../../api/api";
+import { createUnit } from "../../../../api/units";
+import { getProperties } from "../../../../api/properties";
+import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { useNavigate, useParams } from "react-router-dom";
 import { faker } from "@faker-js/faker";
 import BackButton from "../../UIComponents/BackButton";

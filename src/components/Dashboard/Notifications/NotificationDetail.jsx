@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router";
-import { getNotification, markNotificationAsRead } from "../../../api/api";
+import { getNotification, markNotificationAsRead } from "../../../api/notifications";
 import { useState } from "react";
 import BackButton from "../UIComponents/BackButton";
 import { uiGreen } from "../../../constants";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Typography, Alert, Tooltip } from "@mui/material";
 import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
-import { createLeaseTerm } from "../../../../api/api";
+import { createLeaseTerm } from "../../../../api/lease_terms";
 import { faker } from "@faker-js/faker";
 import BackButton from "../../UIComponents/BackButton";
 import Snackbar from "@mui/material/Snackbar";

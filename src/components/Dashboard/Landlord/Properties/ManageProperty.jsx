@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { deleteProperty, deleteUnit, getProperty } from "../../../../api/api";
-import {
-  Alert,
-  Card,
-  CircularProgress,
-  Snackbar,
-  Typography,
-} from "@mui/material";
-import { updateProperty } from "../../../../api/api";
+import { deleteUnit, } from "../../../../api/units";
+import { Alert, CircularProgress, Snackbar, Typography } from "@mui/material";
+import { deleteProperty, updateProperty, getProperty } from "../../../../api/properties";
 import { useNavigate } from "react-router";
-import MUIDataTable from "mui-datatables";
-import { Box, Button } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { getUnits } from "../../../../api/api";
+import { getUnits } from "../../../../api/units";
 import { uiGreen, uiRed } from "../../../../constants";
 import BackButton from "../../UIComponents/BackButton";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import DeleteButton from "../../UIComponents/DeleteButton";
@@ -129,10 +121,10 @@ const ManageProperty = () => {
       setUnits(res.units);
       //Retireve the units for the property
       getUnits(id)
-      .then((res) => {
-        setUnits(res.data);
-        setIsLoading(false);
-      })
+        .then((res) => {
+          setUnits(res.data);
+          setIsLoading(false);
+        })
         .catch((err) => {
           console.log(err);
         });

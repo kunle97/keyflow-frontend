@@ -44,16 +44,12 @@ import DashboardOutlined from "@mui/icons-material/DashboardOutlined";
 import PeopleAltOutlined from "@mui/icons-material/PeopleAltOutlined";
 import HomeWorkOutlined from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import WeekendOutlined from "@mui/icons-material/WeekendOutlined";
 import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import PaidOutlined from "@mui/icons-material/PaidOutlined";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import {
-  AddHome,
   AddHomeOutlined,
   AddHomeWorkOutlined,
-  DomainAddOutlined,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
 import UpdateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/UpdateLeaseTerm";

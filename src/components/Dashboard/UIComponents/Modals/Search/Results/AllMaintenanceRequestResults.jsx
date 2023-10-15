@@ -1,18 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useSearch } from "../../../../../../contexts/SearchContext";
-import { uiGreen, uiGrey2 } from "../../../../../../constants";
+import { uiGreen} from "../../../../../../constants";
 import {
   Box,
-  ButtonBase,
   CircularProgress,
-  IconButton,
-  Stack,
 } from "@mui/material";
 import SearchResultCard from "../SearchResultCard";
-import { ArrowBackOutlined, ArrowForwardOutlined } from "@mui/icons-material";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
 import { checkIfTenantMatchesMaintenanceRequest } from "../../../../../../helpers/utils";
-import { getLandlordTenants } from "../../../../../../api/api";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import { useGlobalSearch } from "../../../../../../hooks/useGlobalSearch";

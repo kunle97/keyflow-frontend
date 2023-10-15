@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import Slide from "@mui/material/Slide";
-import { Box, Button, Input, Tab, Tabs } from "@mui/material";
-import { AccountCircle } from "@mui/icons-material";
-import ClearIcon from "@mui/icons-material/Clear";
+import { Box, Button, Input } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { AppBar, IconButton } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 import { authUser, uiGreen, uiGrey1 } from "../../../../../constants";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
@@ -16,19 +13,14 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SearchResultCard from "./SearchResultCard";
 import { useCallback } from "react";
-import {
-  authenticatedInstance,
-  getLandlordTenants,
-  getLandlordUnits,
-  getProperties,
-} from "../../../../../api/api";
+import { authenticatedInstance } from "../../../../../api/api";
+import { getLandlordUnits } from "../../../../../api/units";
+
+import { getProperties } from "../../../../../api/properties";
 import { useNavigate } from "react-router-dom";
-import { landlordMenuItems } from "../../../../../constants";
 import { routes } from "../../../../../routes";
-import { useHistoryList } from "../../../../../hooks/useHistoryList";
 import {
   filterDashboardPages,
   filterTenants,
@@ -42,7 +34,7 @@ import AllTransactionResults from "./Results/AllTransactionResults";
 import AllMaintenanceRequesResults from "./Results/AllMaintenanceRequestResults";
 import AllUnitResults from "./Results/AllUnitResults";
 import AllRentalApplicationResults from "./Results/AllRentalApplicationResults";
-import UITabs, { StyledTab, StyledTabs } from "../../UITabs";
+import UITabs from "../../UITabs";
 
 const SearchDialog = (props) => {
   //Create a useCallback version of the Transition component

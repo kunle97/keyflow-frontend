@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { faker } from "@faker-js/faker";
-import { uiGreen, uiGrey1, uiGrey2 } from "../../../constants";
-import { RevenueChart } from "./Charts/RevenueChart";
+import { uiGreen, uiGrey2 } from "../../../constants";
 import { data1, data2, data3 } from "../../../mockData";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
-import MUIDataTable from "mui-datatables";
 import { useEffect } from "react";
-import { getTransactionsByUser } from "../../../api/api";
+import { getTransactionsByUser } from "../../../api/transactions";
 import { useNavigate } from "react-router";
 import UITable from "../UIComponents/UITable/UITable";
 const Dashboard = () => {

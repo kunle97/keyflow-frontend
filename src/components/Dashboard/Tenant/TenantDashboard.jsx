@@ -9,18 +9,19 @@ import ReportIcon from "@mui/icons-material/Report";
 import PaymentCalendar from "./PaymentCalendar";
 import {
   getNextPaymentDate,
-  getTenantDashboardData,
-  getTenantTransactionsByUser,
-  listStripePaymentMethods,
   turnOffAutoPay,
   turnOnAutoPay,
-} from "../../../api/api";
+} from "../../../api/manage_subscriptions";
+import {getTenantTransactionsByUser,} from "../../../api/transactions";
+import {listStripePaymentMethods,} from "../../../api/payment_methods";
+import {getTenantDashboardData,} from "../../../api/tenants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router";
 import { CircularProgress, FormControlLabel } from "@mui/material";
 import UISwitch from "../UIComponents/UISwitch";
+
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);

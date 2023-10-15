@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -11,8 +12,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import { makePayment } from "../../../../api/api";
+import { makePayment } from "../../../../api/tenants";
 import { uiGreen, uiGrey1, authUser } from "../../../../constants";
 import UIButton from "../UIButton";
 const PaymentModal = (props) => {

@@ -7,16 +7,15 @@ import {
   validationMessageStyle,
 } from "../../../../constants";
 import {
-  changePassword,
   deleteStripePaymentMethod,
-  getSubscriptionPlanPrices,
-  getTenantDashboardData,
-  getUserStripeSubscriptions,
   listStripePaymentMethods,
   setDefaultPaymentMethod,
-  updateUserData,
-} from "../../../../api/api";
-import { set, useForm } from "react-hook-form";
+} from "../../../../api/payment_methods";
+import {getTenantDashboardData,} from "../../../../api/tenants";
+import { changePassword } from "../../../../api/passwords";
+import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
+import { getUserStripeSubscriptions, updateUserData } from "../../../../api/auth";
+import { useForm } from "react-hook-form";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
@@ -24,8 +23,6 @@ import { useNavigate } from "react-router";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { ListDivider } from "@mui/joy";
 import UITabs from "../../UIComponents/UITabs";
-import UIDialog from "../../UIComponents/Modals/UIDialog";
-import PlanSelectDialog from "../Registration/PlanSelectDialog";
 import PlanChangeDialog from "./PlanChangeDialog";
 
 const MyAccount = () => {

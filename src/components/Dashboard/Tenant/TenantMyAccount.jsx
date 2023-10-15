@@ -2,19 +2,17 @@ import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { authUser, uiGreen, uiRed } from "../../../constants";
 import {
-  changePassword,
   deleteStripePaymentMethod,
-  getStripeSubscription,
-  getTenantDashboardData,
-  getUserData,
   listStripePaymentMethods,
   setDefaultPaymentMethod,
-  updateUserData,
-} from "../../../api/api";
+} from "../../../api/payment_methods";
+import { getTenantDashboardData } from "../../../api/tenants";
+import { changePassword } from "../../../api/passwords";
+import { getStripeSubscription, updateUserData } from "../../../api/auth";
 import { ListDivider } from "@mui/joy";
 import UIButton from "../UIComponents/UIButton";
 import { useNavigate } from "react-router";
-import { get, set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";

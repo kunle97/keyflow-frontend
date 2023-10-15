@@ -2,21 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import {
   authenticatedInstance,
-  getNotifications,
-  logout,
 } from "../../../../api/api";
+import { logout } from "../../../../api/auth";
 import { useNavigate } from "react-router";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link } from "react-router-dom";
 import { authUser, token, uiGreen, uiGrey3 } from "../../../../constants";
 import { faker } from "@faker-js/faker";
-import { set } from "react-hook-form";
-import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { IconButton, MenuItem, Stack } from "@mui/material";
-import Badge from "@mui/material/Badge";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsList from "./Lists/NotificationsList";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -27,7 +19,7 @@ const Topbar = () => {
     e.preventDefault();
 
     //call logout api
-    const response = await logout(token);
+    const response = await logout();
     console.log("Logout funtion return value on Login.jsx: ", response);
 
     if (response.status == 200) {
