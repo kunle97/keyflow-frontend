@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { activateAccount, logout } from "../../../api/api";
+import { activateAccount } from "../../../api/auth";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 
 const ActivateAccount = () => {

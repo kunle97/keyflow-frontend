@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   createMaintenanceRequest,
-  getTenantDashboardData,
-} from "../../../../api/api";
-import { create } from "@mui/material/styles/createTransitions";
+} from "../../../../api/maintenance_requests";
+import {getTenantDashboardData,} from "../../../../api/tenants";
 import { authUser, validationMessageStyle } from "../../../../constants";
-import { Alert } from "@mui/material";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";

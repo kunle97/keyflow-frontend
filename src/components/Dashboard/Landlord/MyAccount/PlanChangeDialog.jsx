@@ -7,8 +7,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import {
   changeSubscriptionPlan,
-  getUserStripeSubscriptions,
-} from "../../../../api/api";
+} from "../../../../api/manage_subscriptions";
+import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { useNavigate } from "react-router-dom";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";

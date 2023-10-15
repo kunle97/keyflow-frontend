@@ -1,16 +1,9 @@
 import React, { useState } from "react";
-import { Button } from "@mui/material";
-import { token, uiGreen } from "../../../../constants";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import {
-  deleteLeaseTerm,
-  getLandlordUnits,
-  getLeaseTermsByUser,
-} from "../../../../api/api";
-import MUIDataTable from "mui-datatables";
+import { deleteLeaseTerm, getLeaseTermsByUser } from "../../../../api/lease_terms";
+import { getLandlordUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { set } from "react-hook-form";
 import UITable from "../../UIComponents/UITable/UITable";
 const LeaseTerms = () => {
   const [leaseTerms, setLeaseTerms] = useState([]);
@@ -160,7 +153,7 @@ const LeaseTerms = () => {
         endpoint="/lease-terms/"
         title="Lease Terms"
         createURL="/dashboard/landlord/lease-terms/create"
-        detailURL="/dashboard/landlord/lease-terms/" 
+        detailURL="/dashboard/landlord/lease-terms/"
         showCreate={true}
       />
     </>

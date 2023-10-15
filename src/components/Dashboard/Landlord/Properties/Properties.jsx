@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  authenticatedInstance,
   deleteProperty,
-  getProperties,
   getPropertyFilters,
-  getUnits,
-} from "../../../../api/api";
-import MUIDataTable from "mui-datatables";
-import { Typography, CircularProgress, Box } from "@mui/material";
-import { uiGreen } from "../../../../constants";
+  getProperties,
+} from "../../../../api/properties";
+import { getUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { set } from "react-hook-form";
 import UITable from "../../UIComponents/UITable/UITable";
 const Properties = () => {
   const [properties, setProperties] = useState([]);

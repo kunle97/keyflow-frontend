@@ -1,9 +1,8 @@
 import React from "react";
 import { useEffect } from "react";
 import {
-  deleteMaintenanceRequest,
   getMaintenanceRequestsByUser,
-} from "../../../../api/api";
+} from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import MUIDataTable from "mui-datatables";
 

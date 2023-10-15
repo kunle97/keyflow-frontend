@@ -1,24 +1,20 @@
-import { Button, Stack, Tooltip, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fakeData, uiGreen } from "../../constants";
-import UIBinaryRadioGroup from "../Dashboard/UIComponents/UIBinaryRadioGroup";
 import EmploymentHistorySection from "./ApplicationSections/EmploymentHistorySection";
 import RentalHistorySection from "./ApplicationSections/RentalHistorySection";
-import { HelpOutline } from "@mui/icons-material";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
-import {
-  createRentalApplication,
-  getLeaseTermByUnitId,
-  getPropertyUnauthenticated,
-  getUnitUnauthenticated,
-} from "../../api/api";
+
+import { createRentalApplication } from "../../api/rental_applications";
+import { getLeaseTermByUnitId } from "../../api/units";
+import { getUnitUnauthenticated } from "../../api/units";
+import { getPropertyUnauthenticated } from "../../api/properties";
 import { useParams } from "react-router-dom";
 import ProgressModal from "../Dashboard/UIComponents/Modals/ProgressModal";
 import AlertModal from "../Dashboard/UIComponents/Modals/AlertModal";
 import { useForm } from "react-hook-form";
-import { validationMessageStyle } from "../../constants";
 import BasicInfoSection from "./ApplicationSections/BasicInfoSection";
 import AdditionalInformationSection from "./ApplicationSections/AdditionalInformationSection";
 import UIButton from "../Dashboard/UIComponents/UIButton";
@@ -32,7 +28,6 @@ const CreateRentalApplication = () => {
   const [step1IsValid, setStep1IsValid] = useState(false); // step 2 validation state
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
-  const [step4IsValid, setStep4IsValid] = useState(false); // step 5 validation state
   const [unit, setUnit] = useState({}); // unit data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message

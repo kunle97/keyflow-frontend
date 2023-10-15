@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { filterTenants } from "../../../../../../helpers/utils";
 import { useEffect } from "react";
-import { getLandlordTenants } from "../../../../../../api/api";
+import { getLandlordTenants } from "../../../../../../api/landlords";
 import SearchResultCard from "../SearchResultCard";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 const AllTenantResults = (props) => {

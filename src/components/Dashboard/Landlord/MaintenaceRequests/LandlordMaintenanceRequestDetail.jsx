@@ -3,20 +3,18 @@ import {
   changeMaintenanceRequestStatus,
   deleteMaintenanceRequest,
   getMaintenanceRequestById,
-  getProperty,
-  getUnit,
-  markMaintenanceRequestAsResolved,
-  markMaintenanceRequestAsUnresolved,
-} from "../../../../api/api";
+} from "../../../../api/maintenance_requests";
+import { getProperty } from "../../../../api/properties";
+import { getUnit } from "../../../../api/units";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useNavigate, useParams } from "react-router";
 import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import BackButton from "../../UIComponents/BackButton";
-import { Alert, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import { uiGreen, uiRed } from "../../../../constants";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 const LandlordMaintenanceRequestDetail = () => {
   const { id } = useParams();
@@ -25,8 +23,6 @@ const LandlordMaintenanceRequestDetail = () => {
   const [unit, setUnit] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [openSetResolveModal, setOpenSetResolveModal] = useState(false);
-  const [openSetUnresolveModal, setOpenSetUnresolveModal] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
@@ -73,7 +69,9 @@ const LandlordMaintenanceRequestDetail = () => {
     deleteMaintenanceRequest(id).then((res) => {
       console.log(res);
       if (res.status === 204) {
-        setConfirmMessage("Maintenance Request has been deleted. You will be redirected to the maintenance requests page.");
+        setConfirmMessage(
+          "Maintenance Request has been deleted. You will be redirected to the maintenance requests page."
+        );
         setShowAlertModal(true);
         navigate("/dashboard/landlord/maintenance-requests");
       } else {

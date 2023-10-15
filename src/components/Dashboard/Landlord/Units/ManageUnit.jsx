@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  updateUnit,
-  getUnit,
-  getLeaseTermsByUser,
-  getLeaseTermById,
-  deleteUnit,
-  getUserData,
-  getUserStripeSubscriptions,
-} from "../../../../api/api";
+import { getLeaseTermsByUser, getLeaseTermById } from "../../../../api/lease_terms";
+import { deleteUnit, getUnit, updateUnit } from "../../../../api/units";
+import { getUserData } from "../../../../api/auth";
+import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { Link, useParams } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
 import {
@@ -77,7 +72,7 @@ const CreateUnit = () => {
     }
     setShowUpdateSuccess(false);
   };
-  
+
   const retrieveSubscriptionPlan = async () => {
     const res = await getUserStripeSubscriptions(authUser.id, token).then(
       (res) => {

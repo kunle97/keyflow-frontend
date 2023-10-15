@@ -2,15 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Button, Stack } from "@mui/material";
 import { authUser, uiGreen } from "../../../../constants";
 import { useParams } from "react-router";
+import { createLeaseAgreement } from "../../../../api/lease_agreements";
 import {
   approveRentalApplication,
-  createLeaseAgreement,
   deleteOtherRentalApplications,
   getRentalApplicationById,
-  getUnit,
   rejectRentalApplication,
-  updateUnit,
-} from "../../../../api/api";
+} from "../../../../api/rental_applications";
+import { getUnit } from "../../../../api/units";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -28,7 +27,8 @@ const ViewRentalApplication = () => {
 
   useEffect(() => {
     //Retrieve rental application by id
-    getRentalApplicationById(id).then((res) => {//WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN 
+    getRentalApplicationById(id).then((res) => {
+      //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
       if (res) {
         setRentalApplication(res);
         setEmploymentHistory(JSON.parse(res.employment_history));
@@ -75,8 +75,6 @@ const ViewRentalApplication = () => {
               "/";
             console.log("Sign Link", signLink);
           });
-
-
         });
 
         //Delete all other applications

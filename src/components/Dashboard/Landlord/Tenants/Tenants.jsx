@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getLandlordTenants } from "../../../../api/api";
-import MUIDataTable from "mui-datatables";
+import { getLandlordTenants } from "../../../../api/landlords";
 import { useNavigate } from "react-router-dom";
 import TitleCard from "../../UIComponents/TitleCard";
 import { authUser, uiGreen } from "../../../../constants";

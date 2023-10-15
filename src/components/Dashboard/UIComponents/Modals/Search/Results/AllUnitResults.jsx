@@ -1,18 +1,11 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { uiGreen, uiGrey2 } from "../../../../../../constants";
+import { uiGreen } from "../../../../../../constants";
 import {
   Box,
-  ButtonBase,
   CircularProgress,
-  IconButton,
-  Stack,
 } from "@mui/material";
-import {
-  authenticatedInstance,
-  getProperties,
-} from "../../../../../../api/api";
+import { getProperties } from "../../../../../../api/properties";
 import SearchResultCard from "../SearchResultCard";
-import { ArrowBackOutlined, ArrowForwardOutlined } from "@mui/icons-material";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
 import { checkIfUnitMatchesProperty } from "../../../../../../helpers/utils";
 import { useSearch } from "../../../../../../contexts/SearchContext";

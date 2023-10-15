@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
 import {
-  getRentalApplications,
   getRentalApplicationsByUser,
-} from "../../../../api/api";
-import { CircularProgress, Box } from "@mui/material";
-import { authUser, uiGreen } from "../../../../constants";
+} from "../../../../api/rental_applications";
 import { useNavigate } from "react-router";
-import MUIDataTable from "mui-datatables";
 import UITable from "../../UIComponents/UITable/UITable";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);

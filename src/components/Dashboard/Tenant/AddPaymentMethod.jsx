@@ -3,7 +3,8 @@ import { CardElement, Elements } from "@stripe/react-stripe-js";
 import { useState } from "react";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { PlaidLink } from "react-plaid-link";
-import { addStripePaymentMethod, createPlaidLinkToken } from "../../../api/api";
+import { addStripePaymentMethod } from "../../../api/payment_methods";
+import {  createPlaidLinkToken } from "../../../api/auth";
 import {
   FormControl,
   FormControlLabel,

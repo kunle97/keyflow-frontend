@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getTransactionsByUser } from "../../../../api/api";
+import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
-import MUIDataTable from "mui-datatables";
 import { RevenueExpenseBarChart } from "./Charts/RevenueExpenseBarChart";
 import { RevenueByPropertyPieChart } from "./Charts/RevenueByPropertyPieChart";
 import { ExpenseByPropertyPieChart } from "./Charts/ExpenseByPropertyPieChart";

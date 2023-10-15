@@ -1,14 +1,11 @@
 import React from "react";
 import { useState } from "react";
-import { getTenantDashboardData } from "../../../api/api";
+import { getTenantDashboardData } from "../../../api/tenants";
 import { useEffect } from "react";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
 const MyLeaseAgreement = () => {
   const [unit, setUnit] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
-  const [responseMessage, setResponseMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [leaseTerm, setLeaseTerm] = useState(null);
   useEffect(() => {
     //Retrieve the unit

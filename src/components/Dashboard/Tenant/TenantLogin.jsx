@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { login } from "../../../api/api";
+import { login } from "../../../api/auth";
 import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { uiGreen } from "../../../constants";

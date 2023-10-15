@@ -4,7 +4,7 @@ import { Chip,  Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { uiGreen, uiGrey1 } from "../../../../constants";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { getSubscriptionPlanPrices } from "../../../../api/api";
+import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 
 const PlanSelectDialog = (props) => {

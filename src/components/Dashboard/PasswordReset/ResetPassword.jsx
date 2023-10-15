@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import UIButton from "../UIComponents/UIButton";
 import { useForm } from "react-hook-form";
@@ -6,8 +6,7 @@ import { validationMessageStyle } from "../../../constants";
 import {
   resetPassword,
   validatePasswordResetToken,
-} from "../../../api/api";
-import { useEffect } from "react";
+} from "../../../api/passwords";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 const ResetPassword = () => {
   const { token } = useParams();

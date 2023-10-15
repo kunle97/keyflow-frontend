@@ -3,9 +3,9 @@ import { authUser, uiGreen, uiGrey1 } from "../../../constants";
 import { faker } from "@faker-js/faker";
 import {
   getRentalApplicationByApprovalHash,
-  registerTenant,
-  verifyTenantRegistrationCredentials,
-} from "../../../api/api";
+} from "../../../api/rental_applications";
+import {verifyTenantRegistrationCredentials,} from "../../../api/tenants";
+import { registerTenant } from "../../../api/auth";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";

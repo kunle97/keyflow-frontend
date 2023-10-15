@@ -3,7 +3,7 @@ import React from "react";
 import UIButton from "../UIComponents/UIButton";
 import { useForm } from "react-hook-form";
 import { makeId } from "../../../helpers/utils";
-import { sendPasswordResetEmail } from "../../../api/api";
+import { sendPasswordResetEmail } from "../../../api/passwords";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import emailjs from "@emailjs/browser";
