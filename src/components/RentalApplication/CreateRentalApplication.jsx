@@ -58,6 +58,19 @@ const CreateRentalApplication = () => {
         //Retrieve Lease Term for the unit
         getLeaseTermByUnitId(unit_res.data.id).then((res) => {
           setLeaseTerm(res);
+          if (
+            res.rent === null ||
+            res.created_at === null ||
+            res.grace_period === null ||
+            res.late_fee === null ||
+            res.lease_cancellation_fee === null ||
+            res.lease_cancellation_notice_period === null ||
+            res.security_deposit === null ||
+            res.term === null ||
+            res.user === null
+          ) {
+            navigate("/*");
+          }
         });
         if (unit_res.data.is_occupied) {
           //Redirect to 404 screen if unit is occupied

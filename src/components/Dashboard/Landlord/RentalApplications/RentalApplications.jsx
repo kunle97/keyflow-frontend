@@ -10,13 +10,7 @@ const RentalApplications = () => {
   const navigate = useNavigate();
 
   const columns = [
-    {
-      name: "id",
-      label: "ID",
-      selector: (row) => row.id,
-      sortable: true,
-      options: { display: false },
-    },
+
     {
       name: "first_name",
       label: "First Name",
@@ -94,25 +88,6 @@ const RentalApplications = () => {
   }, []);
   return (
     <>
-      {/* <h4>Rental Applications</h4>
-      <div className="card" style={{ overflow: "hidden" }}>
-        {isLoading ? (
-          <Box sx={{ display: "flex" }}>
-            <Box m={"55px auto"}>
-              <CircularProgress sx={{ color: uiGreen }} />
-            </Box>
-          </Box>
-        ) : (
-          <>
-            <MUIDataTable
-              title={"Rental Applications"}
-              columns={columns}
-              data={rentalApplications}
-              options={options}
-            />
-          </>
-        )}
-      </div> */}
       <UITable
         columns={columns}
         options={options}
