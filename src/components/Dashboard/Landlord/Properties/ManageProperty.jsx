@@ -119,15 +119,16 @@ const ManageProperty = () => {
         setValue(key, preloadedData[key]);
       });
       setUnits(res.units);
+      console.log("State UNITS",units);
       //Retireve the units for the property
-      getUnits(id)
-        .then((res) => {
-          setUnits(res.data);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      // getUnits(id)
+      //   .then((res) => {
+      //     // setUnits(res.data);
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
+        setIsLoading(false);
     });
   }, []);
 

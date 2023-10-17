@@ -53,8 +53,7 @@ const ViewRentalApplication = () => {
         getUnit(res.unit).then((res) => {
           console.log("unit", res);
           //Retrieve Lease Term from the unit to be stored in lease agreement
-          let lease_term = null;
-          lease_term = res.lease_term;
+          const  lease_term = res.lease_term;
           const leaseAgreementData = {
             rental_application: parseInt(id),
             rental_unit: res.id,

@@ -29,16 +29,7 @@ const AddPaymentMethod = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMode, setErrorMode] = useState(false); //If true, display error message
   const [successMode, setSuccessMode] = useState(false); //If true, display error message
-  useEffect(() => {
-    //Create a Plaid link token by callig the API
-    // createPlaidLinkToken(`${authUser.id}`).then((res) => {
-    createPlaidLinkToken(`1`).then((res) => {
-      console.log(res);
-      //Open the Plaid Link
-      //Get the Plaid token from the Plaid Link
-      //Set the return token to the Plaid token
-    });
-  }, []);
+
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     setIsLoading(true);
@@ -97,7 +88,16 @@ const AddPaymentMethod = (props) => {
     console.log(metadata);
     setReturnToken(token);
   };
-
+  useEffect(() => {
+    //Create a Plaid link token by callig the API
+    // createPlaidLinkToken(`${authUser.id}`).then((res) => {
+    createPlaidLinkToken(`1`).then((res) => {
+      console.log("PLAID responseew",res);
+      //Open the Plaid Link
+      //Get the Plaid token from the Plaid Link
+      //Set the return token to the Plaid token
+    });
+  }, []);
   return (
     <div className="">
       <BackButton />
