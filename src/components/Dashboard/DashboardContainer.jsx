@@ -6,6 +6,7 @@ import TopBarMUI from "../Dashboard/Landlord/Navigation/TopBarMUI";
 import { authUser, uiGreen } from "../../constants";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useHistoryList } from "../../hooks/useHistoryList";
+import DeveloperToolsMenu from "./DevTools/DeveloperToolsMenu";
 const DashboardContainer = ({ children }) => {
   const { historyList, goToPage } = useHistoryList();
   console.log("History ", historyList);
@@ -44,6 +45,7 @@ const DashboardContainer = ({ children }) => {
             )}
           </div>
         </div>
+        <DeveloperToolsMenu />
         <footer
           className="bg-white sticky-footer"
           style={{ background: "#2c3a4a", color: uiGreen }}
