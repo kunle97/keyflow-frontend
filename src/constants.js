@@ -54,7 +54,15 @@ export const muiDataTableTheme = createTheme({
     },
   },
 });
-
+export const devToolInputStyle = {
+  background: `white !important`,
+  color: "black",
+  width: "100%",
+  borderRadius: "5px",
+  padding: "10px",
+  outline: "none",
+  border: "none",
+};
 export const landlordMenuItems = [
   {
     label: "Dashboard",

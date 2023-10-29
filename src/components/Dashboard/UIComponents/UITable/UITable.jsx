@@ -1,7 +1,9 @@
 import {
   Box,
   ButtonBase,
+  Checkbox,
   CircularProgress,
+  FormControlLabel,
   IconButton,
   Stack,
 } from "@mui/material";
@@ -15,8 +17,6 @@ import { authenticatedInstance } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import { MultiSelectDropdown } from "../MultiSelectDropdown";
 import UIButton from "../UIButton";
-import { set } from "react-hook-form";
-import { el } from "@faker-js/faker";
 const UITable = (props) => {
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
@@ -73,6 +73,31 @@ const UITable = (props) => {
             setCount(res.data.count);
             setIsLoading(false);
             console.log(res.data);
+            if (props.options.isSelectable) {
+              let newChecked = [];
+              //loop through the first set of results and set the selected property to false for each row. After
+              res.data.results.map((result) => {
+                newChecked.push({
+                  id: result.id,
+                  selected: false,
+                });
+              });
+              while (!nextPageEndPoint === null) {
+              const remaining_res = authenticatedInstance
+              .get(nextPageEndPoint)
+              .then((r_res) => {
+                    r_res.data.results.map((result) => {
+                      newChecked.push({
+                        id: result.id,
+                        selected: false,
+                      });
+                    });
+                    setNextPageEndPoint(r_res.data.next);
+                  });
+              }
+              setNextPageEndPoint(res.data.next);
+              props.setChecked(newChecked);
+            }
           } else {
             setIsDrfFilterBackend(false);
             setResults(res.data);
@@ -82,11 +107,21 @@ const UITable = (props) => {
             setCount(null);
             setLimit(null);
             setIsLoading(false);
+            if (props.options.isSelectable) {
+              let newChecked = [];
+              res.data.map((result) => {
+                newChecked.push({
+                  id: result.id,
+                  selected: false,
+                });
+              });
+              props.setChecked(newChecked);
+            }
           }
         });
     }
-    console.log('props.data in UTAABLE', props.data)
-    console.log('Results state in UTAABLE', results)
+    console.log("props.data in UTAABLE", props.data);
+    console.log("Results state in UTAABLE", results);
   };
 
   // Sort the data based on the current sorting column and order
@@ -196,7 +231,7 @@ const UITable = (props) => {
   };
 
   //Handles the selection change for the filter dropdowns
-  const handleSelectionChange = (newSelectedOptions, index) => {
+  const handleFilterSelectionChange = (newSelectedOptions, index) => {
     if (isDrfFilterBackend) {
       const updatedSelectedOptionsArray = [...selectedOptionsArray];
       updatedSelectedOptionsArray[index] = newSelectedOptions;
@@ -219,6 +254,39 @@ const UITable = (props) => {
     }
   };
 
+  //Create  a function called setRowSelected that takes in the index of the row and a boolean value to set the row to selected or not
+  const setRowSelected = (id, selected) => {
+    //Create a new array from the checked array
+    const newChecked = [...props.checked];
+    //Update the selected value of the row at the index
+    //Find the element whose property id is equal to the id of the row and set the selected property to the value of the selected parameter
+    let element = newChecked.find((element) => element.id === id);
+    if (element) {
+      element.selected = selected;
+    } else {
+      //Create a new element and push it to the newChecked array
+      element = {
+        id: id,
+        selected: selected,
+      };
+      newChecked.push(element);
+    }
+    // newChecked[index].selected = selected;
+    //Set the checked array to the newChecked array
+    props.setChecked(newChecked);
+  };
+
+  //Handles the select all checkbox in table header
+  const handleSelectAll = (event) => {
+    //Create a new array from the checked array
+    const newChecked = [...props.checked];
+    //Loop through the newChecked array and set all the selected properties to the value of the event.target.checked
+    newChecked.map((element) => {
+      element.selected = event.target.checked;
+    });
+    //Set the checked array to the newChecked array
+    props.setChecked(newChecked);
+  };
   useEffect(() => {
     refresh(currentPageEndPoint);
   }, [props.data]);
@@ -238,7 +306,7 @@ const UITable = (props) => {
                 options={filter.values}
                 selectedOptions={selectedOptionsArray[index]}
                 onChange={(newSelectedOptions) =>
-                  handleSelectionChange(newSelectedOptions, index)
+                  handleFilterSelectionChange(newSelectedOptions, index)
                 }
                 label={filter.label}
               />
@@ -343,6 +411,15 @@ const UITable = (props) => {
               <table id="ui-table" className="" style={{ width: "100%" }}>
                 {/* Table Header  */}
                 <tr>
+                  {props.options.isSelectable && (
+                    <th>
+                      <Checkbox
+                        // checked={props.checked[0] && props.checked[1]}
+                        indeterminate={props.checked[0] !== props.checked[1]}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                  )}
                   {props.columns.map((column) => {
                     return (
                       <th>
@@ -359,20 +436,42 @@ const UITable = (props) => {
                   <th></th>
                 </tr>
                 {/* TableRows */}
-
                 <>
                   {isDrfFilterBackend ? (
                     <>
                       {" "}
-                      {results.map((row) => {
+                      {results.map((row, index) => {
                         return (
                           <tr>
+                            {props.options.isSelectable && (
+                              <td>
+                                <Checkbox
+                                  checked={
+                                    //Retrieve the row with the same id as the row in the checked array and get the selected property
+                                    props.checked.find(
+                                      (element) => element.id === row.id
+                                    ).selected
+                                  }
+                                  onChange={(e) => {
+                                    setRowSelected(row.id, e.target.checked);
+                                  }}
+                                  sx={{
+                                    color: uiGreen,
+                                    "&.Mui-checked": {
+                                      color: uiGreen,
+                                    },
+                                  }}
+                                />
+                              </td>
+                            )}
+
                             {props.columns.map((column) => {
                               //Check if column has an option property with a function in it called customBodyRender
                               if (column.options) {
                                 if (column.options.customBodyRender) {
                                   return (
                                     <td>
+                                      
                                       {column.options.customBodyRender(
                                         row[column.name]
                                       )}
@@ -386,11 +485,6 @@ const UITable = (props) => {
                               <UIButton
                                 onClick={() => {
                                   props.options.onRowClick(row.id);
-                                  // if(props.detailURL.includes(":detail_id")){
-                                  //   let navlink = props.detailURL.replace(":detail_id", row.id)
-                                  //   navigate(navlink)
-                                  // }
-                                  // navigate(`${props.detailURL}${row.id}`);
                                 }}
                                 btnText="View"
                               />

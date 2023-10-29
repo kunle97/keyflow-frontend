@@ -10,7 +10,6 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import { useEffect } from "react";
 import { authenticatedInstance } from "../../../../api/api";
-import UIBinaryRadioGroup from "../../UIComponents/UIBinaryRadioGroup";
 import { useState } from "react";
 import { HelpOutline } from "@mui/icons-material";
 const UpdateLeaseTerm = () => {

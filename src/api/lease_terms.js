@@ -22,6 +22,10 @@ export async function createLeaseTerm(data) {
         lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
         grace_period: parseInt(data.grace_period),
         is_active: true,
+        additional_charges: data.additional_charges,
+        assignment_mode: data.assignment_mode,
+        selected_assignments: data.selected_assignments,
+        template_id: data.template_id,
       })
       .then((res) => {
         const response = res.data;
@@ -43,7 +47,7 @@ export async function createLeaseTerm(data) {
 export async function getLeaseTermsByUser() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.id}/lease-terms/`, {
+      .get(`/lease-terms/?ordering=-created_at`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,

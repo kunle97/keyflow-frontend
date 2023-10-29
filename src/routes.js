@@ -22,7 +22,7 @@ import TenantRegister from "./components/Dashboard/Tenant/TenantRegister";
 import TenantDashboard from "./components/Dashboard/Tenant/TenantDashboard";
 import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
 import TenantMyAccount from "./components/Dashboard/Tenant/TenantMyAccount";
-import CreateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/CreateLeaseTerm";
+import CreateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/CreateLeaseTerm/CreateLeaseTerm";
 import LeaseTerms from "./components/Dashboard/Landlord/LeaseTerm/LeaseTerms";
 import ViewRentalApplication from "./components/Dashboard/Landlord/RentalApplications/ViewRentalApplication";
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
@@ -55,10 +55,12 @@ import {
 import UpdateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/UpdateLeaseTerm";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
+import Logout from "./components/Dashboard/Logout";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
 export const routes = [
+
   {
     path: "*",
     element: <PageNotFound />,
@@ -80,6 +82,16 @@ export const routes = [
     ),
     isSearchable: false,
     label: "Landlord Login",
+  },
+  {
+    path: "/dashboard/logout",
+    element: (
+      <DashboardProtectedRoute token={token}>
+        <Logout />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: false,
+    label: "Landlord Logout",
   },
   {
     path: "/dashboard/landlord/register",

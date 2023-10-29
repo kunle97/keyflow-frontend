@@ -13,6 +13,9 @@ import { getUnit } from "../../../../api/units";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import { sendDocumentToUser } from "../../../../api/boldsign";
+import axios from "axios";
+import { authenticatedInstance } from "../../../../api/api";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const [rentalApplication, setRentalApplication] = useState({});
@@ -39,7 +42,7 @@ const ViewRentalApplication = () => {
   }, []);
 
   //create a function to accept the appplciation
-  const handleAccept = () => {
+  const handleAccept = async () => {
     console.log("Accepting Application...");
     //Approve and Archive this application
     approveRentalApplication(id).then((res) => {
@@ -49,28 +52,58 @@ const ViewRentalApplication = () => {
         console.log(res);
         setOpenAcceptModal(false);
         let approval_hash = res.approval_hash;
+        let lease_term = "";
         console.log("ApprovalHash", approval_hash);
         getUnit(res.unit).then((res) => {
           console.log("unit", res);
           //Retrieve Lease Term from the unit to be stored in lease agreement
-          const  lease_term = res.lease_term;
-          const leaseAgreementData = {
+          lease_term = res.lease_term;
+          let leaseAgreementData = {
             rental_application: parseInt(id),
             rental_unit: res.id,
             user: authUser.id,
             approval_hash: approval_hash,
             lease_term: lease_term, //TODO: Store lease_terms from Unit in the lease agreement
           };
+
+          //Create a axios call to retrive the lease terms using the end point /api/lease-terms/{id}/
+          const document_res = authenticatedInstance
+            .get(
+              `${process.env.REACT_APP_API_HOSTNAME}/lease-terms/${lease_term}/`
+            )
+            .then((res) => {
+              console.log("Lease Term", res);
+              //Send lease agreement to applicant
+              if (lease_term.template_id) {
+                let doc_payload = {
+                  template_id: lease_term.template_id,
+                  tenant_first_name: rentalApplication.first_name,
+                  tenant_last_name: rentalApplication.last_name,
+                  tenant_email: rentalApplication.email,
+                };
+                try {
+                  //Send lease agreement to applicant
+                  sendDocumentToUser(doc_payload).then((res) => {
+                    console.log("Send document response", res);
+                    leaseAgreementData.document_id = res.document_id;
+                  });
+                } catch (error) {
+                  console.log(error);
+                }
+              }
+            });
+          console.log("Document Response", document_res);
           console.log("Lease Agreement Data", leaseAgreementData);
           //Create Lease Agreement row in databse that stores the approval_hash
           createLeaseAgreement(leaseAgreementData).then((res) => {
             console.log("Create lease agreement response", res);
             //Generate link & Send lease agreement to applicant
             const signLink =
-              "http://localhost:3000/sign-lease-agreement/" +
-              res.response.id +
+              process.env.REACT_APP_HOSTNAME +
+              "/sign-lease-agreement/" +
+              res.response.data.id +
               "/" +
-              res.response.approval_hash +
+              res.response.data.approval_hash +
               "/";
             console.log("Sign Link", signLink);
           });
@@ -84,6 +117,7 @@ const ViewRentalApplication = () => {
             console.log(res);
           }
         });
+
         setAlertModalTitle("Application Approved");
         setOpenAlertModal(true);
       } else {

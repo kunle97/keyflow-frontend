@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getLeaseTermsByUser, getLeaseTermById } from "../../../../api/lease_terms";
+import {
+  getLeaseTermsByUser,
+  getLeaseTermById,
+} from "../../../../api/lease_terms";
 import { deleteUnit, getUnit, updateUnit } from "../../../../api/units";
 import { getUserData } from "../../../../api/auth";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
@@ -257,10 +260,10 @@ const CreateUnit = () => {
                 <div className="card-body">
                   <input
                     className="form-control"
-                    value={`http://localhost:3000/rental-application/${unit_id}/${authUser.id}/`}
+                    value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
                   />
                   <a
-                    href={`http://localhost:3000/rental-application/${unit_id}/${authUser.id}/`}
+                    href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
                     target="_blank"
                   >
                     <Button
@@ -437,6 +440,7 @@ const CreateUnit = () => {
                                               : "not included"}
                                           </p>
                                         </div>
+
                                         <Button
                                           onClick={() =>
                                             handleChangeLeaseTerm(leaseTerm.id)
@@ -454,6 +458,17 @@ const CreateUnit = () => {
                                           Select
                                         </Button>
                                       </div>
+                                      <p
+                                        style={{
+                                          color: "white",
+                                          width: "100%",
+                                        }}
+                                      >
+                                        Template ID:{" "}
+                                        {leaseTerm.template_id
+                                          ? leaseTerm.template_id
+                                          : "N/A"}
+                                      </p>
                                     </React.Fragment>
                                   }
                                 />

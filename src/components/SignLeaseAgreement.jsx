@@ -7,10 +7,11 @@ import {
   getLeaseAgreementByIdAndApprovalHash,
   signLeaseAgreement,
 } from "../api/lease_agreements";
-import {getLeaseTermByIdAndApprovalHash,} from "../api/lease_terms";
+import { getLeaseTermByIdAndApprovalHash } from "../api/lease_terms";
 import { useState } from "react";
 import AlertModal from "./Dashboard/UIComponents/Modals/AlertModal";
 import ConfirmModal from "./Dashboard/UIComponents/Modals/ConfirmModal";
+import { generateSigningLink } from "../api/boldsign";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -20,6 +21,7 @@ const SignLeaseAgreement = () => {
   const [signResponseMessage, setSignResponseMessage] = useState("");
   const [showSignResponse, setShowSignResponse] = useState(false);
   const [redirectLink, setRedirectLink] = useState("");
+  const [signingLink, setSigningLink] = useState("");
   const navigate = useNavigate();
 
   //Create a function to sign the lease agreement which calls the API to update the lease agreement
@@ -36,6 +38,20 @@ const SignLeaseAgreement = () => {
       signed_date: new Date().toISOString().split("T")[0],
       // document_id: getDocumentIdFromDocuSignOrSomthing(),
     };
+
+    signLeaseAgreement(data).then((res) => {
+      if (res.status === 200) {
+        //On update success redirect to tenant registration page with approval_hash
+        setShowSignResponse(true);
+        setShowSignConfirmation(false);
+        setSignResponseMessage(
+          "Lease Agreement Signed Successfully. Click the button below to create your account."
+        );
+      }
+    });
+  };
+
+  const renderIframe = () => {
     let redirectLink =
       process.env.REACT_APP_HOSTNAME +
       "/dashboard/tenant/register" +
@@ -45,16 +61,18 @@ const SignLeaseAgreement = () => {
       leaseAgreement.rental_unit +
       "/" +
       leaseAgreement.approval_hash;
-
-    signLeaseAgreement(data).then((res) => {
+    setRedirectLink(redirectLink);
+    let payload = {
+      document_id: leaseAgreement.document_id,
+      tenant_email: "",
+      tenant_register_redirect_url: redirectLink,
+      link_validity: addMonths(new Date(), 1).toLocaleDateString("en-US"),
+    };
+    generateSigningLink(payload).then((res) => {
+      console.log(res);
       if (res.status === 200) {
-        //On update success redirect to tenant registration page with approval_hash
-        setRedirectLink(redirectLink);
-        setShowSignResponse(true);
-        setShowSignConfirmation(false);
-        setSignResponseMessage(
-          "Lease Agreement Signed Successfully. Click the button below to create your account."
-        );
+        //Set the src of the iframe to the signing link
+        setSigningLink(res.signing_link);
       }
     });
   };
@@ -177,9 +195,9 @@ const SignLeaseAgreement = () => {
                 )}
               </div>
             </div>
-            <div className="card my-3" style={{ height: "850px" }}>
+            <iframe src="" className="card my-3" style={{ height: "850px" }}>
               {/* PDF Viewer Goes Here */}
-            </div>
+            </iframe>
 
             <Button
               variant="contained"
