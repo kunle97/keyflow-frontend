@@ -6,6 +6,7 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import PropertyGeneratorForm from "./forms/PropertyGeneratorForm";
 import UnitGeneratorForm from "./forms/UnitGeneratorForm";
+import TenantGeneratorForm from "./forms/TenantGeneratorForm";
 
 const DeveloperToolsMenu = () => {
   const [open, setOpen] = useState(true);
@@ -33,6 +34,12 @@ const DeveloperToolsMenu = () => {
       name: "Generate Units",
       dataType: "units",
       form: <UnitGeneratorForm {...formProps} />,
+    },
+    {
+      icon: <EngineeringIcon />,
+      name: "Generate Tenants",
+      dataType: "tenants",
+      form: <TenantGeneratorForm {...formProps} />,
     },
     // Add actions for other data types
   ];

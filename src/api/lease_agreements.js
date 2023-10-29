@@ -1,10 +1,18 @@
+import { authUser } from "../constants";
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 //-------------------LEASE AGREEMENT API FUNCTIONS------------------------///
 //Create a function that creates a lease agreement
 export async function createLeaseAgreement(data) {
     try {
       const res = await authenticatedInstance
-        .post(`/lease-agreements/`, data)
+        .post(`/lease-agreements/`, 
+          {
+            rental_unit: data.rental_unit,
+            user_id: authUser.id,
+            approval_hash: data.approval_hash,
+            lease_term: data.lease_term, 
+          }
+        )
         .then((res) => {
           const response = res.data;
           console.log("axios create lease agreement response ", response);

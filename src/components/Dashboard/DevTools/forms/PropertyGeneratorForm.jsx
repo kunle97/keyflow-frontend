@@ -10,7 +10,7 @@ const PropertyGeneratorForm = (props) => {
   const [numberOfItems, setNumberOfItems] = useState(10); // Default value
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerateData = (dataType) => {
+  const handleGenerateData = () => {
     setIsLoading(true);
     // Collect input values
     const data = {

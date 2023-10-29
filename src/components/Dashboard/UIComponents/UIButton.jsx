@@ -13,7 +13,7 @@ const UIButton = (props) => {
       disabled={props.disabled}
       onClick={props.onClick}
       sx={{ ...defaultStyle, ...props.style }}
-      variant="contained"
+      variant={!props.variant ? "contained" : props.variant }
       type={props.type}
     >
       {props.btnText}

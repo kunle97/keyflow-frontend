@@ -10,7 +10,7 @@ export async function createRentalApplication(data) {
     try {
       const res = await unauthenticatedInstance
         .post(`/rental-applications/`, {
-          unit: data.unit_id,
+          unit_id: data.unit_id,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
@@ -18,14 +18,14 @@ export async function createRentalApplication(data) {
           phone_number: data.phone,
           desired_move_in_date: data.desired_move_in_date,
           other_occupants: data.other_occupants,
-          pets: stringToBoolean(data.pets),
-          vehicles: stringToBoolean(data.vehicles),
-          convicted: stringToBoolean(data.crime),
-          bankrupcy_filed: stringToBoolean(data.bankrupcy),
-          evicted: stringToBoolean(data.evicted),
+          pets:data.pets,
+          vehicles:data.vehicles,
+          convicted:data.crime,
+          bankrupcy:data.bankrupcy,
+          evicted:data.evicted,
           employment_history: JSON.stringify(data.employment_history),
           residential_history: JSON.stringify(data.residential_history),
-          landlord: data.landlord_id,
+          landlord_id: data.landlord_id,
           comments: data.comments,
         })
         .then((res) => {

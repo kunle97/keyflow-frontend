@@ -42,8 +42,6 @@ const CreateRentalApplication = () => {
 
   useEffect(() => {
     /**
-     * TODO: Add Steps to the form with progress bar so that it can fit the page better. Use react-hook-forms for validation
-     *  Reference: https://makerkit.dev/blog/tutorials/multi-step-forms-reactjs
      *
      * TODO: Create a functioning checkbox for the employment history and residence history sections for current employment and current residence
      *
@@ -137,11 +135,6 @@ const CreateRentalApplication = () => {
 
   //Step two  data
   const [otherOccupants, setOtherOccupants] = useState("false"); // will there be any other occupants
-  const [pets, setPets] = useState("false"); // do you plan on having any pets
-  const [vehicles, setVehicles] = useState("false"); // do you plan on having/storing any vehicles
-  const [convicted, setConvicted] = useState("false"); // have you ever been convicted of a crime
-  const [bankrupcy, setBankrupcy] = useState("false"); // have you ever filed for bankrupcy
-  const [evicted, setEvicted] = useState("false"); // have you been evicted
 
   const {
     register,
@@ -256,7 +249,10 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
-      endDate: fakeData.fakePastDate,
+      endDate:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : faker.date.future().toISOString().split("T")[0],
       supervisorName: `${
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -342,6 +338,7 @@ const CreateRentalApplication = () => {
     data.residential_history = residenceHistory;
     data.unit_id = unit_id;
     data.landlord_id = landlord_id;
+    data.comments = data.comments ? data.comments : "";
 
     console.log(data);
 
@@ -754,6 +751,7 @@ const CreateRentalApplication = () => {
                                 <div className="card">
                                   <div className="card-body">
                                     <textarea
+                                      {...register("comments")}
                                       name="comments"
                                       className="form-control"
                                       rows={10}
