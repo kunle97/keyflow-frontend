@@ -7,8 +7,8 @@ import { Button, Stack } from "@mui/material";
 const RentalHistorySection = (props) => {
   const {
     address,
-    startDate,
-    endDate,
+    residenceStartDate,
+    residenceEndDate,
     landlordName,
     landlordPhone,
     landlordEmail,
@@ -45,7 +45,7 @@ const RentalHistorySection = (props) => {
               })}
               type="date"
               className="form-control"
-              defaultValue={startDate}
+              defaultValue={residenceStartDate}
               onChange={props.onResidenceChange}
               sx={{ color: "white", width: "100%" }}
               placeholder="Start Date"
@@ -73,7 +73,7 @@ const RentalHistorySection = (props) => {
               type="date"
               className="form-control"
               name="endDate"
-              defaultValue={endDate}
+              defaultValue={residenceEndDate}
               onChange={props.onResidenceChange}
               sx={{ color: "white", width: "100%" }}
               placeholder="End Date"

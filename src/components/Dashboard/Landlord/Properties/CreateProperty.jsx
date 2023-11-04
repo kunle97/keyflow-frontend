@@ -87,8 +87,9 @@ const CreateProperty = () => {
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
     const { name, value } = e.target;
+    let realName = name.split("_")[0];
     const list = [...units];
-    list[index][name] = value;
+    list[index][realName] = value;
     setUnits(list);
   };
 

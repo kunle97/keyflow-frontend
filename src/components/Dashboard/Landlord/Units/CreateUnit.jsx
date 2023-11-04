@@ -86,9 +86,11 @@ const CreateUnit = () => {
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
     const { name, value } = e.target;
+    let realName = name.split("_")[0];
     const list = [...units];
-    list[index][name] = value;
+    list[index][realName] = value;
     setUnits(list);
+    console.log(units);
   };
 
   //Create a function to add a new unit
@@ -130,14 +132,16 @@ const CreateUnit = () => {
 
   //Call the create unit api function and pass the form data
   const onSubmit = async (data) => {
-    setIsLoading(true);
     let payload = {};
     payload.units = JSON.stringify(units);
     payload.rental_property = selectedPropertyId;
     payload.subscription_id = currentSubscriptionPlan.id;
     payload.product_id = currentSubscriptionPlan.plan.product;
     payload.user = authUser.id;
-    console.log(data);
+    console.log("Data ", data);
+    console.log("Pay load ", payload);
+    console.log("UNits ", units);
+    setIsLoading(true);
 
     const res = await createUnit(payload);
     console.log(res);
