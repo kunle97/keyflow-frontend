@@ -14,7 +14,6 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { sendDocumentToUser } from "../../../../api/boldsign";
-import axios from "axios";
 import { authenticatedInstance } from "../../../../api/api";
 const ViewRentalApplication = () => {
   const { id } = useParams();
@@ -22,13 +21,159 @@ const ViewRentalApplication = () => {
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingApplicationAction, setIsLoadingApplicationAction] =
+    useState(false);
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [openAlertModal, setOpenAlertModal] = useState(false);
   const [aletModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
 
+  const handleAccept = async () => {
+    setIsLoadingApplicationAction(true);
+    console.log("Accepting Application...");
+
+    try {
+      // Approve and Archive this application
+      const approvalResponse = await approveRentalApplication(id);
+
+      if (approvalResponse.hasOwnProperty("id")) {
+        console.log(approvalResponse);
+        setOpenAcceptModal(false);
+        const approval_hash = approvalResponse.approval_hash;
+
+        // Retrieve Rental Unit
+        const rental_unit = await getUnit(approvalResponse.unit);
+        console.log("Rental Unit", rental_unit);
+
+        // Retrieve Lease Term
+        const lease_term = rental_unit.lease_term;
+
+        // Retrieve Lease Agreement Data
+        const leaseTermResponse = await authenticatedInstance.get(
+          `${process.env.REACT_APP_API_HOSTNAME}/lease-terms/${lease_term}/`
+        );
+        console.log("Lease Term", leaseTermResponse);
+
+        if (leaseTermResponse.data.template_id) {
+          const doc_payload = {
+            template_id: leaseTermResponse.data.template_id,
+            tenant_first_name: rentalApplication.first_name,
+            tenant_last_name: rentalApplication.last_name,
+            tenant_email: rentalApplication.email,
+            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${rental_unit.name}`,
+            message: "Please sign the lease agreement",
+          };
+
+          // Send lease agreement to the applicant
+          const sendDocResponse = await sendDocumentToUser(doc_payload);
+          console.log("Send document response", sendDocResponse);
+          if (sendDocResponse.status === 500) {
+            //Set application is_approved to false
+            const updateApplicationResponse = await authenticatedInstance.patch(
+              `/rental-applications/${id}/`,
+              {
+                is_approved: false,
+                approval_hash: "",
+                is_archived: false,
+              }
+            );
+            console.log(
+              "Update application response",
+              updateApplicationResponse
+            );
+            //Display error message
+            setAlertModalTitle("An error occurred");
+            setAlertModalMessage(
+              "There was an error sending the lease agreement to the applicant. Please try again later."
+            );
+            setOpenAlertModal(true);
+            return false;
+          } else {
+            //Continue as normal
+            if (sendDocResponse.documentId) {
+              const leaseAgreementData = {
+                rental_application: parseInt(id),
+                rental_unit: rental_unit.id,
+                user: authUser.id,
+                approval_hash: approval_hash,
+                lease_term: lease_term,
+                document_id: sendDocResponse.documentId,
+              };
+
+              // Create a lease agreement
+              const createLeaseAgreementResponse = await createLeaseAgreement(
+                leaseAgreementData
+              );
+              console.log(
+                "Create lease agreement response",
+                createLeaseAgreementResponse
+              );
+
+              // Generate link & Send lease agreement to applicant
+              const signLink = `${process.env.REACT_APP_HOSTNAME}/sign-lease-agreement/${createLeaseAgreementResponse.response.data.id}/${createLeaseAgreementResponse.response.data.approval_hash}/`;
+              console.log("Sign Link", signLink);
+            } else {
+              console.log(sendDocResponse);
+              setAlertModalTitle("An error occurred");
+              setOpenAlertModal(true);
+              return false;
+            }
+            // Delete all other applications
+            const deleteApplicationsResponse =
+              await deleteOtherRentalApplications(id);
+
+            if (deleteApplicationsResponse.status === 200) {
+              console.log(deleteApplicationsResponse);
+            } else {
+              console.log(deleteApplicationsResponse);
+            }
+            // Display success message
+            setAlertModalTitle("Rental Application  Approved");
+            setAlertModalMessage(
+              "The Rental Application has been approved. The lease agreement has been sent to the applicant."
+            );
+            setOpenAlertModal(true);
+          }
+        }
+      } else {
+        console.log(approvalResponse);
+        setAlertModalTitle("An error occurred");
+        setOpenAlertModal(true);
+      }
+    } catch (error) {
+      console.log(error);
+      setAlertModalTitle("An error occurred");
+      setOpenAlertModal(true);
+    } finally {
+      setIsLoadingApplicationAction(false);
+      setOpenAlertModal(true);
+    }
+  };
+
+  //create a function to reject the appplciation
+  const handleReject = () => {
+    setIsLoadingApplicationAction(true);
+    console.log("Rejecting Application...");
+    rejectRentalApplication(id).then((res) => {
+      if (res.status === 200) {
+        console.log(res);
+        setOpenRejectModal(false);
+        //TODO: Delete this application
+        setAlertModalTitle(res.message);
+        setOpenAlertModal(true);
+        setIsLoadingApplicationAction(false);
+      } else {
+        console.log(res);
+        setAlertModalTitle("An error occured");
+        setOpenAlertModal(true);
+        setIsLoadingApplicationAction(false);
+      }
+    });
+  };
+
   useEffect(() => {
+    setIsLoading(true);
     //Retrieve rental application by id
     getRentalApplicationById(id).then((res) => {
       //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
@@ -40,115 +185,12 @@ const ViewRentalApplication = () => {
       }
     });
   }, []);
-
-  //create a function to accept the appplciation
-  const handleAccept = async () => {
-    console.log("Accepting Application...");
-    //Approve and Archive this application
-    approveRentalApplication(id).then((res) => {
-      setIsLoading(true);
-      console.log(res);
-      if (res.hasOwnProperty("id")) {
-        console.log(res);
-        setOpenAcceptModal(false);
-        let approval_hash = res.approval_hash;
-        let lease_term = "";
-        console.log("ApprovalHash", approval_hash);
-        getUnit(res.unit).then((res) => {
-          console.log("unit", res);
-          //Retrieve Lease Term from the unit to be stored in lease agreement
-          lease_term = res.lease_term;
-          let leaseAgreementData = {
-            rental_application: parseInt(id),
-            rental_unit: res.id,
-            user: authUser.id,
-            approval_hash: approval_hash,
-            lease_term: lease_term, //TODO: Store lease_terms from Unit in the lease agreement
-          };
-
-          //Create a axios call to retrive the lease terms using the end point /api/lease-terms/{id}/
-          const document_res = authenticatedInstance
-            .get(
-              `${process.env.REACT_APP_API_HOSTNAME}/lease-terms/${lease_term}/`
-            )
-            .then((res) => {
-              console.log("Lease Term", res);
-              //Send lease agreement to applicant
-              if (lease_term.template_id) {
-                let doc_payload = {
-                  template_id: lease_term.template_id,
-                  tenant_first_name: rentalApplication.first_name,
-                  tenant_last_name: rentalApplication.last_name,
-                  tenant_email: rentalApplication.email,
-                };
-                try {
-                  //Send lease agreement to applicant
-                  sendDocumentToUser(doc_payload).then((res) => {
-                    console.log("Send document response", res);
-                    leaseAgreementData.document_id = res.document_id;
-                  });
-                } catch (error) {
-                  console.log(error);
-                }
-              }
-            });
-          console.log("Document Response", document_res);
-          console.log("Lease Agreement Data", leaseAgreementData);
-          //Create Lease Agreement row in databse that stores the approval_hash
-          createLeaseAgreement(leaseAgreementData).then((res) => {
-            console.log("Create lease agreement response", res);
-            //Generate link & Send lease agreement to applicant
-            const signLink =
-              process.env.REACT_APP_HOSTNAME +
-              "/sign-lease-agreement/" +
-              res.response.data.id +
-              "/" +
-              res.response.data.approval_hash +
-              "/";
-            console.log("Sign Link", signLink);
-          });
-        });
-
-        //Delete all other applications
-        deleteOtherRentalApplications(id).then((res) => {
-          if (res.status === 200) {
-            console.log(res);
-          } else {
-            console.log(res);
-          }
-        });
-
-        setAlertModalTitle("Application Approved");
-        setOpenAlertModal(true);
-      } else {
-        console.log(res);
-        setAlertModalTitle("An error occured");
-        setOpenAlertModal(true);
-      }
-      setIsLoading(false);
-    });
-  };
-
-  //create a function to reject the appplciation
-  const handleReject = () => {
-    console.log("Rejecting Application...");
-    rejectRentalApplication(id).then((res) => {
-      if (res.status === 200) {
-        console.log(res);
-        setOpenRejectModal(false);
-        //TODO: Delete this application
-        setAlertModalTitle(res.message);
-        setOpenAlertModal(true);
-      } else {
-        console.log(res);
-        setAlertModalTitle("An error occured");
-        setOpenAlertModal(true);
-      }
-    });
-  };
-
   return (
     <>
+      <ProgressModal
+        title="Processing Application..."
+        open={isLoadingApplicationAction}
+      />
       {isLoading ? (
         <ProgressModal title="Loading Application Data..." open={isLoading} />
       ) : (

@@ -6,14 +6,73 @@ import Dropzone from "react-dropzone";
 import { Stack } from "@mui/material";
 import { uiGreen, authUser } from "../../../../../../constants";
 import ProgressModal from "../../../../UIComponents/Modals/ProgressModal";
+import { useEffect } from "react";
+import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 
 const UploadLeaseDocument = (props) => {
   const [file, setFile] = useState(null); //TODO: Change to array of files
   const [renderIframe, setRenderIframe] = useState(false);
   const [iframeUrl, setIframeUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
 
-  //Create handleFileUpload function
+  //Create handleTempalteEditUpdate function
+  const handleTemplateEditUpdate = (event) => {
+    if (event.origin !== "https://app.boldsign.com") {
+      return;
+    }
+
+    switch (event.data.status) {
+      case "OnDraftSavedSuccess":
+        // handle draft success
+        setAlertOpen(false);
+        props.handleNextStep();
+        break;
+      case "onDraftFailed":
+        // handle draft failure
+        setAlertTitle("Error");
+        setAlertMessage(
+          "There was an error saving your lease agreement lease agreement  draft."
+        );
+        setAlertOpen(true);
+        break;
+      case "onCreateSuccess": // THIS is the funciton that is calle when template is created
+        setAlertOpen(false);
+        props.handleNextStep();
+        break;
+      case "onCreateFailed":
+        // handle create failure
+        setAlertTitle("Error");
+        setAlertMessage(
+          "There was an error creating your lease agreement template."
+        );
+        setAlertOpen(true);
+        break;
+      case "onTemplateEditingCompleted":
+        // handle edit success
+        props.handleNextStep();
+        break;
+      case "onTemplateEditingFailed":
+        // handle edit failure
+        setAlertTitle("Error");
+        setAlertMessage(
+          "There was an error editing your lease agreement template."
+        );
+        setAlertOpen(true);
+        break;
+      default:
+        // Display error message
+        setAlertTitle("Error");
+        setAlertMessage(
+          "There was an error processing your document. Please refresh the page and try again."
+        );
+        setAlertOpen(true);
+        break;
+    }
+  };
+
   const handleDrop = async (acceptedFiles) => {
     setIsLoading(true);
     console.log("dropzone file", acceptedFiles[0]);
@@ -42,18 +101,38 @@ const UploadLeaseDocument = (props) => {
     });
   };
 
+  useEffect(() => {
+    window.addEventListener("message", handleTemplateEditUpdate);
+    return () => {
+      window.removeEventListener("message", handleTemplateEditUpdate);
+    };
+  }, []);
   return (
     <div>
+      <AlertModal
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+        handleClose={() => {
+          setAlertOpen(false);
+        }}
+      />
       <ProgressModal open={isLoading} title="Processing your document..." />
       {renderIframe && iframeUrl ? (
         <>
-          <iframe src={iframeUrl} width="100%" height="1200px" />
-          <StepControl
+          <iframe
+            id="prepare_page"
+            src={iframeUrl}
+            width="100%"
+            height="1200px"
+          />
+          {/* <StepControl
             step={props.step}
             steps={props.steps}
             handlePreviousStep={props.handlePreviousStep}
             handleNextStep={props.handleNextStep}
-          />
+          /> */}
         </>
       ) : (
         <div>
