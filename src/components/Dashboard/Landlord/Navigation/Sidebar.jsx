@@ -37,19 +37,21 @@ const Sidebar = () => {
         </a>
         <hr className="sidebar-divider my-0" />
         <ul className="navbar-nav text-light" id="accordionSidebar">
-          <li className="nav-item">
-            <center>
-              <UIButton
-                style={{ maxWidth: "200px" }}
-                onClick={() => setShowSearchMenu(true)}
-                btnText={
-                  <>
-                    <i className="fas fa-search" /> Search
-                  </>
-                }
-              />
-            </center>
-          </li>
+          {authUser.account_type === "landlord" && (
+            <li className="nav-item">
+              <center>
+                <UIButton
+                  style={{ maxWidth: "200px" }}
+                  onClick={() => setShowSearchMenu(true)}
+                  btnText={
+                    <>
+                      <i className="fas fa-search" /> Search
+                    </>
+                  }
+                />
+              </center>
+            </li>
+          )}
           {menuItems.map((item, index) => {
             if (item.subMenuItems) {
               return (

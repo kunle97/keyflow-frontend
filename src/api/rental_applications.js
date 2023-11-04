@@ -1,9 +1,6 @@
 import  {authenticatedInstance, unauthenticatedInstance  } from "./api";
 import { authUser } from "../constants";
-import { convertMaintenanceRequestStatus } from "../helpers/utils";
-import { stringToBoolean } from "../helpers/utils";
 import { makeId } from "../helpers/utils";
-import { getLandlordId } from "../helpers/utils";
 //----------------RENTAL APPLICATION API FUNCTIONS------------------------///
 //Create a function to create a rental application
 export async function createRentalApplication(data) {

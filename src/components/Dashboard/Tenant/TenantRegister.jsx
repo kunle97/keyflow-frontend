@@ -452,7 +452,6 @@ const TenantRegister = () => {
                         This will be used to pay for your rent monthly and all
                         other expenses.
                       </p>
-                      <ProgressModal open={isLoading} />
                       <AlertModal
                         open={errorMode}
                         title="Error"

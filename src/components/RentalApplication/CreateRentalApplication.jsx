@@ -177,7 +177,7 @@ const CreateRentalApplication = () => {
       companyAddress: fakeData.fakeAddress,
       income: fakeData.fakeFinanceAmount,
       startDate: fakeData.fakePastDate,
-      endDate: fakeData.fakePastDate,
+      endDate: fakeData.fakeFutureDate,
       supervisorName: `${fakeData.fakeFirstName} ${fakeData.fakeLastName}`,
       supervisorPhone: fakeData.fakePhoneNumber,
       supervisorEmail: fakeData.fakeEmail,
@@ -197,7 +197,7 @@ const CreateRentalApplication = () => {
       endDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.date.past().toISOString().split("T")[0],
+          : faker.date.future().toISOString().split("T")[0],
       landlordName: `${
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""

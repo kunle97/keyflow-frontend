@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  getRentalApplicationsByUser,
-} from "../../../../api/rental_applications";
+import { getRentalApplicationsByUser } from "../../../../api/rental_applications";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 const RentalApplications = () => {
@@ -10,7 +8,17 @@ const RentalApplications = () => {
   const navigate = useNavigate();
 
   const columns = [
-
+    {
+      label: "Approved",
+      name: "is_approved",
+      selector: (row) => row.unit,
+      options: {
+        customBodyRender: (value) => {
+          return value ? "Yes" : "No";
+        },
+      },
+      sortable: true,
+    },
     {
       name: "first_name",
       label: "First Name",
@@ -35,12 +43,7 @@ const RentalApplications = () => {
       selector: (row) => row.phone_number,
       sortable: true,
     },
-    {
-      label: "Unit",
-      name: "unit",
-      selector: (row) => row.unit,
-      sortable: true,
-    },
+
     {
       label: "Desired Move In Date",
       name: "desired_move_in_date",
