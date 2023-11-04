@@ -11,7 +11,7 @@ const UnitRow = (props) => {
           <strong>Name</strong>
         </label>
         <input
-          {...props.register(`unitName_${props.id}`, {
+          {...props.register(`name_${props.id}`, {
             required: "This field is required",
           })}
           className="form-control"
@@ -27,7 +27,7 @@ const UnitRow = (props) => {
           <strong>Beds</strong>
         </label>
         <input
-          {...props.register(`unitBeds_${props.id}`, {
+          {...props.register(`beds_${props.id}`, {
             required: "This field is required",
           })}
           className="form-control"
@@ -44,7 +44,7 @@ const UnitRow = (props) => {
           <strong>Baths</strong>
         </label>
         <input
-          {...props.register(`unitBaths_${props.id}`, {
+          {...props.register(`baths_${props.id}`, {
             required: "This field is required",
           })}
           className="form-control"
@@ -61,7 +61,7 @@ const UnitRow = (props) => {
           <strong>Size (sqft)</strong>
         </label>
         <input
-          {...props.register(`unitSize_${props.id}`, {
+          {...props.register(`size_${props.id}`, {
             required: "This field is required",
           })}
           className="form-control"

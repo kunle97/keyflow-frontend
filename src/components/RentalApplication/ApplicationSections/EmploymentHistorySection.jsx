@@ -9,8 +9,8 @@ const EmploymentHistorySection = (props) => {
     position,
     companyAddress,
     income,
-    startDate,
-    endDate,
+    employmentStartDate,
+    employmentEndDate,
     supervisorName,
     supervisorPhone,
     supervisorEmail,
@@ -80,7 +80,7 @@ const EmploymentHistorySection = (props) => {
               })}
               type="date"
               className="form-control"
-              defaultValue={startDate}
+              defaultValue={employmentStartDate}
               onChange={props.onPositionChange}
               sx={{ color: "white", width: "100%" }}
               placeholder="Start Date"
@@ -111,7 +111,7 @@ const EmploymentHistorySection = (props) => {
               })}
               type="date"
               className="form-control"
-              defaultValue={endDate}
+              defaultValue={employmentEndDate}
               onChange={props.onPositionChange}
               sx={{ color: "white", width: "100%" }}
               placeholder="End Date"

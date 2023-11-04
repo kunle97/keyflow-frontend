@@ -176,8 +176,8 @@ const CreateRentalApplication = () => {
       position: fakeData.fakePosition,
       companyAddress: fakeData.fakeAddress,
       income: fakeData.fakeFinanceAmount,
-      startDate: fakeData.fakePastDate,
-      endDate: fakeData.fakeFutureDate,
+      employmentStartDate: fakeData.fakePastDate,
+      employmentEndDate: fakeData.fakeFutureDate,
       supervisorName: `${fakeData.fakeFirstName} ${fakeData.fakeLastName}`,
       supervisorPhone: fakeData.fakePhoneNumber,
       supervisorEmail: fakeData.fakeEmail,
@@ -190,11 +190,11 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.address.streetAddress(),
-      startDate:
+      residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
-      endDate:
+      residenceEndDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.future().toISOString().split("T")[0],
@@ -220,10 +220,11 @@ const CreateRentalApplication = () => {
   ]);
 
   const handleEmploymentChange = (e, index) => {
-    // employmentHistory[index][e.target.name] = e.target.value;
     const { name, value } = e.target;
+    let realName = name.split("_")[0];
     const updatedHistory = [...employmentHistory];
-    updatedHistory[index][name] = value;
+    updatedHistory[index][realName] = value;
+    console.log("updated historm ", updatedHistory);
     setEmploymentHistory(updatedHistory);
   };
 
@@ -245,11 +246,11 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.finance.amount(),
-      startDate:
+      employmentStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
-      endDate:
+      employmentEndDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.future().toISOString().split("T")[0],
@@ -283,10 +284,10 @@ const CreateRentalApplication = () => {
   };
 
   const handleResidenceChange = (e, index) => {
-    // employmentHistory[index][e.target.name] = e.target.value;
     const { name, value } = e.target;
+    let realName = name.split("_")[0];
     const updatedHistory = [...residenceHistory];
-    updatedHistory[index][name] = value;
+    updatedHistory[index][realName] = value;
     setResidenceHistory(updatedHistory);
   };
 
@@ -296,11 +297,11 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.address.streetAddress(),
-      startDate:
+      residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
-      endDate:
+      residenceEndDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
