@@ -2,7 +2,6 @@ import axios from "axios";
 import { authUser, token } from "../constants";
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 
-
 //Create a function that calls on the /boldsign/create-embedded-template-create-link/ endpoint to create a new embedded template link.
 export async function createBoldSignEmbeddedTemplateLink(data) {
   try {
@@ -93,6 +92,20 @@ export async function generateSigningLink(data) {
     return { data: response, status: 200 };
   } catch (error) {
     console.error("Generate Signing Link Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that donwloads a doccument using the url  https://api.boldsign.com/v1/document/download and params documentId
+export async function downloadBoldSignDocument(document_id) {
+  try {
+    const response = await authenticatedInstance.post(
+      `/boldsign/download-document/`,
+      { document_id: document_id }
+    );
+    return { data: response, status: 200 };
+  } catch (error) {
+    console.error("Download Document Error: ", error);
     return error.response;
   }
 }

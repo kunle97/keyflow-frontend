@@ -105,7 +105,15 @@ export const landlordMenuItems = [
     isSearchable: true,
     subMenuItems: [
       {
-        label: "Create New",
+        label: "View Lease Agreements",
+        link: "/dashboard/landlord/lease-agreements",
+        muiIcon: <DescriptionOutlinedIcon />,
+        description: "View your lease agreements",
+        icon: "fas fa-tools",
+        isSearchable: true,
+      },
+      {
+        label: "New Lease Template",
         link: "/dashboard/landlord/lease-terms/create",
         muiIcon: <DescriptionOutlinedIcon />,
         description: "Create a new lease agreement",
@@ -113,7 +121,7 @@ export const landlordMenuItems = [
         isSearchable: true,
       },
       {
-        label: "Lease Terms",
+        label: "Lease Templates",
         link: "/dashboard/landlord/lease-terms",
         muiIcon: <DescriptionOutlinedIcon />,
         description: "View your lease terms",

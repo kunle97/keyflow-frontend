@@ -168,10 +168,10 @@ const CreateLeaseTerm = () => {
         btnText="Okay"
       />
       {isLoading && (
-        <ProgressModal title="Create Lease Agreement..." open={isLoading} />
+        <ProgressModal title="Creating Lease Agreement Tempalte..." open={isLoading} />
       )}
       <BackButton />
-      <h2 style={{ color: "white" }}>Create Lease Agreement</h2>
+      <h2 style={{ color: "white" }}>Create Lease Agreement Template</h2>
       <div className="card">
         <UIStepper steps={steps} step={step} style={{ margin: "30px 0" }} />
         <div className="card-body">

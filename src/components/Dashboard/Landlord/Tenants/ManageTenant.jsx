@@ -116,7 +116,7 @@ const ManageTenant = () => {
   useEffect(() => {
     getLandlordTenant(tenant_id).then((res) => {
       console.log(res);
-      setTenant(res.data.tenant);
+      // setTenant(res.data.tenant);
       setUnit(res.data.unit);
       setProperty(res.data.property);
       setLease(res.data.lease_agreement);

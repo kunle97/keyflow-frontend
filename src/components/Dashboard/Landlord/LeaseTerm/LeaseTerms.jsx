@@ -151,7 +151,7 @@ const LeaseTerms = () => {
         columns={columns}
         options={options}
         endpoint="/lease-terms/"
-        title="Lease Terms"
+        title="Lease Agreement Templates"
         createURL="/dashboard/landlord/lease-terms/create"
         detailURL="/dashboard/landlord/lease-terms/"
         showCreate={true}

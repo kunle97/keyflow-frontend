@@ -1,6 +1,48 @@
 import { authUser } from "../constants";
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 //-------------------LEASE AGREEMENT API FUNCTIONS------------------------///
+//Create a function that retrieves all lease agreements
+export async function   getAllLeaseAgreements() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/lease-agreements/`)
+      .then((res) => {
+        const response = res.data;
+        console.log("axios get lease agreements response ", response);
+        return response;
+      });
+    return {
+      message: "Lease agreements retrieved successfully",
+      status: 200,
+      response: res,
+    };
+  } catch (error) {
+    console.log("Get Lease Agreements Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+//Create a function that retrieves a lease agreement by its id
+export async function getLeaseAgreementById(leaseAgreementId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/lease-agreements/${leaseAgreementId}/`)
+      .then((res) => {
+        const response = res.data;
+        console.log("axios get lease agreement by id response ", response);
+        return response;
+      });
+    return {
+      message: "Lease agreement retrieved successfully",
+      status: 200,
+      data: res,
+    };
+  } catch (error) {
+    console.log("Get Lease Agreement By Id Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
 //Create a function that creates a lease agreement
 export async function createLeaseAgreement(data) {
   try {

@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { getPaymentDates } from "../../../api/manage_subscriptions";
+import { authUser } from "../../../constants";
 const PaymentCalendar = () => {
   const events = [{ title: "Meeting", start: new Date() }];
   const [dates, setDates] = useState([]);
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   //TODO Retriueve pay dates from backend
   useEffect(() => {
-    getPaymentDates().then((res) => {
+    getPaymentDates(authUser.id).then((res) => {
       if (res.status === 200) {
         const payment_dates = res.data.payment_dates;
         console.log("Payment dates ", payment_dates);
