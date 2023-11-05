@@ -125,7 +125,7 @@ const TenantDashboard = () => {
       setTransactions(res.data);
     });
     //Retrieve next payment date
-    getNextPaymentDate().then((res) => {
+    getNextPaymentDate(authUser.id).then((res) => {
       console.log("nExt pay date data", res);
       setNextPaymentDate(res.data.next_payment_date);
     });

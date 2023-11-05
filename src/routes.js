@@ -56,6 +56,8 @@ import UpdateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/UpdateLea
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 import Logout from "./components/Dashboard/Logout";
+import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
+import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -346,6 +348,27 @@ export const routes = [
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateMaintenanceRequest />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/lease-agreements/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ViewLeaseAgreements />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Lease Agreements",
+    description: "Manage your lease agreements",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/lease-agreements/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseAgreementDetail />
       </DashboardProtectedRoute>
     ),
   },
