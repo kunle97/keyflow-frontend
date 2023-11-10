@@ -11,7 +11,7 @@ export async function getUserStripeSubscriptions(user_id, token) {
       .get(`${API_HOST}/users/${user_id}/landlord-subscriptions/`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
@@ -139,7 +139,6 @@ export async function registerLandlord(data) {
   }
 }
 
-
 // create an api function to register a tenant
 export async function registerTenant(data) {
   try {
@@ -197,7 +196,7 @@ export async function getStripeSubscription(subscription_id) {
     const res = await authenticatedInstance
       .post(`/stripe/retrieve-subscription/`, {
         subscription_id: subscription_id,
-        user_id: authUser.id,
+        user_id: authUser.user_id,
       })
 
       .then((res) => {
@@ -214,9 +213,9 @@ export async function getStripeSubscription(subscription_id) {
 export async function getUserData(user_id) {
   try {
     const res = await authenticatedInstance
-      .post(`/users/${authUser.id}/tenant/`, {
+      .post(`/users/${authUser.user_id}/tenant/`, {
         tenant_id: user_id,
-        landlord_id: authUser.id,
+        landlord_id: authUser.user_id,
       })
       .then((res) => {
         console.log(res);
@@ -232,7 +231,7 @@ export async function getUserData(user_id) {
 export async function updateUserData(data) {
   try {
     const res = await authenticatedInstance
-      .patch(`/users/${authUser.id}/`, data)
+      .patch(`/users/${authUser.user_id}/`, data)
       .then((res) => {
         console.log(res);
         return res;

@@ -1,7 +1,8 @@
 import React from "react";
 import { Navigate } from "react-router";
-import { authUser } from "../constants";
+import { useAuth } from "../contexts/AuthContext";
 const LoggedInRedirect = ({ token, children }) => {
+  const { authUser } = useAuth();
   if (token && authUser.account_type === "landlord") {
     return <Navigate to="/dashboard/landlord" replace />;
   } else if (token && authUser.account_type === "tenant") {

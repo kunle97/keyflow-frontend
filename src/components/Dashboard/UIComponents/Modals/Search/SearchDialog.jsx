@@ -173,10 +173,12 @@ const SearchDialog = (props) => {
   };
 
   useEffect(() => {
-    authenticatedInstance.get(`/users/${authUser.id}/tenants/`).then((res) => {
-      console.log("Tenant REsponse: ", res);
-      setTenants(res.data);
-    });
+    authenticatedInstance
+      .get(`/users/${authUser.user_id}/tenants/`)
+      .then((res) => {
+        console.log("Tenant REsponse: ", res);
+        setTenants(res.data);
+      });
     console.log("SEARCH DIOALOIEHG Tenants:", tenants);
     getLandlordUnits().then((res) => {
       setAllUnits(res.data);

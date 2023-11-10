@@ -12,9 +12,9 @@ import {
   turnOffAutoPay,
   turnOnAutoPay,
 } from "../../../api/manage_subscriptions";
-import {getTenantTransactionsByUser,} from "../../../api/transactions";
-import {listStripePaymentMethods,} from "../../../api/payment_methods";
-import {getTenantDashboardData,} from "../../../api/tenants";
+import { getTenantTransactionsByUser } from "../../../api/transactions";
+import { listStripePaymentMethods } from "../../../api/payment_methods";
+import { getTenantDashboardData } from "../../../api/tenants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import MUIDataTable from "mui-datatables";
@@ -100,7 +100,7 @@ const TenantDashboard = () => {
 
   useEffect(() => {
     //Get the payment methods for the user and check if they at least have one
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
       setIsLoadingPaymentMethods(true);
       if (res.data.length < 1) {
         setShowAddPaymentMethodAlert(true);
@@ -125,7 +125,7 @@ const TenantDashboard = () => {
       setTransactions(res.data);
     });
     //Retrieve next payment date
-    getNextPaymentDate(authUser.id).then((res) => {
+    getNextPaymentDate(authUser.user_id).then((res) => {
       console.log("nExt pay date data", res);
       setNextPaymentDate(res.data.next_payment_date);
     });

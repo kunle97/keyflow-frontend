@@ -15,13 +15,16 @@ const RentalApplicationGeneratorForm = (props) => {
     // Collect input values
     const data = {
       count: numberOfItems,
-      user_id: authUser.id,
+      user_id: authUser.user_id,
       // Add other options as needed
     };
 
     // Use Axios or your preferred HTTP client to call the appropriate endpoints in your DRF backend.
     axios
-      .post(`${process.env.REACT_APP_API_HOSTNAME}/generate/rental-applications/`, data)
+      .post(
+        `${process.env.REACT_APP_API_HOSTNAME}/generate/rental-applications/`,
+        data
+      )
       .then((response) => {
         console.log("Response ", response);
         if (response.data.status === 201) {

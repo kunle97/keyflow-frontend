@@ -95,7 +95,7 @@ const ViewRentalApplication = () => {
               const leaseAgreementData = {
                 rental_application: parseInt(id),
                 rental_unit: rental_unit.id,
-                user: authUser.id,
+                user: authUser.user_id,
                 approval_hash: approval_hash,
                 lease_term: lease_term,
                 document_id: sendDocResponse.documentId,

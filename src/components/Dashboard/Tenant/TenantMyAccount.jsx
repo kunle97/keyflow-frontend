@@ -82,7 +82,7 @@ const TenantMyAccount = () => {
       console.log("Set as default PM: ", paymentMethodId);
       let data = {};
       data.payment_method_id = paymentMethodId;
-      data.user_id = authUser.id;
+      data.user_id = authUser.user_id;
       console.log(res.lease_agreement.id);
       //Retrieve the lease agreement
       data.lease_agreement_id = res.lease_agreement.id;
@@ -93,7 +93,7 @@ const TenantMyAccount = () => {
         setResponseMessage("Payment method set as default");
         setShowResponseModal(true);
         //Get the payment methods for the user
-        listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
           console.log(res.data);
           setPaymentMethods(res.data);
         });
@@ -112,7 +112,7 @@ const TenantMyAccount = () => {
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
-      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+      listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
         console.log(res.data);
         setPaymentMethods(res.data);
       });
@@ -121,7 +121,7 @@ const TenantMyAccount = () => {
 
   useEffect(() => {
     //Get the payment methods for the user
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
       console.log(res.data);
       setPaymentMethods(res.data);
     });

@@ -77,7 +77,7 @@ const CreateUnit = () => {
   };
 
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }
@@ -147,7 +147,7 @@ const CreateUnit = () => {
           color: "white",
         }}
       >
-        Create Lease Term
+        Create Lease Template
       </Button>
     </Link>
   );
@@ -170,7 +170,7 @@ const CreateUnit = () => {
       if (res.lease_term) {
         getLeaseTermById({
           lease_term_id: res.lease_term,
-          user_id: authUser.id,
+          user_id: authUser.user_id,
         }).then((res) => {
           setCurrentLeaseTerm(res);
         });
@@ -260,10 +260,10 @@ const CreateUnit = () => {
                 <div className="card-body">
                   <input
                     className="form-control"
-                    value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
+                    value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
                   />
                   <a
-                    href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
+                    href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
                     target="_blank"
                   >
                     <Button
@@ -396,86 +396,100 @@ const CreateUnit = () => {
                           color: "white",
                         }}
                       >
-                        {leaseTerms.map((leaseTerm) => {
-                          return (
-                            <>
+                        {console.log(leaseTerms === 0)}
+                        {leaseTerms.map((leaseTerm, index) => {
+                          if (leaseTerms.length == 0) {
+                            return (
                               <ListItem alignItems="flex-start">
                                 <ListItemText
-                                  primary={`${leaseTerm.term} Month Lease @ $${leaseTerm.rent}/mo`}
-                                  secondary={
-                                    <React.Fragment>
-                                      <h6 style={{ fontSize: "10pt" }}>
-                                        Security Deposit: ${" "}
-                                        {leaseTerm.security_deposit} | Late Fee:
-                                        ${leaseTerm.late_fee} | Grace Period:{" "}
-                                        {leaseTerm.grace_period === 0 ? (
-                                          "None"
-                                        ) : (
-                                          <>{`${leaseTerm.grace_period} Month(s)`}</>
-                                        )}
-                                      </h6>
-                                      <div style={{ overflow: "auto" }}>
-                                        <div
-                                          style={{
-                                            color: "white",
-                                            float: "left",
-                                          }}
-                                        >
-                                          <p className="m-0">
-                                            Gas{" "}
-                                            {leaseTerm.gas_included
-                                              ? "included"
-                                              : "not included"}
-                                          </p>
-                                          <p className="m-0">
-                                            Electric{" "}
-                                            {leaseTerm.electric_included
-                                              ? "included"
-                                              : "not included"}
-                                          </p>
-                                          <p className="m-0">
-                                            Water{" "}
-                                            {leaseTerm.water_included
-                                              ? "included"
-                                              : "not included"}
-                                          </p>
-                                        </div>
-
-                                        <Button
-                                          onClick={() =>
-                                            handleChangeLeaseTerm(leaseTerm.id)
-                                          }
-                                          sx={{
-                                            background: uiGreen,
-                                            color: "white",
-                                            textTransform: "none",
-                                            float: "right",
-                                            marginTop: "10px",
-                                          }}
-                                          variant="container"
-                                          className="ui-btn"
-                                        >
-                                          Select
-                                        </Button>
-                                      </div>
-                                      <p
-                                        style={{
-                                          color: "white",
-                                          width: "100%",
-                                        }}
-                                      >
-                                        Template ID:{" "}
-                                        {leaseTerm.template_id
-                                          ? leaseTerm.template_id
-                                          : "N/A"}
-                                      </p>
-                                    </React.Fragment>
-                                  }
+                                  primary={`No lease templates found`}
                                 />
                               </ListItem>
-                              <Divider component="li" />
-                            </>
-                          );
+                            );
+                          } else {
+                            return (
+                              <>
+                                <ListItem alignItems="flex-start">
+                                  <ListItemText
+                                    primary={`${leaseTerm.term} Month Lease @ $${leaseTerm.rent}/mo`}
+                                    secondary={
+                                      <React.Fragment>
+                                        <h6 style={{ fontSize: "10pt" }}>
+                                          Security Deposit: ${" "}
+                                          {leaseTerm.security_deposit} | Late
+                                          Fee: ${leaseTerm.late_fee} | Grace
+                                          Period:{" "}
+                                          {leaseTerm.grace_period === 0 ? (
+                                            "None"
+                                          ) : (
+                                            <>{`${leaseTerm.grace_period} Month(s)`}</>
+                                          )}
+                                        </h6>
+                                        <div style={{ overflow: "auto" }}>
+                                          <div
+                                            style={{
+                                              color: "white",
+                                              float: "left",
+                                            }}
+                                          >
+                                            <p className="m-0">
+                                              Gas{" "}
+                                              {leaseTerm.gas_included
+                                                ? "included"
+                                                : "not included"}
+                                            </p>
+                                            <p className="m-0">
+                                              Electric{" "}
+                                              {leaseTerm.electric_included
+                                                ? "included"
+                                                : "not included"}
+                                            </p>
+                                            <p className="m-0">
+                                              Water{" "}
+                                              {leaseTerm.water_included
+                                                ? "included"
+                                                : "not included"}
+                                            </p>
+                                          </div>
+
+                                          <Button
+                                            onClick={() =>
+                                              handleChangeLeaseTerm(
+                                                leaseTerm.id
+                                              )
+                                            }
+                                            sx={{
+                                              background: uiGreen,
+                                              color: "white",
+                                              textTransform: "none",
+                                              float: "right",
+                                              marginTop: "10px",
+                                            }}
+                                            variant="container"
+                                            className="ui-btn"
+                                          >
+                                            Select
+                                          </Button>
+                                        </div>
+                                        <p
+                                          style={{
+                                            color: "white",
+                                            width: "100%",
+                                          }}
+                                        >
+                                          Template ID:{" "}
+                                          {leaseTerm.template_id
+                                            ? leaseTerm.template_id
+                                            : "N/A"}
+                                        </p>
+                                      </React.Fragment>
+                                    }
+                                  />
+                                </ListItem>
+                                <Divider component="li" />
+                              </>
+                            );
+                          }
                         })}
                       </List>
                     </div>
@@ -539,7 +553,7 @@ const CreateUnit = () => {
                           }}
                           onClick={() => setShowLeaseTermSelector(true)}
                         >
-                          Change Lease Term
+                          Change Lease Template
                         </Button>
                       )}
                     </div>
@@ -547,7 +561,7 @@ const CreateUnit = () => {
                 ) : (
                   <>
                     <div className="col-md-12">
-                      A Lease term has not been assigned to this unit.
+                      A Lease template has not been assigned to this unit.
                     </div>
                     <div className="col-md-12 mb-4">
                       <Button
@@ -559,7 +573,7 @@ const CreateUnit = () => {
                         }}
                         onClick={() => setShowLeaseTermSelector(true)}
                       >
-                        Change Lease Term
+                        Change Lease Template
                       </Button>
                     </div>
                   </>

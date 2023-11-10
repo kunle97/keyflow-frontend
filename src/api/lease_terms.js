@@ -8,7 +8,7 @@ export async function createLeaseTerm(data) {
   try {
     const res = await authenticatedInstance
       .post(`/create-lease-term/`, {
-        user_id: authUser.id,
+        user_id: authUser.user_id,
         rent: parseFloat(data.rent),
         term: data.term,
         description: "_",
@@ -50,7 +50,7 @@ export async function getLeaseTermsByUser() {
       .get(`/lease-terms/?ordering=-created_at`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
@@ -107,7 +107,7 @@ export async function updateLeaseTerm(leaseTermId, data) {
       .patch(`/lease-terms/${leaseTermId}/`, data, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
@@ -128,7 +128,7 @@ export async function deleteLeaseTerm(leaseTermId) {
     const res = await authenticatedInstance
       .post(`/delete-lease-term/`, {
         lease_term_id: leaseTermId,
-        user_id: authUser.id,
+        user_id: authUser.user_id,
       })
       .then((res) => {
         return {

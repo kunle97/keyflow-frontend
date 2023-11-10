@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { PlaidLink } from "react-plaid-link";
 import { addStripePaymentMethod } from "../../../api/payment_methods";
-import {  createPlaidLinkToken } from "../../../api/auth";
+import { createPlaidLinkToken } from "../../../api/auth";
 import {
   FormControl,
   FormControlLabel,
@@ -55,7 +55,7 @@ const AddPaymentMethod = (props) => {
         console.log("PaymentMethod:", paymentMethod);
         const data = {
           payment_method_id: paymentMethod.id,
-          user_id: authUser.id,
+          user_id: authUser.user_id,
         };
         console.log(data);
         addStripePaymentMethod(data).then((res) => {
@@ -90,9 +90,9 @@ const AddPaymentMethod = (props) => {
   };
   useEffect(() => {
     //Create a Plaid link token by callig the API
-    // createPlaidLinkToken(`${authUser.id}`).then((res) => {
+    // createPlaidLinkToken(`${authUser.user_id}`).then((res) => {
     createPlaidLinkToken(`1`).then((res) => {
-      console.log("PLAID responseew",res);
+      console.log("PLAID responseew", res);
       //Open the Plaid Link
       //Get the Plaid token from the Plaid Link
       //Set the return token to the Plaid token

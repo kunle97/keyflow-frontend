@@ -14,17 +14,10 @@ const Topbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
-
+  const { logoutUser } = useAuth();
   const handleLogout = async (e) => {
     e.preventDefault();
-
-    //call logout api
-    const response = await logout();
-    console.log("Logout funtion return value on Login.jsx: ", response);
-
-    if (response.status == 200) {
-      setOpen(true);
-    }
+    logoutUser();
   };
 
   //REtrieve user notifications

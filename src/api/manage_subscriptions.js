@@ -8,7 +8,7 @@ export async function getStripeSubscription(subscription_id) {
     const res = await authenticatedInstance
       .post(`/stripe/retrieve-subscription/`, {
         subscription_id: subscription_id,
-        user_id: authUser.id,
+        user_id: authUser.user_id,
       })
 
       .then((res) => {
@@ -26,7 +26,7 @@ export async function turnOffAutoPay() {
   try {
     const res = await authenticatedInstance
       .post(`/manage-lease/turn-off-autopay/`, {
-        user_id: authUser.id,
+        user_id: authUser.user_id,
       })
       .then((res) => {
         return res;
@@ -41,7 +41,7 @@ export async function turnOffAutoPay() {
 export async function turnOnAutoPay() {
   try {
     const res = await authenticatedInstance
-      .post(`/manage-lease/turn-on-autopay/`, { user_id: authUser.id })
+      .post(`/manage-lease/turn-on-autopay/`, { user_id: authUser.user_id })
       .then((res) => {
         return res;
       });
@@ -101,7 +101,7 @@ export async function getSubscriptionPlanPrices() {
 export async function changeSubscriptionPlan(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/users/${authUser.id}/change-subscription-plan/`, data)
+      .post(`/users/${authUser.user_id}/change-subscription-plan/`, data)
       .then((res) => {
         console.log(res);
         return res.data;

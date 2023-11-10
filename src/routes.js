@@ -59,7 +59,7 @@ import Logout from "./components/Dashboard/Logout";
 import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
 import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
 //retrieve token from storage
-const token = localStorage.getItem("accessToken");
+const token = localStorage.getItem("authTokens");
 
 export const routes = [
 
