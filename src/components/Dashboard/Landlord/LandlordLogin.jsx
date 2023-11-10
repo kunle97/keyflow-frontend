@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react";
-import { getLandlordsEmails } from "../../../api/api";
+import { useContext, useEffect, useState } from "react";
+import { getLandlordsEmails, getLandlordsUsernames } from "../../../api/api";
 import { login } from "../../../api/auth";
-import { useAuth } from "../../../contexts/AuthContext";
+import AuthContext, { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { uiGreen, uiGrey2, validationMessageStyle } from "../../../constants";
 import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+
 const LandlordLogin = () => {
+  let { loginUser, user } = useContext(AuthContext);
   const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
   const [landlordsEmails, setLandlordsEmails] = useState([]);
+  const [landlordUsernames, setLandlordUsernames] = useState([]); //TODO: get usernames from db and set here
+  const [emailLoginMode, setEmailLoginMode] = useState(false); //Toggle to determine what login credentials to use
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const [openError, setOpenError] = useState(false);
@@ -32,8 +36,9 @@ const LandlordLogin = () => {
     },
   });
   const onSubmit = async (data) => {
-    console.log(data);
-    const response = await login(data.email, data.password);
+    let loginEmail =
+      process.env.REACT_APP_ENVIRONMENT !== "development" ? email : data.email;
+    const response = await login(loginEmail, data.password);
     setIsLoading(true);
 
     //if token is returned, set it in local storage
@@ -52,10 +57,20 @@ const LandlordLogin = () => {
       setOpenError(true);
     }
   };
+  const onJWTSubmit = async (e) => {
+    let response = await loginUser(e);
+    // console.log(response);
+  };
+
   useEffect(() => {
     getLandlordsEmails().then((res) => {
       if (res) {
         setLandlordsEmails(res);
+      }
+    });
+    getLandlordsUsernames().then((res) => {
+      if (res) {
+        setLandlordUsernames(res);
       }
     });
   }, []);
@@ -84,11 +99,7 @@ const LandlordLogin = () => {
             backgroundPosition: "center",
             height: "100vh",
           }}
-        >
-          {/* <img style={{width:"100%"}} src="/assets/img/login-page-banner.jpg" /> */}
-        </div>
-        {/* d-flex justify-content-center */}
-
+        ></div>
         <div className="col-md-4 col-sm-12 login-col " style={{}}>
           <div className="row">
             <div className=" ">
@@ -96,30 +107,50 @@ const LandlordLogin = () => {
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-white-transparent.png"
               />
-              <form className="user" onSubmit={handleSubmit(onSubmit)}>
+              {/* <form className="user" onSubmit={handleSubmit(onSubmit)}> */}
+              <form className="user" onSubmit={onJWTSubmit}>
                 {process.env.REACT_APP_ENVIRONMENT === "development" ? (
                   <div>
-                    <select
-                      {...register("email", {
-                        required: "This is a required field",
-                        pattern: {
-                          value: /\S+@\S+\.\S+/,
-                          message: "Please enter a valid email address",
-                        },
-                      })}
-                      className="form-control card"
-                      style={{
-                        background: uiGrey2,
-                        color: "white !important",
-                        marginBottom: "25px",
-                      }}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    >
-                      {landlordsEmails.map((email) => (
-                        <option value={email}>{email}</option>
-                      ))}
-                    </select>
+                    {emailLoginMode ? (
+                      <select
+                        {...register("email", {
+                          required: "This is a required field",
+                          pattern: {
+                            value: /\S+@\S+\.\S+/,
+                            message: "Please enter a valid email address",
+                          },
+                        })}
+                        className="form-control card"
+                        style={{
+                          background: uiGrey2,
+                          color: "white !important",
+                          marginBottom: "25px",
+                        }}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      >
+                        {landlordsEmails.map((email) => (
+                          <option value={email}>{email}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <select
+                        {...register("username", {
+                          required: "This is a required field",
+                        })}
+                        className="form-control card"
+                        style={{
+                          background: uiGrey2,
+                          color: "white !important",
+                          marginBottom: "25px",
+                        }}
+                        name="username"
+                      >
+                        {landlordUsernames.map((username) => (
+                          <option value={username}>{username}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 ) : (
                   <div className="mb-3">

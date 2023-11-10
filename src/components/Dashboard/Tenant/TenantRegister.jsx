@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { authUser, uiGreen, uiGrey1 } from "../../../constants";
 import { faker } from "@faker-js/faker";
-import {
-  getRentalApplicationByApprovalHash,
-} from "../../../api/rental_applications";
-import {verifyTenantRegistrationCredentials,} from "../../../api/tenants";
+import { getRentalApplicationByApprovalHash } from "../../../api/rental_applications";
+import { verifyTenantRegistrationCredentials } from "../../../api/tenants";
 import { registerTenant } from "../../../api/auth";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../UIComponents/Modals/AlertModal";
@@ -128,7 +126,7 @@ const TenantRegister = () => {
     const response = await registerTenant(data).then((res) => {
       console.log(res);
       if (res.status === 200) {
-        setUserId(authUser.id);
+        setUserId(authUser.user_id);
 
         //Show success message
         setMessage("Your account has been created successfully!");

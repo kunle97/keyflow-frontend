@@ -1,4 +1,3 @@
-import { authUser } from "../constants";
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 //-------------------LEASE AGREEMENT API FUNCTIONS------------------------///
 //Create a function that retrieves all lease agreements

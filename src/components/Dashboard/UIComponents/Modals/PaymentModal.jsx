@@ -49,7 +49,7 @@ const PaymentModal = (props) => {
     setIsLoading(true);
     console.log("Payment Method", selectedPaymentMethod);
     const data = {
-      user_id: authUser.id,
+      user_id: authUser.user_id,
       payment_method_id: selectedPaymentMethod.id,
       amount: props.amount,
     };

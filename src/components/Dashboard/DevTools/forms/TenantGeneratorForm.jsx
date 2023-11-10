@@ -57,7 +57,7 @@ export const TenantGeneratorForm = (props) => {
     // Collect input values
     let payload = {
       count: data.numberOfItems,
-      user_id: authUser.id,
+      user_id: authUser.user_id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
       lease_term_mode: data.leaseTermMode,
@@ -339,7 +339,6 @@ export const TenantGeneratorForm = (props) => {
             {errors.hasGracePeriod && errors.hasGracePeriod.message}
           </span>
         </div>
-
 
         {/* Add other input fields for options, if needed */}
         {isLoading ? (

@@ -63,10 +63,10 @@ const Tenants = () => {
               />
             </div>
           </div>
-          
+
           <UITable
             title="Tenants"
-            endpoint={`/users/${authUser.id}/tenants/`}
+            endpoint={`/users/${authUser.user_id}/tenants/`}
             searchFields={["first_name", "last_name", "email"]}
             columns={columns}
             options={options}

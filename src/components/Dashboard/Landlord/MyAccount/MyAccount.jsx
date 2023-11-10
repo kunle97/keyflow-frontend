@@ -11,10 +11,13 @@ import {
   listStripePaymentMethods,
   setDefaultPaymentMethod,
 } from "../../../../api/payment_methods";
-import {getTenantDashboardData,} from "../../../../api/tenants";
+import { getTenantDashboardData } from "../../../../api/tenants";
 import { changePassword } from "../../../../api/passwords";
 import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
-import { getUserStripeSubscriptions, updateUserData } from "../../../../api/auth";
+import {
+  getUserStripeSubscriptions,
+  updateUserData,
+} from "../../../../api/auth";
 import { useForm } from "react-hook-form";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Box, Button, Stack, Typography } from "@mui/material";
@@ -54,7 +57,7 @@ const MyAccount = () => {
       console.log("Set as default PM: ", paymentMethodId);
       let data = {};
       data.payment_method_id = paymentMethodId;
-      data.user_id = authUser.id;
+      data.user_id = authUser.user_id;
       console.log(res.lease_agreement.id);
       //Retrieve the lease agreement
       data.lease_agreement_id = res.lease_agreement.id;
@@ -65,7 +68,7 @@ const MyAccount = () => {
         setResponseMessage("Payment method set as default");
         setShowResponseModal(true);
         //Get the payment methods for the user
-        listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
           console.log(res.data);
           setPaymentMethods(res.data);
         });
@@ -84,7 +87,7 @@ const MyAccount = () => {
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
-      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+      listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
         console.log(res.data);
         setPaymentMethods(res.data);
       });
@@ -144,13 +147,13 @@ const MyAccount = () => {
 
   useEffect(() => {
     //Get the payment methods for the user
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
       setPaymentMethods(res.data);
     });
     getSubscriptionPlanPrices().then((res) => {
       setPlans(res.products);
     });
-    getUserStripeSubscriptions(authUser.id, token).then((res) => {
+    getUserStripeSubscriptions(authUser.user_id, token).then((res) => {
       setCurrentSubscriptionPlan(res.subscriptions);
     });
   }, []);

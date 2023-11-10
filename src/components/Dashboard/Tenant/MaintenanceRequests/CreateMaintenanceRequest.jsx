@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  createMaintenanceRequest,
-} from "../../../../api/maintenance_requests";
-import {getTenantDashboardData,} from "../../../../api/tenants";
+import { createMaintenanceRequest } from "../../../../api/maintenance_requests";
+import { getTenantDashboardData } from "../../../../api/tenants";
 import { authUser, validationMessageStyle } from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -38,7 +36,7 @@ const CreateMaintenanceRequest = () => {
       rental_unit: unit.id,
       rental_property: unit.rental_property,
       description: data.description,
-      tenant: authUser.id,
+      tenant: authUser.user_id,
       type: data.type,
       landlord: leaseAgreement.user,
     };

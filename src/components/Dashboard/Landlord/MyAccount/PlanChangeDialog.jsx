@@ -5,9 +5,7 @@ import { Stack, Chip, IconButton } from "@mui/material";
 import { authUser, token, uiGreen, uiGrey2 } from "../../../../constants";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
-import {
-  changeSubscriptionPlan,
-} from "../../../../api/manage_subscriptions";
+import { changeSubscriptionPlan } from "../../../../api/manage_subscriptions";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { useNavigate } from "react-router-dom";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -72,7 +70,7 @@ const PlanChangeDialog = (props) => {
     });
   };
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }

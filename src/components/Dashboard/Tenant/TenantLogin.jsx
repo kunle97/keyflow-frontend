@@ -13,7 +13,7 @@ const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
+  const { loginUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const {
@@ -38,8 +38,6 @@ const TenantLogin = () => {
       //Save auth user in local storage
       localStorage.setItem("authUser", JSON.stringify(response.userData));
       setRedirectURL("/dashboard/tenant");
-      setAuthUser(response.userData);
-      setIsLoggedIn(true);
       setIsLoading(false);
       //Navigate to dashboard
       setOpen(true);
@@ -48,7 +46,10 @@ const TenantLogin = () => {
       setIsLoading(false);
     }
   };
-
+  const onJWTSubmit = async (e) => {
+    let response = await loginUser(e);
+    // console.log(response);
+  };
   return (
     <div
       className="container-fluid "
@@ -93,7 +94,7 @@ const TenantLogin = () => {
               <Typography color="white" className="mb-4 ml-4">
                 Tenant Login
               </Typography>
-              <form className="user" onSubmit={handleSubmit(onSubmit)}>
+              <form className="user" onSubmit={onJWTSubmit}>
                 <div className="mb-3">
                   <Input
                     {...register("email", {

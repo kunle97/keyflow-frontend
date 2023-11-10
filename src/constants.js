@@ -7,21 +7,22 @@ import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-export const authUser = localStorage.getItem("authUser")
-  ? JSON.parse(localStorage.getItem("authUser"))
+import { jwtDecode } from "jwt-decode";
+
+export const authUser = localStorage.getItem("authTokens")
+  ? jwtDecode(localStorage.getItem("authTokens"))
   : {};
-export const token = localStorage.getItem("accessToken")
-  ? localStorage.getItem("accessToken")
+
+export const token = localStorage.getItem("authTokens")
+  ? JSON.parse(localStorage.getItem("authTokens")).access
   : {};
+
 export const stripe_onboarding_link = localStorage.getItem(
   "stripe_onboarding_link"
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
-//CReatea  variable for the ocal storage of the subscriptionPlan
-export const subscriptionPlan = localStorage.getItem("subscriptionPlan")
-  ? JSON.parse(localStorage.getItem("subscriptionPlan"))
-  : {};
+  
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c";
 export const uiRed = "#FF4040";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import {createProperty } from "../../../../api/properties";
-import {createUnit} from "../../../../api/units";
+import { createProperty } from "../../../../api/properties";
+import { createUnit } from "../../../../api/units";
 
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { faker } from "@faker-js/faker";
@@ -148,7 +148,7 @@ const CreateProperty = () => {
       payload.rental_property = newPropertyId;
       payload.subscription_id = currentSubscriptionPlan.id;
       payload.product_id = currentSubscriptionPlan.plan.product;
-      payload.user = authUser.id;
+      payload.user = authUser.user_id;
 
       const res = await createUnit(payload);
       console.log(res);
@@ -164,7 +164,7 @@ const CreateProperty = () => {
   };
 
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }

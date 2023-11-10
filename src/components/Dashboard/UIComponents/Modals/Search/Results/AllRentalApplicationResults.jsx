@@ -12,13 +12,13 @@ const AllRentalApplicationResults = (props) => {
   const batchEndpoints = [
     {
       name: "properties",
-      endpoint: `/users/${authUser.id}/properties/`,
+      endpoint: `/users/${authUser.user_id}/properties/`,
       limit: 10,
       query: null,
     },
     {
       name: "units",
-      endpoint: `/users/${authUser.id}/units/`,
+      endpoint: `/users/${authUser.user_id}/units/`,
       limit: 10,
       query: null,
     },
@@ -79,50 +79,51 @@ const AllRentalApplicationResults = (props) => {
                     searchLimit={searchLimit}
                     changeSearchLimit={changeSearchLimit}
                   />
-                  {searchResults && searchResults.map((rental_application) => {
-                    //Retrive unit information for the rental application
-                    // const unit = allUnits.filter(
-                    //   (unit) => unit.id === rental_application.unit
-                    // )[0];
-                    // const property = allProperties.filter(
-                    //   (property) => property.id === unit.rental_property
-                    // )[0];
-                    // let property_name = property.name;
-                    // let unit_name = unit.name;
+                  {searchResults &&
+                    searchResults.map((rental_application) => {
+                      //Retrive unit information for the rental application
+                      // const unit = allUnits.filter(
+                      //   (unit) => unit.id === rental_application.unit
+                      // )[0];
+                      // const property = allProperties.filter(
+                      //   (property) => property.id === unit.rental_property
+                      // )[0];
+                      // let property_name = property.name;
+                      // let unit_name = unit.name;
 
-                    return (
-                      <SearchResultCard
-                        to={`/dashboard/landlord/rental-applications/${rental_application.id}`}
-                        key={rental_application.id}
-                        handleClose={props.handleClose}
-                        title={`${rental_application.first_name} ${rental_application.last_name}`}
-                        gridSize={4}
-                        subtitle={
-                          rental_application.email
-                          // <>
-                          //   For Unit {unit_name} at {property_name} |{" "}
-                          //   {rental_application.is_approved ? (
-                          //     <span style={{ color: uiGreen }}>Approved</span>
-                          //   ) : (
-                          //     ""
-                          //   )}{" "}
-                          // </>
-                        }
-                        description={
-                          rental_application.is_approved ? (
-                            <span style={{ color: uiGreen }}>Approved</span>
-                          ) : (
-                            ""
-                          )
-                        }
-                        icon={
-                          <ReceiptLongOutlinedIcon
-                            style={{ width: "30px", height: "30px" }}
-                          />
-                        }
-                      />
-                    );
-                  })}
+                      return (
+                        <SearchResultCard
+                          to={`/dashboard/landlord/rental-applications/${rental_application.id}`}
+                          key={rental_application.id}
+                          handleClose={props.handleClose}
+                          title={`${rental_application.first_name} ${rental_application.last_name}`}
+                          gridSize={4}
+                          subtitle={
+                            rental_application.email
+                            // <>
+                            //   For Unit {unit_name} at {property_name} |{" "}
+                            //   {rental_application.is_approved ? (
+                            //     <span style={{ color: uiGreen }}>Approved</span>
+                            //   ) : (
+                            //     ""
+                            //   )}{" "}
+                            // </>
+                          }
+                          description={
+                            rental_application.is_approved ? (
+                              <span style={{ color: uiGreen }}>Approved</span>
+                            ) : (
+                              ""
+                            )
+                          }
+                          icon={
+                            <ReceiptLongOutlinedIcon
+                              style={{ width: "30px", height: "30px" }}
+                            />
+                          }
+                        />
+                      );
+                    })}
                   <ResultsPageControl
                     previousPageEndPoint={previousPageEndPoint}
                     nextPageEndPoint={nextPageEndPoint}
