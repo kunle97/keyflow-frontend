@@ -99,7 +99,7 @@ export function AuthProvider({ children, ...props }) {
   };
 
   useEffect(() => {
-    let minutes = 0.15;
+    let minutes = 3.75;
     let refreshTime = 1000 * 60 * minutes;
     let interval = setInterval(() => {
       if (authTokens) {
