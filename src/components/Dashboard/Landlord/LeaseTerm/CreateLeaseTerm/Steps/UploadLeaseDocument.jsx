@@ -18,7 +18,7 @@ const UploadLeaseDocument = (props) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
 
-  //Create handleTempalteEditUpdate function
+  //Create handleTemplateEditUpdate function
   const handleTemplateEditUpdate = (event) => {
     if (event.origin !== "https://app.boldsign.com") {
       return;
@@ -93,7 +93,7 @@ const UploadLeaseDocument = (props) => {
         setIframeUrl(res.url);
         props.setTemplateId(res.template_id);
         console.log("template id", res.template_id);
-        console.log("tempalte id state", props.templateId);
+        console.log("template id state", props.templateId);
         setRenderIframe(true);
         console.log(iframeUrl);
         setIsLoading(false);
@@ -175,9 +175,10 @@ const UploadLeaseDocument = (props) => {
                   <input
                     {...getInputProps()}
                     onChange={(e) => {
-                      props.setFile(e.target.files[0]);
-                      console.log("dropzone file", e.target.files[0]);
-                      console.log("state file", props.file);
+                      setFile(e.target.files[0]);
+                      console.log("onChange file", e.target.files[0]);
+                      console.log("onCHange state file", file);
+                      handleDrop([e.target.files[0]]);
                     }}
                     type="file"
                     name="file"

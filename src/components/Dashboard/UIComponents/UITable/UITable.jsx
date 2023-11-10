@@ -12,11 +12,13 @@ import React, { useEffect } from "react";
 import { uiGreen, uiGrey2 } from "../../../../constants";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useState } from "react";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 import AddIcon from "@mui/icons-material/Add";
 import { authenticatedInstance } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import { MultiSelectDropdown } from "../MultiSelectDropdown";
 import UIButton from "../UIButton";
+import UIPrompt from "../UIPrompt";
 const UITable = (props) => {
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
@@ -83,9 +85,9 @@ const UITable = (props) => {
                 });
               });
               while (!nextPageEndPoint === null) {
-              const remaining_res = authenticatedInstance
-              .get(nextPageEndPoint)
-              .then((r_res) => {
+                const remaining_res = authenticatedInstance
+                  .get(nextPageEndPoint)
+                  .then((r_res) => {
                     r_res.data.results.map((result) => {
                       newChecked.push({
                         id: result.id,
@@ -406,7 +408,17 @@ const UITable = (props) => {
         ) : (
           <>
             {results.length === 0 ? (
-              <h2>No results found</h2>
+              <>
+                <UIPrompt
+                  icon={
+                    <SearchOffIcon
+                      style={{ fontSize: "5rem", color: uiGreen }}
+                    />
+                  }
+                  title="No results found"
+                  message="Add a new entry or try adjusting your search filters."
+                />
+              </>
             ) : (
               <table id="ui-table" className="" style={{ width: "100%" }}>
                 {/* Table Header  */}
@@ -471,7 +483,6 @@ const UITable = (props) => {
                                 if (column.options.customBodyRender) {
                                   return (
                                     <td>
-                                      
                                       {column.options.customBodyRender(
                                         row[column.name]
                                       )}

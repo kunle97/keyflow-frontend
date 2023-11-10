@@ -24,6 +24,16 @@ export function AuthProvider({ children, ...props }) {
   const [errMsg, setErrMsg] = useState();
   const [openError, setOpenError] = useState(false);
 
+  const isTokenExpired = (token) => {
+    if (!token) {
+      return true;
+    }
+    const decodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000; // Convert to seconds
+    return decodedToken.exp < currentTime;
+  };
+
+
   let loginUser = async (e) => {
     e.preventDefault();
     getTokens({
@@ -93,13 +103,17 @@ export function AuthProvider({ children, ...props }) {
   };
 
   let contextData = {
+    updateToken,
     loginUser,
     logoutUser,
     authUser,
   };
 
   useEffect(() => {
-    let minutes = 3.75;
+    if(authTokens && isTokenExpired(authTokens.access)){
+      updateToken(); //TODO: Decide on weather to refresh the token or log user out
+    }
+    let minutes = 0.25;
     let refreshTime = 1000 * 60 * minutes;
     let interval = setInterval(() => {
       if (authTokens) {
