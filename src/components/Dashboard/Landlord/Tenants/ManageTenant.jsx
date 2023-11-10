@@ -8,9 +8,11 @@ import { getLandlordTenant } from "../../../../api/landlords";
 import { faker } from "@faker-js/faker";
 import { useNavigate } from "react-router-dom";
 import UITable from "../../UIComponents/UITable/UITable";
-import UITabs, { StyledTab, StyledTabs } from "../../UIComponents/UITabs";
-import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
-import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
+import UITabs from "../../UIComponents/UITabs";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import { getNextPaymentDate, getPaymentDates } from "../../../../api/manage_subscriptions";
+
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ const ManageTenant = () => {
   const [transactions, setTransactions] = useState([]);
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [tabPage, setTabPage] = useState(0);
+  const [nextPaymentDate, setNextPaymentDate] = useState(null); //TODO: get next payment date from db and set here
+  const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   const transaction_columns = [
     { name: "amount", label: "Amount" },
     {
@@ -48,11 +52,12 @@ const ManageTenant = () => {
     },
   ];
   const sections = [
-    { name: "transactions", label: "Transactions", icon: <PaidOutlinedIcon /> },
+    { name: "overview", label: "Overview" },
+    { name: "rent_calendar", label: "Rent Calendar" },
+    { name: "transactions", label: "Transactions" },
     {
       name: "maintenance_requests",
       label: "Maintenance Requests",
-      icon: <HandymanOutlinedIcon />,
     },
   ];
   const handleChangeTabPage = (event, newValue) => {
@@ -116,7 +121,21 @@ const ManageTenant = () => {
   useEffect(() => {
     getLandlordTenant(tenant_id).then((res) => {
       console.log(res);
-      // setTenant(res.data.tenant);
+      setTenant(res.data.tenant);
+      getNextPaymentDate(res.data.tenant.id).then((res) => {
+        console.log("nExt pay date data", res);
+        setNextPaymentDate(res.data.next_payment_date);
+      });
+      getPaymentDates(res.data.tenant.id).then((res) => {
+        if (res.status === 200) {
+          const payment_dates = res.data.payment_dates;
+          console.log("Payment dates ", payment_dates);
+          const due_dates = payment_dates.map((date) => {
+            return { title: "Rent Due", start: new Date(date.payment_date) };
+          });
+          setDueDates(due_dates);
+        }
+      });
       setUnit(res.data.unit);
       setProperty(res.data.property);
       setLease(res.data.lease_agreement);
@@ -126,171 +145,192 @@ const ManageTenant = () => {
   }, []);
   return (
     <div className="container">
-      <div className="row mb-3">
-        <div className="col-sm-12 col-md-12 col-lg-4">
-          <div className="card mb-3">
-            <div className="card-body text-center shadow">
-              <div className="property-col-img-container">
-                <img
-                  className="rounded-circle h-100"
-                  src={
-                    process.env.REACT_APP_ENVIRONMENT !== "development"
-                      ? ""
-                      : faker.image.avatar()
-                  }
-                />
+      <UITabs
+        value={tabPage}
+        handleChange={handleChangeTabPage}
+        tabs={sections}
+        variant="fullWidth"
+        scrollButtons="auto"
+        ariaLabel=""
+        style={{ marginBottom: "20px" }}
+      />
+      {tabPage === 0 && (
+        <div className="row mb-3">
+          <div className="col-sm-12 col-md-12 col-lg-4">
+            <div className="card mb-3">
+              <div className="card-body text-center shadow">
+                <div className="property-col-img-container">
+                  <img
+                    className="rounded-circle h-100"
+                    src={
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.image.avatar()
+                    }
+                  />
+                </div>
+                <h4
+                  className="text-white tenant-info-heading"
+                  style={{ width: "100%" }}
+                >
+                  <center>
+                    {tenant.first_name} {tenant.last_name}
+                  </center>
+                </h4>
+                <div className="mb-3">
+                  <a href={`mailto:${tenant.email}`}>
+                    <UIButton sx={{ margin: "0 10px" }} btnText="Email" />
+                  </a>
+                  {/* <UIButton sx={{ margin: "0 10px" }} btnText="Text" /> */}
+                </div>
               </div>
-              <h4
-                className="text-white tenant-info-heading"
-                style={{ width: "100%" }}
-              >
-                <center>
-                  {tenant.first_name} {tenant.last_name}
-                </center>
-              </h4>
-              <div className="mb-3">
-                <a href={`mailto:${tenant.email}`}>
-                  <UIButton sx={{ margin: "0 10px" }} btnText="Email" />
-                </a>
-                <UIButton sx={{ margin: "0 10px" }} btnText="Text" />
+            </div>
+            <div className="card shadow mb-3">
+              <div className="card-body">
+                <div>
+                  <h5>Property</h5>
+                  <p className="text-white">{property.name}</p>
+                </div>
+                <div>
+                  <h5>Unit</h5>
+                  <p className="text-white">{unit.name}</p>
+                </div>
+                <div>
+                  <h5>Lease Start Date</h5>
+                  <p className="text-white">{lease.start_date}</p>
+                </div>
+                <div>
+                  <h5>Lease End Date</h5>
+                  <p className="text-white">{lease.end_date}</p>
+                </div>
+                <div>
+                  <h5>Next Payment Date</h5>  
+                  <p className="text-white">{new Date(nextPaymentDate).toISOString().split("T")[0]}</p>
+                </div>
+                <div>
+                  <h5>Time Left</h5>
+                  <p className="text-white">
+                    Lease ends {dateDiffForHumans(new Date(lease.end_date))}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div className="card shadow mb-3">
+
+          <div className="col-lg-8">
+            <div className="row">
+              <div className="col-sm-12">
+                <div className="row">
+                  <div className="col-sm-12 col-md-6 mb-4">
+                    <TitleCard
+                      title="Total Payments"
+                      backgroundColor={uiGreen}
+                      value={`$23,432`}
+                    />
+                  </div>
+                  <div className="col-sm-12 col-md-6 mb-4">
+                    <TitleCard
+                      title="Total Late Payments"
+                      backgroundColor={uiRed}
+                      value={`3`}
+                    />
+                  </div>
+                </div>
+                <div className="card shadow mb-3">
+                  <div className="card-body">
+                    <form>
+                      <div className="row">
+                        <div className="col">
+                          <div className="mb-3">
+                            <label
+                              className="form-label text-white"
+                              htmlFor="username"
+                            >
+                              <strong>Payment Status</strong>
+                            </label>
+                            <p className="text-danger">Over Due</p>
+                          </div>
+                          <div className="mb-3">
+                            <label
+                              className="form-label text-white"
+                              htmlFor="first_name"
+                            >
+                              <strong>Lease Term</strong>
+                            </label>
+                            <p className="text-white">12 months</p>
+                          </div>
+                        </div>
+                        <div className="col">
+                          <div className="mb-3">
+                            <label
+                              className="form-label text-white"
+                              htmlFor="email"
+                            >
+                              <strong>Rent Due Date</strong>
+                            </label>
+                            <p className="text-white">July 15th, 2023</p>
+                          </div>
+                          <div className="mb-3">
+                            <label
+                              className="form-label text-white"
+                              htmlFor="last_name"
+                            >
+                              <strong>Document</strong>
+                            </label>
+                            <button
+                              className="btn btn-primary ui-btn d-block"
+                              type="button"
+                            >
+                              View Lease
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {tabPage === 1 && (
+        <>
+          <h3 className="mb-3">Payment Schedule</h3>
+          <div className="card">
             <div className="card-body">
-              <div>
-                <h5>Property</h5>
-                <p className="text-white">{property.name}</p>
-              </div>
-              <div>
-                <h5>Unit</h5>
-                <p className="text-white">{unit.name}</p>
-              </div>
-              <div>
-                <h5>Lease Start Date</h5>
-                <p className="text-white">{lease.start_date}</p>
-              </div>
-              <div>
-                <h5>Lease End Date</h5>
-                <p className="text-white">{lease.end_date}</p>
-              </div>
-              <div>
-                <h5>Time Left</h5>
-                <p className="text-white">
-                  Lease ends {dateDiffForHumans(new Date(lease.end_date))}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-lg-8">
-          <div className="row">
-            <div className="col-sm-12">
-              <div className="row">
-                <div className="col-sm-12 col-md-6 mb-4">
-                  <TitleCard
-                    title="Total Payments"
-                    backgroundColor={uiGreen}
-                    value={`$23,432`}
-                  />
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4">
-                  <TitleCard
-                    title="Total Late Payments"
-                    backgroundColor={uiRed}
-                    value={`3`}
-                  />
-                </div>
-              </div>
-              <div className="card shadow mb-3">
-                <div className="card-body">
-                  <form>
-                    <div className="row">
-                      <div className="col">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="username"
-                          >
-                            <strong>Payment Status</strong>
-                          </label>
-                          <p className="text-danger">Over Due</p>
-                        </div>
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="first_name"
-                          >
-                            <strong>Lease Term</strong>
-                          </label>
-                          <p className="text-white">12 months</p>
-                        </div>
-                      </div>
-                      <div className="col">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="email"
-                          >
-                            <strong>Rent Due Date</strong>
-                          </label>
-                          <p className="text-white">July 15th, 2023</p>
-                        </div>
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="last_name"
-                          >
-                            <strong>Document</strong>
-                          </label>
-                          <button
-                            className="btn btn-primary ui-btn d-block"
-                            type="button"
-                          >
-                            View Lease
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-
-              <UITabs
-                value={tabPage}
-                handleChange={handleChangeTabPage}
-                tabs={sections}
-                variant="fullWidth"
-                scrollButtons="auto"
-                ariaLabel=""
+              <FullCalendar
+                plugins={[dayGridPlugin]}
+                initialView="dayGridMonth"
+                weekends={true}
+                events={dueDates}
+                // eventContent={renderEventContent}
               />
-
-              {tabPage === 0 && (
-                <div className="mb-3" style={{ overflow: "hidden" }}>
-                  <UITable
-                    title="Transactions"
-                    data={transactions}
-                    searchFields={["first_name", "last_name", "email"]}
-                    columns={transaction_columns}
-                    options={transaction_options}
-                  />
-                </div>
-              )}
-              {tabPage === 1 && (
-                <div className="mb-3" style={{ overflow: "hidden" }}>
-                  <UITable
-                    title="Maintenance Requests"
-                    data={maintenanceRequests}
-                    columns={maintenance_request_columns}
-                    options={maintenance_request_options}
-                  />
-                </div>
-              )}
             </div>
           </div>
+        </>
+      )}
+      {tabPage === 2 && (
+        <div className="mb-3" style={{ overflow: "hidden" }}>
+          <UITable
+            title="Transactions"
+            data={transactions}
+            searchFields={["first_name", "last_name", "email"]}
+            columns={transaction_columns}
+            options={transaction_options}
+          />
         </div>
-      </div>
+      )}
+      {tabPage === 3 && (
+        <div className="mb-3" style={{ overflow: "hidden" }}>
+          <UITable
+            title="Maintenance Requests"
+            data={maintenanceRequests}
+            columns={maintenance_request_columns}
+            options={maintenance_request_options}
+          />
+        </div>
+      )}
     </div>
   );
 };

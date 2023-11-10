@@ -26,7 +26,6 @@ const SignLeaseAgreement = () => {
   const [redirectLink, setRedirectLink] = useState("");
   const [signingLink, setSigningLink] = useState(null);
   const [signingLinkIsValid, setSigningLinkIsValid] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
   const [errorTitle, setErrorTitle] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -49,7 +48,7 @@ const SignLeaseAgreement = () => {
       const data = {
         lease_agreement_id: leaseAgreement.id,
         approval_hash: approval_hash,
-        unit_id: leaseAgreement.rental_unit,
+        unit_id: leaseAgreement.rental_unit.id,
         start_date: new Date().toISOString().split("T")[0],
         end_date: new Date(end_date).toISOString().split("T")[0],
         signed_date: new Date().toISOString().split("T")[0],
@@ -147,7 +146,7 @@ const SignLeaseAgreement = () => {
               "/" +
               res.id +
               "/" +
-              res.rental_unit +
+              res.rental_unit.id +
               "/" +
               res.approval_hash;
             setRedirectLink(redirectLink);

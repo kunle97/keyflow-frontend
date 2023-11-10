@@ -53,3 +53,35 @@ export async function getLandlordsUsernames() {
     return error.response;
   }
 }
+
+//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
+export async function getTenantsEmails() {
+  try {
+    const res = await unauthenticatedInstance
+      .get(`/tenants-emails/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Get Landlords Emails Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
+export async function getTenantsUsernames() {
+  try {
+    const res = await unauthenticatedInstance
+      .get(`/tenants-usernames/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Get Landlords Emails Error: ", error);
+    return error.response;
+  }
+}

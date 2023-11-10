@@ -168,7 +168,7 @@ const CreateLeaseTerm = () => {
         btnText="Okay"
       />
       {isLoading && (
-        <ProgressModal title="Creating Lease Agreement Tempalte..." open={isLoading} />
+        <ProgressModal title="Creating Lease Agreement Template..." open={isLoading} />
       )}
       <BackButton />
       <h2 style={{ color: "white" }}>Create Lease Agreement Template</h2>

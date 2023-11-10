@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { login } from "../../../api/auth";
 import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
-import { uiGreen } from "../../../constants";
+import { uiGreen, uiGrey2 } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
+import { getTenantsEmails, getTenantsUsernames } from "../../../api/api";
 const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [open, setOpen] = useState(false);
@@ -16,14 +17,22 @@ const TenantLogin = () => {
   const { loginUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
+  const [email, setEmail] = useState("");
+  const [tenantsEmails, setTenantsEmails] = useState([]); //TODO: get usernames from db and set here
+  const [tenantsUsernames, setTenantsUsernames] = useState([]); //TODO: get usernames from db and set here
+  const [emailLoginMode, setEmailLoginMode] = useState(false); //T
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" :"Kamille86@yahoo.com",
-      password: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" :"Password1",
+      email:
+        process.env.REACT_APP_ENVIRONMENT !== "development"
+          ? ""
+          : "Kamille86@yahoo.com",
+      password:
+        process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
   });
 
@@ -50,6 +59,20 @@ const TenantLogin = () => {
     let response = await loginUser(e);
     // console.log(response);
   };
+
+  useEffect(() => {
+    getTenantsEmails().then((res) => {
+      if (res) {
+        setTenantsEmails(res);
+      }
+    });
+    getTenantsUsernames().then((res) => {
+      if (res) {
+        setTenantsUsernames(res);
+      }
+    });
+  }, []);
+
   return (
     <div
       className="container-fluid "
@@ -95,7 +118,7 @@ const TenantLogin = () => {
                 Tenant Login
               </Typography>
               <form className="user" onSubmit={onJWTSubmit}>
-                <div className="mb-3">
+                {/* <div className="mb-3">
                   <Input
                     {...register("email", {
                       required: "This is a required field",
@@ -114,7 +137,75 @@ const TenantLogin = () => {
                   <span style={validationMessageStyle}>
                     {errors.email && errors.email.message}
                   </span>
-                </div>
+                </div> */}
+                {process.env.REACT_APP_ENVIRONMENT === "development" ? (
+                  <div>
+                    {emailLoginMode ? (
+                      <select
+                        {...register("email", {
+                          required: "This is a required field",
+                          pattern: {
+                            value: /\S+@\S+\.\S+/,
+                            message: "Please enter a valid email address",
+                          },
+                        })}
+                        className="form-control card"
+                        style={{
+                          background: uiGrey2,
+                          color: "white !important",
+                          marginBottom: "25px",
+                        }}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      >
+                        {tenantsEmails.map((email) => (
+                          <option value={email}>{email}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <select
+                        {...register("username", {
+                          required: "This is a required field",
+                        })}
+                        className="form-control card"
+                        style={{
+                          background: uiGrey2,
+                          color: "white !important",
+                          marginBottom: "25px",
+                        }}
+                        name="username"
+                      >
+                        {tenantsUsernames.map((username) => (
+                          <option value={username}>{username}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mb-3">
+                    <Input
+                      input
+                      {...register("email", {
+                        required: "This is a required field",
+                        pattern: {
+                          value: /\S+@\S+\.\S+/,
+                          message: "Please enter a valid email address",
+                        },
+                      })}
+                      className="form-control form-control-user"
+                      type="email"
+                      id="exampleInputEmail"
+                      aria-describedby="emailHelp"
+                      placeholder="Enter Email Address..."
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <span style={validationMessageStyle}>
+                      {errors.email && errors.email.message}
+                    </span>
+                  </div>
+                )}
                 <div className="mb-3">
                   <Input
                     {...register("password", {
