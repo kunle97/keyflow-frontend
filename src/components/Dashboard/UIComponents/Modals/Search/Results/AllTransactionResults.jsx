@@ -8,6 +8,7 @@ import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import { uiGreen } from "../../../../../../constants";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import { useEffect } from "react";
+import UIPrompt from "../../../UIPrompt";
 const AllTransactionResults = (props) => {
   const {
     searchQuery,
@@ -46,7 +47,19 @@ const AllTransactionResults = (props) => {
             <Fragment>
               {resultCount === 0 ? (
                 <div className="col-12">
-                  <h3>No Results</h3>
+                  <UIPrompt
+                    title="No Results"
+                    message="No transactions found. Try adjusting your search filters."
+                    icon={
+                      <PaidOutlinedIcon
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          color: uiGreen,
+                        }}
+                      />
+                    }
+                  />
                 </div>
               ) : (
                 <Fragment>

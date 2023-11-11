@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { deleteUnit, } from "../../../../api/units";
+import { deleteUnit } from "../../../../api/units";
 import { Alert, CircularProgress, Snackbar, Typography } from "@mui/material";
-import { deleteProperty, updateProperty, getProperty } from "../../../../api/properties";
+import {
+  deleteProperty,
+  updateProperty,
+  getProperty,
+} from "../../../../api/properties";
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
@@ -15,6 +19,8 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
+import UITabs from "../../UIComponents/UITabs";
+import UIPrompt from "../../UIComponents/UIPrompt";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState({});
@@ -25,6 +31,7 @@ const ManageProperty = () => {
   const [alertSeverity, setAlertSeverity] = useState("success");
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const [tabPage, setTabPage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -35,6 +42,21 @@ const ManageProperty = () => {
     setShowUpdateSuccess(false);
   };
 
+
+
+  const tabs = [
+    { name: "property_details", label: "Property Details" },
+    { name: "units", label: "Units" },
+    { name: "analytics", label: "Finances/Analytics" },
+  ];
+  const handleChangeTabPage = (event, newValue) => {
+    setTabPage(newValue);
+  };
+
+  const handleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/units/${rowData}/${property.id}`;
+    navigate(navlink);
+  };
   const columns = [
     { name: "id", label: "ID", options: { display: false } },
     { name: "name", label: "Name" },
@@ -54,10 +76,6 @@ const ManageProperty = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/units/${rowData}/${property.id}`;
-    navigate(navlink);
-  };
   const options = {
     filter: true,
     sort: true,
@@ -119,7 +137,7 @@ const ManageProperty = () => {
         setValue(key, preloadedData[key]);
       });
       setUnits(res.units);
-      console.log("State UNITS",units);
+      console.log("State UNITS", units);
       //Retireve the units for the property
       // getUnits(id)
       //   .then((res) => {
@@ -128,7 +146,7 @@ const ManageProperty = () => {
       //   .catch((err) => {
       //     console.log(err);
       //   });
-        setIsLoading(false);
+      setIsLoading(false);
     });
   }, []);
 
@@ -181,180 +199,19 @@ const ManageProperty = () => {
       <div className="row mb-3">
         <div className="col-lg-12">
           <BackButton />
-          <div className="row">
-            <div className="col">
-              <div className="card shadow mb-3">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h6 className="text-primary fw-bold m-0 card-header-text">
-                    Address
-                  </h6>
-                </div>
-                <div className="card-body">
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-3">
-                      <label className="form-label text-white" htmlFor="name">
-                        <strong>Name</strong>
-                      </label>
-                      <input
-                        {...register("name", {
-                          required: "This is a required field",
-                        })}
-                        // defaultValue={property.name}
-                        name="name"
-                        className="form-control"
-                        type="text"
-                        id="name"
-                        placeholder="Sunset Blvd, 38"
-                        style={{ borderStyle: "none" }}
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.name && errors.name.message}
-                      </span>
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        className="form-label text-white"
-                        htmlFor="address"
-                      >
-                        <strong>Street Address</strong>
-                      </label>
-                      <input
-                        {...register("street", {
-                          required: "This is a required field",
-                          minLength: {
-                            value: 3,
-                            message: "Must be at least 3 characters long",
-                          },
-                          //Create pattern to only be in street address format
-                          pattern: {
-                            value: /^[a-zA-Z0-9\s,'-]*$/,
-                            message: "Must be in street address format",
-                          },
-                        })}
-                        name="street"
-                        // defaultValue={property.street}
-                        className="form-control"
-                        type="text"
-                        placeholder="Sunset Blvd, 38"
-                        style={{ borderStyle: "none" }}
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.street && errors.street.message}
-                      </span>
-                    </div>
-                    <div className="row">
-                      <div className="col-sm-12 col-md-4 col-lg-4">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="city"
-                          >
-                            <strong>City</strong>
-                          </label>
-                          <input
-                            {...register("city", {
-                              required: "This is a required field",
-                            })}
-                            // defaultValue={property.city}
-                            className="form-control"
-                            type="text"
-                            placeholder="Los Angeles"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.city && errors.city.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-sm-12 col-md-4 col-lg-4">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="state"
-                          >
-                            <strong>State</strong>
-                          </label>
-                          <input
-                            {...register("state", {
-                              required: "This is a required field",
-                            })}
-                            // defaultValue={property.state}
-                            className="form-control"
-                            type="text"
-                            id="state"
-                            placeholder="California"
-                            style={{ borderStyle: "none" }}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-sm-12 col-md-4 col-lg-4">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="zipcode"
-                          >
-                            <strong>Zip Code</strong>
-                          </label>
-                          <input
-                            {...register("zip_code", {
-                              required: "This is a required field",
-                            })}
-                            // defaultValue={property.zip_code}
-                            className="form-control"
-                            type="text"
-                            id="zip_code"
-                            placeholder="USA"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.zip_code && errors.zip_code.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-sm-12 col-md-12 col-lg-12">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-white"
-                            htmlFor="country"
-                          >
-                            <strong>Country</strong>
-                          </label>
-                          <input
-                            {...register("country", {
-                              required: "This is a required field",
-                            })}
-                            // defaultValue={property.country}
-                            className="form-control"
-                            type="text"
-                            id="country-1"
-                            placeholder="USA"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.country && errors.country.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-end mb-3">
-                      <button
-                        className="btn btn-primary btn-sm ui-btn"
-                        type="submit"
-                      >
-                        Save&nbsp;Settings
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
+          <UITabs
+            tabs={tabs}
+            value={tabPage}
+            handleChange={handleChangeTabPage}
+            variant="scrollable"
+            scrollButtons="auto"
+            style={{ margin: "1rem 0" }}
+          />
+          {tabPage === 0 && (
+            <>
               <div className="row">
-                <div className="col-md-4 col-sm-12">
+                <div className="col-md-3">
                   <div className="card shadow mb-3">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      <h6 className="text-primary fw-bold m-0 card-header-text">
-                        Proeprty Information
-                      </h6>
-                    </div>
                     <div className="card-body">
                       <form>
                         <div className="row">
@@ -393,174 +250,342 @@ const ManageProperty = () => {
                       </form>
                     </div>
                   </div>
+                </div>
+                <div className="col-md-9">
                   <div className="card shadow mb-3">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      <h6 className="text-primary fw-bold m-0 card-header-text">
-                        Finances
-                      </h6>
-                      <div className="dropdown no-arrow">
-                        <button
-                          className="btn btn-link btn-sm dropdown-toggle"
-                          aria-expanded="false"
-                          data-bs-toggle="dropdown"
-                          type="button"
-                        >
-                          <i className="fas fa-ellipsis-v text-gray-400" />
-                        </button>
-                        <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                          <p className="text-center dropdown-header">
-                            dropdown header:
-                          </p>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Action
-                          </a>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Another action
-                          </a>
-                          <div className="dropdown-divider" />
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Something else here
-                          </a>
-                        </div>
-                      </div>
-                    </div>
                     <div className="card-body">
-                      <form>
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="name"
+                          >
+                            <strong>Property Name</strong>
+                          </label>
+                          <input
+                            {...register("name", {
+                              required: "This is a required field",
+                            })}
+                            // defaultValue={property.name}
+                            name="name"
+                            className="form-control"
+                            type="text"
+                            id="name"
+                            placeholder="Sunset Blvd, 38"
+                            style={{ borderStyle: "none" }}
+                          />
+                          <span style={validationMessageStyle}>
+                            {errors.name && errors.name.message}
+                          </span>
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="address"
+                          >
+                            <strong>Street Address</strong>
+                          </label>
+                          <input
+                            {...register("street", {
+                              required: "This is a required field",
+                              minLength: {
+                                value: 3,
+                                message: "Must be at least 3 characters long",
+                              },
+                              //Create pattern to only be in street address format
+                              pattern: {
+                                value: /^[a-zA-Z0-9\s,'-]*$/,
+                                message: "Must be in street address format",
+                              },
+                            })}
+                            name="street"
+                            // defaultValue={property.street}
+                            className="form-control"
+                            type="text"
+                            placeholder="Sunset Blvd, 38"
+                            style={{ borderStyle: "none" }}
+                          />
+                          <span style={validationMessageStyle}>
+                            {errors.street && errors.street.message}
+                          </span>
+                        </div>
                         <div className="row">
-                          <div className="col">
+                          <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
                                 className="form-label text-white"
-                                htmlFor="username"
+                                htmlFor="city"
                               >
-                                <strong>Total Revenue</strong>
+                                <strong>City</strong>
                               </label>
-                              <p className="text-white">$23,049</p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-white"
-                                htmlFor="first_name"
-                              >
-                                <strong>Net Operating Income (NOI)</strong>
-                              </label>
-                              <p className="text-white">23.4%</p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-white"
-                                htmlFor="first_name"
-                              >
-                                <strong>Property Value</strong>
-                              </label>
-                              <p className="text-white">$428,324</p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-white"
-                                htmlFor="email"
-                              >
-                                <strong>Total Expenses</strong>
-                              </label>
-                              <p className="text-white">$13,123</p>
+                              <input
+                                {...register("city", {
+                                  required: "This is a required field",
+                                })}
+                                // defaultValue={property.city}
+                                className="form-control"
+                                type="text"
+                                placeholder="Los Angeles"
+                                style={{ borderStyle: "none" }}
+                              />
+                              <span style={validationMessageStyle}>
+                                {errors.city && errors.city.message}
+                              </span>
                             </div>
                           </div>
+                          <div className="col-sm-12 col-md-4 col-lg-4">
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-white"
+                                htmlFor="state"
+                              >
+                                <strong>State</strong>
+                              </label>
+                              <input
+                                {...register("state", {
+                                  required: "This is a required field",
+                                })}
+                                // defaultValue={property.state}
+                                className="form-control"
+                                type="text"
+                                id="state"
+                                placeholder="California"
+                                style={{ borderStyle: "none" }}
+                              />
+                            </div>
+                          </div>
+                          <div className="col-sm-12 col-md-4 col-lg-4">
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-white"
+                                htmlFor="zipcode"
+                              >
+                                <strong>Zip Code</strong>
+                              </label>
+                              <input
+                                {...register("zip_code", {
+                                  required: "This is a required field",
+                                })}
+                                // defaultValue={property.zip_code}
+                                className="form-control"
+                                type="text"
+                                id="zip_code"
+                                placeholder="USA"
+                                style={{ borderStyle: "none" }}
+                              />
+                              <span style={validationMessageStyle}>
+                                {errors.zip_code && errors.zip_code.message}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="col-sm-12 col-md-12 col-lg-12">
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-white"
+                                htmlFor="country"
+                              >
+                                <strong>Country</strong>
+                              </label>
+                              <input
+                                {...register("country", {
+                                  required: "This is a required field",
+                                })}
+                                // defaultValue={property.country}
+                                className="form-control"
+                                type="text"
+                                id="country-1"
+                                placeholder="USA"
+                                style={{ borderStyle: "none" }}
+                              />
+                              <span style={validationMessageStyle}>
+                                {errors.country && errors.country.message}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-end mb-3">
+                          <button
+                            className="btn btn-primary btn-sm ui-btn"
+                            type="submit"
+                          >
+                            Save&nbsp;Settings
+                          </button>
                         </div>
                       </form>
                     </div>
                   </div>
                 </div>
-                <div className="col-md-8 col-sm-12">
-                  {isLoading ? (
-                    <Box sx={{ display: "flex" }}>
-                      <Box m={"55px auto"}>
-                        <CircularProgress sx={{ color: uiGreen }} />
-                      </Box>
+              </div>
+              <>
+                <AlertModal
+                  open={showDeleteError}
+                  setOpen={setShowDeleteError}
+                  title={"Error"}
+                  message={errorMessage}
+                  btnText={"Ok"}
+                  onClick={() => setShowDeleteError(false)}
+                />
+                <ConfirmModal
+                  open={showDeleteAlert}
+                  title="Delete Property"
+                  message="Are you sure you want to delete this property?"
+                  confirmBtnText="Delete"
+                  cancelBtnText="Cancel"
+                  confirmBtnStyle={{
+                    backgroundColor: uiRed,
+                    color: "white",
+                  }}
+                  cancelBtnStyle={{
+                    backgroundColor: uiGreen,
+                    color: "white",
+                  }}
+                  handleCancel={() => {
+                    setShowDeleteAlert(false);
+                  }}
+                  handleConfirm={handleDeleteProperty}
+                />
+                <DeleteButton
+                  style={{
+                    background: uiRed,
+                    textTransform: "none",
+                    float: "right",
+                  }}
+                  onClick={() => {
+                    setShowDeleteAlert(true);
+                  }}
+                  btnText="Delete Property"
+                />
+              </>
+            </>
+          )}
+
+          {tabPage === 1 && (
+            <>
+              <div className="row">
+                {isLoading ? (
+                  <Box sx={{ display: "flex" }}>
+                    <Box m={"55px auto"}>
+                      <CircularProgress sx={{ color: uiGreen }} />
                     </Box>
-                  ) : (
-                    <>
-                      {" "}
-                      {units.length === 0 ? (
-                        <Box display={"flex"}>
-                          <Box m={"auto"}>
-                            <Typography
-                              mt={5}
-                              color={"white"}
-                              textAlign={"center"}
-                            >
-                              No units created
-                            </Typography>
-                            <UIButton
-                              style={{ marginTop: "20px" }}
-                              onClick={() => {
-                                navigate(
-                                  `/dashboard/landlord/units/create/${id}`
-                                );
-                              }}
-                              btnText="Create Unit"
-                            />
-                          </Box>
-                        </Box>
-                      ) : (
-                        <>
-                          <UITable
-                            columns={columns}
-                            options={options}
-                            data={units}
-                            title="Units"
-                            createURL={`/dashboard/landlord/units/create/${id}`}
-                            showCreate={true}
+                  </Box>
+                ) : (
+                  <>
+                    {" "}
+                    {units.length === 0 ? (
+                      <UIPrompt
+                        title={"No Units Created"}
+                        icon={<i className="fas fa-home fa-2x text-gray-300" />}
+                        message={
+                          "You have not created any units for this property. Would you like to create one now?"
+                        }
+                        btnText={"Create Unit"}
+                        body={
+                          <UIButton
+                            btnText={"Create Unit"}
+                            onClick={() => {
+                              navigate(
+                                `/dashboard/landlord/units/create/${id}`
+                              );
+                            }}
                           />
-                        </>
-                      )}
-                    </>
-                  )}
+                        }
+                      />
+                    ) : (
+                      <>
+                        <UITable
+                          columns={columns}
+                          options={options}
+                          data={units}
+                          title="Units"
+                          createURL={`/dashboard/landlord/units/create/${id}`}
+                          showCreate={true}
+                        />
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </>
+          )}
+          {tabPage === 2 && (
+            <div className="col-md-4 col-sm-12">
+              <div className="card shadow mb-3">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h6 className="text-primary fw-bold m-0 card-header-text">
+                    Finances
+                  </h6>
+                  <div className="dropdown no-arrow">
+                    <button
+                      className="btn btn-link btn-sm dropdown-toggle"
+                      aria-expanded="false"
+                      data-bs-toggle="dropdown"
+                      type="button"
+                    >
+                      <i className="fas fa-ellipsis-v text-gray-400" />
+                    </button>
+                    <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                      <p className="text-center dropdown-header">
+                        dropdown header:
+                      </p>
+                      <a className="dropdown-item" href="#">
+                        &nbsp;Action
+                      </a>
+                      <a className="dropdown-item" href="#">
+                        &nbsp;Another action
+                      </a>
+                      <div className="dropdown-divider" />
+                      <a className="dropdown-item" href="#">
+                        &nbsp;Something else here
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div className="card-body">
+                  <form>
+                    <div className="row">
+                      <div className="col">
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="username"
+                          >
+                            <strong>Total Revenue</strong>
+                          </label>
+                          <p className="text-white">$23,049</p>
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="first_name"
+                          >
+                            <strong>Net Operating Income (NOI)</strong>
+                          </label>
+                          <p className="text-white">23.4%</p>
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="first_name"
+                          >
+                            <strong>Property Value</strong>
+                          </label>
+                          <p className="text-white">$428,324</p>
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="email"
+                          >
+                            <strong>Total Expenses</strong>
+                          </label>
+                          <p className="text-white">$13,123</p>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
-          </div>
-          {/* {units.length === 0 && ( */}
-          {true && (
-            <>
-              <AlertModal
-                open={showDeleteError}
-                setOpen={setShowDeleteError}
-                title={"Error"}
-                message={errorMessage}
-                btnText={"Ok"}
-                onClick={() => setShowDeleteError(false)}
-              />
-              <ConfirmModal
-                open={showDeleteAlert}
-                title="Delete Property"
-                message="Are you sure you want to delete this property?"
-                confirmBtnText="Delete"
-                cancelBtnText="Cancel"
-                confirmBtnStyle={{
-                  backgroundColor: uiRed,
-                  color: "white",
-                }}
-                cancelBtnStyle={{
-                  backgroundColor: uiGreen,
-                  color: "white",
-                }}
-                handleCancel={() => {
-                  setShowDeleteAlert(false);
-                }}
-                handleConfirm={handleDeleteProperty}
-              />
-              <DeleteButton
-                style={{
-                  background: uiRed,
-                  textTransform: "none",
-                  float: "right",
-                }}
-                onClick={() => {
-                  setShowDeleteAlert(true);
-                }}
-                btnText="Delete Property"
-              />
-            </>
           )}
         </div>
       </div>

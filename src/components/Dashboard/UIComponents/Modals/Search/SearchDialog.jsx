@@ -35,6 +35,7 @@ import AllMaintenanceRequesResults from "./Results/AllMaintenanceRequestResults"
 import AllUnitResults from "./Results/AllUnitResults";
 import AllRentalApplicationResults from "./Results/AllRentalApplicationResults";
 import UITabs from "../../UITabs";
+import UIPrompt from "../../UIPrompt";
 
 const SearchDialog = (props) => {
   //Create a useCallback version of the Transition component
@@ -286,22 +287,6 @@ const SearchDialog = (props) => {
               <div>
                 <h2>Recently Viewed</h2>
                 <div className="row">
-                  {/* {historyList.map((item) => {
-                    let page = routes.filter((route) => route.path === item)[0];
-                    if (page) {
-                      return (
-                        <SearchResultCard
-                          to={item}
-                          handleClose={props.handleClose}
-                          gridSize={4}
-                          key={item}
-                          title={page.label}
-                          subtitle={page.description}
-                          icon={page.muiIcon}
-                        />
-                      );
-                    }
-                  })} */}
                   {localStorage.getItem("historyList") &&
                     JSON.parse(localStorage.getItem("historyList")).map(
                       (item) => {
@@ -323,6 +308,29 @@ const SearchDialog = (props) => {
             </div>
           ) : (
             <>
+              {tabPage === 0 &&
+                properties.length === 0 &&
+                units.length === 0 &&
+                maintenanceRequests.length === 0 &&
+                rentalApplications.length === 0 &&
+                transactions.length === 0 &&
+                filterTenants(tenants, searchValue).length === 0 && (
+                  <>
+                    <UIPrompt
+                      title="No Results"
+                      message="No results found. Try adjusting your search filters."
+                      icon={
+                        <SearchOutlinedIcon
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            color: uiGreen,
+                          }}
+                        />
+                      }
+                    />
+                  </>
+                )}
               {filterDashboardPages(dashboardPages, searchValue).length > 0 &&
                 tabPage === 0 && (
                   <div id="pages" style={{ overflow: "hidden" }}>
@@ -608,6 +616,7 @@ const SearchDialog = (props) => {
                   </Button>
                 </div>
               )}
+
               {filterTenants(tenants, searchValue).length > 0 &&
                 tabPage === 0 && (
                   <div id="tenants" style={{ overflow: "hidden" }}>

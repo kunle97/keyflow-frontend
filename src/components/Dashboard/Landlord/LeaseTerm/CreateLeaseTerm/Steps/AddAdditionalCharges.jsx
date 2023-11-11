@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import StepControl from "./StepControl";
 import UIButton from "../../../../UIComponents/UIButton";
 import { uiRed, validationMessageStyle } from "../../../../../../constants";
+
 const AddAdditionalCharges = (props) => {
   const [chargesValid, setChargesValid] = useState(false);
   const addCharge = () => {

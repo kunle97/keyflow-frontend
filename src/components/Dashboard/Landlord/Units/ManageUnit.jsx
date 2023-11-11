@@ -30,6 +30,7 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIButton from "../../UIComponents/UIButton";
+import UITabs from "../../UIComponents/UITabs";
 const CreateUnit = () => {
   //Create a state for the form data
   const [unit, setUnit] = useState({});
@@ -54,6 +55,14 @@ const CreateUnit = () => {
     items: { data: [{ plan: { product: "" } }] },
   });
   const [tenant, setTenant] = useState({});
+  const [tabPage, setTabPage] = useState(0);
+  const tabs = [
+    { label: "Unit", name: "unit" },
+    { label: "Lease", name: "lease_terms" },
+  ];
+  const handleChangeTabPage = (event, newValue) => {
+    setTabPage(newValue);
+  };
   const navigate = useNavigate();
   const {
     register,
@@ -204,346 +213,427 @@ const CreateUnit = () => {
         </Alert>
       </Snackbar>
       <BackButton />
+      <UITabs
+        tabs={tabs}
+        value={tabPage}
+        handleChange={handleChangeTabPage}
+        variant="scrollable"
+        scrollButtons="auto"
+        style={{ margin: "1rem 0" }}
+      />
       <div className="row mb-3">
-        <div className="col-md-3">
-          {isOccupided ? (
-            <div className="card shadow mb-3">
-              <div className="card-header pt-3">
-                <h5
-                  style={{ fontSize: "13pt" }}
-                  className="text-primary fw-bold m-0 card-header-text"
-                >
-                  Tenant Information
-                </h5>
-              </div>
-              <div className="card-body">
-                <div className="mb-4">
-                  <h6
-                    style={{ fontSize: "11pt" }}
-                    className="text-white fw-bold m-0"
-                  >
-                    Name
-                  </h6>
-                  <p style={{ fontSize: "11pt" }} className="text-white m-0">
-                    {tenant.first_name} {tenant.last_name}
-                  </p>
-                </div>
-                <div className="mb-4">
-                  <h6
-                    style={{ fontSize: "11pt" }}
-                    className="text-white fw-bold m-0"
-                  >
-                    Email
-                  </h6>
-                  <p style={{ fontSize: "11pt" }} className="text-white m-0">
-                    {tenant.email}
-                  </p>
-                </div>
+        {tabPage === 0 && (
+          <>
+            <div className="col-md-3">
+              {isOccupided ? (
+                <div className="card shadow mb-3">
+                  <div className="card-header pt-3">
+                    <h5
+                      style={{ fontSize: "13pt" }}
+                      className="text-primary fw-bold m-0 card-header-text"
+                    >
+                      Tenant Information
+                    </h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-4">
+                      <h6
+                        style={{ fontSize: "11pt" }}
+                        className="text-white fw-bold m-0"
+                      >
+                        Name
+                      </h6>
+                      <p
+                        style={{ fontSize: "11pt" }}
+                        className="text-white m-0"
+                      >
+                        {tenant.first_name} {tenant.last_name}
+                      </p>
+                    </div>
+                    <div className="mb-4">
+                      <h6
+                        style={{ fontSize: "11pt" }}
+                        className="text-white fw-bold m-0"
+                      >
+                        Email
+                      </h6>
+                      <p
+                        style={{ fontSize: "11pt" }}
+                        className="text-white m-0"
+                      >
+                        {tenant.email}
+                      </p>
+                    </div>
 
-                <UIButton
-                  style={{
-                    background: uiGreen,
-                    color: "white",
-                    textTransform: "none",
-                  }}
-                  btnText="View Tenant Information"
-                  onClick={() => {
-                    navigate(`/dashboard/landlord/tenants/${tenant.id}`);
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            <>
-              <h5 className="mb-2">Rental Application Link</h5>
-              <div className="card shadow mb-3">
-                <div className="card-body">
-                  <input
-                    className="form-control"
-                    value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
-                  />
-                  <a
-                    href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
-                    target="_blank"
-                  >
-                    <Button
+                    <UIButton
                       style={{
                         background: uiGreen,
                         color: "white",
                         textTransform: "none",
-                        marginTop: "1rem",
-                        width: "100%",
                       }}
-                    >
-                      Preview
-                    </Button>
-                  </a>
+                      btnText="View Tenant Information"
+                      onClick={() => {
+                        navigate(`/dashboard/landlord/tenants/${tenant.id}`);
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h5 className="mb-2">Rental Application Link</h5>
+                  <div className="card shadow mb-3">
+                    <div className="card-body">
+                      <input
+                        className="form-control"
+                        value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
+                      />
+                      <a
+                        href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
+                        target="_blank"
+                      >
+                        <Button
+                          style={{
+                            background: uiGreen,
+                            color: "white",
+                            textTransform: "none",
+                            marginTop: "1rem",
+                            width: "100%",
+                          }}
+                        >
+                          Preview
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="col-sm-12 col-md-12 col-lg-8 ">
+              <h4 className="mb-2">Manage Unit</h4>
+              <div className="card shadow mb-3">
+                <div className="card-body">
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="mb-3">
+                      <label className="form-label text-white" htmlFor="name">
+                        <strong>Unit #/Name</strong>
+                      </label>
+                      <input
+                        {...register("name", {
+                          required: "This is a required field",
+                        })}
+                        // defaultValue={unit.name}
+                        className="form-control text-black"
+                        type="text"
+                        id="name"
+                        placeholder="5B"
+                        style={{
+                          borderStyle: "none",
+                          color: "rgb(255,255,255)",
+                        }}
+                      />
+                      <span style={validationMessageStyle}>
+                        {errors.name && errors.name.message}
+                      </span>
+                    </div>
+                    <div className="row mb-3">
+                      <div className="col-md-12">
+                        <div>
+                          <label className="form-label text-white">Beds</label>
+                          <input
+                            {...register("beds", {
+                              required: "This is a required field",
+                            })}
+                            className="form-control text-black"
+                            type="number"
+                            style={{
+                              borderStyle: "none",
+                              color: "rgb(255,255,255)",
+                            }}
+                            // defaultValue={unit.beds}
+                            min="1"
+                            step="1"
+                          />
+                          <span style={validationMessageStyle}>
+                            {errors.beds && errors.beds.message}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="col-md-12">
+                        <div>
+                          <label className="form-label text-white">Baths</label>
+                          <input
+                            {...register("baths", {
+                              required: "This is a required field",
+                            })}
+                            className="form-control text-black "
+                            type="number"
+                            style={{
+                              borderStyle: "none",
+                              color: "rgb(255,255,255)",
+                            }}
+                            // defaultValue={unit.baths}
+                            min="1"
+                            step="1"
+                          />
+                          <span style={validationMessageStyle}>
+                            {errors.baths && errors.baths.message}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-end my-3">
+                      <button className="btn btn-primary ui-btn" type="submit">
+                        Update Unit
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
-            </>
-          )}
-        </div>
-        <div className="col-sm-12 col-md-12 col-lg-8 ">
-          <h4 className="mb-2">Manage Unit</h4>
-          <div className="card shadow mb-3">
-            <div className="card-body">
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="mb-3">
-                  <label className="form-label text-white" htmlFor="name">
-                    <strong>Unit #/Name</strong>
-                  </label>
-                  <input
-                    {...register("name", {
-                      required: "This is a required field",
-                    })}
-                    // defaultValue={unit.name}
-                    className="form-control text-black"
-                    type="text"
-                    id="name"
-                    placeholder="5B"
-                    style={{ borderStyle: "none", color: "rgb(255,255,255)" }}
-                  />
-                  <span style={validationMessageStyle}>
-                    {errors.name && errors.name.message}
-                  </span>
-                </div>
-                <div className="row mb-3">
-                  <div className="col-md-12">
-                    <div>
-                      <label className="form-label text-white">Beds</label>
-                      <input
-                        {...register("beds", {
-                          required: "This is a required field",
-                        })}
-                        className="form-control text-black"
-                        type="number"
-                        style={{
-                          borderStyle: "none",
-                          color: "rgb(255,255,255)",
-                        }}
-                        // defaultValue={unit.beds}
-                        min="1"
-                        step="1"
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.beds && errors.beds.message}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-md-12">
-                    <div>
-                      <label className="form-label text-white">Baths</label>
-                      <input
-                        {...register("baths", {
-                          required: "This is a required field",
-                        })}
-                        className="form-control text-black "
-                        type="number"
-                        style={{
-                          borderStyle: "none",
-                          color: "rgb(255,255,255)",
-                        }}
-                        // defaultValue={unit.baths}
-                        min="1"
-                        step="1"
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.baths && errors.baths.message}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-end my-3">
-                  <button className="btn btn-primary ui-btn" type="submit">
-                    Update Unit
-                  </button>
-                </div>
-              </form>
+              <>
+                <AlertModal
+                  open={showDeleteError}
+                  setOpen={setShowDeleteError}
+                  title={"Error"}
+                  message={deleteErrorMessage}
+                  btnText={"Ok"}
+                  onClick={() => setShowDeleteError(false)}
+                />
+                <DeleteButton
+                  style={{
+                    background: uiRed,
+                    textTransform: "none",
+                    float: "right",
+                  }}
+                  variant="contained"
+                  btnText="Delete Unit"
+                  onClick={() => setShowDeleteAlert(true)}
+                />
+                <ConfirmModal
+                  open={showDeleteAlert}
+                  title="Delete Unit"
+                  message="Are you sure you want to delete this unit?"
+                  confirmBtnText="Delete"
+                  cancelBtnText="Cancel"
+                  confirmBtnStyle={{
+                    backgroundColor: uiRed,
+                    color: "white",
+                  }}
+                  cancelBtnStyle={{
+                    backgroundColor: uiGreen,
+                    color: "white",
+                  }}
+                  handleCancel={() => {
+                    setShowDeleteAlert(false);
+                  }}
+                  handleConfirm={handleDeleteUnit}
+                />
+              </>
             </div>
-          </div>
+            <div className="col-md-12"></div>
+          </>
+        )}
+        {tabPage === 1 && (
+          <>
+            <div className="py-3" style={{ overflow: "auto" }}>
 
-          <div className="py-3" style={{ overflow: "auto" }}>
-            <h4 style={{ float: "left" }} className="mb-2">
-              Lease Terms
-            </h4>
-            <div style={{ float: "right" }}>{createLeaseTermButton}</div>
-          </div>
+              <div style={{ float: "right" }}>{createLeaseTermButton}</div>
+            </div>
 
-          <div className="card mb-3">
-            <div className="card-body">
-              <div className="mb-3">
-                <div>
-                  <Modal open={showLeaseTermSelector}>
-                    <div className="card" style={modalStyle}>
-                      <IconButton
-                        onClick={() => setShowLeaseTermSelector(false)}
-                        sx={{
-                          width: "50px",
-                          height: "50px",
-                          color: "white",
-                          padding: "0",
-                        }}
-                      >
-                        <CloseOutlined />
-                      </IconButton>
-                      <List
-                        sx={{
-                          width: "100%",
-                          maxWidth: 360,
-                          maxHeight: 500,
-                          overflow: "auto",
-                          bgcolor: uiGrey2,
-                          color: "white",
-                        }}
-                      >
-                        {console.log(leaseTerms === 0)}
-                        {leaseTerms.map((leaseTerm, index) => {
-                          if (leaseTerms.length == 0) {
-                            return (
-                              <ListItem alignItems="flex-start">
-                                <ListItemText
-                                  primary={`No lease templates found`}
-                                />
-                              </ListItem>
-                            );
-                          } else {
-                            return (
-                              <>
+            <div className="card mb-3">
+              <div className="card-body">
+                <div className="mb-3">
+                  <div>
+                    <Modal open={showLeaseTermSelector}>
+                      <div className="card" style={modalStyle}>
+                        <IconButton
+                          onClick={() => setShowLeaseTermSelector(false)}
+                          sx={{
+                            width: "50px",
+                            height: "50px",
+                            color: "white",
+                            padding: "0",
+                          }}
+                        >
+                          <CloseOutlined />
+                        </IconButton>
+                        <List
+                          sx={{
+                            width: "100%",
+                            maxWidth: 360,
+                            maxHeight: 500,
+                            overflow: "auto",
+                            bgcolor: uiGrey2,
+                            color: "white",
+                          }}
+                        >
+                          {console.log(leaseTerms === 0)}
+                          {leaseTerms.map((leaseTerm, index) => {
+                            if (leaseTerms.length == 0) {
+                              return (
                                 <ListItem alignItems="flex-start">
                                   <ListItemText
-                                    primary={`${leaseTerm.term} Month Lease @ $${leaseTerm.rent}/mo`}
-                                    secondary={
-                                      <React.Fragment>
-                                        <h6 style={{ fontSize: "10pt" }}>
-                                          Security Deposit: ${" "}
-                                          {leaseTerm.security_deposit} | Late
-                                          Fee: ${leaseTerm.late_fee} | Grace
-                                          Period:{" "}
-                                          {leaseTerm.grace_period === 0 ? (
-                                            "None"
-                                          ) : (
-                                            <>{`${leaseTerm.grace_period} Month(s)`}</>
-                                          )}
-                                        </h6>
-                                        <div style={{ overflow: "auto" }}>
-                                          <div
-                                            style={{
-                                              color: "white",
-                                              float: "left",
-                                            }}
-                                          >
-                                            <p className="m-0">
-                                              Gas{" "}
-                                              {leaseTerm.gas_included
-                                                ? "included"
-                                                : "not included"}
-                                            </p>
-                                            <p className="m-0">
-                                              Electric{" "}
-                                              {leaseTerm.electric_included
-                                                ? "included"
-                                                : "not included"}
-                                            </p>
-                                            <p className="m-0">
-                                              Water{" "}
-                                              {leaseTerm.water_included
-                                                ? "included"
-                                                : "not included"}
-                                            </p>
-                                          </div>
-
-                                          <Button
-                                            onClick={() =>
-                                              handleChangeLeaseTerm(
-                                                leaseTerm.id
-                                              )
-                                            }
-                                            sx={{
-                                              background: uiGreen,
-                                              color: "white",
-                                              textTransform: "none",
-                                              float: "right",
-                                              marginTop: "10px",
-                                            }}
-                                            variant="container"
-                                            className="ui-btn"
-                                          >
-                                            Select
-                                          </Button>
-                                        </div>
-                                        <p
-                                          style={{
-                                            color: "white",
-                                            width: "100%",
-                                          }}
-                                        >
-                                          Template ID:{" "}
-                                          {leaseTerm.template_id
-                                            ? leaseTerm.template_id
-                                            : "N/A"}
-                                        </p>
-                                      </React.Fragment>
-                                    }
+                                    primary={`No lease templates found`}
                                   />
                                 </ListItem>
-                                <Divider component="li" />
-                              </>
-                            );
-                          }
-                        })}
-                      </List>
-                    </div>
-                  </Modal>
+                              );
+                            } else {
+                              return (
+                                <>
+                                  <ListItem alignItems="flex-start">
+                                    <ListItemText
+                                      primary={`${leaseTerm.term} Month Lease @ $${leaseTerm.rent}/mo`}
+                                      secondary={
+                                        <React.Fragment>
+                                          <h6 style={{ fontSize: "10pt" }}>
+                                            Security Deposit: ${" "}
+                                            {leaseTerm.security_deposit} | Late
+                                            Fee: ${leaseTerm.late_fee} | Grace
+                                            Period:{" "}
+                                            {leaseTerm.grace_period === 0 ? (
+                                              "None"
+                                            ) : (
+                                              <>{`${leaseTerm.grace_period} Month(s)`}</>
+                                            )}
+                                          </h6>
+                                          <div style={{ overflow: "auto" }}>
+                                            <div
+                                              style={{
+                                                color: "white",
+                                                float: "left",
+                                              }}
+                                            >
+                                              <p className="m-0">
+                                                Gas{" "}
+                                                {leaseTerm.gas_included
+                                                  ? "included"
+                                                  : "not included"}
+                                              </p>
+                                              <p className="m-0">
+                                                Electric{" "}
+                                                {leaseTerm.electric_included
+                                                  ? "included"
+                                                  : "not included"}
+                                              </p>
+                                              <p className="m-0">
+                                                Water{" "}
+                                                {leaseTerm.water_included
+                                                  ? "included"
+                                                  : "not included"}
+                                              </p>
+                                            </div>
+
+                                            <Button
+                                              onClick={() =>
+                                                handleChangeLeaseTerm(
+                                                  leaseTerm.id
+                                                )
+                                              }
+                                              sx={{
+                                                background: uiGreen,
+                                                color: "white",
+                                                textTransform: "none",
+                                                float: "right",
+                                                marginTop: "10px",
+                                              }}
+                                              variant="container"
+                                              className="ui-btn"
+                                            >
+                                              Select
+                                            </Button>
+                                          </div>
+                                          <p
+                                            style={{
+                                              color: "white",
+                                              width: "100%",
+                                            }}
+                                          >
+                                            Template ID:{" "}
+                                            {leaseTerm.template_id
+                                              ? leaseTerm.template_id
+                                              : "N/A"}
+                                          </p>
+                                        </React.Fragment>
+                                      }
+                                    />
+                                  </ListItem>
+                                  <Divider component="li" />
+                                </>
+                              );
+                            }
+                          })}
+                        </List>
+                      </div>
+                    </Modal>
+                  </div>
                 </div>
-              </div>
-              <div className="row">
-                {currentLeaseTerm ? (
-                  <>
-                    <div className="col-md-4 mb-4">
-                      <h6>Rent</h6>${currentLeaseTerm.rent}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Term</h6>
-                      {currentLeaseTerm.term} Months
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Late Fee</h6>
-                      {`$${currentLeaseTerm.late_fee}`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Security Deposit</h6>
-                      {`$${currentLeaseTerm.security_deposit}`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Gas Included?</h6>
-                      {`${currentLeaseTerm.gas_included ? "Yes" : "No"}`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Electric Included?</h6>
-                      {`${currentLeaseTerm.electric_included ? "Yes" : "No"}`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Water Included?</h6>
-                      {`${currentLeaseTerm.water_included ? "Yes" : "No"}`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Lease Cancellation Fee</h6>
-                      {`$${currentLeaseTerm.lease_cancellation_fee}`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Lease Cancellation Notice period</h6>
-                      {`${currentLeaseTerm.lease_cancellation_notice_period} Month(s)`}
-                    </div>
-                    <div className="col-md-4 mb-4">
-                      <h6>Grace period</h6>
-                      {currentLeaseTerm.grace_period === 0 ? (
-                        "None"
-                      ) : (
-                        <>{`${currentLeaseTerm.grace_period} Month(s)`}</>
-                      )}
-                    </div>
-                    <div className="col-md-12 mb-4">
-                      {!isOccupided && (
+                <div className="row">
+                  {currentLeaseTerm ? (
+                    <>
+                      <div className="col-md-4 mb-4">
+                        <h6>Rent</h6>${currentLeaseTerm.rent}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Term</h6>
+                        {currentLeaseTerm.term} Months
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Late Fee</h6>
+                        {`$${currentLeaseTerm.late_fee}`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Security Deposit</h6>
+                        {`$${currentLeaseTerm.security_deposit}`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Gas Included?</h6>
+                        {`${currentLeaseTerm.gas_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Electric Included?</h6>
+                        {`${currentLeaseTerm.electric_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Water Included?</h6>
+                        {`${currentLeaseTerm.water_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Lease Cancellation Fee</h6>
+                        {`$${currentLeaseTerm.lease_cancellation_fee}`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Lease Cancellation Notice period</h6>
+                        {`${currentLeaseTerm.lease_cancellation_notice_period} Month(s)`}
+                      </div>
+                      <div className="col-md-4 mb-4">
+                        <h6>Grace period</h6>
+                        {currentLeaseTerm.grace_period === 0 ? (
+                          "None"
+                        ) : (
+                          <>{`${currentLeaseTerm.grace_period} Month(s)`}</>
+                        )}
+                      </div>
+                      <div className="col-md-12 mb-4">
+                        {!isOccupided && (
+                          <Button
+                            sx={{
+                              textTransform: "none",
+                              background: uiGreen,
+                              color: "white",
+                              marginTop: "1rem",
+                            }}
+                            onClick={() => setShowLeaseTermSelector(true)}
+                          >
+                            Change Lease Template
+                          </Button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="col-md-12">
+                        A Lease template has not been assigned to this unit.
+                      </div>
+                      <div className="col-md-12 mb-4">
                         <Button
                           sx={{
                             textTransform: "none",
@@ -555,75 +645,14 @@ const CreateUnit = () => {
                         >
                           Change Lease Template
                         </Button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="col-md-12">
-                      A Lease template has not been assigned to this unit.
-                    </div>
-                    <div className="col-md-12 mb-4">
-                      <Button
-                        sx={{
-                          textTransform: "none",
-                          background: uiGreen,
-                          color: "white",
-                          marginTop: "1rem",
-                        }}
-                        onClick={() => setShowLeaseTermSelector(true)}
-                      >
-                        Change Lease Template
-                      </Button>
-                    </div>
-                  </>
-                )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          {/* {!isOccupided && ( */}
-          {true && (
-            <>
-              <AlertModal
-                open={showDeleteError}
-                setOpen={setShowDeleteError}
-                title={"Error"}
-                message={deleteErrorMessage}
-                btnText={"Ok"}
-                onClick={() => setShowDeleteError(false)}
-              />
-              <DeleteButton
-                sx={{
-                  background: uiRed,
-                  textTransform: "none",
-                  float: "right",
-                }}
-                variant="contained"
-                btnText="Delete Unit"
-                onClick={() => setShowDeleteAlert(true)}
-              />
-              <ConfirmModal
-                open={showDeleteAlert}
-                title="Delete Unit"
-                message="Are you sure you want to delete this unit?"
-                confirmBtnText="Delete"
-                cancelBtnText="Cancel"
-                confirmBtnStyle={{
-                  backgroundColor: uiRed,
-                  color: "white",
-                }}
-                cancelBtnStyle={{
-                  backgroundColor: uiGreen,
-                  color: "white",
-                }}
-                handleCancel={() => {
-                  setShowDeleteAlert(false);
-                }}
-                handleConfirm={handleDeleteUnit}
-              />
-            </>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

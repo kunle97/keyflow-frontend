@@ -15,6 +15,9 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { sendDocumentToUser } from "../../../../api/boldsign";
 import { authenticatedInstance } from "../../../../api/api";
+import UITabs from "../../UIComponents/UITabs";
+import UIButton from "../../UIComponents/UIButton";
+
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const [rentalApplication, setRentalApplication] = useState({});
@@ -28,6 +31,18 @@ const ViewRentalApplication = () => {
   const [openAlertModal, setOpenAlertModal] = useState(false);
   const [aletModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [tabPage, setTabPage] = useState(0);
+  const tabs = [
+    { label: "Personal Information", name: "personal_information" },
+    { label: "Questionaire Answers", name: "questionaire_answers" },
+    { label: "Employment History", name: "employment_history" },
+    { label: "Residential History", name: "residential_history" },
+    { label: "Additional Comments", name: "additional_comments" },
+  ];
+
+  const handleChangeTabPage = (event, newValue) => {
+    setTabPage(newValue);
+  };
 
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
@@ -242,203 +257,239 @@ const ViewRentalApplication = () => {
               View Full Report
             </Button>
           </div>
-          <div className="mb-4">
-            <h4 className="mb-4">Personal Information</h4>
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Full Name</b>
-                    </h6>
-                    <p>
-                      {rentalApplication.first_name}{" "}
-                      {rentalApplication.last_name}
-                    </p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Email</b>
-                    </h6>
-                    <p>{rentalApplication.email}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Date Of Birth</b>
-                    </h6>
-                    <p>{rentalApplication.date_of_birth}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Phone</b>
-                    </h6>
-                    <p>{rentalApplication.phone_number}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <h5 className="mb-4">Questionaire Answers</h5>
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Other Occupants</b>
-                    </h6>
-                    <p>{rentalApplication.other_occupants ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Pets</b>
-                    </h6>
-                    <p>{rentalApplication.pets ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Do you have any vehicles?</b>
-                    </h6>
-                    <p>{rentalApplication.vehicles ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Ever Convicted?</b>
-                    </h6>
-                    <p>{rentalApplication.conviceted ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Ever Filed for bankrupcy?</b>
-                    </h6>
-                    <p>{rentalApplication.bankrupcy_filed ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>
-                      <b>Ever evicted?</b>
-                    </h6>
-                    <p>{rentalApplication.evicted ? "Yes" : "No"}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <h5 className="mb-4">Employment History</h5>
-            <div className="card">
-              <div className="card-body">
-                {employmentHistory.map((item, index) => {
-                  return (
-                    <div className="row mb-3">
-                      <h5 className="mb-3">
-                        <b>
-                          {item.companyName} ({item.startDate} - {item.endDate})
-                        </b>
-                      </h5>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Company Address</b>
-                        </h6>
-                        <p>{item.companyAddress}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Position</b>
-                        </h6>
-                        <p>{item.position}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Income</b>
-                        </h6>
-                        <p>${Intl.NumberFormat("en-US").format(item.income)}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Supervisor</b>
-                        </h6>
-                        <p>{item.supervisorName}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Supervisor Email</b>
-                        </h6>
-                        <p>{item.supervisorEmail}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Supervisor Phone</b>
-                        </h6>
-                        <p>{item.supervisorPhone}</p>
-                      </div>
+          <UITabs
+            value={tabPage}
+            handleChange={handleChangeTabPage}
+            tabs={tabs}
+            variant="fullWidth"
+            scrollButtons="auto"
+            ariaLabel=""
+            style={{ marginBottom: "20px" }}
+          />
+          {tabPage === 0 && (
+            <div className="mb-4">
+              <h4 className="mb-4">Personal Information</h4>
+              <div className="card">
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Full Name</b>
+                      </h6>
+                      <p>
+                        {rentalApplication.first_name}{" "}
+                        {rentalApplication.last_name}
+                      </p>
                     </div>
-                  );
-                })}
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Email</b>
+                      </h6>
+                      <p>{rentalApplication.email}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Date Of Birth</b>
+                      </h6>
+                      <p>{rentalApplication.date_of_birth}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Phone</b>
+                      </h6>
+                      <p>{rentalApplication.phone_number}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="mb-4">
-            <h5 className="mb-4">Residential History</h5>
-            <div className="card">
-              <div className="card-body">
-                {residentialHistory.map((item, index) => {
-                  return (
-                    <div className="row mb-3">
-                      <div className="col-md-12">
-                        <h5>
+          )}
+
+          {tabPage === 1 && (
+            <div className="mb-4">
+              <h5 className="mb-4">Questionaire Answers</h5>
+              <div className="card">
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Other Occupants</b>
+                      </h6>
+                      <p>{rentalApplication.other_occupants ? "Yes" : "No"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Pets</b>
+                      </h6>
+                      <p>{rentalApplication.pets ? "Yes" : "No"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Do you have any vehicles?</b>
+                      </h6>
+                      <p>{rentalApplication.vehicles ? "Yes" : "No"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Ever Convicted?</b>
+                      </h6>
+                      <p>{rentalApplication.conviceted ? "Yes" : "No"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Ever Filed for bankrupcy?</b>
+                      </h6>
+                      <p>{rentalApplication.bankrupcy_filed ? "Yes" : "No"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>
+                        <b>Ever evicted?</b>
+                      </h6>
+                      <p>{rentalApplication.evicted ? "Yes" : "No"}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tabPage === 2 && (
+            <div className="mb-4">
+              <h5 className="mb-4">Employment History</h5>
+              <div className="card">
+                <div className="card-body">
+                  {employmentHistory.map((item, index) => {
+                    return (
+                      <div className="row mb-3">
+                        <h5 className="mb-3">
                           <b>
-                            {item.address} ({item.startDate} - {item.endDate})
+                            {item.companyName} ({item.employmentStartDate} -{" "}
+                            {item.employmentEndDate})
                           </b>
                         </h5>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Company Address</b>
+                          </h6>
+                          <p>{item.companyAddress}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Position</b>
+                          </h6>
+                          <p>{item.position}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Income</b>
+                          </h6>
+                          <p>
+                            ${Intl.NumberFormat("en-US").format(item.income)}
+                          </p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Supervisor</b>
+                          </h6>
+                          <p>{item.supervisorName}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Supervisor Email</b>
+                          </h6>
+                          <p>{item.supervisorEmail}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Supervisor Phone</b>
+                          </h6>
+                          <p>{item.supervisorPhone}</p>
+                        </div>
                       </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Landlord Name</b>
-                        </h6>
-                        <p>{item.landlordName}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Landlord Phone</b>
-                        </h6>
-                        <p>{item.landlordPhone}</p>
-                      </div>
-                      <div className="col-md-6">
-                        <h6>
-                          <b>Landlord Email</b>
-                        </h6>
-                        <p>{item.landlordEmail}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="mb-4">
-            <h5 className="mb-4">Additional Comments</h5>
-            <div className="card">
-              <div className="card-body">{rentalApplication.comments}</div>
+          )}
+
+          {tabPage === 3 && (
+            <div className="mb-4">
+              <h5 className="mb-4">Residential History</h5>
+              <div className="card">
+                <div className="card-body">
+                  {residentialHistory.map((item, index) => {
+                    return (
+                      <div className="row mb-3">
+                        <div className="col-md-12">
+                          <h5>
+                            <b>
+                              {item.address} ({item.residenceStartDate} -{" "}
+                              {item.residenceEndDate})
+                            </b>
+                          </h5>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Landlord Name</b>
+                          </h6>
+                          <p>{item.landlordName}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Landlord Phone</b>
+                          </h6>
+                          <p>{item.landlordPhone}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <h6>
+                            <b>Landlord Email</b>
+                          </h6>
+                          <p>{item.landlordEmail}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-          <Stack direction="row" gap={2}>
-            <Button
-              onClick={setOpenRejectModal}
-              variant="contained"
-              sx={{ background: "red" }}
-            >
-              Reject
-            </Button>
-            <Button
-              onClick={setOpenAcceptModal}
-              variant="contained"
-              sx={{ background: uiGreen }}
-            >
-              Accept
-            </Button>
-          </Stack>
+          )}
+
+          {tabPage === 4 && (
+            <div className="mb-4">
+              <h5 className="mb-4">Additional Comments</h5>
+              <div className="card">
+                <div className="card-body">{rentalApplication.comments}</div>
+              </div>
+            </div>
+          )}
+
+          {!rentalApplication.is_approved ? (
+            <Stack direction="row" gap={2}>
+              <Button
+                onClick={setOpenRejectModal}
+                variant="contained"
+                sx={{ background: "red" }}
+              >
+                Reject
+              </Button>
+              <Button
+                onClick={setOpenAcceptModal}
+                variant="contained"
+                sx={{ background: uiGreen }}
+              >
+                Accept
+              </Button>
+            </Stack>
+          ) : (
+            <>
+              <UIButton
+                btnText={
+                  rentalApplication.is_archived ? "Unarchive" : "Archive"
+                }
+              />
+            </>
+          )}
         </div>
       )}
     </>

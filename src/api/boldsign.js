@@ -27,6 +27,30 @@ export async function createBoldSignEmbeddedTemplateLink(data) {
   }
 }
 
+//Create a function that calls the /boldsign/create-embedded-template-edit-link/ endpoint to create a new embedded template edit link.
+export async function createBoldSignEmbeddedTemplateEditLink(data) {
+  try {
+    const res = await axios
+      .post(
+        `${process.env.REACT_APP_API_HOSTNAME}/boldsign/create-embedded-template-edit-link/`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.error("Create Embedded Template Edit Link Error: ", error);
+    return error.response;
+  }
+}
 //Create a function that calls the  api/boldsign/create-embedded-document-send-link/ endpoint to create a new embedded document send link.
 export async function createBoldSignEmbeddedDocumentSendLink(data) {
   try {

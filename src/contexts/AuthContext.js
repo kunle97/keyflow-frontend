@@ -33,7 +33,6 @@ export function AuthProvider({ children, ...props }) {
     return decodedToken.exp < currentTime;
   };
 
-
   let loginUser = async (e) => {
     e.preventDefault();
     getTokens({
@@ -55,7 +54,6 @@ export function AuthProvider({ children, ...props }) {
         } else {
           window.location.href = "/dashboard/tenant";
         }
-        console.log("Decoded ", jwtDecode(res.access));
       } else {
         console.error("Invalid Token");
       }
@@ -68,7 +66,7 @@ export function AuthProvider({ children, ...props }) {
       redirectUrl = "/dashboard/landlord/login";
     } else if (authUser.account_type === "tenant") {
       redirectUrl = "/dashboard/tenant/login";
-    }else{
+    } else {
       redirectUrl = "/";
     }
     setAuthTokens(null);
@@ -80,20 +78,24 @@ export function AuthProvider({ children, ...props }) {
 
   let updateToken = async () => {
     try {
-      refreshTokens({ refresh: authTokens.refresh }).then((res) => {
-        if (
-          typeof res.access === "undefined" ||
-          typeof res.access !== "string"
-        ) {
-          console.log("Update Token Error: ", res);
-          return;
-        }
-        setAuthTokens(res);
-        setAuthUser(jwtDecode(res.access));
-        localStorage.setItem("authTokens", JSON.stringify(res));
-        console.log("Updated Token Decoded ", jwtDecode(res.access));
-        console.log("Update Token Res ", res);
-      });
+      const res = await refreshTokens({ refresh: authTokens.refresh });
+
+      if (typeof res.access === "undefined" || typeof res.access !== "string") {
+        return;
+      }
+
+      setAuthTokens(res);
+      setAuthUser(jwtDecode(res.access));
+      localStorage.setItem("authTokens", JSON.stringify(res));
+
+      // Check if the new token is still expired
+      if (isTokenExpired(res.access)) {
+        // Handle this case, e.g., log the user out
+        // logoutUser();
+        updateToken();
+        return;
+      }
+
       if (loading) {
         setLoading(false);
       }
@@ -110,7 +112,7 @@ export function AuthProvider({ children, ...props }) {
   };
 
   useEffect(() => {
-    if(authTokens && isTokenExpired(authTokens.access)){
+    if (authTokens && isTokenExpired(authTokens.access)) {
       updateToken(); //TODO: Decide on weather to refresh the token or log user out
     }
     let minutes = 0.25;
@@ -123,7 +125,7 @@ export function AuthProvider({ children, ...props }) {
     return () => {
       clearInterval(interval);
     };
-  }, [authTokens, loading]);
+  }, [authTokens, loading, updateToken]);
 
   return (
     <AuthContext.Provider value={contextData} {...props}>

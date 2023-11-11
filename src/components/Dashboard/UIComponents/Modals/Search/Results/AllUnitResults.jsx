@@ -1,9 +1,6 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { uiGreen } from "../../../../../../constants";
-import {
-  Box,
-  CircularProgress,
-} from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { getProperties } from "../../../../../../api/properties";
 import SearchResultCard from "../SearchResultCard";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
@@ -11,6 +8,7 @@ import { checkIfUnitMatchesProperty } from "../../../../../../helpers/utils";
 import { useSearch } from "../../../../../../contexts/SearchContext";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
+import UIPrompt from "../../../UIPrompt";
 const AllUnitResults = (props) => {
   const [allProperties, setAllProperties] = useState([]);
   const {
@@ -53,7 +51,19 @@ const AllUnitResults = (props) => {
             <Fragment>
               {resultCount === 0 ? (
                 <div className="col-12">
-                  <h3>No Results</h3>
+                  <UIPrompt
+                    title="No Results"
+                    message="No units found. Try adjusting your search filters."
+                    icon={
+                      <WeekendOutlinedIcon
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          color: uiGreen,
+                        }}
+                      />
+                    }
+                  />
                 </div>
               ) : (
                 <Fragment>
