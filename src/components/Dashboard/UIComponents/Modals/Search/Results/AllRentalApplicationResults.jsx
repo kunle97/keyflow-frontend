@@ -8,6 +8,7 @@ import { authUser, uiGreen } from "../../../../../../constants";
 import { useSearch } from "../../../../../../contexts/SearchContext";
 import { useEffect } from "react";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import UIPrompt from "../../../UIPrompt";
 const AllRentalApplicationResults = (props) => {
   const batchEndpoints = [
     {
@@ -68,7 +69,19 @@ const AllRentalApplicationResults = (props) => {
             <Fragment>
               {resultCount === 0 ? (
                 <div className="col-12">
-                  <h3>No Results</h3>
+                  <UIPrompt
+                    title="No Results"
+                    message="No rental applications found. Try adjusting your search filters."
+                    icon={
+                      <ReceiptLongOutlinedIcon
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          color: uiGreen,
+                        }}
+                      />
+                    }
+                  />
                 </div>
               ) : (
                 <Fragment>

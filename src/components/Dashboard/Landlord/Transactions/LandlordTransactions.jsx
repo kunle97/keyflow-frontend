@@ -7,10 +7,12 @@ import { ExpenseByPropertyPieChart } from "./Charts/ExpenseByPropertyPieChart";
 import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import TitleCard from "../../../Dashboard/UIComponents/TitleCard";
 import UITable from "../../UIComponents/UITable/UITable";
+import UITabs from "../../UIComponents/UITabs";
 const LandlordTransactions = () => {
   let revenueData = [];
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
+  const [tabPage, setTabPage] = useState(0);
   const [revenueChartData, setRevenueChartData] = useState([{ x: 0, y: 0 }]);
   const barChartHeight = "430px";
   const pieChartHeight = "468px";
@@ -34,6 +36,14 @@ const LandlordTransactions = () => {
       ],
     },
   ];
+
+  const tabs = [
+    { label: "Transactions", name: "transactions" },
+    { label: "Analytics", name: "analytics" },
+  ];
+  const handleChangeTabPage = (event, newValue) => {
+    setTabPage(newValue);
+  };
 
   //Create a function to calculate the total revenue for all transactions
   const calculateTotalRevenue = () => {
@@ -121,83 +131,98 @@ const LandlordTransactions = () => {
   ]);
   return (
     <div>
-      <div className="row mb-5">
-        <div className="col-md-4">
-          <TitleCard
-            title="Total Profit"
-            value={`$
+      <UITabs
+        tabs={tabs}
+        value={tabPage}
+        handleChange={handleChangeTabPage}
+        variant="scrollable"
+        scrollButtons="auto"
+        style={{ marginBottom: "1rem" }}
+      />
+      {tabPage === 0 && (
+        <UITable
+          columns={columns}
+          options={options}
+          endpoint="/transactions/"
+          title="Transactions"
+          detailURL="/dashboard/landlord/transactions/"
+          showCreate={false}
+        />
+      )}
+      {tabPage === 1 && (
+        <>
+          <div className="row mb-4">
+            <div className="col-md-4">
+              <TitleCard
+                title="Total Profit"
+                value={`$
             ${(
               calculateTotalRevenue() - calculateTotalExpenses()
             ).toLocaleString("en-US")}`}
-            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
-            backgroundColor={uiGrey2}
-            subtext={"% since last month"}
-            style={{ marginBottom: "1rem" }}
-          />
-          <TitleCard
-            title="Total Revenue"
-            value={`$
+                icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
+                backgroundColor={uiGrey2}
+                subtext={"% since last month"}
+                style={{ marginBottom: "1rem" }}
+              />
+              <TitleCard
+                title="Total Revenue"
+                value={`$
             ${calculateTotalRevenue().toLocaleString("en-US")}`}
-            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
-            backgroundColor={uiGreen}
-            subtext={"% since last month"}
-            style={{ marginBottom: "1rem" }}
-          />
-          <TitleCard
-            title="Total Expenses"
-            value={`$
+                icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
+                backgroundColor={uiGreen}
+                subtext={"% since last month"}
+                style={{ marginBottom: "1rem" }}
+              />
+              <TitleCard
+                title="Total Expenses"
+                value={`$
             ${calculateTotalExpenses().toLocaleString("en-US")}`}
-            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
-            backgroundColor={uiRed}
-            subtext={"% since last month"}
-            style={{ marginBottom: "1rem" }}
-          />
-        </div>
-        <div className="col-md-8">
-          <div
-            className="card"
-            style={{ overflow: "auto", height: barChartHeight }}
-          >
-            <div className="card-header">
-              <h5 className="mt-2">Monthly Profit</h5>
+                icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
+                backgroundColor={uiRed}
+                subtext={"% since last month"}
+                style={{ marginBottom: "1rem" }}
+              />
             </div>
-            <div className="card-body">
-              <RevenueExpenseBarChart />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-md-4">
-          <div className="card mb-3" style={{ height: pieChartHeight }}>
-            <div className="card-header">
-              <h5 className="mt-2">Revenue By Property</h5>
-            </div>
-            <div className="card-body">
-              <RevenueByPropertyPieChart />
+            <div className="col-md-8">
+              <div
+                className="card"
+                style={{ overflow: "auto", height: barChartHeight }}
+              >
+                <div className="card-header">
+                  <h5 className="mt-2">Monthly Profit</h5>
+                </div>
+                <div className="card-body">
+                  <RevenueExpenseBarChart />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="card mb-3" style={{ height: pieChartHeight }}>
-            <div className="card-header">
-              <h5 className="mt-2">Expense By Property</h5>
-            </div>
-            <div className="card-body">
-              <ExpenseByPropertyPieChart />
-            </div>
-          </div>
-        </div>
 
-        <div className="col-md-8">
-          <UITable
-            columns={columns}
-            options={options}
-            endpoint="/transactions/"
-            title="Transactions"
-            detailURL="/dashboard/landlord/transactions/"
-            showCreate={false}
-          />
-        </div>
-      </div>
+          <div className="row">
+            <div className="col-md-6">
+              <div className="card mb-3" style={{ height: pieChartHeight }}>
+                <div className="card-header">
+                  <h5 className="mt-2">Revenue By Property</h5>
+                </div>
+                <div className="card-body">
+                  <RevenueByPropertyPieChart />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="card mb-3" style={{ height: pieChartHeight }}>
+                <div className="card-header">
+                  <h5 className="mt-2">Expense By Property</h5>
+                </div>
+                <div className="card-body">
+                  <ExpenseByPropertyPieChart />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

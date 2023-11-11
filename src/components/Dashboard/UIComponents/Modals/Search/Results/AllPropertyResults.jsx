@@ -1,21 +1,16 @@
-import React, { useState, Fragment } from "react";
+import React, { Fragment } from "react";
 import SearchResultCard from "../SearchResultCard";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import { useEffect } from "react";
-import { authenticatedInstance } from "../../../../../../api/api";
-import { set } from "react-hook-form";
 import {
   Box,
-  ButtonBase,
   CircularProgress,
-  IconButton,
-  Stack,
 } from "@mui/material";
-import { uiGreen, uiGrey2 } from "../../../../../../constants";
-import { ArrowBackOutlined, ArrowForwardOutlined } from "@mui/icons-material";
+import { uiGreen } from "../../../../../../constants";
 import { useSearch } from "../../../../../../contexts/SearchContext";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import ResultsHeader from "./Pagination/ResultsHeader";
+import UIPrompt from "../../../UIPrompt";
 const AllPropertyResults = (props) => {
   const {
     searchQuery,
@@ -53,7 +48,19 @@ const AllPropertyResults = (props) => {
             <Fragment>
               {resultCount === 0 ? (
                 <div className="col-12">
-                  <h3>No Results</h3>
+                  <UIPrompt
+                    title="No Results"
+                    message="No properties found. Try adjusting your search filters."
+                    icon={
+                      <HomeWorkOutlinedIcon 
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          color: uiGreen,
+                        }}
+                      />
+                    }
+                  />
                 </div>
               ) : (
                 <Fragment>

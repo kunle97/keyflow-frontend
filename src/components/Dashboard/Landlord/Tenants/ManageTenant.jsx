@@ -11,7 +11,10 @@ import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { getNextPaymentDate, getPaymentDates } from "../../../../api/manage_subscriptions";
+import {
+  getNextPaymentDate,
+  getPaymentDates,
+} from "../../../../api/manage_subscriptions";
 
 const ManageTenant = () => {
   const { tenant_id } = useParams();
@@ -185,36 +188,6 @@ const ManageTenant = () => {
                 </div>
               </div>
             </div>
-            <div className="card shadow mb-3">
-              <div className="card-body">
-                <div>
-                  <h5>Property</h5>
-                  <p className="text-white">{property.name}</p>
-                </div>
-                <div>
-                  <h5>Unit</h5>
-                  <p className="text-white">{unit.name}</p>
-                </div>
-                <div>
-                  <h5>Lease Start Date</h5>
-                  <p className="text-white">{lease.start_date}</p>
-                </div>
-                <div>
-                  <h5>Lease End Date</h5>
-                  <p className="text-white">{lease.end_date}</p>
-                </div>
-                <div>
-                  <h5>Next Payment Date</h5>  
-                  <p className="text-white">{new Date(nextPaymentDate).toISOString().split("T")[0]}</p>
-                </div>
-                <div>
-                  <h5>Time Left</h5>
-                  <p className="text-white">
-                    Lease ends {dateDiffForHumans(new Date(lease.end_date))}
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="col-lg-8">
@@ -236,57 +209,56 @@ const ManageTenant = () => {
                     />
                   </div>
                 </div>
+
                 <div className="card shadow mb-3">
                   <div className="card-body">
-                    <form>
-                      <div className="row">
-                        <div className="col">
-                          <div className="mb-3">
-                            <label
-                              className="form-label text-white"
-                              htmlFor="username"
-                            >
-                              <strong>Payment Status</strong>
-                            </label>
-                            <p className="text-danger">Over Due</p>
-                          </div>
-                          <div className="mb-3">
-                            <label
-                              className="form-label text-white"
-                              htmlFor="first_name"
-                            >
-                              <strong>Lease Term</strong>
-                            </label>
-                            <p className="text-white">12 months</p>
-                          </div>
-                        </div>
-                        <div className="col">
-                          <div className="mb-3">
-                            <label
-                              className="form-label text-white"
-                              htmlFor="email"
-                            >
-                              <strong>Rent Due Date</strong>
-                            </label>
-                            <p className="text-white">July 15th, 2023</p>
-                          </div>
-                          <div className="mb-3">
-                            <label
-                              className="form-label text-white"
-                              htmlFor="last_name"
-                            >
-                              <strong>Document</strong>
-                            </label>
-                            <button
-                              className="btn btn-primary ui-btn d-block"
-                              type="button"
-                            >
-                              View Lease
-                            </button>
-                          </div>
-                        </div>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <h6>
+                          <strong>Property</strong>
+                        </h6>
+                        <p className="text-white">{property.name}</p>
                       </div>
-                    </form>
+                      <div className="col-md-6">
+                        <h6>
+                          <strong>Unit</strong>
+                        </h6>
+                        <p className="text-white">{unit.name}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <strong>Lease Start Date</strong>
+                        </h6>
+                        <p className="text-white">{lease.start_date}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <strong>Lease End Date</strong>
+                        </h6>
+                        <p className="text-white">{lease.end_date}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <strong>Next Payment Date</strong>
+                        </h6>
+                        <p className="text-white">
+                          {
+                            new Date(nextPaymentDate)
+                              .toISOString()
+                              .split("T")[0]
+                          }
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <strong>Time Left</strong>
+                        </h6>
+                        <p className="text-white">
+                          Lease ends{" "}
+                          {dateDiffForHumans(new Date(lease.end_date))}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -296,7 +268,6 @@ const ManageTenant = () => {
       )}
       {tabPage === 1 && (
         <>
-          <h3 className="mb-3">Payment Schedule</h3>
           <div className="card">
             <div className="card-body">
               <FullCalendar

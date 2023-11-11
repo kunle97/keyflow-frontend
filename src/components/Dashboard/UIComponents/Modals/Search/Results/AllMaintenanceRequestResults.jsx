@@ -1,15 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { uiGreen} from "../../../../../../constants";
-import {
-  Box,
-  CircularProgress,
-} from "@mui/material";
+import { uiGreen } from "../../../../../../constants";
+import { Box, CircularProgress } from "@mui/material";
 import SearchResultCard from "../SearchResultCard";
-import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import { checkIfTenantMatchesMaintenanceRequest } from "../../../../../../helpers/utils";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import { useGlobalSearch } from "../../../../../../hooks/useGlobalSearch";
+import UIPrompt from "../../../UIPrompt";
 const AllMaintenanceRequestResults = (props) => {
   // First instance of useSearch hook with its own endpoint
   const [tenants, setTenants] = useState(props.tenants);
@@ -51,7 +49,19 @@ const AllMaintenanceRequestResults = (props) => {
             <Fragment>
               {resultCount === 0 ? (
                 <div className="col-12">
-                  <h3>No Results</h3>
+                  <UIPrompt
+                    title="No Results"
+                    message="No maintenance requests found. Try adjusting your search filters."
+                    icon={
+                      <HandymanOutlinedIcon
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          color: uiGreen,
+                        }}
+                      />
+                    }
+                  />
                 </div>
               ) : (
                 <Fragment>
@@ -103,7 +113,7 @@ const AllMaintenanceRequestResults = (props) => {
                             : "Click To View Details"
                         }
                         icon={
-                          <WeekendOutlinedIcon
+                          <HandymanOutlinedIcon
                             style={{ width: "30px", height: "30px" }}
                           />
                         }
