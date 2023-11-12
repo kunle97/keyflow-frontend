@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-  getLeaseTermsByUser,
-  getLeaseTermById,
-} from "../../../../api/lease_terms";
+  getLeaseTemplatesByUser,
+  getLeaseTemplateById,
+} from "../../../../api/lease_templates";
 import { deleteUnit, getUnit, updateUnit } from "../../../../api/units";
 import { getUserData } from "../../../../api/auth";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
@@ -45,9 +45,10 @@ const CreateUnit = () => {
   const [alertSeverity, setAlertSeverity] = useState("success");
   const { unit_id, property_id } = useParams();
   const [isOccupided, setIsOccupied] = useState(true);
-  const [leaseTerms, setLeaseTerms] = useState([]);
-  const [currentLeaseTerm, setCurrentLeaseTerm] = useState(null);
-  const [showLeaseTermSelector, setShowLeaseTermSelector] = useState(false);
+  const [leaseTemplates, setLeaseTemplates] = useState([]);
+  const [currentLeaseTemplate, setCurrentLeaseTemplate] = useState(null);
+  const [showLeaseTemplateSelector, setShowLeaseTemplateSelector] =
+    useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
@@ -58,7 +59,7 @@ const CreateUnit = () => {
   const [tabPage, setTabPage] = useState(0);
   const tabs = [
     { label: "Unit", name: "unit" },
-    { label: "Lease", name: "lease_terms" },
+    { label: "Lease", name: "lease_templates" },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -109,15 +110,15 @@ const CreateUnit = () => {
     }
   };
 
-  const handleChangeLeaseTerm = (id) => {
+  const handleChangeLeaseTemplate = (id) => {
     //set Current Lease Term
-    setCurrentLeaseTerm(leaseTerms.find((term) => term.id === id));
+    setCurrentLeaseTemplate(leaseTemplates.find((term) => term.id === id));
     //Update the unit with the new lease term with the api
-    updateUnit(unit_id, { lease_term: id }).then((res) => {
+    updateUnit(unit_id, { lease_template: id }).then((res) => {
       console.log(res);
     });
     //Close the lease term selector
-    setShowLeaseTermSelector(false);
+    setShowLeaseTemplateSelector(false);
   };
 
   //Create a function to handle the deletion of a unit
@@ -146,8 +147,8 @@ const CreateUnit = () => {
       navigate(`/dashboard/landlord/properties/${property_id}`);
     }
   };
-  const createLeaseTermButton = (
-    <Link to="/dashboard/landlord/lease-terms/create">
+  const createLeaseTemplateButton = (
+    <Link to="/dashboard/landlord/lease-templates/create">
       {" "}
       <Button
         sx={{
@@ -176,12 +177,12 @@ const CreateUnit = () => {
         setValue(key, preloadedData[key]);
       });
       setIsOccupied(res.is_occupied);
-      if (res.lease_term) {
-        getLeaseTermById({
-          lease_term_id: res.lease_term,
+      if (res.lease_template) {
+        getLeaseTemplateById({
+          lease_template_id: res.lease_template,
           user_id: authUser.user_id,
         }).then((res) => {
-          setCurrentLeaseTerm(res);
+          setCurrentLeaseTemplate(res);
         });
       }
       if (isOccupided) {
@@ -192,8 +193,8 @@ const CreateUnit = () => {
       }
     });
     //retrieve lease terms that the user has created
-    getLeaseTermsByUser().then((res) => {
-      setLeaseTerms(res.data);
+    getLeaseTemplatesByUser().then((res) => {
+      setLeaseTemplates(res.data);
     });
     retrieveSubscriptionPlan();
   }, []);
@@ -435,18 +436,17 @@ const CreateUnit = () => {
         {tabPage === 1 && (
           <>
             <div className="py-3" style={{ overflow: "auto" }}>
-
-              <div style={{ float: "right" }}>{createLeaseTermButton}</div>
+              <div style={{ float: "right" }}>{createLeaseTemplateButton}</div>
             </div>
 
             <div className="card mb-3">
               <div className="card-body">
                 <div className="mb-3">
                   <div>
-                    <Modal open={showLeaseTermSelector}>
+                    <Modal open={showLeaseTemplateSelector}>
                       <div className="card" style={modalStyle}>
                         <IconButton
-                          onClick={() => setShowLeaseTermSelector(false)}
+                          onClick={() => setShowLeaseTemplateSelector(false)}
                           sx={{
                             width: "50px",
                             height: "50px",
@@ -466,9 +466,9 @@ const CreateUnit = () => {
                             color: "white",
                           }}
                         >
-                          {console.log(leaseTerms === 0)}
-                          {leaseTerms.map((leaseTerm, index) => {
-                            if (leaseTerms.length == 0) {
+                          {console.log(leaseTemplates === 0)}
+                          {leaseTemplates.map((leaseTemplate, index) => {
+                            if (leaseTemplates.length == 0) {
                               return (
                                 <ListItem alignItems="flex-start">
                                   <ListItemText
@@ -481,18 +481,19 @@ const CreateUnit = () => {
                                 <>
                                   <ListItem alignItems="flex-start">
                                     <ListItemText
-                                      primary={`${leaseTerm.term} Month Lease @ $${leaseTerm.rent}/mo`}
+                                      primary={`${leaseTemplate.term} Month Lease @ $${leaseTemplate.rent}/mo`}
                                       secondary={
                                         <React.Fragment>
                                           <h6 style={{ fontSize: "10pt" }}>
                                             Security Deposit: ${" "}
-                                            {leaseTerm.security_deposit} | Late
-                                            Fee: ${leaseTerm.late_fee} | Grace
-                                            Period:{" "}
-                                            {leaseTerm.grace_period === 0 ? (
+                                            {leaseTemplate.security_deposit} |
+                                            Late Fee: ${leaseTemplate.late_fee}{" "}
+                                            | Grace Period:{" "}
+                                            {leaseTemplate.grace_period ===
+                                            0 ? (
                                               "None"
                                             ) : (
-                                              <>{`${leaseTerm.grace_period} Month(s)`}</>
+                                              <>{`${leaseTemplate.grace_period} Month(s)`}</>
                                             )}
                                           </h6>
                                           <div style={{ overflow: "auto" }}>
@@ -504,19 +505,19 @@ const CreateUnit = () => {
                                             >
                                               <p className="m-0">
                                                 Gas{" "}
-                                                {leaseTerm.gas_included
+                                                {leaseTemplate.gas_included
                                                   ? "included"
                                                   : "not included"}
                                               </p>
                                               <p className="m-0">
                                                 Electric{" "}
-                                                {leaseTerm.electric_included
+                                                {leaseTemplate.electric_included
                                                   ? "included"
                                                   : "not included"}
                                               </p>
                                               <p className="m-0">
                                                 Water{" "}
-                                                {leaseTerm.water_included
+                                                {leaseTemplate.water_included
                                                   ? "included"
                                                   : "not included"}
                                               </p>
@@ -524,8 +525,8 @@ const CreateUnit = () => {
 
                                             <Button
                                               onClick={() =>
-                                                handleChangeLeaseTerm(
-                                                  leaseTerm.id
+                                                handleChangeLeaseTemplate(
+                                                  leaseTemplate.id
                                                 )
                                               }
                                               sx={{
@@ -548,8 +549,8 @@ const CreateUnit = () => {
                                             }}
                                           >
                                             Template ID:{" "}
-                                            {leaseTerm.template_id
-                                              ? leaseTerm.template_id
+                                            {leaseTemplate.template_id
+                                              ? leaseTemplate.template_id
                                               : "N/A"}
                                           </p>
                                         </React.Fragment>
@@ -567,49 +568,53 @@ const CreateUnit = () => {
                   </div>
                 </div>
                 <div className="row">
-                  {currentLeaseTerm ? (
+                  {currentLeaseTemplate ? (
                     <>
                       <div className="col-md-4 mb-4">
-                        <h6>Rent</h6>${currentLeaseTerm.rent}
+                        <h6>Rent</h6>${currentLeaseTemplate.rent}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Term</h6>
-                        {currentLeaseTerm.term} Months
+                        {currentLeaseTemplate.term} Months
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Late Fee</h6>
-                        {`$${currentLeaseTerm.late_fee}`}
+                        {`$${currentLeaseTemplate.late_fee}`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Security Deposit</h6>
-                        {`$${currentLeaseTerm.security_deposit}`}
+                        {`$${currentLeaseTemplate.security_deposit}`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Gas Included?</h6>
-                        {`${currentLeaseTerm.gas_included ? "Yes" : "No"}`}
+                        {`${currentLeaseTemplate.gas_included ? "Yes" : "No"}`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Electric Included?</h6>
-                        {`${currentLeaseTerm.electric_included ? "Yes" : "No"}`}
+                        {`${
+                          currentLeaseTemplate.electric_included ? "Yes" : "No"
+                        }`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Water Included?</h6>
-                        {`${currentLeaseTerm.water_included ? "Yes" : "No"}`}
+                        {`${
+                          currentLeaseTemplate.water_included ? "Yes" : "No"
+                        }`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Lease Cancellation Fee</h6>
-                        {`$${currentLeaseTerm.lease_cancellation_fee}`}
+                        {`$${currentLeaseTemplate.lease_cancellation_fee}`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Lease Cancellation Notice period</h6>
-                        {`${currentLeaseTerm.lease_cancellation_notice_period} Month(s)`}
+                        {`${currentLeaseTemplate.lease_cancellation_notice_period} Month(s)`}
                       </div>
                       <div className="col-md-4 mb-4">
                         <h6>Grace period</h6>
-                        {currentLeaseTerm.grace_period === 0 ? (
+                        {currentLeaseTemplate.grace_period === 0 ? (
                           "None"
                         ) : (
-                          <>{`${currentLeaseTerm.grace_period} Month(s)`}</>
+                          <>{`${currentLeaseTemplate.grace_period} Month(s)`}</>
                         )}
                       </div>
                       <div className="col-md-12 mb-4">
@@ -621,7 +626,7 @@ const CreateUnit = () => {
                               color: "white",
                               marginTop: "1rem",
                             }}
-                            onClick={() => setShowLeaseTermSelector(true)}
+                            onClick={() => setShowLeaseTemplateSelector(true)}
                           >
                             Change Lease Template
                           </Button>
@@ -641,7 +646,7 @@ const CreateUnit = () => {
                             color: "white",
                             marginTop: "1rem",
                           }}
-                          onClick={() => setShowLeaseTermSelector(true)}
+                          onClick={() => setShowLeaseTemplateSelector(true)}
                         >
                           Change Lease Template
                         </Button>

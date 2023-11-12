@@ -76,10 +76,10 @@ export async function getUnitUnauthenticated(unitId) {
 }
 
 //Create function to retrieve one lease term from one specific
-export async function getLeaseTermByUnitId(unitId) {
+export async function getLeaseTemplateByUnitId(unitId) {
   try {
     const res = await unauthenticatedInstance
-      .post(`/retrieve-lease-term-unit/`, { unit_id: unitId })
+      .post(`/retrieve-lease-template-unit/`, { unit_id: unitId })
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };

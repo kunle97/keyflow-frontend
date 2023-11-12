@@ -16,7 +16,7 @@ import BackButton from "../../UIComponents/BackButton";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState({});
-  const [leaseTerm, setLeaseTerm] = useState({});
+  const [leaseTemplate, setLeaseTemplate] = useState({});
   const [rentalApplication, setRentalApplication] = useState({});
   const [rentalUnit, setRentalUnit] = useState({});
   const [rentalProperty, setRentalProperty] = useState({});
@@ -51,7 +51,7 @@ const LeaseAgreementDetail = () => {
     // fetch the lease agreement with the id
     getLeaseAgreementById(id).then((res) => {
       setLeaseAgreement(res.data);
-      setLeaseTerm(res.data.lease_term);
+      setLeaseTemplate(res.data.lease_template);
       setRentalApplication(res.data.rental_application);
       setRentalUnit(res.data.rental_unit);
       getProperty(res.data.rental_unit.rental_property).then((res) => {
@@ -106,7 +106,7 @@ const LeaseAgreementDetail = () => {
                   </div>{" "}
                   <div>
                     <h5>Rent</h5>
-                    <p className="text-white">${leaseTerm.rent}</p>
+                    <p className="text-white">${leaseTemplate.rent}</p>
                   </div>
                 </div>
                 <div className="col-md-6">
@@ -142,7 +142,7 @@ const LeaseAgreementDetail = () => {
                   </div>
                   <div>
                     <h5>Term</h5>
-                    <p className="text-white">{leaseTerm.term} months</p>
+                    <p className="text-white">{leaseTemplate.term} months</p>
                   </div>
                 </div>
               </div>

@@ -62,17 +62,17 @@ const ViewRentalApplication = () => {
         console.log("Rental Unit", rental_unit);
 
         // Retrieve Lease Term
-        const lease_term = rental_unit.lease_term;
+        const lease_template = rental_unit.lease_template;
 
         // Retrieve Lease Agreement Data
-        const leaseTermResponse = await authenticatedInstance.get(
-          `${process.env.REACT_APP_API_HOSTNAME}/lease-terms/${lease_term}/`
+        const leaseTemplateResponse = await authenticatedInstance.get(
+          `${process.env.REACT_APP_API_HOSTNAME}/lease-templates/${lease_template}/`
         );
-        console.log("Lease Term", leaseTermResponse);
+        console.log("Lease Term", leaseTemplateResponse);
 
-        if (leaseTermResponse.data.template_id) {
+        if (leaseTemplateResponse.data.template_id) {
           const doc_payload = {
-            template_id: leaseTermResponse.data.template_id,
+            template_id: leaseTemplateResponse.data.template_id,
             tenant_first_name: rentalApplication.first_name,
             tenant_last_name: rentalApplication.last_name,
             tenant_email: rentalApplication.email,
@@ -112,7 +112,7 @@ const ViewRentalApplication = () => {
                 rental_unit: rental_unit.id,
                 user: authUser.user_id,
                 approval_hash: approval_hash,
-                lease_term: lease_term,
+                lease_template: lease_template,
                 document_id: sendDocResponse.documentId,
               };
 

@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { deleteLeaseTerm, getLeaseTermsByUser } from "../../../../api/lease_terms";
+import {
+  deleteLeaseTemplate,
+  getLeaseTemplatesByUser,
+} from "../../../../api/lease_templates";
 import { getLandlordUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
-const LeaseTerms = () => {
-  const [leaseTerms, setLeaseTerms] = useState([]);
+const LeaseTemplates = () => {
+  const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [units, setUnits] = useState([]);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
   const [deleteErrorMessageTitle, setDeleteErrorMessageTitle] = useState("");
@@ -37,35 +40,39 @@ const LeaseTerms = () => {
     },
   ];
 
-  function deleteLeaseTermsIfNotUsed(leaseTerms, unitsToCheck) {
-    const leaseTermIdsToDelete = [];
-    const leaseTermIdsToOmit = [];
-    let leaseTermsInUse = 0;
-    for (const leaseTerm of leaseTerms) {
+  function deleteLeaseTemplatesIfNotUsed(leaseTemplates, unitsToCheck) {
+    const leaseTemplateIdsToDelete = [];
+    const leaseTemplateIdsToOmit = [];
+    let leaseTemplatesInUse = 0;
+    for (const leaseTemplate of leaseTemplates) {
       // Check if the lease term is associated with any units
       const isUsedByUnits = unitsToCheck.some(
-        (unit) => unit.lease_term === leaseTerm.id
+        (unit) => unit.lease_template === leaseTemplate.id
       );
 
       // If not used by any units, add its ID to the list of IDs to be deleted
       if (!isUsedByUnits) {
-        leaseTermIdsToDelete.push(leaseTerm.id);
+        leaseTemplateIdsToDelete.push(leaseTemplate.id);
       } else {
-        leaseTermsInUse++;
-        leaseTermIdsToOmit.push(leaseTerm.id);
+        leaseTemplatesInUse++;
+        leaseTemplateIdsToOmit.push(leaseTemplate.id);
       }
     }
 
     // Remove the lease terms from the original array
-    const updatedLeaseTerms = leaseTerms.filter(
-      (leaseTerm) => !leaseTermIdsToDelete.includes(leaseTerm.id)
+    const updatedLeaseTemplates = leaseTemplates.filter(
+      (leaseTemplate) => !leaseTemplateIdsToDelete.includes(leaseTemplate.id)
     );
 
-    return { leaseTermIdsToDelete, leaseTermIdsToOmit, leaseTermsInUse };
+    return {
+      leaseTemplateIdsToDelete,
+      leaseTemplateIdsToOmit,
+      leaseTemplatesInUse,
+    };
   }
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/lease-terms/${rowData}`;
+    const navlink = `/dashboard/landlord/lease-templates/${rowData}`;
     navigate(navlink);
   };
 
@@ -79,16 +86,16 @@ const LeaseTerms = () => {
     onRowClick: handleRowClick,
     //CREate a function to handle the row delete
     onRowsDelete: (rowsDeleted, data) => {
-      const leaseTermIdsSelected = [];
+      const leaseTemplateIdsSelected = [];
       //Place the selected rows into an array
       const selectedRows = rowsDeleted.data.map((row) => {
-        leaseTermIdsSelected.push(leaseTerms[row.dataIndex]);
+        leaseTemplateIdsSelected.push(leaseTemplates[row.dataIndex]);
       });
-      const filteredLeaseTerms = deleteLeaseTermsIfNotUsed(
-        leaseTermIdsSelected,
+      const filteredLeaseTemplates = deleteLeaseTemplatesIfNotUsed(
+        leaseTemplateIdsSelected,
         units
       );
-      if (filteredLeaseTerms.leaseTermsInUse > 0) {
+      if (filteredLeaseTemplates.leaseTemplatesInUse > 0) {
         setDeleteErrorMessageTitle("Error");
         setDeleteErrorMessage(
           "Some of the selected lease terms are in use and have not been deleted."
@@ -101,8 +108,8 @@ const LeaseTerms = () => {
         );
         setShowDeleteError(true);
       }
-      filteredLeaseTerms.leaseTermIdsToDelete.map((id) => {
-        deleteLeaseTerm(id)
+      filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
+        deleteLeaseTemplate(id)
           .then((res) => {
             console.log(res);
           })
@@ -117,8 +124,8 @@ const LeaseTerms = () => {
   //Retrieve user's lease terms
   useEffect(() => {
     //retrieve lease terms that the user has created
-    getLeaseTermsByUser().then((res) => {
-      setLeaseTerms(res.data);
+    getLeaseTemplatesByUser().then((res) => {
+      setLeaseTemplates(res.data);
       console.log(res);
     });
     //Retrieve the user's units
@@ -142,7 +149,7 @@ const LeaseTerms = () => {
         />
         {/* <MUIDataTable
           title={"Lease Terms"}
-          data={leaseTerms}
+          data={leaseTemplates}
           columns={columns}
           options={options}
         /> */}
@@ -150,14 +157,14 @@ const LeaseTerms = () => {
       <UITable
         columns={columns}
         options={options}
-        endpoint="/lease-terms/"
+        endpoint="/lease-templates/"
         title="Lease Agreement Templates"
-        createURL="/dashboard/landlord/lease-terms/create"
-        detailURL="/dashboard/landlord/lease-terms/"
+        createURL="/dashboard/landlord/lease-templates/create"
+        detailURL="/dashboard/landlord/lease-templates/"
         showCreate={true}
       />
     </>
   );
 };
 
-export default LeaseTerms;
+export default LeaseTemplates;

@@ -22,7 +22,7 @@ export const stripe_onboarding_link = localStorage.getItem(
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
-  
+
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c";
 export const uiRed = "#FF4040";
@@ -99,7 +99,7 @@ export const landlordMenuItems = [
   },
   {
     label: "Lease Agreements",
-    link: "/dashboard/landlord/lease-terms",
+    link: "/dashboard/landlord/lease-templates",
     muiIcon: <DescriptionOutlinedIcon />,
     description: "View your lease terms",
     icon: "fas fa-user-circle",
@@ -115,7 +115,7 @@ export const landlordMenuItems = [
       },
       {
         label: "New Lease Template",
-        link: "/dashboard/landlord/lease-terms/create",
+        link: "/dashboard/landlord/lease-templates/create",
         muiIcon: <DescriptionOutlinedIcon />,
         description: "Create a new lease agreement",
         icon: "fas fa-tools",
@@ -123,7 +123,7 @@ export const landlordMenuItems = [
       },
       {
         label: "Lease Templates",
-        link: "/dashboard/landlord/lease-terms",
+        link: "/dashboard/landlord/lease-templates",
         muiIcon: <DescriptionOutlinedIcon />,
         description: "View your lease terms",
         icon: "fas fa-user-circle",

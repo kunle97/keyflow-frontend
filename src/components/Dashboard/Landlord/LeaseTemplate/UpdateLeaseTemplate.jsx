@@ -22,10 +22,10 @@ import { createBoldSignEmbeddedTemplateEditLink } from "../../../../api/boldsign
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 
-const UpdateLeaseTerm = () => {
+const UpdateLeaseTemplate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [leaseTerm, setLeaseTerm] = useState({});
+  const [leaseTemplate, setLeaseTemplate] = useState({});
   const [units, setUnits] = useState([]);
   //TODO: Tabs for lease terms: Details, Additional Charges, Units Assigned, View (BoldSign) Document,
   const [tabPage, setTabPage] = useState(0);
@@ -51,17 +51,17 @@ const UpdateLeaseTerm = () => {
   } = useForm();
   //   {
   //   defaultValues: {
-  //     rent: leaseTerm.rent,
-  //     term: leaseTerm.term,
-  //     late_fee: leaseTerm.late_fee,
-  //     security_deposit: leaseTerm.security_deposit,
-  //     gas_included: leaseTerm.gas_included,
-  //     water_included: leaseTerm.water_included,
-  //     electricity_included: leaseTerm.electricity_included,
-  //     repairs_included: leaseTerm.repairs_included,
+  //     rent: leaseTemplate.rent,
+  //     term: leaseTemplate.term,
+  //     late_fee: leaseTemplate.late_fee,
+  //     security_deposit: leaseTemplate.security_deposit,
+  //     gas_included: leaseTemplate.gas_included,
+  //     water_included: leaseTemplate.water_included,
+  //     electricity_included: leaseTemplate.electricity_included,
+  //     repairs_included: leaseTemplate.repairs_included,
   //     lease_cancellation_notice_period:
-  //       leaseTerm.lease_cancellation_notice_period,
-  //     lease_description: leaseTerm.lease_description,
+  //       leaseTemplate.lease_cancellation_notice_period,
+  //     lease_description: leaseTemplate.lease_description,
   //   },
   // }
 
@@ -87,7 +87,7 @@ const UpdateLeaseTerm = () => {
   const saveAdditionalCharges = async () => {
     //TODO: CHeck for validation errors
     await authenticatedInstance
-      .patch(`/lease-terms/${id}/`, {
+      .patch(`/lease-templates/${id}/`, {
         additional_charges: JSON.stringify(additionalCharges),
       })
       .then((res) => {
@@ -144,7 +144,7 @@ const UpdateLeaseTerm = () => {
   const onSubmit = async (data) => {
     console.log("Lease Term Data", data);
     await authenticatedInstance
-      .patch(`/lease-terms/${id}/`, data)
+      .patch(`/lease-templates/${id}/`, data)
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
@@ -158,13 +158,13 @@ const UpdateLeaseTerm = () => {
         }
       });
   };
-  const retrieveLeaseTermData = async () => {
+  const retrieveLeaseTemplateData = async () => {
     setIsLoading(true);
     setProgressModalTitle("Retrieving Lease Template Information...");
     authenticatedInstance
-      .get(`/lease-terms/${id}/`)
+      .get(`/lease-templates/${id}/`)
       .then((res) => {
-        setLeaseTerm(res.data);
+        setLeaseTemplate(res.data);
         setAdditionalCharges(JSON.parse(res.data.additional_charges));
         setUnits(res.data.units);
       })
@@ -176,7 +176,7 @@ const UpdateLeaseTerm = () => {
     setIsLoading(true);
     setProgressModalTitle("Retrieving Lease Document...");
     createBoldSignEmbeddedTemplateEditLink({
-      template_id: leaseTerm.template_id,
+      template_id: leaseTemplate.template_id,
     })
       .then((res) => {
         console.log(res);
@@ -188,7 +188,7 @@ const UpdateLeaseTerm = () => {
   };
   const handleChangeTabPage = (event, newValue) => {
     if (newValue === 0) {
-      retrieveLeaseTermData();
+      retrieveLeaseTemplateData();
     } else if (newValue === 3) {
       retrieveEditLink();
     }
@@ -196,7 +196,7 @@ const UpdateLeaseTerm = () => {
   };
 
   useEffect(() => {
-    retrieveLeaseTermData();
+    retrieveLeaseTemplateData();
   }, []);
   return (
     <div className="container">
@@ -237,9 +237,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("rent");
-                    setLeaseTerm({ ...leaseTerm, rent: e.target.value });
+                    setLeaseTemplate({
+                      ...leaseTemplate,
+                      rent: e.target.value,
+                    });
                   }}
-                  value={leaseTerm.rent}
+                  value={leaseTemplate.rent}
                   type="number"
                   className="form-control"
                   id="rent"
@@ -268,9 +271,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("term");
-                    setLeaseTerm({ ...leaseTerm, term: e.target.value });
+                    setLeaseTemplate({
+                      ...leaseTemplate,
+                      term: e.target.value,
+                    });
                   }}
-                  value={leaseTerm.term}
+                  value={leaseTemplate.term}
                   className="form-select"
                   sx={{ width: "100%", color: "white", background: uiGrey2 }}
                   name="term"
@@ -305,9 +311,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("late_fee");
-                    setLeaseTerm({ ...leaseTerm, late_fee: e.target.value });
+                    setLeaseTemplate({
+                      ...leaseTemplate,
+                      late_fee: e.target.value,
+                    });
                   }}
-                  value={leaseTerm.late_fee}
+                  value={leaseTemplate.late_fee}
                   type="number"
                   className="form-control"
                   id="lateFee"
@@ -336,12 +345,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("security_deposit");
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       security_deposit: e.target.value,
                     });
                   }}
-                  value={leaseTerm.security_deposit}
+                  value={leaseTemplate.security_deposit}
                   type="number"
                   className="form-control"
                   id="security_deposit"
@@ -360,12 +369,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("gas_included");
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       gas_included: e.target.value,
                     });
                   }}
-                  value={leaseTerm.gas_included}
+                  value={leaseTemplate.gas_included}
                   name="gas_included"
                   className="form-control"
                 >
@@ -385,14 +394,14 @@ const UpdateLeaseTerm = () => {
                     required: "This field is required",
                   })}
                   onChange={(e) => {
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       water_included: e.target.value,
                     });
                   }}
                   className="form-control"
-                  defaultValue={leaseTerm.water_included}
-                  value={leaseTerm.water_included}
+                  defaultValue={leaseTemplate.water_included}
+                  value={leaseTemplate.water_included}
                 >
                   <option value="">Select One</option>
                   <option value="true">Yes</option>
@@ -409,12 +418,12 @@ const UpdateLeaseTerm = () => {
                     required: "This field is required",
                   })}
                   onChange={(e) => {
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       electric_included: e.target.value,
                     });
                   }}
-                  value={leaseTerm.electric_included}
+                  value={leaseTemplate.electric_included}
                   className="form-control"
                 >
                   <option value="">Select One</option>
@@ -432,12 +441,12 @@ const UpdateLeaseTerm = () => {
                     required: "This field is required",
                   })}
                   onChange={(e) => {
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       repairs_included: e.target.value,
                     });
                   }}
-                  value={leaseTerm.repairs_included}
+                  value={leaseTemplate.repairs_included}
                   className="form-control"
                 >
                   <option value="">Select One</option>
@@ -474,12 +483,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("grace_period");
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       grace_period: e.target.value,
                     });
                   }}
-                  value={leaseTerm.grace_period}
+                  value={leaseTemplate.grace_period}
                   className="form-select"
                   sx={{ width: "100%", color: "white" }}
                 >
@@ -516,12 +525,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("lease_cancellation_notice_period");
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       lease_cancellation_notice_period: e.target.value,
                     });
                   }}
-                  value={leaseTerm.lease_cancellation_notice_period}
+                  value={leaseTemplate.lease_cancellation_notice_period}
                   className="form-select"
                   sx={{ width: "100%", color: "white" }}
                 >
@@ -555,12 +564,12 @@ const UpdateLeaseTerm = () => {
                   })}
                   onChange={(e) => {
                     // trigger("lease_cancellation_fee");
-                    setLeaseTerm({
-                      ...leaseTerm,
+                    setLeaseTemplate({
+                      ...leaseTemplate,
                       lease_cancellation_fee: e.target.value,
                     });
                   }}
-                  value={leaseTerm.lease_cancellation_fee}
+                  value={leaseTemplate.lease_cancellation_fee}
                   type="number"
                   className="form-control"
                   id="leaseCancellationFee"
@@ -764,4 +773,4 @@ const UpdateLeaseTerm = () => {
   );
 };
 
-export default UpdateLeaseTerm;
+export default UpdateLeaseTemplate;

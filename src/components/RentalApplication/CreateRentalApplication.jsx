@@ -8,7 +8,7 @@ import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
 
 import { createRentalApplication } from "../../api/rental_applications";
-import { getLeaseTermByUnitId } from "../../api/units";
+import { getLeaseTemplateByUnitId } from "../../api/units";
 import { getUnitUnauthenticated } from "../../api/units";
 import { getPropertyUnauthenticated } from "../../api/properties";
 import { useParams } from "react-router-dom";
@@ -36,7 +36,7 @@ const CreateRentalApplication = () => {
   const [submissionMessageLink, setSubmissionMessageLink] = useState(""); // submission message link state
   const [alertButtonText, setAlertButtonText] = useState(""); // alert button text state
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
-  const [leaseTerm, setLeaseTerm] = useState({}); // lease terms
+  const [leaseTemplate, setLeaseTemplate] = useState({}); // lease terms
   const navigate = useNavigate();
   const [errorMode, setErrorMode] = useState(false); // error mode state
 
@@ -54,8 +54,8 @@ const CreateRentalApplication = () => {
       if (unit_res.data) {
         setUnit(unit_res.data);
         //Retrieve Lease Term for the unit
-        getLeaseTermByUnitId(unit_res.data.id).then((res) => {
-          setLeaseTerm(res);
+        getLeaseTemplateByUnitId(unit_res.data.id).then((res) => {
+          setLeaseTemplate(res);
           if (
             res.rent === null ||
             res.created_at === null ||
@@ -406,55 +406,55 @@ const CreateRentalApplication = () => {
                         <h6 className="rental-application-lease-heading">
                           Rent
                         </h6>
-                        ${leaseTerm.rent}
+                        ${leaseTemplate.rent}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Term
                         </h6>
-                        {leaseTerm.term} Months
+                        {leaseTemplate.term} Months
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Late Fee
                         </h6>
-                        {`$${leaseTerm.late_fee}`}
+                        {`$${leaseTemplate.late_fee}`}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Security Deposit
                         </h6>
-                        {`$${leaseTerm.security_deposit}`}
+                        {`$${leaseTemplate.security_deposit}`}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Gas Included?
                         </h6>
-                        {`${leaseTerm.gas_included ? "Yes" : "No"}`}
+                        {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Electric Included?
                         </h6>
-                        {`${leaseTerm.electric_included ? "Yes" : "No"}`}
+                        {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Water Included?
                         </h6>
-                        {`${leaseTerm.water_included ? "Yes" : "No"}`}
+                        {`${leaseTemplate.water_included ? "Yes" : "No"}`}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Lease Cancellation Fee
                         </h6>
-                        {`$${leaseTerm.lease_cancellation_fee}`}
+                        {`$${leaseTemplate.lease_cancellation_fee}`}
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4">
                         <h6 className="rental-application-lease-heading">
                           Lease Cancellation Notice period
                         </h6>
-                        {`${leaseTerm.lease_cancellation_notice_period} Month(s)`}
+                        {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
                       </div>
                     </div>
                   </div>
