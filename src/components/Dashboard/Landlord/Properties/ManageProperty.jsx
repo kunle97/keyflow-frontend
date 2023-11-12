@@ -138,14 +138,6 @@ const ManageProperty = () => {
       });
       setUnits(res.units);
       console.log("State UNITS", units);
-      //Retireve the units for the property
-      // getUnits(id)
-      //   .then((res) => {
-      //     // setUnits(res.data);
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   });
       setIsLoading(false);
     });
   }, []);
