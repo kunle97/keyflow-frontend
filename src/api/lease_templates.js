@@ -4,10 +4,10 @@ import { stringToBoolean } from "../helpers/utils";
 
 ///------------LEASE TERM API FUNCTIONS-----------------///
 //Create a function that creates a lease term
-export async function createLeaseTerm(data) {
+export async function createLeaseTemplate(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/create-lease-term/`, {
+      .post(`/create-lease-template/`, {
         user_id: authUser.user_id,
         rent: parseFloat(data.rent),
         term: data.term,
@@ -44,10 +44,10 @@ export async function createLeaseTerm(data) {
 }
 
 //Create a function that gets all lease terms for a specific user
-export async function getLeaseTermsByUser() {
+export async function getLeaseTemplatesByUser() {
   try {
     const res = await authenticatedInstance
-      .get(`/lease-terms/?ordering=-created_at`, {
+      .get(`/lease-templates/?ordering=-created_at`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -65,10 +65,10 @@ export async function getLeaseTermsByUser() {
 }
 
 //Create a function to retrieve one specific lease term by its id
-export async function getLeaseTermByIdAndApprovalHash(data) {
+export async function getLeaseTemplateByIdAndApprovalHash(data) {
   try {
     const res = await unauthenticatedInstance
-      .post(`/retrieve-lease-term-and-approval/`, data)
+      .post(`/retrieve-lease-template-and-approval/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -83,10 +83,10 @@ export async function getLeaseTermByIdAndApprovalHash(data) {
 }
 
 //Create a function to retrieve one specific lease term by its id
-export async function getLeaseTermById(data) {
+export async function getLeaseTemplateById(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/retrieve-lease-term/`, data)
+      .post(`/retrieve-lease-template/`, data)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -101,10 +101,10 @@ export async function getLeaseTermById(data) {
 }
 
 //Create a function that updates a lease term
-export async function updateLeaseTerm(leaseTermId, data) {
+export async function updateLeaseTemplate(leaseTemplateId, data) {
   try {
     const res = await authenticatedInstance
-      .patch(`/lease-terms/${leaseTermId}/`, data, {
+      .patch(`/lease-templates/${leaseTemplateId}/`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -123,11 +123,11 @@ export async function updateLeaseTerm(leaseTermId, data) {
   }
 }
 //Create a function tpo delete a lease term
-export async function deleteLeaseTerm(leaseTermId) {
+export async function deleteLeaseTemplate(leaseTemplateId) {
   try {
     const res = await authenticatedInstance
-      .post(`/delete-lease-term/`, {
-        lease_term_id: leaseTermId,
+      .post(`/delete-lease-template/`, {
+        lease_template_id: leaseTemplateId,
         user_id: authUser.user_id,
       })
       .then((res) => {

@@ -22,8 +22,8 @@ import TenantRegister from "./components/Dashboard/Tenant/TenantRegister";
 import TenantDashboard from "./components/Dashboard/Tenant/TenantDashboard";
 import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
 import TenantMyAccount from "./components/Dashboard/Tenant/TenantMyAccount";
-import CreateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/CreateLeaseTerm/CreateLeaseTerm";
-import LeaseTerms from "./components/Dashboard/Landlord/LeaseTerm/LeaseTerms";
+import CreateLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
+import LeaseTemplates from "./components/Dashboard/Landlord/LeaseTemplate/LeaseTemplates";
 import ViewRentalApplication from "./components/Dashboard/Landlord/RentalApplications/ViewRentalApplication";
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
 import RentalApplications from "./components/Dashboard/Landlord/RentalApplications/RentalApplications";
@@ -52,7 +52,7 @@ import {
   AddHomeWorkOutlined,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
-import UpdateLeaseTerm from "./components/Dashboard/Landlord/LeaseTerm/UpdateLeaseTerm";
+import UpdateLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/UpdateLeaseTemplate";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 import Logout from "./components/Dashboard/Logout";
@@ -62,7 +62,6 @@ import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreement
 const token = localStorage.getItem("authTokens");
 
 export const routes = [
-
   {
     path: "*",
     element: <PageNotFound />,
@@ -373,10 +372,10 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/lease-terms/create",
+    path: "/dashboard/landlord/lease-templates/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <CreateLeaseTerm />
+        <CreateLeaseTemplate />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
@@ -386,10 +385,10 @@ export const routes = [
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-terms/",
+    path: "/dashboard/landlord/lease-templates/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <LeaseTerms />
+        <LeaseTemplates />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
@@ -399,10 +398,10 @@ export const routes = [
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-terms/:id",
+    path: "/dashboard/landlord/lease-templates/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <UpdateLeaseTerm />
+        <UpdateLeaseTemplate />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,

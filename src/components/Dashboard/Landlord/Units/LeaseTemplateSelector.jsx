@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { uiGreen, uiGrey2 } from "../../../../constants";
 import { Button, Modal } from "@mui/material";
 
-const LeaseTermSelector = (props) => {
+const LeaseTemplateSelector = (props) => {
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -35,7 +35,7 @@ const LeaseTermSelector = (props) => {
             color: "white",
           }}
         >
-          {props.data.map((leaseTerm) => {
+          {props.data.map((leaseTemplate) => {
             return (
               <>
                 <ListItem alignItems="flex-start">
@@ -44,8 +44,8 @@ const LeaseTermSelector = (props) => {
                     secondary={
                       <React.Fragment>
                         <h6 style={{ fontSize: "10pt" }}>
-                          Security Deposit: ${leaseTerm.security_deposit}. Late
-                          Fee: ${leaseTerm.late_fee}
+                          Security Deposit: ${leaseTemplate.security_deposit}.
+                          Late Fee: ${leaseTemplate.late_fee}
                         </h6>
                         <div style={{ overflow: "auto" }}>
                           <div style={{ color: "white", float: "left" }}>
@@ -54,7 +54,7 @@ const LeaseTermSelector = (props) => {
                             <p className="m-0">Water Not Included</p>
                           </div>
                           <Button
-                            onClick={props.onSelect(leaseTerm.id)}
+                            onClick={props.onSelect(leaseTemplate.id)}
                             sx={{
                               background: uiGreen,
                               color: "white",
@@ -91,7 +91,6 @@ const LeaseTermSelector = (props) => {
                       <p className="m-0">Water Not Included</p>
                     </div>
                     <Button
-                    
                       sx={{
                         background: uiGreen,
                         color: "white",
@@ -275,4 +274,4 @@ const LeaseTermSelector = (props) => {
   );
 };
 
-export default LeaseTermSelector;
+export default LeaseTemplateSelector;

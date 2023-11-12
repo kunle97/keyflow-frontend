@@ -26,7 +26,7 @@ const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTerm, setLeaseTerm] = useState(null);
+  const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
     useState(false);
@@ -117,7 +117,7 @@ const TenantDashboard = () => {
       setUnit(res.unit);
       setLeaseAgreement(res.lease_agreement);
       console.log(res.lease_agreement);
-      setLeaseTerm(res.lease_term);
+      setLeaseTemplate(res.lease_template);
     });
     //Retrieve Tenant Transactions
     getTenantTransactionsByUser().then((res) => {
@@ -136,7 +136,7 @@ const TenantDashboard = () => {
       {!isLoadingPaymentMethods && paymentMethods.length > 0 && (
         <PaymentModal
           open={showPaymentModal}
-          amount={leaseTerm.rent * 100}
+          amount={leaseTemplate.rent * 100}
           paymentMethods={paymentMethods}
           handleClose={() => setShowPaymentModal(false)}
         />

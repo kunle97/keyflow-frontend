@@ -12,7 +12,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UIButton from "../../UIComponents/UIButton";
-import { getLeaseTermsByUser } from "../../../../api/lease_terms";
+import { getLeaseTemplatesByUser } from "../../../../api/lease_templates";
 import { useForm } from "react-hook-form";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
@@ -21,11 +21,11 @@ export const TenantGeneratorForm = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
   const [units, setUnits] = useState([]);
-  const [leaseTerms, setLeaseTerms] = useState([]);
+  const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [unitMode, setUnitMode] = useState("");
   const [rentalUnitId, setRentalUnitId] = useState(null);
-  const [leaseTermMode, setLeaseTermMode] = useState("");
-  const [leaseTermId, setLeaseTermId] = useState(null);
+  const [leaseTemplateMode, setLeaseTemplateMode] = useState("");
+  const [leaseTemplateId, setLeaseTemplateId] = useState(null);
   const [createRentalApplication, setCreateRentalApplication] = useState(false);
   const [rentalApplicationIsApproved, setRentalApplicationIsApproved] =
     useState(null);
@@ -41,8 +41,8 @@ export const TenantGeneratorForm = (props) => {
       numberOfItems: 10,
       unitMode: "random",
       rentalUnitId: null,
-      leaseTermMode: "random",
-      leaseTermId: null,
+      leaseTemplateMode: "random",
+      leaseTemplateId: null,
       rentalApplicationIsApproved: true,
       rentalApplicationIsArchived: true,
       hasGracePeriod: false,
@@ -60,8 +60,8 @@ export const TenantGeneratorForm = (props) => {
       user_id: authUser.user_id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
-      lease_term_mode: data.leaseTermMode,
-      lease_term_id: data.leaseTermId,
+      lease_template_mode: data.leaseTemplateMode,
+      lease_template_id: data.leaseTemplateId,
       rental_application_is_approved: data.rentalApplicationIsApproved,
       rental_application_is_archived: data.rentalApplicationIsArchived,
       has_grace_period: data.hasGracePeriod,
@@ -90,8 +90,8 @@ export const TenantGeneratorForm = (props) => {
       });
     });
     //retrieve lease terms that the user has created
-    getLeaseTermsByUser().then((res) => {
-      setLeaseTerms(res.data);
+    getLeaseTemplatesByUser().then((res) => {
+      setLeaseTemplates(res.data);
       console.log(res);
     });
   }, []);
@@ -198,15 +198,15 @@ export const TenantGeneratorForm = (props) => {
         <div className="form-group my-2">
           <label style={{ color: "white" }}>Lease Term Options</label>
           <select
-            {...register("leaseTermMode", {
+            {...register("leaseTemplateMode", {
               required: "This is a required field",
               //Validate that the value is not a blank string
               validate: (value) => value !== "",
             })}
             className="form-select "
             style={{ background: "white", color: "black" }}
-            onChange={(e) => setLeaseTermMode(e.target.value)}
-            defaultValue={leaseTermMode}
+            onChange={(e) => setLeaseTemplateMode(e.target.value)}
+            defaultValue={leaseTemplateMode}
           >
             <option value="">Choose One</option>
             <option value="new">Create a new lease term for tenant</option>
@@ -215,28 +215,28 @@ export const TenantGeneratorForm = (props) => {
               Select a randome lease term for the tenant
             </option>
           </select>
-          {leaseTermMode === "specific" && (
+          {leaseTemplateMode === "specific" && (
             <select
-              {...register("leaseTermId", {
+              {...register("leaseTemplateId", {
                 required: "This is a required field",
                 //Validate that the value is not a blank string
                 validate: (value) => value !== "",
               })}
               className="form-select mt-1"
               style={{ background: "white", color: "black" }}
-              onChange={(e) => setLeaseTermId(e.target.value)}
+              onChange={(e) => setLeaseTemplateId(e.target.value)}
             >
               <option>Select One</option>
-              {leaseTerms.map((leaseTerm) => (
-                <option value={leaseTerm.id}>
-                  {leaseTerm.term} month lease @${leaseTerm.rent}/month
+              {leaseTemplates.map((leaseTemplate) => (
+                <option value={leaseTemplate.id}>
+                  {leaseTemplate.term} month lease @${leaseTemplate.rent}/month
                 </option>
               ))}
             </select>
           )}
           <span style={validationMessageStyle}>
-            {errors.leaseTermMode && errors.leaseTermMode.message}
-            {errors.leaseTermId && errors.leaseTermId.message}
+            {errors.leaseTemplateMode && errors.leaseTemplateMode.message}
+            {errors.leaseTemplateId && errors.leaseTemplateId.message}
           </span>
         </div>
         <div className="form-group my-2">

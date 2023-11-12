@@ -7,7 +7,7 @@ import {
   getLeaseAgreementByIdAndApprovalHash,
   signLeaseAgreement,
 } from "../api/lease_agreements";
-import { getLeaseTermByIdAndApprovalHash } from "../api/lease_terms";
+import { getLeaseTemplateByIdAndApprovalHash } from "../api/lease_templates";
 import { useState } from "react";
 import AlertModal from "./Dashboard/UIComponents/Modals/AlertModal";
 import ConfirmModal from "./Dashboard/UIComponents/Modals/ConfirmModal";
@@ -18,7 +18,7 @@ import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTerm, setLeaseTerm] = useState(null);
+  const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [displayError, setDisplayError] = useState(false);
   const [showSignConfirmation, setShowSignConfirmation] = useState(false);
   const [signResponseMessage, setSignResponseMessage] = useState("");
@@ -34,8 +34,8 @@ const SignLeaseAgreement = () => {
 
   //Create a function to sign the lease agreement which calls the API to update the lease agreement
   const handleSignLeaseAgreement = () => {
-    if (!leaseTerm) {
-      // Handle the case when leaseTerm is not available
+    if (!leaseTemplate) {
+      // Handle the case when leaseTemplate is not available
       setErrorTitle("Error");
       setErrorMessage(
         "Lease term information is not available. Please try again."
@@ -44,7 +44,7 @@ const SignLeaseAgreement = () => {
       return;
     } else {
       let date = new Date();
-      let end_date = date.setMonth(date.getMonth() + leaseTerm.term);
+      let end_date = date.setMonth(date.getMonth() + leaseTemplate.term);
       const data = {
         lease_agreement_id: leaseAgreement.id,
         approval_hash: approval_hash,
@@ -130,7 +130,7 @@ const SignLeaseAgreement = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (!leaseTerm && !leaseAgreement) {
+    if (!leaseTemplate && !leaseAgreement) {
       try {
         // Get Lease Agreement from API
         getLeaseAgreementByIdAndApprovalHash({
@@ -139,7 +139,7 @@ const SignLeaseAgreement = () => {
         }).then((res) => {
           if (res.id) {
             setLeaseAgreement(res);
-            setLeaseTerm(res.lease_term);
+            setLeaseTemplate(res.lease_template);
             let redirectLink =
               process.env.REACT_APP_HOSTNAME +
               "/dashboard/tenant/register" +
@@ -189,7 +189,7 @@ const SignLeaseAgreement = () => {
       } finally {
       }
     }
-    console.log("The lease Term ", leaseTerm);
+    console.log("The lease Term ", leaseTemplate);
     console.log("The lease ASgreemenmt ", leaseAgreement);
     setIsLoading(false);
     window.addEventListener("message", handleDocumentSigningUpdate);
@@ -197,7 +197,7 @@ const SignLeaseAgreement = () => {
     return () => {
       window.removeEventListener("message", handleDocumentSigningUpdate);
     };
-  }, [leaseTerm, leaseAgreement]);
+  }, [leaseTemplate, leaseAgreement]);
   return (
     <div className="container">
       <AlertModal
@@ -238,67 +238,67 @@ const SignLeaseAgreement = () => {
                 <div className="card my-3">
                   <div className="card-body">
                     <h6 className="card-title">Lease Agreement Overview</h6>
-                    {leaseTerm && (
+                    {leaseTemplate && (
                       <div className="row">
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Rent
                           </h6>
-                          ${leaseTerm.rent}
+                          ${leaseTemplate.rent}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Term
                           </h6>
-                          {leaseTerm.term} Months
+                          {leaseTemplate.term} Months
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Late Fee
                           </h6>
-                          {`$${leaseTerm.late_fee}`}
+                          {`$${leaseTemplate.late_fee}`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Security Deposit
                           </h6>
-                          {`$${leaseTerm.security_deposit}`}
+                          {`$${leaseTemplate.security_deposit}`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Gas Included?
                           </h6>
-                          {`${leaseTerm.gas_included ? "Yes" : "No"}`}
+                          {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Electric Included?
                           </h6>
-                          {`${leaseTerm.electric_included ? "Yes" : "No"}`}
+                          {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Water Included?
                           </h6>
-                          {`${leaseTerm.water_included ? "Yes" : "No"}`}
+                          {`${leaseTemplate.water_included ? "Yes" : "No"}`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Lease Cancellation Fee
                           </h6>
-                          {`$${leaseTerm.lease_cancellation_fee}`}
+                          {`$${leaseTemplate.lease_cancellation_fee}`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Lease Cancellation Notice period
                           </h6>
-                          {`${leaseTerm.lease_cancellation_notice_period} Month(s)`}
+                          {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
                         </div>
                         <div className="col-sm-6 col-md-4 mb-4">
                           <h6 className="rental-application-lease-heading">
                             Grace period
                           </h6>
-                          {`${leaseTerm.grace_period} Month(s)`}
+                          {`${leaseTemplate.grace_period} Month(s)`}
                         </div>
                       </div>
                     )}

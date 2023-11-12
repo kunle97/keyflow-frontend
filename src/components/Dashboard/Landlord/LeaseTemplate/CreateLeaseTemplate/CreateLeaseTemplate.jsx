@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Typography, Box, Stack } from "@mui/material";
 import { uiGreen } from "../../../../../constants";
-import { createLeaseTerm } from "../../../../../api/lease_terms";
+import { createLeaseTemplate } from "../../../../../api/lease_templates";
 import { faker } from "@faker-js/faker";
 import BackButton from "../../../UIComponents/BackButton";
 import UIStepper from "../../../UIComponents/UIStepper";
@@ -16,7 +16,7 @@ import UploadLeaseDocument from "./Steps/UploadLeaseDocument";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
-const CreateLeaseTerm = () => {
+const CreateLeaseTemplate = () => {
   //TODO: Add steps to create lease term form
   /**
    * Step 1: Add Terms (with rent change frequncy e.g. monthly, yearly, bi-weekly, etc.)
@@ -137,8 +137,8 @@ const CreateLeaseTerm = () => {
     data.template_id = templateId;
     console.log("Full Form data", data);
 
-    // Call the API to createLeaseTerm() function to create the lease term
-    createLeaseTerm(data).then((res) => {
+    // Call the API to createLeaseTemplate() function to create the lease term
+    createLeaseTemplate(data).then((res) => {
       console.log(res);
       if (res.status === 200) {
         setAlertSeverity("success");
@@ -163,12 +163,15 @@ const CreateLeaseTerm = () => {
         message={responseMessage}
         onClick={() => {
           //navigate to previous page
-          navigate("/dashboard/landlord/lease-terms");
+          navigate("/dashboard/landlord/lease-templates");
         }}
         btnText="Okay"
       />
       {isLoading && (
-        <ProgressModal title="Creating Lease Agreement Template..." open={isLoading} />
+        <ProgressModal
+          title="Creating Lease Agreement Template..."
+          open={isLoading}
+        />
       )}
       <BackButton />
       <h2 style={{ color: "white" }}>Create Lease Agreement Template</h2>
@@ -274,4 +277,4 @@ const CreateLeaseTerm = () => {
   );
 };
 
-export default CreateLeaseTerm;
+export default CreateLeaseTemplate;
