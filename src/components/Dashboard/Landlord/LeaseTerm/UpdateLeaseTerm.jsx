@@ -48,21 +48,22 @@ const UpdateLeaseTerm = () => {
     handleSubmit,
     trigger,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      rent: leaseTerm.rent,
-      term: leaseTerm.term,
-      late_fee: leaseTerm.late_fee,
-      security_deposit: leaseTerm.security_deposit,
-      gas_included: leaseTerm.gas_included,
-      water_included: leaseTerm.water_included,
-      electricity_included: leaseTerm.electricity_included,
-      repairs_included: leaseTerm.repairs_included,
-      lease_cancellation_notice_period:
-        leaseTerm.lease_cancellation_notice_period,
-      lease_description: leaseTerm.lease_description,
-    },
-  });
+  } = useForm();
+  //   {
+  //   defaultValues: {
+  //     rent: leaseTerm.rent,
+  //     term: leaseTerm.term,
+  //     late_fee: leaseTerm.late_fee,
+  //     security_deposit: leaseTerm.security_deposit,
+  //     gas_included: leaseTerm.gas_included,
+  //     water_included: leaseTerm.water_included,
+  //     electricity_included: leaseTerm.electricity_included,
+  //     repairs_included: leaseTerm.repairs_included,
+  //     lease_cancellation_notice_period:
+  //       leaseTerm.lease_cancellation_notice_period,
+  //     lease_description: leaseTerm.lease_description,
+  //   },
+  // }
 
   //Additional Charges Functinos
   const addCharge = () => {
@@ -141,10 +142,20 @@ const UpdateLeaseTerm = () => {
     onRowClick: handleRowClick,
   };
   const onSubmit = async (data) => {
+    console.log("Lease Term Data", data);
     await authenticatedInstance
       .patch(`/lease-terms/${id}/`, data)
       .then((res) => {
         console.log(res);
+        if (res.status === 200) {
+          setAlertModalIsOpen(true);
+          setAlertModalTitle("Success");
+          setAlertModalMessage("Lease term updated successfully.");
+        } else {
+          setAlertModalIsOpen(true);
+          setAlertModalTitle("Error");
+          setAlertModalMessage("Something went wrong. Please try again.");
+        }
       });
   };
   const retrieveLeaseTermData = async () => {
@@ -219,12 +230,15 @@ const UpdateLeaseTerm = () => {
                 <input
                   {...register("rent", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  // defaultValue={leaseTerm.rent}
+                  onChange={(e) => {
+                    // trigger("rent");
+                    setLeaseTerm({ ...leaseTerm, rent: e.target.value });
+                  }}
                   value={leaseTerm.rent}
                   type="number"
                   className="form-control"
@@ -247,12 +261,15 @@ const UpdateLeaseTerm = () => {
                 <select
                   {...register("term", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  defaultValue={leaseTerm.term}
+                  onChange={(e) => {
+                    // trigger("term");
+                    setLeaseTerm({ ...leaseTerm, term: e.target.value });
+                  }}
                   value={leaseTerm.term}
                   className="form-select"
                   sx={{ width: "100%", color: "white", background: uiGrey2 }}
@@ -281,14 +298,17 @@ const UpdateLeaseTerm = () => {
                 <input
                   {...register("late_fee", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  defaultValue={leaseTerm.late_fee}
+                  onChange={(e) => {
+                    // trigger("late_fee");
+                    setLeaseTerm({ ...leaseTerm, late_fee: e.target.value });
+                  }}
                   value={leaseTerm.late_fee}
-                  type="text"
+                  type="number"
                   className="form-control"
                   id="lateFee"
                   placeholder="$"
@@ -309,14 +329,20 @@ const UpdateLeaseTerm = () => {
                 <input
                   {...register("security_deposit", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  defaultValue={leaseTerm.security_deposit}
+                  onChange={(e) => {
+                    // trigger("security_deposit");
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      security_deposit: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.security_deposit}
-                  type="text"
+                  type="number"
                   className="form-control"
                   id="security_deposit"
                   placeholder="$"
@@ -332,7 +358,13 @@ const UpdateLeaseTerm = () => {
                   {...register("gas_included", {
                     required: "This field is required",
                   })}
-                  defaultValue={leaseTerm.gas_included}
+                  onChange={(e) => {
+                    // trigger("gas_included");
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      gas_included: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.gas_included}
                   name="gas_included"
                   className="form-control"
@@ -352,6 +384,12 @@ const UpdateLeaseTerm = () => {
                   {...register("water_included", {
                     required: "This field is required",
                   })}
+                  onChange={(e) => {
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      water_included: e.target.value,
+                    });
+                  }}
                   className="form-control"
                   defaultValue={leaseTerm.water_included}
                   value={leaseTerm.water_included}
@@ -370,7 +408,12 @@ const UpdateLeaseTerm = () => {
                   {...register("electric_included", {
                     required: "This field is required",
                   })}
-                  defaultValue={leaseTerm.electric_included}
+                  onChange={(e) => {
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      electric_included: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.electric_included}
                   className="form-control"
                 >
@@ -388,7 +431,12 @@ const UpdateLeaseTerm = () => {
                   {...register("repairs_included", {
                     required: "This field is required",
                   })}
-                  defaultValue={leaseTerm.repairs_included}
+                  onChange={(e) => {
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      repairs_included: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.repairs_included}
                   className="form-control"
                 >
@@ -419,12 +467,18 @@ const UpdateLeaseTerm = () => {
                 <select
                   {...register("grace_period", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  defaultValue={leaseTerm.grace_period}
+                  onChange={(e) => {
+                    // trigger("grace_period");
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      grace_period: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.grace_period}
                   className="form-select"
                   sx={{ width: "100%", color: "white" }}
@@ -455,12 +509,18 @@ const UpdateLeaseTerm = () => {
                 <select
                   {...register("lease_cancellation_notice_period", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  defaultValue={leaseTerm.lease_cancellation_notice_period}
+                  onChange={(e) => {
+                    // trigger("lease_cancellation_notice_period");
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      lease_cancellation_notice_period: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.lease_cancellation_notice_period}
                   className="form-select"
                   sx={{ width: "100%", color: "white" }}
@@ -488,14 +548,20 @@ const UpdateLeaseTerm = () => {
                 <input
                   {...register("lease_cancellation_fee", {
                     required: "This field is required",
-                    pattern: {
-                      value: /^[0-9]+$/i,
-                      message: "Please enter a valid number",
-                    },
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
                   })}
-                  defaultValue={leaseTerm.lease_cancellation_fee}
+                  onChange={(e) => {
+                    // trigger("lease_cancellation_fee");
+                    setLeaseTerm({
+                      ...leaseTerm,
+                      lease_cancellation_fee: e.target.value,
+                    });
+                  }}
                   value={leaseTerm.lease_cancellation_fee}
-                  type="text"
+                  type="number"
                   className="form-control"
                   id="leaseCancellationFee"
                   placeholder="$"
