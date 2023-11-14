@@ -46,6 +46,7 @@ import HomeWorkOutlined from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
 import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import PaidOutlined from "@mui/icons-material/PaidOutlined";
+import MessageOutlinedIcon from '@mui/icons-material/MessageOutlined';
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import {
   AddHomeOutlined,
@@ -58,6 +59,7 @@ import { NotificationDetail } from "./components/Dashboard/Notifications/Notific
 import Logout from "./components/Dashboard/Logout";
 import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
 import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
+import Messages from "./components/Dashboard/Messaging/Messages";
 //retrieve token from storage
 const token = localStorage.getItem("authTokens");
 
@@ -476,6 +478,19 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
+  {
+    path: "/dashboard/messages",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Messages />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Messages",
+    description: "View your messages",
+    isQuickLink: true,
+    muiIcon: <MessageOutlinedIcon />,
+  }
 ];
 
 export const router = createBrowserRouter(routes);

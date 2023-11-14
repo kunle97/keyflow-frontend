@@ -300,10 +300,10 @@ const Topbar = () => {
                   </a>
                   <a
                     className="dropdown-item text-center small text-gray-500"
-                    href="#"
+                    href="/dashboard/messages"
                     style={{ borderStyle: "none" }}
                   >
-                    Show All Alerts
+                    Show All Messages
                   </a>
                 </div>
               </div>
