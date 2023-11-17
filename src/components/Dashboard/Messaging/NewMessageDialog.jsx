@@ -6,9 +6,14 @@ import { authUser, uiGrey2 } from "../../../constants";
 import UIButton from "../UIComponents/UIButton";
 import { sendMessage } from "../../../api/messages";
 import UIDialog from "../UIComponents/Modals/UIDialog";
+import AlertModal from "../UIComponents/Modals/AlertModal";
+
 const NewMessageDialog = (props) => {
   const [tenants, setTenants] = useState(null);
   const [tabPage, setTabPage] = useState(0);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const tabs = [
     { name: "Tenants", label: "Tenants" },
     { name: "Vendors", label: "Vendors" },
@@ -26,22 +31,40 @@ const NewMessageDialog = (props) => {
       body: data.body,
       sender: authUser.user_id,
     };
+    //Retrieve tenant
+    const tenant = tenants.find(
+      (tenant) => tenant.id === parseInt(data.recipient_id)
+    );
     sendMessage(payload).then((res) => {
+      console.log("Tenant", tenant);
       console.log(res);
+      if (res.status === 200) {
+        setAlertTitle("Message Sent!");
+        setAlertMessage(
+          `Your message to  ${tenant.first_name} ${tenant.last_name} was sent successfully.`
+        );
+        setShowAlert(true);
+        props.handleClose();
+      }
     });
   };
 
   useEffect(() => {
     if (!tenants) {
       getLandlordTenants().then((res) => {
-        console.log(res);
         setTenants(res.data);
-        console.log(tenants);
       });
     }
   }, [tenants]);
   return (
     <div>
+      <AlertModal
+        open={showAlert}
+        onClick={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+      />
       <UIDialog
         style={{ padding: "15px" }}
         open={props.open}
@@ -49,34 +72,38 @@ const NewMessageDialog = (props) => {
       >
         <h4>Send a new message</h4>
         <form onSubmit={handleSend}>
-          <UITabs
-            tabs={tabs}
-            value={tabPage}
-            handleChange={(e, newValue) => setTabPage(newValue)}
-            ariaLabel="Tabs"
-            variant="scrollable"
-            scrollButtons="auto"
-            style={{ marginBottom: "2rem" }}
-          />
+          {authUser.account_type === "landlord" && (
+            <UITabs
+              tabs={tabs}
+              value={tabPage}
+              handleChange={(e, newValue) => setTabPage(newValue)}
+              ariaLabel="Tabs"
+              variant="scrollable"
+              scrollButtons="auto"
+              style={{ marginBottom: "2rem" }}
+            />
+          )}
 
-          <div className="form-group mb-2">
-            {tabPage === 0 && (
-              <select
-                className="form-select"
-                style={{ width: "100%", color: "white", background: uiGrey2 }}
-                required
-                name="recipient_id"
-              >
-                <option value="">Select a Tenant</option>
-                {tenants &&
-                  tenants.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id}>
-                      {tenant.first_name} {tenant.last_name}
-                    </option>
-                  ))}
-              </select>
-            )}
-          </div>
+          {authUser.account_type === "landlord" && (
+            <div className="form-group mb-2">
+              {tabPage === 0 && (
+                <select
+                  className="form-select"
+                  style={{ width: "100%", color: "white", background: uiGrey2 }}
+                  required
+                  name="recipient_id"
+                >
+                  <option value="">Select a Tenant</option>
+                  {tenants &&
+                    tenants.map((tenant) => (
+                      <option key={tenant.id} value={tenant.id}>
+                        {tenant.first_name} {tenant.last_name}
+                      </option>
+                    ))}
+                </select>
+              )}
+            </div>
+          )}
           <div className="form-group mb-2">
             <textarea
               placeholder="Message"

@@ -8356,7 +8356,7 @@ fieldset:disabled .btn {
 .text-uppercase,
 .sidebar .sidebar-heading,
 .dropdown .dropdown-menu .dropdown-header {
-  text-transform: uppercase !important;
+  /* text-transform: uppercase !important; */
 }
 .text-capitalize {
   text-transform: capitalize !important;
