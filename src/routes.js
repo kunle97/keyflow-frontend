@@ -46,7 +46,7 @@ import HomeWorkOutlined from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
 import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import PaidOutlined from "@mui/icons-material/PaidOutlined";
-import MessageOutlinedIcon from '@mui/icons-material/MessageOutlined';
+import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import {
   AddHomeOutlined,
@@ -490,7 +490,16 @@ export const routes = [
     description: "View your messages",
     isQuickLink: true,
     muiIcon: <MessageOutlinedIcon />,
-  }
+  },
+  {
+    path: "/dashboard/messages/:thread_id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Messages />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: false,
+  },
 ];
 
 export const router = createBrowserRouter(routes);

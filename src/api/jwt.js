@@ -23,7 +23,7 @@ export async function refreshTokens(data) {
       .post(`/token/refresh/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios refresh tokens response ", response);
+        // console.log("axios refresh tokens response ", response);
         return response;
       });
     return res;

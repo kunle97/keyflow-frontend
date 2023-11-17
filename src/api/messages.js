@@ -17,6 +17,43 @@ export async function getMessages() {
     return error.response.data;
   }
 }
+//Create a function to get all messages for this user
+export async function getMessagesWithLimit(limit) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/?limit=${limit}`)
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Messages Error: ", error);
+    return error.response.data;
+  }
+}
+
+//Create a function to get a message by a specific recipient id
+export async function getMessageByRecipient() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/?recipient=${authUser.user_id}`)
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Message By Recipient Error: ", error);
+    return error.response.data;
+  }
+}
 
 //Create a function to send a message to a user
 export async function sendMessage(data) {

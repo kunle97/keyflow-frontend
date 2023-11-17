@@ -1,29 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
-import {
-  authenticatedInstance,
-} from "../../../../api/api";
+import { authenticatedInstance } from "../../../../api/api";
 import { logout } from "../../../../api/auth";
-import { useNavigate } from "react-router";
+import { redirect, useNavigate } from "react-router";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link } from "react-router-dom";
-import { authUser, token, uiGreen, uiGrey3 } from "../../../../constants";
+import {
+  authUser,
+  dateDiffForHumans,
+  token,
+  uiGreen,
+  uiGrey1,
+  uiGrey2,
+  uiGrey3,
+  uiRed,
+} from "../../../../constants";
 import { faker } from "@faker-js/faker";
+import { getMessagesWithLimit, getMessages } from "../../../../api/messages";
+import { createThreads } from "../../../../helpers/messageUtils";
+import { Stack } from "@mui/material";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [messageThreads, setMessageThreads] = useState([]);
   const navigate = useNavigate();
   const { logoutUser } = useAuth();
   const handleLogout = async (e) => {
     e.preventDefault();
     logoutUser();
   };
-
+  const fetchMessages = () => {
+    getMessages().then((res) => {
+      // Use the messages to create threads
+      let threads = createThreads(res.data);
+      //Filter the threads variable to show 5 threads with the most recent messages
+      threads = threads.slice(0, 5);
+      setMessageThreads(threads);
+    });
+  };
   //REtrieve user notifications
   useEffect(() => {
     authenticatedInstance
-      .get("/notifications/?limit=5")
+      .get("/notifications/?limit=5&ordering=-timestamp")
       .then((response) => {
         setNotifications(response.data.results);
         setNotificationCount(response.data.count);
@@ -31,6 +50,7 @@ const Topbar = () => {
       .catch((error) => {
         console.log("Error: ", error);
       });
+    fetchMessages();
   }, []);
   return (
     <div className="container">
@@ -121,7 +141,7 @@ const Topbar = () => {
                     style={{
                       background: uiGreen,
                       borderStyle: "none",
-                      textTransform: "none",
+                      textTransform: "none !important",
                       fontSize: "14pt",
                     }}
                   >
@@ -148,8 +168,16 @@ const Topbar = () => {
                           href={`/dashboard/landlord/notifications/${notification.id}`}
                           style={
                             notification.is_read
-                              ? { background: uiGrey3 }
-                              : { background: "white" }
+                              ? {
+                                  background: uiGrey2,
+                                  color: "white",
+                                  border: "none",
+                                }
+                              : {
+                                  background: uiGrey1,
+                                  border: "none",
+                                  color: "white",
+                                }
                           }
                         >
                           <div className="me-3">
@@ -163,7 +191,11 @@ const Topbar = () => {
                                 notification.timestamp
                               ).toLocaleDateString()}
                             </span>
-                            <p>{notification.message}</p>
+                            {notification.type === "message" ? (
+                              <p>{notification.title}</p>
+                            ) : (
+                              <p>{notification.message}</p>
+                            )}
                           </div>{" "}
                         </a>
                       ))}
@@ -176,6 +208,7 @@ const Topbar = () => {
                       borderStyle: "none",
                       background: uiGreen,
                       color: "white",
+                      fontSize: "12pt",
                     }}
                   >
                     All Notifications
@@ -198,113 +231,134 @@ const Topbar = () => {
                   className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in"
                   style={{ borderStyle: "none" }}
                 >
-                  <h6
+                  <h5
                     className="dropdown-header"
-                    style={{ background: uiGreen, borderStyle: "none" }}
+                    style={{
+                      background: uiGreen,
+                      borderStyle: "none",
+                      textTransform: "none !important",
+                      fontSize: "14pt",
+                    }}
                   >
                     Messages
-                  </h6>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                    style={{ borderStyle: "none" }}
+                  </h5>
+
+                  {messageThreads.length === 0 ? (
+                    <center>
+                      <span
+                        style={{
+                          borderStyle: "none",
+                          fontSize: "12pt",
+                          color: "grey",
+                          margin: "30px 0",
+                        }}
+                      >
+                        You have no new messages
+                      </span>
+                    </center>
+                  ) : (
+                    <ul className="list-group ">
+                      {messageThreads.map((thread) => (
+                        <li
+                          key={thread.id}
+                          className={`list-group-item`}
+                          style={{
+                            backgroundColor: uiGrey2,
+                            color: "white",
+                            border: "none",
+                            borderRadius: "0",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            const redirectLink = `/dashboard/messages/${thread.name}`;
+                            //Use window.location.href to redirect to the thread
+                            window.location.href = redirectLink;
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={2}
+                          >
+                            <img
+                              className="rounded-circle "
+                              width={50}
+                              src={
+                                process.env.REACT_APP_ENVIRONMENT !==
+                                "development"
+                                  ? ""
+                                  : faker.image.avatar()
+                              }
+                            />
+                            <Stack
+                              sx={{ width: "100%" }}
+                              direction="column"
+                              spacing={0}
+                            >
+                              <Stack
+                                sx={{ width: "100%" }}
+                                direction="row"
+                                alignItems="center"
+                                spacing={0}
+                                justifyContent="space-between"
+                              >
+                                <span style={{ fontSize: "16pt" }}>
+                                  {thread.name}
+                                </span>{" "}
+                                <span className="text-white">
+                                  {dateDiffForHumans(
+                                    new Date(thread.messages[0].timestamp)
+                                  )}
+                                </span>
+                              </Stack>
+                              <Stack
+                                sx={{ width: "100%", marginTop: "5px" }}
+                                direction="row"
+                                alignItems="center"
+                                spacing={0}
+                                justifyContent="space-between"
+                              >
+                                <span
+                                  className="text-white"
+                                  style={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    maxWidth: "250px", // Adjust the width to accommodate the other span's width
+                                  }}
+                                >
+                                  {thread.messages[0].text}
+                                </span>
+                                <span
+                                  style={{
+                                    backgroundColor: uiRed,
+                                    color: "white",
+                                    borderRadius: "20%",
+                                    padding: "0 5px",
+                                  }}
+                                >
+                                  {thread.messages.length}
+                                </span>
+                              </Stack>
+                            </Stack>
+                          </Stack>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <Link
+                    className="dropdown-item text-center small"
+                    to="/dashboard/messages"
+                    style={{
+                      borderStyle: "none",
+                      background: uiGreen,
+                      color: "white",
+                      fontSize: "12pt",
+                    }}
                   >
-                    <div className="dropdown-list-image me-3">
-                      <img
-                        className="rounded-circle"
-                        src="../assets/img/avatars/avatar4.jpeg"
-                      />
-                      <div className="bg-success status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          Hi there! I am wondering if you can help me with a
-                          problem I've been having.
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">
-                        Emily Fowler - 58m
-                      </p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                    style={{ borderStyle: "none" }}
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <img
-                        className="rounded-circle"
-                        src="../assets/img/avatars/avatar2.jpeg"
-                      />
-                      <div className="status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          I have the photos that you ordered last month!
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">Jae Chun - 1d</p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                    style={{ borderStyle: "none" }}
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <img
-                        className="rounded-circle"
-                        src="../assets/img/avatars/avatar3.jpeg"
-                      />
-                      <div className="bg-warning status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          Last month's report looks great, I am very happy with
-                          the progress so far, keep up the good work!
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">
-                        Morgan Alvarez - 2d
-                      </p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item d-flex align-items-center"
-                    href="#"
-                    style={{ borderStyle: "none" }}
-                  >
-                    <div className="dropdown-list-image me-3">
-                      <img
-                        className="rounded-circle"
-                        src="../assets/img/avatars/avatar5.jpeg"
-                      />
-                      <div className="bg-success status-indicator" />
-                    </div>
-                    <div className="fw-bold">
-                      <div className="text-truncate">
-                        <span>
-                          Am I a good boy? The reason I ask is because someone
-                          told me that people say this to all dogs, even if they
-                          aren't good...
-                        </span>
-                      </div>
-                      <p className="small text-gray-500 mb-0">
-                        Chicken the Dog · 2w
-                      </p>
-                    </div>{" "}
-                  </a>
-                  <a
-                    className="dropdown-item text-center small text-gray-500"
-                    href="/dashboard/messages"
-                    style={{ borderStyle: "none" }}
-                  >
-                    Show All Messages
-                  </a>
+                    All Messages
+                  </Link>
                 </div>
               </div>
               <div
