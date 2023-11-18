@@ -60,6 +60,7 @@ import Logout from "./components/Dashboard/Logout";
 import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
 import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
 import Messages from "./components/Dashboard/Messaging/Messages";
+import { ContactPage } from "./components/Landing/ContactPage";
 //retrieve token from storage
 const token = localStorage.getItem("authTokens");
 
@@ -75,6 +76,12 @@ export const routes = [
     element: <LandingPage />,
     isSearchable: false,
     label: "Home",
+  },
+  {
+    path: "/contact",
+    element: <ContactPage />,
+    isSearchable: false,
+    label: "Contact Us",
   },
   {
     path: "/dashboard/landlord/login",

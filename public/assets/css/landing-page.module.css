@@ -1,0 +1,80 @@
+img.logo {
+  max-width: 258px;
+}
+
+.header-text {
+  color: white !important;
+}
+
+.header-image {
+  width: 107%;
+}
+
+.header-laptop-img {
+  width: 120%;
+}
+
+.section-header {
+  text-align: center;
+  padding: 45px 0;
+}
+
+.landing-bg {
+}
+
+.feature-icon {
+  font-size: 29pt;
+}
+
+.feature-card {
+  background: #2c3a4a;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
+}
+
+.feature-card-icon {
+  color: #3aaf5c;
+}
+
+.feature-card-text {
+  color: white;
+}
+
+.feature-row {
+  margin: 60px 0 120px;
+}
+
+.in-progress-text {
+  color: #13eded;
+}
+
+.pending-text {
+  color: rgb(255, 245, 0);
+}
+
+.resolved-text {
+  color: #3aaf5c;
+}
+
+.mr-divider {
+  width: 50%;
+  height: 40px;
+  border-right: 2px solid #2c3a4a;
+  margin: 10px 0;
+}
+
+.ui-button {
+  background: rgb(58, 175, 92);
+  border: none !important;
+}
+
+.section-header > h2,
+.section-header p,
+.feature-heading,
+.property-type-heading,
+.property-type-text {
+  color: black !important;
+}
+
+.standard-price-card > * {
+  color: black !important;
+}
