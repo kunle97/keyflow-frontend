@@ -4,6 +4,8 @@ import PaymentIcon from "@mui/icons-material/Payment";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import HomeRepairServiceIcon from "@mui/icons-material/HomeRepairService";
 import { uiGreen } from "../../../constants";
+import SouthIcon from "@mui/icons-material/South";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 const Features = () => {
   const featureIconStyle = {
     color: uiGreen,
@@ -82,7 +84,11 @@ const Features = () => {
                 </p>
               </div>
             </div>
-            <div className="mr-divider" />
+            {/* <div className="mr-divider" /> */}
+            <center style={{ margin: "15px 0" }}>
+              {" "}
+              <SouthIcon sx={featureIconStyle} />
+            </center>
             <div className="card feature-card">
               <div className="card-body">
                 <h4
@@ -106,7 +112,11 @@ const Features = () => {
                 </p>
               </div>
             </div>
-            <div className="mr-divider" />
+            {/* <div className="mr-divider" /> */}
+            <center style={{ margin: "15px 0" }}>
+              {" "}
+              <SouthIcon sx={featureIconStyle} />
+            </center>
             <div className="card feature-card">
               <div className="card-body">
                 <h4
@@ -134,7 +144,7 @@ const Features = () => {
             <div>
               <HomeRepairServiceIcon sx={featureIconStyle} />
               <h2 className="feature-heading">
-                Handle maintenance requests workflows automatically.
+                Handle maintenance request workflows automatically.
               </h2>
               <p>
                 <span style={{ color: "rgb(0, 0, 0)" }}>
@@ -170,31 +180,75 @@ const Features = () => {
           <div className="col-md-6 align-self-center">
             <div className="card feature-card">
               <div className="card-body">
-                <h4
-                  className="card-title"
-                  style={{ color: "rgb(255,255,255)" }}
-                >
-                  <i
+                <h4>Assets</h4>
+                <div className="row">
+                  <div className="col-md-6">
+                    <h5
+                      className="card-title"
+                      style={{ color: "rgb(255,255,255)" }}
+                    >
+                      {/* <i
                     className="fas fa-dollar-sign feature-card-icon"
                     style={{ color: "rgb(58, 175, 92)" }}
-                  />
-                  &nbsp; Accounts Payable
-                </h4>
-                <h4 className="feature-card-text">($4,893)</h4>
-                <h4
-                  className="card-title"
-                  style={{ color: "rgb(255,255,255)" }}
-                >
-                  <i
+                  /> */}
+                      {/* <AccountBalanceWalletIcon sx={featureIconStyle} /> */}
+                      Cash
+                    </h5>
+                    <p className="feature-card-text">$18,941</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h5
+                      className="card-title"
+                      style={{ color: "rgb(255,255,255)" }}
+                    >
+                      {/* <i
                     className="fas fa-dollar-sign feature-card-icon"
                     style={{ color: "rgb(58, 175, 92)" }}
-                  />
-                  &nbsp; Accounts Recievable
-                </h4>
-                <h4 className="feature-card-text">+$3,400</h4>
-                <button className="btn btn-primary ui-button" type="button">
-                  Add Account
-                </button>
+                  /> */}
+                      {/* <AccountBalanceWalletIcon sx={featureIconStyle} /> */}
+                      Accounts Recievable
+                    </h5>
+                    <p className="feature-card-text">$6,190</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h5
+                      className="card-title"
+                      style={{ color: "rgb(255,255,255)" }}
+                    >
+                      {/* <i
+                    className="fas fa-dollar-sign feature-card-icon"
+                    style={{ color: "rgb(58, 175, 92)" }}
+                  /> */}
+                      {/* <AccountBalanceWalletIcon sx={featureIconStyle} /> */}
+                      Land
+                    </h5>
+                    <p className="feature-card-text">$476,234.12</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h5
+                      className="card-title"
+                      style={{ color: "rgb(255,255,255)" }}
+                    >
+                      {/* <i
+                    className="fas fa-dollar-sign feature-card-icon"
+                    style={{ color: "rgb(58, 175, 92)" }}
+                  /> */}
+                      {/* <AccountBalanceWalletIcon sx={featureIconStyle} /> */}
+                      Inventory
+                    </h5>
+                    <p className="feature-card-text">$5,049</p>
+                  </div>
+                </div>
+
+                <div style={{ width: "100%" }}>
+                  <button
+                    className="btn btn-primary ui-button"
+                    style={{ float: "right" }}
+                    type="button"
+                  >
+                    Generate Report
+                  </button>
+                </div>
               </div>
             </div>
           </div>

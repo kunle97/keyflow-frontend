@@ -15,8 +15,6 @@ const LandingPageNavbar = (props) => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    console.log("scrollPosition: ", scrollPosition);
-    console.log("width: ", window.innerWidth);
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -31,10 +29,7 @@ const LandingPageNavbar = (props) => {
         window.innerWidth <= breakpoint
           ? "bg-dark"
           : ""
-      }  navbar-expand-md fixed-top`}
-      style={{
-        position: window.innerWidth <= breakpoint ? "fixed" : "relative",
-      }}
+      }   navbar-expand-md fixed-top navbar-transparency`}
     >
       <div className="container">
         <div style={{ width: "100%" }}>
@@ -65,46 +60,46 @@ const LandingPageNavbar = (props) => {
               </a>
             </li>
             <li className="nav-item">
-              <a
+              <Link
                 className="nav-link"
-                href="#pricing"
+                to="/pricing"
                 style={{ color: "rgb(255,255,255)" }}
               >
                 Pricing
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a
+              <Link
                 className="nav-link"
-                href="/contact"
+                to="/contact"
                 style={{ color: "rgb(255,255,255)" }}
               >
                 Contact
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a
+              <Link
                 className="nav-link"
-                href="/dashboard/tenant/login"
+                to="/dashboard/tenant/login"
                 style={{ color: "rgb(255,255,255)" }}
               >
                 Tenants
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a
+              <Link
                 className="nav-link"
-                href="/dashboard/landlord/login"
+                to="/dashboard/landlord/login"
                 style={{ color: "rgb(255,255,255)" }}
               >
                 Landlords
-              </a>{" "}
+              </Link>{" "}
             </li>
             <li className="nav-item">
               <a
                 className="nav-link"
                 href="#"
-                style={{ color: "rgb(255,255,255)" }}
+                style={{ color: "rgb(255,255,255)", width: "160px" }}
               >
                 <button className="btn btn-primary ui-button" type="button">
                   Request A Demo
