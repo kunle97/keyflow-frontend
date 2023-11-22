@@ -53,7 +53,7 @@ import {
   AddHomeWorkOutlined,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
-import UpdateLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/UpdateLeaseTemplate";
+import ManageLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/ManageLeaseTemplate";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 import Logout from "./components/Dashboard/Logout";
@@ -417,7 +417,7 @@ export const routes = [
     path: "/dashboard/landlord/lease-templates/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <UpdateLeaseTemplate />
+        <ManageLeaseTemplate />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,

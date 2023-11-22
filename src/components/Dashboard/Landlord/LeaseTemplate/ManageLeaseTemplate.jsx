@@ -21,8 +21,9 @@ import { useNavigate } from "react-router";
 import { createBoldSignEmbeddedTemplateEditLink } from "../../../../api/boldsign";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-
-const UpdateLeaseTemplate = () => {
+import UIPrompt from "../../UIComponents/UIPrompt";
+import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
+const ManageLeaseTemplate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [leaseTemplate, setLeaseTemplate] = useState({});
@@ -41,7 +42,7 @@ const UpdateLeaseTemplate = () => {
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [chargesValid, setChargesValid] = useState(false);
-  const [additionalCharges, setAdditionalCharges] = useState([{}]);
+  const [additionalCharges, setAdditionalCharges] = useState(null);
   const [editLink, setEditLink] = useState("");
   const {
     register,
@@ -49,34 +50,19 @@ const UpdateLeaseTemplate = () => {
     trigger,
     formState: { errors },
   } = useForm();
-  //   {
-  //   defaultValues: {
-  //     rent: leaseTemplate.rent,
-  //     term: leaseTemplate.term,
-  //     late_fee: leaseTemplate.late_fee,
-  //     security_deposit: leaseTemplate.security_deposit,
-  //     gas_included: leaseTemplate.gas_included,
-  //     water_included: leaseTemplate.water_included,
-  //     electricity_included: leaseTemplate.electricity_included,
-  //     repairs_included: leaseTemplate.repairs_included,
-  //     lease_cancellation_notice_period:
-  //       leaseTemplate.lease_cancellation_notice_period,
-  //     lease_description: leaseTemplate.lease_description,
-  //   },
-  // }
 
   //Additional Charges Functinos
   const addCharge = () => {
-    setAdditionalCharges([
-      ...additionalCharges,
+    setAdditionalCharges((prevCharges) => [
+      ...prevCharges,
       {
         name: "",
         amount: "",
         frequency: "",
       },
     ]);
+    console.log(additionalCharges);
   };
-
   const removeCharge = (index) => {
     if (additionalCharges.length === 1) return;
     let newCharges = [...additionalCharges];
@@ -193,6 +179,153 @@ const UpdateLeaseTemplate = () => {
       retrieveEditLink();
     }
     setTabPage(newValue);
+  };
+
+  const additionalChargesForm = () => {
+    return (
+      <>
+        {additionalCharges.map((charge, index) => (
+          <div key={index} className="row mt-3">
+            <div className="col-md-3">
+              <label className="form-label text-white" htmlFor="street">
+                <strong>Charge</strong>
+              </label>
+              <input
+                {...register(`additionalChargeName_${index}`, {
+                  required: {
+                    value: true,
+                    message: "Charge name is required",
+                  },
+                })}
+                type="text"
+                value={charge.name}
+                onChange={(e) => {
+                  trigger(`additionalChargeName_${index}`);
+                  let newCharges = [...additionalCharges];
+                  newCharges[index].name = e.target.value;
+                  setAdditionalCharges(newCharges);
+                }}
+                className="form-control"
+              />
+              <span style={validationMessageStyle}>
+                {errors[`additionalChargeName_${index}`] &&
+                  errors[`additionalChargeName_${index}`]?.message}
+              </span>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label text-white" htmlFor="street">
+                <strong>Amount</strong>
+              </label>
+              <input
+                {...register(`additionalChargeAmount_${index}`, {
+                  required: {
+                    value: true,
+                    message: "Charge amount is required",
+                  },
+                })}
+                type="number"
+                value={charge.amount}
+                onChange={(e) => {
+                  trigger(`additionalChargeAmount_${index}`);
+                  let newCharges = [...additionalCharges];
+                  newCharges[index].amount = e.target.value;
+                  setAdditionalCharges(newCharges);
+                }}
+                className="form-control"
+              />
+              <span style={validationMessageStyle}>
+                {errors[`additionalChargeAmount_${index}`] &&
+                  errors[`additionalChargeAmount_${index}`]?.message}
+              </span>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label text-white" htmlFor="street">
+                <strong>Frequency</strong>
+              </label>
+              <select
+                {...register(`additionalChargeFrequency_${index}`, {
+                  required: {
+                    value: true,
+                    message: "Charge frequency is required",
+                  },
+                })}
+                onChange={(e) => {
+                  trigger(`additionalChargeFrequency_${index}`);
+                  let newCharges = [...additionalCharges];
+                  newCharges[index].frequency = e.target.value;
+                  setAdditionalCharges(newCharges);
+                }}
+                value={charge.frequency}
+                className="form-control"
+              >
+                <option value="">Select Frequency</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+              <span style={validationMessageStyle}>
+                {errors[`additionalChargeFrequency_${index}`] &&
+                  errors[`additionalChargeFrequency_${index}`]?.message}
+              </span>
+            </div>
+            {charge.index !== 0 && (
+              <div className="col-md-3">
+                <UIButton
+                  onClick={() => removeCharge(index)}
+                  btnText="Remove"
+                  variant="text"
+                  style={{
+                    marginTop: "30px",
+                    color: uiRed,
+                    backgroundColor: "transparent",
+                    display: "block",
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        ))}
+        <UIButton
+          onClick={() => {
+            //TODO: Trigger validation
+            trigger([
+              `additionalChargeName_${additionalCharges.length - 1}`,
+              `additionalChargeAmount_${additionalCharges.length - 1}`,
+              `additionalChargeFrequency_${additionalCharges.length - 1}`,
+            ]);
+            if (
+              (errors[`additionalChargeName_${additionalCharges.length - 1}`] ||
+                errors[
+                  `additionalChargeAmount_${additionalCharges.length - 1}`
+                ] ||
+                errors[
+                  `additionalChargeFrequency_${additionalCharges.length - 1}`
+                ]) &&
+              !chargesValid
+            ) {
+              setChargesValid(false);
+              return;
+            } else {
+              addCharge();
+            }
+          }}
+          btnText="Add Charge"
+          style={{
+            marginTop: "20px",
+            color: uiGreen,
+            backgroundColor: "transparent",
+            display: "block",
+            boxShadow: "none",
+          }}
+        />
+        <UIButton
+          btnText="Update Charges"
+          onClick={saveAdditionalCharges}
+          style={{ marginTop: "20px", float: "right" }}
+        />
+      </>
+    );
   };
 
   useEffect(() => {
@@ -602,153 +735,8 @@ const UpdateLeaseTemplate = () => {
       {tabPage === 1 && (
         <>
           <div className="card">
-            <div className="card-body">
-              {additionalCharges.map((charge, index) => (
-                <div key={index} className="row mt-3">
-                  <div className="col-md-3">
-                    <label className="form-label text-white" htmlFor="street">
-                      <strong>Charge</strong>
-                    </label>
-                    <input
-                      {...register(`additionalChargeName_${index}`, {
-                        required: {
-                          value: true,
-                          message: "Charge name is required",
-                        },
-                      })}
-                      type="text"
-                      value={charge.name}
-                      onChange={(e) => {
-                        trigger(`additionalChargeName_${index}`);
-                        let newCharges = [...additionalCharges];
-                        newCharges[index].name = e.target.value;
-                        setAdditionalCharges(newCharges);
-                      }}
-                      className="form-control"
-                    />
-                    <span style={validationMessageStyle}>
-                      {errors[`additionalChargeName_${index}`] &&
-                        errors[`additionalChargeName_${index}`]?.message}
-                    </span>
-                  </div>
-                  <div className="col-md-3">
-                    <label className="form-label text-white" htmlFor="street">
-                      <strong>Amount</strong>
-                    </label>
-                    <input
-                      {...register(`additionalChargeAmount_${index}`, {
-                        required: {
-                          value: true,
-                          message: "Charge amount is required",
-                        },
-                      })}
-                      type="number"
-                      value={charge.amount}
-                      onChange={(e) => {
-                        trigger(`additionalChargeAmount_${index}`);
-                        let newCharges = [...additionalCharges];
-                        newCharges[index].amount = e.target.value;
-                        setAdditionalCharges(newCharges);
-                      }}
-                      className="form-control"
-                    />
-                    <span style={validationMessageStyle}>
-                      {errors[`additionalChargeAmount_${index}`] &&
-                        errors[`additionalChargeAmount_${index}`]?.message}
-                    </span>
-                  </div>
-                  <div className="col-md-3">
-                    <label className="form-label text-white" htmlFor="street">
-                      <strong>Frequency</strong>
-                    </label>
-                    <select
-                      {...register(`additionalChargeFrequency_${index}`, {
-                        required: {
-                          value: true,
-                          message: "Charge frequency is required",
-                        },
-                      })}
-                      onChange={(e) => {
-                        trigger(`additionalChargeFrequency_${index}`);
-                        let newCharges = [...additionalCharges];
-                        newCharges[index].frequency = e.target.value;
-                        setAdditionalCharges(newCharges);
-                      }}
-                      value={charge.frequency}
-                      className="form-control"
-                    >
-                      <option value="">Select Frequency</option>
-                      <option value="daily">Daily</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
-                      <option value="yearly">Yearly</option>
-                    </select>
-                    <span style={validationMessageStyle}>
-                      {errors[`additionalChargeFrequency_${index}`] &&
-                        errors[`additionalChargeFrequency_${index}`]?.message}
-                    </span>
-                  </div>
-                  {charge.index !== 0 && (
-                    <div className="col-md-3">
-                      <UIButton
-                        onClick={() => removeCharge(index)}
-                        btnText="Remove"
-                        variant="text"
-                        style={{
-                          marginTop: "30px",
-                          color: uiRed,
-                          backgroundColor: "transparent",
-                          display: "block",
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-              <UIButton
-                onClick={() => {
-                  //TODO: Trigger validation
-                  trigger([
-                    `additionalChargeName_${additionalCharges.length - 1}`,
-                    `additionalChargeAmount_${additionalCharges.length - 1}`,
-                    `additionalChargeFrequency_${additionalCharges.length - 1}`,
-                  ]);
-                  if (
-                    (errors[
-                      `additionalChargeName_${additionalCharges.length - 1}`
-                    ] ||
-                      errors[
-                        `additionalChargeAmount_${additionalCharges.length - 1}`
-                      ] ||
-                      errors[
-                        `additionalChargeFrequency_${
-                          additionalCharges.length - 1
-                        }`
-                      ]) &&
-                    !chargesValid
-                  ) {
-                    setChargesValid(false);
-                    return;
-                  } else {
-                    addCharge();
-                  }
-                }}
-                btnText="Add Charge"
-                style={{
-                  marginTop: "20px",
-                  color: uiGreen,
-                  backgroundColor: "transparent",
-                  display: "block",
-                  boxShadow: "none",
-                }}
-              />
-            </div>
+            <div className="card-body">{additionalChargesForm()}</div>
           </div>
-          <UIButton
-            btnText="Update Charges"
-            onClick={saveAdditionalCharges}
-            style={{ marginTop: "20px", float: "right" }}
-          />
         </>
       )}
       {tabPage === 2 && (
@@ -773,4 +761,4 @@ const UpdateLeaseTemplate = () => {
   );
 };
 
-export default UpdateLeaseTemplate;
+export default ManageLeaseTemplate;

@@ -14,6 +14,14 @@ export const authenticatedInstance = axios.create({
     Authorization: `Bearer ${token}`,
   },
 });
+export const authenticatedMediaInstance = axios.create({
+  baseURL: API_HOST,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "multipart/form-data",
+    Authorization: `Bearer ${token}`,
+  },
+});
 export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
   timeout: 10000,
