@@ -238,6 +238,7 @@ const Features = () => {
                     </h5>
                     <p className="feature-card-text">$5,049</p>
                   </div>
+                  <p style={{color:uiGreen}} >More Accounts</p>
                 </div>
 
                 <div style={{ width: "100%" }}>

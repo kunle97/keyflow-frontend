@@ -77,7 +77,7 @@ const PropertyTypes = () => {
                   <WarehouseOutlinedIcon />
                 </div>
                 <div>
-                  <h4 className="property-type-heading">Storage Units</h4>
+                  <h4 className="property-type-heading">Short Term Rentals</h4>
                   <p className="property-type-text">
                     Erat netus est hendrerit, nullam et quis ad cras porttitor
                     iaculis. Bibendum vulputate cras aenean.

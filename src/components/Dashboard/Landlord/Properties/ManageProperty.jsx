@@ -10,10 +10,9 @@ import {
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { getUnits } from "../../../../api/units";
-import { uiGreen, uiRed } from "../../../../constants";
+import { authUser, uiGreen, uiRed } from "../../../../constants";
 import BackButton from "../../UIComponents/BackButton";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import DeleteButton from "../../UIComponents/DeleteButton";
@@ -21,18 +20,28 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import UIPrompt from "../../UIComponents/UIPrompt";
+import Dropzone from "react-dropzone";
+import { Stack } from "@mui/material";
+import { uploadFile } from "../../../../api/file_uploads";
+import { authenticatedInstance } from "../../../../api/api";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState({});
   const [units, setUnits] = useState([]);
+  const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
   const [isLoading, setIsLoading] = useState(true); //create a loading variable to display a loading message while the units are  being retrieved
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
+  const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
+  const [responseTitle, setResponseTitle] = useState("Success");
   const [responseMessage, setResponseMessage] = useState("Property updated");
   const [alertSeverity, setAlertSeverity] = useState("success");
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [tabPage, setTabPage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
+  const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
   const navigate = useNavigate();
 
   const handleClose = (event, reason) => {
@@ -42,12 +51,11 @@ const ManageProperty = () => {
     setShowUpdateSuccess(false);
   };
 
-
-
   const tabs = [
     { name: "property_details", label: "Property Details" },
-    { name: "units", label: "Units" },
+    { name: "units", label: `Units (${unitCount})` },
     { name: "analytics", label: "Finances/Analytics" },
+    { name: "media", label: "Media" },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -120,28 +128,6 @@ const ManageProperty = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  useEffect(() => {
-    getProperty(id).then((res) => {
-      setProperty(res);
-      const preloadedData = {
-        name: res.name,
-        street: res.street,
-        city: res.city,
-        state: res.state,
-        zip_code: res.zip_code,
-        country: res.country,
-      };
-      // Set the preloaded data in the form using setValue
-      Object.keys(preloadedData).forEach((key) => {
-        setValue(key, preloadedData[key]);
-      });
-      setUnits(res.units);
-      console.log("State UNITS", units);
-      setIsLoading(false);
-    });
-  }, []);
-
   //Create a handle function to handle the form submission of updating property info
   const onSubmit = async (data) => {
     const res = await updateProperty(id, data);
@@ -172,6 +158,65 @@ const ManageProperty = () => {
       });
     }
   };
+
+  const handleDrop = async (acceptedFiles) => {
+    let accepted_file = acceptedFiles[0];
+    console.log("dropzone file", accepted_file);
+    setFile(accepted_file);
+  };
+  const handleFileUploadSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    const payload = {
+      file: file,
+      user: authUser.user_id,
+      subfolder: `properties/${property.id}`,
+    };
+    uploadFile(payload).then((res) => {
+      console.log(res);
+      setIsLoading(false);
+      if (res.status === 201) {
+        setResponseTitle("File Upload");
+        setResponseMessage("File uploaded successfully");
+        setShowFileUploadAlert(true);
+      } else {
+        setResponseTitle("File Upload Error");
+        setResponseMessage("Something went wrong");
+        setShowFileUploadAlert(true);
+      }
+    });
+  };
+  useEffect(() => {
+    getProperty(id).then((res) => {
+      setProperty(res);
+      const preloadedData = {
+        name: res.name,
+        street: res.street,
+        city: res.city,
+        state: res.state,
+        zip_code: res.zip_code,
+        country: res.country,
+      };
+      // Set the preloaded data in the form using setValue
+      Object.keys(preloadedData).forEach((key) => {
+        setValue(key, preloadedData[key]);
+      });
+      setUnits(res.units);
+      setUnitCount(res.units.length);
+      console.log("State UNITS", units);
+      setIsLoading(false);
+    });
+    authenticatedInstance
+      .get(`/file-uploads/?subfolder=properties/${id}`)
+      .then((res) => {
+        setPropertyMedia(res.data);
+      });
+  }, []);
 
   return (
     <div className="container">
@@ -578,6 +623,120 @@ const ManageProperty = () => {
                 </div>
               </div>
             </div>
+          )}
+          {tabPage === 3 && (
+            <>
+              <AlertModal
+                open={showFileUploadAlert}
+                title={responseTitle}
+                message={responseMessage}
+                btnText={"Ok"}
+                onClick={() => setShowFileUploadAlert(false)}
+              />
+              <ProgressModal open={isLoading} title={"Uploading File"} />
+              <div className="row">
+                <div className="col-md-12">
+                  <form onSubmit={handleFileUploadSubmit}>
+                    <h2>Upload a new file</h2>
+                    <Dropzone
+                      onDrop={handleDrop}
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                      minSize={1024}
+                      maxSize={3145728}
+                      maxFiles={1}
+                    >
+                      {({
+                        getRootProps,
+                        getInputProps,
+                        isDragActive,
+                        isDragAccept,
+                        isDragReject,
+                      }) => {
+                        const additionalClass = isDragAccept
+                          ? "accept"
+                          : isDragReject
+                          ? "reject"
+                          : "";
+
+                        return (
+                          <Stack
+                            direction="column"
+                            justifyContent="center"
+                            alignItems="center"
+                            spacing={2}
+                            {...getRootProps({
+                              className: `dropzone ${additionalClass}`,
+                            })}
+                            style={{
+                              width: "100%",
+                              height: "400px",
+                              border: `1px dashed ${uiGreen}`,
+                              marginBottom: "15px",
+                            }}
+                          >
+                            <input
+                              {...getInputProps()}
+                              onChange={(e) => {
+                                setFile(e.target.files[0]);
+                                console.log("onChange file", e.target.files[0]);
+                                console.log("onCHange state file", file);
+                                handleDrop([e.target.files[0]]);
+                              }}
+                              type="file"
+                              name="file"
+                            />
+
+                            {!file ? (
+                              <>
+                                <p>
+                                  Drag'n'drop the file representing your lease
+                                  agreeement{" "}
+                                </p>
+                                <p>
+                                  Only .pdf, .doc, .docx, .png, .jpg, and .jpeg
+                                  files will be accepted (Max. file size: 3MB)
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p>Selected File</p>
+                                <p>
+                                  {file.name} - {file.size} bytes
+                                </p>
+                              </>
+                            )}
+
+                            <UIButton
+                              btnText={file ? "Select New File" : "Upload File"}
+                              type="button"
+                            />
+                          </Stack>
+                        );
+                      }}
+                    </Dropzone>
+                    <UIButton type="submit" btnText="Submit" />
+                  </form>
+                </div>{" "}
+                <div className="col-md-12 mt-5">
+                  <h2>Files ({propertyMedia.length})</h2>
+                  <div className="row">
+                    {propertyMedia.map((media) => (
+                      <div className="col-md-3">
+                        <div className="card shadow mb-3">
+                          <div className="card-body">
+                            <img
+                              src={media.file_s3_url}
+                              alt="media"
+                              style={{ width: "100%", height: "100%" }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
