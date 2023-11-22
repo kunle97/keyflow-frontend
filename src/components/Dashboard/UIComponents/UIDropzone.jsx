@@ -16,7 +16,7 @@ const UIDropzone = (props) => {
     <div className="App">
       <Dropzone
         onDrop={handleDrop}
-        accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+        accept={props.allowedFileTypes.join(",")}
         minSize={1024}
         maxSize={3072000}
       >
@@ -62,8 +62,8 @@ const UIDropzone = (props) => {
 
               <p>Drag'n'drop the file representing your lease agreeement </p>
               <p>
-                Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files will be
-                accepted
+                Only the following files will be accepted:{" "}
+                {props.allowedFileTypes.join(", ")}
               </p>
               <UIButton btnText="Upload File" type="button" />
             </Stack>

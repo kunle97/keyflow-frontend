@@ -157,10 +157,14 @@ export const TenantGeneratorForm = (props) => {
           >
             <option value="">Choose One</option>
             <option value="new">Create a new unit for tenant</option>
-            <option value="specific">
-              Choose from Existing unoccupied Unit
-            </option>
-            <option value="random">Place tenant in a random unit</option>
+            {units.filter((unit) => !unit.is_occupied).length > 0 && (
+              <option value="specific">
+                Choose from Existing unoccupied Unit
+              </option>
+            )}
+            {units.filter((unit) => !unit.is_occupied).length > 0 && (
+              <option value="random">Place tenant in a random unit</option>
+            )}
           </select>
           {unitMode === "specific" && (
             <select

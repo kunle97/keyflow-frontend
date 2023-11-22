@@ -53,13 +53,15 @@ import {
   AddHomeWorkOutlined,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
-import UpdateLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/UpdateLeaseTemplate";
+import ManageLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/ManageLeaseTemplate";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 import Logout from "./components/Dashboard/Logout";
 import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
 import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
 import Messages from "./components/Dashboard/Messaging/Messages";
+import { ContactPage } from "./components/Landing/ContactPage";
+import PricingPage from "./components/Landing/PricingPage";
 //retrieve token from storage
 const token = localStorage.getItem("authTokens");
 
@@ -75,6 +77,18 @@ export const routes = [
     element: <LandingPage />,
     isSearchable: false,
     label: "Home",
+  },
+  {
+    path: "/contact",
+    element: <ContactPage />,
+    isSearchable: false,
+    label: "Contact Us",
+  },
+  {
+    path: "/pricing",
+    element: <PricingPage />,
+    isSearchable: false,
+    label: "Pricing",
   },
   {
     path: "/dashboard/landlord/login",
@@ -403,7 +417,7 @@ export const routes = [
     path: "/dashboard/landlord/lease-templates/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <UpdateLeaseTemplate />
+        <ManageLeaseTemplate />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,

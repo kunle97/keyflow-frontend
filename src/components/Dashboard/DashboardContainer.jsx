@@ -7,7 +7,6 @@ import { authUser, uiGreen } from "../../constants";
 import { Navigate, useNavigate } from "react-router-dom";
 import DeveloperToolsMenu from "./DevTools/DeveloperToolsMenu";
 const DashboardContainer = ({ children }) => {
-
   const [muiMode, setMuiSidebarMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -38,7 +37,7 @@ const DashboardContainer = ({ children }) => {
             )}
           </div>
         </div>
-        <DeveloperToolsMenu />
+        {process.env.REACT_APP_ENVIRONMENT === "development" && <DeveloperToolsMenu />}
         <footer
           className="bg-white sticky-footer"
           style={{ background: "#2c3a4a", color: uiGreen }}
