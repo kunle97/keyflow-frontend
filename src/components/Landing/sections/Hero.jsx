@@ -1,13 +1,37 @@
 import React from "react";
-
+import UIButton from "../../Dashboard/UIComponents/UIButton";
+import { requestDemo } from "../../../api/mailchimp";
+import { useForm } from "react-hook-form";
+import { validationMessageStyle } from "../../../constants";
+import CallToActionForm from "./CallToAction/CallToActionForm";
 const Hero = () => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const onSubmit = async (data) => {
+    try {
+      const res = await requestDemo(data);
+      console.log(res);
+      if (res.status === 200) {
+        alert(
+          "Thank you for your interest in KeyFlow! We will be in touch shortly."
+        );
+      }
+      reset();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <section
-      className="landing-section"
+      className="landing-section landing-hero"
       style={{
         background:
-          'linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%), url("assets/img/house3.jpg") center / cover',
-        padding: "225px 0",
+          'linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%), url("assets/img/house6.jpg") center / cover',
+
         overflow: "hidden",
       }}
     >
@@ -30,38 +54,18 @@ const Hero = () => {
               }}
             >
               {" "}
-              Nulla eget mollis libero. Vestibulum lacinia vitae sapien id
-              varius. Donec sed dolor quis ligula hendrerit lobortis. Donec
-              dictum dui nec rhoncus mattis. Quisque sed molestie lacus. Duis id
-              nisi non ligula blandit tempor ac ut tortor. Praesent odio dolor,
-              dapibus condimentum elit quis, vehicula scelerisque mi
+              KeyFlow streamlines property management effortlessly. Our
+              intuitive software automates every aspect of your workflow, from
+              tenant communication to maintenance requests, ensuring seamless
+              operations. Simplify rent collection, track expenses, and optimize
+              your property's performance with our user-friendly tools.
+              Experience efficient management, enhanced productivity, and peace
+              of mind with KeyFlow – the optimal solution for property managers
               <br />
             </p>
-            <form
-              className="d-flex justify-content-center flex-wrap"
-              method="post"
-            >
-              <div style={{ display: "flex", width: "100%" }}>
-                <div className="mb-3" style={{ flex: 2 }}>
-                  <input
-                    className="form-control"
-                    type="email"
-                    name="email"
-                    placeholder="Your Email"
-                  />
-                </div>
-                <div className="mb-3">
-                  <button
-                    className="btn btn-primary ms-2 ui-button"
-                    type="submit"
-                  >
-                    Notify Me
-                  </button>
-                </div>
-              </div>
-            </form>
+            <CallToActionForm flexInput={true} />
           </div>
-          <div className="col-md-6">
+          <div className="col-md-6 align-self-center">
             <div className="x_001_laptop_inner_wrap">
               <img
                 className="header-laptop-img"

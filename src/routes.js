@@ -62,6 +62,8 @@ import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreement
 import Messages from "./components/Dashboard/Messaging/Messages";
 import { ContactPage } from "./components/Landing/ContactPage";
 import PricingPage from "./components/Landing/PricingPage";
+import FeaturesPage from "./components/Landing/FeaturesPage";
+import BlogPage from "./components/Landing/BlogPage";
 //retrieve token from storage
 const token = localStorage.getItem("authTokens");
 
@@ -89,6 +91,18 @@ export const routes = [
     element: <PricingPage />,
     isSearchable: false,
     label: "Pricing",
+  },
+  {
+    path: "/features",
+    element: <FeaturesPage />,
+    isSearchable: false,
+    label: "Features",
+  },
+  {
+    path: "/blog",
+    element: <BlogPage />,
+    isSearchable: false,
+    label: "Blog",
   },
   {
     path: "/dashboard/landlord/login",

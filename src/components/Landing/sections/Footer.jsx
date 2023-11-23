@@ -1,5 +1,6 @@
 import React from "react";
 import { uiGrey1 } from "../../../constants";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -7,7 +8,32 @@ const Footer = () => {
       <div className="container py-4 py-lg-5">
         <div className="row justify-content-center">
           <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item">
-            <h3 className="fs-6 text-white">Services</h3>
+            <h3 className="fs-6 text-white">Navigation</h3>
+            <ul className="list-unstyled">
+              <li>
+                <Link className="link-light" to="/features">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link className="link-light" to="/pricing">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link className="link-light" to="/blog">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link className="link-light" to="/contact">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>{" "}
+          <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item d-sm-none d-md-block">
+            {/* <h3 className="fs-6 text-white">Services</h3>
             <ul className="list-unstyled">
               <li>
                 <a className="link-light" href="#">
@@ -24,30 +50,10 @@ const Footer = () => {
                   Hosting
                 </a>
               </li>
-            </ul>
+            </ul> */}
           </div>
-          <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item">
-            <h3 className="fs-6 text-white">About</h3>
-            <ul className="list-unstyled">
-              <li>
-                <a className="link-light" href="#">
-                  Company
-                </a>
-              </li>
-              <li>
-                <a className="link-light" href="#">
-                  Team
-                </a>
-              </li>
-              <li>
-                <a className="link-light" href="#">
-                  Legacy
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item">
-            <h3 className="fs-6 text-white">Careers</h3>
+          <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item d-sm-none d-md-block">
+            {/* <h3 className="fs-6 text-white">Careers</h3>
             <ul className="list-unstyled">
               <li>
                 <a className="link-light" href="#">
@@ -64,7 +70,7 @@ const Footer = () => {
                   Benefits
                 </a>
               </li>
-            </ul>
+            </ul> */}
           </div>
           <div className="col-lg-3 text-center text-lg-start d-flex flex-column align-items-center order-first align-items-lg-start order-lg-last item social">
             <div className="fw-bold d-flex align-items-center mb-2">
@@ -87,7 +93,7 @@ const Footer = () => {
               <span>KeyFlow</span>
             </div>
             <p className="text-muted copyright">
-              Sem eleifend donec molestie, integer quisque orci aliquam.
+              The optimal solution for property managers
             </p>
           </div>
         </div>
