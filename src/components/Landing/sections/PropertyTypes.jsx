@@ -5,14 +5,15 @@ import { HolidayVillageOutlined } from "@mui/icons-material";
 const PropertyTypes = () => {
   return (
     <section className="landing-section">
-      <div className="section-header">
-        <h2>Keyflow is here to help manage any property</h2>
-        <p>
-          Enhanced features to simplfy and navigate a complex&nbsp;
-          industry&nbsp;
-        </p>
-      </div>
       <div className="container py-4 py-xl-5">
+        {" "}
+        <div className="section-header">
+          <h2>Keyflow is here to help manage any property</h2>
+          <p>
+            Enhanced features to simplfy and navigate a complex&nbsp;
+            industry&nbsp;
+          </p>
+        </div>
         <div className="row row-cols-1 row-cols-md-2">
           <div className="col">
             <img
@@ -30,8 +31,8 @@ const PropertyTypes = () => {
                 <div>
                   <h4 className="property-type-heading">Single Family</h4>
                   <p className="property-type-text">
-                    Erat netus est hendrerit, nullam et quis ad cras porttitor
-                    iaculis. Bibendum vulputate cras aenean.
+                    Efficiently manage individual residences with tailored tools
+                    for streamlined operations and tenant engagement.
                   </p>
                 </div>
               </div>
@@ -42,8 +43,9 @@ const PropertyTypes = () => {
                 <div>
                   <h4 className="property-type-heading">Multi Family</h4>
                   <p className="property-type-text">
-                    Erat netus est hendrerit, nullam et quis ad cras porttitor
-                    iaculis. Bibendum vulputate cras aenean.
+                    Simplify management across multiple units, optimizing
+                    workflows for seamless tenant communication and efficient
+                    operations.
                   </p>
                 </div>
               </div>
@@ -67,8 +69,9 @@ const PropertyTypes = () => {
                 <div>
                   <h4 className="property-type-heading">Apartment Buildings</h4>
                   <p className="property-type-text">
-                    Erat netus est hendrerit, nullam et quis ad cras porttitor
-                    iaculis. Bibendum vulputate cras aenean.
+                    Streamline operations for larger-scale properties,
+                    facilitating tenant management, maintenance, and financial
+                    tasks effortlessly.
                   </p>
                 </div>
               </div>
@@ -79,8 +82,9 @@ const PropertyTypes = () => {
                 <div>
                   <h4 className="property-type-heading">Short Term Rentals</h4>
                   <p className="property-type-text">
-                    Erat netus est hendrerit, nullam et quis ad cras porttitor
-                    iaculis. Bibendum vulputate cras aenean.
+                    Effortlessly handle turnovers, bookings, and guest
+                    communication, ensuring smooth operations for vacation and
+                    short-term rentals.
                   </p>
                 </div>
               </div>

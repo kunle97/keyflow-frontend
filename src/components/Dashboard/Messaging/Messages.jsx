@@ -272,7 +272,7 @@ const Messages = () => {
                                   textOverflow: "ellipsis",
                                   whiteSpace: "nowrap",
                                   overflow: "hidden",
-                                  maxWidth: "250px", // Adjust the width to accommodate the other span's width
+                                  maxWidth: "220px", // Adjust the width to accommodate the other span's width
                                 }}
                               >
                                 {thread.messages[0].text}
