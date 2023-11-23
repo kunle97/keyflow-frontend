@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getSubscriptionPlanPrices } from "../../../api/manage_subscriptions";
+import { Link } from "react-router-dom";
 
 const Pricing = () => {
   const [plans, setPlans] = useState([]);
@@ -89,15 +90,15 @@ const Pricing = () => {
                         ))}
                       </ul>
                     </div>
-                    <a
+                    <Link
                       className={`btn btn-primary d-block w-100 ${
                         isStandardPlan ? "ui-button" : "bg-white-300"
                       } `}
                       role="button"
-                      href="#"
+                      to="/dashboard/landlord/register"
                     >
                       Join Now
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

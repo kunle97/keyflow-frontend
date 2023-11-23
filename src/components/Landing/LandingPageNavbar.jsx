@@ -107,7 +107,7 @@ const LandingPageNavbar = (props) => {
             <li className="nav-item">
               <a
                 className="nav-link"
-                href="#"
+                href="#call-to-action"
                 style={{ color: "rgb(255,255,255)", width: "160px" }}
               >
                 <button className="btn btn-primary ui-button" type="button">

@@ -4,7 +4,7 @@ import CallToActionForm from "./CallToActionForm";
 const CallToAction = () => {
 
   return (
-    <section className="newsletter-subscribe py-4 py-xl-5 landing-section">
+    <section id="call-to-action" className="newsletter-subscribe py-4 py-xl-5 landing-section">
       <div className="container">
         <div className="text-center mx-auto section-header">
           <h2 className="display-6 fw-bold">
