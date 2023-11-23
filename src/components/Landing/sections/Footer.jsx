@@ -31,26 +31,26 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>{" "}
-          <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item d-sm-none d-md-block">
-            {/* <h3 className="fs-6 text-white">Services</h3>
+          </div>
+          <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item ">
+            <h3 className="fs-6 text-white">Members</h3>
             <ul className="list-unstyled">
               <li>
-                <a className="link-light" href="#">
-                  Web design
-                </a>
+                <Link className="link-light" to="/dashboard/landlord/login">
+                  Landlord Login
+                </Link>
               </li>
               <li>
-                <a className="link-light" href="#">
-                  Development
-                </a>
+                <Link className="link-light" href="/dashboard/tenant/login">
+                  Tenant Login
+                </Link>
               </li>
               <li>
-                <a className="link-light" href="#">
-                  Hosting
-                </a>
+                <Link className="link-light" to="/dashboard/forgot-password">
+                  Forgot Password
+                </Link>
               </li>
-            </ul> */}
+            </ul>
           </div>
           <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item d-sm-none d-md-block">
             {/* <h3 className="fs-6 text-white">Careers</h3>
