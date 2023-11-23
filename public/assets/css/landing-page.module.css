@@ -18,7 +18,9 @@ img.logo {
   text-align: center;
   padding: 45px 0;
 }
-
+.landing-hero {
+  padding: 225px 0;
+}
 
 .feature-icon {
   font-size: 29pt;
@@ -40,7 +42,9 @@ img.logo {
 .feature-row {
   margin: 60px 0 120px;
 }
-
+.feature-row-info-column {
+  margin-bottom: 20px;
+}
 .in-progress-text {
   color: #13eded;
 }
@@ -75,4 +79,24 @@ img.logo {
 
 .standard-price-card > * {
   color: black !important;
+}
+
+@media screen and (max-width: 767px) {
+  .landing-hero {
+    padding: 100px 0;
+  }
+  .section-header {
+    padding: 20px 0;
+  }
+  .feature-row {
+    margin: 30px 0 60px;
+  }
+}
+@media screen and (max-width: 480px) {
+  .landing-hero {
+    padding: 50px 0;
+  }
+  .x_001_laptop_inner_wrap {
+    display: none;
+  }
 }

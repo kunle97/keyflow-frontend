@@ -51,13 +51,13 @@ const LandingPageNavbar = (props) => {
         <div className="collapse navbar-collapse" id="navcol-1">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <a
+              <Link
                 className="nav-link"
-                href="#features"
+                to="/features"
                 style={{ color: "rgb(255,255,255)" }}
               >
                 Features
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
               <Link
@@ -71,10 +71,10 @@ const LandingPageNavbar = (props) => {
             <li className="nav-item">
               <Link
                 className="nav-link"
-                to="/contact"
+                to="/blog"
                 style={{ color: "rgb(255,255,255)" }}
               >
-                Contact
+                Blog
               </Link>
             </li>
             <li className="nav-item">
@@ -96,9 +96,18 @@ const LandingPageNavbar = (props) => {
               </Link>{" "}
             </li>
             <li className="nav-item">
+              <Link
+                className="nav-link"
+                to="/contact"
+                style={{ color: "rgb(255,255,255)" }}
+              >
+                Contact
+              </Link>
+            </li>
+            <li className="nav-item">
               <a
                 className="nav-link"
-                href="#"
+                href="#call-to-action"
                 style={{ color: "rgb(255,255,255)", width: "160px" }}
               >
                 <button className="btn btn-primary ui-button" type="button">

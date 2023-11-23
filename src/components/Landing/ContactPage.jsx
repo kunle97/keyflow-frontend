@@ -10,8 +10,9 @@ export const ContactPage = () => {
               <div className="col-md-8 col-xl-6 text-center mx-auto">
                 <h2 className="text-dark"> Contact us</h2>
                 <p className="w-lg-50 text-dark">
-                  Curae hendrerit donec commodo hendrerit egestas tempus, turpis
-                  facilisis nostra nunc. Vestibulum dui eget ultrices.
+                  Get in touch today. Our team is ready to assist you with any
+                  inquiries or support needs regarding KeyFlow's property
+                  management solutions.
                 </p>
               </div>
             </div>
