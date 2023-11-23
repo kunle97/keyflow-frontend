@@ -58,7 +58,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "heroku-postbuild": "npm run build",
+    "heroku-postbuild": "npm run build -a keyflow-frontend-react",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
