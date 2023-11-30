@@ -4,11 +4,36 @@ import { useNavigate } from "react-router-dom";
 import TitleCard from "../../UIComponents/TitleCard";
 import { authUser, uiGreen } from "../../../../constants";
 import UITable from "../../UIComponents/UITable/UITable";
+import { defaultUserProfilePicture } from "../../../../constants";
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const navigate = useNavigate();
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
+    {
+      name: "uploaded_profile_picture",
+      label: "",
+      options: {
+        isObject: true,
+        customBodyRender: (value) => {
+          console.log("Image", value);
+          return (
+            <div
+              style={{
+                overflow: "hidden",
+                borderRadius: "50%",
+                width: "50px",
+                height: "50px",
+              }}
+            >
+              <img
+                src={value ? value.file : defaultUserProfilePicture}
+                style={{ height: "50px", margin: "auto" }}
+              />
+            </div>
+          );
+        },
+      },
+    },
     { name: "first_name", label: "First Name" },
     { name: "last_name", label: "Last Name" },
     { name: "email", label: "E-mail" },

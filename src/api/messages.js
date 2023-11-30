@@ -1,4 +1,4 @@
-import { authenticatedInstance, unauthenticatedInstance } from "./api";
+import { authenticatedInstance, unauthenticatedInstance, authenticatedMediaInstance } from "./api";
 import { authUser } from "../constants";
 
 //Create a function to get all messages for this user
@@ -58,7 +58,7 @@ export async function getMessageByRecipient() {
 //Create a function to send a message to a user
 export async function sendMessage(data) {
   try {
-    const res = await authenticatedInstance
+    const res = await authenticatedMediaInstance
       .post(`/messages/`, data)
       .then((res) => {
         const response = res.data;
@@ -109,3 +109,23 @@ export async function deleteMessage(data) {
     return error.response.data;
   }
 }
+
+//Create a function to retrieve the users message threads /retrieve-user-threads/ using a get request
+export async function retrieveUserThreads() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/retrieve-user-threads/`)
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Messages Error: ", error);
+    return error.response.data;
+  }
+}
+

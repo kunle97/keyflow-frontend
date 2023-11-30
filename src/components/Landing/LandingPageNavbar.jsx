@@ -36,7 +36,7 @@ const LandingPageNavbar = (props) => {
           <a className="navbar-brand" href="/">
             <img
               className="logo"
-              src="assets/img/key-flow-logo-white-transparent.png"
+              src="/assets/img/key-flow-logo-white-transparent.png"
             />
           </a>
           <button

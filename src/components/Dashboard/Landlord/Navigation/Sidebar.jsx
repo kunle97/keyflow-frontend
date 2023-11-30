@@ -29,10 +29,12 @@ const Sidebar = () => {
           href="#"
         >
           <div className="sidebar-brand-text mx-3">
-            <img
-              src="/assets/img/key-flow-logo-white-transparent.png"
-              style={{ width: "150px" }}
-            />
+            <Link to="/dashboard/landlord">
+              <img
+                src="/assets/img/key-flow-logo-white-transparent.png"
+                style={{ width: "150px" }}
+              />
+            </Link>
           </div>
         </a>
         <hr className="sidebar-divider my-0" />

@@ -27,6 +27,10 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { ListDivider } from "@mui/joy";
 import UITabs from "../../UIComponents/UITabs";
 import PlanChangeDialog from "./PlanChangeDialog";
+import { faker } from "@faker-js/faker";
+import UploadDialog from "../../UIComponents/Modals/UploadDialog/UploadDialog";
+import { authenticatedInstance } from "../../../../api/api";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 
 const MyAccount = () => {
   const [tabPage, setTabPage] = useState(0);
@@ -50,6 +54,8 @@ const MyAccount = () => {
   const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [defaultPaymentMethod, setPrimaryPaymentMethod] = useState(null);
   const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
   const navigate = useNavigate();
 
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
@@ -156,6 +162,9 @@ const MyAccount = () => {
     getUserStripeSubscriptions(authUser.user_id, token).then((res) => {
       setCurrentSubscriptionPlan(res.subscriptions);
     });
+    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then((res) => {
+      setProfilePictureFile(res.data[0]);
+    });
   }, []);
 
   return (
@@ -178,147 +187,195 @@ const MyAccount = () => {
       />
 
       {tabPage === 0 && (
-        <div className="row basic-info-row">
-          <div className="col-md-12">
-            <div className="card shadow mb-3">
-              <div className="card-body">
-                <form
-                  onSubmit={handleSubmitAccountUpdate(onAccountUpdateSubmit)}
-                >
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label
-                          className="form-label text-white"
-                          htmlFor="username"
-                        >
-                          <strong>Username</strong>
-                        </label>
-                        <input
-                          {...registerAccountUpdate("username", {
-                            required: "This is a required field",
-                          })}
-                          className="form-control"
-                          type="text"
-                          id="username"
-                          placeholder="Username"
-                          name="username"
-                          style={{
-                            borderStyle: "none",
-                            color: "rgb(255,255,255)",
-                          }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {accountUpdateErrors.username &&
-                            accountUpdateErrors.username.message}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label
-                          className="form-label text-white"
-                          htmlFor="email"
-                        >
-                          <strong>Email Address</strong>
-                        </label>
-                        <input
-                          {...registerAccountUpdate("email", {
-                            required: "This is a required field",
-                            pattern: {
-                              value: /\S+@\S+\.\S+/,
-                              message: "Please enter a valid email",
-                            },
-                          })}
-                          className="form-control"
-                          type="email"
-                          id="email"
-                          placeholder="user@example.com"
-                          name="email"
-                          style={{
-                            borderStyle: "none",
-                            color: "rgb(255,255,255)",
-                          }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {accountUpdateErrors.email &&
-                            accountUpdateErrors.email.message}
-                        </span>
-                      </div>
-                    </div>
+        <>
+          <UploadDialog
+            open={uploadDialogOpen}
+            setOpen={setUploadDialogOpen}
+            onClose={() => setUploadDialogOpen(false)}
+            subfolder={"user_profile_picture"}
+            acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
+          />
+          <div className="row basic-info-row">
+            <div className="col-sm-12 col-md-4 col-lg-4">
+              <div className="card mb-3">
+                <div className="card-body text-center shadow">
+                  <div
+                    style={{
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      width: "200px",
+                      height: "200px",
+                      margin: "15px auto",
+                    }}
+                  >
+                    <img
+                      style={{ height: "100%" }}
+                      src={
+                        profilePictureFile
+                          ? profilePictureFile.file
+                          : "/assets/img/avatars/default-user-profile-picture.png"
+                      }
+                    />
                   </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label
-                          className="form-label text-white"
-                          htmlFor="first_name"
-                        >
-                          <strong>First Name</strong>
-                        </label>
-                        <input
-                          {...registerAccountUpdate("first_name", {
-                            required: "This is a required field",
-                          })}
-                          className="form-control"
-                          type="text"
-                          id="first_name"
-                          placeholder="John"
-                          name="first_name"
-                          style={{
-                            borderStyle: "none",
-                            color: "rgb(255,255,255)",
-                          }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {accountUpdateErrors.first_name &&
-                            accountUpdateErrors.first_name.message}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label
-                          className="form-label text-white"
-                          htmlFor="last_name"
-                        >
-                          <strong>Last Name</strong>
-                        </label>
-                        <input
-                          {...registerAccountUpdate("last_name", {
-                            required: "This is a required field",
-                          })}
-                          className="form-control"
-                          type="text"
-                          id="last_name"
-                          placeholder="Doe"
-                          name="last_name"
-                          style={{
-                            borderStyle: "none",
-                            color: "rgb(255,255,255)",
-                          }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {accountUpdateErrors.last_name &&
-                            accountUpdateErrors.last_name.message}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  <h4
+                    className="text-white tenant-info-heading"
+                    style={{ width: "100%" }}
+                  >
+                    <center>
+                      {authUser.first_name} {authUser.last_name}
+                    </center>
+                  </h4>
                   <div className="mb-3">
-                    <button
-                      className="btn btn-primary btn-sm ui-btn"
-                      type="submit"
-                      style={{ padding: "6px 12px" }}
-                    >
-                      Save Settings
-                    </button>
+                    <UIButton
+                      sx={{ margin: "0 10px" }}
+                      btnText="Change Profile Picture"
+                      onClick={() => setUploadDialogOpen(true)}
+                    />
                   </div>
-                </form>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-8">
+              <div className="card shadow mb-3">
+                <div className="card-body">
+                  <form
+                    onSubmit={handleSubmitAccountUpdate(onAccountUpdateSubmit)}
+                  >
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="first_name"
+                          >
+                            <strong>First Name</strong>
+                          </label>
+                          <input
+                            {...registerAccountUpdate("first_name", {
+                              required: "This is a required field",
+                            })}
+                            className="form-control"
+                            type="text"
+                            id="first_name"
+                            placeholder="John"
+                            name="first_name"
+                            style={{
+                              borderStyle: "none",
+                              color: "rgb(255,255,255)",
+                            }}
+                          />
+                          <span style={validationMessageStyle}>
+                            {accountUpdateErrors.first_name &&
+                              accountUpdateErrors.first_name.message}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="last_name"
+                          >
+                            <strong>Last Name</strong>
+                          </label>
+                          <input
+                            {...registerAccountUpdate("last_name", {
+                              required: "This is a required field",
+                            })}
+                            className="form-control"
+                            type="text"
+                            id="last_name"
+                            placeholder="Doe"
+                            name="last_name"
+                            style={{
+                              borderStyle: "none",
+                              color: "rgb(255,255,255)",
+                            }}
+                          />
+                          <span style={validationMessageStyle}>
+                            {accountUpdateErrors.last_name &&
+                              accountUpdateErrors.last_name.message}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="username"
+                          >
+                            <strong>Username</strong>
+                          </label>
+                          <input
+                            {...registerAccountUpdate("username", {
+                              required: "This is a required field",
+                            })}
+                            className="form-control"
+                            type="text"
+                            id="username"
+                            placeholder="Username"
+                            name="username"
+                            style={{
+                              borderStyle: "none",
+                              color: "rgb(255,255,255)",
+                            }}
+                          />
+                          <span style={validationMessageStyle}>
+                            {accountUpdateErrors.username &&
+                              accountUpdateErrors.username.message}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="email"
+                          >
+                            <strong>Email Address</strong>
+                          </label>
+                          <input
+                            {...registerAccountUpdate("email", {
+                              required: "This is a required field",
+                              pattern: {
+                                value: /\S+@\S+\.\S+/,
+                                message: "Please enter a valid email",
+                              },
+                            })}
+                            className="form-control"
+                            type="email"
+                            id="email"
+                            placeholder="user@example.com"
+                            name="email"
+                            style={{
+                              borderStyle: "none",
+                              color: "rgb(255,255,255)",
+                            }}
+                          />
+                          <span style={validationMessageStyle}>
+                            {accountUpdateErrors.email &&
+                              accountUpdateErrors.email.message}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <button
+                        className="btn btn-primary btn-sm ui-btn"
+                        type="submit"
+                        style={{ padding: "6px 12px" }}
+                      >
+                        Save Settings
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {tabPage === 1 && (
@@ -494,115 +551,108 @@ const MyAccount = () => {
       )}
 
       {tabPage === 3 && (
-        <div className="row payment-methods-row">
-          <div className="col-md-6 ">
-            <div className="mb-3" style={{ overflow: "auto" }}>
-              <UIButton
-                style={{ float: "right" }}
-                onClick={() => {
-                  navigate("/dashboard/tenant/add-payment-method");
-                }}
-                btnText="Add New"
-              />
-            </div>
-            <div className="card shadow mb-3">
-              <div className="card-body">
-                <form>
-                  <div className="row">
-                    <ConfirmModal
-                      open={showDefaultConfirm}
-                      handleClose={() => setShowDefaultConfirm(false)}
-                      title="Set As Default Payment Method"
-                      message="Are you sure you want to set this as your default payment method?"
-                      cancelBtnText="Cancel"
-                      confirmBtnText="Set As Default"
-                      handleConfirm={() => {
-                        handleSetDefaultPaymentMethod(paymentMethodDefaultId);
-                        setShowDefaultConfirm(false);
-                      }}
-                      handleCancel={() => setShowDefaultConfirm(false)}
-                    />
-
-                    <ConfirmModal
-                      open={showDeleteConfirm}
-                      handleClose={() => setShowDeleteConfirm(false)}
-                      title="Delete Payment Method"
-                      message="Are you sure you want to delete this payment method?"
-                      cancelBtnText="Cancel"
-                      confirmBtnText="Delete"
-                      confirmBtnStyle={{ backgroundColor: uiRed }}
-                      cancelBtnStyle={{ backgroundColor: uiGreen }}
-                      handleConfirm={() => {
-                        handlePaymentMethodDelete(paymentMethodDeleteId);
-                        setShowDeleteConfirm(false);
-                      }}
-                      handleCancel={() => setShowDeleteConfirm(false)}
-                    />
-                    {paymentMethods.map((paymentMethod) => {
-                      return (
-                        <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
-                          <Box className="mb-3" sx={{ display: "flex" }}>
-                            <Box sx={{ flex: "2" }}>
-                              <Typography className="text-white">
-                                {paymentMethod.card.brand} ending in{" "}
-                                {paymentMethod.card.last4}
-                              </Typography>
-                              <Typography
-                                sx={{ fontSize: "10pt" }}
-                                className="text-white"
-                              >
-                                Expires {paymentMethod.card.exp_month}/
-                                {paymentMethod.card.exp_year}
-                                {paymentMethod.id === defaultPaymentMethod ? (
-                                  <Typography
-                                    sx={{ fontSize: "10pt", color: uiGreen }}
-                                  >
-                                    Default Payment Method
-                                  </Typography>
-                                ) : (
-                                  <>
-                                    <br />
-                                    <UIButton
-                                      sx={{
-                                        color: uiGreen,
-                                        textTransform: "none",
-                                        display: "block",
-                                        fontSize: "6pt",
-                                      }}
-                                      onClick={() => {
-                                        setPaymentMethodDefaultId(
-                                          paymentMethod.id
-                                        );
-                                        setShowDefaultConfirm(true);
-                                      }}
-                                      btnText="Set As Default"
-                                    />
-                                  </>
-                                )}
-                              </Typography>
-                            </Box>
-                            <Box>
-                              <Button
-                                sx={{ color: uiRed, textTransform: "none" }}
-                                onClick={() => {
-                                  setPaymentMethodDeleteId(paymentMethod.id);
-                                  setShowDeleteConfirm(true);
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </Box>
-                          </Box>
-                          <ListDivider sx={{ color: "white" }} />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </form>
-              </div>
-            </div>
+        <>
+          <div className="mb-3" style={{ overflow: "auto" }}>
+            <UIButton
+              style={{ float: "right" }}
+              onClick={() => {
+                navigate("/dashboard/tenant/add-payment-method");
+              }}
+              btnText="Add New"
+            />
           </div>
-        </div>
+          <div className="row">
+            <ConfirmModal
+              open={showDefaultConfirm}
+              handleClose={() => setShowDefaultConfirm(false)}
+              title="Set As Default Payment Method"
+              message="Are you sure you want to set this as your default payment method?"
+              cancelBtnText="Cancel"
+              confirmBtnText="Set As Default"
+              handleConfirm={() => {
+                handleSetDefaultPaymentMethod(paymentMethodDefaultId);
+                setShowDefaultConfirm(false);
+              }}
+              handleCancel={() => setShowDefaultConfirm(false)}
+            />
+
+            <ConfirmModal
+              open={showDeleteConfirm}
+              handleClose={() => setShowDeleteConfirm(false)}
+              title="Delete Payment Method"
+              message="Are you sure you want to delete this payment method?"
+              cancelBtnText="Cancel"
+              confirmBtnText="Delete"
+              confirmBtnStyle={{ backgroundColor: uiRed }}
+              cancelBtnStyle={{ backgroundColor: uiGreen }}
+              handleConfirm={() => {
+                handlePaymentMethodDelete(paymentMethodDeleteId);
+                setShowDeleteConfirm(false);
+              }}
+              handleCancel={() => setShowDeleteConfirm(false)}
+            />
+            {paymentMethods.map((paymentMethod) => {
+              return (
+                <div className="col-sm-12 col-md-6  mb-3">
+                  <div className="card" style={{ width: "100%" }}>
+                    <div className="card-body">
+                      <Box sx={{ display: "flex" }}>
+                        <Box sx={{ flex: "2" }}>
+                          <Typography className="text-white">
+                            {paymentMethod.card.brand} ending in{" "}
+                            {paymentMethod.card.last4}
+                          </Typography>
+                          <Typography
+                            sx={{ fontSize: "10pt" }}
+                            className="text-white"
+                          >
+                            Expires {paymentMethod.card.exp_month}/
+                            {paymentMethod.card.exp_year}
+                            {paymentMethod.id === defaultPaymentMethod ? (
+                              <Typography
+                                sx={{ fontSize: "10pt", color: uiGreen }}
+                              >
+                                Default Payment Method
+                              </Typography>
+                            ) : (
+                              <>
+                                <br />
+                                <UIButton
+                                  sx={{
+                                    color: uiGreen,
+                                    textTransform: "none",
+                                    display: "block",
+                                    fontSize: "6pt",
+                                  }}
+                                  onClick={() => {
+                                    setPaymentMethodDefaultId(paymentMethod.id);
+                                    setShowDefaultConfirm(true);
+                                  }}
+                                  btnText="Set As Default"
+                                />
+                              </>
+                            )}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Button
+                            sx={{ color: uiRed, textTransform: "none" }}
+                            onClick={() => {
+                              setPaymentMethodDeleteId(paymentMethod.id);
+                              setShowDeleteConfirm(true);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </Box>
+                      </Box>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
       {tabPage === 4 && (
         <div className="row">

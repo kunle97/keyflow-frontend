@@ -81,6 +81,14 @@ img.logo {
   color: black !important;
 }
 
+.gallery-container .image-gallery-slide img {
+  height: 400px; /* Set the height for images */
+  border-radius: 15px;
+}
+.gallery-container .image-gallery-thumbnail img {
+  height: 60px; /* Set the height for thumbnails */
+}
+
 @media screen and (max-width: 767px) {
   .landing-hero {
     padding: 100px 0;
