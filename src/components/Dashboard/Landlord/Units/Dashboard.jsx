@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { faker } from "@faker-js/faker";
-import { uiGreen, uiGrey2 } from "../../../constants";
-import { data1, data2, data3 } from "../../../mockData";
+import { uiGreen, uiGrey2 } from "../../../../constants";
+import { data1, data2, data3 } from "../../../../mockData";
 import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
 import { ResponsivePie } from "@nivo/pie";
 import { useEffect } from "react";
-import { getTransactionsByUser } from "../../../api/transactions";
+import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
-import UITable from "../UIComponents/UITable/UITable";
+import UITable from "../../UIComponents/UITable/UITable";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);

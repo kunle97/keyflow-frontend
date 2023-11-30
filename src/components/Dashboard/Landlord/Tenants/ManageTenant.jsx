@@ -15,6 +15,7 @@ import {
   getNextPaymentDate,
   getPaymentDates,
 } from "../../../../api/manage_subscriptions";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 
 const ManageTenant = () => {
   const { tenant_id } = useParams();
@@ -28,6 +29,7 @@ const ManageTenant = () => {
   const [tabPage, setTabPage] = useState(0);
   const [nextPaymentDate, setNextPaymentDate] = useState(null); //TODO: get next payment date from db and set here
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
+  const [tenantProfilePicture, setTenantProfilePicture] = useState(null);
   const transaction_columns = [
     { name: "amount", label: "Amount" },
     {
@@ -144,6 +146,14 @@ const ManageTenant = () => {
       setLease(res.data.lease_agreement);
       setTransactions(res.data.transactions);
       setMaintenanceRequests(res.data.maintenance_requests);
+      retrieveFilesBySubfolder("user_profile_picture", res.data.tenant.id).then(
+        (res) => {
+          if (res.data[0]) {
+            console.log("Tenant profile picture", res.data[0]);
+            setTenantProfilePicture(res.data[0]);
+          }
+        }
+      );
     });
   }, []);
   return (
@@ -162,13 +172,21 @@ const ManageTenant = () => {
           <div className="col-sm-12 col-md-12 col-lg-4">
             <div className="card mb-3">
               <div className="card-body text-center shadow">
-                <div className="property-col-img-container">
+                <div
+                  style={{
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    width: "200px",
+                    height: "200px",
+                    margin: "15px auto",
+                  }}
+                >
                   <img
-                    className="rounded-circle h-100"
+                    style={{ height: "100%" }}
                     src={
-                      process.env.REACT_APP_ENVIRONMENT !== "development"
-                        ? ""
-                        : faker.image.avatar()
+                      tenantProfilePicture
+                        ? tenantProfilePicture.file
+                        : "/assets/img/avatars/default-user-profile-picture.png"
                     }
                   />
                 </div>

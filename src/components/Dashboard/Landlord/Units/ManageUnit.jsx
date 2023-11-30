@@ -31,13 +31,12 @@ import { useNavigate } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIButton from "../../UIComponents/UIButton";
 import UITabs from "../../UIComponents/UITabs";
+import FileManagerView from "../../UIComponents/FileManagerView";
+import { authenticatedInstance } from "../../../../api/api";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 const CreateUnit = () => {
   //Create a state for the form data
   const [unit, setUnit] = useState({});
-  const [name, setName] = useState("");
-  const [rent, setRent] = useState(1000);
-  const [beds, setBeds] = useState(1);
-  const [baths, setBaths] = useState(1);
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
   const [responseMessage, setResponseMessage] = useState(
     "Unit updated successfully"
@@ -57,9 +56,12 @@ const CreateUnit = () => {
   });
   const [tenant, setTenant] = useState({});
   const [tabPage, setTabPage] = useState(0);
+  const [unitFiles, setUnitFiles] = useState([]);
+  const [unitFilesCount, setUnitFilesCount] = useState(0);
   const tabs = [
     { label: "Unit", name: "unit" },
     { label: "Lease", name: "lease_templates" },
+    { label: `Files (${unitFilesCount})`, name: "files" },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -162,6 +164,19 @@ const CreateUnit = () => {
     </Link>
   );
 
+  const fetchUnitFiles = async () => {
+    try {
+      retrieveFilesBySubfolder(
+        `properties/${property_id}/units/${unit_id}`,
+        authUser.user_id
+      ).then((res) => {
+        setUnitFiles(res.data);
+        setUnitFilesCount(res.data.length);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
   useEffect(() => {
     //Retrieve Unit Information
     getUnit(unit_id).then((res) => {
@@ -197,6 +212,7 @@ const CreateUnit = () => {
       setLeaseTemplates(res.data);
     });
     retrieveSubscriptionPlan();
+    fetchUnitFiles();
   }, []);
   return (
     <div className="container">
@@ -655,6 +671,17 @@ const CreateUnit = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </>
+        )}
+        {tabPage === 2 && (
+          <>
+            <div className="col-md-12">
+              <FileManagerView
+                files={unitFiles}
+                subfolder={`properties/${property_id}/units/${unit_id}`}
+                acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
+              />
             </div>
           </>
         )}

@@ -16,6 +16,8 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
+import UploadDialog from "../UIComponents/Modals/UploadDialog/UploadDialog";
+import { retrieveFilesBySubfolder } from "../../../api/file_uploads";
 const TenantMyAccount = () => {
   const [email, setEmail] = useState(authUser.email);
   const [firstName, setFirstName] = useState(authUser.first_name);
@@ -30,7 +32,8 @@ const TenantMyAccount = () => {
   const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [defaultPaymentMethod, setPrimaryPaymentMethod] = useState(null);
-
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
   const navigate = useNavigate();
   const {
     register: registerAccountUpdate,
@@ -135,10 +138,20 @@ const TenantMyAccount = () => {
         setPrimaryPaymentMethod(res.default_payment_method);
       });
     });
+    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then((res) => {
+      setProfilePictureFile(res.data[0]);
+    });
   }, []);
 
   return (
     <div className="container">
+      <UploadDialog
+        open={uploadDialogOpen}
+        setOpen={setUploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        subfolder={"user_profile_picture"}
+        acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
+      />
       <AlertModal
         title={responseTitle}
         message={responseMessage}
@@ -151,7 +164,49 @@ const TenantMyAccount = () => {
       <div className="row mb-3">
         <div className="col">
           <div className="row">
-            <div className="col">
+            <div className="col-sm-12 col-md-4 col-lg-4">
+              <div className="card mb-3">
+                <div className="card-body text-center shadow">
+                  <div
+                    style={{
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      width: "200px",
+                      height: "200px",
+                      margin: "15px auto",
+                    }}
+                  >
+                    <img
+                      style={{ height: "100%" }}
+                      src={
+                        profilePictureFile
+                          ? profilePictureFile.file
+                          : "/assets/img/avatars/default-user-profile-picture.png"
+                      }
+                    />
+                  </div>
+                  <h4
+                    className="text-white tenant-info-heading"
+                    style={{ width: "100%" }}
+                  >
+                    <center>
+                      {authUser.first_name} {authUser.last_name}
+                    </center>
+                  </h4>
+                  <div className="mb-3">
+                    <UIButton
+                      sx={{ margin: "0 10px" }}
+                      btnText="Change Profile Picture"
+                      onClick={() => setUploadDialogOpen(true)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-8">
+              <h5 className="text-primary mb-2 card-header-text">
+                Basic Information
+              </h5>
               <div className="card shadow mb-3">
                 <div className="card-body">
                   <form

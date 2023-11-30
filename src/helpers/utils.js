@@ -1,3 +1,4 @@
+
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
 //Create a fucntion to surround a component with the DashboardContainer
@@ -86,3 +87,22 @@ export const convertMaintenanceRequestStatus = (status) => {
       return status;
   }
 };
+
+
+
+export function extractFileNameAndExtension(url) {
+  // Extract the part of the URL after the last '/'
+  const filenameWithExtension = url.substring(url.lastIndexOf('/') + 1);
+
+  // Use regex to separate the file name and extension
+  const match = filenameWithExtension.match(/([^/?#]+)(\.[^./?#]+)($|\?)/);
+
+  if (match && match.length >= 3) {
+    const fileName = match[1]; // Extracted file name
+    const extension = match[2]; // Extracted extension
+    return { fileName, extension };
+  } else {
+    return null; // Return null if no match found
+  }
+}
+

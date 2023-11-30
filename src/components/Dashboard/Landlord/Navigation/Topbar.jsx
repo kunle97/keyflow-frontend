@@ -19,12 +19,14 @@ import { faker } from "@faker-js/faker";
 import { getMessagesWithLimit, getMessages } from "../../../../api/messages";
 import { createThreads } from "../../../../helpers/messageUtils";
 import { Stack } from "@mui/material";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [profilePictures, setProfilePictures] = useState(null);
   const [messageThreads, setMessageThreads] = useState([]);
-  const navigate = useNavigate();
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
   const { logoutUser } = useAuth();
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -39,9 +41,36 @@ const Topbar = () => {
       setMessageThreads(threads);
     });
   };
+  const getProfilePicture = async (user_id) => {
+    try {
+      const res = await retrieveFilesBySubfolder(
+        "user_profile_picture",
+        user_id
+      );
+
+      if (res.status === 200 && res.data[0].file) {
+        return res.data[0].file;
+      } else {
+        return "/assets/img/avatars/default-user-profile-picture.png";
+      }
+    } catch (error) {
+      console.log(error);
+      return "/assets/img/avatars/default-user-profile-picture.png";
+    }
+  };
+  const fetchProfilePictures = async () => {
+    const pictures = {};
+    for (const thread of messageThreads || []) {
+      const user_id = thread.recipient_id;
+      const picture = await getProfilePicture(user_id);
+      pictures[user_id] = picture;
+    }
+    setProfilePictures(pictures);
+  };
   //REtrieve user notifications
   useEffect(() => {
-    authenticatedInstance
+    try{
+      authenticatedInstance
       .get("/notifications/?limit=5&ordering=-timestamp")
       .then((response) => {
         setNotifications(response.data.results);
@@ -51,7 +80,21 @@ const Topbar = () => {
         console.log("Error: ", error);
       });
     fetchMessages();
-  }, []);
+    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+      (res) => {
+        setProfilePictureFile(res.data[0]);
+      }
+    );
+    if (!profilePictures) {
+      fetchProfilePictures();
+    }
+    }catch(error){
+      console.log(error)
+    }finally{
+      console.log("Done")
+    }
+    
+  }, [profilePictures]);
   return (
     <div className="container">
       {open && (
@@ -258,92 +301,100 @@ const Topbar = () => {
                     </center>
                   ) : (
                     <ul className="list-group ">
-                      {messageThreads.map((thread) => (
-                        <li
-                          key={thread.id}
-                          className={`list-group-item`}
-                          style={{
-                            backgroundColor: uiGrey2,
-                            color: "white",
-                            border: "none",
-                            borderRadius: "0",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            const redirectLink = `/dashboard/messages/${thread.name}`;
-                            //Use window.location.href to redirect to the thread
-                            window.location.href = redirectLink;
-                          }}
-                        >
-                          <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={2}
+                      {messageThreads.map((thread) => {
+                        const profilePic =
+                          profilePictures[thread.recipient_id] ||
+                          "/assets/img/avatars/default-user-profile-picture.png";
+                        return (
+                          <li
+                            key={thread.id}
+                            className={`list-group-item`}
+                            style={{
+                              backgroundColor: uiGrey2,
+                              color: "white",
+                              border: "none",
+                              borderRadius: "0",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              const redirectLink = `/dashboard/messages/${thread.name}`;
+                              //Use window.location.href to redirect to the thread
+                              window.location.href = redirectLink;
+                            }}
                           >
-                            <img
-                              className="rounded-circle "
-                              width={50}
-                              src={
-                                process.env.REACT_APP_ENVIRONMENT !==
-                                "development"
-                                  ? ""
-                                  : faker.image.avatar()
-                              }
-                            />
                             <Stack
-                              sx={{ width: "100%" }}
-                              direction="column"
-                              spacing={0}
+                              direction="row"
+                              alignItems="center"
+                              spacing={2}
                             >
+                              <div
+                                style={{
+                                  borderRadius: "50%",
+                                  overflow: "hidden",
+                                  width: "65px",
+                                  height: "50px",
+                                }}
+                              >
+                                <img
+                                  style={{ height: "100%", margin: "0 auto" }}
+                                  src={profilePic}
+                                />
+                              </div>
                               <Stack
                                 sx={{ width: "100%" }}
-                                direction="row"
-                                alignItems="center"
+                                direction="column"
                                 spacing={0}
-                                justifyContent="space-between"
                               >
-                                <span style={{ fontSize: "16pt" }}>
-                                  {thread.name}
-                                </span>{" "}
-                                <span className="text-white">
-                                  {dateDiffForHumans(
-                                    new Date(thread.messages[0].timestamp)
-                                  )}
-                                </span>
-                              </Stack>
-                              <Stack
-                                sx={{ width: "100%", marginTop: "5px" }}
-                                direction="row"
-                                alignItems="center"
-                                spacing={0}
-                                justifyContent="space-between"
-                              >
-                                <span
-                                  className="text-white"
-                                  style={{
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    maxWidth: "250px", // Adjust the width to accommodate the other span's width
-                                  }}
+                                <Stack
+                                  sx={{ width: "100%" }}
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={0}
+                                  justifyContent="space-between"
                                 >
-                                  {thread.messages[0].text}
-                                </span>
-                                <span
-                                  style={{
-                                    backgroundColor: uiRed,
-                                    color: "white",
-                                    borderRadius: "20%",
-                                    padding: "0 5px",
-                                  }}
+                                  <span style={{ fontSize: "16pt" }}>
+                                    {thread.name}
+                                  </span>{" "}
+                                  <span className="text-white">
+                                    {dateDiffForHumans(
+                                      new Date(thread.messages[0].timestamp)
+                                    )}
+                                  </span>
+                                </Stack>
+                                <Stack
+                                  sx={{ width: "100%", marginTop: "5px" }}
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={0}
+                                  justifyContent="space-between"
                                 >
-                                  {thread.messages.length}
-                                </span>
+                                  <span
+                                    className="text-white"
+                                    style={{
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      maxWidth: "175px", // Adjust the width to accommodate the other span's width
+                                    }}
+                                  >
+                                    {thread.messages[0].text}
+                                  </span>
+                                  <span
+                                    style={{
+                                      backgroundColor: uiRed,
+                                      color: "white",
+                                      borderRadius: "20%",
+                                      padding: "0 5px",
+                                    }}
+                                  >
+                                    {thread.messages.length}
+                                  </span>
+                                </Stack>
                               </Stack>
                             </Stack>
-                          </Stack>
-                        </li>
-                      ))}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
 
@@ -381,9 +432,9 @@ const Topbar = () => {
                   <img
                     className="border rounded-circle img-profile"
                     src={
-                      process.env.REACT_APP_ENVIRONMENT !== "development"
-                        ? ""
-                        : faker.internet.avatar()
+                      profilePictureFile
+                        ? profilePictureFile.file
+                        : "/assets/img/avatars/default-user-profile-picture.png"
                     }
                   />
                 </a>

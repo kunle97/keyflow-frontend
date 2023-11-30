@@ -6,7 +6,7 @@ import EmploymentHistorySection from "./ApplicationSections/EmploymentHistorySec
 import RentalHistorySection from "./ApplicationSections/RentalHistorySection";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
-
+import ImageGallery from "react-image-gallery";
 import { createRentalApplication } from "../../api/rental_applications";
 import { getLeaseTemplateByUnitId } from "../../api/units";
 import { getUnitUnauthenticated } from "../../api/units";
@@ -19,6 +19,9 @@ import BasicInfoSection from "./ApplicationSections/BasicInfoSection";
 import AdditionalInformationSection from "./ApplicationSections/AdditionalInformationSection";
 import UIButton from "../Dashboard/UIComponents/UIButton";
 import UIStepper from "../Dashboard/UIComponents/UIStepper";
+import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads";
+import "react-image-gallery/styles/css/image-gallery.css";
+import LandingPageNavbar from "../Landing/LandingPageNavbar";
 
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
@@ -38,7 +41,23 @@ const CreateRentalApplication = () => {
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
   const [leaseTemplate, setLeaseTemplate] = useState({}); // lease terms
   const navigate = useNavigate();
+  const [unitImages, setUnitImages] = useState([]); // unit images state
   const [errorMode, setErrorMode] = useState(false); // error mode state
+
+  const images = [
+    {
+      original: "https://picsum.photos/id/1018/1000/600/",
+      thumbnail: "https://picsum.photos/id/1018/250/150/",
+    },
+    {
+      original: "https://picsum.photos/id/1015/1000/600/",
+      thumbnail: "https://picsum.photos/id/1015/250/150/",
+    },
+    {
+      original: "https://picsum.photos/id/1019/1000/600/",
+      thumbnail: "https://picsum.photos/id/1019/250/150/",
+    },
+  ];
 
   useEffect(() => {
     /**
@@ -53,6 +72,21 @@ const CreateRentalApplication = () => {
       console.log(unit_res);
       if (unit_res.data) {
         setUnit(unit_res.data);
+        //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
+        retrieveUnauthenticatedFilesBySubfolder(
+          `properties/${unit_res.data.rental_property}/units/${unit_id}`
+        ).then((res) => {
+          console.log(res.data);
+          res.data.forEach((file) => {
+            setUnitImages((unitImages) => [
+              ...unitImages,
+              {
+                original: file.file,
+                thumbnail: file.file,
+              },
+            ]);
+          });
+        });
         //Retrieve Lease Term for the unit
         getLeaseTemplateByUnitId(unit_res.data.id).then((res) => {
           setLeaseTemplate(res);
@@ -382,10 +416,11 @@ const CreateRentalApplication = () => {
   ];
   return (
     <>
+      <LandingPageNavbar isDarkNav={true} />
       {isLoading ? (
         <ProgressModal open={isLoading} title="Loading Application" />
       ) : (
-        <div className="container py-4">
+        <div className="container py-4" style={{ marginTop: "100px" }}>
           {errorMode ? (
             <AlertModal
               open={errorMode}
@@ -396,7 +431,28 @@ const CreateRentalApplication = () => {
           ) : (
             <div className="row">
               <div className="col-md-6 ">
-                <h2>
+                {" "}
+                <div
+                  className="gallery-container"
+                  style={{
+                    overflow: "hidden",
+                  }}
+                >
+                  <ImageGallery
+                    items={unitImages}
+                    showFullscreenButton={true}
+                    showPlayButton={true}
+                    showNav={false}
+                    showThumbnails={true}
+                    autoPlay={true}
+                    slideDuration={1000}
+                    slideInterval={5000}
+                    lazyLoad={true}
+                    infinite={true}
+                    thumbnailPosition="bottom"
+                  />
+                </div>
+                <h2 style={{ margin: "15px 0", fontSize: "20pt" }}>
                   Unit {unit.name} at {property.street}
                 </h2>
                 <div className="card mb-3">
@@ -458,18 +514,6 @@ const CreateRentalApplication = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-                <div
-                  className="banner-col  d-none d-md-block"
-                  style={{
-                    height: "600px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <img
-                    src="/assets/img/tenant-application-banner.jpg"
-                    width="100%"
-                  />
                 </div>
                 <div className="mt-4">
                   <Typography sx={{ color: "white" }}>
