@@ -18,6 +18,9 @@ import LeaseTemplateGeneratorForm from "./forms/LeaseTemplateGeneratorForm";
 import RentalApplicationGeneratorForm from "./forms/RentalApplicationGeneratorForm";
 import MessageGeneratorForm from "./forms/MessageGeneratorForm";
 import MaintenanceRequestGeneratorForm from "./forms/MaintenanceRequestGeneratorForm";
+import LeaseRenewalRequestGeneratorForm from "./forms/LeaseRenewalRequestGeneratorForm";
+import LeaseCancellationRequestGeneratorForm from "./forms/LeaseCancellationRequestGeneratorForm";
+
 const DeveloperToolsMenu = () => {
   const [open, setOpen] = useState(true);
   const [dataType, setDataType] = useState("properties"); // Default value
@@ -74,6 +77,18 @@ const DeveloperToolsMenu = () => {
       name: "Generate Maintenance Requests",
       dataType: "maintenance-requests",
       form: <MaintenanceRequestGeneratorForm {...formProps} />,
+    },
+    {
+      icon: <HistoryEduIcon />,
+      name: "Generate Lease Cancellation Requests",
+      dataType: "lease-cancellation-requests",
+      form: <LeaseCancellationRequestGeneratorForm {...formProps} />,
+    },
+    {
+      icon: <HistoryEduIcon />,
+      name: "Generate Lease Renewal Requests",
+      dataType: "lease-renewal-requests",
+      form: <LeaseRenewalRequestGeneratorForm {...formProps} />,
     },
     // Add actions for other data types
   ];

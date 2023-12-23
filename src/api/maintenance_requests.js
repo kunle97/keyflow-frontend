@@ -140,7 +140,7 @@ export async function changeMaintenanceRequestStatus(
         //Create a notification using the authenticatedInstance.post() method and  endpoint  /notifications/ and the . THe parameters are user (The tenant that made the request), title, and message (notifiying the status change)
         const notification = authenticatedInstance
           .post(`/notifications/`, {
-            user: res.data.tenant,
+            user: res.data.tenant.id,
             title: "Maintenance Request Status Change",
             type: "maintenance_request_status_change",
             message: `Your maintenance request has been set to ${convertMaintenanceRequestStatus(

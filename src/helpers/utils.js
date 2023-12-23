@@ -7,8 +7,13 @@ export function withDashboardContainer(Component) {
 }
 
 //Convert "string boolean" to actual boolean
-export function stringToBoolean(string) {
-  switch (string.toLowerCase().trim()) {
+export function stringToBoolean(value) {
+  //Check if value is a string
+  if (typeof value !== "string") {
+    return value;
+  }
+  
+  switch (value.toLowerCase().trim()) {
     case "true":
     case "yes":
     case "1":
@@ -19,7 +24,7 @@ export function stringToBoolean(string) {
     case null:
       return false;
     default:
-      return Boolean(string);
+      return Boolean(value);
   }
 }
 
@@ -106,3 +111,6 @@ export function extractFileNameAndExtension(url) {
   }
 }
 
+export function removeTFromDate(date) {
+  return date.toISOString().split('T')[0];
+}

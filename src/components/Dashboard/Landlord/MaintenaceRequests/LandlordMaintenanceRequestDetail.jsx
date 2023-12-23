@@ -86,11 +86,11 @@ const LandlordMaintenanceRequestDetail = () => {
         setMaintenanceRequest(res.data);
         setIsLoading(false);
         //Retrieve property by id
-        getProperty(res.data.rental_property).then((property_res) => {
+        getProperty(res.data.rental_property.id).then((property_res) => {
           setProperty(property_res);
         });
         //Retrieve unit by id
-        getUnit(res.data.rental_unit).then((unit_res) => {
+        getUnit(res.data.rental_unit.id).then((unit_res) => {
           setUnit(unit_res);
         });
       })

@@ -129,6 +129,22 @@ export const landlordMenuItems = [
         icon: "fas fa-user-circle",
         isSearchable: true,
       },
+      {
+        label: "Lease Cancellation Requests",
+        link: "/dashboard/landlord/lease-cancellation-requests",
+        muiIcon: <DescriptionOutlinedIcon />,
+        description: "View your lease cancellation requests",
+        icon: "fas fa-user-circle",
+        isSearchable: true,
+      },
+      {
+        label: "Lease Renewal Requests",
+        link: "/dashboard/landlord/lease-renewal-requests",
+        muiIcon: <DescriptionOutlinedIcon />,
+        description: "View your lease renewal requests",
+        icon: "fas fa-user-circle",
+        isSearchable: true, 
+      }
     ],
   },
   {
@@ -188,10 +204,31 @@ export const tenantMenuItems = [
   },
   {
     label: "My Lease Agreement",
-    link: "/dashboard/tenant/my-lease",
+    link: "#",
     icon: "fas fa-user-circle",
+    subMenuItems: [
+      {
+        label: "View Lease Agreement",
+        link: "/dashboard/tenant/my-lease",
+        icon: "fas fa-tools",
+        isSearchable: true,
+      },
+      {
+        label: "Lease Cancellation Requests",
+        link: "/dashboard/tenant/lease-cancellation-requests",
+        icon: "fas fa-tools",
+        isSearchable: true,
+      },
+      {
+        label: "Lease Renewal Requests",
+        link: "/dashboard/tenant/lease-renewal-requests",
+        icon: "fas fa-tools",
+        isSearchable: true,
+      },
+    ],
     isSearchable: true,
   },
+
 ];
 
 export const modalStyle = {
@@ -206,7 +243,12 @@ export const modalStyle = {
   px: 4,
   pb: 3,
 };
-
+export const defaultWhiteInputStyle = {
+  padding: "5px",
+  width: "100%",
+  borderRadius: "5px",
+  background: "white",
+};
 export const fakeData = {
   fakeFirstName:
     process.env.REACT_APP_ENVIRONMENT !== "development"
@@ -259,7 +301,7 @@ export const fakeData = {
   fakePastDate:
     process.env.REACT_APP_ENVIRONMENT !== "development"
       ? ""
-      : faker.date.past().toISOString().split("T")[0],
+      :  faker.date.past().toISOString().split("T")[0],
   fakeFutureDate:
     process.env.REACT_APP_ENVIRONMENT !== "development"
       ? ""

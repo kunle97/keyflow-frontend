@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { Dialog, Slide } from "@mui/material";
 import { uiGrey1 } from "../../../../constants";
-const UIDialog = ({ children, open, onClose, maxWidth,style }) => {
+const UIDialog = ({ children, open, onClose, maxWidth, style, title }) => {
   const Transition = useCallback(
     React.forwardRef(function Transition(props, ref) {
       return <Slide direction="up" ref={ref} {...props} />;
@@ -14,6 +14,8 @@ const UIDialog = ({ children, open, onClose, maxWidth,style }) => {
         style: {
           backgroundColor: uiGrey1,
           boxShadow: "none",
+          padding: "15px",
+          color: "white",
           ...style,
         },
       }}
@@ -22,6 +24,9 @@ const UIDialog = ({ children, open, onClose, maxWidth,style }) => {
       TransitionComponent={Transition}
       maxWidth={maxWidth}
     >
+      <div>
+        <h3>{title}</h3>
+      </div>
       {children}
     </Dialog>
   );

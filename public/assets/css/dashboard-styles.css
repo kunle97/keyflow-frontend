@@ -119,3 +119,28 @@ table#ui-table td:last-child,
 table#ui-table th:last-child {
   border-radius: 0 5px 5px 0;
 }
+
+table#ui-table-mini {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: separate;
+  border-spacing: 0 15px;
+  width: 100%;
+  border: none;
+}
+
+table#ui-table-mini td {
+  padding: 0 5px;
+  text-align: left;
+  padding-left: 10px;
+}
+table#ui-table-mini th {
+  padding: 5px;
+  text-align: left;
+}
+
+.ui-card-title {
+  padding-bottom: 8px;
+  padding-left: 5px;
+  border-bottom: 3px solid #3aaf5c;
+  max-width: 310px;
+}

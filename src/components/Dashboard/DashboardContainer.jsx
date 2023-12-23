@@ -37,7 +37,9 @@ const DashboardContainer = ({ children }) => {
             )}
           </div>
         </div>
-        {process.env.REACT_APP_ENVIRONMENT === "development" && <DeveloperToolsMenu />}
+        {process.env.REACT_APP_ENVIRONMENT === "development" && (
+          <DeveloperToolsMenu />
+        )}
         <footer
           className="bg-white sticky-footer"
           style={{ background: "#2c3a4a", color: uiGreen }}

@@ -34,6 +34,7 @@ import UITabs from "../../UIComponents/UITabs";
 import FileManagerView from "../../UIComponents/FileManagerView";
 import { authenticatedInstance } from "../../../../api/api";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import UIPrompt from "../../UIComponents/UIPrompt";
 const CreateUnit = () => {
   //Create a state for the form data
   const [unit, setUnit] = useState({});
@@ -486,11 +487,18 @@ const CreateUnit = () => {
                           {leaseTemplates.map((leaseTemplate, index) => {
                             if (leaseTemplates.length == 0) {
                               return (
-                                <ListItem alignItems="flex-start">
-                                  <ListItemText
-                                    primary={`No lease templates found`}
-                                  />
-                                </ListItem>
+                                <>
+                                  <ListItem alignItems="flex-start">
+                                    {/* <UIPrompt
+                                  title="No Lease Templates Found"
+                                  message="You have not created any lease templates. Please create a lease template before assigning it to a unit. Click the button below to create a lease template."
+                                  body={createLeaseTemplateButton}
+                                  /> */}
+                                    <ListItemText
+                                      primary={`No lease templates found`}
+                                    />
+                                  </ListItem>
+                                </>
                               );
                             } else {
                               return (
