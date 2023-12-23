@@ -57,6 +57,8 @@ const AddTerms = (props) => {
             name="term"
           >
             <option value="">Select One</option>
+            <option value={1}>1 Month</option>
+            <option value={2}>2 Months</option>
             <option value={6}>6 Months</option>
             <option value={12}>12 Months</option>
             <option value={13}>13 Months</option>
@@ -231,7 +233,7 @@ const AddTerms = (props) => {
               props.errors.lease_cancellation_notice_period.message}
           </span>
         </div>
-        <div className="form-group col-md-12 mb-4">
+        <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
             sx={{ color: "white", fontSize: "12pt" }}
@@ -251,6 +253,9 @@ const AddTerms = (props) => {
             sx={{ width: "100%", color: "white" }}
           >
             <option value="">Select One</option>
+            <option value={0} selected>None</option>
+            <option value={1}>1 Months</option>
+            <option value={2}>2 Months</option>
             <option value={6}>6 Months</option>
             <option value={12}>12 Months</option>
             <option value={13}>13 Months</option>
@@ -262,7 +267,7 @@ const AddTerms = (props) => {
               props.errors.lease_cancellation_notice_period.message}
           </span>
         </div>
-        <div className="form-group col-md-12 mb-4">
+        <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
             sx={{ color: "white", fontSize: "12pt" }}
@@ -288,6 +293,68 @@ const AddTerms = (props) => {
               props.errors.lease_cancellation_fee.message}
           </span>
         </div>
+        {/* Create a simlar field as the lease cancellation fee and notice period for lease renewal fee and lease renewal notice period */}
+        <div className="form-group col-md-6 mb-4">
+          <Typography
+            className="mb-2"
+            sx={{ color: "white", fontSize: "12pt" }}
+            htmlFor="rent"
+          >
+            Lease Renewal Notice Period
+          </Typography>
+          <select
+            {...props.register("lease_renewal_notice_period", {
+              required: "This field is required",
+              pattern: {
+                value: /^[0-9]+$/i,
+                message: "Please enter a valid number",
+              },
+            })}
+            className="form-select"
+            sx={{ width: "100%", color: "white" }}
+          >
+            <option value="">Select One</option>
+            <option value={0} selected>None</option>
+            <option value={1}>1 Months</option>
+            <option value={2}>2 Months</option>
+            <option value={6}>6 Months</option>
+            <option value={12}>12 Months</option>
+            <option value={13}>13 Months</option>
+            <option value={24}>24 Months</option>
+            <option value={36}>36 Months</option>
+          </select>
+          <span style={validationMessageStyle}>
+            {props.errors.lease_renewal_notice_period &&
+              props.errors.lease_renewal_notice_period.message}
+          </span>
+        </div>
+        <div className="form-group col-md-6 mb-4">
+          <Typography
+            className="mb-2"
+            sx={{ color: "white", fontSize: "12pt" }}
+            htmlFor="leaseRenewalFee"
+          >
+            Lease renewal Fee
+          </Typography>
+          <input
+            {...props.register("lease_renewal_fee", {
+              required: "This field is required",
+              pattern: {
+                value: /^[0-9]+$/i,
+                message: "Please enter a valid number",
+              },
+            })}
+            type="text"
+            className="form-control"
+            id="leaseRenewalFee"
+            placeholder="$"
+          />
+          <span style={validationMessageStyle}>
+            {props.errors.lease_renewal_fee &&
+              props.errors.lease_renewal_fee.message}
+          </span>
+        </div>
+
       </div>
       <StepControl
         step={props.step}

@@ -189,8 +189,6 @@ const SignLeaseAgreement = () => {
       } finally {
       }
     }
-    console.log("The lease Term ", leaseTemplate);
-    console.log("The lease ASgreemenmt ", leaseAgreement);
     setIsLoading(false);
     window.addEventListener("message", handleDocumentSigningUpdate);
     // Remove the event listener when the component unmounts

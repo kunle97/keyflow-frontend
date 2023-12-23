@@ -120,3 +120,42 @@ export async function signLeaseAgreement(data) {
     return error.response;
   }
 }
+
+//Create a function to retrieve all of the tenant's lease agreements. function takes a paramenter temnant_id which is the id of the tenant and the endpoint is /lease-agreements/get-lease-agreements-by-tenant/ and the query param should be tenant_id
+export async function getLeaseAgreementsByTenant(tenant_id) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/lease-agreements/get-lease-agreements-by-tenant/`, {
+        params: { tenant_id },
+      })
+      .then((res) => {
+        const response = res.data;
+        console.log("axios get lease agreements by tenant response ", response);
+        return response;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Lease Agreements By Tenant Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+
+//Create a function to retrieve a lease agreement by its lease_renewal_request_id using the endpoint /lease-agreements/get-lease-agreement-by-lease-renewal-request/
+export async function getLeaseAgreementByLeaseRenewalRequestId(lease_renewal_request_id) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/lease-agreements/get-lease-agreement-by-lease-renewal-request/`, {
+        params: { lease_renewal_request_id },
+      })
+      .then((res) => {
+        const response = res.data;
+        console.log("axios get lease agreement by lease renewal request id response ", response);
+        return response;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Lease Agreement By Lease Renewal Request Id Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}

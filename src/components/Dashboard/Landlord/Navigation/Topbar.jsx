@@ -96,7 +96,7 @@ const Topbar = () => {
     
   }, [profilePictures]);
   return (
-    <div className="container">
+    <div className="container-fluid">
       {open && (
         <AlertModal
           open={true}

@@ -32,7 +32,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "./constants";
 import AddPaymentMethod from "./components/Dashboard/Tenant/AddPaymentMethod";
 import PageNotFound from "./components/Errors/PageNotFound";
-import MyLeaseAgreement from "./components/Dashboard/Tenant/MyLeaseAgreement";
+import MyLeaseAgreement from "./components/Dashboard/Tenant/LeaseAgreement/MyLeaseAgreement";
 import LandlordTransactions from "./components/Dashboard/Landlord/Transactions/LandlordTransactions";
 import LandlordTransactionDetail from "./components/Dashboard/Landlord/Transactions/LandlordTransactionDetail";
 import LandlordMaintenanceRequests from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequests";
@@ -59,6 +59,14 @@ import { NotificationDetail } from "./components/Dashboard/Notifications/Notific
 import Logout from "./components/Dashboard/Logout";
 import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
 import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
+import LeaseCancellationRequests from "./components/Dashboard/Landlord/LeaseCancellations/LeaseCancellationRequests";
+import LeaseCancellationRequestDetail from "./components/Dashboard/Landlord/LeaseCancellations/LeaseCancellationRequestDetail";
+import LeaseRenewalRequests from "./components/Dashboard/Landlord/LeaseRenewals/LeaseRenewalRequests";
+import LeaseRenewalRequestDetail from "./components/Dashboard/Landlord/LeaseRenewals/LeaseRenewalRequestDetail";
+import LeaseRenewalAcceptForm from "./components/Dashboard/Landlord/LeaseRenewals/LeaseRenewalAcceptForm";
+import TenantLeaseRenewalRequests from "./components/Dashboard/Tenant/LeaseAgreement/LeaseRenewal/TenantLeaseRenewalRequests";
+import TenantLeaseRenewalRequestDetail from "./components/Dashboard/Tenant/LeaseAgreement/LeaseRenewal/TenantLeaseRenewalRequestDetail";
+import TenantLeaseCancellationRequests from "./components/Dashboard/Tenant/LeaseAgreement/LeaseCancellation/TenantLeaseCancellationRequests";
 import Messages from "./components/Dashboard/Messaging/Messages";
 import { ContactPage } from "./components/Landing/ContactPage";
 import PricingPage from "./components/Landing/PricingPage";
@@ -355,12 +363,35 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
-
   {
     path: "/dashboard/tenant/my-lease",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyLeaseAgreement />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/lease-renewal-requests/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantLeaseRenewalRequests />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/lease-renewal-requests/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantLeaseRenewalRequestDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/lease-cancellation-requests/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantLeaseCancellationRequests />
       </DashboardProtectedRoute>
     ),
   },
@@ -402,10 +433,60 @@ export const routes = [
     ),
   },
   {
+    path: "/dashboard/landlord/lease-cancellation-requests/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseCancellationRequests />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Lease Cancellation Requests",
+    description: "Manage your lease cancellation requests",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/lease-cancellation-requests/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseCancellationRequestDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/lease-renewal-requests/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseRenewalRequests />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Lease Renewal Requests",
+    description: "Manage your lease renewal requests",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/lease-renewal-requests/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseRenewalRequestDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/lease-renewal-accept-form/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <LeaseRenewalAcceptForm />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
     path: "/dashboard/landlord/lease-templates/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <CreateLeaseTemplate />
+        <CreateLeaseTemplate isLeaseRenewal={false} />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,

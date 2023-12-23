@@ -74,7 +74,6 @@ const UITable = (props) => {
             setPreviousPageEndPoint(res.data.previous);
             setCount(res.data.count);
             setIsLoading(false);
-            console.log(res.data);
             if (props.options.isSelectable) {
               let newChecked = [];
               //loop through the first set of results and set the selected property to false for each row. After
@@ -122,8 +121,6 @@ const UITable = (props) => {
           }
         });
     }
-    console.log("props.data in UTAABLE", props.data);
-    console.log("Results state in UTAABLE", results);
   };
 
   // Sort the data based on the current sorting column and order
@@ -329,9 +326,9 @@ const UITable = (props) => {
             alignItems="center"
             spacing={2}
           >
-            <h2>
+            <h3>
               {props.title} ({isDrfFilterBackend ? count : results.length})
-            </h2>
+            </h3>
           </Stack>
           <Stack
             direction="row"
@@ -361,6 +358,7 @@ const UITable = (props) => {
                 outline: "none",
                 borderRadius: "5px",
                 padding: "10px",
+                width: "130px",
               }}
               placeholder="Search"
               onChange={handleSearch}

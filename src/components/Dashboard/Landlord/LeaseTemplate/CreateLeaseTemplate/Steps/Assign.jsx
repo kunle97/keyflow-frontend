@@ -15,27 +15,8 @@ const Assign = (props) => {
   ];
   const unit_columns = [
     {
-      name: "rental_property",
+      name: "rental_property_name",
       label: "Rental Property",
-      options: {
-        isObject: true,
-        customBodyRender: async (value) => {
-          try {
-            console.log("Fetching data for", value);
-            const res = await getProperty(value);
-            console.log("Response:", res);
-
-            if (res) {
-              return <span>{res.name}</span>;
-            } else {
-              return <span>No data available</span>;
-            }
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            return <span>Error: Unable to fetch data</span>;
-          }
-        },
-      },
     },
     { name: "name", label: "Name" },
     { name: "beds", label: "Beds" },

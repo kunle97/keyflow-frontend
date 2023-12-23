@@ -186,6 +186,14 @@ const ViewRentalApplication = () => {
       }
     });
   };
+  function isJsonString(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     setIsLoading(true);
@@ -194,8 +202,18 @@ const ViewRentalApplication = () => {
       //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
       if (res) {
         setRentalApplication(res);
-        setEmploymentHistory(JSON.parse(res.employment_history));
-        setResidentialHistory(JSON.parse(res.residential_history));
+        //Check if res.employment_history is an oject if so parse it if string leave it
+        if (isJsonString(res.employment_history)) {
+          setEmploymentHistory(JSON.parse(res.employment_history));
+        } else {
+          setEmploymentHistory(res.employment_history);
+        }
+        //Check if res.residential_history is an oject if so parse it if string leave it
+        if (isJsonString(res.residential_history)) {
+          setResidentialHistory(JSON.parse(res.residential_history));
+        } else {
+          setResidentialHistory(res.residential_history);
+        }
         setIsLoading(false);
       }
     });

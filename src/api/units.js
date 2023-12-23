@@ -154,3 +154,4 @@ export async function getLandlordUnits() {
     return error.response.data;
   }
 }
+

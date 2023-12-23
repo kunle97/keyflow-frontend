@@ -5,7 +5,6 @@ import { authUser } from "../constants";
 export async function getMessages() {
   try {
     const res = await authenticatedInstance.get(`/messages/`).then((res) => {
-      console.log(res);
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
       }
@@ -23,7 +22,6 @@ export async function getMessagesWithLimit(limit) {
     const res = await authenticatedInstance
       .get(`/messages/?limit=${limit}`)
       .then((res) => {
-        console.log(res);
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -42,7 +40,6 @@ export async function getMessageByRecipient() {
     const res = await authenticatedInstance
       .get(`/messages/?recipient=${authUser.user_id}`)
       .then((res) => {
-        console.log(res);
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
