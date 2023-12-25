@@ -1,19 +1,38 @@
 /**
- * API functions for the frontend
+ * Axios instances for making API calls as well as some helper  API functions
  * **/
 import axios from "axios";
 import { token } from "../constants";
 
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 
+const handleError = (error) => {
+  console.error("Request failed:", error);
+  return Promise.reject(error);
+};
+
+const addErrorHandler = (instance) => {
+  instance.interceptors.request.use(
+    (config) => config,
+    handleError
+  );
+
+  instance.interceptors.response.use(
+    (response) => response,
+    handleError
+  );
+};
+
 export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
-  timeout: 10000,
+  timeout: 20000,
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   },
 });
+addErrorHandler(authenticatedInstance);
+
 export const authenticatedMediaInstance = axios.create({
   baseURL: API_HOST,
   timeout: 10000,
@@ -22,6 +41,8 @@ export const authenticatedMediaInstance = axios.create({
     Authorization: `Bearer ${token}`,
   },
 });
+addErrorHandler(authenticatedMediaInstance);
+
 export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
   timeout: 10000,
@@ -29,6 +50,7 @@ export const unauthenticatedInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+addErrorHandler(unauthenticatedInstance);
 
 //Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
 export async function getLandlordsEmails() {

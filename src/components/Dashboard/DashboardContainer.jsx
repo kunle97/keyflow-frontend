@@ -3,10 +3,11 @@ import Sidebar from "./Landlord/Navigation/Sidebar";
 import Topbar from "./Landlord/Navigation/Topbar";
 import SidebarDrawer from "./Landlord/Navigation/SidebarDrawer";
 import TopBarMUI from "../Dashboard/Landlord/Navigation/TopBarMUI";
-import { authUser, uiGreen } from "../../constants";
+import { authUser, uiGreen, uiGrey2 } from "../../constants";
 import { Navigate, useNavigate } from "react-router-dom";
 import DeveloperToolsMenu from "./DevTools/DeveloperToolsMenu";
 const DashboardContainer = ({ children }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [muiMode, setMuiSidebarMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,32 +27,40 @@ const DashboardContainer = ({ children }) => {
         <Sidebar />
       )}
       <div className="d-flex flex-column" id="content-wrapper">
-        <div id="content" style={{ background: "#2c3a4a" }}>
-          {/* Top Nav */}
-          {muiMode ? <TopBarMUI openMenu={setMenuOpen} /> : <Topbar />}
+        <div
+          id="content"
+          style={{ background: isDarkMode ? "#2c3a4a" : "#f4f7f8" }}
+        >
           <div className={`container `} style={style}>
+            {/* Top Nav */}
+            {muiMode ? <TopBarMUI openMenu={setMenuOpen} /> : <Topbar />}
             {authUser.is_active === false ? (
               <Navigate to="/dashboard/activate-account/" replace />
             ) : (
               children
             )}
+            <footer
+              className="bg-white sticky-footer"
+              style={{
+                background: "white",
+                color: uiGrey2,
+                borderRadius: "10px",
+                margin: "15px",
+              }}
+            >
+              <div className="container my-auto">
+                <div className="text-center my-auto copyright">
+                  <span className="text-dark">
+                    Copyright © KeyFlow {new Date().getFullYear()}
+                  </span>
+                </div>
+              </div>
+            </footer>
           </div>
         </div>
         {process.env.REACT_APP_ENVIRONMENT === "development" && (
           <DeveloperToolsMenu />
         )}
-        <footer
-          className="bg-white sticky-footer"
-          style={{ background: "#2c3a4a", color: uiGreen }}
-        >
-          <div className="container my-auto">
-            <div className="text-center my-auto copyright">
-              <span className="text-white">
-                Copyright © KeyFlow {new Date().getFullYear()}
-              </span>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   );

@@ -16,7 +16,6 @@ const Properties = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "name", label: "Property Name" },
     { name: "street", label: "Street Address" },
     { name: "city", label: "City" },
@@ -85,14 +84,14 @@ const Properties = () => {
     setIsLoading(false);
   }, []);
   return (
-    <div className="container">
+    <div className="container-fluid">
       <AlertModal
         open={showDeleteError}
         setOpen={setShowDeleteError}
         title={"Error"}
         message={errorMessage}
         btnText={"Ok"}
-        onClick={() => setShowDeleteError(false)}
+      onClick={() => setShowDeleteError(false)}
       />
       <UITable
         columns={columns}

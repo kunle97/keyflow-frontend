@@ -201,7 +201,7 @@ const CreateProperty = () => {
                 {step === 0 && (
                   <div className="property-info-section">
                     <div className="mb-3">
-                      <label className="form-label text-white" htmlFor="street">
+                      <label className="form-label text-black" htmlFor="street">
                         <strong>Name</strong>
                       </label>
                       <input
@@ -224,7 +224,7 @@ const CreateProperty = () => {
                       </span>
                     </div>
                     <div className="mb-3">
-                      <label className="form-label text-white" htmlFor="street">
+                      <label className="form-label text-black" htmlFor="street">
                         <strong>Street Address</strong>
                       </label>
                       <input
@@ -255,7 +255,7 @@ const CreateProperty = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="city"
                           >
                             <strong>City</strong>
@@ -283,7 +283,7 @@ const CreateProperty = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="state"
                           >
                             <strong>State</strong>
@@ -373,7 +373,7 @@ const CreateProperty = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="zipcode"
                           >
                             <strong>Zip Code</strong>
@@ -402,7 +402,7 @@ const CreateProperty = () => {
                       <div className="col-md-12">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="country"
                           >
                             <strong>Country</strong>

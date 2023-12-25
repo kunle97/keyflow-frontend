@@ -46,7 +46,7 @@ const TenantLeaseCancellationRequests = () => {
     },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/tenant/lease-renewal-requests/${rowData}/`;
+    const navlink = `/dashboard/tenant/lease-renewal-requests/`;
     navigate(navlink);
   };
   const options = {

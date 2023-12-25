@@ -6,7 +6,7 @@ import { IconButton, Stack } from "@mui/material";
 import { extractFileNameAndExtension } from "../../../helpers/utils";
 import UIPrompt from "./UIPrompt";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import { uiGreen, uiRed } from "../../../constants";
+import { uiGreen, uiGrey2, uiRed } from "../../../constants";
 import ConfirmModal from "./Modals/ConfirmModal";
 import { deleteFile } from "../../../api/file_uploads";
 import AlertModal from "./Modals/AlertModal";
@@ -269,7 +269,7 @@ const FileManagerView = (props) => {
               onClick={prevPage}
               disabled={currentPage === 1}
             />
-            <span style={{ margin: "0 10px" }}>
+            <span style={{ margin: "0 10px", color:uiGrey2 }}>
               Page {currentPage} of{" "}
               {Math.ceil(filteredFiles.length / itemsPerPage)}
             </span>

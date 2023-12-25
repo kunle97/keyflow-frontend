@@ -276,8 +276,8 @@ const Messages = () => {
                         selectedThread?.id === thread.id
                           ? threadSelectedStyle
                           : {
-                              backgroundColor: uiGrey2,
-                              color: "white",
+                              color: uiGrey2,
+                              backgroundColor: "white",
                               border: "none",
                             }
                       }
@@ -319,7 +319,7 @@ const Messages = () => {
                             <span style={{ fontSize: "16pt" }}>
                               {thread.name}
                             </span>{" "}
-                            <span className="text-white">
+                            <span className="text-black">
                               {dateDiffForHumans(
                                 new Date(thread.messages[0].timestamp)
                               )}
@@ -333,7 +333,7 @@ const Messages = () => {
                             justifyContent="space-between"
                           >
                             <span
-                              className="text-white"
+                              className="tblack"
                               style={{
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",

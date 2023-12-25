@@ -6,10 +6,11 @@ import {
 } from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { uiGreen, uiRed } from "../../../../constants";
+import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import TitleCard from "../../UIComponents/TitleCard";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
+import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 
 const LandlordMaintenanceRequests = () => {
   const navigate = useNavigate();
@@ -28,7 +29,6 @@ const LandlordMaintenanceRequests = () => {
   const [showDeleteError, setShowDeleteError] = useState(false);
 
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
     {
@@ -67,8 +67,8 @@ const LandlordMaintenanceRequests = () => {
     filter: true,
     sort: true,
     sortOrder: {
-      name: 'created_at',
-      direction: 'desc'
+      name: "created_at",
+      direction: "desc",
     },
     onRowClick: handleRowClick,
     rowHover: true,
@@ -123,36 +123,35 @@ const LandlordMaintenanceRequests = () => {
 
   return (
     <div>
-      <h3 className="text-white mb-4">Maintainance Requests</h3>
       <div className="row">
         <div className="col-md-3 mb-4">
-          <TitleCard
-            title="Resolved Issues"
-            value={resolvedIssues}
-            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
-            backgroundColor={uiGreen}
-            subTextIcon={<i className="fas fa-arrow-up" />}
-            subtext="5% since last month"
+          <UIInfoCard
+            cardStyle={{ background: "white", color: uiGrey2 }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+            info={resolvedIssues}
+            title={"Resolved Issues"}
+            // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
         <div className="col-md-3 mb-4">
-          <TitleCard
-            title="In Progress Issues"
-            value={inProgressIssues}
-            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
-            backgroundColor={"#36abba"}
-            subTextIcon={<i className="fas fa-arrow-up" />}
-            subtext="5% since last month"
+          <UIInfoCard
+            cardStyle={{ background: "white", color: uiGrey2 }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+            info={inProgressIssues}
+            title={"Issues In Progress"}
+            // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
         <div className="col-md-3 mb-4">
-          <TitleCard
-            title="Pending Issues"
-            value={pendingIssues}
-            icon={<i className="fas fa-chart-bar fa-2x text-gray-300" />}
-            backgroundColor={"#e5b940"}
-            subTextIcon={<i className="fas fa-arrow-up" />}
-            subtext="5% since last month"
+          <UIInfoCard
+            cardStyle={{ background: "white", color: uiGrey2 }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+            info={pendingIssues}
+            title={"Pending Issues"}
+            // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
       </div>
@@ -163,7 +162,7 @@ const LandlordMaintenanceRequests = () => {
         message={deleteErrorMessage}
         btnText="Close"
       />
-        <UITable
+      <UITable
         columns={columns}
         options={options}
         endpoint="/maintenance-requests/"

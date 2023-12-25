@@ -72,7 +72,7 @@ const LeaseRenewalRequests = () => {
     //CREate a function to handle the row delete
   };
   return (
-    <div>
+    <div className="container-fluid">
       <UITable
         title="Lease Renewal Requests"
         endpoint={"/lease-renewal-requests/"}

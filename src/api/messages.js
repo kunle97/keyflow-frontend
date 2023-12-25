@@ -13,7 +13,7 @@ export async function getMessages() {
     return res;
   } catch (error) {
     console.log("Get Messages Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 //Create a function to get all messages for this user
@@ -30,7 +30,7 @@ export async function getMessagesWithLimit(limit) {
     return res;
   } catch (error) {
     console.log("Get Messages Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -48,7 +48,7 @@ export async function getMessageByRecipient() {
     return res;
   } catch (error) {
     console.log("Get Message By Recipient Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -65,7 +65,7 @@ export async function sendMessage(data) {
     return { message: "Message sent successfully", status: 200, res: res };
   } catch (error) {
     console.log("Send Message Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -84,7 +84,7 @@ export async function editMessage(data) {
     return { message: "Message edited successfully", status: 200, res: res };
   } catch (error) {
     console.log("Edit Message Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -103,7 +103,7 @@ export async function deleteMessage(data) {
     return { message: "Message deleted successfully", status: 200, res: res };
   } catch (error) {
     console.log("Delete Message Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -122,7 +122,7 @@ export async function retrieveUserThreads() {
     return res;
   } catch (error) {
     console.log("Get Messages Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 

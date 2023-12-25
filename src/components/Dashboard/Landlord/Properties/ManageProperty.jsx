@@ -66,7 +66,6 @@ const ManageProperty = () => {
     navigate(navlink);
   };
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "name", label: "Name" },
     { name: "beds", label: "Beds" },
     { name: "baths", label: "Baths" },
@@ -176,14 +175,16 @@ const ManageProperty = () => {
       setUnitCount(res.units.length);
       setIsLoading(false);
     });
-    retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id).then((res) => {
-      setPropertyMedia(res.data);
-      setPropertyMediaCount(res.data.length);
-    });
+    retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id).then(
+      (res) => {
+        setPropertyMedia(res.data);
+        setPropertyMediaCount(res.data.length);
+      }
+    );
   }, []);
 
   return (
-    <div>
+    <div className="container-fluid">
       <Snackbar
         open={showUpdateSuccess}
         autoHideDuration={6000}
@@ -219,32 +220,30 @@ const ManageProperty = () => {
                           <div className="col">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="first_name"
                               >
                                 <strong>Beds</strong>
                               </label>
-                              <p className="text-white">4</p>
+                              <p className="text-dark">4</p>
                             </div>
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="last_name"
                               >
                                 <strong>Baths</strong>
                               </label>
-                              <p className="text-white">2</p>
+                              <p className="text-dark">2</p>
                             </div>
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="last_name"
                               >
                                 <strong>MLS #</strong>
                               </label>
-                              <p className="text-white">
-                                732EFH82F8BO189FB917B
-                              </p>
+                              <p className="text-dark">732EFH82F8BO189FB917B</p>
                             </div>
                           </div>
                         </div>
@@ -258,7 +257,7 @@ const ManageProperty = () => {
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="name"
                           >
                             <strong>Property Name</strong>
@@ -281,7 +280,7 @@ const ManageProperty = () => {
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="address"
                           >
                             <strong>Street Address</strong>
@@ -314,7 +313,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="city"
                               >
                                 <strong>City</strong>
@@ -337,7 +336,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="state"
                               >
                                 <strong>State</strong>
@@ -358,7 +357,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="zipcode"
                               >
                                 <strong>Zip Code</strong>
@@ -382,7 +381,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-12 col-lg-12">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="country"
                               >
                                 <strong>Country</strong>
@@ -547,39 +546,39 @@ const ManageProperty = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="username"
                           >
                             <strong>Total Revenue</strong>
                           </label>
-                          <p className="text-white">$23,049</p>
+                          <p className="text-dark">$23,049</p>
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="first_name"
                           >
                             <strong>Net Operating Income (NOI)</strong>
                           </label>
-                          <p className="text-white">23.4%</p>
+                          <p className="text-dark">23.4%</p>
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="first_name"
                           >
                             <strong>Property Value</strong>
                           </label>
-                          <p className="text-white">$428,324</p>
+                          <p className="text-dark">$428,324</p>
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="email"
                           >
                             <strong>Total Expenses</strong>
                           </label>
-                          <p className="text-white">$13,123</p>
+                          <p className="text-dark">$13,123</p>
                         </div>
                       </div>
                     </div>

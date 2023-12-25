@@ -227,7 +227,7 @@ h1,
   margin-bottom: 0.5rem;
   font-weight: 400;
   line-height: 1.2;
-  color: white;
+  color: #2d2e35;
 }
 h1,
 .h1 {
@@ -2201,11 +2201,11 @@ textarea.form-control-lg {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: white;
+  color: #2c3a4a;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-color: #2c3a4a;
+  background-color: #f4f7f8;
   background-image: var(--bs-form-select-bg-img),
     var(--bs-form-select-bg-icon, none);
   background-repeat: no-repeat;
@@ -12299,7 +12299,9 @@ a:focus {
 }
 .sidebar .nav-item {
   position: relative;
+  max-height: 75px !important;
 }
+
 .sidebar .nav-item:last-child {
   margin-bottom: 1rem;
 }
@@ -12428,7 +12430,7 @@ a:focus {
 }
 @media (min-width: 768px) {
   .sidebar {
-    width: 14rem !important;
+    width: 350px !important;
   }
   .sidebar .nav-item .collapse {
     position: relative;

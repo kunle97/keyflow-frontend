@@ -16,7 +16,6 @@ const LeaseTemplates = () => {
   const [showDeleteError, setShowDeleteError] = useState(false);
   const navigate = useNavigate();
   const columns = [
-    { name: "id", label: "ID", options: { display: true } },
     { name: "rent", label: "Rent" },
     {
       name: "term",
@@ -135,7 +134,7 @@ const LeaseTemplates = () => {
     });
   }, []);
   return (
-    <>
+    <div className="container-fluid">
       <div className="card" style={{ overflow: "hidden" }}>
         <AlertModal
           open={showDeleteError}
@@ -163,7 +162,7 @@ const LeaseTemplates = () => {
         detailURL="/dashboard/landlord/lease-templates/"
         showCreate={true}
       />
-    </>
+    </div>
   );
 };
 

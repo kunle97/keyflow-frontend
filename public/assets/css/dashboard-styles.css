@@ -1,5 +1,5 @@
 .card {
-  background: #364658;
+  /* background: whtie; */
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
   border: none;
 }
@@ -22,8 +22,32 @@
   background: #2c3a4a;
 }
 
+.dashboard-nav-item {
+  height: 90px;
+  font-size: 45pt !important;
+}
+.nav-link {
+  border-radius: 15px;
+  height: 90px;
+  vertical-align: middle;
+}
+.nav-link:hover {
+  background: #f4f7f8 !important;
+  /* Create a fading animation */
+  animation: fadein 0.5s;
+  -moz-animation: fadein 0.5s;
+  /* Firefox */
+  -webkit-animation: fadein 0.5s;
+  /* Safari and Chrome */
+  -o-animation: fadein 0.5s;
+  /* Opera */
+  vertical-align: middle;
+}
+.dropdown-item {
+  padding: 15px;
+}
+
 .sticky-footer {
-  background: #2c3a4a !important;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
 }
 
@@ -34,7 +58,7 @@
 
 th,
 td {
-  color: white !important;
+  color: #2c3a4a !important;
 }
 
 .heading-container {
@@ -61,8 +85,8 @@ td {
   margin-bottom: 10px;
 }
 .form-control {
-  background: #2c3a4a !important;
-  color: white !important;
+  color: #2c3a4a !important;
+  background: #f4f7f8 !important;
   border: none !important;
 }
 .top-bar-searchbar {
@@ -88,8 +112,11 @@ table#ui-table {
   border-spacing: 0 15px;
   width: 100%;
   border: none;
+  padding: 5px;
 }
-
+table#ui-table td {
+  color: #364658 !important;
+}
 table#ui-table td,
 table#ui-table th {
   padding: 20px;
@@ -97,10 +124,13 @@ table#ui-table th {
 
 table#ui-table th > * {
   background: none;
-  color: white;
+  color: #2c3a4a;
+  border-bottom: 1px solid #3aaf5c;
+  font-weight: 500;
+  font-size: 15pt;
 }
+
 table#ui-table tr {
-  background-color: #364658;
   border: none;
 }
 
@@ -108,7 +138,7 @@ table#ui-table th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #3aaf5c;
+  /* background-color: #3aaf5c; */
 }
 
 table#ui-table td:first-child,

@@ -1,4 +1,5 @@
 import React from "react";
+import { uiGrey2 } from "../../../constants";
 
 const UIDropdown = (props) => {
   const defaultStyles = {
@@ -8,7 +9,7 @@ const UIDropdown = (props) => {
   };
   return (
     <div>
-      <span>{props.prefixText ? props.prefixText : ""} </span>
+      <span style={{color:uiGrey2}} >{props.prefixText ? props.prefixText : ""} </span>
       <select
         value={props.value}
         onChange={props.onChange}
@@ -22,7 +23,7 @@ const UIDropdown = (props) => {
           );
         })}
       </select>
-      <span>{props.suffixText ? props.suffixText : ""}</span>
+      <span style={{color:uiGrey2}} >{props.suffixText ? props.suffixText : ""}</span>
     </div>
   );
 };

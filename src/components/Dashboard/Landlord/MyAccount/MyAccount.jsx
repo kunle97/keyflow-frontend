@@ -162,9 +162,11 @@ const MyAccount = () => {
     getUserStripeSubscriptions(authUser.user_id, token).then((res) => {
       setCurrentSubscriptionPlan(res.subscriptions);
     });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then((res) => {
-      setProfilePictureFile(res.data[0]);
-    });
+    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+      (res) => {
+        setProfilePictureFile(res.data[0]);
+      }
+    );
   }, []);
 
   return (
@@ -177,7 +179,7 @@ const MyAccount = () => {
         handleClose={() => setShowResponseModal(false)}
         onClick={() => setShowResponseModal(false)}
       />
-      <h3 className="text-white mb-4">My Account</h3>
+      <h3 className="text-black mb-4">My Account</h3>
 
       <UITabs
         style={{ marginBottom: "30px" }}
@@ -218,7 +220,7 @@ const MyAccount = () => {
                     />
                   </div>
                   <h4
-                    className="text-white tenant-info-heading"
+                    className="text-black tenant-info-heading"
                     style={{ width: "100%" }}
                   >
                     <center>
@@ -245,7 +247,7 @@ const MyAccount = () => {
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="first_name"
                           >
                             <strong>First Name</strong>
@@ -273,7 +275,7 @@ const MyAccount = () => {
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="last_name"
                           >
                             <strong>Last Name</strong>
@@ -303,7 +305,7 @@ const MyAccount = () => {
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="username"
                           >
                             <strong>Username</strong>
@@ -331,7 +333,7 @@ const MyAccount = () => {
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="email"
                           >
                             <strong>Email Address</strong>
@@ -390,7 +392,7 @@ const MyAccount = () => {
                     <div className="col-12">
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="username"
                         >
                           <strong>Current Password</strong>
@@ -411,7 +413,7 @@ const MyAccount = () => {
                     <div className="col-12">
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="email"
                         >
                           <strong>Retype-Current Password</strong>
@@ -439,7 +441,7 @@ const MyAccount = () => {
                     <div className="col-12">
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="first_name"
                         >
                           <strong>New Password</strong>
@@ -488,48 +490,43 @@ const MyAccount = () => {
         <div className="row ">
           <div className="col-md-12">
             <div className="card shadow mb-3">
-              <div className="card-header py-3">
-                <h6 className="text-primary fw-bold m-0 card-header-text">
-                  Banking Information
-                </h6>
-              </div>
               <div className="card-body">
                 <form>
                   <div className="row">
                     <div className="col">
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="username"
                         >
                           <strong>Account Number</strong>
                         </label>
-                        <p className="text-white">****9010</p>
+                        <p className="text-black">****9010</p>
                       </div>
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="first_name"
                         >
                           <strong>Account Type</strong>
                         </label>
-                        <p className="text-white">Checking</p>
+                        <p className="text-black">Checking</p>
                       </div>
                     </div>
                     <div className="col">
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="email"
                         >
                           <strong>Routing Number</strong>
                           <br />
                         </label>
-                        <p className="text-white">****8990</p>
+                        <p className="text-black">****8990</p>
                       </div>
                       <div className="mb-3">
                         <label
-                          className="form-label text-white"
+                          className="form-label text-black"
                           htmlFor="last_name"
                         >
                           <strong>Bank Setup</strong>
@@ -598,13 +595,13 @@ const MyAccount = () => {
                     <div className="card-body">
                       <Box sx={{ display: "flex" }}>
                         <Box sx={{ flex: "2" }}>
-                          <Typography className="text-white">
+                          <Typography className="text-black">
                             {paymentMethod.card.brand} ending in{" "}
                             {paymentMethod.card.last4}
                           </Typography>
                           <Typography
                             sx={{ fontSize: "10pt" }}
-                            className="text-white"
+                            className="text-black"
                           >
                             Expires {paymentMethod.card.exp_month}/
                             {paymentMethod.card.exp_year}
@@ -674,7 +671,7 @@ const MyAccount = () => {
                         ) {
                           return (
                             <Stack>
-                              <h5 className="text-white">{plan.name}</h5>
+                              <h5 className="text-black">{plan.name}</h5>
                               <Stack
                                 direction="row"
                                 justifyContent="flex-start"

@@ -1,6 +1,6 @@
 import React from "react";
 import { IconButton, Stack } from "@mui/material";
-import { uiGreen } from "../../../../../constants";
+import { uiGreen, uiGrey2 } from "../../../../../constants";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -49,6 +49,7 @@ const SearchResultCard = (props) => {
                       <h5 style={{ margin: 0 }}>{props.title}</h5>
                       <span
                         style={{
+                          color: uiGrey2,
                           overflow: "ellipse",
                           maxWidth: "100%",
                           margin: 0,

@@ -100,7 +100,6 @@ const ManageLeaseTemplate = () => {
     console.log(rowData);
   };
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "name", label: "Name" },
     { name: "beds", label: "Beds" },
     { name: "baths", label: "Baths" },
@@ -187,7 +186,7 @@ const ManageLeaseTemplate = () => {
         {additionalCharges.map((charge, index) => (
           <div key={index} className="row mt-3">
             <div className="col-md-3">
-              <label className="form-label text-white" htmlFor="street">
+              <label className="form-label text-black" htmlFor="street">
                 <strong>Charge</strong>
               </label>
               <input
@@ -213,7 +212,7 @@ const ManageLeaseTemplate = () => {
               </span>
             </div>
             <div className="col-md-3">
-              <label className="form-label text-white" htmlFor="street">
+              <label className="form-label text-black" htmlFor="street">
                 <strong>Amount</strong>
               </label>
               <input
@@ -239,7 +238,7 @@ const ManageLeaseTemplate = () => {
               </span>
             </div>
             <div className="col-md-3">
-              <label className="form-label text-white" htmlFor="street">
+              <label className="form-label text-black" htmlFor="street">
                 <strong>Frequency</strong>
               </label>
               <select
@@ -313,8 +312,6 @@ const ManageLeaseTemplate = () => {
           btnText="Add Charge"
           style={{
             marginTop: "20px",
-            color: uiGreen,
-            backgroundColor: "transparent",
             display: "block",
             boxShadow: "none",
           }}
@@ -355,7 +352,7 @@ const ManageLeaseTemplate = () => {
               <div className="form-group col-md-6 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="rent"
                 >
                   Rent (Dollar Amount)
@@ -389,7 +386,7 @@ const ManageLeaseTemplate = () => {
               <div className="form-group col-md-6 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="rent"
                 >
                   Term Duration
@@ -411,7 +408,7 @@ const ManageLeaseTemplate = () => {
                   }}
                   value={leaseTemplate.term}
                   className="form-select"
-                  sx={{ width: "100%", color: "white", background: uiGrey2 }}
+                  sx={{ width: "100%", color: uiGrey2, background: uiGrey2 }}
                   name="term"
                 >
                   <option value="">Select One</option>
@@ -429,7 +426,7 @@ const ManageLeaseTemplate = () => {
               <div className="form-group col-md-6 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="lateFee"
                 >
                   Late Fee
@@ -463,7 +460,7 @@ const ManageLeaseTemplate = () => {
               <div className="form-group col-md-6 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="rent"
                 >
                   Security Deposit (Dollar Amount)
@@ -495,7 +492,7 @@ const ManageLeaseTemplate = () => {
               </div>
 
               <div className="form-group col-md-6 mb-4">
-                <label className="mb-2">Gas Included</label>
+                <label className="mb-2 text-black">Gas Included</label>
                 <select
                   {...register("gas_included", {
                     required: "This field is required",
@@ -521,7 +518,7 @@ const ManageLeaseTemplate = () => {
               </div>
 
               <div className="form-group col-md-6 mb-4">
-                <label className="mb-2">Water Included</label>
+                <label className="mb-2 text-black">Water Included</label>
                 <select
                   {...register("water_included", {
                     required: "This field is required",
@@ -545,7 +542,7 @@ const ManageLeaseTemplate = () => {
                 </span>
               </div>
               <div className="form-group col-md-6 mb-4">
-                <label className="mb-2">Electric Included</label>
+                <label className="mb-2 text-black">Electric Included</label>
                 <select
                   {...register("electric_included", {
                     required: "This field is required",
@@ -568,7 +565,7 @@ const ManageLeaseTemplate = () => {
                 </span>
               </div>
               <div className="form-group col-md-6 mb-4">
-                <label className="mb-2">Repairs Included</label>
+                <label className="mb-2 text-black">Repairs Included</label>
                 <select
                   {...register("repairs_included", {
                     required: "This field is required",
@@ -593,7 +590,7 @@ const ManageLeaseTemplate = () => {
               <div className="form-group col-md-12 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="rent"
                 >
                   Grace Period
@@ -623,7 +620,7 @@ const ManageLeaseTemplate = () => {
                   }}
                   value={leaseTemplate.grace_period}
                   className="form-select"
-                  sx={{ width: "100%", color: "white" }}
+                  sx={{ width: "100%", color: uiGrey2 }}
                 >
                   <option value="">Select One</option>
                   <option value={0} selected>
@@ -640,10 +637,10 @@ const ManageLeaseTemplate = () => {
                     errors.lease_cancellation_notice_period.message}
                 </span>
               </div>
-              <div className="form-group col-md-12 mb-4">
+              <div className="form-group col-sm-12 col-md-6 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="rent"
                 >
                   Lease Cancellation Notice Period
@@ -665,7 +662,7 @@ const ManageLeaseTemplate = () => {
                   }}
                   value={leaseTemplate.lease_cancellation_notice_period}
                   className="form-select"
-                  sx={{ width: "100%", color: "white" }}
+                  sx={{ width: "100%", color: uiGrey2 }}
                 >
                   <option value="">Select One</option>
                   <option value={6}>6 Months</option>
@@ -679,10 +676,10 @@ const ManageLeaseTemplate = () => {
                     errors.lease_cancellation_notice_period.message}
                 </span>
               </div>
-              <div className="form-group col-md-12 mb-4">
+              <div className="form-group col-sm-12 col-md-6 mb-4">
                 <Typography
                   className="mb-2"
-                  sx={{ color: "white", fontSize: "12pt" }}
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
                   htmlFor="leaseCancellationFee"
                 >
                   Lease Cancellation Fee
@@ -713,6 +710,82 @@ const ManageLeaseTemplate = () => {
                     errors.lease_cancellation_fee.message}
                 </span>
               </div>
+              <div className="form-group col-sm-12 col-md-6 mb-4">
+                <Typography
+                  className="mb-2"
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
+                  htmlFor="rent"
+                >
+                  Lease Renewal Notice Period
+                </Typography>
+                <select
+                  {...register("lease_renewal_notice_period", {
+                    required: "This field is required",
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
+                  })}
+                  onChange={(e) => {
+                    // trigger("lease_cancellation_notice_period");
+                    setLeaseTemplate({
+                      ...leaseTemplate,
+                      lease_renewal_notice_period: e.target.value,
+                    });
+                  }}
+                  value={leaseTemplate.lease_renewal_notice_period}
+                  className="form-select"
+                  sx={{ width: "100%", color: uiGrey2 }}
+                >
+                  <option value="">Select One</option>
+                  <option value={6}>6 Months</option>
+                  <option value={12}>12 Months</option>
+                  <option value={13}>13 Months</option>
+                  <option value={24}>24 Months</option>
+                  <option value={36}>36 Months</option>
+                </select>
+                <span style={validationMessageStyle}>
+                  {errors.lease_renewal_notice_period &&
+                    errors.lease_renewal_notice_period.message}
+                </span>
+              </div>
+              <div className="form-group col-sm-12 col-md-6 mb-4">
+                <Typography
+                  className="mb-2"
+                  sx={{ color: uiGrey2, fontSize: "12pt" }}
+                  htmlFor="leaseRenewalFee"
+                >
+                  Lease Renewal Fee
+                </Typography>
+                <input
+                  {...register("lease_renewal_fee", {
+                    required: "This field is required",
+                    // pattern: {
+                    //   value: /^[0-9]+$/i,
+                    //   message: "Please enter a valid number",
+                    // },
+                  })}
+                  onChange={(e) => {
+                    // trigger("lease_cancellation_fee");
+                    setLeaseTemplate({
+                      ...leaseTemplate,
+                      lease_renewal_fee: e.target.value,
+                    });
+                  }}
+                  value={leaseTemplate.lease_renewal_fee}
+                  type="number"
+                  className="form-control"
+                  id="leaseRenewalFee"
+                  placeholder="$"
+                />
+                <span style={validationMessageStyle}>
+                  {errors.lease_renewal_fee &&
+                    errors.lease_renewal_fee.message}
+                </span>
+              </div>
+
+
+              
               <div className="form-group col-md-12">
                 <Button
                   variant="contained"

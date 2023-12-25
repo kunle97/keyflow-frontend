@@ -124,18 +124,18 @@ const LandlordMaintenanceRequestDetail = () => {
                   <h6>
                     <strong>Property Name</strong>
                   </h6>
-                  <p>{property.name}</p>
+                  <p className="text-black" >{property.name}</p>
                   <h6>
                     <strong>Address</strong>
                   </h6>
-                  <p>
+                  <p className="text-black" >
                     {property.street}, {property.city} {property.state}{" "}
                     {property.zip_code}
                   </p>
                   <h6>
                     <strong>Unit</strong>
                   </h6>
-                  <p>{unit.name}</p>
+                  <p className="text-black" >{unit.name}</p>
                 </div>
               </div>
             </div>
@@ -148,13 +148,13 @@ const LandlordMaintenanceRequestDetail = () => {
                       <h6>
                         <strong>Issue</strong>
                       </h6>
-                      <p>{maintenanceRequest.description}</p>
+                      <p className="text-black">{maintenanceRequest.description}</p>
                     </div>
                     <div className="col-md-4">
                       <h6>
                         <strong>Type</strong>
                       </h6>
-                      <p style={{ textTransform: "capitalize" }}>
+                      <p className="text-black" style={{ textTransform: "capitalize" }}>
                         {maintenanceRequest.type}
                       </p>
                     </div>

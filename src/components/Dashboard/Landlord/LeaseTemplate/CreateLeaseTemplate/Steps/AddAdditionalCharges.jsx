@@ -27,7 +27,7 @@ const AddAdditionalCharges = (props) => {
       {props.addtionalCharges.map((charge, index) => (
         <div key={index} className="row mt-3">
           <div className="col-md-3">
-            <label className="form-label text-white" htmlFor="street">
+            <label className="form-label text-dark" htmlFor="street">
               <strong>Charge</strong>
             </label>
             <input
@@ -53,7 +53,7 @@ const AddAdditionalCharges = (props) => {
             </span>
           </div>
           <div className="col-md-3">
-            <label className="form-label text-white" htmlFor="street">
+            <label className="form-label text-dark" htmlFor="street">
               <strong>Amount</strong>
             </label>
             <input
@@ -79,7 +79,7 @@ const AddAdditionalCharges = (props) => {
             </span>
           </div>
           <div className="col-md-3">
-            <label className="form-label text-white" htmlFor="street">
+            <label className="form-label text-dark" htmlFor="street">
               <strong>Frequency</strong>
             </label>
             <select

@@ -16,6 +16,7 @@ import {
   getPaymentDates,
 } from "../../../../api/manage_subscriptions";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import UICard from "../../UIComponents/UICards/UICard";
 
 const ManageTenant = () => {
   const { tenant_id } = useParams();
@@ -191,7 +192,7 @@ const ManageTenant = () => {
                   />
                 </div>
                 <h4
-                  className="text-white tenant-info-heading"
+                  className="text-black tenant-info-heading"
                   style={{ width: "100%" }}
                 >
                   <center>
@@ -213,17 +214,21 @@ const ManageTenant = () => {
               <div className="col-sm-12">
                 <div className="row">
                   <div className="col-sm-12 col-md-6 mb-4">
-                    <TitleCard
-                      title="Total Payments"
-                      backgroundColor={uiGreen}
-                      value={`$23,432`}
+                    <UICard
+                      cardStyle={{ background: "white", color: uiGreen }}
+                      infoStyle={{ color: uiGreen, fontSize: "16pt" }}
+                      titleStyle={{ color: uiGreen, fontSize: "12pt" }}
+                      info={`$${faker.finance.amount()}`}
+                      title={"Total Payments"}
                     />
                   </div>
                   <div className="col-sm-12 col-md-6 mb-4">
-                    <TitleCard
-                      title="Total Late Payments"
-                      backgroundColor={uiRed}
-                      value={`3`}
+                    <UICard
+                      cardStyle={{ background: "white", color: uiRed }}
+                      infoStyle={{ color: uiRed, fontSize: "16pt" }}
+                      titleStyle={{ color: uiRed, fontSize: "12pt" }}
+                      info={`$${faker.finance.amount()}`}
+                      title={"Total Late Payments"}
                     />
                   </div>
                 </div>
@@ -235,31 +240,31 @@ const ManageTenant = () => {
                         <h6>
                           <strong>Property</strong>
                         </h6>
-                        <p className="text-white">{property.name}</p>
+                        <p className="text-black">{property.name}</p>
                       </div>
                       <div className="col-md-6">
                         <h6>
                           <strong>Unit</strong>
                         </h6>
-                        <p className="text-white">{unit.name}</p>
+                        <p className="text-black">{unit.name}</p>
                       </div>
                       <div className="col-md-6">
                         <h6>
                           <strong>Lease Start Date</strong>
                         </h6>
-                        <p className="text-white">{lease.start_date}</p>
+                        <p className="text-black">{lease?lease.start_date:"N/A"}</p>
                       </div>
                       <div className="col-md-6">
                         <h6>
                           <strong>Lease End Date</strong>
                         </h6>
-                        <p className="text-white">{lease.end_date}</p>
+                        <p className="text-black">{lease?lease.end_date:"N/A"}</p>
                       </div>
                       <div className="col-md-6">
                         <h6>
                           <strong>Next Payment Date</strong>
                         </h6>
-                        <p className="text-white">
+                        <p className="text-black">
                           {
                             new Date(nextPaymentDate)
                               .toISOString()
@@ -271,9 +276,9 @@ const ManageTenant = () => {
                         <h6>
                           <strong>Time Left</strong>
                         </h6>
-                        <p className="text-white">
+                        <p className="text-black">
                           Lease ends{" "}
-                          {dateDiffForHumans(new Date(lease.end_date))}
+                          {lease?dateDiffForHumans(new Date(lease.end_date)):"N/A"}
                         </p>
                       </div>
                     </div>

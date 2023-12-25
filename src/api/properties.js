@@ -29,7 +29,7 @@ export async function createProperty(
     return { message: "Property created successfully", status: 200, res: res };
   } catch (error) {
     console.log("Create Property Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -48,7 +48,7 @@ export async function getProperties() {
     return res;
   } catch (error) {
     console.log("Get Properties Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -64,7 +64,7 @@ export async function getPropertyFilters() {
     return res;
   } catch (error) {
     console.log("Get Property Filters Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -82,7 +82,7 @@ export async function getProperty(propertyId) {
     return res.data;
   } catch (error) {
     console.log("Get Properties Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -101,7 +101,7 @@ export async function getPropertyUnauthenticated(propertyId) {
     return res;
   } catch (error) {
     console.log("Get Proprty Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -119,7 +119,7 @@ export async function updateProperty(propertyId, data) {
     return res.data;
   } catch (error) {
     console.log("Get Properties Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -138,6 +138,6 @@ export async function deleteProperty(propertyId) {
     return res.data;
   } catch (error) {
     console.log("Get Properties Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }

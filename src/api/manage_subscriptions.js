@@ -34,7 +34,7 @@ export async function turnOffAutoPay() {
     return res;
   } catch (error) {
     console.log("Turn Off Auto Pay Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 //Create a function to turn on auto pay on a subscription from endpoint /manage-lease/turn-on-auto-pay/
@@ -48,7 +48,7 @@ export async function turnOnAutoPay() {
     return res;
   } catch (error) {
     console.log("Turn On Auto Pay Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -63,7 +63,7 @@ export async function getNextPaymentDate(user_id) {
     return res;
   } catch (error) {
     console.log("Get Next Payment Date Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -78,7 +78,7 @@ export async function getPaymentDates(user_id) {
     return res;
   } catch (error) {
     console.log("Get Payment Dates Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 

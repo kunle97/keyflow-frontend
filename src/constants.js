@@ -24,7 +24,7 @@ export const stripe_onboarding_link = localStorage.getItem(
   : {};
 
 //Colors - probably should use tailwind colors
-export const uiGreen = "#3aaf5c";
+export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
@@ -55,6 +55,7 @@ export const muiDataTableTheme = createTheme({
     },
   },
 });
+
 export const devToolInputStyle = {
   background: `white !important`,
   color: "black",
@@ -90,7 +91,7 @@ export const landlordMenuItems = [
     isSearchable: true,
   },
   {
-    label: "Maintenance Requests",
+    label: "Maintenance ",
     link: "/dashboard/landlord/maintenance-requests",
     muiIcon: <HandymanOutlinedIcon />,
     description: "View all maintenance requests",
