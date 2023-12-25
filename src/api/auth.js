@@ -83,7 +83,7 @@ export async function login(email, password) {
     }
   } catch (error) {
     console.log("Login Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 // create an api function to logout

@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import {
   authUser,
   dateDiffForHumans,
+  defaultWhiteInputStyle,
   token,
   uiGreen,
   uiGrey1,
@@ -18,8 +19,10 @@ import {
 import { faker } from "@faker-js/faker";
 import { getMessagesWithLimit, getMessages } from "../../../../api/messages";
 import { createThreads } from "../../../../helpers/messageUtils";
-import { Stack } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import SearchIcon from "@mui/icons-material/Search";
+import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -27,7 +30,19 @@ const Topbar = () => {
   const [profilePictures, setProfilePictures] = useState(null);
   const [messageThreads, setMessageThreads] = useState([]);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [showSearchMenu, setShowSearchMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { logoutUser } = useAuth();
+  const searchBarStyle = {
+    ...defaultWhiteInputStyle,
+    borderRadius: "40px",
+    border: "none",
+    outline: "none",
+    boxShadow: "none",
+    background: "#f4f7f8",
+    padding: "10px 20px",
+    width: "260px",
+  };
   const handleLogout = async (e) => {
     e.preventDefault();
     logoutUser();
@@ -69,34 +84,33 @@ const Topbar = () => {
   };
   //REtrieve user notifications
   useEffect(() => {
-    try{
+    try {
       authenticatedInstance
-      .get("/notifications/?limit=5&ordering=-timestamp")
-      .then((response) => {
-        setNotifications(response.data.results);
-        setNotificationCount(response.data.count);
-      })
-      .catch((error) => {
-        console.log("Error: ", error);
-      });
-    fetchMessages();
-    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
-      (res) => {
-        setProfilePictureFile(res.data[0]);
+        .get("/notifications/?limit=5&ordering=-timestamp")
+        .then((response) => {
+          setNotifications(response.data.results);
+          setNotificationCount(response.data.count);
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+        });
+      fetchMessages();
+      retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+        (res) => {
+          setProfilePictureFile(res.data[0]);
+        }
+      );
+      if (!profilePictures) {
+        fetchProfilePictures();
       }
-    );
-    if (!profilePictures) {
-      fetchProfilePictures();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log("Done");
     }
-    }catch(error){
-      console.log(error)
-    }finally{
-      console.log("Done")
-    }
-    
   }, [profilePictures]);
   return (
-    <div className="container-fluid">
+    <div className="container">
       {open && (
         <AlertModal
           open={true}
@@ -114,12 +128,27 @@ const Topbar = () => {
       <nav
         className="navbar navbar-expand shadow mb-4 topbar static-top navbar-light"
         style={{
-          background: "#2c3a4a",
+          background: "white",
           boxShadow:
             "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
+          borderRadius: "10px",
+          marginTop: "20px",
         }}
       >
-        <div className="container-fluid">
+        <div className="container">
+          {showSearchMenu && (
+            <SearchDialog
+              open={showSearchMenu}
+              handleClose={() => setShowSearchMenu(false)}
+              query={searchQuery}
+            />
+          )}
+          <Link className="navbar-brand" to="/dashboard/landlord">
+            <img
+              src="/assets/img/key-flow-logo-black-transparent.png"
+              style={{ height: "40px", width: "auto" }}
+            />
+          </Link>
           <button
             className="btn btn-link d-md-none rounded-circle me-3"
             id="sidebarToggleTop"
@@ -130,8 +159,36 @@ const Topbar = () => {
           <form className="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div className="input-group"></div>
           </form>
-
-          <ul className="navbar-nav flex-nowrap ms-auto">
+          {authUser.account_type === "landlord" && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              justifyContent="space-between"
+            >
+              <input
+                type="search"
+                placeholder="Search"
+                style={searchBarStyle}
+                value={searchQuery}
+                onChange={(e) => {
+                  setShowSearchMenu(true);
+                  setSearchQuery(e.target.value);
+                }}
+              />
+              <IconButton
+                style={{
+                  background: uiGreen,
+                  position: "absolute",
+                  right: "302px",
+                }}
+                onClick={() => setShowSearchMenu(true)}
+              >
+                <SearchIcon style={{ color: "white" }} />
+              </IconButton>
+            </Stack>
+          )}
+          <ul className="navbar-nav flex-nowrap">
             <li className="nav-item dropdown d-sm-none no-arrow">
               <a
                 className="dropdown-toggle nav-link"
@@ -441,7 +498,7 @@ const Topbar = () => {
                 <div
                   className="dropdown-menu shadow dropdown-menu-end animated--grow-in"
                   data-bs-popper="none"
-                  style={{ borderStyle: "none" }}
+                  style={{ borderStyle: "none", background: "white" }}
                 >
                   <Link
                     className="dropdown-item"
@@ -455,7 +512,6 @@ const Topbar = () => {
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;My Account
                   </Link>
-                  <div className="dropdown-divider" />
                   <a
                     className="dropdown-item"
                     href="#"

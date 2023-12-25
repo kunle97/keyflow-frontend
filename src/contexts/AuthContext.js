@@ -93,7 +93,7 @@ export function AuthProvider({ children, ...props }) {
         // Handle this case, e.g., log the user out
         // logoutUser();
         updateToken();
-        return;
+        return { token: res.access, refresh: res.refresh };
       }
 
       if (loading) {
@@ -125,7 +125,7 @@ export function AuthProvider({ children, ...props }) {
     return () => {
       clearInterval(interval);
     };
-  }, [authTokens, loading, updateToken]);
+  }, [authTokens, loading, authUser]);
 
   return (
     <AuthContext.Provider value={contextData} {...props}>

@@ -3,7 +3,7 @@ import React from "react";
 
 const UIPrompt = (props) => {
   return (
-    <div className="card">
+    <div className="card" style={props.style}>
       <Stack
         direction={"column"}
         alignContent={"center"}
@@ -16,7 +16,6 @@ const UIPrompt = (props) => {
         <h4>{props.title}</h4>
         <p
           style={{
-            color: "white",
             textAlign: "center",
             padding: "0  10px",
           }}

@@ -2,11 +2,17 @@ import React, { useEffect, useState } from "react";
 import { getLandlordTenants } from "../../../../api/landlords";
 import { useNavigate } from "react-router-dom";
 import TitleCard from "../../UIComponents/TitleCard";
-import { authUser, uiGreen } from "../../../../constants";
+import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
 import UITable from "../../UIComponents/UITable/UITable";
 import { defaultUserProfilePicture } from "../../../../constants";
+import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
+import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
+  const [leaseRenewals, setLeaseRenewals] = useState([]);
+  const [leaseCancellations, setLeaseCancellations] = useState([]); // [
   const navigate = useNavigate();
   const columns = [
     {
@@ -15,7 +21,6 @@ const Tenants = () => {
       options: {
         isObject: true,
         customBodyRender: (value) => {
-          console.log("Image", value);
           return (
             <div
               style={{
@@ -58,33 +63,60 @@ const Tenants = () => {
       setTenants(res.data);
       console.log(tenants);
     });
+    getAllLeaseRenewalRequests().then((res) => {
+      console.log(res);
+      setLeaseRenewals(res.data);
+      console.log(leaseRenewals);
+    });
+    getAllLeaseCancellationRequests().then((res) => {
+      console.log(res);
+      setLeaseCancellations(res.data);
+      console.log(leaseCancellations);
+    });
   }, []);
 
   return (
     <div className="container">
-      <h3 className="text-white mb-4">Tenants</h3>
       <div className="row">
         <div className="col-sm-12 col-md-12 col-lg-8">
           <div className="row">
             <div className="col-md-4 mb-4">
-              <TitleCard
-                backgroundColor={uiGreen}
-                title="Total Tenants"
-                value={tenants.length}
+              <UIInfoCard
+                cardStyle={{ background: "white", color: uiGrey2 }}
+                infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+                info={tenants.length}
+                title={"Total Occupied Tenants"}
+                icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
               />
             </div>
             <div className="col-md-4 mb-4">
-              <TitleCard
-                backgroundColor={uiGreen}
-                title="Total Requests"
-                value={523}
+              <UIInfoCard
+                cardStyle={{ background: "white", color: uiGrey2 }}
+                infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+                title={"Pending Lease Cancellations"}
+                info={
+                  leaseCancellations.filter(
+                    (leaseCancellation) =>
+                      leaseCancellation.status === "pending"
+                  ).length
+                }
+                icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
               />
             </div>
             <div className="col-md-4 mb-4">
-              <TitleCard
-                backgroundColor={uiGreen}
-                title="Lease Renewals"
-                value={58}
+              <UIInfoCard
+                cardStyle={{ background: "white", color: uiGrey2 }}
+                infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+                title={"Pending Lease Renewals"}
+                info={
+                  leaseRenewals.filter(
+                    (leaseRenewal) => leaseRenewal.status === "pending"
+                  ).length
+                }
+                icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
               />
             </div>
           </div>
@@ -114,7 +146,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 12, 2019</span>
-                <p className="text-white">John Doe Just paid $2679 for rent</p>
+                <p className="text-dark">John Doe Just paid $2679 for rent</p>
               </div>{" "}
             </a>
             <a className="menu-item d-flex align-items-center p-3" href="#">
@@ -125,7 +157,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 7, 2019</span>
-                <p className="text-white">
+                <p className="text-dark">
                   $290.29 has been deposited into your account!
                 </p>
               </div>{" "}
@@ -138,7 +170,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 2, 2019</span>
-                <p className="text-white">
+                <p className="text-dark">
                   Spending Alert: We've noticed unusually high spending for your
                   account.
                 </p>
@@ -166,7 +198,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 12, 2019</span>
-                <p className="text-white">John Doe Just paid $2679 for rent</p>
+                <p className="text-dark">John Doe Just paid $2679 for rent</p>
               </div>{" "}
             </a>
             <a className="menu-item d-flex align-items-center p-3" href="#">
@@ -177,7 +209,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 7, 2019</span>
-                <p className="text-white">
+                <p className="text-dark">
                   $290.29 has been deposited into your account!
                 </p>
               </div>{" "}
@@ -190,7 +222,7 @@ const Tenants = () => {
               </div>
               <div>
                 <span className="small text-gray-500">December 2, 2019</span>
-                <p className="text-white">
+                <p className="text-dark">
                   Spending Alert: We've noticed unusually high spending for your
                   account.
                 </p>

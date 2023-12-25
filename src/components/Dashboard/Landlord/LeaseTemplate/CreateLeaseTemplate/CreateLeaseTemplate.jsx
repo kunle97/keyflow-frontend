@@ -205,7 +205,7 @@ const CreateLeaseTemplate = (props) => {
         />
       )}
       {!props.hideBackButton && <BackButton />}
-      <h2 style={{ color: "white" }}>
+      <h2 style={{  }}>
         {props.isLeaseRenewal
           ? props.customTitle
           : "Create Lease Agreement Template"}

@@ -4,7 +4,7 @@ import { createBoldSignEmbeddedTemplateLink } from "../../../../../../api/boldsi
 import UIButton from "../../../../UIComponents/UIButton";
 import Dropzone from "react-dropzone";
 import { Stack } from "@mui/material";
-import { uiGreen, authUser } from "../../../../../../constants";
+import { uiGreen, authUser, uiGrey2 } from "../../../../../../constants";
 import ProgressModal from "../../../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
@@ -208,10 +208,10 @@ const UploadLeaseDocument = (props) => {
                       name="file"
                     />
 
-                    <p>
+                    <p style={{ color: uiGrey2 }}>
                       Drag'n'drop the file representing your lease agreeement{" "}
                     </p>
-                    <p>
+                    <p style={{ color: uiGrey2 }}>
                       Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files will
                       be accepted (Max. file size: 3MB)
                     </p>

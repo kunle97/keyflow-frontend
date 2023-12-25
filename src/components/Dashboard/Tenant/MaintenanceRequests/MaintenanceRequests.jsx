@@ -14,7 +14,6 @@ const MaintenanceRequests = () => {
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
     {

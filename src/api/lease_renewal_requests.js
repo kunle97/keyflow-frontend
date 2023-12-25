@@ -18,6 +18,26 @@ export async function createLeaseRenewalRequest(data) {
     return { response: error.response, message: "Error", status: 400 };
   }
 }
+//Using the authenticatedInstance create a function to get all of the lease renewal requests using the endpoint /lease-renewal-requests
+export async function getAllLeaseRenewalRequests() {
+  try {
+    const response = await authenticatedInstance
+      .get("/lease-renewal-requests/")
+      .then((res) => {
+        console.log("Response: ", res);
+        return {
+          message: "Lease renewal requests retrieved successfully",
+          status: 200,
+          data: res.data,
+        };
+      });
+    return response;
+  } catch (error) {
+    console.log("Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
 //Using the authenticatedInstance create a function to get a specific lease renewal request using the endpoint /lease-renewal-requests/:id
 export async function getLeaseRenewalRequestById(id) {
   try {
@@ -115,7 +135,6 @@ export async function updateLeaseRenewalRequest(id, data) {
     return { response: error.response, message: "Error", status: 400 };
   }
 }
-
 
 //Create a function (signLeaseAgreementRenewal) to sign a lease renewal request using the endpoint /lease-renewal-requests/sign
 export async function signLeaseAgreementRenewal(data) {

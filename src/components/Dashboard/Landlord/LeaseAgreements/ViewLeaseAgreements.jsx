@@ -5,7 +5,6 @@ import { useNavigate } from "react-router";
 const ViewLeaseAgreements = () => {
   const navigate = useNavigate();
   const columns = [
-    { name: "id", label: "ID", options: { display: true } },
     {
       name: "tenant",
       label: "Tenant",
@@ -73,7 +72,7 @@ const ViewLeaseAgreements = () => {
     onRowClick: handleRowClick,
   };
   return (
-    <div>
+    <div className="container-fluid" >
       <UITable
         columns={columns}
         endpoint={"/lease-agreements/"}

@@ -19,7 +19,7 @@ export async function getLandlordTenants() {
     return res;
   } catch (error) {
     console.log("Get Landlord Tenants Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -41,6 +41,6 @@ export async function getLandlordTenant(tenantId) {
     return res;
   } catch (error) {
     console.log("Get Landlord Tenant Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }

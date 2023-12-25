@@ -61,7 +61,7 @@ const CreateUnit = () => {
   const [unitFilesCount, setUnitFilesCount] = useState(0);
   const tabs = [
     { label: "Unit", name: "unit" },
-    { label: "Lease", name: "lease_templates" },
+    { label: "Lease Template", name: "lease_templates" },
     { label: `Files (${unitFilesCount})`, name: "files" },
   ];
   const handleChangeTabPage = (event, newValue) => {
@@ -245,39 +245,31 @@ const CreateUnit = () => {
             <div className="col-md-3">
               {isOccupided ? (
                 <div className="card shadow mb-3">
-                  <div className="card-header pt-3">
-                    <h5
-                      style={{ fontSize: "13pt" }}
-                      className="text-primary fw-bold m-0 card-header-text"
-                    >
-                      Tenant Information
-                    </h5>
-                  </div>
                   <div className="card-body">
                     <div className="mb-4">
                       <h6
-                        style={{ fontSize: "11pt" }}
-                        className="text-white fw-bold m-0"
+                        style={{ fontSize: "13pt" }}
+                        className="text-black fw-bold m-0"
                       >
-                        Name
+                        Tenant Name
                       </h6>
                       <p
-                        style={{ fontSize: "11pt" }}
-                        className="text-white m-0"
+                        style={{ fontSize: "13pt" }}
+                        className="text-black m-0"
                       >
                         {tenant.first_name} {tenant.last_name}
                       </p>
                     </div>
                     <div className="mb-4">
                       <h6
-                        style={{ fontSize: "11pt" }}
-                        className="text-white fw-bold m-0"
+                        style={{ fontSize: "13pt" }}
+                        className="text-black fw-bold m-0"
                       >
-                        Email
+                        Tenant Email
                       </h6>
                       <p
-                        style={{ fontSize: "11pt" }}
-                        className="text-white m-0"
+                        style={{ fontSize: "13pt" }}
+                        className="text-black m-0"
                       >
                         {tenant.email}
                       </p>
@@ -331,32 +323,34 @@ const CreateUnit = () => {
               <div className="card shadow mb-3">
                 <div className="card-body">
                   <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-3">
-                      <label className="form-label text-white" htmlFor="name">
-                        <strong>Unit #/Name</strong>
-                      </label>
-                      <input
-                        {...register("name", {
-                          required: "This is a required field",
-                        })}
-                        // defaultValue={unit.name}
-                        className="form-control text-black"
-                        type="text"
-                        id="name"
-                        placeholder="5B"
-                        style={{
-                          borderStyle: "none",
-                          color: "rgb(255,255,255)",
-                        }}
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.name && errors.name.message}
-                      </span>
-                    </div>
                     <div className="row mb-3">
+                      <div className="col-md-12 mb-3">
+                        <label className="form-label text-black" htmlFor="name">
+                          <strong>Unit #/Name</strong>
+                        </label>
+                        <input
+                          {...register("name", {
+                            required: "This is a required field",
+                          })}
+                          // defaultValue={unit.name}
+                          className="form-control text-black"
+                          type="text"
+                          id="name"
+                          placeholder="5B"
+                          style={{
+                            borderStyle: "none",
+                            color: "rgb(255,255,255)",
+                          }}
+                        />
+                        <span style={validationMessageStyle}>
+                          {errors.name && errors.name.message}
+                        </span>
+                      </div>
                       <div className="col-md-12">
                         <div>
-                          <label className="form-label text-white">Beds</label>
+                          <label className="form-label text-black">
+                            <strong>Beds</strong>
+                          </label>
                           <input
                             {...register("beds", {
                               required: "This is a required field",
@@ -376,9 +370,12 @@ const CreateUnit = () => {
                           </span>
                         </div>
                       </div>
+
                       <div className="col-md-12">
                         <div>
-                          <label className="form-label text-white">Baths</label>
+                          <label className="form-label text-black">
+                            <strong>Baths</strong>
+                          </label>
                           <input
                             {...register("baths", {
                               required: "This is a required field",
@@ -467,7 +464,7 @@ const CreateUnit = () => {
                           sx={{
                             width: "50px",
                             height: "50px",
-                            color: "white",
+                            color: uiGrey2,
                             padding: "0",
                           }}
                         >
@@ -479,8 +476,8 @@ const CreateUnit = () => {
                             maxWidth: 360,
                             maxHeight: 500,
                             overflow: "auto",
-                            bgcolor: uiGrey2,
-                            color: "white",
+                            color: uiGrey2,
+                            bgcolor: "white",
                           }}
                         >
                           {console.log(leaseTemplates === 0)}
@@ -507,7 +504,7 @@ const CreateUnit = () => {
                                     <ListItemText
                                       primary={`${leaseTemplate.term} Month Lease @ $${leaseTemplate.rent}/mo`}
                                       secondary={
-                                        <React.Fragment>
+                                        <div>
                                           <h6 style={{ fontSize: "10pt" }}>
                                             Security Deposit: ${" "}
                                             {leaseTemplate.security_deposit} |
@@ -523,7 +520,7 @@ const CreateUnit = () => {
                                           <div style={{ overflow: "auto" }}>
                                             <div
                                               style={{
-                                                color: "white",
+                                                color: uiGrey2,
                                                 float: "left",
                                               }}
                                             >
@@ -566,9 +563,9 @@ const CreateUnit = () => {
                                               Select
                                             </Button>
                                           </div>
-                                          <p
+                                          {/* <p
                                             style={{
-                                              color: "white",
+                                              color: uiGrey2,
                                               width: "100%",
                                             }}
                                           >
@@ -576,8 +573,8 @@ const CreateUnit = () => {
                                             {leaseTemplate.template_id
                                               ? leaseTemplate.template_id
                                               : "N/A"}
-                                          </p>
-                                        </React.Fragment>
+                                          </p> */}
+                                        </div>
                                       }
                                     />
                                   </ListItem>
@@ -594,38 +591,38 @@ const CreateUnit = () => {
                 <div className="row">
                   {currentLeaseTemplate ? (
                     <>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Rent</h6>${currentLeaseTemplate.rent}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Term</h6>
                         {currentLeaseTemplate.term} Months
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Late Fee</h6>
                         {`$${currentLeaseTemplate.late_fee}`}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Security Deposit</h6>
                         {`$${currentLeaseTemplate.security_deposit}`}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Gas Included?</h6>
                         {`${currentLeaseTemplate.gas_included ? "Yes" : "No"}`}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Electric Included?</h6>
                         {`${
                           currentLeaseTemplate.electric_included ? "Yes" : "No"
                         }`}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Water Included?</h6>
                         {`${
                           currentLeaseTemplate.water_included ? "Yes" : "No"
                         }`}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Lease Cancellation Fee</h6>
                         {`$${currentLeaseTemplate.lease_cancellation_fee}`}
                       </div>
@@ -633,7 +630,7 @@ const CreateUnit = () => {
                         <h6>Lease Cancellation Notice period</h6>
                         {`${currentLeaseTemplate.lease_cancellation_notice_period} Month(s)`}
                       </div>
-                      <div className="col-md-4 mb-4">
+                      <div className="col-md-4 mb-4 text-black">
                         <h6>Grace period</h6>
                         {currentLeaseTemplate.grace_period === 0 ? (
                           "None"
@@ -641,7 +638,7 @@ const CreateUnit = () => {
                           <>{`${currentLeaseTemplate.grace_period} Month(s)`}</>
                         )}
                       </div>
-                      <div className="col-md-12 mb-4">
+                      <div className="col-md-12 mb-4 text-black">
                         {!isOccupided && (
                           <Button
                             sx={{
@@ -656,6 +653,17 @@ const CreateUnit = () => {
                           </Button>
                         )}
                       </div>
+                      <Button
+                        sx={{
+                          textTransform: "none",
+                          background: uiGreen,
+                          color: "white",
+                          marginTop: "1rem",
+                        }}
+                        onClick={() => setShowLeaseTemplateSelector(true)}
+                      >
+                        Change Lease Template
+                      </Button>
                     </>
                   ) : (
                     <>

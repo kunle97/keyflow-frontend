@@ -51,7 +51,9 @@ const SearchDialog = (props) => {
   const [allProperties, setAllProperties] = useState([]);
   const [allUnits, setAllUnits] = useState([]);
   const [tenants, setTenants] = useState([]);
-  const [searchValue, setSearchValue] = useState(null);
+  const [searchValue, setSearchValue] = useState(
+    props.query ? props.query : null
+  );
   const [tabPage, setTabPage] = useState(0);
   const [properties, setProperties] = useState([]);
   const [propertyResultCount, setPropertyResultCount] = useState(0);
@@ -266,7 +268,7 @@ const SearchDialog = (props) => {
 
           {!searchValue ? (
             <div>
-              <h2 className="mt-4">Quick Links</h2>
+              <h2 className="mt-4 text-white">Quick Links</h2>
               <div className="row">
                 {routes.map((item) => {
                   if (item.isSearchable && !item.subMenuItems) {

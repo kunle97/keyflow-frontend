@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import StepControl from "./StepControl";
 import UITable from "../../../../UIComponents/UITable/UITable";
 import UITabs from "../../../../UIComponents/UITabs";
-import { getProperty } from "../../../../../../api/properties";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 const Assign = (props) => {
   const [checked, setChecked] = useState(props.selectedAssignments);
@@ -45,7 +44,6 @@ const Assign = (props) => {
     },
   ];
   const property_columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "name", label: "Property Name" },
     { name: "street", label: "Street Address" },
     { name: "city", label: "City" },

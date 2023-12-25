@@ -129,7 +129,7 @@ const PlanChangeDialog = (props) => {
                               sx={{
                                 margin: "5px 0",
                                 padding: "0px",
-                                color: "white",
+                                color: "White",
                                 background: uiGreen,
                               }}
                             />
@@ -139,7 +139,7 @@ const PlanChangeDialog = (props) => {
                               sx={{
                                 margin: "5px 0",
                                 padding: "0px",
-                                color: "white",
+                                color: uiGrey2,
                                 background: "none",
                               }}
                             />
@@ -163,11 +163,11 @@ const PlanChangeDialog = (props) => {
                                 {plan.product_id ===
                                   process.env
                                     .REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
-                                  <span style={{ color: "white" }}>
+                                  <span style={{ color: uiGrey2 }}>
                                     per Rental Unit{" "}
                                   </span>
                                 )}
-                                <span style={{ color: "white" }}>
+                                <span style={{ color: uiGrey2 }}>
                                   per month
                                 </span>
                               </Stack>
@@ -197,11 +197,11 @@ const PlanChangeDialog = (props) => {
                               alignItems="flex-start"
                               spacing={2}
                             >
-                              <span style={{ color: "white" }}>
+                              <span style={{ color: uiGrey2 }}>
                                 This plan includes:
                               </span>
                               {plan.features.map((feature) => (
-                                <span style={{ color: "white" }}>
+                                <span style={{ color: uiGrey2 }}>
                                   <CheckCircleIcon
                                     style={{ color: uiGreen, width: "15px" }}
                                   />{" "}
@@ -228,7 +228,7 @@ const PlanChangeDialog = (props) => {
             </div>
           )}
           {step === 1 && (
-            <div style={{ width: "500px", padding: "20px", color: "white" }}>
+            <div style={{ width: "500px", padding: "20px", color: uiGrey2 }}>
               <div>
                 <IconButton onClick={() => setStep(0)}>
                   <ArrowBackOutlinedIcon sx={{ color: uiGreen }} />
@@ -254,8 +254,8 @@ const PlanChangeDialog = (props) => {
                   alignItems="center"
                   spacing={2}
                 >
-                  <span sx={{ color: "white" }}>Subtotal</span>
-                  <span sx={{ color: "white" }}>${selectedPlan.price}</span>
+                  <span sx={{ color: uiGrey2 }}>Subtotal</span>
+                  <span sx={{ color: uiGrey2 }}>${selectedPlan.price}</span>
                 </Stack>
                 <Stack
                   direction="row"
@@ -263,8 +263,8 @@ const PlanChangeDialog = (props) => {
                   alignItems="center"
                   spacing={2}
                 >
-                  <span sx={{ color: "white" }}>Tax</span>
-                  <span sx={{ color: "white" }}>
+                  <span sx={{ color: uiGrey2 }}>Tax</span>
+                  <span sx={{ color: uiGrey2 }}>
                     ${selectedPlan.price * tax}
                   </span>
                 </Stack>
@@ -274,8 +274,8 @@ const PlanChangeDialog = (props) => {
                   alignItems="center"
                   spacing={2}
                 >
-                  <span sx={{ color: "white" }}>Total</span>
-                  <span sx={{ color: "white" }}>
+                  <span sx={{ color: uiGrey2 }}>Total</span>
+                  <span sx={{ color: uiGrey2 }}>
                     ${selectedPlan.price * tax + selectedPlan.price}
                   </span>
                 </Stack>

@@ -60,7 +60,7 @@ export async function getLeaseTemplatesByUser() {
     return res;
   } catch (error) {
     console.log("Get Lease Terms Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -119,7 +119,7 @@ export async function updateLeaseTemplate(leaseTemplateId, data) {
     return res.data;
   } catch (error) {
     console.log("Update Lease Term Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 //Create a function tpo delete a lease term
@@ -140,6 +140,6 @@ export async function deleteLeaseTemplate(leaseTemplateId) {
     return res;
   } catch (error) {
     console.log("Delete Lease Term Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }

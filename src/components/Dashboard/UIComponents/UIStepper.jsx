@@ -9,7 +9,7 @@ import Check from "@mui/icons-material/Check";
 import StepConnector, {
   stepConnectorClasses,
 } from "@mui/material/StepConnector";
-import { uiGreen } from "../../../constants";
+import { uiGreen, uiGrey2 } from "../../../constants";
 import { withStyles } from "@mui/styles";
 import { Typography } from "@mui/material";
 
@@ -38,7 +38,7 @@ const QontoConnector = styled(StepConnector)(({ theme }) => ({
 }));
 
 const QontoStepIconRoot = styled("div")(({ theme, ownerState }) => ({
-  color: "white",
+  color: "#f2f2f5",
   display: "flex",
   height: 22,
   alignItems: "center",
@@ -89,7 +89,7 @@ QontoStepIcon.propTypes = {
 const styles = {
   // Define your custom styles here
   whiteLabel: {
-    color: "white", // Change this to your desired label color
+    color: uiGrey2, // Change this to your desired label color
   },
 };
 

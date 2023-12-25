@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 const LeaseCancellationRequests = () => {
   const navigate = useNavigate();
   const columns = [
-    { name: "id", label: "ID" },
     {
       name: "tenant",
       label: "Tenant",
@@ -73,7 +72,7 @@ const LeaseCancellationRequests = () => {
     //CREate a function to handle the row delete
   };
   return (
-    <div>
+    <div className="container-fluid" >
       <UITable
         title="Lease Cancellation Requests"
         endpoint={"/lease-cancellation-requests/"}

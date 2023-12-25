@@ -219,7 +219,7 @@ const ViewRentalApplication = () => {
     });
   }, []);
   return (
-    <>
+    <div className="container-fluid">
       <ProgressModal
         title="Processing Application..."
         open={isLoadingApplicationAction}
@@ -286,7 +286,6 @@ const ViewRentalApplication = () => {
           />
           {tabPage === 0 && (
             <div className="mb-4">
-              <h4 className="mb-4">Personal Information</h4>
               <div className="card">
                 <div className="card-body">
                   <div className="row">
@@ -294,7 +293,7 @@ const ViewRentalApplication = () => {
                       <h6>
                         <b>Full Name</b>
                       </h6>
-                      <p>
+                      <p className="text-black">
                         {rentalApplication.first_name}{" "}
                         {rentalApplication.last_name}
                       </p>
@@ -303,19 +302,23 @@ const ViewRentalApplication = () => {
                       <h6>
                         <b>Email</b>
                       </h6>
-                      <p>{rentalApplication.email}</p>
+                      <p className="text-black">{rentalApplication.email}</p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Date Of Birth</b>
                       </h6>
-                      <p>{rentalApplication.date_of_birth}</p>
+                      <p className="text-black">
+                        {rentalApplication.date_of_birth}
+                      </p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Phone</b>
                       </h6>
-                      <p>{rentalApplication.phone_number}</p>
+                      <p className="text-black">
+                        {rentalApplication.phone_number}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -325,7 +328,6 @@ const ViewRentalApplication = () => {
 
           {tabPage === 1 && (
             <div className="mb-4">
-              <h5 className="mb-4">Questionaire Answers</h5>
               <div className="card">
                 <div className="card-body">
                   <div className="row">
@@ -333,37 +335,49 @@ const ViewRentalApplication = () => {
                       <h6>
                         <b>Other Occupants</b>
                       </h6>
-                      <p>{rentalApplication.other_occupants ? "Yes" : "No"}</p>
+                      <p className="text-black">
+                        {rentalApplication.other_occupants ? "Yes" : "No"}
+                      </p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Pets</b>
                       </h6>
-                      <p>{rentalApplication.pets ? "Yes" : "No"}</p>
+                      <p className="text-black">
+                        {rentalApplication.pets ? "Yes" : "No"}
+                      </p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Do you have any vehicles?</b>
                       </h6>
-                      <p>{rentalApplication.vehicles ? "Yes" : "No"}</p>
+                      <p className="text-black">
+                        {rentalApplication.vehicles ? "Yes" : "No"}
+                      </p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Ever Convicted?</b>
                       </h6>
-                      <p>{rentalApplication.conviceted ? "Yes" : "No"}</p>
+                      <p className="text-black">
+                        {rentalApplication.conviceted ? "Yes" : "No"}
+                      </p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Ever Filed for bankrupcy?</b>
                       </h6>
-                      <p>{rentalApplication.bankrupcy_filed ? "Yes" : "No"}</p>
+                      <p className="text-black">
+                        {rentalApplication.bankrupcy_filed ? "Yes" : "No"}
+                      </p>
                     </div>
                     <div className="col-md-6">
                       <h6>
                         <b>Ever evicted?</b>
                       </h6>
-                      <p>{rentalApplication.evicted ? "Yes" : "No"}</p>
+                      <p className="text-black">
+                        {rentalApplication.evicted ? "Yes" : "No"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -373,7 +387,6 @@ const ViewRentalApplication = () => {
 
           {tabPage === 2 && (
             <div className="mb-4">
-              <h5 className="mb-4">Employment History</h5>
               <div className="card">
                 <div className="card-body">
                   {employmentHistory.map((item, index) => {
@@ -381,27 +394,34 @@ const ViewRentalApplication = () => {
                       <div className="row mb-3">
                         <h5 className="mb-3">
                           <b>
-                            {item.companyName} ({item.employmentStartDate} -{" "}
-                            {item.employmentEndDate})
+                            {item.companyName} (
+                            {new Date(
+                              item.employmentStartDate
+                            ).toLocaleDateString()}{" "}
+                            -{" "}
+                            {new Date(
+                              item.employmentEndDate
+                            ).toLocaleDateString()}
+                            )
                           </b>
                         </h5>
                         <div className="col-md-6">
                           <h6>
                             <b>Company Address</b>
                           </h6>
-                          <p>{item.companyAddress}</p>
+                          <p className="text-black">{item.companyAddress}</p>
                         </div>
                         <div className="col-md-6">
                           <h6>
                             <b>Position</b>
                           </h6>
-                          <p>{item.position}</p>
+                          <p className="text-black">{item.position}</p>
                         </div>
                         <div className="col-md-6">
                           <h6>
                             <b>Income</b>
                           </h6>
-                          <p>
+                          <p className="text-black">
                             ${Intl.NumberFormat("en-US").format(item.income)}
                           </p>
                         </div>
@@ -409,19 +429,19 @@ const ViewRentalApplication = () => {
                           <h6>
                             <b>Supervisor</b>
                           </h6>
-                          <p>{item.supervisorName}</p>
+                          <p className="text-black">{item.supervisorName}</p>
                         </div>
                         <div className="col-md-6">
                           <h6>
                             <b>Supervisor Email</b>
                           </h6>
-                          <p>{item.supervisorEmail}</p>
+                          <p className="text-black">{item.supervisorEmail}</p>
                         </div>
                         <div className="col-md-6">
                           <h6>
                             <b>Supervisor Phone</b>
                           </h6>
-                          <p>{item.supervisorPhone}</p>
+                          <p className="text-black">{item.supervisorPhone}</p>
                         </div>
                       </div>
                     );
@@ -433,7 +453,6 @@ const ViewRentalApplication = () => {
 
           {tabPage === 3 && (
             <div className="mb-4">
-              <h5 className="mb-4">Residential History</h5>
               <div className="card">
                 <div className="card-body">
                   {residentialHistory.map((item, index) => {
@@ -442,8 +461,15 @@ const ViewRentalApplication = () => {
                         <div className="col-md-12">
                           <h5>
                             <b>
-                              {item.address} ({item.residenceStartDate} -{" "}
-                              {item.residenceEndDate})
+                              {item.address} (
+                              {new Date(
+                                item.residenceStartDate
+                              ).toLocaleDateString()}{" "}
+                              -{" "}
+                              {new Date(
+                                item.residenceEndDate
+                              ).toLocaleDateString()}
+                              )
                             </b>
                           </h5>
                         </div>
@@ -451,19 +477,19 @@ const ViewRentalApplication = () => {
                           <h6>
                             <b>Landlord Name</b>
                           </h6>
-                          <p>{item.landlordName}</p>
+                          <p className="text-black">{item.landlordName}</p>
                         </div>
                         <div className="col-md-6">
                           <h6>
                             <b>Landlord Phone</b>
                           </h6>
-                          <p>{item.landlordPhone}</p>
+                          <p className="text-black">{item.landlordPhone}</p>
                         </div>
                         <div className="col-md-6">
                           <h6>
                             <b>Landlord Email</b>
                           </h6>
-                          <p>{item.landlordEmail}</p>
+                          <p className="text-black">{item.landlordEmail}</p>
                         </div>
                       </div>
                     );
@@ -475,7 +501,6 @@ const ViewRentalApplication = () => {
 
           {tabPage === 4 && (
             <div className="mb-4">
-              <h5 className="mb-4">Additional Comments</h5>
               <div className="card">
                 <div className="card-body">{rentalApplication.comments}</div>
               </div>
@@ -510,7 +535,7 @@ const ViewRentalApplication = () => {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

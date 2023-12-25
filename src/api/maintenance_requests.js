@@ -40,7 +40,7 @@ export async function getMaintenanceRequests(unitId) {
     return res;
   } catch (error) {
     console.log("Get Maintenance Requests Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -55,7 +55,7 @@ export async function getMaintenanceRequestsByUser() {
     return res;
   } catch (error) {
     console.log("Get Maintenance Requests Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -70,7 +70,7 @@ export async function getMaintenanceRequestsByLandlord() {
     return res;
   } catch (error) {
     console.log("Get Maintenance Requests Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -88,7 +88,7 @@ export async function getMaintenanceRequestById(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Get Maintenance Request Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -106,7 +106,7 @@ export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Mark Maintenance Request As Resolved Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -124,7 +124,7 @@ export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Mark Maintenance Request As Resolved Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -156,7 +156,7 @@ export async function changeMaintenanceRequestStatus(
     return res;
   } catch (error) {
     console.log("Change Maintenance Request Status Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -171,6 +171,6 @@ export async function deleteMaintenanceRequest(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Delete Maintenance Request Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }

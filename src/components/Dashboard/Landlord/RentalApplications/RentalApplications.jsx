@@ -90,7 +90,7 @@ const RentalApplications = () => {
     });
   }, []);
   return (
-    <>
+    <div className="container-fluid">
       <UITable
         columns={columns}
         options={options}
@@ -99,7 +99,7 @@ const RentalApplications = () => {
         detailURL="/dashboard/landlord/rental-applications/"
         showCreate={false}
       />
-    </>
+    </div>
   );
 };
 

@@ -34,6 +34,10 @@ const UITableMini = (props) => {
         .get(endpoint, {
           params: {
             search: query,
+            limit: props.options.limit ? props.options.limit : limit,
+            ordering: props.options.sortOrder.desc
+              ? "-" + props.options.sortOrder.name
+              : props.options.sortOrder.name,
           },
         })
         .then((res) => {
@@ -130,7 +134,6 @@ const UITableMini = (props) => {
                       </th>
                     );
                   })}
-                  
                 </tr>
               </thead>
               <tbody>

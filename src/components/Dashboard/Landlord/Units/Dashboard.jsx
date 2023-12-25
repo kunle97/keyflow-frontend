@@ -1,35 +1,236 @@
 import React, { useState } from "react";
-import { faker } from "@faker-js/faker";
-import { uiGreen, uiGrey2 } from "../../../../constants";
-import { data1, data2, data3 } from "../../../../mockData";
-import { ResponsiveBar } from "@nivo/bar";
-import { ResponsiveLine } from "@nivo/line";
-import { ResponsivePie } from "@nivo/pie";
+import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import { useEffect } from "react";
 import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
-import UITable from "../../UIComponents/UITable/UITable";
+import UILineChartCard from "../../UIComponents/UICards/UILineChartCard";
+import UITableCard from "../../UIComponents/UICards/UITableCard";
+import UIPieChartCard from "../../UIComponents/UICards/UIPieChartCard";
+import { getLandlordUnits } from "../../../../api/units";
+import { getProperties } from "../../../../api/properties";
+import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import UICardList from "../../UIComponents/UICards/UICardList";
+import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+import { faker } from "@faker-js/faker";
+import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
+import { get } from "react-hook-form";
+import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
 const Dashboard = () => {
+  const multiplier = [1, 2, 3, 5];
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Set loading to true on component mount
+  const [units, setUnits] = useState([]);
+  const [properties, setProperties] = useState([]);
+  const [leaseRenewalRequests, setLeaseRenewalRequests] = useState([]);
+  const [leaseCancellationRequests, setLeaseCancellationRequests] = useState(
+    []
+  );
+  const [occupiedUnits, setOccupiedUnits] = useState([]);
+  const [vacantUnits, setVacantUnits] = useState([]);
+  const [groupedTransactions, setGroupedTransactions] = useState([]);
+  const [transactionLabels, setTransactionLabels] = useState([]);
+  const [transactionDataValues, setTransactionDataValues] = useState([]);
+  const [groupedPropertiesByTransactions, setGroupedPropertiesByTransactions] =
+    useState([]);
+  const [groupedLeaseRenewalRequests, setGroupedLeaseRenewalRequests] =
+    useState([]);
+  const [
+    groupedLeaseCancellationRequests,
+    setGroupedLeaseCancellationRequests,
+  ] = useState([]);
+
   //Create MUI DataTable columsn for transactions using amount, description, rental_property, rental_unit, type, created_at, and tenant_id
-  const columns = [
-    { name: "id", label: "ID", options: { display: false } },
-    { name: "amount", label: "Amount" },
+
+  const lease_agreement_columns = [
     {
-      name: "type",
-      label: "Transaction",
+      name: "tenant",
+      label: "Tenant",
+      options: {
+        isObject: true,
+        customBodyRender: (value) => {
+          let output = "";
+          if (value) {
+            output = `${value.first_name} ${value.last_name}`;
+          } else {
+            output = "N/A";
+          }
+          return <span>{output}</span>;
+        },
+      },
+    },
+    {
+      name: "rental_unit",
+      label: "Unit",
+      options: {
+        isObject: true,
+        customBodyRender: (value) => {
+          return <span>{value.name}</span>;
+        },
+      },
+    },
+    {
+      name: "is_active",
+      label: "Active",
       options: {
         customBodyRender: (value) => {
-          if (value === "revenue") {
-            return <span>Income</span>;
+          return value ? (
+            <span style={{ color: uiGreen }}>Active</span>
+          ) : (
+            <span style={{ color: uiRed }}>Inactive</span>
+          );
+        },
+      },
+    },
+
+    {
+      name: "start_date",
+      label: "Start Date",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+    {
+      name: "end_date",
+      label: "End Date",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
+
+  const lease_cancellation_columns = [
+    {
+      name: "tenant",
+      label: "Tenant",
+      options: {
+        customBodyRender: (value) => {
+          let output = "";
+          if (value) {
+            output = `${value.first_name} ${value.last_name}`;
           } else {
-            return <span>Expense</span>;
+            output = "N/A";
+          }
+          return <span>{output}</span>;
+        },
+      },
+    },
+    {
+      name: "rental_unit",
+      label: "Unit",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{value.name}</span>;
+        },
+      },
+    },
+    {
+      name: "status",
+      label: "Status",
+      options: {
+        customBodyRender: (value) => {
+          if (value === "pending") {
+            return <span className="text-warning">Pending</span>;
+          } else if (value === "approved") {
+            return <span style={{ color: uiGreen }}>Approved</span>;
+          }
+          return <span>{value}</span>;
+        },
+      },
+    },
+
+    {
+      name: "created_at",
+      label: "Date Submitted",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
+  const lease_renewal_columns = [
+    {
+      name: "tenant",
+      label: "Tenant",
+      options: {
+        customBodyRender: (value) => {
+          let output = "";
+          if (value) {
+            output = `${value.first_name} ${value.last_name}`;
+          } else {
+            output = "N/A";
+          }
+          return <span>{output}</span>;
+        },
+      },
+    },
+    {
+      name: "rental_unit",
+      label: "Unit",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{value.name}</span>;
+        },
+      },
+    },
+    {
+      name: "status",
+      label: "Status",
+      options: {
+        customBodyRender: (value) => {
+          if (value === "pending") {
+            return <span className="text-warning">Pending</span>;
+          } else if (value === "approved") {
+            return <span style={{ color: uiGreen }}>Approved</span>;
+          }
+          return <span>{value}</span>;
+        },
+      },
+    },
+    {
+      name: "request_date",
+      label: "Date Requested",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+    {
+      name: "created_at",
+      label: "Date Submitted",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
+
+  const maintenance_request_columns = [
+    { name: "description", label: "Issue" },
+    { name: "type", label: "Type" },
+    {
+      name: "status",
+      label: "Status",
+      options: {
+        customBodyRender: (value) => {
+          if (value === "pending") {
+            return <span className="text-warning">Pending</span>;
+          } else if (value === "in_progress") {
+            return <span className="text-info">In Progress</span>;
+          } else if (value === "completed") {
+            return <span className="text-success">Completed</span>;
           }
         },
       },
     },
-    { name: "description", label: "Description" },
     {
       name: "created_at",
       label: "Date",
@@ -38,8 +239,46 @@ const Dashboard = () => {
           return <span>{new Date(value).toLocaleDateString()}</span>;
         },
       },
+      sort: true,
     },
   ];
+
+  const handleRowClick = (rowData, rowMeta) => {
+    const navlink = `/dashboard/landlord/transactions/${rowData}`;
+    navigate(navlink);
+  };
+
+  const lease_agreement_options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+    sortOrder: {
+      name: "end_date",
+      direction: "desc",
+    },
+    limit: 10,
+  };
+  const lease_cancellation_options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
+    limit: 10,
+  };
+  const maintenance_request_options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
+    limit: 5,
+  };
+
   const chartData = [];
 
   chartData[0] = {
@@ -54,658 +293,445 @@ const Dashboard = () => {
       }
     }),
   };
-  console.log(chartData);
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/transactions/${rowData}`;
-    navigate(navlink);
+  function groupTransactionsByMonth(transactions, numMonthsToShow) {
+    const currentDate = new Date();
+    const pastDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - numMonthsToShow + 1,
+      1
+    ); // Determine the start date based on numMonthsToShow
+
+    const allMonths = {};
+    while (pastDate <= currentDate) {
+      const yearMonth = pastDate.toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+      }); // Get month name
+      allMonths[yearMonth] = {
+        month: yearMonth,
+        totalAmount: 0,
+      };
+      pastDate.setMonth(pastDate.getMonth() + 1);
+    }
+
+    const groupedData = transactions.reduce((acc, transaction) => {
+      const date = new Date(transaction.created_at);
+      const monthYear = date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+      }); // Get month name
+
+      if (!acc[monthYear]) {
+        acc[monthYear] = {
+          month: date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+          }),
+          totalAmount: 0,
+        };
+      }
+
+      acc[monthYear].totalAmount += parseFloat(transaction.amount);
+      return acc;
+    }, {});
+
+    return { ...allMonths, ...groupedData };
+  }
+
+  const groupedData = groupTransactionsByMonth(transactions, 5);
+  const labels = Object.values(groupedData).map((data) => data.month);
+  const dataValues = Object.values(groupedData).map((data) => data.totalAmount);
+
+  //Create a function to group properties by the amount of transactions they have. Group them as an array of objects with the property name and total amount of transactions {name:"property name", totalAmount: 1900"}
+
+  const groupPropertiesByTransactions = (
+    transactions,
+    numberOfPropertiesToShow = 5
+  ) => {
+    const groupedProperties = {};
+
+    transactions.forEach((transaction) => {
+      const propName = transaction.rental_property.name;
+      const propAmount = parseFloat(transaction.amount);
+
+      if (!groupedProperties[propName]) {
+        groupedProperties[propName] = {
+          name: propName,
+          totalAmount: 0,
+        };
+      }
+      groupedProperties[propName].totalAmount += propAmount;
+    });
+
+    // Convert the object to an array of property objects
+    const propertyArray = Object.values(groupedProperties);
+
+    // Sort the properties based on totalAmount in descending order
+    const sortedProperties = propertyArray.sort(
+      (a, b) => b.totalAmount - a.totalAmount
+    );
+
+    // Get the specified number of properties or less if there are fewer than that number
+    const topProperties = sortedProperties.slice(0, numberOfPropertiesToShow);
+
+    return topProperties;
   };
-  const options = {
-    filter: true,
-    sort: true,
-    onRowClick: handleRowClick,
-    sortOrder: {
-      name: "created_at",
-      direction: "desc",
-    },
+
+  //Create a function to group lease renewal requests by pending rejected ,and approved
+  const groupLeaseRenewalRequests = (leaseRenewalRequests) => {
+    const groupedLeaseRenewalRequests = {
+      pending: [],
+      approved: [],
+      rejected: [],
+    };
+    leaseRenewalRequests.forEach((leaseRenewalRequest) => {
+      if (leaseRenewalRequest.status === "pending") {
+        groupedLeaseRenewalRequests.pending.push(leaseRenewalRequest);
+      } else if (leaseRenewalRequest.status === "approved") {
+        groupedLeaseRenewalRequests.approved.push(leaseRenewalRequest);
+      } else {
+        groupedLeaseRenewalRequests.rejected.push(leaseRenewalRequest);
+      }
+    });
+    return groupedLeaseRenewalRequests;
+  };
+
+  //Create a function to group lease cancellation requests by pending rejected ,and approved
+  const groupLeaseCancellationRequests = (leaseCancellationRequests) => {
+    const groupedLeaseCancellationRequests = {
+      pending: [],
+      approved: [],
+      rejected: [],
+    };
+    leaseCancellationRequests.forEach((leaseCancellationRequest) => {
+      if (leaseCancellationRequest.status === "pending") {
+        groupedLeaseCancellationRequests.pending.push(leaseCancellationRequest);
+      } else if (leaseCancellationRequest.status === "approved") {
+        groupedLeaseCancellationRequests.approved.push(
+          leaseCancellationRequest
+        );
+      } else if (leaseCancellationRequest.status === "rejected") {
+        groupedLeaseCancellationRequests.rejected.push(
+          leaseCancellationRequest
+        );
+      }
+    });
+    return groupedLeaseCancellationRequests;
+  };
+
+  //Create a  function to change the occupied units and vacant units based on the property selected
+  const handlePropertyChange = (e) => {
+    const propertyId = e.target.value;
+    //If property id is all then set occupied units to all occupied units and vacant units to all vacant units
+    if (propertyId === "all") {
+      setOccupiedUnits(
+        units.filter((unit) => unit.is_occupied === true).length
+      );
+      setVacantUnits(units.filter((unit) => unit.is_occupied === false).length);
+      return;
+    }
+    const property = properties.find(
+      (property) => property.id === parseInt(propertyId)
+    );
+    setOccupiedUnits(
+      property.units.filter((unit) => unit.is_occupied === true).length
+    );
+    setVacantUnits(
+      property.units.filter((unit) => unit.is_occupied === false).length
+    );
+    console.log(occupiedUnits, vacantUnits);
   };
 
   useEffect(() => {
+    setIsLoading(true);
     //retrieve transactions from api
-    getTransactionsByUser().then((res) => {
-      console.log(res);
-      setTransactions(res.data);
-    });
+    try {
+      getTransactionsByUser().then((res) => {
+        setTransactions(res.data);
+        setGroupedTransactions(groupTransactionsByMonth(res.data, 5));
+        setTransactionLabels(
+          Object.values(groupTransactionsByMonth(res.data)).map(
+            (data) => data.month
+          )
+        );
+        setTransactionDataValues(
+          Object.values(groupTransactionsByMonth(res.data)).map(
+            (data) => data.totalAmount
+          )
+        );
+        setGroupedPropertiesByTransactions(
+          groupPropertiesByTransactions(res.data),
+          3
+        );
+        console.log(
+          "Grouped properties byu transaction",
+          groupPropertiesByTransactions(res.data),
+          3
+        );
+      });
+      getLandlordUnits().then((res) => {
+        setUnits(res.data);
+        setOccupiedUnits(
+          res.data.filter((unit) => unit.is_occupied === true).length
+        );
+        setVacantUnits(
+          res.data.filter((unit) => unit.is_occupied === false).length
+        );
+      });
+      getProperties().then((res) => {
+        setProperties(res.data);
+      });
+      getAllLeaseRenewalRequests().then((res) => {
+        setLeaseRenewalRequests(res.data);
+        setGroupedLeaseRenewalRequests(groupLeaseRenewalRequests(res.data));
+      });
+      getAllLeaseCancellationRequests().then((res) => {
+        setLeaseCancellationRequests(res.data);
+        setGroupedLeaseCancellationRequests(
+          groupLeaseCancellationRequests(res.data)
+        );
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+    setIsLoading(false);
   }, []);
-  return (
-    <div className="container">
-      <div className="row mb-3 ">
-        <div className="col-md-3 mb-4">
-          <div className="card text-white bg-primary shadow">
-            <div className="card-body">
-              <div className="row mb-2">
-                <div className="col">
-                  <p className="m-0">Total Profit</p>
-                  <p className="m-0">
-                    <strong>
-                      $
-                      {process.env.REACT_APP_ENVIRONMENT !== "development"
-                        ? ""
-                        : faker.finance.accountNumber(6)}
-                    </strong>
-                  </p>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-chart-bar fa-2x text-gray-300" />
-                </div>
-              </div>
-              <p className="text-white-50 small m-0">
-                <i className="fas fa-arrow-up" />
-                &nbsp;5% since last month
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3 mb-4">
-          <div className="card text-white bg-success shadow">
-            <div className="card-body">
-              <div className="row mb-2">
-                <div className="col">
-                  <p className="m-0">Expense</p>
-                  <p className="m-0">
-                    <strong>
-                      $
-                      {process.env.REACT_APP_ENVIRONMENT !== "development"
-                        ? ""
-                        : faker.finance.accountNumber(5)}
-                    </strong>
-                  </p>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-dollar-sign fa-2x text-gray-300" />
-                </div>
-              </div>
-              <p className="text-white-50 small m-0">
-                <i className="fas fa-arrow-up" />
-                &nbsp;5% since last month
-              </p>
-            </div>
-          </div>
-        </div>{" "}
-        <div className="col-md-3 mb-4">
-          <div className="card text-white bg-success shadow">
-            <div className="card-body">
-              <div className="row mb-2">
-                <div className="col">
-                  <p className="m-0">Total Revenue</p>
-                  <p className="m-0">
-                    <strong>
-                      $
-                      {process.env.REACT_APP_ENVIRONMENT !== "development"
-                        ? ""
-                        : faker.finance.accountNumber(7)}
-                    </strong>
-                  </p>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-dollar-sign fa-2x text-gray-300" />
-                </div>
-              </div>
-              <p className="text-white-50 small m-0">
-                <i className="fas fa-arrow-up" />
-                &nbsp;5% since last month
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3 mb-4">
-          <div className="card text-white bg-primary shadow">
-            <div className="card-body">
-              <div className="row mb-2">
-                <div className="col">
-                  <p className="m-0">Peformance</p>
-                  <p className="m-0">
-                    <strong>65</strong>
-                  </p>
-                </div>
-                <div className="col-auto">
-                  <i className="fas fa-comments fa-2x text-gray-300" />
-                </div>
-              </div>
-              <p className="text-white-50 small m-0">
-                <i className="fas fa-arrow-up" />
-                &nbsp;5% since last month
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+  return isLoading ? (
+    <UIProgressPrompt
+      title={"Fetching your data for ya. Give us a sec..."}
+      message={"Hang Tight!"}
+    />
+  ) : (
+    <div className="container-fluid">
+      {/* <h3 style={{ color: uiGrey2, fontWeight: "bold" }}>Dashboard</h3> */}
+
+      {/* Line Chart Row */}
       <div className="row">
-        {" "}
         <div className="col-md-12 ">
-          <div className="card shadow mb-4" style={{ height: "400px" }}>
-            <div
-              className="card-header d-flex justify-content-between align-items-center"
-              style={{ background: uiGrey2 }}
-            >
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Profit
-              </h6>
-
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
-            <p
-              style={{
-                fontSize: "20pt",
-                color: "white",
-                marginLeft: "15px",
-                marginBottom: 0,
-              }}
-            >
-              $45,000
-            </p>
-            <ResponsiveLine
-              data={data1}
-              curve="cardinal"
-              enableArea={true}
-              enableGridX={false}
-              enableGridY={false}
-              enablePoints={false}
-              // margin={{ top: 15, right: 25, bottom: 25, left: 25 }}
-              margin={{ top: 15, right: 0, bottom: 45, left: 0 }}
-              xScale={{ type: "point" }}
-              yScale={{
-                type: "linear",
-                min: "auto",
-                max: "auto",
-                stacked: true,
-                reverse: false,
-              }}
-              yFormat=" >-.2f"
-              axisTop={null}
-              axisRight={null}
-              axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legend: "transportation",
-                legendOffset: 36,
-                legendPosition: "middle",
-              }}
-              axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legend: "count",
-                legendOffset: -40,
-                legendPosition: "middle",
-              }}
-              pointSize={10}
-              pointColor={{ theme: "background" }}
-              pointBorderWidth={2}
-              pointBorderColor={{ from: "serieColor" }}
-              pointLabelYOffset={-12}
-              useMesh={true}
-              legends={[
-                {
-                  anchor: "bottom-right",
-                  direction: "column",
-                  justify: false,
-                  translateX: 100,
-                  translateY: 0,
-                  itemsSpacing: 0,
-                  itemDirection: "left-to-right",
-                  itemWidth: 80,
-                  itemHeight: 20,
-                  itemOpacity: 0.75,
-                  symbolSize: 12,
-                  symbolShape: "circle",
-                  symbolBorderColor: "rgba(0, 0, 0, .5)",
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemBackground: "rgba(0, 0, 0, .03)",
-                        itemOpacity: 1,
-                      },
-                    },
-                  ],
-                },
-              ]}
-            />
-          </div>
-        </div>
-        <div className="col-md-4 "></div>
-      </div>
-      <div className="d-sm-flex justify-content-between align-items-center mb-4"></div>
-
-      <div className="row">
-        {" "}
-        <div className="col-lg-5  col-xl-4">
-          <div
-            className="card shadow mb-4"
-            style={{ height: "400px", background: "white" }}
-          >
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Revenue By Property
-              </h6>
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
-            <ResponsiveBar
-              data={data2}
-              keys={[
-                "hot dog",
-                "burger",
-                "sandwich",
-                "kebab",
-                "fries",
-                "donut",
-              ]}
-              indexBy="country"
-              margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-              padding={0.4}
-              groupMode="grouped"
-              valueScale={{ type: "linear" }}
-              indexScale={{ type: "band", round: true }}
-              colors={{ scheme: "nivo" }}
-              defs={[
-                {
-                  id: "dots",
-                  type: "patternDots",
-                  background: "inherit",
-                  color: "#38bcb2",
-                  size: 4,
-                  padding: 1,
-                  stagger: true,
-                },
-                {
-                  id: "lines",
-                  type: "patternLines",
-                  background: "inherit",
-                  color: "#eed312",
-                  rotation: -45,
-                  lineWidth: 6,
-                  spacing: 10,
-                },
-              ]}
-              fill={[
-                {
-                  match: {
-                    id: "fries",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "sandwich",
-                  },
-                  id: "lines",
-                },
-              ]}
-              borderColor={{
-                from: "color",
-                modifiers: [["darker", 1.6]],
-              }}
-              axisTop={null}
-              axisRight={null}
-              axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legend: "country",
-                legendPosition: "middle",
-                legendOffset: 32,
-              }}
-              axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legend: "food",
-                legendPosition: "middle",
-                legendOffset: -40,
-              }}
-              labelSkipWidth={12}
-              labelSkipHeight={12}
-              labelTextColor={{
-                from: "color",
-                modifiers: [["darker", 1.6]],
-              }}
-              legends={[
-                {
-                  dataFrom: "keys",
-                  anchor: "bottom-right",
-                  direction: "column",
-                  justify: false,
-                  translateX: 120,
-                  translateY: 0,
-                  itemsSpacing: 2,
-                  itemWidth: 100,
-                  itemHeight: 20,
-                  itemDirection: "left-to-right",
-                  itemOpacity: 0.85,
-                  symbolSize: 20,
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemOpacity: 1,
-                      },
-                    },
-                  ],
-                },
-              ]}
-              role="application"
-              ariaLabel="Nivo bar chart demo"
-              barAriaLabel={(e) =>
-                e.id + ": " + e.formattedValue + " in country: " + e.indexValue
-              }
-            />
-          </div>
-          <div className="card shadow mb-4" style={{ height: "450px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Revenue Sources
-              </h6>
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
-            <ResponsivePie
-              data={data3}
-              margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-              innerRadius={0.5}
-              padAngle={0.7}
-              cornerRadius={3}
-              activeOuterRadiusOffset={8}
-              borderWidth={1}
-              borderColor={{
-                from: "color",
-                modifiers: [["darker", 0.2]],
-              }}
-              arcLinkLabelsSkipAngle={10}
-              arcLinkLabelsTextColor="#333333"
-              arcLinkLabelsThickness={2}
-              arcLinkLabelsColor={{ from: "color" }}
-              arcLabelsSkipAngle={10}
-              arcLabelsTextColor={{
-                from: "color",
-                modifiers: [["darker", 2]],
-              }}
-              defs={[
-                {
-                  id: "dots",
-                  type: "patternDots",
-                  background: "inherit",
-                  color: "rgba(255, 255, 255, 0.3)",
-                  size: 4,
-                  padding: 1,
-                  stagger: true,
-                },
-                {
-                  id: "lines",
-                  type: "patternLines",
-                  background: "inherit",
-                  color: "rgba(255, 255, 255, 0.3)",
-                  rotation: -45,
-                  lineWidth: 6,
-                  spacing: 10,
-                },
-              ]}
-              fill={[
-                {
-                  match: {
-                    id: "ruby",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "c",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "go",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "python",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "scala",
-                  },
-                  id: "lines",
-                },
-                {
-                  match: {
-                    id: "lisp",
-                  },
-                  id: "lines",
-                },
-                {
-                  match: {
-                    id: "elixir",
-                  },
-                  id: "lines",
-                },
-                {
-                  match: {
-                    id: "javascript",
-                  },
-                  id: "lines",
-                },
-              ]}
-              legends={[
-                {
-                  anchor: "bottom",
-                  direction: "row",
-                  justify: false,
-                  translateX: 0,
-                  translateY: 56,
-                  itemsSpacing: 0,
-                  itemWidth: 100,
-                  itemHeight: 18,
-                  itemTextColor: "#999",
-                  itemDirection: "left-to-right",
-                  itemOpacity: 1,
-                  symbolSize: 18,
-                  symbolShape: "circle",
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemTextColor: "#000",
-                      },
-                    },
-                  ],
-                },
-              ]}
-            />
-          </div>{" "}
-          <div className="card mt-3">
-            <div className="card-header py-3">
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Rent Over Due Notice
-              </h6>
-            </div>
-            <div className="card-body">
-              <p className="card-text">
-                John Doe is 3 Days overdue for their rent payment.
-              </p>
-              <a className="card-link" href="#" style={{ color: uiGreen }}>
-                Dismiss
-              </a>
-            </div>
-          </div>
-          <div className="card shadow mb-4" style={{ marginTop: "15px" }}>
-            <div className="card-header py-3">
-              <h6 className="text-primary fw-bold m-0 card-header-text">
-                Account Setup
-              </h6>
-            </div>
-            <ul className="list-group list-group-flush">
-              <li className="list-group-item">
-                <div className="row align-items-center no-gutters">
-                  <div className="col me-2">
-                    <h6 className="mb-0">
-                      <strong>Verify Email</strong>
-                    </h6>
-                  </div>
-                  <div className="col-auto">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="-32 0 512 512"
-                      width="1em"
-                      height="1em"
-                      fill="currentColor"
-                    >
-                      {/*! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. */}
-                      <path d="M200.3 142.4C193.3 135.9 183.1 134.2 174.4 138C165.7 141.8 160 150.5 160 159.1v192C160 361.5 165.7 370.2 174.4 374c8.719 3.812 18.91 2.094 25.91-4.375l104-96C309.2 269.1 312 262.7 312 256s-2.812-13.09-7.719-17.62L200.3 142.4zM384 32H64C28.66 32 0 60.66 0 96v320c0 35.34 28.66 64 64 64h320c35.34 0 64-28.66 64-64V96C448 60.66 419.3 32 384 32zM400 416c0 8.82-7.18 16-16 16H64c-8.82 0-16-7.18-16-16V96c0-8.82 7.18-16 16-16h320c8.82 0 16 7.18 16 16V416z" />
-                    </svg>
-                  </div>
-                </div>
-              </li>
-              <li className="list-group-item">
-                <div className="row align-items-center no-gutters">
-                  <div className="col me-2">
-                    <h6 className="mb-0">
-                      <strong>
-                        Connect Your Bank Account To Receive Payments
-                      </strong>
-                    </h6>
-                  </div>
-                  <div className="col-auto">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="-32 0 512 512"
-                      width="1em"
-                      height="1em"
-                      fill="currentColor"
-                    >
-                      {/*! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. */}
-                      <path d="M200.3 142.4C193.3 135.9 183.1 134.2 174.4 138C165.7 141.8 160 150.5 160 159.1v192C160 361.5 165.7 370.2 174.4 374c8.719 3.812 18.91 2.094 25.91-4.375l104-96C309.2 269.1 312 262.7 312 256s-2.812-13.09-7.719-17.62L200.3 142.4zM384 32H64C28.66 32 0 60.66 0 96v320c0 35.34 28.66 64 64 64h320c35.34 0 64-28.66 64-64V96C448 60.66 419.3 32 384 32zM400 416c0 8.82-7.18 16-16 16H64c-8.82 0-16-7.18-16-16V96c0-8.82 7.18-16 16-16h320c8.82 0 16 7.18 16 16V416z" />
-                    </svg>
-                  </div>
-                </div>
-              </li>
-              <li className="list-group-item">
-                <div className="row align-items-center no-gutters">
-                  <div className="col me-2">
-                    <h6 className="mb-0">
-                      <strong>Enable 2FA</strong>
-                    </h6>
-                  </div>
-                  <div className="col-auto">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="-32 0 512 512"
-                      width="1em"
-                      height="1em"
-                      fill="currentColor"
-                    >
-                      {/*! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. */}
-                      <path d="M200.3 142.4C193.3 135.9 183.1 134.2 174.4 138C165.7 141.8 160 150.5 160 159.1v192C160 361.5 165.7 370.2 174.4 374c8.719 3.812 18.91 2.094 25.91-4.375l104-96C309.2 269.1 312 262.7 312 256s-2.812-13.09-7.719-17.62L200.3 142.4zM384 32H64C28.66 32 0 60.66 0 96v320c0 35.34 28.66 64 64 64h320c35.34 0 64-28.66 64-64V96C448 60.66 419.3 32 384 32zM400 416c0 8.82-7.18 16-16 16H64c-8.82 0-16-7.18-16-16V96c0-8.82 7.18-16 16-16h320c8.82 0 16 7.18 16 16V416z" />
-                    </svg>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <button
-            className="btn btn-primary ui-btn"
-            type="button"
-            style={{ width: "100%" }}
-          >
-            View All Notifications
-          </button>
-        </div>
-        <div className="col-lg-7 col-xl-8">
-          <UITable
-            columns={columns}
-            options={options}
-            endpoint="/transactions/"
-            title="Transactions"
-            detailURL="/dashboard/landlord/transactions/"
-            showCreate={false}
+          <UILineChartCard
+            isLoading={isLoading}
+            height={"360px"}
+            title="Total Revenue"
+            info={`$${transactionDataValues
+              .reduce((a, b) => a + b, 0)
+              .toLocaleString()}`}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "22pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "15pt" }}
+            // data={data1}
+            labels={labels}
+            data={dataValues}
+            dropDownOptions={[
+              { value: "monthly", label: "Monthly" },
+              { value: "daily", label: "Daily" },
+              { value: "weekly", label: "Weekly" },
+              { value: "yearly", label: "Yearly" },
+            ]}
+            onDropdownChange={(e) => console.log(e.target.value)}
           />
         </div>
-        <div className="col-lg-5 col-xl-4 pt-4"></div>
+      </div>
+
+      {/* Info Card Row */}
+      <div className="row my-2">
+        {multiplier.map((item, index) => {
+          return (
+            <div className="col-md-3">
+              <UIInfoCard
+                cardStyle={{ background: "white", color: uiGrey2 }}
+                infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+                info={`$${transactionDataValues
+                  .reduce((a, b) => a + b, 0)
+                  .toLocaleString()}`}
+                title={"Total Revenue"}
+                icon={<AttachMoneyIcon style={{ fontSize: "25pt" }} />}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Vacancies & Transactions Row */}
+      <div className="row">
+        <div className="col-md-8">
+          <UIPieChartCard
+            isLoading={isLoading}
+            info={"Unit Vacancies"}
+            title={"Occupied vs Vacant Units"}
+            height={"386px"}
+            legendPosition={"right"}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            data={[occupiedUnits, vacantUnits]}
+            labels={["Occupied", "Vacant"]}
+            colors={[uiGreen, "#f4f7f8"]}
+            dropDownOptions={[
+              { value: "all", label: "All Properties" }, // Hardcoded default option
+              ...properties.map((property) => ({
+                value: property.id,
+                label: property.name,
+              })),
+            ]}
+            onDropdownChange={handlePropertyChange}
+          />
+        </div>
+        <div className="col-md-4">
+          <UICardList
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            title={""}
+            info={"Recent Transactions"}
+            onInfoClick={() => navigate("/dashboard/landlord/transactions")}
+            //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
+            items={transactions
+              .map((transaction) => ({
+                primary: transaction.description,
+                secondary: new Date(
+                  transaction.created_at
+                ).toLocaleDateString(),
+                tertiary: `${
+                  transaction.type === "revenue" ||
+                  transaction.type === "rent_payment" ||
+                  transaction.type === "security_deposit"
+                    ? "+"
+                    : "-"
+                }$${transaction.amount}`,
+                icon: <AttachMoneyIcon />,
+              }))
+              .slice(0, 4)}
+            tertiaryStyles={{ color: uiGreen }}
+          />
+        </div>
+      </div>
+
+      {/* Lease Agreements &  Row */}
+      <div className="row">
+        <div className="col-md-6">
+          <UITableCard
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            title={"Upcoming Lease Endings"}
+            columns={lease_agreement_columns}
+            info={"Lease Agreements"}
+            endpoint={"/lease-agreements/"}
+            options={lease_agreement_options}
+          />
+        </div>
+        <div className="col-md-6">
+          <UIPieChartCard
+            isLoading={isLoading}
+            info={"Best Performing Properties"}
+            title={"Revenue Per Property"}
+            height={"456px"}
+            legendPosition={"bottom"}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            chartContainerStyles={{ padding: "1rem" }}
+            data={groupedPropertiesByTransactions.map((property) => {
+              return property.totalAmount;
+            })}
+            labels={groupedPropertiesByTransactions.map((property) => {
+              return property.name;
+            })}
+            colors={groupedPropertiesByTransactions.map((property) => {
+              return faker.color.rgb();
+            })}
+          />
+        </div>
+      </div>
+
+      {/*Maintenance Request Row*/}
+      <div className="row">
+        <div className="col-md-12">
+          <UITableCard
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            title={"Recent Maintenance Requests"}
+            columns={maintenance_request_columns}
+            info={"Recent Maintenance Requests"}
+            endpoint={"/maintenance-requests/"}
+            options={maintenance_request_options}
+          />
+        </div>
+      </div>
+
+      {/* Lease Cancellation  Row */}
+      <div className="row">
+        <div className="col-md-6">
+          <UITableCard
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            title={"Recent Lease Cancellation Requests"}
+            columns={lease_cancellation_columns}
+            info={"Recent Lease Cancellation Requests"}
+            endpoint={"/lease-cancellation-requests/"}
+            options={lease_agreement_options}
+          />
+        </div>
+        <div className="col-md-6">
+          <UIPieChartCard
+            isLoading={isLoading}
+            info={"Pending vs Approved Requests"}
+            title={"Lease Cancellation Requests"}
+            height={"456px"}
+            legendPosition={"bottom"}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            chartContainerStyles={{ padding: "1rem" }}
+            data={[
+              groupLeaseCancellationRequests(leaseCancellationRequests).pending
+                .length,
+              groupLeaseCancellationRequests(leaseCancellationRequests).approved
+                .length,
+            ]}
+            labels={["Pending", "Approved"]}
+            colors={["#f4f7f8", uiGreen]}
+          />
+        </div>
+      </div>
+
+      {/* Lease Renewal  Row */}
+      <div className="row">
+        <div className="col-md-6">
+          <UITableCard
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            title={"Recent Lease Renewal Requests"}
+            columns={lease_renewal_columns}
+            info={"Recent Lease Renewal Requests"}
+            endpoint={"/lease-renewal-requests/"}
+            options={lease_agreement_options}
+          />
+        </div>
+        <div className="col-md-6">
+          <UIPieChartCard
+            isLoading={isLoading}
+            info={"Pending vs Approved Requests"}
+            title={"Lease Renewal Requests"}
+            height={"456px"}
+            legendPosition={"bottom"}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            chartContainerStyles={{ padding: "1rem" }}
+            data={[
+              groupLeaseRenewalRequests(leaseRenewalRequests).pending.length,
+              groupLeaseRenewalRequests(leaseRenewalRequests).approved.length,
+            ]}
+            labels={["Pending", "Approved"]}
+            colors={["#f4f7f8", uiGreen]}
+          />
+        </div>
       </div>
     </div>
   );

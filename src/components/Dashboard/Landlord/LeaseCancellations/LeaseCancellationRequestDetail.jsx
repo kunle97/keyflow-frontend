@@ -8,7 +8,7 @@ import {
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import { Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { uiGreen, uiRed } from "../../../../constants";
+import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import UITableMini from "../../UIComponents/UITable/UITableMini";
 import {
   getNextPaymentDate,
@@ -176,7 +176,7 @@ const LeaseCancellationRequestDetail = () => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <h4 className="card-title">
+            <h4 className="card-title" style={{ color: uiGrey2 }}>
               {" "}
               {leaseCancellationRequest.tenant.first_name}{" "}
               {leaseCancellationRequest.tenant.last_name}'s Lease Cancellation
@@ -207,35 +207,45 @@ const LeaseCancellationRequestDetail = () => {
                       <h6 className="rental-application-lease-heading">
                         Reason
                       </h6>
-                      {leaseCancellationRequest.reason}
+                      <span className="text-dark">
+                        {leaseCancellationRequest.reason}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-3 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Status
                       </h6>
-                      {leaseCancellationRequest.status}
+                      <span className="text-dark">
+                        {leaseCancellationRequest.status}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-3 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Date Requested
                       </h6>
-                      {new Date(
-                        leaseCancellationRequest.request_date
-                      ).toLocaleDateString()}
+                      <span className="text-dark">
+                        {new Date(
+                          leaseCancellationRequest.request_date
+                        ).toLocaleDateString()}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-3 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Date Submitted
                       </h6>
-                      {new Date(
-                        leaseCancellationRequest.created_at
-                      ).toLocaleDateString()}
+                      <span className="text-dark">
+                        {new Date(
+                          leaseCancellationRequest.created_at
+                        ).toLocaleDateString()}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-12 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Additional Comments
                       </h6>
-                      {leaseCancellationRequest.comments}
+                      <span className="text-dark">
+                        {leaseCancellationRequest.comments}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -250,39 +260,47 @@ const LeaseCancellationRequestDetail = () => {
                       <h6 className="rental-application-lease-heading">
                         Property
                       </h6>
-                      {leaseCancellationRequest.rental_property.name}
+                      <span className="text-dark">
+                        {leaseCancellationRequest.rental_property.name}
+                      </span>
                     </div>{" "}
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">Unit</h6>
-                      {leaseCancellationRequest.rental_unit.name}
+                      <span className="text-dark">
+                        {leaseCancellationRequest.rental_unit.name}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">Rent</h6>
-                      $
-                      {
-                        leaseCancellationRequest.lease_agreement.lease_template
-                          .rent
-                      }
+                      <span className="text-dark">
+                        $
+                        {
+                          leaseCancellationRequest.lease_agreement
+                            .lease_template.rent
+                        }
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">Term</h6>
-                      {
-                        leaseCancellationRequest.lease_agreement.lease_template
-                          .term
-                      }{" "}
-                      Months
+                      <span className="text-dark">
+                        {
+                          leaseCancellationRequest.lease_agreement
+                            .lease_template.term
+                        }{" "}
+                        Months
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Lease Cancellation Fee
                       </h6>
-                      {`$${leaseCancellationRequest.lease_agreement.lease_template.lease_cancellation_fee}`}
+                      <span className="text-dark">{`$${leaseCancellationRequest.lease_agreement.lease_template.lease_cancellation_fee}`}</span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Next Payment Date
                       </h6>
-                      {nextPaymentDate}
+                      <span className="text-dark">{nextPaymentDate}</span>
                     </div>
                   </div>
                 </div>

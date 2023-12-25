@@ -20,6 +20,26 @@ export async function createLeaseCancellationRequest(data) {
   }
 }
 
+//Using the authenticatedInstance create a function to get all of the lease cancellation requests using the endpoint /lease-cancellation-requests
+export async function getAllLeaseCancellationRequests() {
+  try {
+    const response = await authenticatedInstance
+      .get("/lease-cancellation-requests/")
+      .then((res) => {
+        console.log("Response: ", res);
+        return {
+          message: "Lease cancellation requests retrieved successfully",
+          status: 200,
+          data: res.data,
+        };
+      });
+    return response;
+  } catch (error) {
+    console.log("Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
 //Using the authenticatedInstance create a function to get a specific lease cancellation request using the endpoint /lease-cancellation-requests/:id
 export async function getLeaseCancellationRequestById(id) {
   try {
