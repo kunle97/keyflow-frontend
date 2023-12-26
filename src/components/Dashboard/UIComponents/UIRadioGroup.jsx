@@ -15,17 +15,17 @@ const UIRadioGroup = (props) => {
       <FormControl>
         <FormLabel
           id="demo-controlled-radio-buttons-group"
-          sx={{ color: "white", ...props.labelStyle }}
+          sx={{ ...props.labelStyle }}
         >
           {props.formLabel}
         </FormLabel>
         <RadioGroup
           sx={{
             "& .MuiFormControlLabel-label": {
-              color: "white", // Set label text color to white
+              color: "black", // Set label text color to white
             },
             "& .MuiRadio-root": {
-              color: "white", // Set radio button color to white
+              color: "black", // Set radio button color to white
             },
             "& .Mui-checked": {
               color: uiGreen, // Set checked radio button color

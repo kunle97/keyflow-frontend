@@ -44,21 +44,6 @@ const CreateRentalApplication = () => {
   const [unitImages, setUnitImages] = useState([]); // unit images state
   const [errorMode, setErrorMode] = useState(false); // error mode state
 
-  const images = [
-    {
-      original: "https://picsum.photos/id/1018/1000/600/",
-      thumbnail: "https://picsum.photos/id/1018/250/150/",
-    },
-    {
-      original: "https://picsum.photos/id/1015/1000/600/",
-      thumbnail: "https://picsum.photos/id/1015/250/150/",
-    },
-    {
-      original: "https://picsum.photos/id/1019/1000/600/",
-      thumbnail: "https://picsum.photos/id/1019/250/150/",
-    },
-  ];
-
   useEffect(() => {
     /**
      *
@@ -458,55 +443,55 @@ const CreateRentalApplication = () => {
                 <div className="card mb-3">
                   <div className="card-body">
                     <div className="row">
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Rent
                         </h6>
                         ${leaseTemplate.rent}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Term
                         </h6>
                         {leaseTemplate.term} Months
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Late Fee
                         </h6>
                         {`$${leaseTemplate.late_fee}`}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Security Deposit
                         </h6>
                         {`$${leaseTemplate.security_deposit}`}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Gas Included?
                         </h6>
                         {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Electric Included?
                         </h6>
                         {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Water Included?
                         </h6>
                         {`${leaseTemplate.water_included ? "Yes" : "No"}`}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Lease Cancellation Fee
                         </h6>
                         {`$${leaseTemplate.lease_cancellation_fee}`}
                       </div>
-                      <div className="col-sm-6 col-md-6 mb-4">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Lease Cancellation Notice period
                         </h6>
@@ -516,11 +501,11 @@ const CreateRentalApplication = () => {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Typography sx={{ color: "white" }}>
+                  <Typography sx={{ color: "black" }}>
                     Powered by{" "}
                     <Link to="/">
                       <img
-                        src="/assets/img/key-flow-logo-white-transparent.png"
+                        src="/assets/img/key-flow-logo-black-transparent.png"
                         width={150}
                       />
                     </Link>

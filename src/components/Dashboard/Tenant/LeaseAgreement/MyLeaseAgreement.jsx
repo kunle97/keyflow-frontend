@@ -153,69 +153,69 @@ const MyLeaseAgreement = () => {
             message={alertModalMessage}
             btnText="Okay"
           />
-          <h4 className="my-3">My Lease Agreement</h4>
+          <h4 className="my-3 ">My Lease Agreement</h4>
           <div className="col-md-4">
             <div className="card my-3">
               <div className="card-body">
-                <h6 className="card-title">Lease Agreement Overview</h6>
+                <h4 className="card-title text-black mb-4">Lease Agreement Overview</h4>
                 {leaseTemplate && (
                   <div className="row">
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">Unit</h6>
                       {unit.name}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">Rent</h6>
                       ${leaseTemplate.rent}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">Term</h6>
                       {leaseTemplate.term} Months
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Late Fee
                       </h6>
                       {`$${leaseTemplate.late_fee}`}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Security Deposit
                       </h6>
                       {`$${leaseTemplate.security_deposit}`}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Gas Included?
                       </h6>
                       {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Electric Included?
                       </h6>
                       {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Water Included?
                       </h6>
                       {`${leaseTemplate.water_included ? "Yes" : "No"}`}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Lease Cancellation Fee
                       </h6>
                       {`$${leaseTemplate.lease_cancellation_fee}`}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Lease Cancellation Notice period
                       </h6>
                       {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
                     </div>
                     <div
-                      className="col-sm-12 col-md-6 mb-4"
+                      className="col-sm-12 col-md-6 mb-4 text-black"
                       style={{ marginTop: "20px" }}
                     >
                       <h6 className="rental-application-lease-heading">
@@ -224,7 +224,7 @@ const MyLeaseAgreement = () => {
                       {leaseAgreement.start_date}
                     </div>
                     <div
-                      className="col-sm-12 col-md-6 mb-4"
+                      className="col-sm-12 col-md-6 mb-4 text-black"
                       style={{ marginTop: "20px" }}
                     >
                       <h6 className="rental-application-lease-heading">

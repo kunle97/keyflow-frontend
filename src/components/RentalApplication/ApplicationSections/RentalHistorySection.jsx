@@ -19,7 +19,7 @@ const RentalHistorySection = (props) => {
       <div className="card mb-3">
         <div className="row card-body">
           <div className="col-md-12 mb-4">
-            <label className="mb-2">
+            <label className="mb-2 text-black">
               Full Address (Street, City, State, Zip)
             </label>
             <input
@@ -38,7 +38,7 @@ const RentalHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Start Date</label>
+            <label className="mb-2 text-black">Start Date</label>
             <input
               {...props.register(`residenceStartDate_${props.id}`, {
                 required: "This is a required field",
@@ -56,7 +56,7 @@ const RentalHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">End Date</label>
+            <label className="mb-2 text-black">End Date</label>
             <input
               {...props.register(`residenceEndDate_${props.id}`, {
                 required: "This is a required field",
@@ -78,14 +78,16 @@ const RentalHistorySection = (props) => {
               sx={{ color: "white", width: "100%" }}
               placeholder="End Date"
             />
-            <Checkbox /> Current Residence
+            <span className="text-black">
+              <Checkbox /> Current Residence
+            </span>
             <div style={validationMessageStyle}>
               {props.residenceEndDateErrors &&
                 props.residenceEndDateErrors.message}
             </div>
           </div>
           <div className="col-md-12 mb-4">
-            <label className="mb-2">Landlord Name</label>
+            <label className="mb-2 text-black">Landlord Name</label>
             <input
               {...props.register(`landlordName_${props.id}`, {
                 required: "This is a required field",
@@ -102,7 +104,7 @@ const RentalHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Landlord Phone</label>
+            <label className="mb-2 text-black">Landlord Phone</label>
             <input
               {...props.register(`landlordPhone_${props.id}`, {
                 required: "This is a required field",
@@ -123,7 +125,7 @@ const RentalHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Landlord Email</label>
+            <label className="mb-2 text-black">Landlord Email</label>
             <input
               {...props.register(`landlordEmail_${props.id}`, {
                 required: "This is a required field",

@@ -19,7 +19,6 @@ const Sidebar = () => {
         style={{
           background: "white",
           height: "100vh",
-          width: "400px !important",
           position: "fixed",
           top: "0",
         }}

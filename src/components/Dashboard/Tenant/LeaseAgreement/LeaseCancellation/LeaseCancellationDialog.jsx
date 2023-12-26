@@ -20,24 +20,28 @@ const LeaseCancellationDialog = (props) => {
               props.setShowLeaseCancellationFormDialog
             }
             setAlertModalTitle={props.LeaseCancellationDialogsetAlertModalTitle}
-            setAlertModalMessage={props.LeaseCancellationDialogsetAlertModalMessage}
+            setAlertModalMessage={
+              props.LeaseCancellationDialogsetAlertModalMessage
+            }
             setShowAlertModal={props.LeaseCancellationDialogsetShowAlertModal}
           />
         ) : (
           <div className="row">
             <div className="col-md-12">
-              <p>
+              <p className="text-black">
                 Please note that you will be charged a lease cancellation fee of
-                ${props.leaseTemplate && props.leaseTemplate.lease_cancellation_fee} if you
-                cancel your lease before the end of the lease term.
+                $
+                {props.leaseTemplate &&
+                  props.leaseTemplate.lease_cancellation_fee}{" "}
+                if you cancel your lease before the end of the lease term.
               </p>
-              <p>
+              <p className="text-black">
                 You will also be required to give a notice period of{" "}
                 {props.leaseTemplate &&
                   props.leaseTemplate.lease_cancellation_notice_period}{" "}
                 month(s) before you can cancel your lease.
               </p>
-              <p>
+              <p className="text-black">
                 If you wish to proceed, please click the button below to
                 continue.
               </p>

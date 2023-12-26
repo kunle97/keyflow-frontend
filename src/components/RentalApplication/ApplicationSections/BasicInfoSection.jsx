@@ -12,7 +12,7 @@ const BasicInfoSection = (props) => {
           <div className="row">
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">First Name</label>
+                <label className="mb-2 text-black">First Name</label>
                 <input
                   {...props.register("first_name", {
                     required: "Please enter your first name",
@@ -30,7 +30,7 @@ const BasicInfoSection = (props) => {
             </div>
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">Last Name</label>
+                <label className="mb-2 text-black">Last Name</label>
                 <input
                   {...props.register("last_name", {
                     required: "Please enter your last name",
@@ -48,7 +48,7 @@ const BasicInfoSection = (props) => {
             </div>
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">Date Of Birth</label>
+                <label className="mb-2 text-black">Date Of Birth</label>
                 <input
                   {...props.register("date_of_birth", {
                     required: "Please enter your date of birth",
@@ -81,7 +81,7 @@ const BasicInfoSection = (props) => {
 
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">E-mail</label>
+                <label className="mb-2 text-black">E-mail</label>
                 <input
                   {...props.register("email", {
                     required: "Please enter your email",
@@ -103,7 +103,7 @@ const BasicInfoSection = (props) => {
             </div>
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">Phone Number</label>
+                <label className="mb-2 text-black">Phone Number</label>
                 <input
                   {...props.register("phone", {
                     required: "Please enter your phone number",
@@ -125,7 +125,7 @@ const BasicInfoSection = (props) => {
             </div>
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">
+                <label className="mb-2 text-black">
                   Social Security Number{" "}
                   <Tooltip title="Your social security number will not be stored on KeyFlow servers. It will only be used for credit reporting and background checks.">
                     <HelpOutline
@@ -157,7 +157,7 @@ const BasicInfoSection = (props) => {
             </div>
             <div className="col-md-12 mb-4">
               <div className="form-group">
-                <label className="mb-2">Desired Move-in Date</label>
+                <label className="mb-2 text-black">Desired Move-in Date</label>
                 <input
                   {...props.register("desired_move_in_date", {
                     required: "Please enter your desired move-in date",

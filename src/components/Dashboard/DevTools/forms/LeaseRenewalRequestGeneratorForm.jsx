@@ -50,7 +50,7 @@ const LeaseRenewalRequestGeneratorForm = (props) => {
     <UIDialog
       open={props.open}
       onClose={props.onClose}
-      style={{ padding: "10px", width: "500px" }}
+      style={{ padding: "10px", width: "500px", background: "#f4f7f8" }}
     >
       <AlertModal
         open={alertModalOpen}

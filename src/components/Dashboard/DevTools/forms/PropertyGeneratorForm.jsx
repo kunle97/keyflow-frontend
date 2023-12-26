@@ -45,7 +45,7 @@ const PropertyGeneratorForm = (props) => {
       >
         <h3>Property Generator </h3>
         <IconButton
-          sx={{ color: "white", float: "right" }}
+          sx={{ color: "white", float: "right", background: "#f4f7f8" }}
           edge="start"
           color="inherit"
           onClick={props.onClose}

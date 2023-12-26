@@ -14,13 +14,13 @@ const  ActivateAccountMessage = () => {
                   <div className="p-5">
                     <div className="text-center">
                       <img
-                        src="/assets/img/key-flow-logo-white-transparent.png"
+                        src="/assets/img/key-flow-logo-black-transparent.png"
                         className="mb-3"
                         width={200}
                         alt="logo"
                       />
                       <h4 className="mb-4">Activate Your Account</h4>
-                      <p>{message}</p>
+                      <p className="text-black" >{message}</p>
                     </div>
                   </div>
                 </div>

@@ -248,8 +248,8 @@ const TenantRegister = () => {
             <div className="card">
               <div className="card-body">
                 <img
-                  style={{ maxWidth: "250px", marginBottom: "25px" }}
-                  src="/assets/img/key-flow-logo-white-transparent.png"
+                  style={{ maxWidth: "200px", marginBottom: "25px" }}
+                  src="/assets/img/key-flow-logo-black-transparent.png"
                 />
                 <form className="user" onSubmit={handleSubmit(onSubmit)}>
                   <input type="hidden" name="account_type" value="tenant" />
@@ -258,7 +258,9 @@ const TenantRegister = () => {
                       <h5 className="mb-3"> Create Your Account</h5>
                       <div className="row mb-3">
                         <div className="col-sm-6 mb-3 mb-sm-0">
-                          <label className="form-label">First Name</label>
+                          <label className="form-label text-black">
+                            First Name
+                          </label>
                           <input
                             {...register("first_name", {
                               required: "This is a required field",
@@ -277,7 +279,9 @@ const TenantRegister = () => {
                           </span>
                         </div>
                         <div className="col-sm-6">
-                          <label className="form-label">Last Name</label>
+                          <label className="form-label text-black">
+                            Last Name
+                          </label>
                           <input
                             {...register("last_name", {
                               required: "This is a required field",
@@ -297,7 +301,9 @@ const TenantRegister = () => {
                         </div>
                       </div>
                       <div className="mb-3">
-                        <label className="form-label">Username</label>
+                        <label className="form-label text-black">
+                          Username
+                        </label>
                         <input
                           {...register("username", {
                             required: "This is a required field",
@@ -315,7 +321,7 @@ const TenantRegister = () => {
                         </span>
                       </div>
                       <div className="mb-3">
-                        <label className="form-label">E-mail</label>
+                        <label className="form-label text-black">E-mail</label>
                         <input
                           {...register("email", {
                             required: "This is a required field",
@@ -336,7 +342,9 @@ const TenantRegister = () => {
                       </div>
                       <div className="row mb-3">
                         <div className="col-sm-12 col-md-6 mb-3 mb-sm-0">
-                          <label className="form-label">Password</label>
+                          <label className="form-label text-black">
+                            Password
+                          </label>
                           <input
                             {...register("password", {
                               required: "This is a required field",
@@ -362,7 +370,9 @@ const TenantRegister = () => {
                           </span>
                         </div>
                         <div className="col-sm-12 col-md-6">
-                          <label className="form-label">Retype Password</label>
+                          <label className="form-label text-black">
+                            Retype Password
+                          </label>
                           <input
                             {...register("password_repeat", {
                               required: "This is a required field",
@@ -445,8 +455,8 @@ const TenantRegister = () => {
                           }}
                         />
                       </IconButton>
-                      <h5 className="mb-3">Add A Payment Method</h5>
-                      <p>
+                      <h5 className="mb-3 text-black">Add A Payment Method</h5>
+                      <p className="text-black">
                         This will be used to pay for your rent monthly and all
                         other expenses.
                       </p>
@@ -470,7 +480,7 @@ const TenantRegister = () => {
                       <div className="">
                         <FormControl sx={{ marginBottom: "10px" }}>
                           <FormLabel
-                            sx={{ color: "white", fontSize: "12pt" }}
+                            sx={{ fontSize: "12pt" }}
                             id="payment-type"
                           >
                             Method Type
@@ -488,7 +498,7 @@ const TenantRegister = () => {
                                   onClick={() => setCardMode(true)}
                                   onSelect={() => setCardMode(true)}
                                   sx={{
-                                    color: "white",
+                                    color: "#f2f2f2",
                                     "&.Mui-checked": {
                                       color: uiGreen,
                                     },
@@ -496,7 +506,7 @@ const TenantRegister = () => {
                                 />
                               }
                               label="Debit/Credit Card"
-                              sx={{ color: "white" }}
+                              sx={{ color: "black" }}
                             />
                             <FormControlLabel
                               value="bank_account"
@@ -505,7 +515,7 @@ const TenantRegister = () => {
                                   onClick={() => setCardMode(false)}
                                   onSelect={() => setCardMode(false)}
                                   sx={{
-                                    color: "white",
+                                    color: "#f2f2f2",
                                     "&.Mui-checked": {
                                       color: uiGreen,
                                     },
@@ -513,7 +523,7 @@ const TenantRegister = () => {
                                 />
                               }
                               label="Bank Account"
-                              sx={{ color: "white" }}
+                              sx={{ color: "black" }}
                             />
                           </RadioGroup>
                         </FormControl>
@@ -523,14 +533,14 @@ const TenantRegister = () => {
                               {" "}
                               <div className="form-row">
                                 <label
-                                  className="form-label"
+                                  className="form-label text-black"
                                   htmlFor="card-element"
                                 >
                                   Credit or Debit Card
                                 </label>
                                 <div
                                   style={{
-                                    backgroundColor: uiGrey1,
+                                    backgroundColor: "#f2f2f2",
                                     padding: "10px",
                                     borderRadius: "5px",
                                   }}
@@ -540,7 +550,7 @@ const TenantRegister = () => {
                                       style: {
                                         base: {
                                           fontSize: "16px",
-                                          color: "white",
+                                          color: "black",
                                           marginBottom: "15px",
                                         },
                                       },

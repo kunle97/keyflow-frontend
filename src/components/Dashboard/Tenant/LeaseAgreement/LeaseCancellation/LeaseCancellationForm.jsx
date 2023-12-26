@@ -57,7 +57,6 @@ const LeaseCancellationForm = (props) => {
         console.log(res);
         if (res.status === 201) {
           props.setShowLeaseCancellationFormDialog(false);
-          props.setShowDialog(true);
           props.setAlertModalTitle("Lease Cancellation Request Created");
           props.setAlertModalMessage(
             "Your lease cancellation request has been created. You will be notified when the property manager responds."
@@ -163,7 +162,7 @@ const LeaseCancellationForm = (props) => {
             >
               <CancelIcon sx={{ fontSize: "50px", color: "red" }} />
               <h3>Cancel Lease</h3>
-              <p style={{ textAlign: "center" }}>
+              <p className={`text-black`}  style={{ textAlign: "center" }}>
                 Are you sure you want to cancel your lease? You will not be able
                 to retract this lease canellation request. If the request is
                 approved you will be liable for fromaining payments in your

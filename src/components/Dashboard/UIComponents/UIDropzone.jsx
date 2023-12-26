@@ -60,8 +60,8 @@ const UIDropzone = (props) => {
                 name="file"
               />
 
-              <p>Drag'n'drop the file representing your lease agreeement </p>
-              <p>
+              <p className="text-black" >Drag'n'drop the file representing your lease agreeement </p>
+              <p className="text-black" >
                 Only the following files will be accepted:{" "}
                 {props.allowedFileTypes.join(", ")}
               </p>
