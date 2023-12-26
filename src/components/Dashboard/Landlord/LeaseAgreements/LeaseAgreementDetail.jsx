@@ -3,7 +3,12 @@ import { useParams } from "react-router-dom";
 import { getLeaseAgreementById } from "../../../../api/lease_agreements";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { dateDiffForHumans, uiGreen, uiRed } from "../../../../constants";
+import {
+  dateDiffForHumans,
+  uiGreen,
+  uiGrey2,
+  uiRed,
+} from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import ReportIcon from "@mui/icons-material/Report";
 import { getProperty } from "../../../../api/properties";
@@ -79,7 +84,7 @@ const LeaseAgreementDetail = () => {
     });
   }, []);
   return (
-    <div>
+    <div className="container-fluid" >
       <BackButton />
       <div className="row">
         <div className="col-md-4">
@@ -90,29 +95,29 @@ const LeaseAgreementDetail = () => {
                 <div className="col-md-6">
                   <div>
                     <h5>Tenant</h5>
-                    <p className="text-white">{getTenantName()}</p>
+                    <p className="text-black">{getTenantName()}</p>
                   </div>
                   <div>
                     <h5>Rental Property</h5>
-                    <p className="text-white">
+                    <p className="text-black">
                       {rentalProperty ? rentalProperty.name : "N/A"}
                     </p>
                   </div>
                   <div>
                     <h5>Rental Unit</h5>
-                    <p className="text-white">
+                    <p className="text-black">
                       {leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
                     </p>
                   </div>{" "}
                   <div>
                     <h5>Rent</h5>
-                    <p className="text-white">${leaseTemplate.rent}</p>
+                    <p className="text-black">${leaseTemplate.rent}</p>
                   </div>
                 </div>
                 <div className="col-md-6">
                   <div>
                     <h5>Status</h5>
-                    <p className="text-white">
+                    <p className="text-black">
                       {leaseAgreement.is_active ? (
                         <span style={{ color: uiGreen }}>Active</span>
                       ) : (
@@ -122,7 +127,7 @@ const LeaseAgreementDetail = () => {
                   </div>
                   <div>
                     <h5>Date Signed</h5>
-                    <p className="text-white">
+                    <p className="text-black">
                       {leaseAgreement.start_date ? (
                         new Date(leaseAgreement.start_date).toLocaleDateString()
                       ) : (
@@ -132,7 +137,7 @@ const LeaseAgreementDetail = () => {
                   </div>
                   <div>
                     <h5>End Date</h5>
-                    <p className="text-white">
+                    <p className="text-black">
                       {leaseAgreement.end_date ? (
                         new Date(leaseAgreement.end_date).toLocaleDateString()
                       ) : (
@@ -142,12 +147,12 @@ const LeaseAgreementDetail = () => {
                   </div>
                   <div>
                     <h5>Term</h5>
-                    <p className="text-white">{leaseTemplate.term} months</p>
+                    <p className="text-black">{leaseTemplate.term} months</p>
                   </div>
                 </div>
               </div>
 
-              <p>
+              <p style={{ color: uiGrey2 }}>
                 <strong>Auto Pay Enabled:</strong>{" "}
                 {leaseAgreement.is_active ? (
                   <span>
@@ -157,7 +162,7 @@ const LeaseAgreementDetail = () => {
                   "N/A"
                 )}
               </p>
-              <p>
+              <p style={{ color: uiGrey2 }}>
                 {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
                   <ReportIcon sx={{ color: "red" }} />
                 )}{" "}

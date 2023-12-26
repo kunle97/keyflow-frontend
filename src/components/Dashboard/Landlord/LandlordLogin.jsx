@@ -35,31 +35,8 @@ const LandlordLogin = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
   });
-  const onSubmit = async (data) => {
-    let loginEmail =
-      process.env.REACT_APP_ENVIRONMENT !== "development" ? email : data.email;
-    const response = await login(loginEmail, data.password);
-    setIsLoading(true);
-
-    //if token is returned, set it in local storage
-    if (response.token) {
-      setRedirectURL("/dashboard/landlord");
-      setAuthUser(response.userData);
-      setIsLoggedIn(true);
-      setIsLoading(false);
-      //Navigate to dashboard
-      setOpenError(false);
-      setOpen(true);
-    } else {
-      setErrMsg(response.message);
-      setIsLoading(false);
-      setOpen(false);
-      setOpenError(true);
-    }
-  };
   const onJWTSubmit = async (e) => {
     let response = await loginUser(e);
-    // console.log(response);
   };
 
   useEffect(() => {

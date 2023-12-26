@@ -20,11 +20,10 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import Dropzone from "react-dropzone";
-import { Stack } from "@mui/material";
-import { uploadFile } from "../../../../api/file_uploads";
 import { authenticatedInstance } from "../../../../api/api";
-import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import FileManagerView from "../../UIComponents/FileManagerView";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState({});
@@ -32,8 +31,7 @@ const ManageProperty = () => {
   const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
   const [isLoading, setIsLoading] = useState(true); //create a loading variable to display a loading message while the units are  being retrieved
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
-  const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
-  const [responseTitle, setResponseTitle] = useState("Success");
+
   const [responseMessage, setResponseMessage] = useState("Property updated");
   const [alertSeverity, setAlertSeverity] = useState("success");
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
@@ -42,6 +40,8 @@ const ManageProperty = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
+  const [propertyMediaCount, setPropertyMediaCount] = useState(0); //Create a propertyMediaCount state to hold the number of property media files
+
   const navigate = useNavigate();
 
   const handleClose = (event, reason) => {
@@ -55,7 +55,7 @@ const ManageProperty = () => {
     { name: "property_details", label: "Property Details" },
     { name: "units", label: `Units (${unitCount})` },
     { name: "analytics", label: "Finances/Analytics" },
-    { name: "media", label: "Media" },
+    { name: "media", label: `Files (${propertyMediaCount})` },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -66,7 +66,6 @@ const ManageProperty = () => {
     navigate(navlink);
   };
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "name", label: "Name" },
     { name: "beds", label: "Beds" },
     { name: "baths", label: "Baths" },
@@ -121,7 +120,6 @@ const ManageProperty = () => {
       });
     },
   };
-  console.log(units);
   const {
     register,
     setValue,
@@ -153,44 +151,11 @@ const ManageProperty = () => {
       );
     } else {
       deleteProperty(id).then((res) => {
-        console.log(res);
         navigate("/dashboard/landlord/properties");
       });
     }
   };
 
-  const handleDrop = async (acceptedFiles) => {
-    let accepted_file = acceptedFiles[0];
-    console.log("dropzone file", accepted_file);
-    setFile(accepted_file);
-  };
-  const handleFileUploadSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    const payload = {
-      file: file,
-      user: authUser.user_id,
-      subfolder: `properties/${property.id}`,
-    };
-    uploadFile(payload).then((res) => {
-      console.log(res);
-      setIsLoading(false);
-      if (res.status === 201) {
-        setResponseTitle("File Upload");
-        setResponseMessage("File uploaded successfully");
-        setShowFileUploadAlert(true);
-      } else {
-        setResponseTitle("File Upload Error");
-        setResponseMessage("Something went wrong");
-        setShowFileUploadAlert(true);
-      }
-    });
-  };
   useEffect(() => {
     getProperty(id).then((res) => {
       setProperty(res);
@@ -208,18 +173,18 @@ const ManageProperty = () => {
       });
       setUnits(res.units);
       setUnitCount(res.units.length);
-      console.log("State UNITS", units);
       setIsLoading(false);
     });
-    authenticatedInstance
-      .get(`/file-uploads/?subfolder=properties/${id}`)
-      .then((res) => {
+    retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id).then(
+      (res) => {
         setPropertyMedia(res.data);
-      });
+        setPropertyMediaCount(res.data.length);
+      }
+    );
   }, []);
 
   return (
-    <div className="container">
+    <div className="container-fluid">
       <Snackbar
         open={showUpdateSuccess}
         autoHideDuration={6000}
@@ -255,32 +220,30 @@ const ManageProperty = () => {
                           <div className="col">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="first_name"
                               >
                                 <strong>Beds</strong>
                               </label>
-                              <p className="text-white">4</p>
+                              <p className="text-dark">4</p>
                             </div>
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="last_name"
                               >
                                 <strong>Baths</strong>
                               </label>
-                              <p className="text-white">2</p>
+                              <p className="text-dark">2</p>
                             </div>
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="last_name"
                               >
                                 <strong>MLS #</strong>
                               </label>
-                              <p className="text-white">
-                                732EFH82F8BO189FB917B
-                              </p>
+                              <p className="text-dark">732EFH82F8BO189FB917B</p>
                             </div>
                           </div>
                         </div>
@@ -294,7 +257,7 @@ const ManageProperty = () => {
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="name"
                           >
                             <strong>Property Name</strong>
@@ -317,7 +280,7 @@ const ManageProperty = () => {
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="address"
                           >
                             <strong>Street Address</strong>
@@ -350,7 +313,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="city"
                               >
                                 <strong>City</strong>
@@ -373,7 +336,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="state"
                               >
                                 <strong>State</strong>
@@ -394,7 +357,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="zipcode"
                               >
                                 <strong>Zip Code</strong>
@@ -418,7 +381,7 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-12 col-lg-12">
                             <div className="mb-3">
                               <label
-                                className="form-label text-white"
+                                className="form-label text-dark"
                                 htmlFor="country"
                               >
                                 <strong>Country</strong>
@@ -583,39 +546,39 @@ const ManageProperty = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="username"
                           >
                             <strong>Total Revenue</strong>
                           </label>
-                          <p className="text-white">$23,049</p>
+                          <p className="text-dark">$23,049</p>
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="first_name"
                           >
                             <strong>Net Operating Income (NOI)</strong>
                           </label>
-                          <p className="text-white">23.4%</p>
+                          <p className="text-dark">23.4%</p>
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="first_name"
                           >
                             <strong>Property Value</strong>
                           </label>
-                          <p className="text-white">$428,324</p>
+                          <p className="text-dark">$428,324</p>
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-dark"
                             htmlFor="email"
                           >
                             <strong>Total Expenses</strong>
                           </label>
-                          <p className="text-white">$13,123</p>
+                          <p className="text-dark">$13,123</p>
                         </div>
                       </div>
                     </div>
@@ -626,116 +589,11 @@ const ManageProperty = () => {
           )}
           {tabPage === 3 && (
             <>
-              <AlertModal
-                open={showFileUploadAlert}
-                title={responseTitle}
-                message={responseMessage}
-                btnText={"Ok"}
-                onClick={() => setShowFileUploadAlert(false)}
+              <FileManagerView
+                files={propertyMedia}
+                subfolder={`properties/${id}`}
+                acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
               />
-              <ProgressModal open={isLoading} title={"Uploading File"} />
-              <div className="row">
-                <div className="col-md-12">
-                  <form onSubmit={handleFileUploadSubmit}>
-                    <h2>Upload a new file</h2>
-                    <Dropzone
-                      onDrop={handleDrop}
-                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                      minSize={1024}
-                      maxSize={3145728}
-                      maxFiles={1}
-                    >
-                      {({
-                        getRootProps,
-                        getInputProps,
-                        isDragActive,
-                        isDragAccept,
-                        isDragReject,
-                      }) => {
-                        const additionalClass = isDragAccept
-                          ? "accept"
-                          : isDragReject
-                          ? "reject"
-                          : "";
-
-                        return (
-                          <Stack
-                            direction="column"
-                            justifyContent="center"
-                            alignItems="center"
-                            spacing={2}
-                            {...getRootProps({
-                              className: `dropzone ${additionalClass}`,
-                            })}
-                            style={{
-                              width: "100%",
-                              height: "400px",
-                              border: `1px dashed ${uiGreen}`,
-                              marginBottom: "15px",
-                            }}
-                          >
-                            <input
-                              {...getInputProps()}
-                              onChange={(e) => {
-                                setFile(e.target.files[0]);
-                                console.log("onChange file", e.target.files[0]);
-                                console.log("onCHange state file", file);
-                                handleDrop([e.target.files[0]]);
-                              }}
-                              type="file"
-                              name="file"
-                            />
-
-                            {!file ? (
-                              <>
-                                <p>
-                                  Drag'n'drop the file representing your lease
-                                  agreeement{" "}
-                                </p>
-                                <p>
-                                  Only .pdf, .doc, .docx, .png, .jpg, and .jpeg
-                                  files will be accepted (Max. file size: 3MB)
-                                </p>
-                              </>
-                            ) : (
-                              <>
-                                <p>Selected File</p>
-                                <p>
-                                  {file.name} - {file.size} bytes
-                                </p>
-                              </>
-                            )}
-
-                            <UIButton
-                              btnText={file ? "Select New File" : "Upload File"}
-                              type="button"
-                            />
-                          </Stack>
-                        );
-                      }}
-                    </Dropzone>
-                    <UIButton type="submit" btnText="Submit" />
-                  </form>
-                </div>{" "}
-                <div className="col-md-12 mt-5">
-                  <h2>Files ({propertyMedia.length})</h2>
-                  <div className="row">
-                    {propertyMedia.map((media) => (
-                      <div className="col-md-3">
-                        <div className="card shadow mb-3">
-                          <div className="card-body">
-                            <img
-                              src={media.file_s3_url}
-                              alt="media"
-                              style={{ width: "100%", height: "100%" }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </>
           )}
         </div>

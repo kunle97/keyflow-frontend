@@ -40,7 +40,7 @@ export async function getMaintenanceRequests(unitId) {
     return res;
   } catch (error) {
     console.log("Get Maintenance Requests Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -55,7 +55,7 @@ export async function getMaintenanceRequestsByUser() {
     return res;
   } catch (error) {
     console.log("Get Maintenance Requests Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -70,7 +70,7 @@ export async function getMaintenanceRequestsByLandlord() {
     return res;
   } catch (error) {
     console.log("Get Maintenance Requests Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -88,7 +88,7 @@ export async function getMaintenanceRequestById(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Get Maintenance Request Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -106,7 +106,7 @@ export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Mark Maintenance Request As Resolved Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -124,7 +124,7 @@ export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Mark Maintenance Request As Resolved Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -140,7 +140,7 @@ export async function changeMaintenanceRequestStatus(
         //Create a notification using the authenticatedInstance.post() method and  endpoint  /notifications/ and the . THe parameters are user (The tenant that made the request), title, and message (notifiying the status change)
         const notification = authenticatedInstance
           .post(`/notifications/`, {
-            user: res.data.tenant,
+            user: res.data.tenant.id,
             title: "Maintenance Request Status Change",
             type: "maintenance_request_status_change",
             message: `Your maintenance request has been set to ${convertMaintenanceRequestStatus(
@@ -156,7 +156,7 @@ export async function changeMaintenanceRequestStatus(
     return res;
   } catch (error) {
     console.log("Change Maintenance Request Status Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -171,6 +171,6 @@ export async function deleteMaintenanceRequest(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Delete Maintenance Request Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }

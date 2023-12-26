@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Box, Stack } from "@mui/material";
 import { uiGreen } from "../../../../../constants";
 import { createLeaseTemplate } from "../../../../../api/lease_templates";
@@ -16,7 +16,7 @@ import UploadLeaseDocument from "./Steps/UploadLeaseDocument";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
-const CreateLeaseTemplate = () => {
+const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
    * Step 1: Add Terms (with rent change frequncy e.g. monthly, yearly, bi-weekly, etc.)
@@ -62,29 +62,44 @@ const CreateLeaseTemplate = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      rent:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.account(4),
-      term: 12,
-      late_fee:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.account(3),
-      security_deposit:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.account(4),
-      gas_included: "false",
-      water_included: "false",
-      electric_included: "false",
-      repairs_included: "false",
-      grace_period: 0,
-      lease_cancellation_notice_period: 12,
-      lease_cancellation_fee:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.account(4),
+      rent: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.rent
+        : "",
+      term: props.isLeaseRenewal ? props.leaseRenewalRequest.request_term : "",
+      late_fee: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.late_fee
+        : "",
+      security_deposit: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.security_deposit
+        : "",
+      gas_included: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.gas_included
+        : "",
+      water_included: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.water_included
+        : "",
+      electric_included: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.electric_included
+        : "",
+      repairs_included: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.repairs_included
+        : "",
+      grace_period: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.grace_period
+        : 0,
+      lease_cancellation_notice_period: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template
+            .lease_cancellation_notice_period
+        : 2,
+      lease_cancellation_fee: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.lease_cancellation_fee
+        : 0,
+      lease_renewal_notice_period: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.lease_renewal_notice_period
+        : 2,
+      lease_renewal_fee: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.lease_renewal_fee
+        : 0,
     },
   });
 
@@ -133,14 +148,29 @@ const CreateLeaseTemplate = () => {
       data.assignment_mode = "";
       data.selected_assignments = JSON.stringify([]);
     }
-    console.log("Create lease term submit tewmplate id", templateId);
     data.template_id = templateId;
+    console.log("Create lease term submit tewmplate id", templateId);
+    if (props.isLeaseRenewal) {
+      if (props.documentMode === "new") {
+        props.setCurrentTemplateId(templateId);
+      } else if (props.documentMode === "existing") {
+        props.setCurrentTemplateId(
+          props.currentLeaseAgreement.lease_template.template_id
+        );
+        data.template_id =
+          props.currentLeaseAgreement.lease_template.template_id;
+      }
+    }
     console.log("Full Form data", data);
 
     // Call the API to createLeaseTemplate() function to create the lease term
     createLeaseTemplate(data).then((res) => {
       console.log(res);
       if (res.status === 200) {
+        if (props.isLeaseRenewal) {
+          props.setCurrentLeaseTemplate(res.res.data);
+          props.setViewMode("review");
+        }
         setAlertSeverity("success");
         setResponseTitle("Success");
         setResponseMessage("Lease term created!");
@@ -151,6 +181,7 @@ const CreateLeaseTemplate = () => {
         setAlertSeverity("error");
         setResponseTitle("Error");
         setResponseMessage("Something went wrong");
+        setIsLoading(false);
       }
     });
   };
@@ -173,24 +204,34 @@ const CreateLeaseTemplate = () => {
           open={isLoading}
         />
       )}
-      <BackButton />
-      <h2 style={{ color: "white" }}>Create Lease Agreement Template</h2>
+      {!props.hideBackButton && <BackButton />}
+      <h2 style={{  }}>
+        {props.isLeaseRenewal
+          ? props.customTitle
+          : "Create Lease Agreement Template"}
+      </h2>
       <div className="card">
         <UIStepper steps={steps} step={step} style={{ margin: "30px 0" }} />
         <div className="card-body">
           <form onSubmit={handleSubmit(onSubmit)} enctype="multipart/form-data">
             {step === 0 && (
               <UploadLeaseDocument
+                isLeaseRenewal={props.isLeaseRenewal}
                 handlePreviousStep={handlePreviousStep}
                 handleNextStep={handleNextStep}
                 step={step}
                 steps={steps}
                 setTemplateId={setTemplateId}
                 templateId={templateId}
+                documentMode={props.documentMode}
+                setDocumentMode={props.setDocumentMode}
+                documentTemplateId={props.documentTemplateId}
+                setDocumentTemplateId={props.setDocumentTemplateId}
               />
             )}
             {step === 1 && (
               <AddTerms
+                isLeaseRenewal={props.isLeaseRenewal}
                 register={register}
                 errors={errors}
                 trigger={trigger}
@@ -198,6 +239,11 @@ const CreateLeaseTemplate = () => {
                 handleNextStep={handleNextStep}
                 step={step}
                 steps={steps}
+                leaseTemplate={
+                  props.isLeaseRenewal
+                    ? props.currentLeaseAgreement.lease_template
+                    : null
+                }
               />
             )}
             {step === 2 && (
@@ -246,7 +292,7 @@ const CreateLeaseTemplate = () => {
                     marginBottom: "1rem",
                   }}
                 />
-                <h3>Would you like to save this Lease Agreement?</h3>
+                <h3>Would you like to save this lease agreement template?</h3>
                 <p>You can always make changes later.</p>
                 <Stack
                   direction="row"
@@ -265,7 +311,7 @@ const CreateLeaseTemplate = () => {
                   <UIButton
                     type="submit"
                     style={{ margin: "1rem 0" }}
-                    btnText="Save Lease Agreement"
+                    btnText="Save Lease Template"
                   />
                 </Stack>
               </Stack>

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
-import { RevenueExpenseBarChart } from "./Charts/RevenueExpenseBarChart";
-import { RevenueByPropertyPieChart } from "./Charts/RevenueByPropertyPieChart";
-import { ExpenseByPropertyPieChart } from "./Charts/ExpenseByPropertyPieChart";
 import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import TitleCard from "../../../Dashboard/UIComponents/TitleCard";
 import UITable from "../../UIComponents/UITable/UITable";
@@ -130,7 +127,7 @@ const LandlordTransactions = () => {
     },
   ]);
   return (
-    <div>
+    <div className="container-fluid">
       <UITabs
         tabs={tabs}
         value={tabPage}
@@ -192,7 +189,7 @@ const LandlordTransactions = () => {
                   <h5 className="mt-2">Monthly Profit</h5>
                 </div>
                 <div className="card-body">
-                  <RevenueExpenseBarChart />
+                  {/* <RevenueExpenseBarChart /> */}
                 </div>
               </div>
             </div>
@@ -205,7 +202,7 @@ const LandlordTransactions = () => {
                   <h5 className="mt-2">Revenue By Property</h5>
                 </div>
                 <div className="card-body">
-                  <RevenueByPropertyPieChart />
+                  {/* <RevenueByPropertyPieChart /> */}
                 </div>
               </div>
             </div>
@@ -216,7 +213,7 @@ const LandlordTransactions = () => {
                   <h5 className="mt-2">Expense By Property</h5>
                 </div>
                 <div className="card-body">
-                  <ExpenseByPropertyPieChart />
+                  {/* <ExpenseByPropertyPieChart /> */}
                 </div>
               </div>
             </div>

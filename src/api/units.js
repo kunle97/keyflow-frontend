@@ -15,7 +15,7 @@ export async function createUnit(data) {
     return { message: "Unit created successfully", status: 200, res: res };
   } catch (error) {
     console.log("Create Unit Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -34,7 +34,7 @@ export async function getUnits(propertyId) {
     return res;
   } catch (error) {
     console.log("Get Units Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -71,7 +71,7 @@ export async function getUnitUnauthenticated(unitId) {
     return res;
   } catch (error) {
     console.log("Get Units Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -107,7 +107,7 @@ export async function updateUnit(unitId, data) {
     return res.data;
   } catch (error) {
     console.log("Update Unit Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -131,7 +131,7 @@ export async function deleteUnit(data) {
     return res.data;
   } catch (error) {
     console.log("Delete Unit Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 //Create a funtion to get all units for a specific landlord using the endpoint /users/{landlord_id}/units/
@@ -151,6 +151,7 @@ export async function getLandlordUnits() {
     return res;
   } catch (error) {
     console.log("Get Landlord Units Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+

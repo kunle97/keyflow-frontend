@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router";
-import { getNotification, markNotificationAsRead } from "../../../api/notifications";
+import {
+  getNotification,
+  markNotificationAsRead,
+} from "../../../api/notifications";
 import { useState } from "react";
 import BackButton from "../UIComponents/BackButton";
-import { uiGreen } from "../../../constants";
+import { uiGreen, uiGrey2 } from "../../../constants";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 export const NotificationDetail = () => {
   const { id } = useParams();
@@ -35,28 +38,34 @@ export const NotificationDetail = () => {
             <div className="card-body">
               <div className="row">
                 <div className="col-md-12">
-                  <p>
+                  <p className="text-black">
                     <strong>Message:</strong>
                   </p>{" "}
-                  {notification.message}
+                  <span style={{ color: uiGrey2 }}>{notification.message}</span>
                 </div>
                 <div
                   className="col-md-12 mb-3"
                   style={{ fontSize: "14pt", overflow: "auto" }}
                 >
-                  <span style={{ float: "left", fontSize: "14pt" }}>
+                  <span
+                    style={{ float: "left", fontSize: "14pt", color: uiGrey2 }}
+                  >
                     <strong>Type</strong>
                   </span>{" "}
-                  <span style={{ float: "right" }}>{notification.type}</span>
+                  <span style={{ float: "right", color: uiGrey2 }}>
+                    {notification.type}
+                  </span>
                 </div>
                 <div
                   className="col-md-12 mb-3"
                   style={{ fontSize: "14pt", overflow: "auto" }}
                 >
-                  <span style={{ float: "left", fontSize: "14pt" }}>
+                  <span
+                    style={{ float: "left", fontSize: "14pt", color: uiGrey2 }}
+                  >
                     <strong>Date</strong>{" "}
                   </span>
-                  <span style={{ float: "right" }}>
+                  <span style={{ float: "right", color: uiGrey2 }}>
                     {new Date(notification.timestamp).toLocaleDateString()}
                   </span>
                 </div>

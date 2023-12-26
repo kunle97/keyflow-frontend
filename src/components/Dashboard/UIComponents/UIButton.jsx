@@ -15,6 +15,7 @@ const UIButton = (props) => {
       sx={{ ...defaultStyle, ...props.style }}
       variant={!props.variant ? "contained" : props.variant }
       type={props.type}
+      
     >
       {props.btnText}
     </Button>

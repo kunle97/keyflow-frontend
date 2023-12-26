@@ -13,7 +13,7 @@ const AddTerms = (props) => {
         <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="rent"
           >
             Rent (Dollar Amount)
@@ -39,7 +39,7 @@ const AddTerms = (props) => {
         <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="rent"
           >
             Term Duration
@@ -53,10 +53,12 @@ const AddTerms = (props) => {
               },
             })}
             className="form-select"
-            sx={{ width: "100%", color: "white", background: uiGrey2 }}
+            sx={{ width: "100%", color: uiGrey2, background: uiGrey2 }}
             name="term"
           >
             <option value="">Select One</option>
+            <option value={1}>1 Month</option>
+            <option value={2}>2 Months</option>
             <option value={6}>6 Months</option>
             <option value={12}>12 Months</option>
             <option value={13}>13 Months</option>
@@ -71,7 +73,7 @@ const AddTerms = (props) => {
         <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="lateFee"
           >
             Late Fee
@@ -97,7 +99,7 @@ const AddTerms = (props) => {
         <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="rent"
           >
             Security Deposit (Dollar Amount)
@@ -122,7 +124,7 @@ const AddTerms = (props) => {
         </div>
 
         <div className="form-group col-md-6 mb-4">
-          <label className="mb-2">Gas Included</label>
+          <label className="mb-2 text-black">Gas Included</label>
           <select
             {...props.register("gas_included", {
               required: "This field is required",
@@ -140,7 +142,7 @@ const AddTerms = (props) => {
         </div>
 
         <div className="form-group col-md-6 mb-4">
-          <label className="mb-2">Water Included</label>
+          <label className="mb-2 text-black">Water Included</label>
           <select
             {...props.register("water_included", {
               required: "This field is required",
@@ -156,7 +158,7 @@ const AddTerms = (props) => {
           </span>
         </div>
         <div className="form-group col-md-6 mb-4">
-          <label className="mb-2">Electric Included</label>
+          <label className="mb-2 text-black">Electric Included</label>
           <select
             {...props.register("electric_included", {
               required: "This field is required",
@@ -173,7 +175,7 @@ const AddTerms = (props) => {
           </span>
         </div>
         <div className="form-group col-md-6 mb-4">
-          <label className="mb-2">Repairs Included</label>
+          <label className="mb-2 text-black">Repairs Included</label>
           <select
             {...props.register("repairs_included", {
               required: "This field is required",
@@ -192,7 +194,7 @@ const AddTerms = (props) => {
         <div className="form-group col-md-12 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="rent"
           >
             Grace Period
@@ -214,7 +216,7 @@ const AddTerms = (props) => {
               },
             })}
             className="form-select"
-            sx={{ width: "100%", color: "white" }}
+            sx={{ width: "100%", color: uiGrey2 }}
           >
             <option value="">Select One</option>
             <option value={0} selected>
@@ -231,10 +233,10 @@ const AddTerms = (props) => {
               props.errors.lease_cancellation_notice_period.message}
           </span>
         </div>
-        <div className="form-group col-md-12 mb-4">
+        <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="rent"
           >
             Lease Cancellation Notice Period
@@ -248,9 +250,12 @@ const AddTerms = (props) => {
               },
             })}
             className="form-select"
-            sx={{ width: "100%", color: "white" }}
+            sx={{ width: "100%", color: uiGrey2 }}
           >
             <option value="">Select One</option>
+            <option value={0} selected>None</option>
+            <option value={1}>1 Months</option>
+            <option value={2}>2 Months</option>
             <option value={6}>6 Months</option>
             <option value={12}>12 Months</option>
             <option value={13}>13 Months</option>
@@ -262,10 +267,10 @@ const AddTerms = (props) => {
               props.errors.lease_cancellation_notice_period.message}
           </span>
         </div>
-        <div className="form-group col-md-12 mb-4">
+        <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
-            sx={{ color: "white", fontSize: "12pt" }}
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="leaseCancellationFee"
           >
             Lease Cancellation Fee
@@ -288,6 +293,68 @@ const AddTerms = (props) => {
               props.errors.lease_cancellation_fee.message}
           </span>
         </div>
+        {/* Create a simlar field as the lease cancellation fee and notice period for lease renewal fee and lease renewal notice period */}
+        <div className="form-group col-md-6 mb-4">
+          <Typography
+            className="mb-2"
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
+            htmlFor="rent"
+          >
+            Lease Renewal Notice Period
+          </Typography>
+          <select
+            {...props.register("lease_renewal_notice_period", {
+              required: "This field is required",
+              pattern: {
+                value: /^[0-9]+$/i,
+                message: "Please enter a valid number",
+              },
+            })}
+            className="form-select"
+            sx={{ width: "100%", color: uiGrey2 }}
+          >
+            <option value="">Select One</option>
+            <option value={0} selected>None</option>
+            <option value={1}>1 Months</option>
+            <option value={2}>2 Months</option>
+            <option value={6}>6 Months</option>
+            <option value={12}>12 Months</option>
+            <option value={13}>13 Months</option>
+            <option value={24}>24 Months</option>
+            <option value={36}>36 Months</option>
+          </select>
+          <span style={validationMessageStyle}>
+            {props.errors.lease_renewal_notice_period &&
+              props.errors.lease_renewal_notice_period.message}
+          </span>
+        </div>
+        <div className="form-group col-md-6 mb-4">
+          <Typography
+            className="mb-2"
+            sx={{ color: uiGrey2, fontSize: "12pt" }}
+            htmlFor="leaseRenewalFee"
+          >
+            Lease renewal Fee
+          </Typography>
+          <input
+            {...props.register("lease_renewal_fee", {
+              required: "This field is required",
+              pattern: {
+                value: /^[0-9]+$/i,
+                message: "Please enter a valid number",
+              },
+            })}
+            type="text"
+            className="form-control"
+            id="leaseRenewalFee"
+            placeholder="$"
+          />
+          <span style={validationMessageStyle}>
+            {props.errors.lease_renewal_fee &&
+              props.errors.lease_renewal_fee.message}
+          </span>
+        </div>
+
       </div>
       <StepControl
         step={props.step}

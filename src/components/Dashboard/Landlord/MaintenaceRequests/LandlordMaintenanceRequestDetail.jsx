@@ -86,11 +86,11 @@ const LandlordMaintenanceRequestDetail = () => {
         setMaintenanceRequest(res.data);
         setIsLoading(false);
         //Retrieve property by id
-        getProperty(res.data.rental_property).then((property_res) => {
+        getProperty(res.data.rental_property.id).then((property_res) => {
           setProperty(property_res);
         });
         //Retrieve unit by id
-        getUnit(res.data.rental_unit).then((unit_res) => {
+        getUnit(res.data.rental_unit.id).then((unit_res) => {
           setUnit(unit_res);
         });
       })
@@ -102,7 +102,7 @@ const LandlordMaintenanceRequestDetail = () => {
   //TODO: Add component that allows user to search for service providers
 
   return (
-    <div>
+    <div className="container-fluid" >
       <BackButton to={`/dashboard/landlord/maintenance-requests`} />
       {isLoading ? (
         <ProgressModal />
@@ -124,18 +124,18 @@ const LandlordMaintenanceRequestDetail = () => {
                   <h6>
                     <strong>Property Name</strong>
                   </h6>
-                  <p>{property.name}</p>
+                  <p className="text-black" >{property.name}</p>
                   <h6>
                     <strong>Address</strong>
                   </h6>
-                  <p>
+                  <p className="text-black" >
                     {property.street}, {property.city} {property.state}{" "}
                     {property.zip_code}
                   </p>
                   <h6>
                     <strong>Unit</strong>
                   </h6>
-                  <p>{unit.name}</p>
+                  <p className="text-black" >{unit.name}</p>
                 </div>
               </div>
             </div>
@@ -148,13 +148,13 @@ const LandlordMaintenanceRequestDetail = () => {
                       <h6>
                         <strong>Issue</strong>
                       </h6>
-                      <p>{maintenanceRequest.description}</p>
+                      <p className="text-black">{maintenanceRequest.description}</p>
                     </div>
                     <div className="col-md-4">
                       <h6>
                         <strong>Type</strong>
                       </h6>
-                      <p style={{ textTransform: "capitalize" }}>
+                      <p className="text-black" style={{ textTransform: "capitalize" }}>
                         {maintenanceRequest.type}
                       </p>
                     </div>

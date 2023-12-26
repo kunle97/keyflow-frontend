@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import {
   authUser,
   dateDiffForHumans,
+  defaultWhiteInputStyle,
   token,
   uiGreen,
   uiGrey1,
@@ -18,14 +19,30 @@ import {
 import { faker } from "@faker-js/faker";
 import { getMessagesWithLimit, getMessages } from "../../../../api/messages";
 import { createThreads } from "../../../../helpers/messageUtils";
-import { Stack } from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import SearchIcon from "@mui/icons-material/Search";
+import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
 const Topbar = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [profilePictures, setProfilePictures] = useState(null);
   const [messageThreads, setMessageThreads] = useState([]);
-  const navigate = useNavigate();
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [showSearchMenu, setShowSearchMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { logoutUser } = useAuth();
+  const searchBarStyle = {
+    ...defaultWhiteInputStyle,
+    borderRadius: "40px",
+    border: "none",
+    outline: "none",
+    boxShadow: "none",
+    background: "#f4f7f8",
+    padding: "10px 20px",
+    width: "260px",
+  };
   const handleLogout = async (e) => {
     e.preventDefault();
     logoutUser();
@@ -39,19 +56,59 @@ const Topbar = () => {
       setMessageThreads(threads);
     });
   };
+  const getProfilePicture = async (user_id) => {
+    try {
+      const res = await retrieveFilesBySubfolder(
+        "user_profile_picture",
+        user_id
+      );
+
+      if (res.status === 200 && res.data[0].file) {
+        return res.data[0].file;
+      } else {
+        return "/assets/img/avatars/default-user-profile-picture.png";
+      }
+    } catch (error) {
+      console.log(error);
+      return "/assets/img/avatars/default-user-profile-picture.png";
+    }
+  };
+  const fetchProfilePictures = async () => {
+    const pictures = {};
+    for (const thread of messageThreads || []) {
+      const user_id = thread.recipient_id;
+      const picture = await getProfilePicture(user_id);
+      pictures[user_id] = picture;
+    }
+    setProfilePictures(pictures);
+  };
   //REtrieve user notifications
   useEffect(() => {
-    authenticatedInstance
-      .get("/notifications/?limit=5&ordering=-timestamp")
-      .then((response) => {
-        setNotifications(response.data.results);
-        setNotificationCount(response.data.count);
-      })
-      .catch((error) => {
-        console.log("Error: ", error);
-      });
-    fetchMessages();
-  }, []);
+    try {
+      authenticatedInstance
+        .get("/notifications/?limit=5&ordering=-timestamp")
+        .then((response) => {
+          setNotifications(response.data.results);
+          setNotificationCount(response.data.count);
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+        });
+      fetchMessages();
+      retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+        (res) => {
+          setProfilePictureFile(res.data[0]);
+        }
+      );
+      if (!profilePictures) {
+        fetchProfilePictures();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log("Done");
+    }
+  }, [profilePictures]);
   return (
     <div className="container">
       {open && (
@@ -71,12 +128,27 @@ const Topbar = () => {
       <nav
         className="navbar navbar-expand shadow mb-4 topbar static-top navbar-light"
         style={{
-          background: "#2c3a4a",
+          background: "white",
           boxShadow:
             "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
+          borderRadius: "10px",
+          marginTop: "20px",
         }}
       >
-        <div className="container-fluid">
+        <div className="container">
+          {showSearchMenu && (
+            <SearchDialog
+              open={showSearchMenu}
+              handleClose={() => setShowSearchMenu(false)}
+              query={searchQuery}
+            />
+          )}
+          <Link className="navbar-brand" to="/dashboard/landlord">
+            <img
+              src="/assets/img/key-flow-logo-black-transparent.png"
+              style={{ height: "40px", width: "auto" }}
+            />
+          </Link>
           <button
             className="btn btn-link d-md-none rounded-circle me-3"
             id="sidebarToggleTop"
@@ -87,8 +159,36 @@ const Topbar = () => {
           <form className="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div className="input-group"></div>
           </form>
-
-          <ul className="navbar-nav flex-nowrap ms-auto">
+          {authUser.account_type === "landlord" && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              justifyContent="space-between"
+            >
+              <input
+                type="search"
+                placeholder="Search"
+                style={searchBarStyle}
+                value={searchQuery}
+                onChange={(e) => {
+                  setShowSearchMenu(true);
+                  setSearchQuery(e.target.value);
+                }}
+              />
+              <IconButton
+                style={{
+                  background: uiGreen,
+                  position: "absolute",
+                  right: "302px",
+                }}
+                onClick={() => setShowSearchMenu(true)}
+              >
+                <SearchIcon style={{ color: "white" }} />
+              </IconButton>
+            </Stack>
+          )}
+          <ul className="navbar-nav flex-nowrap">
             <li className="nav-item dropdown d-sm-none no-arrow">
               <a
                 className="dropdown-toggle nav-link"
@@ -258,92 +358,100 @@ const Topbar = () => {
                     </center>
                   ) : (
                     <ul className="list-group ">
-                      {messageThreads.map((thread) => (
-                        <li
-                          key={thread.id}
-                          className={`list-group-item`}
-                          style={{
-                            backgroundColor: uiGrey2,
-                            color: "white",
-                            border: "none",
-                            borderRadius: "0",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            const redirectLink = `/dashboard/messages/${thread.name}`;
-                            //Use window.location.href to redirect to the thread
-                            window.location.href = redirectLink;
-                          }}
-                        >
-                          <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={2}
+                      {messageThreads.map((thread) => {
+                        const profilePic =
+                          profilePictures[thread.recipient_id] ||
+                          "/assets/img/avatars/default-user-profile-picture.png";
+                        return (
+                          <li
+                            key={thread.id}
+                            className={`list-group-item`}
+                            style={{
+                              backgroundColor: uiGrey2,
+                              color: "white",
+                              border: "none",
+                              borderRadius: "0",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              const redirectLink = `/dashboard/messages/${thread.name}`;
+                              //Use window.location.href to redirect to the thread
+                              window.location.href = redirectLink;
+                            }}
                           >
-                            <img
-                              className="rounded-circle "
-                              width={50}
-                              src={
-                                process.env.REACT_APP_ENVIRONMENT !==
-                                "development"
-                                  ? ""
-                                  : faker.image.avatar()
-                              }
-                            />
                             <Stack
-                              sx={{ width: "100%" }}
-                              direction="column"
-                              spacing={0}
+                              direction="row"
+                              alignItems="center"
+                              spacing={2}
                             >
+                              <div
+                                style={{
+                                  borderRadius: "50%",
+                                  overflow: "hidden",
+                                  width: "65px",
+                                  height: "50px",
+                                }}
+                              >
+                                <img
+                                  style={{ height: "100%", margin: "0 auto" }}
+                                  src={profilePic}
+                                />
+                              </div>
                               <Stack
                                 sx={{ width: "100%" }}
-                                direction="row"
-                                alignItems="center"
+                                direction="column"
                                 spacing={0}
-                                justifyContent="space-between"
                               >
-                                <span style={{ fontSize: "16pt" }}>
-                                  {thread.name}
-                                </span>{" "}
-                                <span className="text-white">
-                                  {dateDiffForHumans(
-                                    new Date(thread.messages[0].timestamp)
-                                  )}
-                                </span>
-                              </Stack>
-                              <Stack
-                                sx={{ width: "100%", marginTop: "5px" }}
-                                direction="row"
-                                alignItems="center"
-                                spacing={0}
-                                justifyContent="space-between"
-                              >
-                                <span
-                                  className="text-white"
-                                  style={{
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    maxWidth: "250px", // Adjust the width to accommodate the other span's width
-                                  }}
+                                <Stack
+                                  sx={{ width: "100%" }}
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={0}
+                                  justifyContent="space-between"
                                 >
-                                  {thread.messages[0].text}
-                                </span>
-                                <span
-                                  style={{
-                                    backgroundColor: uiRed,
-                                    color: "white",
-                                    borderRadius: "20%",
-                                    padding: "0 5px",
-                                  }}
+                                  <span style={{ fontSize: "16pt" }}>
+                                    {thread.name}
+                                  </span>{" "}
+                                  <span className="text-white">
+                                    {dateDiffForHumans(
+                                      new Date(thread.messages[0].timestamp)
+                                    )}
+                                  </span>
+                                </Stack>
+                                <Stack
+                                  sx={{ width: "100%", marginTop: "5px" }}
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={0}
+                                  justifyContent="space-between"
                                 >
-                                  {thread.messages.length}
-                                </span>
+                                  <span
+                                    className="text-white"
+                                    style={{
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      maxWidth: "175px", // Adjust the width to accommodate the other span's width
+                                    }}
+                                  >
+                                    {thread.messages[0].text}
+                                  </span>
+                                  <span
+                                    style={{
+                                      backgroundColor: uiRed,
+                                      color: "white",
+                                      borderRadius: "20%",
+                                      padding: "0 5px",
+                                    }}
+                                  >
+                                    {thread.messages.length}
+                                  </span>
+                                </Stack>
                               </Stack>
                             </Stack>
-                          </Stack>
-                        </li>
-                      ))}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
 
@@ -381,16 +489,16 @@ const Topbar = () => {
                   <img
                     className="border rounded-circle img-profile"
                     src={
-                      process.env.REACT_APP_ENVIRONMENT !== "development"
-                        ? ""
-                        : faker.internet.avatar()
+                      profilePictureFile
+                        ? profilePictureFile.file
+                        : "/assets/img/avatars/default-user-profile-picture.png"
                     }
                   />
                 </a>
                 <div
                   className="dropdown-menu shadow dropdown-menu-end animated--grow-in"
                   data-bs-popper="none"
-                  style={{ borderStyle: "none" }}
+                  style={{ borderStyle: "none", background: "white" }}
                 >
                   <Link
                     className="dropdown-item"
@@ -404,7 +512,6 @@ const Topbar = () => {
                     <i className="fas fa-user fa-sm fa-fw me-2 text-gray-400" />
                     &nbsp;My Account
                   </Link>
-                  <div className="dropdown-divider" />
                   <a
                     className="dropdown-item"
                     href="#"

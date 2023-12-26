@@ -1,11 +1,10 @@
-import { authenticatedInstance, unauthenticatedInstance } from "./api";
+import { authenticatedInstance, unauthenticatedInstance, authenticatedMediaInstance } from "./api";
 import { authUser } from "../constants";
 
 //Create a function to get all messages for this user
 export async function getMessages() {
   try {
     const res = await authenticatedInstance.get(`/messages/`).then((res) => {
-      console.log(res);
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
       }
@@ -14,7 +13,7 @@ export async function getMessages() {
     return res;
   } catch (error) {
     console.log("Get Messages Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 //Create a function to get all messages for this user
@@ -23,7 +22,6 @@ export async function getMessagesWithLimit(limit) {
     const res = await authenticatedInstance
       .get(`/messages/?limit=${limit}`)
       .then((res) => {
-        console.log(res);
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -32,7 +30,7 @@ export async function getMessagesWithLimit(limit) {
     return res;
   } catch (error) {
     console.log("Get Messages Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -42,7 +40,6 @@ export async function getMessageByRecipient() {
     const res = await authenticatedInstance
       .get(`/messages/?recipient=${authUser.user_id}`)
       .then((res) => {
-        console.log(res);
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -51,14 +48,14 @@ export async function getMessageByRecipient() {
     return res;
   } catch (error) {
     console.log("Get Message By Recipient Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
 //Create a function to send a message to a user
 export async function sendMessage(data) {
   try {
-    const res = await authenticatedInstance
+    const res = await authenticatedMediaInstance
       .post(`/messages/`, data)
       .then((res) => {
         const response = res.data;
@@ -68,7 +65,7 @@ export async function sendMessage(data) {
     return { message: "Message sent successfully", status: 200, res: res };
   } catch (error) {
     console.log("Send Message Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -87,7 +84,7 @@ export async function editMessage(data) {
     return { message: "Message edited successfully", status: 200, res: res };
   } catch (error) {
     console.log("Edit Message Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
@@ -106,6 +103,26 @@ export async function deleteMessage(data) {
     return { message: "Message deleted successfully", status: 200, res: res };
   } catch (error) {
     console.log("Delete Message Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+
+//Create a function to retrieve the users message threads /retrieve-user-threads/ using a get request
+export async function retrieveUserThreads() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/retrieve-user-threads/`)
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Messages Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+

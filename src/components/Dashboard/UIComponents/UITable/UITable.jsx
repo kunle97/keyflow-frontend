@@ -74,7 +74,6 @@ const UITable = (props) => {
             setPreviousPageEndPoint(res.data.previous);
             setCount(res.data.count);
             setIsLoading(false);
-            console.log(res.data);
             if (props.options.isSelectable) {
               let newChecked = [];
               //loop through the first set of results and set the selected property to false for each row. After
@@ -122,8 +121,6 @@ const UITable = (props) => {
           }
         });
     }
-    console.log("props.data in UTAABLE", props.data);
-    console.log("Results state in UTAABLE", results);
   };
 
   // Sort the data based on the current sorting column and order
@@ -329,9 +326,9 @@ const UITable = (props) => {
             alignItems="center"
             spacing={2}
           >
-            <h2>
+            <h3>
               {props.title} ({isDrfFilterBackend ? count : results.length})
-            </h2>
+            </h3>
           </Stack>
           <Stack
             direction="row"
@@ -355,17 +352,18 @@ const UITable = (props) => {
             )}
             <input
               style={{
-                background: uiGrey2,
-                color: "white",
+                background: "white",
+                color: "black",
                 border: "none",
                 outline: "none",
                 borderRadius: "5px",
                 padding: "10px",
+                width: "130px",
               }}
               placeholder="Search"
               onChange={handleSearch}
             />
-            <span style={{ fontSize: "15pt !important", color: "white" }}>
+            <span style={{ fontSize: "15pt !important", color: uiGrey2 }}>
               Show
             </span>
             <select
@@ -376,8 +374,8 @@ const UITable = (props) => {
               }}
               style={{
                 width: "55px",
-                background: uiGrey2,
-                color: "white",
+                background: "white",
+                color: uiGrey2,
               }}
             >
               <option value={1}>1</option>
@@ -391,7 +389,7 @@ const UITable = (props) => {
               <option value={20}>20</option>
               <option value={50}>50</option>
             </select>
-            <span style={{ fontSize: "15pt !important", color: "white" }}>
+            <span style={{ fontSize: "15pt !important", color: uiGrey2 }}>
               Results
             </span>{" "}
           </Stack>
@@ -454,7 +452,13 @@ const UITable = (props) => {
                       {" "}
                       {results.map((row, index) => {
                         return (
-                          <tr>
+                          <tr
+                            style={{
+                              backgroundColor: "white",
+                              boxShadow:
+                                "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
+                            }}
+                          >
                             {props.options.isSelectable && (
                               <td>
                                 <Checkbox
@@ -508,7 +512,13 @@ const UITable = (props) => {
                     <>
                       {currentItems.map((row) => {
                         return (
-                          <tr>
+                          <tr
+                            style={{
+                              backgroundColor: "white",
+                              boxShadow:
+                                "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
+                            }}
+                          >
                             {props.columns.map((column) => {
                               //Check if column has an option property with a function in it called customBodyRender
                               if (column.options) {

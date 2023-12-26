@@ -8,7 +8,7 @@ import { getUserData } from "../../../../api/auth";
 import { useState } from "react";
 import BackButton from "../../UIComponents/BackButton";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import { uiGreen } from "../../../../constants";
+import { uiGreen, uiGrey2 } from "../../../../constants";
 const LandlordTransactionDetail = () => {
   const { id } = useParams();
   const [transaction, setTransaction] = useState({}); //initialize transaction state
@@ -43,18 +43,18 @@ const LandlordTransactionDetail = () => {
         {" "}
         <div className="col-md-5  offset-md-3">
           <BackButton to="/dashboard/landlord/transactions" />
-          <div className="card">
+          <div className="card mb-4">
             <center className="py-4 mt-3">
               <CheckCircleOutlineIcon
                 style={{ fontSize: 50, color: uiGreen, marginBottom: 12 }}
               />
-              <h3 className="card-title  text-white">Transaction Details</h3>
+              <h3 className="card-title  text-black">Transaction Details</h3>
             </center>
             <div className="card-body">
               <div className="row">
                 <div
                   className="col-md-12 mb-3"
-                  style={{ fontSize: "14pt", overflow: "auto" }}
+                  style={{ fontSize: "14pt", overflow: "auto", color: uiGrey2 }}
                 >
                   <span style={{ float: "left", fontSize: "14pt" }}>
                     <strong>Amount</strong>
@@ -63,7 +63,7 @@ const LandlordTransactionDetail = () => {
                 </div>
                 <div
                   className="col-md-12 mb-3"
-                  style={{ fontSize: "14pt", overflow: "auto" }}
+                  style={{ fontSize: "14pt", overflow: "auto", color: uiGrey2 }}
                 >
                   <span style={{ float: "left", fontSize: "14pt" }}>
                     <strong>Type</strong>
@@ -72,7 +72,7 @@ const LandlordTransactionDetail = () => {
                 </div>
                 <div
                   className="col-md-12 mb-3"
-                  style={{ fontSize: "14pt", overflow: "auto" }}
+                  style={{ fontSize: "14pt", overflow: "auto", color: uiGrey2 }}
                 >
                   <span style={{ float: "left", fontSize: "14pt" }}>
                     <strong>Property</strong>
@@ -81,7 +81,7 @@ const LandlordTransactionDetail = () => {
                 </div>
                 <div
                   className="col-md-12 mb-3"
-                  style={{ fontSize: "14pt", overflow: "auto" }}
+                  style={{ fontSize: "14pt", overflow: "auto", color: uiGrey2 }}
                 >
                   <span style={{ float: "left", fontSize: "14pt" }}>
                     <strong>Unit</strong>
@@ -90,7 +90,7 @@ const LandlordTransactionDetail = () => {
                 </div>
                 <div
                   className="col-md-12 mb-3"
-                  style={{ fontSize: "14pt", overflow: "auto" }}
+                  style={{ fontSize: "14pt", overflow: "auto", color: uiGrey2 }}
                 >
                   <span style={{ float: "left", fontSize: "14pt" }}>
                     <strong>Date</strong>{" "}
@@ -99,7 +99,7 @@ const LandlordTransactionDetail = () => {
                     {new Date(transaction.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="col-md-12">
+                <div className="col-md-12" style={{ color: uiGrey2 }}>
                   <p>
                     <strong>Description:</strong>
                   </p>{" "}

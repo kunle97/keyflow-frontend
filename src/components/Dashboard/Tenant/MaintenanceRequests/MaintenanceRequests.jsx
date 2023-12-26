@@ -1,16 +1,19 @@
 import React from "react";
 import { useEffect } from "react";
-import {
-  getMaintenanceRequestsByUser,
-} from "../../../../api/maintenance_requests";
+import { getMaintenanceRequestsByUser } from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import MUIDataTable from "mui-datatables";
+import UITable from "../../UIComponents/UITable/UITable";
+import { getTenantDashboardData } from "../../../../api/tenants";
+import UIPrompt from "../../UIComponents/UIPrompt";
+import { uiGreen } from "../../../../constants";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 const MaintenanceRequests = () => {
   //Create a astate for the maintenance requests
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
+  const [leaseAgreement, setLeaseAgreement] = useState(null);
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
     {
@@ -75,21 +78,36 @@ const MaintenanceRequests = () => {
 
   useEffect(() => {
     //Retrieve the maintenance requests
-    getMaintenanceRequestsByUser().then((res) => {
-      console.log(res.data);
-      setMaintenanceRequests(res.data);
+    getTenantDashboardData().then((res) => {
+      //Check if lease agreement is active
+      console.log(res);
+      setLeaseAgreement(res.lease_agreement);
+      if (res.lease_agreement) {
+        getMaintenanceRequestsByUser().then((res) => {
+          console.log(res);
+          setMaintenanceRequests(res);
+        });
+      }
     });
   }, []);
 
   return (
     <div>
-      <h3 className="text-white mb-4">Maintainance Requests</h3>
-      <MUIDataTable
-        title={"Maintenance Requests"}
-        columns={columns}
-        data={maintenanceRequests}
-        options={options}
-      />
+      {leaseAgreement ? (
+        <UITable
+          title={"Maintenance Requests"}
+          columns={columns}
+          data={maintenanceRequests}
+          options={options}
+        />
+      ) : (
+        <UIPrompt
+          icon={<DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />}
+          title="No Active Lease Agreement"
+          message="You need to have an active lease agreement to view your maintenance requests."
+          btnText="Okay"
+        />
+      )}
     </div>
   );
 };

@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { createMaintenanceRequest } from "../../../../api/maintenance_requests";
 import { getTenantDashboardData } from "../../../../api/tenants";
-import { authUser, validationMessageStyle } from "../../../../constants";
+import {
+  authUser,
+  uiGreen,
+  validationMessageStyle,
+} from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
+import UIPrompt from "../../UIComponents/UIPrompt";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
@@ -59,91 +65,102 @@ const CreateMaintenanceRequest = () => {
   };
 
   return (
-    <div className="container-fluid">
-      <ProgressModal
-        open={isLoading}
-        handleClose={() => setIsLoading(false)}
-        title="Creating Maintenance Request..."
-      />
-      <AlertModal
-        open={showResponseModal}
-        handleClose={() => setShowResponseModal(false)}
-        title="Maintenance Request"
-        message={responseMessage}
-        btnText="Okay"
-        to="/dashboard/tenant/maintenance-requests"
-      />
+    <>
+      {leaseAgreement ? (
+        <div className="container-fluid">
+          <ProgressModal
+            open={isLoading}
+            handleClose={() => setIsLoading(false)}
+            title="Creating Maintenance Request..."
+          />
+          <AlertModal
+            open={showResponseModal}
+            handleClose={() => setShowResponseModal(false)}
+            title="Maintenance Request"
+            message={responseMessage}
+            btnText="Okay"
+            to="/dashboard/tenant/maintenance-requests"
+          />
 
-      <div className="row mb-3">
-        <div className="col-sm-12 col-md-8 col-lg-8 offset-sm-0 offset-md-2 offset-lg-2">
-          <h3 className="text-white mb-4">Create A Maintenance Request</h3>
-          <div className="card shadow mb-5">
-            <div className="card-body">
-              <div className="row" />
-              <div className="row" />
-              <div className="row">
-                <div className="col-12">
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-3">
-                      <label className="form-label">Type</label>
-                      <div>
-                        <select
-                          className="form-control"
-                          name="type"
-                          {...register("type", {
-                            required: "This is a required field",
-                          })}
-                        >
-                          <option value="">Select One</option>
-                          <option value="plumbing">Plumbing</option>
-                          <option value="electrical">Electrical</option>
-                          <option value="structural">Structural</option>
-                          <option value="appliance">Appliance</option>
-                          <option value="other">Other</option>
-                        </select>
-                        <span style={validationMessageStyle}>
-                          {errors.type && errors.type.message}
-                        </span>
-                      </div>
+          <div className="row mb-3">
+            <div className="col-sm-12 col-md-8 col-lg-8 offset-sm-0 offset-md-2 offset-lg-2">
+              <h3 className="text-white mb-4">Create A Maintenance Request</h3>
+              <div className="card shadow mb-5">
+                <div className="card-body">
+                  <div className="row" />
+                  <div className="row" />
+                  <div className="row">
+                    <div className="col-12">
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="mb-3">
+                          <label className="form-label">Type</label>
+                          <div>
+                            <select
+                              className="form-control"
+                              name="type"
+                              {...register("type", {
+                                required: "This is a required field",
+                              })}
+                            >
+                              <option value="">Select One</option>
+                              <option value="plumbing">Plumbing</option>
+                              <option value="electrical">Electrical</option>
+                              <option value="structural">Structural</option>
+                              <option value="appliance">Appliance</option>
+                              <option value="other">Other</option>
+                            </select>
+                            <span style={validationMessageStyle}>
+                              {errors.type && errors.type.message}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mb-3">
+                          <label
+                            className="form-label text-white"
+                            htmlFor="signature"
+                          >
+                            Please Describe Your Issue
+                          </label>
+                          <textarea
+                            {...register("description", {
+                              required: "This is a required field",
+                            })}
+                            className="form-control"
+                            id="signature-1"
+                            rows={4}
+                            name="description"
+                            style={{ borderStyle: "none" }}
+                            defaultValue={""}
+                          />
+                          <span style={validationMessageStyle}>
+                            {errors.description && errors.description.message}
+                          </span>
+                        </div>
+                        <div className="mb-3">
+                          <button
+                            className="btn btn-primary btn-sm ui-btn"
+                            type="submit"
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </form>
                     </div>
-                    <div className="mb-3">
-                      <label
-                        className="form-label text-white"
-                        htmlFor="signature"
-                      >
-                        Please Describe Your Issue
-                      </label>
-                      <textarea
-                        {...register("description", {
-                          required: "This is a required field",
-                        })}
-                        className="form-control"
-                        id="signature-1"
-                        rows={4}
-                        name="description"
-                        style={{ borderStyle: "none" }}
-                        defaultValue={""}
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.description && errors.description.message}
-                      </span>
-                    </div>
-                    <div className="mb-3">
-                      <button
-                        className="btn btn-primary btn-sm ui-btn"
-                        type="submit"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      ) : (
+        <UIPrompt
+          icon={<DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />}
+          title="No Active Lease Agreement"
+          message="You need to have an active lease agreement to create a maintenance requests."
+          btnText="Okay"
+        />
+      )}
+    </>
   );
 };
 

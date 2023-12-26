@@ -1,3 +1,4 @@
+
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
 //Create a fucntion to surround a component with the DashboardContainer
@@ -6,8 +7,13 @@ export function withDashboardContainer(Component) {
 }
 
 //Convert "string boolean" to actual boolean
-export function stringToBoolean(string) {
-  switch (string.toLowerCase().trim()) {
+export function stringToBoolean(value) {
+  //Check if value is a string
+  if (typeof value !== "string") {
+    return value;
+  }
+  
+  switch (value.toLowerCase().trim()) {
     case "true":
     case "yes":
     case "1":
@@ -18,7 +24,7 @@ export function stringToBoolean(string) {
     case null:
       return false;
     default:
-      return Boolean(string);
+      return Boolean(value);
   }
 }
 
@@ -85,4 +91,92 @@ export const convertMaintenanceRequestStatus = (status) => {
     default:
       return status;
   }
+};
+
+
+
+export function extractFileNameAndExtension(url) {
+  // Extract the part of the URL after the last '/'
+  const filenameWithExtension = url.substring(url.lastIndexOf('/') + 1);
+
+  // Use regex to separate the file name and extension
+  const match = filenameWithExtension.match(/([^/?#]+)(\.[^./?#]+)($|\?)/);
+
+  if (match && match.length >= 3) {
+    const fileName = match[1]; // Extracted file name
+    const extension = match[2]; // Extracted extension
+    return { fileName, extension };
+  } else {
+    return null; // Return null if no match found
+  }
+}
+
+export function removeTFromDate(date) {
+  return date.toISOString().split('T')[0];
+}
+
+export const generateSimilarColor = (baseColor) => {
+  // Assuming baseColor is in RGB format like uiGreen
+  const [r, g, b] = baseColor.match(/\d+/g).map(Number);
+
+  // You can adjust these values for slight variations
+  const variation = 20; // Change this value for variation in color
+  const randomR = Math.min(255, Math.max(0, r + Math.floor(Math.random() * variation)));
+  const randomG = Math.min(255, Math.max(0, g + Math.floor(Math.random() * variation)));
+  const randomB = Math.min(255, Math.max(0, b + Math.floor(Math.random() * variation)));
+
+  return `rgb(${randomR}, ${randomG}, ${randomB})`;
+};
+export const generateVariedColors = (baseColor, numberOfColors) => {
+  const [r, g, b] = baseColor.match(/\w\w/g).map((x) => parseInt(x, 16));
+
+  const colors = [];
+  const hueIncrement = 360 / numberOfColors;
+  const lightnessIncrement = 20;
+
+  for (let i = 0; i < numberOfColors; i++) {
+    const hue = (i * hueIncrement) % 360;
+    const lightness = 50 - (i * lightnessIncrement) / numberOfColors;
+
+    // Convert HSL to RGB
+    const hslToRgb = (h, s, l) => {
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = l - c / 2;
+      let r = 0,
+        g = 0,
+        b = 0;
+
+      if (h >= 0 && h < 60) {
+        r = c;
+        g = x;
+      } else if (h >= 60 && h < 120) {
+        r = x;
+        g = c;
+      } else if (h >= 120 && h < 180) {
+        g = c;
+        b = x;
+      } else if (h >= 180 && h < 240) {
+        g = x;
+        b = c;
+      } else if (h >= 240 && h < 300) {
+        r = x;
+        b = c;
+      } else if (h >= 300 && h < 360) {
+        r = c;
+        b = x;
+      }
+
+      r = Math.round((r + m) * 255);
+      g = Math.round((g + m) * 255);
+      b = Math.round((b + m) * 255);
+
+      return `rgb(${r}, ${g}, ${b})`;
+    };
+
+    const rgbColor = hslToRgb(hue, 1, lightness / 100);
+    colors.push(rgbColor);
+  }
+
+  return colors;
 };

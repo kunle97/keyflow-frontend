@@ -56,7 +56,7 @@ export async function getRentalApplications(unitId) {
     return res;
   } catch (error) {
     console.log("Get Rental Applications Error: ", error);
-    return error.response.data;
+    return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 

@@ -4,10 +4,11 @@ import { createBoldSignEmbeddedTemplateLink } from "../../../../../../api/boldsi
 import UIButton from "../../../../UIComponents/UIButton";
 import Dropzone from "react-dropzone";
 import { Stack } from "@mui/material";
-import { uiGreen, authUser } from "../../../../../../constants";
+import { uiGreen, authUser, uiGrey2 } from "../../../../../../constants";
 import ProgressModal from "../../../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
+import UIRadioGroup from "../../../../UIComponents/UIRadioGroup";
 
 const UploadLeaseDocument = (props) => {
   const [file, setFile] = useState(null); //TODO: Change to array of files
@@ -136,66 +137,98 @@ const UploadLeaseDocument = (props) => {
         </>
       ) : (
         <div>
-          <Dropzone
-            onDrop={handleDrop}
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-            minSize={1024}
-            maxSize={3145728}
-            maxFiles={1}
-          >
-            {({
-              getRootProps,
-              getInputProps,
-              isDragActive,
-              isDragAccept,
-              isDragReject,
-            }) => {
-              const additionalClass = isDragAccept
-                ? "accept"
-                : isDragReject
-                ? "reject"
-                : "";
+          {props.isLeaseRenewal && (
+            <UIRadioGroup
+              label="Select a lease agreement template Option"
+              name="lease_template_options"
+              value={props.documentMode}
+              onChange={(e) => {
+                console.log(props.templateId);
+                props.setDocumentMode(e.target.value);
+              }}
+              direction="row"
+              radioOptions={[
+                {
+                  label: "Use the Same Document",
+                  value: "existing",
+                },
+                {
+                  label: "Upload a New Document",
+                  value: "new",
+                },
+              ]}
+            />
+          )}
+          {(!props.isLeaseRenewal || props.documentMode === "new") && (
+            <Dropzone
+              onDrop={handleDrop}
+              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+              minSize={1024}
+              maxSize={3145728}
+              maxFiles={1}
+            >
+              {({
+                getRootProps,
+                getInputProps,
+                isDragActive,
+                isDragAccept,
+                isDragReject,
+              }) => {
+                const additionalClass = isDragAccept
+                  ? "accept"
+                  : isDragReject
+                  ? "reject"
+                  : "";
 
-              return (
-                <Stack
-                  direction="column"
-                  justifyContent="center"
-                  alignItems="center"
-                  spacing={2}
-                  {...getRootProps({
-                    className: `dropzone ${additionalClass}`,
-                  })}
-                  style={{
-                    width: "100%",
-                    height: "400px",
-                    border: `1px dashed ${uiGreen}`,
-                    marginBottom: "15px",
-                  }}
-                >
-                  <input
-                    {...getInputProps()}
-                    onChange={(e) => {
-                      setFile(e.target.files[0]);
-                      console.log("onChange file", e.target.files[0]);
-                      console.log("onCHange state file", file);
-                      handleDrop([e.target.files[0]]);
+                return (
+                  <Stack
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    spacing={2}
+                    {...getRootProps({
+                      className: `dropzone ${additionalClass}`,
+                    })}
+                    style={{
+                      width: "100%",
+                      height: "400px",
+                      border: `1px dashed ${uiGreen}`,
+                      marginBottom: "15px",
                     }}
-                    type="file"
-                    name="file"
-                  />
+                  >
+                    <input
+                      {...getInputProps()}
+                      onChange={(e) => {
+                        setFile(e.target.files[0]);
+                        console.log("onChange file", e.target.files[0]);
+                        console.log("onCHange state file", file);
+                        handleDrop([e.target.files[0]]);
+                      }}
+                      type="file"
+                      name="file"
+                    />
 
-                  <p>
-                    Drag'n'drop the file representing your lease agreeement{" "}
-                  </p>
-                  <p>
-                    Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files will be
-                    accepted (Max. file size: 3MB)
-                  </p>
-                  <UIButton btnText="Upload File" type="button" />
-                </Stack>
-              );
-            }}
-          </Dropzone>
+                    <p style={{ color: uiGrey2 }}>
+                      Drag'n'drop the file representing your lease agreeement{" "}
+                    </p>
+                    <p style={{ color: uiGrey2 }}>
+                      Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files will
+                      be accepted (Max. file size: 3MB)
+                    </p>
+                    <UIButton btnText="Upload File" type="button" />
+                  </Stack>
+                );
+              }}
+            </Dropzone>
+          )}
+          {props.isLeaseRenewal && props.documentMode === "existing" && (
+            <StepControl
+              step={props.step}
+              steps={props.steps}
+              handlePreviousStep={props.handlePreviousStep}
+              handleNextStep={props.handleNextStep}
+            />
+          )}
         </div>
       )}
     </div>

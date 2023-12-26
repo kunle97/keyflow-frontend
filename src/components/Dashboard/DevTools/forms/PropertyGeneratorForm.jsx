@@ -30,6 +30,7 @@ const PropertyGeneratorForm = (props) => {
         }
       });
   };
+  
   return (
     <UIDialog
       open={props.open}

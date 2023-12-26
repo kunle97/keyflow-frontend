@@ -1,6 +1,6 @@
 import { Tab, Tabs } from "@mui/material";
 import styled from "styled-components";
-import { uiGreen } from "../../../constants";
+import { uiGreen, uiGrey2 } from "../../../constants";
 const StyledTabs = styled((props) => (
   <Tabs
     {...props}
@@ -24,7 +24,8 @@ const StyledTabs = styled((props) => (
 const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
   ({ theme }) => ({
     textTransform: "none !important",
-    color: "white !important",
+    fontSize: "14pt",
+    color:`${uiGrey2} !important`,
     "&.Mui-selected": {
       color: "#fff",
     },
