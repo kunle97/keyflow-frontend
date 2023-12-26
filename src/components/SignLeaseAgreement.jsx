@@ -1,6 +1,6 @@
 import React from "react";
 import { addMonths, uiGreen } from "../constants";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
 import {
@@ -15,6 +15,7 @@ import { generateSigningLink } from "../api/boldsign";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
+import { Link } from "react-router-dom";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -229,85 +230,114 @@ const SignLeaseAgreement = () => {
             handleConfirm={handleSignLeaseAgreement}
             handleCancel={() => setShowSignConfirmation(false)}
           />
-          <div className="row">
+          <div className="row mt-3">
             {signingLink && (
-              <>
-                <h4 className="my-3">Sign Lease Agreement</h4>
-                <div className="card my-3">
-                  <div className="card-body">
-                    <h6 className="card-title">Lease Agreement Overview</h6>
-                    {leaseTemplate && (
-                      <div className="row">
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Rent
-                          </h6>
-                          ${leaseTemplate.rent}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Term
-                          </h6>
-                          {leaseTemplate.term} Months
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Late Fee
-                          </h6>
-                          {`$${leaseTemplate.late_fee}`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Security Deposit
-                          </h6>
-                          {`$${leaseTemplate.security_deposit}`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Gas Included?
-                          </h6>
-                          {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Electric Included?
-                          </h6>
-                          {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Water Included?
-                          </h6>
-                          {`${leaseTemplate.water_included ? "Yes" : "No"}`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Lease Cancellation Fee
-                          </h6>
-                          {`$${leaseTemplate.lease_cancellation_fee}`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Lease Cancellation Notice period
-                          </h6>
-                          {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
-                        </div>
-                        <div className="col-sm-6 col-md-4 mb-4">
-                          <h6 className="rental-application-lease-heading">
-                            Grace period
-                          </h6>
-                          {`${leaseTemplate.grace_period} Month(s)`}
-                        </div>
+              <div>
+                <h2>
+                  Sign Lease Agreement for Unit{" "}
+                  {leaseAgreement.rental_unit.name} at{" "}
+                  {leaseAgreement.rental_unit.rental_property_name}{" "}
+                </h2>
+                <div className="row">
+                  <div className="col-md-4">
+                    <div className="card my-3">
+                      <div className="card-body">
+                        <h6 className="card-title text-black">
+                          Lease Agreement Overview
+                        </h6>
+                        {leaseTemplate && (
+                          <div className="row">
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Rent
+                              </h6>
+                              ${leaseTemplate.rent}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Term
+                              </h6>
+                              {leaseTemplate.term} Months
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Late Fee
+                              </h6>
+                              {`$${leaseTemplate.late_fee}`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Security Deposit
+                              </h6>
+                              {`$${leaseTemplate.security_deposit}`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Gas Included?
+                              </h6>
+                              {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Electric Included?
+                              </h6>
+                              {`${
+                                leaseTemplate.electric_included ? "Yes" : "No"
+                              }`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Water Included?
+                              </h6>
+                              {`${leaseTemplate.water_included ? "Yes" : "No"}`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Lease Cancellation Fee
+                              </h6>
+                              {`$${leaseTemplate.lease_cancellation_fee}`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Lease Cancellation Notice period
+                              </h6>
+                              {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
+                            </div>
+                            <div className="col-sm-6 col-md-6 mb-4 text-black">
+                              <h6 className="rental-application-lease-heading">
+                                Grace period
+                              </h6>
+                              {`${leaseTemplate.grace_period} Month(s)`}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                    <div className="mt-4">
+                      <Typography sx={{ color: "black" }}>
+                        Powered by{" "}
+                        <Link to="/">
+                          <img
+                            src="/assets/img/key-flow-logo-black-transparent.png"
+                            width={150}
+                          />
+                        </Link>
+                      </Typography>
+                    </div>
+                  </div>
+                  <div className="col-md-8">
+                    <iframe
+                      src={signingLink}
+                      className="card my-3"
+                      style={{
+                        height: "1200px",
+                        padding: "0px",
+                        width: "100%",
+                      }}
+                    />
                   </div>
                 </div>
-                <iframe
-                  src={signingLink}
-                  className="card my-3"
-                  style={{ height: "1200px", padding: "0px" }}
-                />
-              </>
+              </div>
             )}
             {!signingLink && !signingLinkIsValid && (
               <Stack

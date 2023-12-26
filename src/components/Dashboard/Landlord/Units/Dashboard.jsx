@@ -447,7 +447,7 @@ const Dashboard = () => {
     //retrieve transactions from api
     try {
       getTransactionsByUser().then((res) => {
-        setTransactions(res.data);
+        setTransactions(res.data.reverse());
         setGroupedTransactions(groupTransactionsByMonth(res.data, 5));
         setTransactionLabels(
           Object.values(groupTransactionsByMonth(res.data)).map(

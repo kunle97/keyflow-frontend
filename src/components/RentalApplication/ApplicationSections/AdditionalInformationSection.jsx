@@ -10,7 +10,7 @@ const AdditionalInformationSection = (props) => {
         <div className="card-body">
           <div className="row">
             <div className="form-group col-md-6 mb-4">
-              <label className="mb-2">Will there be any other occupants?</label>
+              <label className="mb-2 text-black">Will there be any other occupants?</label>
               <select
                 {...props.register("other_occupants", {
                   required: "This is a required field",
@@ -29,7 +29,7 @@ const AdditionalInformationSection = (props) => {
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <label className="mb-2">
+              <label className="mb-2 text-black">
                 Do you plan on having any pets during your lease?
               </label>
               <select
@@ -49,7 +49,7 @@ const AdditionalInformationSection = (props) => {
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <label className="mb-2">
+              <label className="mb-2 text-black">
                 Do you plan on having/storing any vehicles?
               </label>
               <select
@@ -69,7 +69,7 @@ const AdditionalInformationSection = (props) => {
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <label className="mb-2">
+              <label className="mb-2 text-black">
                 Have you ever been convicted of a crime?
               </label>
               <select
@@ -89,7 +89,7 @@ const AdditionalInformationSection = (props) => {
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <label className="mb-2">Have you ever filed for bankrupcy?</label>
+              <label className="mb-2 text-black">Have you ever filed for bankrupcy?</label>
               <select
                 {...props.register("bankrupcy", {
                   required: "This is a required field",
@@ -107,7 +107,7 @@ const AdditionalInformationSection = (props) => {
             </div>
 
             <div className="form-group col-md-6 mb-4">
-              <label className="mb-2">
+              <label className="mb-2 text-black">
                 Have you been evicted from aprevious residence?
               </label>
               <select

@@ -19,7 +19,7 @@ const DashboardContainer = ({ children }) => {
     localStorage.removeItem("stripe_onoboarding_link");
   }
   return (
-    <div id="wrapper">
+    <div id="wrapper pb-2">
       {/* Sidebar nav */}
       {muiMode ? (
         <SidebarDrawer open={menuOpen} onClose={setMenuOpen} />

@@ -263,9 +263,13 @@ const Topbar = () => {
                   ) : (
                     <>
                       {notifications.map((notification) => (
-                        <a
+                        <Link
                           className="dropdown-item d-flex align-items-center"
-                          href={`/dashboard/landlord/notifications/${notification.id}`}
+                          to={
+                            notification.resource_url
+                              ? notification.resource_url
+                              : `/dashboard/landlord/notifications/${notification.id}`
+                          }
                           style={
                             notification.is_read
                               ? {
@@ -297,7 +301,7 @@ const Topbar = () => {
                               <p>{notification.message}</p>
                             )}
                           </div>{" "}
-                        </a>
+                        </Link>
                       ))}
                     </>
                   )}

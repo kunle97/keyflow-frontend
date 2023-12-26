@@ -191,31 +191,31 @@ const LeaseRenewalRequestDetail = () => {
                   <div className="card-body">
                     <div className="row">
                       <h5 className="mb-3">Current Lease Agreement Details</h5>
-                      <div className="col-sm-12 col-md-6 mb-4">
+                      <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Current Unit
                         </h6>
                         {currentLeaseAgreement.rental_unit.name}
                       </div>{" "}
-                      <div className="col-sm-12 col-md-6 mb-4">
+                      <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Curent Term
                         </h6>
                         {currentLeaseTemplate.term} Months
                       </div>
-                      <div className="col-sm-12 col-md-6 mb-4">
+                      <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Property
                         </h6>
                         {currentLeaseAgreement.rental_unit.rental_property_name}
                       </div>{" "}
-                      <div className="col-sm-12 col-md-6 mb-4">
+                      <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Rent
                         </h6>
                         ${currentLeaseTemplate.rent}
                       </div>
-                      <div className="col-sm-12 col-md-6 mb-4">
+                      <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Lease Start Date
                         </h6>
@@ -223,7 +223,7 @@ const LeaseRenewalRequestDetail = () => {
                           currentLeaseAgreement.start_date
                         ).toLocaleDateString()}
                       </div>
-                      <div className="col-sm-12 col-md-6 mb-4">
+                      <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Lease End Date
                         </h6>
@@ -241,19 +241,19 @@ const LeaseRenewalRequestDetail = () => {
                 <div className="card-body">
                   <div className="row">
                     <h5 className="mb-3">Lease Renewal Request Details</h5>{" "}
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Requested Unit
                       </h6>
                       {leaseRenewalRequest.rental_unit.name}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Requested Lease Term
                       </h6>
                       {leaseRenewalRequest.request_term} months
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Desired Move In Date
                       </h6>
@@ -261,7 +261,7 @@ const LeaseRenewalRequestDetail = () => {
                         leaseRenewalRequest.move_in_date
                       ).toLocaleDateString()}
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Date Submitted
                       </h6>
@@ -269,7 +269,7 @@ const LeaseRenewalRequestDetail = () => {
                         leaseRenewalRequest.request_date
                       ).toLocaleDateString()}
                     </div>
-                    <div className="col-sm-12 col-md-12 mb-4">
+                    <div className="col-sm-12 col-md-12 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Additional Comments
                       </h6>

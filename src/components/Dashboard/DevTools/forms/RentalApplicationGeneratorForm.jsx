@@ -44,6 +44,8 @@ const RentalApplicationGeneratorForm = (props) => {
       user_id: authUser.user_id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
+      rental_application_is_approved: data.rentalApplicationIsApproved,
+      rental_application_is_archived: data.rentalApplicationIsArchived,
     };
     // Use Axios or your preferred HTTP client to call the appropriate endpoints in your DRF backend.
     axios
@@ -74,7 +76,7 @@ const RentalApplicationGeneratorForm = (props) => {
     <UIDialog
       open={props.open}
       onClose={props.onClose}
-      style={{ padding: "10px", width: "500px" }}
+      style={{ padding: "10px", width: "500px", background: "#f4f7f8" }}
     >
       <Stack
         direction="row"

@@ -271,11 +271,11 @@ const ManageTenant = () => {
                           <strong>Next Payment Date</strong>
                         </h6>
                         <p className="text-black">
-                          {
-                            new Date(nextPaymentDate)
-                              .toISOString()
-                              .split("T")[0]
-                          }
+                          {nextPaymentDate
+                            ? new Date(nextPaymentDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : "N/A"}
                         </p>
                       </div>
                       <div className="col-md-6">
@@ -283,9 +283,10 @@ const ManageTenant = () => {
                           <strong>Time Left</strong>
                         </h6>
                         <p className="text-black">
-                          Lease ends{" "}
                           {lease
-                            ? dateDiffForHumans(new Date(lease.end_date))
+                            ? `Lease ends ${dateDiffForHumans(
+                                new Date(lease.end_date)
+                              )}`
                             : "N/A"}
                         </p>
                       </div>
