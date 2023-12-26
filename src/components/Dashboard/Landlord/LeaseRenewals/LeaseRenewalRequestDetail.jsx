@@ -18,6 +18,7 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import { getLeaseAgreementsByTenant } from "../../../../api/lease_agreements";
 import UITable from "../../UIComponents/UITable/UITable";
+import BackButton from "../../UIComponents/BackButton";
 
 const LeaseRenewalRequestDetail = () => {
   const { id } = useParams();
@@ -141,7 +142,8 @@ const LeaseRenewalRequestDetail = () => {
   }, [currentLeaseAgreement]);
 
   return (
-    <>
+    <div className="container-fluid">
+      <BackButton to="/dashboard/landlord/lease-renewal-requests/" />
       <AlertModal
         open={showAlertModal}
         onClick={() => navigate("/dashboard/landlord/lease-renewal-requests/")}
@@ -173,7 +175,7 @@ const LeaseRenewalRequestDetail = () => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <h4 className="card-title">
+            <h4>
               {" "}
               {leaseRenewalRequest.tenant.first_name}{" "}
               {leaseRenewalRequest.tenant.last_name}'s Lease Renewal Request (
@@ -293,7 +295,7 @@ const LeaseRenewalRequestDetail = () => {
           {actionStack}
         </>
       )}
-    </>
+    </div>
   );
 };
 

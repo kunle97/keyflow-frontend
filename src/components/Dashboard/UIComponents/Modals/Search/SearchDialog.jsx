@@ -45,7 +45,6 @@ const SearchDialog = (props) => {
     }),
     []
   );
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [dashboardPages, setDashboardPages] = useState(routes);
   const [allProperties, setAllProperties] = useState([]);
@@ -195,7 +194,7 @@ const SearchDialog = (props) => {
       <Dialog
         PaperProps={{
           style: {
-            backgroundColor: uiGrey1,
+            backgroundColor: "#f4f7f8",
             boxShadow: "none",
           },
         }}
@@ -287,7 +286,7 @@ const SearchDialog = (props) => {
                 })}
               </div>
               <div>
-                <h2>Recently Viewed</h2>
+                <h2 className="text-white">Recently Viewed</h2>
                 <div className="row">
                   {localStorage.getItem("historyList") &&
                     JSON.parse(localStorage.getItem("historyList")).map(
@@ -336,7 +335,7 @@ const SearchDialog = (props) => {
               {filterDashboardPages(dashboardPages, searchValue).length > 0 &&
                 tabPage === 0 && (
                   <div id="pages" style={{ overflow: "hidden" }}>
-                    <h2>
+                    <h2 className="text-white">
                       Pages (
                       {
                         dashboardPages.filter(
@@ -382,7 +381,7 @@ const SearchDialog = (props) => {
                 )}
               {properties.length > 0 && tabPage === 0 && (
                 <div id="properties" style={{ overflow: "hidden" }}>
-                  <h2>Properties ({propertyResultCount})</h2>
+                  <h2 className="text-white">Properties ({propertyResultCount})</h2>
                   <div className="row">
                     {properties.map((property) => (
                       <SearchResultCard
@@ -418,7 +417,7 @@ const SearchDialog = (props) => {
               )}
               {units.length > 0 && tabPage === 0 && (
                 <div id="units" style={{ overflow: "hidden" }}>
-                  <h2>Units ({unitResultCount})</h2>
+                  <h2 className="text-white">Units ({unitResultCount})</h2>
                   <div className="row">
                     {units.map((unit) => (
                       <SearchResultCard
@@ -462,7 +461,7 @@ const SearchDialog = (props) => {
               )}
               {maintenanceRequests.length > 0 && tabPage === 0 && (
                 <div id="maintenance" style={{ overflow: "hidden" }}>
-                  <h2>
+                  <h2 className="text-white">
                     Maintenance Requests ({maintenanceRequestResultCount})
                   </h2>
                   <div className="row">
@@ -509,7 +508,7 @@ const SearchDialog = (props) => {
               )}
               {rentalApplications.length > 0 && tabPage === 0 && (
                 <div id="rental" style={{ overflow: "hidden" }}>
-                  <h2>Rental Applications ({rentalApplicationResultCount})</h2>
+                  <h2 className="text-white">Rental Applications ({rentalApplicationResultCount})</h2>
                   <div className="row">
                     {rentalApplications.map((rental_application) => {
                       //Retrive unit information for the rental application
@@ -566,7 +565,7 @@ const SearchDialog = (props) => {
               )}
               {transactions.length > 0 && tabPage === 0 && (
                 <div id="transactions" style={{ overflow: "hidden" }}>
-                  <h2>Transactions ({transactionResultCount})</h2>
+                  <h2 className="text-white">Transactions ({transactionResultCount})</h2>
                   <div className="row">
                     {transactions.map((transaction) => (
                       <SearchResultCard
@@ -622,7 +621,7 @@ const SearchDialog = (props) => {
               {filterTenants(tenants, searchValue).length > 0 &&
                 tabPage === 0 && (
                   <div id="tenants" style={{ overflow: "hidden" }}>
-                    <h2>
+                    <h2 className="text-white">
                       Tenants ({filterTenants(tenants, searchValue).length})
                     </h2>
                     <div className="row">

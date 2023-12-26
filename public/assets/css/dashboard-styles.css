@@ -30,6 +30,7 @@
   border-radius: 15px;
   height: 90px;
   vertical-align: middle;
+  padding-left: 25px;
 }
 .nav-link:hover {
   background: #f4f7f8 !important;

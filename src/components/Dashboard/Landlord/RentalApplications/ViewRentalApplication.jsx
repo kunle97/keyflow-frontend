@@ -17,6 +17,7 @@ import { sendDocumentToUser } from "../../../../api/boldsign";
 import { authenticatedInstance } from "../../../../api/api";
 import UITabs from "../../UIComponents/UITabs";
 import UIButton from "../../UIComponents/UIButton";
+import BackButton from "../../UIComponents/BackButton";
 
 const ViewRentalApplication = () => {
   const { id } = useParams();
@@ -220,6 +221,7 @@ const ViewRentalApplication = () => {
   }, []);
   return (
     <div className="container-fluid">
+      <BackButton to={`/dashboard/landlord/rental-applications`} />
       <ProgressModal
         title="Processing Application..."
         open={isLoadingApplicationAction}

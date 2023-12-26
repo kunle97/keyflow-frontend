@@ -39,10 +39,11 @@ const DashboardContainer = ({ children }) => {
             ) : (
               children
             )}
-            <footer
-              className="bg-white sticky-footer"
+            {/* <footer
+              // className=" sticky-footer"
               style={{
-                background: "white",
+                // background: "white",
+                padding:"2rem 0",
                 color: uiGrey2,
                 borderRadius: "10px",
                 margin: "15px",
@@ -55,7 +56,7 @@ const DashboardContainer = ({ children }) => {
                   </span>
                 </div>
               </div>
-            </footer>
+            </footer> */}
           </div>
         </div>
         {process.env.REACT_APP_ENVIRONMENT === "development" && (

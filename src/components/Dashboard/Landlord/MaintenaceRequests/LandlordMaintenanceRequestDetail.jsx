@@ -102,7 +102,7 @@ const LandlordMaintenanceRequestDetail = () => {
   //TODO: Add component that allows user to search for service providers
 
   return (
-    <div>
+    <div className="container-fluid" >
       <BackButton to={`/dashboard/landlord/maintenance-requests`} />
       {isLoading ? (
         <ProgressModal />
