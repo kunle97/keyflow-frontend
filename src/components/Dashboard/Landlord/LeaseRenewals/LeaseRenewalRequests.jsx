@@ -1,6 +1,7 @@
 import React from "react";
 import UITable from "../../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../../UIComponents/BackButton";
 const LeaseRenewalRequests = () => {
   const navigate = useNavigate();
   const columns = [

@@ -78,7 +78,7 @@ const Tenants = () => {
   return (
     <div className="container">
       <div className="row">
-        <div className="col-sm-12 col-md-12 col-lg-8">
+        <div className="col-sm-12 col-md-12 ">
           <div className="row">
             <div className="col-md-4 mb-4">
               <UIInfoCard
@@ -130,7 +130,7 @@ const Tenants = () => {
           />
         </div>
 
-        <div className="col-lg-4">
+        {/* <div className="col-lg-4">
           <div className="card mb-4" style={{ overflow: "hidden" }}>
             <h6
               className="dropdown-header p-3 text-white"
@@ -235,7 +235,7 @@ const Tenants = () => {
               Show All Alerts
             </a>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

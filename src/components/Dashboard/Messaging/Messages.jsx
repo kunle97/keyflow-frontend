@@ -214,7 +214,7 @@ const Messages = () => {
   }, [messageThreads]); // Be cautious with this dependency
 
   return (
-    <>
+    <div className="container-fluid">
       <ProgressModal open={isLoading} title={loadingMessage} />
       <AlertModal
         open={showAlert}
@@ -519,7 +519,7 @@ const Messages = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

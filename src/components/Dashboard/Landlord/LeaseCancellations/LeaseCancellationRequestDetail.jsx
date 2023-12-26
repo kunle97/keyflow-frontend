@@ -17,6 +17,7 @@ import {
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import BackButton from "../../UIComponents/BackButton";
 const LeaseCancellationRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -128,7 +129,8 @@ const LeaseCancellationRequestDetail = () => {
   }, []);
 
   return (
-    <>
+    <div className="container-fluid">
+      <BackButton to={`/dashboard/landlord/lease-cancellation-requests/`} />
       <ProgressModal
         open={isLoadingAccept}
         title="Cancelling Lease Agreement..."
@@ -340,7 +342,7 @@ const LeaseCancellationRequestDetail = () => {
           </Stack>
         </>
       )}
-    </>
+    </div>
   );
 };
 

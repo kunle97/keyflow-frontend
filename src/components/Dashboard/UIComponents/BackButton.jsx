@@ -4,7 +4,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Button } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { uiGreen } from "../../../constants";
-const BackButton = ({ to }) => {
+const BackButton = ({ to, style }) => {
   const navigate = useNavigate();
   const handleClick = () => {
     console.log("Back to ", to);
@@ -18,7 +18,7 @@ const BackButton = ({ to }) => {
     <Button
       startIcon={<ArrowBackIcon />}
       onClick={() => navigate(-1)}
-      sx={{ color: uiGreen, textTransform: "none" }}
+      sx={{ color: uiGreen, textTransform: "none", ...style }}
     >
       Back
     </Button>

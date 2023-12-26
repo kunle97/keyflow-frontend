@@ -639,9 +639,7 @@ const Dashboard = () => {
             labels={groupedPropertiesByTransactions.map((property) => {
               return property.name;
             })}
-            colors={groupedPropertiesByTransactions.map((property) => {
-              return faker.color.rgb();
-            })}
+            colors={["#D9E3BC", "#D1EFD5", "#7FC9BB", "#A3F58F", "#3AAF5C"]} // |--X #B5EAD7, #A5DEE4, #A5BEE4
           />
         </div>
       </div>

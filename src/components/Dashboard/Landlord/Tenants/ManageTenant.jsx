@@ -17,6 +17,7 @@ import {
 } from "../../../../api/manage_subscriptions";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UICard from "../../UIComponents/UICards/UICard";
+import BackButton from "../../UIComponents/BackButton";
 
 const ManageTenant = () => {
   const { tenant_id } = useParams();
@@ -159,6 +160,7 @@ const ManageTenant = () => {
   }, []);
   return (
     <div className="container">
+      <BackButton to="/dashboard/landlord/tenants" />
       <UITabs
         value={tabPage}
         handleChange={handleChangeTabPage}
@@ -252,13 +254,17 @@ const ManageTenant = () => {
                         <h6>
                           <strong>Lease Start Date</strong>
                         </h6>
-                        <p className="text-black">{lease?lease.start_date:"N/A"}</p>
+                        <p className="text-black">
+                          {lease ? lease.start_date : "N/A"}
+                        </p>
                       </div>
                       <div className="col-md-6">
                         <h6>
                           <strong>Lease End Date</strong>
                         </h6>
-                        <p className="text-black">{lease?lease.end_date:"N/A"}</p>
+                        <p className="text-black">
+                          {lease ? lease.end_date : "N/A"}
+                        </p>
                       </div>
                       <div className="col-md-6">
                         <h6>
@@ -278,7 +284,9 @@ const ManageTenant = () => {
                         </h6>
                         <p className="text-black">
                           Lease ends{" "}
-                          {lease?dateDiffForHumans(new Date(lease.end_date)):"N/A"}
+                          {lease
+                            ? dateDiffForHumans(new Date(lease.end_date))
+                            : "N/A"}
                         </p>
                       </div>
                     </div>

@@ -84,7 +84,7 @@ const LeaseAgreementDetail = () => {
     });
   }, []);
   return (
-    <div>
+    <div className="container-fluid" >
       <BackButton />
       <div className="row">
         <div className="col-md-4">
