@@ -6,9 +6,7 @@ import { authUser } from "../constants";
 export async function getLandlordTenants() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/tenants/`, {
-        landlord_id: authUser.user_id,
-      })
+      .get(`/tenants/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -27,10 +25,7 @@ export async function getLandlordTenants() {
 export async function getLandlordTenant(tenantId) {
   try {
     const res = await authenticatedInstance
-      .post(`/landlord-tenant-detail/`, {
-        tenant_id: tenantId,
-        landlord_id: authUser.user_id,
-      })
+      .get(`/tenants/${tenantId}/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -41,6 +36,25 @@ export async function getLandlordTenant(tenantId) {
     return res;
   } catch (error) {
     console.log("Get Landlord Tenant Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function called getTenantUnit that retrieves a specific tenant unit using the endpoint /tenants/{tenant_id}/unit/
+export async function getTenantUnit(tenantId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/tenants/${tenantId}/unit/`)
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Tenant Unit Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

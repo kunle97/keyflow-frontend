@@ -73,10 +73,10 @@ const LeaseRenewalAcceptForm = () => {
 
       const docPayload = {
         template_id: currentTemplateId,
-        tenant_first_name: leaseRenewalRequest.tenant.first_name,
-        tenant_last_name: leaseRenewalRequest.tenant.last_name,
+        tenant_first_name: leaseRenewalRequest.tenant.user.first_name,
+        tenant_last_name: leaseRenewalRequest.tenant.user.last_name,
         tenant_email: leaseRenewalRequest.tenant.email,
-        document_title: `${leaseRenewalRequest.tenant.first_name} ${leaseRenewalRequest.tenant.last_name} Lease Agreement (Renewal) for unit ${currentLeaseAgreement.rental_unit.name}`,
+        document_title: `${leaseRenewalRequest.tenant.user.first_name} ${leaseRenewalRequest.tenant.user.last_name} Lease Agreement (Renewal) for unit ${currentLeaseAgreement.rental_unit.name}`,
         message: "Please sign the lease renewal agreement",
       };
 
@@ -287,8 +287,8 @@ const LeaseRenewalAcceptForm = () => {
           {viewMode === "review" && (
             <div>
               <h5 className="my-2">
-                {leaseRenewalRequest.tenant.first_name}{" "}
-                {leaseRenewalRequest.tenant.last_name} - Review Lease Renewal
+                {leaseRenewalRequest.tenant.user.first_name}{" "}
+                {leaseRenewalRequest.tenant.user.last_name} - Review Lease Renewal
                 Request
               </h5>
               {currentLeaseAgreement && (
@@ -296,36 +296,36 @@ const LeaseRenewalAcceptForm = () => {
                   <div className="card-body">
                     <div className="row">
                       <>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Rental Property</h6>
                           {leaseRenewalRequest.rental_unit.rental_property_name}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Rental Unit </h6>
                           {leaseRenewalRequest.rental_unit.name}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Rent</h6>${currentLeaseTemplate.rent}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>New Term Requested</h6>
                           {leaseRenewalRequest.request_term} Months
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Late Fee</h6>
                           {`$${currentLeaseTemplate.late_fee}`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Security Deposit</h6>
                           {`$${currentLeaseTemplate.security_deposit}`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Gas Included?</h6>
                           {`${
                             currentLeaseTemplate.gas_included ? "Yes" : "No"
                           }`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Electric Included?</h6>
                           {`${
                             currentLeaseTemplate.electric_included
@@ -333,21 +333,21 @@ const LeaseRenewalAcceptForm = () => {
                               : "No"
                           }`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Water Included?</h6>
                           {`${
                             currentLeaseTemplate.water_included ? "Yes" : "No"
                           }`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Lease Cancellation Fee</h6>
                           {`$${currentLeaseTemplate.lease_cancellation_fee}`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Lease Cancellation Notice period</h6>
                           {`${currentLeaseTemplate.lease_cancellation_notice_period} Month(s)`}
                         </div>
-                        <div className="col-md-4 mb-4">
+                        <div className="col-md-4 mb-4 text-black">
                           <h6>Grace period</h6>
                           {currentLeaseTemplate.grace_period === 0 ? (
                             "None"
@@ -401,8 +401,8 @@ const LeaseRenewalAcceptForm = () => {
                 hideBackButton={true}
                 leaseRenewalRequest={leaseRenewalRequest}
                 currentLeaseAgreement={currentLeaseAgreement}
-                customTitle={` ${leaseRenewalRequest.tenant.first_name}
-                ${leaseRenewalRequest.tenant.last_name} - Change Lease Terms`}
+                customTitle={` ${leaseRenewalRequest.tenant.user.first_name}
+                ${leaseRenewalRequest.tenant.user.last_name} - Change Lease Terms`}
                 currentTemplateId={currentTemplateId}
                 setCurrentTemplateId={setCurrentTemplateId}
                 documentMode={documentMode}

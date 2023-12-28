@@ -193,60 +193,60 @@ const TenantLeaseRenewalRequestDetail = () => {
         <div className="card">
           <div className="card-body">
             <span></span>
-            <h4 className="card-title ui-card-title">
+            <h4 className="card-title ui-card-title text-black">
               Lease Agreement Overview
             </h4>
             {leaseTemplate && (
               <div className="row">
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">Rent</h6>$
                   {leaseTemplate.rent}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">Term</h6>
                   {leaseRenewalRequest.request_term} Months
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">Late Fee</h6>
                   {`$${leaseTemplate.late_fee}`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Security Deposit
                   </h6>
                   {`$${leaseTemplate.security_deposit}`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Gas Included?
                   </h6>
                   {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Electric Included?
                   </h6>
                   {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Water Included?
                   </h6>
                   {`${leaseTemplate.water_included ? "Yes" : "No"}`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Lease Cancellation Fee
                   </h6>
                   {`$${leaseTemplate.lease_cancellation_fee}`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Lease Cancellation Notice period
                   </h6>
                   {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
                 </div>
-                <div className="col-sm-12 col-md-6 mb-4">
+                <div className="col-sm-12 col-md-6 mb-4 text-black">
                   <h6 className="rental-application-lease-heading">
                     Grace period
                   </h6>

@@ -3,7 +3,12 @@ import { getLandlordsEmails, getLandlordsUsernames } from "../../../api/api";
 import { login } from "../../../api/auth";
 import AuthContext, { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
-import { uiGreen, uiGrey2, validationMessageStyle } from "../../../constants";
+import {
+  defaultWhiteInputStyle,
+  uiGreen,
+  uiGrey2,
+  validationMessageStyle,
+} from "../../../constants";
 import { Input, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
@@ -82,9 +87,8 @@ const LandlordLogin = () => {
             <div className=" ">
               <img
                 style={{ width: "60%", marginBottom: "25px" }}
-                src="/assets/img/key-flow-logo-white-transparent.png"
+                src="/assets/img/key-flow-logo-black-transparent.png"
               />
-              {/* <form className="user" onSubmit={handleSubmit(onSubmit)}> */}
               <form className="user" onSubmit={onJWTSubmit}>
                 {process.env.REACT_APP_ENVIRONMENT === "development" ? (
                   <div>
@@ -99,9 +103,11 @@ const LandlordLogin = () => {
                         })}
                         className="form-control card"
                         style={{
-                          background: uiGrey2,
                           color: "white !important",
                           marginBottom: "25px",
+                          padding: "15px",
+                          borderRadius: "10px",
+                          background: "white",
                         }}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -131,7 +137,7 @@ const LandlordLogin = () => {
                   </div>
                 ) : (
                   <div className="mb-3">
-                    <Input
+                    <input
                       input
                       {...register("email", {
                         required: "This is a required field",
@@ -147,6 +153,12 @@ const LandlordLogin = () => {
                       placeholder="Enter Email Address..."
                       name="email"
                       value={email}
+                      style={{
+                        ...defaultWhiteInputStyle,
+                        padding: "15px",
+                        borderRadius: "10px",
+                        background: "white",
+                      }}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                     <span style={validationMessageStyle}>
@@ -155,15 +167,21 @@ const LandlordLogin = () => {
                   </div>
                 )}
                 <div className="mb-3">
-                  <Input
+                  <input
                     {...register("password", {
                       required: "This is a required field",
                     })}
-                    className="form-control form-control-user"
+                    className="form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
                     id="exampleInputPassword"
                     placeholder="Password"
+                    style={{
+                      ...defaultWhiteInputStyle,
+                      border: "none",
+                      padding: "15px",
+                      borderRadius: "10px",
+                    }}
                   />
                   <span style={validationMessageStyle}>
                     {errors.password && errors.password.message}
@@ -178,7 +196,7 @@ const LandlordLogin = () => {
                         id="formCheck-1"
                       />
                       <label
-                        className="form-check-label custom-control-label"
+                        className="form-check-label custom-control-label text-black"
                         htmlFor="formCheck-1"
                       >
                         Remember Me

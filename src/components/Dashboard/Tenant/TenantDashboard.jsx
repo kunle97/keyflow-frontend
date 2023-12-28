@@ -12,20 +12,27 @@ import {
   turnOffAutoPay,
   turnOnAutoPay,
 } from "../../../api/manage_subscriptions";
-import { getTenantTransactionsByUser } from "../../../api/transactions";
+import {
+  getTenantTransactionsByUser,
+  getTransactionsByTenant,
+} from "../../../api/transactions";
 import { listStripePaymentMethods } from "../../../api/payment_methods";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { getTenantDashboardData } from "../../../api/tenants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router";
-import { CircularProgress, FormControlLabel } from "@mui/material";
+import { CircularProgress, FormControlLabel, Stack } from "@mui/material";
 import UISwitch from "../UIComponents/UISwitch";
 import UITable from "../UIComponents/UITable/UITable";
 import UIPrompt from "../UIComponents/UIPrompt";
 import UIButton from "../UIComponents/UIButton";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { getTenantLeaseRenewalRequests } from "../../../api/lease_renewal_requests";
+import UICard from "../UIComponents/UICards/UICard";
+import UICardList from "../UIComponents/UICards/UICardList";
+import UITableCard from "../UIComponents/UICards/UITableCard";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -59,6 +66,45 @@ const TenantDashboard = () => {
     },
   ];
 
+  const maintenance_request_columns = [
+    { name: "type", label: "Type" },
+    {
+      name: "status",
+      label: "Status",
+      options: {
+        customBodyRender: (value) => {
+          if (value === "pending") {
+            return <span className="text-warning">Pending</span>;
+          } else if (value === "in_progress") {
+            return <span className="text-info">In Progress</span>;
+          } else if (value === "completed") {
+            return <span className="text-success">Completed</span>;
+          }
+        },
+      },
+    },
+    {
+      name: "created_at",
+      label: "Date",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+      sort: true,
+    },
+  ];
+
+  const maintenance_request_options = {
+    filter: true,
+    sort: true,
+    onRowClick: () => {},
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
+    limit: 5,
+  };
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/tenant/`;
     navigate(navlink);
@@ -108,8 +154,7 @@ const TenantDashboard = () => {
       }
     });
     //Retrieve Tenant Transactions
-    getTenantTransactionsByUser().then((res) => {
-      console.log(res);
+    getTransactionsByTenant(authUser.tenant_id).then((res) => {
       setTransactions(res.data);
     });
 
@@ -213,7 +258,7 @@ const TenantDashboard = () => {
         btnText="Add Payment Method"
       />
       <div className="d-sm-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-light mb-0">
+        <h3 className="text-black mb-0">
           Good Afternoon, {`${authUser.first_name}!`}
         </h3>
       </div>
@@ -224,7 +269,7 @@ const TenantDashboard = () => {
               <div
                 className="card shadow mb-4"
                 variant="outlined"
-                style={{ background: uiGrey2, color: "white" }}
+                style={{ background: "white", color: "black" }}
               >
                 <>
                   <CardContent>
@@ -299,11 +344,57 @@ const TenantDashboard = () => {
           )}
           {/* TODO: Insert a better Maintenance Requests Component Here */}
           {/* <MaintenanceRequests /> */}
-          <UITable
-            title=""
-            columns={columns}
-            data={transactions}
-            options={options}
+          {transactions.length === 0 ? (
+            <UICard cardStyle={{ height: "478px" }}>
+              <Stack
+                direction={"column"}
+                justifyContent={"center"}
+                alignItems={"center"}
+                spacing={2}
+                sx={{ height: "400px", textAlign: "center", color: "black" }}
+              >
+                <h4>Seems like you're new around here...</h4>
+                <p>There are no transactions to display.</p>
+              </Stack>
+            </UICard>
+          ) : (
+            <UICardList
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={""}
+              info={"Recent Transactions"}
+              onInfoClick={() => navigate("/dashboard/landlord/transactions")}
+              //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
+              items={transactions
+                .map((transaction) => ({
+                  primary: transaction.description,
+                  secondary: new Date(
+                    transaction.timestamp
+                  ).toLocaleDateString(),
+                  tertiary: `${
+                    transaction.type === "revenue" ||
+                    transaction.type === "rent_payment" ||
+                    transaction.type === "security_deposit"
+                      ? "+"
+                      : "-"
+                  }$${transaction.amount}`,
+                  icon: <AttachMoneyIcon />,
+                }))
+                .slice(0, 4)}
+              tertiaryStyles={{ color: uiGreen }}
+            />
+          )}
+
+          <UITableCard
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            title={"Recent Maintenance Requests"}
+            columns={maintenance_request_columns}
+            info={"Recent Maintenance Requests"}
+            endpoint={"/maintenance-requests/"}
+            options={maintenance_request_options}
           />
         </div>
         <div className="col-lg-7 col-xl-8 mb-4">

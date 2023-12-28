@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Stack } from "@mui/material";
-import { authUser, uiGreen } from "../../../../constants";
+import { authUser, uiGreen, uiRed } from "../../../../constants";
 import { useParams } from "react-router";
 import { createLeaseAgreement } from "../../../../api/lease_agreements";
 import {
@@ -257,10 +257,12 @@ const ViewRentalApplication = () => {
               "Rejecting this application will permenantly delete it fdorm your records. Do you wish to continue?"
             }
             cancelBtnText="Cancel"
-            conformBtnText="Confirm"
+            confirmBtnText="Confirm"
             handleClose={() => setOpenRejectModal(false)}
             handleConfirm={handleReject}
             handleCancel={() => setOpenRejectModal(false)}
+            cancelBtnStyle={{ background: uiGreen }}
+            confirmBtnStyle={{ background: uiRed }}
           />
           <div className="mb-3" style={{ overflow: "auto" }}>
             <h4 style={{ float: "left" }}>
@@ -311,7 +313,7 @@ const ViewRentalApplication = () => {
                         <b>Date Of Birth</b>
                       </h6>
                       <p className="text-black">
-                        {rentalApplication.date_of_birth}
+                        {new Date(rentalApplication.date_of_birth).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="col-md-6">
@@ -504,7 +506,7 @@ const ViewRentalApplication = () => {
           {tabPage === 4 && (
             <div className="mb-4">
               <div className="card">
-                <div className="card-body">{rentalApplication.comments}</div>
+                <div className="card-body text-black">{rentalApplication.comments}</div>
               </div>
             </div>
           )}

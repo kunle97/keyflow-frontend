@@ -26,6 +26,7 @@ export const stripe_onboarding_link = localStorage.getItem(
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";
+export const uiGrey = "#f4f7f8"; 
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
 export const uiGrey3 = "#dcdde3"; //Used to set background color of a read notification
@@ -144,8 +145,8 @@ export const landlordMenuItems = [
         muiIcon: <DescriptionOutlinedIcon />,
         description: "View your lease renewal requests",
         icon: "fas fa-user-circle",
-        isSearchable: true, 
-      }
+        isSearchable: true,
+      },
     ],
   },
   {
@@ -229,7 +230,6 @@ export const tenantMenuItems = [
     ],
     isSearchable: true,
   },
-
 ];
 
 export const modalStyle = {
@@ -302,7 +302,7 @@ export const fakeData = {
   fakePastDate:
     process.env.REACT_APP_ENVIRONMENT !== "development"
       ? ""
-      :  faker.date.past().toISOString().split("T")[0],
+      : faker.date.past().toISOString().split("T")[0],
   fakeFutureDate:
     process.env.REACT_APP_ENVIRONMENT !== "development"
       ? ""

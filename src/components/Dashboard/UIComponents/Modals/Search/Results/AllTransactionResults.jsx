@@ -79,22 +79,19 @@ const AllTransactionResults = (props) => {
                         gridSize={12}
                         title={
                           <>
-                            {transaction.type === "revenue" && (
-                              <span style={{ color: uiGreen }}>
-                                +${transaction.amount}
-                              </span>
-                            )}{" "}
-                            {transaction.type === "expense" && (
-                              <span style={{ color: "red" }}>
-                                -${transaction.amount}
-                              </span>
-                            )}
+                            <span style={{ color: uiGreen }}>
+                              ${parseFloat(transaction.amount)}
+                            </span>
                           </>
                         }
                         subtitle={`${
-                          new Date(transaction.created_at)
-                            .toISOString()
-                            .split("T")[0]
+                          new Date(transaction.timestamp).toLocaleDateString(
+                            "en-US"
+                          ) +
+                          " " +
+                          new Date(transaction.timestamp).toLocaleTimeString(
+                            "en-US"
+                          )
                         }`}
                         description={transaction.description}
                         icon={

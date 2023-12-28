@@ -23,6 +23,7 @@ export function AuthProvider({ children, ...props }) {
   const [loading, setLoading] = useState(true);
   const [errMsg, setErrMsg] = useState();
   const [openError, setOpenError] = useState(false);
+  const [userIsLoggedOut, setUserIsLoggedOut] = useState(false);
 
   const isTokenExpired = (token) => {
     if (!token) {
@@ -39,6 +40,21 @@ export function AuthProvider({ children, ...props }) {
       username: e.target.username.value,
       password: e.target.password.value,
     }).then((res) => {
+      console.log(res);
+
+      if (res.error) {
+        if (
+          res.error.response.data.detail ===
+          "No active account found with the given credentials"
+        ) {
+          setErrMsg(
+            "Your account is not active. Please check your email for the activation link."
+          );
+          setOpenError(true);
+          return;
+        }
+      }
+
       if (typeof res.access !== "string") {
         //Display error Message
         setErrMsg("Incorrect username or password. Please try again.");
@@ -49,20 +65,22 @@ export function AuthProvider({ children, ...props }) {
         setAuthTokens(res);
         setAuthUser(jwtDecode(res.access));
         localStorage.setItem("authTokens", JSON.stringify(res));
-        if (jwtDecode(res.access).account_type === "landlord") {
+        setUserIsLoggedOut(false);
+        if (jwtDecode(res.access).account_type === "owner") {
           window.location.href = "/dashboard/landlord";
         } else {
           window.location.href = "/dashboard/tenant";
         }
       } else {
         console.error("Invalid Token");
+        return res;
       }
     });
   };
 
   let logoutUser = () => {
     let redirectUrl = "";
-    if (authUser.account_type === "landlord") {
+    if (authUser.account_type === "owner") {
       redirectUrl = "/dashboard/landlord/login";
     } else if (authUser.account_type === "tenant") {
       redirectUrl = "/dashboard/tenant/login";
@@ -72,35 +90,41 @@ export function AuthProvider({ children, ...props }) {
     setAuthTokens(null);
     setAuthUser(null);
     localStorage.removeItem("authTokens");
+    setUserIsLoggedOut(true);
     //navigate to /login route
     window.location.href = redirectUrl;
   };
 
   let updateToken = async () => {
-    try {
-      const res = await refreshTokens({ refresh: authTokens.refresh });
+    if (!userIsLoggedOut) {
+      try {
+        const res = await refreshTokens({ refresh: authTokens.refresh });
 
-      if (typeof res.access === "undefined" || typeof res.access !== "string") {
-        return;
+        if (
+          typeof res.access === "undefined" ||
+          typeof res.access !== "string"
+        ) {
+          return;
+        }
+
+        setAuthTokens(res);
+        setAuthUser(jwtDecode(res.access));
+        localStorage.setItem("authTokens", JSON.stringify(res));
+
+        // Check if the new token is still expired
+        if (isTokenExpired(res.access)) {
+          // Handle this case, e.g., log the user out
+          // logoutUser();
+          updateToken();
+          return { token: res.access, refresh: res.refresh };
+        }
+
+        if (loading) {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.log("Update Token Error: ", error);
       }
-
-      setAuthTokens(res);
-      setAuthUser(jwtDecode(res.access));
-      localStorage.setItem("authTokens", JSON.stringify(res));
-
-      // Check if the new token is still expired
-      if (isTokenExpired(res.access)) {
-        // Handle this case, e.g., log the user out
-        // logoutUser();
-        updateToken();
-        return { token: res.access, refresh: res.refresh };
-      }
-
-      if (loading) {
-        setLoading(false);
-      }
-    } catch (error) {
-      console.log("Update Token Error: ", error);
     }
   };
 

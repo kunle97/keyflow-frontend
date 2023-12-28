@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Chip,  Stack } from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { uiGreen, uiGrey1 } from "../../../../constants";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -17,11 +17,7 @@ const PlanSelectDialog = (props) => {
     });
   }, []);
   return (
-    <UIDialog
-      open={props.open}
-      onClose={props.onClose}
-      maxWidth={"xxl"}
-    >
+    <UIDialog open={props.open} onClose={props.onClose} maxWidth={"xxl"}>
       <div className="row m-3 ">
         {plans.map((plan) => (
           <div className="col-md-6 col-sm-12 mb-3 py-3 ">
@@ -66,9 +62,9 @@ const PlanSelectDialog = (props) => {
                     >
                       {plan.product_id ===
                         process.env.REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
-                        <span style={{ color: "white" }}>per Rental Unit </span>
+                        <span className="text-black">per Rental Unit </span>
                       )}
-                      <span style={{ color: "white" }}>per month</span>
+                      <span className="text-black">per month</span>
                     </Stack>
                   </Stack>
 
@@ -87,9 +83,9 @@ const PlanSelectDialog = (props) => {
                     alignItems="flex-start"
                     spacing={2}
                   >
-                    <span style={{ color: "white" }}>This plan includes:</span>
+                    <span className="text-black">This plan includes:</span>
                     {plan.features.map((feature) => (
-                      <span style={{ color: "white" }}>
+                      <span className="text-black">
                         <CheckCircleIcon
                           style={{ color: uiGreen, width: "15px" }}
                         />{" "}

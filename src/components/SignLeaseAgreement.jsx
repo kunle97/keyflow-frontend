@@ -16,6 +16,7 @@ import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
 import { Link } from "react-router-dom";
+import LandingPageNavbar from "./Landing/LandingPageNavbar";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -198,7 +199,8 @@ const SignLeaseAgreement = () => {
     };
   }, [leaseTemplate, leaseAgreement]);
   return (
-    <div className="container">
+    <div className="container" style={{ paddingTop: "105px" }}>
+      <LandingPageNavbar isDarkNav={true} />
       <AlertModal
         open={showErrorMessage}
         title={errorTitle}

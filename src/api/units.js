@@ -76,10 +76,15 @@ export async function getUnitUnauthenticated(unitId) {
 }
 
 //Create function to retrieve one lease term from one specific
-export async function getLeaseTemplateByUnitId(unitId) {
+export async function getLeaseTemplateByUnitId(unit_id) {
   try {
     const res = await unauthenticatedInstance
-      .post(`/retrieve-lease-template-unit/`, { unit_id: unitId })
+      .get(`/retrieve-lease-template-unit/`, {
+        //Create param for unit id
+        params: {
+          unit_id,
+        },
+      })
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -137,16 +142,14 @@ export async function deleteUnit(data) {
 //Create a funtion to get all units for a specific landlord using the endpoint /users/{landlord_id}/units/
 export async function getLandlordUnits() {
   try {
-    const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/units/`)
-      .then((res) => {
-        console.log(res);
+    const res = await authenticatedInstance.get(`/units/`).then((res) => {
+      console.log(res);
 
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
+      if (res.status == 200 && res.data.length == 0) {
+        return { data: [] };
+      }
+      return { data: res.data };
+    });
 
     return res;
   } catch (error) {
@@ -154,4 +157,3 @@ export async function getLandlordUnits() {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-

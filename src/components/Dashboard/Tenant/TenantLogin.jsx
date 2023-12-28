@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router";
 import { login } from "../../../api/auth";
-import { useAuth } from "../../../contexts/AuthContext";
+import AuthContext, { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
-import { uiGreen, uiGrey2 } from "../../../constants";
+import { uiGreen, uiGrey2, defaultWhiteInputStyle } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
@@ -14,7 +14,7 @@ const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { loginUser } = useAuth();
+  const { loginUser } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const [email, setEmail] = useState("");
@@ -36,28 +36,8 @@ const TenantLogin = () => {
     },
   });
 
-  const onSubmit = async (data) => {
-    const response = await login(data.email, data.password);
-    setIsLoading(true);
-
-    //if token is returned, set it in local storage
-    if (response.token) {
-      //Set authUser and isLoggedIn in context
-      localStorage.setItem("accessToken", response.token);
-      //Save auth user in local storage
-      localStorage.setItem("authUser", JSON.stringify(response.userData));
-      setRedirectURL("/dashboard/tenant");
-      setIsLoading(false);
-      //Navigate to dashboard
-      setOpen(true);
-    } else {
-      setErrMsg(response.message);
-      setIsLoading(false);
-    }
-  };
   const onJWTSubmit = async (e) => {
     let response = await loginUser(e);
-    // console.log(response);
   };
 
   useEffect(() => {
@@ -112,9 +92,9 @@ const TenantLogin = () => {
             <div className=" ">
               <img
                 style={{ width: "60%", marginBottom: "25px" }}
-                src="/assets/img/key-flow-logo-white-transparent.png"
+                src="/assets/img/key-flow-logo-black-transparent.png"
               />
-              <Typography color="white" className="mb-4 ml-4">
+              <Typography color="black" className="mb-4 ml-4">
                 Tenant Login
               </Typography>
               <form className="user" onSubmit={onJWTSubmit}>
@@ -169,8 +149,8 @@ const TenantLogin = () => {
                         })}
                         className="form-control card"
                         style={{
-                          background: uiGrey2,
-                          color: "white !important",
+                          background: "white",
+                          color: "black",
                           marginBottom: "25px",
                         }}
                         name="username"
@@ -207,16 +187,21 @@ const TenantLogin = () => {
                   </div>
                 )}
                 <div className="mb-3">
-                  <Input
+                  <input
                     {...register("password", {
                       required: "This is a required field",
                     })}
-                    className="form-control form-control-user"
+                    className="form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
                     id="exampleInputPassword"
                     placeholder="Password"
-                    name="password"
+                    style={{
+                      ...defaultWhiteInputStyle,
+                      border: "none",
+                      padding: "15px",
+                      borderRadius: "10px",
+                    }}
                   />
                   <span style={validationMessageStyle}>
                     {errors.password && errors.password.message}
@@ -231,7 +216,7 @@ const TenantLogin = () => {
                         id="formCheck-1"
                       />
                       <label
-                        className="form-check-label custom-control-label"
+                        className="form-check-label custom-control-label text-black"
                         htmlFor="formCheck-1"
                       >
                         Remember Me

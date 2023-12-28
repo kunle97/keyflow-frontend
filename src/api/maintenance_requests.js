@@ -63,7 +63,7 @@ export async function getMaintenanceRequestsByUser() {
 export async function getMaintenanceRequestsByLandlord() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/landlord-maintenance-requests/`)
+      .get(`/maintenance-requests/`)
       .then((res) => {
         return res;
       });
@@ -88,6 +88,24 @@ export async function getMaintenanceRequestById(maintenanceRequestId) {
     return res;
   } catch (error) {
     console.log("Get Maintenance Request Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a funtion toi fetch a  tenants maintenance requests by their id using the endpoint /tenants/{tenant_id}/maintenance-requests/
+export async function getMaintenanceRequestsByTenant(tenantId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/tenants/${tenantId}/maintenance-requests/`)
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Maintenance Requests Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -140,12 +158,13 @@ export async function changeMaintenanceRequestStatus(
         //Create a notification using the authenticatedInstance.post() method and  endpoint  /notifications/ and the . THe parameters are user (The tenant that made the request), title, and message (notifiying the status change)
         const notification = authenticatedInstance
           .post(`/notifications/`, {
-            user: res.data.tenant.id,
+            user: res.data.tenant.user.id,
             title: "Maintenance Request Status Change",
             type: "maintenance_request_status_change",
             message: `Your maintenance request has been set to ${convertMaintenanceRequestStatus(
               data.status
             )}`,
+            resource_url: `/dashboard/tenant/maintenance-requests/${maintenanceRequestId}/`,
           })
           .then((res) => {
             return res;

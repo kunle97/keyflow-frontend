@@ -43,8 +43,8 @@ const AllTenantResults = (props) => {
                 key={tenant.id}
                 gridSize={4}
                 handleClose={props.handleClose}
-                title={`${tenant.first_name} ${tenant.last_name}`}
-                subtitle={`${tenant.email}`}
+                title={`${tenant.user.first_name} ${tenant.user.last_name}`}
+                subtitle={`${tenant.user.email}`}
                 icon={
                   <PeopleAltOutlinedIcon
                     style={{ width: "30px", height: "30px" }}

@@ -45,7 +45,7 @@ const LeaseCancellationForm = (props) => {
       request_date: data.moveOutDate,
       comments: data.comments,
       tenant: authUser.user_id,
-      user: props.leaseAgreement.user.id,
+      owner: props.leaseAgreement.owner.id,
       rental_unit: props.leaseAgreement.rental_unit.id,
       rental_property: props.leaseAgreement.rental_unit.rental_property,
       lease_agreement: props.leaseAgreement.id,
@@ -66,7 +66,7 @@ const LeaseCancellationForm = (props) => {
           console.log("Error creating lease cancellation request", res);
           props.setShowLeaseCancellationFormDialog(false);
           props.setAlertModalTitle("Error");
-          props.setAlertModalMessage(res.data?.message);
+          props.setAlertModalMessage(`Error creating lease cancellation request: ${res.response?.data?.message}`);
           props.setShowAlertModal(true);
         }
       });

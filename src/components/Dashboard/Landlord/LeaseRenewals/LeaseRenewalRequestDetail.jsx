@@ -177,8 +177,8 @@ const LeaseRenewalRequestDetail = () => {
           >
             <h4>
               {" "}
-              {leaseRenewalRequest.tenant.first_name}{" "}
-              {leaseRenewalRequest.tenant.last_name}'s Lease Renewal Request (
+              {leaseRenewalRequest.tenant.user.first_name}{" "}
+              {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal Request (
               {leaseRenewalRequest.status})
             </h4>
             {actionStack}

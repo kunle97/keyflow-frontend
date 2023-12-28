@@ -1,7 +1,7 @@
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 //-------------------LEASE AGREEMENT API FUNCTIONS------------------------///
 //Create a function that retrieves all lease agreements
-export async function   getAllLeaseAgreements() {
+export async function getAllLeaseAgreements() {//TODO: Depricate this function and replace with getLeaseAgreementsByTenant
   try {
     const res = await authenticatedInstance
       .get(`/lease-agreements/`)
@@ -125,11 +125,9 @@ export async function signLeaseAgreement(data) {
 export async function getLeaseAgreementsByTenant(tenant_id) {
   try {
     const res = await authenticatedInstance
-      .get(`/lease-agreements/get-lease-agreements-by-tenant/`, {
-        params: { tenant_id },
-      })
+      .get(`/tenants/${tenant_id}/lease-agreements/`)
       .then((res) => {
-        const response = res.data;
+        const response = res;
         console.log("axios get lease agreements by tenant response ", response);
         return response;
       });
@@ -140,9 +138,10 @@ export async function getLeaseAgreementsByTenant(tenant_id) {
   }
 }
 
-
 //Create a function to retrieve a lease agreement by its lease_renewal_request_id using the endpoint /lease-agreements/get-lease-agreement-by-lease-renewal-request/
-export async function getLeaseAgreementByLeaseRenewalRequestId(lease_renewal_request_id) {
+export async function getLeaseAgreementByLeaseRenewalRequestId(//TODO: Depricate this function and replace with getLeaseAgreementsByTenant
+  lease_renewal_request_id
+) {
   try {
     const res = await authenticatedInstance
       .get(`/lease-agreements/get-lease-agreement-by-lease-renewal-request/`, {
@@ -150,12 +149,18 @@ export async function getLeaseAgreementByLeaseRenewalRequestId(lease_renewal_req
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios get lease agreement by lease renewal request id response ", response);
+        console.log(
+          "axios get lease agreement by lease renewal request id response ",
+          response
+        );
         return response;
       });
     return res;
   } catch (error) {
-    console.log("Get Lease Agreement By Lease Renewal Request Id Error: ", error);
+    console.log(
+      "Get Lease Agreement By Lease Renewal Request Id Error: ",
+      error
+    );
     return { response: error.response, message: "Error", status: 400 };
   }
 }
