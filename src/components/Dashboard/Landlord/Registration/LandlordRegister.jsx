@@ -75,7 +75,7 @@ const LandlordRegister = () => {
     setIsLoading(true);
     console.log(data);
     data.activation_token = makeId(32);
-    data.account_type = "landlord";
+    data.account_type = "owner";
     //Handle stripe elements
     if (!stripe || !elements) {
       // Stripe.js has not yet loaded.
@@ -185,7 +185,7 @@ const LandlordRegister = () => {
             <div className=" ">
               <img
                 style={{ maxWidth: "175px", marginBottom: "25px" }}
-                src="/assets/img/key-flow-logo-white-transparent.png"
+                src="/assets/img/key-flow-logo-black-transparent.png"
               />
               <UIStepper
                 step={step}
@@ -196,15 +196,9 @@ const LandlordRegister = () => {
                 ]}
               />
 
-              <form className="user " onSubmit={handleSubmit(onSubmit)}>
+              <form className="user mt-3" onSubmit={handleSubmit(onSubmit)}>
                 {step === 0 && (
                   <>
-                    <input
-                      {...register("account_type")}
-                      type="hidden"
-                      name="account_type"
-                      defaultValue="landlord"
-                    />
                     <div className="row mb-3">
                       <div className="col-sm-6 mb-3 mb-sm-0">
                         <input
@@ -496,7 +490,7 @@ const LandlordRegister = () => {
                           borderRadius: ".25rem",
                           padding: ".375rem .75rem",
                           color: "white",
-                          backgroundColor: uiGrey1,
+                          backgroundColor: "#f2f2f5",
                           backgroundClip: "padding-box",
                           transition:
                             "border-color .15s ease-in-out,box-shadow .15s ease-in-out",
@@ -507,7 +501,7 @@ const LandlordRegister = () => {
                             style: {
                               base: {
                                 fontSize: "16px",
-                                color: "white",
+                                color: "black",
                                 "::placeholder": {
                                   color: "#aab7c4",
                                 },

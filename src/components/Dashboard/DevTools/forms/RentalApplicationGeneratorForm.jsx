@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import UIButton from "../../UIComponents/UIButton";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import axios from "axios";
-import { authUser, uiGreen, uiGrey1 } from "../../../../constants";
+import { authUser, uiGreen, uiGrey1, uiGrey } from "../../../../constants";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material";
 import { useEffect } from "react";
@@ -44,6 +44,8 @@ const RentalApplicationGeneratorForm = (props) => {
       user_id: authUser.user_id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
+      rental_application_is_approved: data.rentalApplicationIsApproved,
+      rental_application_is_archived: data.rentalApplicationIsArchived,
     };
     // Use Axios or your preferred HTTP client to call the appropriate endpoints in your DRF backend.
     axios
@@ -74,7 +76,7 @@ const RentalApplicationGeneratorForm = (props) => {
     <UIDialog
       open={props.open}
       onClose={props.onClose}
-      style={{ padding: "10px", width: "500px" }}
+      style={{ padding: "10px", width: "500px", background: uiGrey}}
     >
       <Stack
         direction="row"

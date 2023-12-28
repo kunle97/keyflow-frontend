@@ -5,15 +5,10 @@ import { authUser } from "../constants";
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 ///-----------------AUTH API FUNCTIONS---------------------------///
 //Create a function to retrieve a user's stripe subscriptions using the nedn poiint api/users/{id}/subscription
-export async function getUserStripeSubscriptions(user_id, token) {
+export async function getUserStripeSubscriptions() {
   try {
-    const res = await axios
-      .get(`${API_HOST}/users/${user_id}/landlord-subscriptions/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/subscriptions/ `, {})
       .then((res) => {
         console.log(res);
         return res.data;
@@ -66,7 +61,7 @@ export async function login(email, password) {
       localStorage.setItem("authUser", JSON.stringify(userData));
       //Check for response code before storing data in context
       const redirect_url =
-        res.user.account_type === "landlord"
+        res.user.account_type === "owner"
           ? "/dashboard/landlord"
           : "/dashboard/tenant";
 
@@ -118,7 +113,7 @@ export async function logout() {
 export async function registerLandlord(data) {
   try {
     const res = await unauthenticatedInstance
-      .post(`/auth/register/`, data)
+      .post(`/owners/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);
@@ -143,7 +138,7 @@ export async function registerLandlord(data) {
 export async function registerTenant(data) {
   try {
     const res = await unauthenticatedInstance
-      .post(`/auth/tenant/register/`, data)
+      .post(`/tenants/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);

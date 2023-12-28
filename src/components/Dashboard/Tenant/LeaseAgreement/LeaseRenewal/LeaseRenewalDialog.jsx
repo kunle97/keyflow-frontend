@@ -23,10 +23,10 @@ const LeaseRenewalDialog = (props) => {
         ) : (
           <div className="row">
             <div className="col-md-12">
-              <p>
-                Please note that your lease renewal may be subject to a change in
-                rent, security deposit, utility charges, and other lease terms. 
-
+              <p className="text-black" style={{ fontSize: "15pt" }}>
+                Please note that your lease renewal may be subject to a change
+                in rent, security deposit, utility charges, and other lease
+                terms.
               </p>
               <UIButton
                 btnText="Continue"

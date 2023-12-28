@@ -64,7 +64,7 @@ export async function getRentalApplications(unitId) {
 export async function getRentalApplicationsByUser() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/rental-applications/`)
+      .get(`/rental-applications/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {

@@ -4,7 +4,7 @@ import Slide from "@mui/material/Slide";
 import { Box, Button, Input } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@material-ui/core";
-import { authUser, uiGreen, uiGrey1 } from "../../../../../constants";
+import { authUser, uiGreen, uiGrey1, uiGrey2 } from "../../../../../constants";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
@@ -176,7 +176,7 @@ const SearchDialog = (props) => {
 
   useEffect(() => {
     authenticatedInstance
-      .get(`/users/${authUser.user_id}/tenants/`)
+      .get(`/owners/${authUser.owner_id}/tenants/`)
       .then((res) => {
         console.log("Tenant REsponse: ", res);
         setTenants(res.data);
@@ -234,7 +234,7 @@ const SearchDialog = (props) => {
                   color: "white",
                 }}
               >
-                <CloseIcon sx={{ color: "white" }} />
+                <CloseIcon sx={{ color: uiGreen }} />
               </IconButton>
             }
             id="input-with-icon-textfield"
@@ -243,7 +243,7 @@ const SearchDialog = (props) => {
               fontSize: "30pt",
               p: 2,
               "&.Mui-focused .MuiIconButton-root": { color: uiGreen },
-              color: "white",
+              color: "black",
             }}
             fullWidth
             variant="standard"
@@ -267,7 +267,7 @@ const SearchDialog = (props) => {
 
           {!searchValue ? (
             <div>
-              <h2 className="mt-4 text-white">Quick Links</h2>
+              <h2 className="mt-4 text-black">Quick Links</h2>
               <div className="row">
                 {routes.map((item) => {
                   if (item.isSearchable && !item.subMenuItems) {
@@ -284,27 +284,6 @@ const SearchDialog = (props) => {
                     );
                   }
                 })}
-              </div>
-              <div>
-                <h2 className="text-white">Recently Viewed</h2>
-                <div className="row">
-                  {localStorage.getItem("historyList") &&
-                    JSON.parse(localStorage.getItem("historyList")).map(
-                      (item) => {
-                        return (
-                          <SearchResultCard
-                            to={item}
-                            handleClose={props.handleClose}
-                            gridSize={4}
-                            key={item}
-                            title={item}
-                            subtitle={item}
-                            icon={<DescriptionOutlinedIcon />}
-                          />
-                        );
-                      }
-                    )}
-                </div>
               </div>
             </div>
           ) : (
@@ -335,7 +314,7 @@ const SearchDialog = (props) => {
               {filterDashboardPages(dashboardPages, searchValue).length > 0 &&
                 tabPage === 0 && (
                   <div id="pages" style={{ overflow: "hidden" }}>
-                    <h2 className="text-white">
+                    <h2 className="text-black">
                       Pages (
                       {
                         dashboardPages.filter(
@@ -381,7 +360,9 @@ const SearchDialog = (props) => {
                 )}
               {properties.length > 0 && tabPage === 0 && (
                 <div id="properties" style={{ overflow: "hidden" }}>
-                  <h2 className="text-white">Properties ({propertyResultCount})</h2>
+                  <h2 className="text-black">
+                    Properties ({propertyResultCount})
+                  </h2>
                   <div className="row">
                     {properties.map((property) => (
                       <SearchResultCard
@@ -417,7 +398,7 @@ const SearchDialog = (props) => {
               )}
               {units.length > 0 && tabPage === 0 && (
                 <div id="units" style={{ overflow: "hidden" }}>
-                  <h2 className="text-white">Units ({unitResultCount})</h2>
+                  <h2 className="text-black">Units ({unitResultCount})</h2>
                   <div className="row">
                     {units.map((unit) => (
                       <SearchResultCard
@@ -461,7 +442,7 @@ const SearchDialog = (props) => {
               )}
               {maintenanceRequests.length > 0 && tabPage === 0 && (
                 <div id="maintenance" style={{ overflow: "hidden" }}>
-                  <h2 className="text-white">
+                  <h2 className="text-black">
                     Maintenance Requests ({maintenanceRequestResultCount})
                   </h2>
                   <div className="row">
@@ -479,7 +460,7 @@ const SearchDialog = (props) => {
                           key={maintenance_request.id}
                           gridSize={6}
                           handleClose={props.handleClose}
-                          title={`Maintenanace Request from ${tenant.first_name} ${tenant.last_name}`}
+                          title={`Maintenanace Request from ${tenant.user.first_name} ${tenant.user.last_name}`}
                           subtitle={`${maintenance_request.description}`}
                           icon={
                             <HandymanOutlinedIcon
@@ -508,7 +489,9 @@ const SearchDialog = (props) => {
               )}
               {rentalApplications.length > 0 && tabPage === 0 && (
                 <div id="rental" style={{ overflow: "hidden" }}>
-                  <h2 className="text-white">Rental Applications ({rentalApplicationResultCount})</h2>
+                  <h2 className="text-black">
+                    Rental Applications ({rentalApplicationResultCount})
+                  </h2>
                   <div className="row">
                     {rentalApplications.map((rental_application) => {
                       //Retrive unit information for the rental application
@@ -565,7 +548,9 @@ const SearchDialog = (props) => {
               )}
               {transactions.length > 0 && tabPage === 0 && (
                 <div id="transactions" style={{ overflow: "hidden" }}>
-                  <h2 className="text-white">Transactions ({transactionResultCount})</h2>
+                  <h2 className="text-black">
+                    Transactions ({transactionResultCount})
+                  </h2>
                   <div className="row">
                     {transactions.map((transaction) => (
                       <SearchResultCard
@@ -575,22 +560,15 @@ const SearchDialog = (props) => {
                         gridSize={12}
                         title={
                           <>
-                            {transaction.type === "revenue" && (
-                              <span style={{ color: uiGreen }}>
-                                +${transaction.amount}
-                              </span>
-                            )}{" "}
-                            {transaction.type === "expense" && (
-                              <span style={{ color: "red" }}>
-                                -${transaction.amount}
-                              </span>
-                            )}
+                            <span style={{ color: uiGreen }}>
+                              ${transaction.amount}
+                            </span>
                           </>
                         }
                         subtitle={`${
-                          new Date(transaction.created_at)
-                            .toISOString()
-                            .split("T")[0]
+                          new Date(transaction.timestamp).toLocaleDateString() +
+                          " " +
+                          new Date(transaction.timestamp).toLocaleTimeString()
                         }`}
                         description={transaction.description}
                         icon={
@@ -621,7 +599,7 @@ const SearchDialog = (props) => {
               {filterTenants(tenants, searchValue).length > 0 &&
                 tabPage === 0 && (
                   <div id="tenants" style={{ overflow: "hidden" }}>
-                    <h2 className="text-white">
+                    <h2 className="text-black">
                       Tenants ({filterTenants(tenants, searchValue).length})
                     </h2>
                     <div className="row">
@@ -633,8 +611,8 @@ const SearchDialog = (props) => {
                             key={tenant.id}
                             gridSize={4}
                             handleClose={props.handleClose}
-                            title={`${tenant.first_name} ${tenant.last_name}`}
-                            subtitle={`${tenant.email}`}
+                            title={`${tenant.user.first_name} ${tenant.user.last_name}`}
+                            subtitle={`${tenant.user.email}`}
                             icon={
                               <PeopleAltOutlinedIcon
                                 style={{ width: "30px", height: "30px" }}

@@ -208,10 +208,10 @@ const UploadLeaseDocument = (props) => {
                       name="file"
                     />
 
-                    <p style={{ color: uiGrey2 }}>
+                    <p className="text-black">
                       Drag'n'drop the file representing your lease agreeement{" "}
                     </p>
-                    <p style={{ color: uiGrey2 }}>
+                    <p className="text-black">
                       Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files will
                       be accepted (Max. file size: 3MB)
                     </p>

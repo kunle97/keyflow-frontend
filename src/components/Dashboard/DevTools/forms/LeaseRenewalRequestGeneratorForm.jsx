@@ -5,6 +5,7 @@ import {
   defaultWhiteInputStyle,
   uiGreen,
   uiGrey1,
+  uiGrey,
 } from "../../../../constants";
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -50,7 +51,7 @@ const LeaseRenewalRequestGeneratorForm = (props) => {
     <UIDialog
       open={props.open}
       onClose={props.onClose}
-      style={{ padding: "10px", width: "500px" }}
+      style={{ padding: "10px", width: "500px", background: uiGrey}}
     >
       <AlertModal
         open={alertModalOpen}

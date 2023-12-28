@@ -14,9 +14,6 @@ import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 
 const LandlordMaintenanceRequests = () => {
   const navigate = useNavigate();
-  let resolvedIssuesCount = 0;
-  let inProgressIssuesCount = 0;
-  let pendingIssuesCount = 0;
 
   //TODO: Display data on what properties/units have the most pending, respolved isues
 
@@ -122,9 +119,9 @@ const LandlordMaintenanceRequests = () => {
   }, []);
 
   return (
-    <div>
+    <div className="container-fluid">
       <div className="row">
-        <div className="col-md-3 mb-4">
+        <div className="col-md-4 mb-4">
           <UIInfoCard
             cardStyle={{ background: "white", color: uiGrey2 }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
@@ -134,7 +131,7 @@ const LandlordMaintenanceRequests = () => {
             // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
-        <div className="col-md-3 mb-4">
+        <div className="col-md-4 mb-4">
           <UIInfoCard
             cardStyle={{ background: "white", color: uiGrey2 }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
@@ -144,7 +141,7 @@ const LandlordMaintenanceRequests = () => {
             // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
-        <div className="col-md-3 mb-4">
+        <div className="col-md-4 mb-4">
           <UIInfoCard
             cardStyle={{ background: "white", color: uiGrey2 }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}

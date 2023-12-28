@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import UIButton from "../../UIComponents/UIButton";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import axios from "axios";
-import { authUser, uiGreen, uiGrey1 } from "../../../../constants";
+import { authUser, uiGreen, uiGrey1, uiGrey } from "../../../../constants";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material";
 import { set } from "react-hook-form";
@@ -45,7 +45,7 @@ const PropertyGeneratorForm = (props) => {
       >
         <h3>Property Generator </h3>
         <IconButton
-          sx={{ color: "white", float: "right" }}
+          sx={{ color: "white", float: "right", background: uiGrey}}
           edge="start"
           color="inherit"
           onClick={props.onClose}

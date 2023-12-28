@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import UIButton from "../../UIComponents/UIButton";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import axios from "axios";
-import { authUser, token, uiGrey1 } from "../../../../constants";
+import { authUser, token, uiGrey1, uiGrey } from "../../../../constants";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Stack } from "@mui/material";
 import { useEffect } from "react";
@@ -55,7 +55,7 @@ const UnitGeneratorForm = (props) => {
     <UIDialog
       open={props.open}
       onClose={props.onClose}
-      style={{ padding: "10px", width: "500px" }}
+      style={{ padding: "10px", width: "500px", background: uiGrey}}
     >
       <Stack
         direction="row"

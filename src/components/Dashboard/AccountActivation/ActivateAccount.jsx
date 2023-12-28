@@ -19,7 +19,7 @@ const ActivateAccount = () => {
             localStorage.removeItem("stripe_onoboarding_link");
         }
         //navigate to login page
-        if (res.account_type === "landlord") {
+        if (res.account_type === "owner") {
           navigate("/dashboard/landlord/login");
         } else if (res.account_type === "tenant") {
           navigate("/dashboard/tenant/login");

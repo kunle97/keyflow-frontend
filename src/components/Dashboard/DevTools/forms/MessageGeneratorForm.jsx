@@ -6,7 +6,7 @@ import {
 import { getLandlordTenants } from "../../../../api/landlords";
 import { useState } from "react";
 import { useEffect } from "react";
-import { authUser, uiGreen } from "../../../../constants";
+import { authUser, uiGreen,uiGrey } from "../../../../constants";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
@@ -64,7 +64,7 @@ const MessageGeneratorForm = (props) => {
       <UIDialog
         open={props.open}
         onClose={props.onClose}
-        style={{ padding: "10px", width: "500px" }}
+        style={{ padding: "10px", width: "500px", background: uiGrey}}
       >
         {" "}
         <AlertModal

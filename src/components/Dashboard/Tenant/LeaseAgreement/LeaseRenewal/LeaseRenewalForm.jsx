@@ -97,7 +97,7 @@ const LeaseRenewalForm = (props) => {
           : data.leaseTerm,
       comments: data.comments,
       tenant: authUser.user_id,
-      user: props.leaseAgreement.user.id,
+      owner: props.leaseAgreement.owner.id,
       rental_unit:
         unitMode === "current_unit"
           ? props.leaseAgreement.rental_unit.id
@@ -245,19 +245,25 @@ const LeaseRenewalForm = (props) => {
                     <div className="row mt-3">
                       <div className="col-md-6">
                         <h5>Term</h5>
-                        <p>{props.leaseAgreement.lease_template.term} Months</p>
+                        <p className="text-black">
+                          {props.leaseAgreement.lease_template.term} Months
+                        </p>
                       </div>
                       <div className="col-md-6">
                         <h5>Rent</h5>
-                        <p>${props.leaseAgreement.lease_template.rent}</p>
+                        <p className="text-black">
+                          ${props.leaseAgreement.lease_template.rent}
+                        </p>
                       </div>
                       <div className="col-md-6">
                         <h5>Late Fee</h5>
-                        <p>${props.leaseAgreement.lease_template.late_fee}</p>
+                        <p className="text-black">
+                          ${props.leaseAgreement.lease_template.late_fee}
+                        </p>
                       </div>
                       <div className="col-md-6">
                         <h5>Security Deposit</h5>
-                        <p>
+                        <p className="text-black">
                           $
                           {props.leaseAgreement.lease_template.security_deposit}
                         </p>
@@ -317,8 +323,9 @@ const LeaseRenewalForm = (props) => {
             <div className="row">
               <div className="col-md-12">
                 <div className="form-group">
-                  <label>Comments</label>
+                  <label className="text-black">Comments</label>
                   <textarea
+                    rows="5"
                     style={defaultWhiteInputStyle}
                     {...register("comments", { required: true })}
                   ></textarea>
@@ -347,7 +354,10 @@ const LeaseRenewalForm = (props) => {
                 }}
               />
               <h5>Submit Lease Renewal Request?</h5>
-              <p style={{ textAlign: "center", marginBottom: "30px" }}>
+              <p
+                className="text-black"
+                style={{ textAlign: "center", marginBottom: "30px" }}
+              >
                 Are you sure you want to submit this lease renewal request? You
                 will not be able to edit this request once it has been
                 submitted. Below is a summary of your lease renewal request.
@@ -356,11 +366,16 @@ const LeaseRenewalForm = (props) => {
               <div className="row">
                 <div className="col-md-4">
                   <h5>Lease Term</h5>
-                  <p>{watch("leaseTerm")} Months</p>
+                  {console.log("Lease term", watch("leaseTerm"))}
+                  <p className="text-black">
+                    {parseInt(watch("leaseTerm"))
+                      ? `${watch("leaseTerm")} Months`
+                      : "Same as Current Lease"}
+                  </p>
                 </div>
                 <div className="col-md-4">
                   <h5>Unit</h5>
-                  <p>
+                  <p className="text-black">
                     {unitMode === "current_unit"
                       ? props.leaseAgreement.rental_unit.name
                       : units.find((unit) => unit.id === selectedUnit)?.name}
@@ -368,12 +383,17 @@ const LeaseRenewalForm = (props) => {
                 </div>{" "}
                 <div className="col-md-4">
                   <h5>Desired Move In Date</h5>
-                  <p>{new Date(watch("moveInDate")).toLocaleDateString()}</p>
+                  <p className="text-black">
+                    {new Date(watch("moveInDate")).toLocaleDateString()}
+                  </p>
                 </div>
                 <div className="col-md-12">
                   <h5>Comments</h5>
                   <div style={{ width: "100%" }}>
-                    <p style={{ width: "524px", overflowWrap: "break-word" }}>
+                    <p
+                      className="text-black"
+                      style={{ width: "524px", overflowWrap: "break-word" }}
+                    >
                       {watch("comments")}
                     </p>
                   </div>

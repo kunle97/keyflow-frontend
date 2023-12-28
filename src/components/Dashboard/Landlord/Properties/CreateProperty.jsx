@@ -157,7 +157,7 @@ const CreateProperty = () => {
         navigate(`/dashboard/landlord/properties/${newPropertyId}`);
       } else {
         setUnitCreateError(true);
-        setErrorMessage(res.message);
+        setErrorMessage("There was an error creating your property"+res.message);
         setIsLoading(false);
       }
     }
@@ -477,12 +477,10 @@ const CreateProperty = () => {
                         onClick={() => setStep(0)}
                       />
                       <div className="text-end my-3">
-                        <button
-                          className="btn btn-primary ui-btn"
+                        <UIButton
                           type="submit"
-                        >
-                          Create Property
-                        </button>
+                          btnText="Create Property"
+                          />
                       </div>
                     </Stack>
                   </div>

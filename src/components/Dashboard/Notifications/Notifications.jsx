@@ -16,7 +16,7 @@ const Notifications = () => {
       },
     },
     {
-      label: "Time",
+      label: "Date",
       name: "timestamp",
       options: {
         customBodyRender: (value) => {
@@ -38,14 +38,12 @@ const Notifications = () => {
     },
   };
   return (
-    <div>
+    <div className="container-fluid">
       <UITable
         endpoint="/notifications/"
         columns={columns}
         options={options}
         title="Notification Center"
-        detailURL="/dashboard/landlord/notifications/"
-        showCreate={false}
       />
     </div>
   );

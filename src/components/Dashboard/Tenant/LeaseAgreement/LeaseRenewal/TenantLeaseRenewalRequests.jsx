@@ -65,7 +65,7 @@ const TenantLeaseRenewalRequests = () => {
     });
   }, []);
   return (
-    <div>
+    <div className="container-fluid" >
       <UITable
         title="Lease Renewal Requests"
         columns={columns}

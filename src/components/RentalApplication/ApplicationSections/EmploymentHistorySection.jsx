@@ -21,7 +21,7 @@ const EmploymentHistorySection = (props) => {
       <div className="card mb-3">
         <div className="row card-body">
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Company Name</label>
+            <label className="mb-2 text-black">Company Name</label>
             <input
               {...props.register(`companyName_${props.id}`, {
                 required: "This is a required field",
@@ -37,7 +37,7 @@ const EmploymentHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Title/Position</label>
+            <label className="mb-2 text-black">Title/Position</label>
             <input
               {...props.register(`position_${props.id}`, {
                 required: "This is a required field",
@@ -53,7 +53,7 @@ const EmploymentHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-12 mb-4">
-            <label className="mb-2">Company Address</label>
+            <label className="mb-2 text-black">Company Address</label>
             <input
               {...props.register(`companyAddress_${props.id}`, {
                 required: "This is a required field",
@@ -69,7 +69,7 @@ const EmploymentHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Start Date</label>
+            <label className="mb-2 text-black">Start Date</label>
             <input
               {...props.register(`employmentStartDate_${props.id}`, {
                 required: "This is a required field",
@@ -91,7 +91,7 @@ const EmploymentHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">End Date</label>
+            <label className="mb-2 text-black">End Date</label>
             <input
               {...props.register(`employmentEndDate_${props.id}`, {
                 required: "This is a required field",
@@ -116,14 +116,14 @@ const EmploymentHistorySection = (props) => {
               sx={{ color: "white", width: "100%" }}
               placeholder="End Date"
             />
-            <Checkbox /> Current Employer 
+            <span className="text-black" ><Checkbox /> Current Employer</span> 
             <span style={validationMessageStyle}>
               {props.employmentEndDateErrors &&
                 props.employmentEndDateErrors.message}
             </span>
           </div>
           <div className="col-md-12 mb-4">
-            <label className="mb-2">Income</label>
+            <label className="mb-2 text-black">Income</label>
             <input
               {...props.register(`income_${props.id}`, {
                 required: "This is a required field",
@@ -145,7 +145,7 @@ const EmploymentHistorySection = (props) => {
           </div>
 
           <div className="col-md-12 mb-4">
-            <label className="mb-2">Supervisor Name</label>
+            <label className="mb-2 text-black">Supervisor Name</label>
             <input
               {...props.register(`supervisorName_${props.id}`, {
                 required: "This is a required field",
@@ -161,7 +161,7 @@ const EmploymentHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Supervisor Phone</label>
+            <label className="mb-2 text-black">Supervisor Phone</label>
             <input
               {...props.register(`supervisorPhone_${props.id}`, {
                 required: "This is a required field",
@@ -182,7 +182,7 @@ const EmploymentHistorySection = (props) => {
             </span>
           </div>
           <div className="col-md-6 mb-4">
-            <label className="mb-2">Supervisor Email</label>
+            <label className="mb-2 text-black">Supervisor Email</label>
             <input
               {...props.register(`supervisorEmail_${props.id}`, {
                 required: "This is a required field",

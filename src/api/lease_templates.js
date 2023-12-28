@@ -7,7 +7,7 @@ import { stringToBoolean } from "../helpers/utils";
 export async function createLeaseTemplate(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/create-lease-template/`, {
+      .post(`/lease-templates/`, {
         user_id: authUser.user_id,
         rent: parseFloat(data.rent),
         term: data.term,
@@ -82,11 +82,11 @@ export async function getLeaseTemplateByIdAndApprovalHash(data) {
   }
 }
 
-//Create a function to retrieve one specific lease term by its id
-export async function getLeaseTemplateById(data) {
+//Create a function to retrieve one specific lease template by its id
+export async function getLeaseTemplateById(leaseTemplateId) {
   try {
     const res = await authenticatedInstance
-      .post(`/retrieve-lease-template/`, data)
+      .get(`/lease-templates/${leaseTemplateId}/`)
       .then((res) => {
         if (res.status == 200) {
           return { data: res.data };
@@ -122,24 +122,24 @@ export async function updateLeaseTemplate(leaseTemplateId, data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-//Create a function tpo delete a lease term
-export async function deleteLeaseTemplate(leaseTemplateId) {
+//Create a function tpo delete a lease term using the delete method to call the endpoint /lease-templates/. THere should be the following params: lease_template_id and user_id
+export async function deleteLeaseTemplate(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/delete-lease-template/`, {
-        lease_template_id: leaseTemplateId,
-        user_id: authUser.user_id,
+      .delete(`/lease-templates/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        data: data,
       })
       .then((res) => {
-        return {
-          data: res.data,
-          message: "Lease term deleted.",
-          status: 200,
-        };
+        console.log(res);
+        return res.data;
       });
     return res;
   } catch (error) {
     console.log("Delete Lease Term Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
+    return error.response;
   }
 }

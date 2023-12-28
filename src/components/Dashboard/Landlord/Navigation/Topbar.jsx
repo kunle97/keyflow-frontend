@@ -23,7 +23,8 @@ import { IconButton, Stack } from "@mui/material";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
-const Topbar = () => {
+import MenuIcon from "@mui/icons-material/Menu";
+const Topbar = (props) => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -42,6 +43,11 @@ const Topbar = () => {
     background: "#f4f7f8",
     padding: "10px 20px",
     width: "260px",
+  };
+  const dropDownMenuStyles = {
+    borderRadius: "10px",
+    overflow: "hidden",
+    boxShadow: "0 0 10px rgba(0,0,0,0.2)",
   };
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -119,7 +125,7 @@ const Topbar = () => {
           message="You have been logged Out Successfully! Click the link below to  return to the home page"
           btnText="Return Home"
           to={
-            authUser.account_type === "landlord"
+            authUser.account_type === "owner"
               ? "/dashboard/landlord/login"
               : "/dashboard/tenant/login"
           }
@@ -136,6 +142,15 @@ const Topbar = () => {
         }}
       >
         <div className="container">
+          <IconButton
+            color={uiGreen}
+            aria-label="open drawer"
+            onClick={() => props.setShowNavMenu(!props.showNavMenu)}
+            edge="start"
+            sx={{ mr: 1 }}
+          >
+            <MenuIcon style={{ color: uiGreen, fontSize: "25pt" }} />
+          </IconButton>
           {showSearchMenu && (
             <SearchDialog
               open={showSearchMenu}
@@ -143,7 +158,14 @@ const Topbar = () => {
               query={searchQuery}
             />
           )}
-          <Link className="navbar-brand" to="/dashboard/landlord">
+          <Link
+            className="navbar-brand"
+            to={`${
+              authUser.account_type === "owner"
+                ? "/dashboard/landlord/"
+                : "/dashboard/tenant/"
+            }`}
+          >
             <img
               src="/assets/img/key-flow-logo-black-transparent.png"
               style={{ height: "40px", width: "auto" }}
@@ -159,12 +181,13 @@ const Topbar = () => {
           <form className="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div className="input-group"></div>
           </form>
-          {authUser.account_type === "landlord" && (
+          {authUser.account_type === "owner" && (
             <Stack
               direction="row"
               alignItems="center"
               spacing={1}
               justifyContent="space-between"
+              sx={{ marginRight: "-50px" }}
             >
               <input
                 type="search"
@@ -179,8 +202,8 @@ const Topbar = () => {
               <IconButton
                 style={{
                   background: uiGreen,
-                  position: "absolute",
-                  right: "302px",
+                  position: "relative",
+                  right: "50px",
                 }}
                 onClick={() => setShowSearchMenu(true)}
               >
@@ -229,13 +252,21 @@ const Topbar = () => {
                   {" "}
                   {notifications.filter((notification) => !notification.is_read)
                     .length > 0 && (
-                    <span className="badge bg-danger badge-counter">
-                      {notifications.length}
-                    </span>
+                    <>
+                      {/* <span className="badge bg-danger badge-counter">
+                        {notifications.length}
+                      </span> */}
+                    </>
                   )}
-                  <i className="fas fa-bell fa-fw" />
+                  <i
+                    className="fas fa-bell fa-fw"
+                    style={{ fontSize: "15pt" }}
+                  />
                 </a>
-                <div className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
+                <div
+                  className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in"
+                  style={dropDownMenuStyles}
+                >
                   <h5
                     className="dropdown-header"
                     style={{
@@ -248,35 +279,48 @@ const Topbar = () => {
                     Notifications
                   </h5>
                   {notifications.length === 0 ? (
-                    <center>
-                      <span
-                        style={{
-                          borderStyle: "none",
-                          fontSize: "12pt",
-                          color: "grey",
-                          margin: "30px 0",
-                        }}
-                      >
-                        You have no new notifications
-                      </span>
-                    </center>
+                    <div
+                      style={{
+                        background: "white",
+                        border: "none",
+                        color: "black",
+                        padding: "15px 0",
+                      }}
+                    >
+                      <center>
+                        <span
+                          style={{
+                            borderStyle: "none",
+                            fontSize: "12pt",
+                            color: "black",
+                            margin: "30px 0",
+                          }}
+                        >
+                          You have no notifications
+                        </span>
+                      </center>
+                    </div>
                   ) : (
                     <>
                       {notifications.map((notification) => (
-                        <a
+                        <Link
                           className="dropdown-item d-flex align-items-center"
-                          href={`/dashboard/landlord/notifications/${notification.id}`}
+                          to={
+                            notification.resource_url
+                              ? notification.resource_url
+                              : `/dashboard/landlord/notifications/${notification.id}`
+                          }
                           style={
                             notification.is_read
                               ? {
-                                  background: uiGrey2,
-                                  color: "white",
+                                  background: "#f4f7f8",
+                                  color: "black",
                                   border: "none",
                                 }
                               : {
-                                  background: uiGrey1,
+                                  background: "white",
                                   border: "none",
-                                  color: "white",
+                                  color: "black",
                                 }
                           }
                         >
@@ -297,7 +341,7 @@ const Topbar = () => {
                               <p>{notification.message}</p>
                             )}
                           </div>{" "}
-                        </a>
+                        </Link>
                       ))}
                     </>
                   )}
@@ -324,12 +368,15 @@ const Topbar = () => {
                   data-bs-toggle="dropdown"
                   href="#"
                 >
-                  <span className="badge bg-danger badge-counter">7</span>
-                  <i className="fas fa-envelope fa-fw" />
+                  {/* <span className="badge bg-danger badge-counter"></span> */}
+                  <i
+                    className="fas fa-envelope fa-fw"
+                    style={{ fontSize: "15pt" }}
+                  />
                 </a>
                 <div
                   className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in"
-                  style={{ borderStyle: "none" }}
+                  style={dropDownMenuStyles}
                 >
                   <h5
                     className="dropdown-header"
@@ -344,18 +391,27 @@ const Topbar = () => {
                   </h5>
 
                   {messageThreads.length === 0 ? (
-                    <center>
-                      <span
-                        style={{
-                          borderStyle: "none",
-                          fontSize: "12pt",
-                          color: "grey",
-                          margin: "30px 0",
-                        }}
-                      >
-                        You have no new messages
-                      </span>
-                    </center>
+                    <div
+                      style={{
+                        background: "white",
+                        border: "none",
+                        color: "black",
+                        padding: "15px 0",
+                      }}
+                    >
+                      <center>
+                        <span
+                          style={{
+                            borderStyle: "none",
+                            fontSize: "12pt",
+                            color: "black",
+                            margin: "30px 0",
+                          }}
+                        >
+                          You have no messages
+                        </span>
+                      </center>
+                    </div>
                   ) : (
                     <ul className="list-group ">
                       {messageThreads.map((thread) => {
@@ -367,8 +423,8 @@ const Topbar = () => {
                             key={thread.id}
                             className={`list-group-item`}
                             style={{
-                              backgroundColor: uiGrey2,
-                              color: "white",
+                              backgroundColor: "white",
+                              color: "black",
                               border: "none",
                               borderRadius: "0",
                               cursor: "pointer",
@@ -409,10 +465,10 @@ const Topbar = () => {
                                   spacing={0}
                                   justifyContent="space-between"
                                 >
-                                  <span style={{ fontSize: "16pt" }}>
+                                  <span style={{ fontSize: "12pt" }}>
                                     {thread.name}
                                   </span>{" "}
-                                  <span className="text-white">
+                                  <span className="text-black">
                                     {dateDiffForHumans(
                                       new Date(thread.messages[0].timestamp)
                                     )}
@@ -426,7 +482,7 @@ const Topbar = () => {
                                   justifyContent="space-between"
                                 >
                                   <span
-                                    className="text-white"
+                                    className="text-black"
                                     style={{
                                       textOverflow: "ellipsis",
                                       whiteSpace: "nowrap",
@@ -503,7 +559,7 @@ const Topbar = () => {
                   <Link
                     className="dropdown-item"
                     to={
-                      authUser.account_type === "landlord"
+                      authUser.account_type === "owner"
                         ? "/dashboard/landlord/my-account"
                         : "/dashboard/tenant/my-account"
                     }

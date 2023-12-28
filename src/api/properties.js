@@ -15,6 +15,7 @@ export async function createProperty(
       .post(`/properties/`, {
         name,
         user: authUser.user_id,
+        owner: authUser.owner_id,
         street,
         city,
         state,
@@ -37,7 +38,7 @@ export async function createProperty(
 export async function getProperties() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/properties/`)
+      .get(`/properties/`)
       .then((res) => {
         console.log(res);
         if (res.status == 200 && res.data.length == 0) {
@@ -75,7 +76,7 @@ export async function getProperty(propertyId) {
       .get(`/properties/${propertyId}/`)
       .then((res) => {
         if (res.status == 200) {
-          return { data: res.data };
+          return { data: res };
         }
         return { data: [] };
       });

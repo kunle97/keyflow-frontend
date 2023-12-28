@@ -63,6 +63,7 @@ const CreateUnit = () => {
     { label: "Unit", name: "unit" },
     { label: "Lease Template", name: "lease_templates" },
     { label: `Files (${unitFilesCount})`, name: "files" },
+    { label: "Rental Applications", name: "rental_applications"}
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -182,6 +183,7 @@ const CreateUnit = () => {
     //Retrieve Unit Information
     getUnit(unit_id).then((res) => {
       setUnit(res);
+      console.log("Units ", res);
       const preloadedData = {
         name: res.name,
         beds: res.beds,
@@ -193,11 +195,10 @@ const CreateUnit = () => {
         setValue(key, preloadedData[key]);
       });
       setIsOccupied(res.is_occupied);
+
       if (res.lease_template) {
-        getLeaseTemplateById({
-          lease_template_id: res.lease_template,
-          user_id: authUser.user_id,
-        }).then((res) => {
+        getLeaseTemplateById(res.lease_template).then((res) => {
+          console.log("Lease Template", res);
           setCurrentLeaseTemplate(res);
         });
       }
@@ -283,7 +284,7 @@ const CreateUnit = () => {
                       }}
                       btnText="View Tenant Information"
                       onClick={() => {
-                        navigate(`/dashboard/landlord/tenants/${tenant.id}`);
+                        navigate(`/dashboard/landlord/tenants/${tenant.user.id}`);
                       }}
                     />
                   </div>
@@ -361,7 +362,7 @@ const CreateUnit = () => {
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
                             }}
-                            // defaultValue={unit.beds}
+                            defaultValue={unit.beds}
                             min="1"
                             step="1"
                           />
@@ -386,7 +387,7 @@ const CreateUnit = () => {
                               borderStyle: "none",
                               color: "rgb(255,255,255)",
                             }}
-                            // defaultValue={unit.baths}
+                            defaultValue={unit.baths}
                             min="1"
                             step="1"
                           />
@@ -638,40 +639,8 @@ const CreateUnit = () => {
                           <>{`${currentLeaseTemplate.grace_period} Month(s)`}</>
                         )}
                       </div>
-                      <div className="col-md-12 mb-4 text-black">
-                        {!isOccupided && (
-                          <Button
-                            sx={{
-                              textTransform: "none",
-                              background: uiGreen,
-                              color: "white",
-                              marginTop: "1rem",
-                            }}
-                            onClick={() => setShowLeaseTemplateSelector(true)}
-                          >
-                            Change Lease Template
-                          </Button>
-                        )}
-                      </div>
-                      <Button
-                        sx={{
-                          textTransform: "none",
-                          background: uiGreen,
-                          color: "white",
-                          marginTop: "1rem",
-                        }}
-                        onClick={() => setShowLeaseTemplateSelector(true)}
-                      >
-                        Change Lease Template
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="col-md-12">
-                        A Lease template has not been assigned to this unit.
-                      </div>
-                      <div className="col-md-12 mb-4">
-                        <Button
+                      {!isOccupided && (
+                        <UIButton
                           sx={{
                             textTransform: "none",
                             background: uiGreen,
@@ -679,10 +648,35 @@ const CreateUnit = () => {
                             marginTop: "1rem",
                           }}
                           onClick={() => setShowLeaseTemplateSelector(true)}
-                        >
-                          Change Lease Template
-                        </Button>
-                      </div>
+                          btnText="Assign Lease Template"
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <UIPrompt
+                        title="No Lease Template Assigned"
+                        message="You have not assigned a lease template to this unit. Click the button below to assign a lease template."
+                        hideBoxShadow={true}
+                        body={
+                          <>
+                            {!isOccupided && (
+                              <UIButton
+                                sx={{
+                                  textTransform: "none",
+                                  background: uiGreen,
+                                  color: "white",
+                                  marginTop: "1rem",
+                                }}
+                                onClick={() =>
+                                  setShowLeaseTemplateSelector(true)
+                                }
+                                btnText="Assign Lease Template"
+                              />
+                            )}
+                          </>
+                        }
+                      />
                     </>
                   )}
                 </div>

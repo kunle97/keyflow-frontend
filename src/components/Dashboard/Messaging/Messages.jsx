@@ -1,5 +1,4 @@
-import { faker } from "@faker-js/faker";
-import { Box, CircularProgress, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import React, { useState, useRef } from "react";
 import {
   authUser,
@@ -15,19 +14,13 @@ import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import UIButton from "../UIComponents/UIButton";
 import NewMessageDialog from "./NewMessageDialog";
 import { useEffect } from "react";
-import {
-  getMessages,
-  retrieveUserThreads,
-  sendMessage,
-} from "../../../api/messages";
-import { createThreads, sortThreads } from "../../../helpers/messageUtils";
+import { retrieveUserThreads, sendMessage } from "../../../api/messages";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import styles from "./styles/scrollbarStyles.module.css"; // Path to your CSS module file
 import { useParams } from "react-router";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { set } from "react-hook-form";
 const Messages = () => {
   const [selectedThread, setSelectedThread] = useState(null);
   const [showNewMessageDialog, setShowNewMessageDialog] = useState(false);
@@ -39,7 +32,6 @@ const Messages = () => {
   const [alertTitle, setAlertTitle] = useState(""); // This is the title of the alert modal
   const [message, setMessage] = useState(""); // This is the message to be sent
   const [isLoading, setIsLoading] = useState(false); // This is the loading state for the messages [threads]
-  const [profilePictures, setProfilePictures] = useState({});
   const scrollableDivRef = useRef(null); // This is the reference to the div hodling the select threads conversations
   const [loadingMessage, setLoadingMessage] = useState(""); // This is the loading message for the progress modal
   const searchBarRef = useRef(null);
@@ -112,7 +104,7 @@ const Messages = () => {
     let payload = {
       file: file,
       body: message,
-      user: authUser.user_id,
+      sender: authUser.user_id,
       recipient: selectedThread.recipient_id,
       subfolder: "messages",
     };
@@ -196,7 +188,7 @@ const Messages = () => {
       if (!messageThreads) {
         fetchMessages();
       }
-      if (messageThreads && thread_id && authUser.account_type === "landlord") {
+      if (messageThreads && thread_id && authUser.account_type === "owner") {
         //Set the search bar ref value to the thread_id
         searchBarRef.current.value = thread_id;
         setSearchQuery(thread_id);
@@ -226,7 +218,7 @@ const Messages = () => {
       <div>
         <div className="row">
           <div className="col-md-4">
-            {authUser.account_type === "landlord" && (
+            {authUser.account_type === "owner" && (
               <>
                 <NewMessageDialog
                   open={showNewMessageDialog}
@@ -245,8 +237,7 @@ const Messages = () => {
                   value={searchQuery}
                   onChange={handleSearchThread}
                   style={{
-                    backgroundColor: `${uiGrey2} !important`,
-                    color: "white",
+                    color: "black",
                     border: "none",
                     width: "100%",
                     borderRadius: "5px",
@@ -377,8 +368,6 @@ const Messages = () => {
                   >
                     <ul className="p-0 m-0" style={{ verticalAlign: "bottom" }}>
                       {selectedThread.messages
-                        // .slice()
-                        // .reverse()
                         .map((message) => (
                           <li
                             key={message.id}
@@ -444,8 +433,6 @@ const Messages = () => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         style={{
-                          backgroundColor: `${uiGrey2} !important`,
-                          color: "white",
                           border: "none",
                           position: "relative",
                           flex: "1 1 auto",
@@ -513,6 +500,7 @@ const Messages = () => {
                   icon={<MessageOutlinedIcon sx={{ color: uiGreen }} />}
                   title="Select a thread"
                   message="Select a thread to view your conversation or start a new one by clicking on the New Message button."
+                  style={{ height: "705px" }}
                 />
               )}
             </div>

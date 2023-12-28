@@ -180,8 +180,8 @@ const LeaseCancellationRequestDetail = () => {
           >
             <h4 className="card-title" style={{ color: uiGrey2 }}>
               {" "}
-              {leaseCancellationRequest.tenant.first_name}{" "}
-              {leaseCancellationRequest.tenant.last_name}'s Lease Cancellation
+              {leaseCancellationRequest.tenant.user.first_name}{" "}
+              {leaseCancellationRequest.tenant.user.last_name}'s Lease Cancellation
               Request
             </h4>
             <Stack direction="row" gap={2} justifyContent={"end"}>

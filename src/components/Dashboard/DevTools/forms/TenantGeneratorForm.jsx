@@ -6,6 +6,7 @@ import {
   devToolInputStyle,
   uiGreen,
   uiGrey1,
+  uiGrey,
   validationMessageStyle,
 } from "../../../../constants";
 import CloseIcon from "@mui/icons-material/Close";
@@ -99,7 +100,7 @@ export const TenantGeneratorForm = (props) => {
     <UIDialog
       open={props.open}
       onClose={props.onClose}
-      style={{ padding: "10px", width: "500px" }}
+      style={{ padding: "10px", width: "500px", background: uiGrey}}
     >
       <Stack
         direction="row"
@@ -109,7 +110,7 @@ export const TenantGeneratorForm = (props) => {
       >
         <h3>Tenant Generator </h3>
         <IconButton
-          sx={{ color: "white", float: "right" }}
+          sx={{ color: "black", float: "right" }}
           edge="start"
           color="inherit"
           onClick={props.onClose}
@@ -122,7 +123,7 @@ export const TenantGeneratorForm = (props) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {console.log("Form errors ", errors)}
         <div className="form-group my-2">
-          <label style={{ color: "white", marginBottom: "10px" }}>
+          <label style={{ color: "black", marginBottom: "10px" }}>
             Number of Tenants
           </label>
           <input
@@ -143,7 +144,7 @@ export const TenantGeneratorForm = (props) => {
           </span>
         </div>
         <div className="form-group my-2">
-          <label style={{ color: "white" }}>Rental Unit Options</label>
+          <label style={{ color: "black" }}>Rental Unit Options</label>
           <select
             {...register("unitMode", {
               required: "This is a required field",
@@ -200,7 +201,7 @@ export const TenantGeneratorForm = (props) => {
           </span>
         </div>
         <div className="form-group my-2">
-          <label style={{ color: "white" }}>Lease Term Options</label>
+          <label style={{ color: "black" }}>Lease Term Options</label>
           <select
             {...register("leaseTemplateMode", {
               required: "This is a required field",
@@ -244,7 +245,7 @@ export const TenantGeneratorForm = (props) => {
           </span>
         </div>
         <div className="form-group my-2">
-          <label style={{ color: "white" }}>Create Rental Application</label>
+          <label style={{ color: "black" }}>Create Rental Application</label>
           <select
             {...register("createRentalApplication", {
               required: "This is a required field",
@@ -268,7 +269,7 @@ export const TenantGeneratorForm = (props) => {
           <>
             {" "}
             <div className="form-group my-2">
-              <label style={{ color: "white" }}>
+              <label style={{ color: "black" }}>
                 Rental Application Approval Options
               </label>
               <select
@@ -292,7 +293,7 @@ export const TenantGeneratorForm = (props) => {
               </span>
             </div>
             <div className="form-group my-2">
-              <label style={{ color: "white" }}>
+              <label style={{ color: "black" }}>
                 Rental Application Archive Options
               </label>
               <select
@@ -321,7 +322,7 @@ export const TenantGeneratorForm = (props) => {
         )}
 
         <div className="form-group my-2">
-          <label style={{ color: "white" }}>Grace Period Options</label>
+          <label style={{ color: "black" }}>Grace Period Options</label>
           <select
             {...register("hasGracePeriod", {
               required: "This is a required field",

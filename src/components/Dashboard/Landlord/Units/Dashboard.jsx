@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
+import { uiGreen, uiRed, uiGrey2, authUser } from "../../../../constants";
 import { useEffect } from "react";
 import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
@@ -11,11 +11,12 @@ import { getProperties } from "../../../../api/properties";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UICardList from "../../UIComponents/UICards/UICardList";
+import UICard from "../../UIComponents/UICards/UICard";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { faker } from "@faker-js/faker";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
-import { get } from "react-hook-form";
 import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
+import { Stack } from "@mui/material";
+
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const Dashboard = () => {
         customBodyRender: (value) => {
           let output = "";
           if (value) {
-            output = `${value.first_name} ${value.last_name}`;
+            output = `${value.user.first_name} ${value.user.last_name}`;
           } else {
             output = "N/A";
           }
@@ -162,7 +163,7 @@ const Dashboard = () => {
         customBodyRender: (value) => {
           let output = "";
           if (value) {
-            output = `${value.first_name} ${value.last_name}`;
+            output = `${value.user.first_name} ${value.user.last_name}`;
           } else {
             output = "N/A";
           }
@@ -287,7 +288,7 @@ const Dashboard = () => {
     data: transactions.map((transaction, index) => {
       if (transaction.type === "revenue") {
         return {
-          x: new Date(transaction.created_at).toLocaleDateString(),
+          x: new Date(transaction.timestamp).toLocaleDateString(),
           y: transaction.amount,
         };
       }
@@ -315,7 +316,7 @@ const Dashboard = () => {
     }
 
     const groupedData = transactions.reduce((acc, transaction) => {
-      const date = new Date(transaction.created_at);
+      const date = new Date(transaction.timestamp);
       const monthYear = date.toLocaleString("en-US", {
         year: "numeric",
         month: "long",
@@ -443,11 +444,12 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    authUser.account_type === "tenant" && navigate("/dashboard/tenant");
     setIsLoading(true);
     //retrieve transactions from api
     try {
       getTransactionsByUser().then((res) => {
-        setTransactions(res.data);
+        setTransactions(res.data.reverse());
         setGroupedTransactions(groupTransactionsByMonth(res.data, 5));
         setTransactionLabels(
           Object.values(groupTransactionsByMonth(res.data)).map(
@@ -579,32 +581,47 @@ const Dashboard = () => {
           />
         </div>
         <div className="col-md-4">
-          <UICardList
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            title={""}
-            info={"Recent Transactions"}
-            onInfoClick={() => navigate("/dashboard/landlord/transactions")}
-            //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
-            items={transactions
-              .map((transaction) => ({
-                primary: transaction.description,
-                secondary: new Date(
-                  transaction.created_at
-                ).toLocaleDateString(),
-                tertiary: `${
-                  transaction.type === "revenue" ||
-                  transaction.type === "rent_payment" ||
-                  transaction.type === "security_deposit"
-                    ? "+"
-                    : "-"
-                }$${transaction.amount}`,
-                icon: <AttachMoneyIcon />,
-              }))
-              .slice(0, 4)}
-            tertiaryStyles={{ color: uiGreen }}
-          />
+          {transactions.length === 0 ? (
+            <UICard cardStyle={{ height: "478px" }}>
+              <Stack
+                direction={"column"}
+                justifyContent={"center"}
+                alignItems={"center"}
+                spacing={2}
+                sx={{ height: "400px", textAlign: "center", color: "black" }}
+              >
+                <h4>Seems like you're new around here...</h4>
+                <p>There are no transactions to display.</p>
+              </Stack>
+            </UICard>
+          ) : (
+            <UICardList
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={""}
+              info={"Recent Transactions"}
+              onInfoClick={() => navigate("/dashboard/landlord/transactions")}
+              //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
+              items={transactions
+                .map((transaction) => ({
+                  primary: transaction.description,
+                  secondary: new Date(
+                    transaction.timestamp
+                  ).toLocaleDateString(),
+                  tertiary: `${
+                    transaction.type === "revenue" ||
+                    transaction.type === "rent_payment" ||
+                    transaction.type === "security_deposit"
+                      ? "+"
+                      : "-"
+                  }$${transaction.amount}`,
+                  icon: <AttachMoneyIcon />,
+                }))
+                .slice(0, 4)}
+              tertiaryStyles={{ color: uiGreen }}
+            />
+          )}
         </div>
       </div>
 

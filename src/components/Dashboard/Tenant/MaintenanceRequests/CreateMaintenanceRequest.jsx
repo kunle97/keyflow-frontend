@@ -42,10 +42,11 @@ const CreateMaintenanceRequest = () => {
       rental_unit: unit.id,
       rental_property: unit.rental_property,
       description: data.description,
-      tenant: authUser.user_id,
+      tenant: authUser.tenant_id,
       type: data.type,
-      landlord: leaseAgreement.user,
+      owner: leaseAgreement.owner.id,
     };
+    console.log("Payload",payload);
     createMaintenanceRequest(payload).then((res) => {
       setIsLoading(false);
       console.log(res);
@@ -59,9 +60,6 @@ const CreateMaintenanceRequest = () => {
         console.log(responseMessage);
       }
     });
-
-    console.log(data);
-    console.log(payload);
   };
 
   return (
@@ -84,7 +82,7 @@ const CreateMaintenanceRequest = () => {
 
           <div className="row mb-3">
             <div className="col-sm-12 col-md-8 col-lg-8 offset-sm-0 offset-md-2 offset-lg-2">
-              <h3 className="text-white mb-4">Create A Maintenance Request</h3>
+              <h3 className="text-black mb-4">Create A Maintenance Request</h3>
               <div className="card shadow mb-5">
                 <div className="card-body">
                   <div className="row" />

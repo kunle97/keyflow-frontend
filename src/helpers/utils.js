@@ -44,9 +44,9 @@ export function makeId(length) {
 export const filterTenants = (tenants, searchValue) => {
   return tenants.filter((tenant) => {
     return (
-      tenant.first_name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      tenant.last_name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      tenant.email.toLowerCase().includes(searchValue.toLowerCase())
+      tenant.user?.first_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      tenant.user?.last_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      tenant.user?.email?.toLowerCase().includes(searchValue.toLowerCase())
     );
   });
 };
@@ -72,7 +72,7 @@ export const checkIfTenantMatchesMaintenanceRequest = (
   tenant,
   maintenance_request
 ) => {
-  if (tenant.id === maintenance_request.tenant) {
+  if (tenant.id === maintenance_request.tenant.id) {
     return true;
   } else {
     return false;
