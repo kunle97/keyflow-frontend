@@ -72,16 +72,18 @@ const LandlordTransactions = () => {
       label: "Transaction",
       options: {
         customBodyRender: (value) => {
-          if (value === "revenue") {
-            return <>Income</>;
-          } else {
-            return <>Expense</>;
-          }
+          //remove the underscore from the value and capitalize the first letter of each word
+          let transactionType = value
+            .replace(/_/g, " ")
+            .replace(/\w\S*/g, (w) =>
+              w.replace(/^\w/, (c) => c.toUpperCase())
+            );
+          return <>{transactionType}</>;
         },
       },
     },
     {
-      name: "created_at",
+      name: "timestamp",
       label: "Date",
       options: {
         customBodyRender: (value) => {
@@ -99,7 +101,7 @@ const LandlordTransactions = () => {
     sort: true,
     onRowClick: handleRowClick,
     sortOrder: {
-      name: "created_at",
+      name: "timestamp",
       direction: "desc",
     },
   };
@@ -110,7 +112,7 @@ const LandlordTransactions = () => {
       res.data.forEach((transaction) => {
         if (transaction.type === "revenue") {
           revenueData.push({
-            x: new Date(transaction.created_at).toISOString().split("T")[0],
+            x: new Date(transaction.timestamp).toISOString().split("T")[0],
             y: parseFloat(transaction.amount),
           });
         }

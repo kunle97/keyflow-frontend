@@ -61,12 +61,12 @@ const TenantLeaseCancellationRequests = () => {
   };
   useEffect(() => {
     getTenantLeaseCancellationRequests().then((res) => {
-      console.log(res);
-      setData(res.data.data);
+      console.log("TCRRR",res);
+      setData(res.data);
     });
   }, []);
   return (
-    <div>
+    <div className="container-fluid">
       <UITable
         data={data}
         columns={columns}

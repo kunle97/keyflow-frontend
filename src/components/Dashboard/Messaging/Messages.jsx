@@ -104,7 +104,7 @@ const Messages = () => {
     let payload = {
       file: file,
       body: message,
-      user: authUser.user_id,
+      sender: authUser.user_id,
       recipient: selectedThread.recipient_id,
       subfolder: "messages",
     };
@@ -188,7 +188,7 @@ const Messages = () => {
       if (!messageThreads) {
         fetchMessages();
       }
-      if (messageThreads && thread_id && authUser.account_type === "landlord") {
+      if (messageThreads && thread_id && authUser.account_type === "owner") {
         //Set the search bar ref value to the thread_id
         searchBarRef.current.value = thread_id;
         setSearchQuery(thread_id);
@@ -218,7 +218,7 @@ const Messages = () => {
       <div>
         <div className="row">
           <div className="col-md-4">
-            {authUser.account_type === "landlord" && (
+            {authUser.account_type === "owner" && (
               <>
                 <NewMessageDialog
                   open={showNewMessageDialog}
@@ -237,8 +237,7 @@ const Messages = () => {
                   value={searchQuery}
                   onChange={handleSearchThread}
                   style={{
-                    backgroundColor: `${uiGrey2} !important`,
-                    color: "white",
+                    color: "black",
                     border: "none",
                     width: "100%",
                     borderRadius: "5px",
@@ -369,8 +368,6 @@ const Messages = () => {
                   >
                     <ul className="p-0 m-0" style={{ verticalAlign: "bottom" }}>
                       {selectedThread.messages
-                        // .slice()
-                        // .reverse()
                         .map((message) => (
                           <li
                             key={message.id}
@@ -436,8 +433,6 @@ const Messages = () => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         style={{
-                          backgroundColor: `${uiGrey2} !important`,
-                          color: "white",
                           border: "none",
                           position: "relative",
                           flex: "1 1 auto",

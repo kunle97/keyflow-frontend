@@ -19,11 +19,11 @@ const LeaseCancellationDialog = (props) => {
             setShowLeaseCancellationFormDialog={
               props.setShowLeaseCancellationFormDialog
             }
-            setAlertModalTitle={props.LeaseCancellationDialogsetAlertModalTitle}
+            setAlertModalTitle={props.setAlertModalTitle}
             setAlertModalMessage={
-              props.LeaseCancellationDialogsetAlertModalMessage
+              props.setAlertModalMessage
             }
-            setShowAlertModal={props.LeaseCancellationDialogsetShowAlertModal}
+            setShowAlertModal={props.setShowAlertModal}
           />
         ) : (
           <div className="row">

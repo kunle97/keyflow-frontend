@@ -31,7 +31,7 @@ const LeaseAgreementDetail = () => {
 
   const getTenantName = () => {
     if (leaseAgreement.tenant) {
-      return `${tenant.first_name} ${tenant.last_name}`;
+      return `${tenant.user.first_name} ${tenant.user.last_name}`;
     } else if (rentalApplication) {
       return `${rentalApplication.first_name} ${rentalApplication.last_name}`;
     } else {
@@ -88,7 +88,6 @@ const LeaseAgreementDetail = () => {
       <BackButton />
       <div className="row">
         <div className="col-md-4">
-          <h3>Lease Details</h3>
           <div className="card">
             <div className="card-body">
               <div className="row">
@@ -100,7 +99,7 @@ const LeaseAgreementDetail = () => {
                   <div>
                     <h5>Rental Property</h5>
                     <p className="text-black">
-                      {rentalProperty ? rentalProperty.name : "N/A"}
+                      {leaseAgreement.rental_unit ? rentalUnit.rental_property_name : "N/A"}
                     </p>
                   </div>
                   <div>
@@ -182,7 +181,6 @@ const LeaseAgreementDetail = () => {
           </div>
         </div>
         <div className="col-md-8">
-          <h3 className="mb-3">Payment Schedule</h3>
           <div className="card">
             <div className="card-body">
               <FullCalendar

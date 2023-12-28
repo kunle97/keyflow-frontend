@@ -26,7 +26,7 @@ import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 
 const ManageProperty = () => {
   const { id } = useParams();
-  const [property, setProperty] = useState({});
+  const [property, setProperty] = useState(null);
   const [units, setUnits] = useState([]);
   const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
   const [isLoading, setIsLoading] = useState(true); //create a loading variable to display a loading message while the units are  being retrieved
@@ -125,7 +125,19 @@ const ManageProperty = () => {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm(
+    //Set the default values of the form inputs
+    {
+      defaultValues: {
+        name: property?.name,
+        street: property?.street,
+        city: property?.city,
+        state: property?.state,
+        zip_code: property?.zip_code,
+        country: property?.country,
+      },
+    }
+  );
   //Create a handle function to handle the form submission of updating property info
   const onSubmit = async (data) => {
     const res = await updateProperty(id, data);
@@ -157,31 +169,33 @@ const ManageProperty = () => {
   };
 
   useEffect(() => {
-    getProperty(id).then((res) => {
-      setProperty(res);
-      const preloadedData = {
-        name: res.name,
-        street: res.street,
-        city: res.city,
-        state: res.state,
-        zip_code: res.zip_code,
-        country: res.country,
-      };
-      // Set the preloaded data in the form using setValue
-      Object.keys(preloadedData).forEach((key) => {
-        setValue(key, preloadedData[key]);
+    if (!property) {
+      getProperty(id).then((res) => {
+        setProperty(res.data);
+        const preloadedData = {
+          name: res.name,
+          street: res.street,
+          city: res.city,
+          state: res.state,
+          zip_code: res.zip_code,
+          country: res.country,
+        };
+        // Set the preloaded data in the form using setValue
+        Object.keys(preloadedData).forEach((key) => {
+          setValue(key, preloadedData[key]);
+        });
+        setUnits(res.data.units);
+        setUnitCount(res.data.units.length);
+        setIsLoading(false);
       });
-      setUnits(res.units);
-      setUnitCount(res.units.length);
-      setIsLoading(false);
-    });
-    retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id).then(
-      (res) => {
-        setPropertyMedia(res.data);
-        setPropertyMediaCount(res.data.length);
-      }
-    );
-  }, []);
+      retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id).then(
+        (res) => {
+          setPropertyMedia(res.data);
+          setPropertyMediaCount(res.data.length);
+        }
+      );
+    }
+  }, [property]);
 
   return (
     <div className="container-fluid">
@@ -225,7 +239,11 @@ const ManageProperty = () => {
                               >
                                 <strong>Beds</strong>
                               </label>
-                              <p className="text-dark">4</p>
+                              <p className="text-dark">
+                                {units
+                                  .map((unit) => unit.beds)
+                                  .reduce((a, b) => a + b, 0)}
+                              </p>
                             </div>
                             <div className="mb-3">
                               <label
@@ -234,7 +252,11 @@ const ManageProperty = () => {
                               >
                                 <strong>Baths</strong>
                               </label>
-                              <p className="text-dark">2</p>
+                              <p className="text-dark">
+                                {units
+                                  .map((unit) => unit.baths)
+                                  .reduce((a, b) => a + b, 0)}
+                              </p>
                             </div>
                             <div className="mb-3">
                               <label
@@ -266,7 +288,7 @@ const ManageProperty = () => {
                             {...register("name", {
                               required: "This is a required field",
                             })}
-                            // defaultValue={property.name}
+                            defaultValue={property?.name}
                             name="name"
                             className="form-control"
                             type="text"
@@ -299,7 +321,7 @@ const ManageProperty = () => {
                               },
                             })}
                             name="street"
-                            // defaultValue={property.street}
+                            defaultValue={property?.street}
                             className="form-control"
                             type="text"
                             placeholder="Sunset Blvd, 38"
@@ -322,7 +344,7 @@ const ManageProperty = () => {
                                 {...register("city", {
                                   required: "This is a required field",
                                 })}
-                                // defaultValue={property.city}
+                                defaultValue={property?.city}
                                 className="form-control"
                                 type="text"
                                 placeholder="Los Angeles"
@@ -345,7 +367,7 @@ const ManageProperty = () => {
                                 {...register("state", {
                                   required: "This is a required field",
                                 })}
-                                // defaultValue={property.state}
+                                defaultValue={property?.state}
                                 className="form-control"
                                 type="text"
                                 id="state"
@@ -366,7 +388,7 @@ const ManageProperty = () => {
                                 {...register("zip_code", {
                                   required: "This is a required field",
                                 })}
-                                // defaultValue={property.zip_code}
+                                defaultValue={property?.zip_code}
                                 className="form-control"
                                 type="text"
                                 id="zip_code"
@@ -390,7 +412,7 @@ const ManageProperty = () => {
                                 {...register("country", {
                                   required: "This is a required field",
                                 })}
-                                // defaultValue={property.country}
+                                defaultValue={property?.country}
                                 className="form-control"
                                 type="text"
                                 id="country-1"
@@ -404,12 +426,11 @@ const ManageProperty = () => {
                           </div>
                         </div>
                         <div className="text-end mb-3">
-                          <button
+                          <UIButton
                             className="btn btn-primary btn-sm ui-btn"
                             type="submit"
-                          >
-                            Save&nbsp;Settings
-                          </button>
+                            btnText="Save Changes"
+                          />
                         </div>
                       </form>
                     </div>

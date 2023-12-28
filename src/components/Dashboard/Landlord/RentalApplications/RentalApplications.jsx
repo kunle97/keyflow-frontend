@@ -9,17 +9,6 @@ const RentalApplications = () => {
 
   const columns = [
     {
-      label: "Approved",
-      name: "is_approved",
-      selector: (row) => row.unit,
-      options: {
-        customBodyRender: (value) => {
-          return value ? "Yes" : "No";
-        },
-      },
-      sortable: true,
-    },
-    {
       name: "first_name",
       label: "First Name",
       selector: (row) => row.first_name,
@@ -32,30 +21,34 @@ const RentalApplications = () => {
       sortable: true,
     },
     {
-      label: "Email",
-      name: "email",
-      selector: (row) => row.email,
-      sortable: true,
-    },
-    {
-      label: "Phone",
-      name: "phone_number",
-      selector: (row) => row.phone_number,
+      label: "Approved",
+      name: "is_approved",
+      selector: (row) => row.unit,
+      options: {
+        customBodyRender: (value) => {
+          return value ? "Yes" : "No";
+        },
+      },
       sortable: true,
     },
 
     {
       label: "Desired Move In Date",
       name: "desired_move_in_date",
+      options: {
+        customBodyRender: (value) => {
+          return new Date(value).toLocaleDateString();
+        },
+      },
       selector: (row) => row.desired_move_in_date,
       sortable: true,
     },
     {
-      label: "Date Subitted",
+      label: "Date Submitted",
       name: "created_at",
       options: {
         customBodyRender: (value) => {
-          return new Date(value).toISOString().split("T")[0];
+          return new Date(value).toLocaleDateString();
         },
       },
       selector: (row) => new Date(row.created_at).toISOString().split("T")[0],

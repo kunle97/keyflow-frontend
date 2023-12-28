@@ -96,7 +96,7 @@ const LandlordTransactionDetail = () => {
                     <strong>Date</strong>{" "}
                   </span>
                   <span style={{ float: "right" }}>
-                    {new Date(transaction.created_at).toLocaleDateString()}
+                    {new Date(transaction.timestamp).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="col-md-12" style={{ color: uiGrey2 }}>

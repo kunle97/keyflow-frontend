@@ -418,7 +418,7 @@ const UITable = (props) => {
                 />
               </>
             ) : (
-              <table id="ui-table" className="" style={{ width: "100%" }}>
+              <table id="ui-table" className="" style={{ width: "100%", padding:"0 35px" }}>
                 {/* Table Header  */}
                 <tr>
                   {props.options.isSelectable && (

@@ -128,7 +128,11 @@ const MyLeaseAgreement = () => {
     //Using the getTententLeaseCancellationRequests function check if the user has any existing lease cancellation requests. If they do display an error message and do not allow them to submit a new request and return from the function.
     getTenantLeaseCancellationRequests().then((res) => {
       if (res.status === 200) {
-        if (res.data.length > 0) {
+        //Check if any of the requests are pending
+        let pending_lc_requests = res.data.filter(
+          (lc_request) => lc_request.status === "Pending"
+        );
+        if (pending_lc_requests.length > 0) {
           setHasExistingLeaseCancellationRequest(true);
         }
       }
@@ -157,7 +161,9 @@ const MyLeaseAgreement = () => {
           <div className="col-md-4">
             <div className="card my-3">
               <div className="card-body">
-                <h4 className="card-title text-black mb-4">Lease Agreement Overview</h4>
+                <h4 className="card-title text-black mb-4">
+                  Lease Agreement Overview
+                </h4>
                 {leaseTemplate && (
                   <div className="row">
                     <div className="col-sm-12 col-md-6 mb-4 text-black">

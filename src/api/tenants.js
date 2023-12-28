@@ -4,7 +4,7 @@ import { authUser } from "../constants";
 export async function makePayment(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/tenants/${authUser.user_id}/make-payment/`, data)
+      .post(`/tenants-v1/${authUser.user_id}/make-payment/`, data)
       .then((res) => {
         console.log(res);
         return res.data;

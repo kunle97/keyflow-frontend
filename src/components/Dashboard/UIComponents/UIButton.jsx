@@ -7,6 +7,7 @@ const UIButton = (props) => {
     textTransform: "none !important",
     color: "white !important",
     borderRadius: "5px !important",
+    fontSize: "12pt !important",  
   };
   return (
     <Button

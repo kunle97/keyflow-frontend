@@ -46,14 +46,15 @@ const SearchResultCard = (props) => {
                       </div>
                     </div>
                     <div>
-                      <h5 style={{ margin: 0 }}>{props.title}</h5>
+                      <h5 style={{ margin: 0 }} >{props.title}</h5>
                       <span
                         style={{
-                          color: uiGrey2,
+                          // color: uiGrey2,
                           overflow: "ellipse",
                           maxWidth: "100%",
                           margin: 0,
                         }}
+                        className="text-muted"
                       >
                         {props.subtitle}
                       </span>
@@ -61,7 +62,7 @@ const SearchResultCard = (props) => {
                   </Stack>
                 </Stack>
                 {props.description && (
-                  <div className="py-2">
+                  <div className="py-2 text-black">
                     <span>{props.description}</span>
                   </div>
                 )}

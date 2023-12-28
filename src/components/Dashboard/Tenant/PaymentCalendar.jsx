@@ -12,7 +12,6 @@ const PaymentCalendar = () => {
     getPaymentDates(authUser.user_id).then((res) => {
       if (res.status === 200) {
         const payment_dates = res.data.payment_dates;
-        console.log("Payment dates ", payment_dates);
         const due_dates = payment_dates.map((date) => {
           return { title: "Rent Due", start: new Date(date.payment_date) };
         });
@@ -20,12 +19,12 @@ const PaymentCalendar = () => {
       }
     });
   }, []);
-  console.log("Calendar DUe Dates", dueDates);
   const renderEventContent = (eventInfo) => {
     return (
       <>
         <p>{eventInfo.event.title}</p>
-        <br /> <p>{eventInfo.timeText}</p>
+        <br /> 
+        <p>{eventInfo.timeText}</p>
       </>
     );
   };

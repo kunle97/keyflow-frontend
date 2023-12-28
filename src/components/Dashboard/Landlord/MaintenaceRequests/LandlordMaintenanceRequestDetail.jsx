@@ -27,6 +27,8 @@ const LandlordMaintenanceRequestDetail = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [showDeleteErrorMessage, setShowDeleteErrorMessage] = useState(false);
+  const [status, setStatus] = useState(null); //["pending", "in_progress", "completed"]
+
   const navigate = useNavigate();
 
   const {
@@ -51,6 +53,7 @@ const LandlordMaintenanceRequestDetail = () => {
       if (res.status === 200) {
         setConfirmMessage("Maintenance Request status has been changed");
         setShowAlertModal(true);
+        setStatus(status);
         // navigate(0);
       }
     });
@@ -84,10 +87,12 @@ const LandlordMaintenanceRequestDetail = () => {
     getMaintenanceRequestById(id)
       .then((res) => {
         setMaintenanceRequest(res.data);
+        setStatus(res.data.status);
         setIsLoading(false);
         //Retrieve property by id
         getProperty(res.data.rental_property.id).then((property_res) => {
-          setProperty(property_res);
+          console.log(property_res);
+          setProperty(property_res.data);
         });
         //Retrieve unit by id
         getUnit(res.data.rental_unit.id).then((unit_res) => {
@@ -102,7 +107,7 @@ const LandlordMaintenanceRequestDetail = () => {
   //TODO: Add component that allows user to search for service providers
 
   return (
-    <div className="container-fluid" >
+    <div className="container-fluid">
       <BackButton to={`/dashboard/landlord/maintenance-requests`} />
       {isLoading ? (
         <ProgressModal />
@@ -118,29 +123,27 @@ const LandlordMaintenanceRequestDetail = () => {
           />
           <div className="row">
             <div className="col-md-4">
-              <h4 className="mb-3">Property Information</h4>
               <div className="card">
                 <div className="card-body">
                   <h6>
                     <strong>Property Name</strong>
                   </h6>
-                  <p className="text-black" >{property.name}</p>
+                  <p className="text-black">{property.name}</p>
                   <h6>
                     <strong>Address</strong>
                   </h6>
-                  <p className="text-black" >
+                  <p className="text-black">
                     {property.street}, {property.city} {property.state}{" "}
                     {property.zip_code}
                   </p>
                   <h6>
                     <strong>Unit</strong>
                   </h6>
-                  <p className="text-black" >{unit.name}</p>
+                  <p className="text-black">{unit.name}</p>
                 </div>
               </div>
             </div>
             <div className="col-md-8">
-              <h4 className="mb-3">Maintenance Request Information</h4>
               <div className="card mb-3">
                 <div className="card-body">
                   <div className="row">
@@ -148,13 +151,18 @@ const LandlordMaintenanceRequestDetail = () => {
                       <h6>
                         <strong>Issue</strong>
                       </h6>
-                      <p className="text-black">{maintenanceRequest.description}</p>
+                      <p className="text-black">
+                        {maintenanceRequest.description}
+                      </p>
                     </div>
                     <div className="col-md-4">
                       <h6>
                         <strong>Type</strong>
                       </h6>
-                      <p className="text-black" style={{ textTransform: "capitalize" }}>
+                      <p
+                        className="text-black"
+                        style={{ textTransform: "capitalize" }}
+                      >
                         {maintenanceRequest.type}
                       </p>
                     </div>
@@ -163,13 +171,13 @@ const LandlordMaintenanceRequestDetail = () => {
                         <strong>Status</strong>
                       </h6>
                       <p>
-                        {maintenanceRequest.status === "pending" && (
+                        {status === "pending" && (
                           <span className="text-warning">Pending</span>
                         )}
-                        {maintenanceRequest.status === "in_progress" && (
+                        {status === "in_progress" && (
                           <span className="text-info">In Progress</span>
                         )}
-                        {maintenanceRequest.status === "completed" && (
+                        {status === "completed" && (
                           <span className="text-success">Completed</span>
                         )}
                       </p>

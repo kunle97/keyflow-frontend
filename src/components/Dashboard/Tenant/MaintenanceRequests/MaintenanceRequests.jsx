@@ -1,12 +1,15 @@
 import React from "react";
 import { useEffect } from "react";
-import { getMaintenanceRequestsByUser } from "../../../../api/maintenance_requests";
+import {
+  getMaintenanceRequestsByTenant,
+  getMaintenanceRequestsByUser,
+} from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import MUIDataTable from "mui-datatables";
 import UITable from "../../UIComponents/UITable/UITable";
 import { getTenantDashboardData } from "../../../../api/tenants";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import { uiGreen } from "../../../../constants";
+import { authUser, uiGreen } from "../../../../constants";
 import DescriptionIcon from "@mui/icons-material/Description";
 
 const MaintenanceRequests = () => {
@@ -54,26 +57,7 @@ const MaintenanceRequests = () => {
       name: "created_at",
       direction: "desc",
     },
-    // onRowsDelete: (rowsDeleted, data) => {
-    //   console.log(rowsDeleted);
-    //   //Create an array to hold the ids of the rows to be deleted
-    //   const idsToDelete = [];
-    //   //Loop through the rows to be deleted and push the ids to the idsToDelete array
-    //   rowsDeleted.data.map((row) => {
-    //     idsToDelete.push(maintenanceRequests[row.dataIndex].id);
-    //   });
-    //   //Call the delete properties api function and pass the idsToDelete array
-    //   idsToDelete.map((id) => {
-    //     deleteMaintenanceRequest(id).then((res) => {
-    //       console.log(res);
-    //       //If the delete was successful, remove the deleted rows from the properties state
-    //       const newMaintenanceRequests = maintenanceRequests.filter(
-    //         (maintenanceRequest) => maintenanceRequest.id !== id
-    //       );
-    //       setMaintenanceRequests(newMaintenanceRequests);
-    //     });
-    //   });
-    // },
+    onRowClick: handleRowClick,
   };
 
   useEffect(() => {
@@ -83,22 +67,24 @@ const MaintenanceRequests = () => {
       console.log(res);
       setLeaseAgreement(res.lease_agreement);
       if (res.lease_agreement) {
-        getMaintenanceRequestsByUser().then((res) => {
+        getMaintenanceRequestsByTenant(authUser.tenant_id).then((res) => {
           console.log(res);
-          setMaintenanceRequests(res);
+          setMaintenanceRequests(res.data);
         });
       }
     });
   }, []);
 
   return (
-    <div>
+    <div className="container-fluid">
       {leaseAgreement ? (
         <UITable
           title={"Maintenance Requests"}
           columns={columns}
-          data={maintenanceRequests}
+          endpoint={"/maintenance-requests/"}
           options={options}
+          showCreate={true}
+          createURL={"/dashboard/tenant/maintenance-requests/create"}
         />
       ) : (
         <UIPrompt

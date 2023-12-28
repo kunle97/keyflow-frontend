@@ -16,7 +16,7 @@ const Tenants = () => {
   const navigate = useNavigate();
   const columns = [
     {
-      name: "uploaded_profile_picture",
+      name: "user",
       label: "",
       options: {
         isObject: true,
@@ -31,7 +31,11 @@ const Tenants = () => {
               }}
             >
               <img
-                src={value ? value.file : defaultUserProfilePicture}
+                src={
+                  value.user_profile_picture
+                    ? value.user_profile_picture.file
+                    : defaultUserProfilePicture
+                }
                 style={{ height: "50px", margin: "auto" }}
               />
             </div>
@@ -39,9 +43,36 @@ const Tenants = () => {
         },
       },
     },
-    { name: "first_name", label: "First Name" },
-    { name: "last_name", label: "Last Name" },
-    { name: "email", label: "E-mail" },
+    {
+      name: "user",
+      label: "First Name",
+      options: {
+        isObject: true,
+        customBodyRender: (value) => {
+          return value.first_name;
+        },
+      },
+    },
+    {
+      name: "user",
+      label: "Last Name",
+      options: {
+        isObject: true,
+        customBodyRender: (value) => {
+          return value.last_name;
+        },
+      },
+    },
+    {
+      name: "user",
+      label: "E-mail",
+      options: {
+        isObject: true,
+        customBodyRender: (value) => {
+          return value.email;
+        },
+      },
+    },
   ];
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/landlord/tenants/${rowData}/`;
@@ -56,7 +87,6 @@ const Tenants = () => {
       direction: "desc",
     },
   };
-
   useEffect(() => {
     getLandlordTenants().then((res) => {
       console.log(res);
@@ -74,7 +104,6 @@ const Tenants = () => {
       console.log(leaseCancellations);
     });
   }, []);
-
   return (
     <div className="container">
       <div className="row">
@@ -120,122 +149,14 @@ const Tenants = () => {
               />
             </div>
           </div>
-
           <UITable
             title="Tenants"
-            endpoint={`/users/${authUser.user_id}/tenants/`}
+            endpoint={`/tenants/`}
             searchFields={["first_name", "last_name", "email"]}
             columns={columns}
             options={options}
           />
         </div>
-
-        {/* <div className="col-lg-4">
-          <div className="card mb-4" style={{ overflow: "hidden" }}>
-            <h6
-              className="dropdown-header p-3 text-white"
-              style={{ background: uiGreen, borderStyle: "none" }}
-            >
-              Recent Activity
-            </h6>
-            <a className="menu-item d-flex align-items-center p-3" href="#">
-              <div className="p-1">
-                <div className="bg-primary icon-circle">
-                  <i className="fas fa-file-alt text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="small text-gray-500">December 12, 2019</span>
-                <p className="text-dark">John Doe Just paid $2679 for rent</p>
-              </div>{" "}
-            </a>
-            <a className="menu-item d-flex align-items-center p-3" href="#">
-              <div className="p-1">
-                <div className="bg-success icon-circle">
-                  <i className="fas fa-donate text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="small text-gray-500">December 7, 2019</span>
-                <p className="text-dark">
-                  $290.29 has been deposited into your account!
-                </p>
-              </div>{" "}
-            </a>
-            <a className="menu-item d-flex align-items-center p-3" href="#">
-              <div className="p-1">
-                <div className="bg-warning icon-circle">
-                  <i className="fas fa-exclamation-triangle text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="small text-gray-500">December 2, 2019</span>
-                <p className="text-dark">
-                  Spending Alert: We've noticed unusually high spending for your
-                  account.
-                </p>
-              </div>{" "}
-            </a>
-            <a
-              className="dropdown-item text-center small text-gray-500 p-2"
-              href="#"
-            >
-              Show All Alerts
-            </a>
-          </div>
-          <div className="card mb-4" style={{ overflow: "hidden" }}>
-            <h6
-              className="dropdown-header p-3 text-white"
-              style={{ background: uiGreen, borderStyle: "none" }}
-            >
-              Recent Requests
-            </h6>
-            <a className="menu-item d-flex align-items-center p-3" href="#">
-              <div className="p-1">
-                <div className="bg-primary icon-circle">
-                  <i className="fas fa-file-alt text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="small text-gray-500">December 12, 2019</span>
-                <p className="text-dark">John Doe Just paid $2679 for rent</p>
-              </div>{" "}
-            </a>
-            <a className="menu-item d-flex align-items-center p-3" href="#">
-              <div className="p-1">
-                <div className="bg-success icon-circle">
-                  <i className="fas fa-donate text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="small text-gray-500">December 7, 2019</span>
-                <p className="text-dark">
-                  $290.29 has been deposited into your account!
-                </p>
-              </div>{" "}
-            </a>
-            <a className="menu-item d-flex align-items-center p-3" href="#">
-              <div className="p-1">
-                <div className="bg-warning icon-circle">
-                  <i className="fas fa-exclamation-triangle text-white" />
-                </div>
-              </div>
-              <div>
-                <span className="small text-gray-500">December 2, 2019</span>
-                <p className="text-dark">
-                  Spending Alert: We've noticed unusually high spending for your
-                  account.
-                </p>
-              </div>{" "}
-            </a>
-            <a
-              className="dropdown-item text-center small text-gray-500 p-2"
-              href="#"
-            >
-              Show All Alerts
-            </a>
-          </div>
-        </div> */}
       </div>
     </div>
   );

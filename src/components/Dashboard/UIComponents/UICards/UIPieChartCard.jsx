@@ -5,7 +5,7 @@ import { Doughnut } from "react-chartjs-2";
 
 const UIPieChartCard = (props) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
-
+  console.log("Piechart data",props.data);
   const data = {
     labels: props.labels,
     datasets: [
@@ -46,11 +46,20 @@ const UIPieChartCard = (props) => {
       dropDownOptions={props.dropDownOptions}
       onDropdownChange={props.onDropdownChange}
     >
-      <div style={{ width: "100%", height: props.height, ...props.chartContainerStyles }}>
-        <Doughnut
-          options={options}
-          data={data}
-        />
+      <div
+        style={{
+          width: "100%",
+          height: props.height,
+          ...props.chartContainerStyles,
+        }}
+      >
+        {props.data.length === 0 ? (
+          <div style={{ textAlign: "center" }}>
+            <h6>No data to display</h6>
+          </div>
+        ) : (
+          <Doughnut options={options} data={data} />
+        )}
       </div>
     </UICard>
   );

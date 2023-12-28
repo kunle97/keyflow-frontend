@@ -113,7 +113,13 @@ const UITableMini = (props) => {
         <div>
           <h5>{props.title}</h5>
           {results.length === 0 ? (
-            <UIPrompt title="Uh Oh!" message="No results found." />
+            <div>
+              <UIPrompt
+                title="Uh Oh!"
+                message="Looks like there are no results to display.  This data will be populated once you get started."
+                hideBoxShadow={true}
+              />
+            </div>
           ) : (
             <table id="ui-table-mini" style={{ width: "100%" }}>
               <thead>
@@ -142,7 +148,7 @@ const UITableMini = (props) => {
                     {" "}
                     {results.map((row, index) => {
                       return (
-                        <tr>
+                        <tr style={{ borderBottom: "1px solid #ccc" }}>
                           {props.columns.map((column) => {
                             //Check if column has an option property with a function in it called customBodyRender
                             if (column.options) {
@@ -181,7 +187,7 @@ const UITableMini = (props) => {
                   <>
                     {results.map((row) => {
                       return (
-                        <tr>
+                        <tr style={{ borderBottom: "1px solid #ccc" }}>
                           {props.columns.map((column) => {
                             //Check if column has an option property with a function in it called customBodyRender
                             if (column.options) {

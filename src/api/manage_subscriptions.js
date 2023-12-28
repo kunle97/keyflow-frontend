@@ -56,7 +56,7 @@ export async function turnOnAutoPay() {
 export async function getNextPaymentDate(user_id) {
   try {
     const res = await authenticatedInstance
-      .post(`/manage-lease/next-payment-date/`, { user_id: user_id })
+      .post(`/tenants/next-payment-date/`, { user_id: user_id })
       .then((res) => {
         return res;
       });
@@ -71,7 +71,7 @@ export async function getNextPaymentDate(user_id) {
 export async function getPaymentDates(user_id) {
   try {
     const res = await authenticatedInstance
-      .post(`/manage-lease/payment-dates/`, { user_id: user_id })
+      .post(`/tenants/payment-dates/`, { user_id: user_id })
       .then((res) => {
         return res;
       });

@@ -11,7 +11,7 @@ const LeaseCancellationRequests = () => {
         customBodyRender: (value) => {
           let output = "";
           if (value) {
-            output = `${value.first_name} ${value.last_name}`;
+            output = `${value.user.first_name} ${value.user.last_name}`;
           } else {
             output = "N/A";
           }

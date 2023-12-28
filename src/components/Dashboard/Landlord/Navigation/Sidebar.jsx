@@ -4,23 +4,41 @@ import {
   authUser,
   landlordMenuItems,
   tenantMenuItems,
+  uiGreen,
   uiGrey2,
 } from "../../../../constants";
-const Sidebar = () => {
+const Sidebar = (props) => {
   const menuItems =
-    authUser.account_type === "landlord" ? landlordMenuItems : tenantMenuItems;
-  const [showSearchMenu, setShowSearchMenu] = useState(false);
+    authUser.account_type === "owner" ? landlordMenuItems : tenantMenuItems;
+
+  const toggleNavMenu = () => {
+    props.setShowNavMenu(!props.showNavMenu);
+  };
+
+  const hideNavMenu = () => {
+    if (props.showNavMenu) {
+      props.setShowNavMenu(false);
+    }
+  };
 
   return (
     <div>
-      <div className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"></div>
+      {props.showNavMenu && <div className="overlay" onClick={toggleNavMenu} />}
+      {/* <div
+        className={`navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark `}
+        style={{ background: uiGrey}}
+      ></div> */}
       <nav
-        className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
+        className={`navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark ${
+          props.showNavMenu ? "" : "dashboard-navbar-hidden"
+        }`}
         style={{
           background: "white",
+          maxWidth: "450px",
           height: "100vh",
           position: "fixed",
           top: "0",
+          zIndex: "100000000",
         }}
       >
         <div className="container-fluid d-flex flex-column p-0">
@@ -74,11 +92,15 @@ const Sidebar = () => {
                             to={subItem.link}
                             style={{ color: uiGrey2 }}
                           >
-                            <i
-                              className={`${subItem.icon} text-gray-400`}
-                              style={{ color: uiGrey2, fontSize: "13pt" }}
-                            />{" "}
-                            <span>{subItem.label}</span>
+                            <li
+                              onClick={hideNavMenu} // Hides menu when clicked
+                            >
+                              <i
+                                className={`${subItem.icon} text-gray-400`}
+                                style={{ color: uiGrey2, fontSize: "13pt" }}
+                              />{" "}
+                              <span>{subItem.label}</span>
+                            </li>
                           </Link>
                         );
                       })}
@@ -87,7 +109,11 @@ const Sidebar = () => {
                 );
               } else {
                 return (
-                  <li className=" dashboard-nav-item" key={index}>
+                  <li
+                    className=" dashboard-nav-item"
+                    key={index}
+                    onClick={hideNavMenu} // Hides menu when clicked
+                  >
                     <Link
                       className="nav-link"
                       to={item.link}

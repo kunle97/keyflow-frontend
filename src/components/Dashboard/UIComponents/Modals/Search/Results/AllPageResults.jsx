@@ -33,7 +33,7 @@ const AllPageResults = (props) => {
         <>
           <div>
             <div id="pages" style={{ overflow: "hidden" }}>
-              <h2 className="text-white" >Pages ({filteredPages.length})</h2>
+              <h2 className="text-black" >Pages ({filteredPages.length})</h2>
               <div className="row">
                 {filteredPages.map((page) => (
                   <SearchResultCard
