@@ -15,8 +15,6 @@ import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UIButton from "../../UIComponents/UIButton";
 import { getLeaseTemplatesByUser } from "../../../../api/lease_templates";
 import { useForm } from "react-hook-form";
-import { CardElement } from "@stripe/react-stripe-js";
-import { useStripe, useElements } from "@stripe/react-stripe-js";
 export const TenantGeneratorForm = (props) => {
   const [numberOfItems, setNumberOfItems] = useState(10); // Default value
   const [isLoading, setIsLoading] = useState(false);

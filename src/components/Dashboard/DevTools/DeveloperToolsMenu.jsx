@@ -1,4 +1,4 @@
-import { useState } from "react";
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';import { useState } from "react";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import SpeedDial from "@mui/material/SpeedDial";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
@@ -20,10 +20,12 @@ import MessageGeneratorForm from "./forms/MessageGeneratorForm";
 import MaintenanceRequestGeneratorForm from "./forms/MaintenanceRequestGeneratorForm";
 import LeaseRenewalRequestGeneratorForm from "./forms/LeaseRenewalRequestGeneratorForm";
 import LeaseCancellationRequestGeneratorForm from "./forms/LeaseCancellationRequestGeneratorForm";
-
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import TransactionGeneratorForm from "./forms/TransactionGeneratorForm";
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 const DeveloperToolsMenu = () => {
   const [open, setOpen] = useState(true);
-  const [dataType, setDataType] = useState("properties"); // Default value
+  const [resourceType, setDataType] = useState("properties"); // Default value
   const [name, setName] = useState("");
   const [activeFormComponent, setActiveFormComponent] = useState(<></>);
   const [formProps, setFormProps] = useState({}); // Default value
@@ -39,57 +41,64 @@ const DeveloperToolsMenu = () => {
     {
       icon: <MapsHomeWorkIcon />,
       name: "Generate Properties",
-      dataType: "properties",
+      resourceType: "properties",
       form: <PropertyGeneratorForm {...formProps} />,
     },
     {
       icon: <MeetingRoomIcon />,
       name: "Generate Units",
-      dataType: "units",
+      resourceType: "units",
       form: <UnitGeneratorForm {...formProps} />,
     },
     {
       icon: <PeopleAltIcon />,
       name: "Generate Tenants",
-      dataType: "tenants",
+      resourceType: "tenants",
       form: <TenantGeneratorForm {...formProps} />,
     },
     {
       icon: <CopyAllIcon />,
       name: "Generate Lease Templates",
-      dataType: "lease-templates",
+      resourceType: "lease-templates",
       form: <LeaseTemplateGeneratorForm {...formProps} />,
     },
     {
       icon: <DescriptionIcon />,
       name: "Generate Rental Applications",
-      dataType: "rental-applications",
+      resourceType: "rental-applications",
       form: <RentalApplicationGeneratorForm {...formProps} />,
     },
     {
       icon: <MessageIcon />,
       name: "Generate Messages",
-      dataType: "messages",
+      resourceType: "messages",
       form: <MessageGeneratorForm {...formProps} />,
     },
     {
       icon: <HandymanIcon />,
       name: "Generate Maintenance Requests",
-      dataType: "maintenance-requests",
+      resourceType: "maintenance-requests",
       form: <MaintenanceRequestGeneratorForm {...formProps} />,
     },
     {
-      icon: <HistoryEduIcon />,
+      icon: <AssignmentLateIcon />,
       name: "Generate Lease Cancellation Requests",
-      dataType: "lease-cancellation-requests",
+      resourceType: "lease-cancellation-requests",
       form: <LeaseCancellationRequestGeneratorForm {...formProps} />,
     },
     {
-      icon: <HistoryEduIcon />,
+      icon: <UploadFileIcon />,
       name: "Generate Lease Renewal Requests",
-      dataType: "lease-renewal-requests",
+      resourceType: "lease-renewal-requests",
       form: <LeaseRenewalRequestGeneratorForm {...formProps} />,
     },
+    {
+      icon: <AttachMoneyIcon />,
+      name: "Generate Transactions",
+      resourceType: "transactions",
+      form: <TransactionGeneratorForm {...formProps} />,
+    }
+
     // Add actions for other data types
   ];
 
@@ -115,7 +124,7 @@ const DeveloperToolsMenu = () => {
             onClick={() => {
               handleOpen();
               setFormProps({
-                dataType: action.dataType,
+                resourceType: action.resourceType,
                 name: action.name,
                 open: open,
                 onClose: () => {
@@ -123,7 +132,7 @@ const DeveloperToolsMenu = () => {
                 },
               });
               setActiveFormComponent(action.form);
-              setDataType(action.dataType);
+              setDataType(action.resourceType);
               setName(action.name);
               setActiveFormComponent(action.form);
             }}

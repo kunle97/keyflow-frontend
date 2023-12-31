@@ -171,7 +171,7 @@ const FileManagerView = (props) => {
                 return (
                   <div
                     key={index}
-                    className="col-md-3"
+                    className="col-xs-4 col-sm-3 col-md-3"
                     style={{ padding: 0 }}
                     onMouseEnter={() => setHoverIndex(index)}
                     onMouseLeave={() => setHoverIndex(null)}
@@ -182,7 +182,7 @@ const FileManagerView = (props) => {
                         width: "100%",
                         height: "300px",
                         overflow: "hidden",
-                        position: "relative",
+                        // position: "relative",
                       }}
                     >
                       <img
