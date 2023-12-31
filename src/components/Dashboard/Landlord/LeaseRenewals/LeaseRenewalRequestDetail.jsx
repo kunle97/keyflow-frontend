@@ -181,7 +181,7 @@ const LeaseRenewalRequestDetail = () => {
               {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal Request (
               {leaseRenewalRequest.status})
             </h4>
-            {actionStack}
+            {leaseRenewalRequest.status!=="approved" && actionStack}
           </Stack>
 
           <div className="row">
@@ -291,8 +291,7 @@ const LeaseRenewalRequestDetail = () => {
               />
             </div>
           </div>
-
-          {actionStack}
+          {leaseRenewalRequest.status!=="approved" && actionStack}
         </>
       )}
     </div>
