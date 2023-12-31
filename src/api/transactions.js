@@ -5,7 +5,7 @@ import { authUser } from "../constants";
 export async function getTransactionsByUser() {
   try {
     const res = await authenticatedInstance
-      .get(`/transactions/`)
+      .get(`/transactions/?ordering=timestamp`)
       .then((res) => {
         return res;
       });
