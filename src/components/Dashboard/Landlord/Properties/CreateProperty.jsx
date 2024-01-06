@@ -252,7 +252,7 @@ const CreateProperty = () => {
                       </span>
                     </div>
                     <div className="row">
-                      <div className="col">
+                      <div className="col-12 col-md-4">
                         <div className="mb-3">
                           <label
                             className="form-label text-black"
@@ -280,7 +280,7 @@ const CreateProperty = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="col">
+                      <div className="col-12 col-md-4">
                         <div className="mb-3">
                           <label
                             className="form-label text-black"
@@ -370,7 +370,7 @@ const CreateProperty = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="col">
+                      <div className="col-12 col-md-4">
                         <div className="mb-3">
                           <label
                             className="form-label text-black"

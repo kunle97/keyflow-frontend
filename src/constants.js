@@ -1,12 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { loadStripe } from "@stripe/stripe-js";
 import { createTheme } from "react-data-table-component";
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import DescriptionIcon from "@mui/icons-material/Description";
+import HandymanIcon from "@mui/icons-material/Handyman";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { jwtDecode } from "jwt-decode";
 
 export const authUser = localStorage.getItem("authTokens")
@@ -26,7 +27,7 @@ export const stripe_onboarding_link = localStorage.getItem(
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";
-export const uiGrey = "#f4f7f8"; 
+export const uiGrey = "#f4f7f8";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
 export const uiGrey3 = "#dcdde3"; //Used to set background color of a read notification
@@ -66,43 +67,45 @@ export const devToolInputStyle = {
   outline: "none",
   border: "none",
 };
+const muiIconStyle = { color: uiGreen };
 export const landlordMenuItems = [
   {
     label: "Dashboard",
     link: "/dashboard/landlord",
     icon: "fas fa-tachometer-alt",
-    muiIcon: <DashboardOutlinedIcon />,
+    muiIcon: <DashboardIcon sx={muiIconStyle} />,
     description: "View your dashboard",
+    isSearchable: true,
+  },
+  {
+    label: "Properties",
+    link: "/dashboard/landlord/properties",
+    muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+    description: "View your properties",
+    icon: "fa fa-home",
     isSearchable: true,
   },
   {
     label: "Tenants",
     link: "/dashboard/landlord/tenants",
     icon: "fa fa-group",
-    muiIcon: <PeopleAltOutlinedIcon />,
+    muiIcon: <PeopleAltIcon sx={muiIconStyle} />,
     description: "View your tenants",
     isSearchable: true,
   },
-  {
-    label: "Properties",
-    link: "/dashboard/landlord/properties",
-    muiIcon: <HomeWorkOutlinedIcon />,
-    description: "View your properties",
-    icon: "fa fa-home",
-    isSearchable: true,
-  },
+
   {
     label: "Maintenance ",
     link: "/dashboard/landlord/maintenance-requests",
-    muiIcon: <HandymanOutlinedIcon />,
+    muiIcon: <HandymanIcon sx={muiIconStyle} />,
     description: "View all maintenance requests",
     icon: "fas fa-tools",
     isSearchable: true,
   },
   {
     label: "Lease Agreements",
-    link: "/dashboard/landlord/lease-templates",
-    muiIcon: <DescriptionOutlinedIcon />,
+    link: "#",
+    muiIcon: <DescriptionIcon sx={muiIconStyle} />,
     description: "View your lease terms",
     icon: "fas fa-user-circle",
     isSearchable: true,
@@ -110,7 +113,7 @@ export const landlordMenuItems = [
       {
         label: "View Lease Agreements",
         link: "/dashboard/landlord/lease-agreements",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease agreements",
         icon: "fas fa-tools",
         isSearchable: true,
@@ -118,7 +121,7 @@ export const landlordMenuItems = [
       {
         label: "New Lease Template",
         link: "/dashboard/landlord/lease-templates/create",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "Create a new lease agreement",
         icon: "fas fa-tools",
         isSearchable: true,
@@ -126,7 +129,7 @@ export const landlordMenuItems = [
       {
         label: "Lease Templates",
         link: "/dashboard/landlord/lease-templates",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease terms",
         icon: "fas fa-user-circle",
         isSearchable: true,
@@ -134,7 +137,7 @@ export const landlordMenuItems = [
       {
         label: "Lease Cancellation Requests",
         link: "/dashboard/landlord/lease-cancellation-requests",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease cancellation requests",
         icon: "fas fa-user-circle",
         isSearchable: true,
@@ -142,7 +145,7 @@ export const landlordMenuItems = [
       {
         label: "Lease Renewal Requests",
         link: "/dashboard/landlord/lease-renewal-requests",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease renewal requests",
         icon: "fas fa-user-circle",
         isSearchable: true,
@@ -152,7 +155,7 @@ export const landlordMenuItems = [
   {
     label: "Rental Applications",
     link: "/dashboard/landlord/rental-applications",
-    muiIcon: <ReceiptLongOutlinedIcon />,
+    muiIcon: <ReceiptLongIcon sx={muiIconStyle} />,
     description: "View your rental applications",
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
@@ -162,6 +165,7 @@ export const landlordMenuItems = [
     link: "#",
     icon: "fas fa-tachometer-alt",
     isSearchable: false,
+    muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
     subMenuItems: [
       {
         label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
@@ -184,10 +188,12 @@ export const tenantMenuItems = [
     link: "/dashboard/tenant",
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
+    muiIcon: <DashboardIcon sx={muiIconStyle} />,
   },
   {
     label: "Maintenance Requests",
     link: "#",
+    muiIcon: <HandymanIcon sx={muiIconStyle} />,
     subMenuItems: [
       {
         label: "Create New",
@@ -208,6 +214,7 @@ export const tenantMenuItems = [
     label: "My Lease Agreement",
     link: "#",
     icon: "fas fa-user-circle",
+    muiIcon: <DescriptionIcon sx={muiIconStyle} />,
     subMenuItems: [
       {
         label: "View Lease Agreement",

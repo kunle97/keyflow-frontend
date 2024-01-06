@@ -18,9 +18,11 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import BackButton from "../../UIComponents/BackButton";
+import useScreen from "../../../../hooks/useScreen";
 const LeaseCancellationRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
   const [leaseCancellationRequest, setLeaseCancellationRequest] =
     useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -178,26 +180,31 @@ const LeaseCancellationRequestDetail = () => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <h4 className="card-title" style={{ color: uiGrey2 }}>
+            <h4
+              className="card-title"
+              style={{ color: uiGrey2, fontSize: isMobile ? "15pt" : "24pt" }}
+            >
               {" "}
               {leaseCancellationRequest.tenant.user.first_name}{" "}
-              {leaseCancellationRequest.tenant.user.last_name}'s Lease Cancellation
-              Request
+              {leaseCancellationRequest.tenant.user.last_name}'s Lease
+              Cancellation Request
             </h4>
-            <Stack direction="row" gap={2} justifyContent={"end"}>
-              <UIButton
-                onClick={setOpenRejectModal}
-                variant="contained"
-                style={{ backgroundColor: uiRed }}
-                btnText="Reject"
-              />
-              <UIButton
-                onClick={setOpenAcceptModal}
-                variant="contained"
-                style={{ background: uiGreen }}
-                btnText="Accept"
-              />
-            </Stack>
+            {!isMobile && (
+              <Stack direction="row" gap={2} justifyContent={"end"}>
+                <UIButton
+                  onClick={setOpenRejectModal}
+                  variant="contained"
+                  style={{ backgroundColor: uiRed }}
+                  btnText="Reject"
+                />
+                <UIButton
+                  onClick={setOpenAcceptModal}
+                  variant="contained"
+                  style={{ background: uiGreen }}
+                  btnText="Accept"
+                />
+              </Stack>
+            )}
           </Stack>
           <div className="row">
             <div className="col-md-12">
@@ -257,7 +264,7 @@ const LeaseCancellationRequestDetail = () => {
               <div className="card">
                 <div className="card-body">
                   <div className="row">
-                    <h5 className="mb-3">Lease Agreement Details</h5>
+                    <h5 className="mb-3">Current Lease Agreement Details</h5>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Property
@@ -308,7 +315,8 @@ const LeaseCancellationRequestDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-6">
+
+            <div className={`col-md-6 ${isMobile && "mt-3"}`}>
               <div className="card">
                 <div className="card-body">
                   <UITableMini

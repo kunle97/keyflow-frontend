@@ -2,7 +2,7 @@ import React from "react";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Stack } from "@mui/joy";
 import { uiGreen } from "../../../../constants";
-const UICard = ({
+const UIChartCard = ({
   info,
   onClick,
   title,
@@ -28,42 +28,49 @@ const UICard = ({
         <Stack
           direction="row"
           spacing={2}
-          justifyContent={"space-between"}
+          justifyContent={chartHeaderMode ? "space-between" : "flex-start"}
           alignItems="center"
           sx={{ width: "100%" }}
         >
-          <Stack
-            direction="row"
-            spacing={2}
-            justifyContent={"space-between"}
-            alignItems="center"
-            sx={{}}
-          >
-            {(info || title) && (
-              <div
-                style={{
-                  lineHeight: "1",
-                }}
-              >
-                <h5 className="card-title" style={{ ...infoStyle }}>
-                  <b>{info}</b>
-                </h5>
-                <p className="card-text text-muted" style={{ ...titleStyle }}>
-                  {title}
-                </p>
-                {subtitle && (
-                  <span
-                    className="text-dark"
-                    style={{
-                      ...subtitleStyle,
-                    }}
-                  >
-                    {subtitle}
-                  </span>
-                )}
-              </div>
-            )}
-          </Stack>
+          {imageSrc && (
+            <div
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "10px",
+                overflow: "hidden",
+              }}
+            >
+              <img src={imageSrc} alt="profile" style={{ width: "100%" }} />
+            </div>
+          )}
+          {(info || title) && (
+            <div
+              style={{
+                lineHeight: "1",
+              }}
+            >
+              <h5 className="card-title" style={{ ...infoStyle }}>
+                <b>{info}</b>
+              </h5>
+              <p className="card-text text-muted" style={{ ...titleStyle }}>
+                {title}
+              </p>
+              {subtitle && (
+                <span
+                  className="text-dark"
+                  style={{
+                    ...subtitleStyle,
+                  }}
+                >
+                  {subtitle}
+                </span>
+              )}
+            </div>
+          )}
+          {showChevron && (
+            <ChevronRightIcon sx={{ color: uiGreen, float: "right" }} />
+          )}
           {dropDownOptions && (
             <Stack>
               <select
@@ -79,7 +86,6 @@ const UICard = ({
               <p></p>
             </Stack>
           )}
-          {showChevron && <ChevronRightIcon sx={{ color: uiGreen }} />}
         </Stack>
         <div>{children}</div>
       </div>
@@ -87,4 +93,4 @@ const UICard = ({
   );
 };
 
-export default UICard;
+export default UIChartCard;

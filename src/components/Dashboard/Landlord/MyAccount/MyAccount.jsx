@@ -20,7 +20,15 @@ import {
 } from "../../../../api/auth";
 import { useForm } from "react-hook-form";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { useNavigate } from "react-router";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
@@ -31,8 +39,11 @@ import { faker } from "@faker-js/faker";
 import UploadDialog from "../../UIComponents/Modals/UploadDialog/UploadDialog";
 import { authenticatedInstance } from "../../../../api/api";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import UISwitch from "../../UIComponents/UISwitch";
+import useScreen from "../../../../hooks/useScreen";
 
 const MyAccount = () => {
+  const { isMobile } = useScreen();
   const [tabPage, setTabPage] = useState(0);
   const [tabs, setTabs] = useState([
     { label: "Account" },
@@ -179,7 +190,53 @@ const MyAccount = () => {
         handleClose={() => setShowResponseModal(false)}
         onClick={() => setShowResponseModal(false)}
       />
-      <h3 className="text-black mb-4">My Account</h3>
+      <Stack
+        direction={"column"}
+        justifyContent="center"
+        alignItems="center"
+        spacing={1}
+        sx={{ marginBottom: "30px" }}
+      >
+        <div
+          style={{
+            borderRadius: "50%",
+            overflow: "hidden",
+            width: isMobile ? "100px" : "200px",
+            height: isMobile ? "100px" : "200px",
+            margin: "15px auto",
+          }}
+        >
+          <img
+            style={{ height: "100%" }}
+            src={
+              profilePictureFile
+                ? profilePictureFile.file
+                : "/assets/img/avatars/default-user-profile-picture.png"
+            }
+          />
+        </div>
+        <Button
+          btnText="Change Profile Picture"
+          onClick={() => setUploadDialogOpen(true)}
+          variant="text"
+          sx={{
+            color: uiGreen,
+            textTransform: "none",
+            fontSize: "12pt",
+            margin: "0 10px",
+          }}
+        >
+          Change Profile Picture
+        </Button>
+        <h4 style={{ width: "100%", textAlign: "center" }}>
+          {authUser.first_name} {authUser.last_name}
+        </h4>
+        <div style={{ width: "100%", textAlign: "center" }}>
+          <a href={`mailto:${authUser.email}`} className="text-muted">
+            {authUser.email}
+          </a>
+        </div>
+      </Stack>
 
       <UITabs
         style={{ marginBottom: "30px" }}
@@ -198,46 +255,7 @@ const MyAccount = () => {
             acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
           />
           <div className="row basic-info-row">
-            <div className="col-sm-12 col-md-4 col-lg-4">
-              <div className="card mb-3">
-                <div className="card-body text-center shadow">
-                  <div
-                    style={{
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      width: "200px",
-                      height: "200px",
-                      margin: "15px auto",
-                    }}
-                  >
-                    <img
-                      style={{ height: "100%" }}
-                      src={
-                        profilePictureFile
-                          ? profilePictureFile.file
-                          : "/assets/img/avatars/default-user-profile-picture.png"
-                      }
-                    />
-                  </div>
-                  <h4
-                    className="text-black tenant-info-heading"
-                    style={{ width: "100%" }}
-                  >
-                    <center>
-                      {authUser.first_name} {authUser.last_name}
-                    </center>
-                  </h4>
-                  <div className="mb-3">
-                    <UIButton
-                      sx={{ margin: "0 10px" }}
-                      btnText="Change Profile Picture"
-                      onClick={() => setUploadDialogOpen(true)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-8">
+            <div className="col-md-12">
               <div className="card shadow mb-3">
                 <div className="card-body">
                   <form
@@ -714,6 +732,52 @@ const MyAccount = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {tabPage === 5 && (
+        <div className={isMobile && "container-fluid"}>
+          <List
+            sx={{
+              width: "100%",
+              // maxWidth: 360,
+            }}
+          >
+            {[0, 1, 2, 3].map((value) => {
+              return (
+                <ListItem
+                  style={{
+                    borderRadius: "10px",
+                    background: "white",
+                    margin: "10px 0",
+                    boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ width: "100%" }}
+                  >
+                    <ListItemText
+                      primary={
+                        <Typography sx={{ color: "black" }}>
+                          Open Applications
+                        </Typography>
+                      }
+                      secondary={
+                        <React.Fragment>
+                          {
+                            "Rental applications that are allowed to be created for units in this property."
+                          }
+                        </React.Fragment>
+                      }
+                    />
+                    <UISwitch />
+                  </Stack>
+                </ListItem>
+              );
+            })}
+          </List>
         </div>
       )}
     </div>

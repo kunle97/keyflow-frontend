@@ -22,10 +22,10 @@ import UIStepper from "../Dashboard/UIComponents/UIStepper";
 import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads";
 import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
-
+import useScreen from "../../hooks/useScreen";
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
-
+  const { isMobile } = useScreen();
   const [step, setStep] = useState(0); // step state
   const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
   const [step1IsValid, setStep1IsValid] = useState(false); // step 2 validation state
@@ -405,7 +405,10 @@ const CreateRentalApplication = () => {
       {isLoading ? (
         <ProgressModal open={isLoading} title="Loading Application" />
       ) : (
-        <div className="container py-4" style={{ marginTop: "100px" }}>
+        <div
+          className={`container py-4`}
+          style={{ marginTop: isMobile ? "0" : "100px" }}
+        >
           {errorMode ? (
             <AlertModal
               open={errorMode}
@@ -415,104 +418,6 @@ const CreateRentalApplication = () => {
             />
           ) : (
             <div className="row">
-              <div className="col-md-6 ">
-                {" "}
-                <div
-                  className="gallery-container"
-                  style={{
-                    overflow: "hidden",
-                  }}
-                >
-                  <ImageGallery
-                    items={unitImages}
-                    showFullscreenButton={true}
-                    showPlayButton={true}
-                    showNav={false}
-                    showThumbnails={true}
-                    autoPlay={true}
-                    slideDuration={1000}
-                    slideInterval={5000}
-                    lazyLoad={true}
-                    infinite={true}
-                    thumbnailPosition="bottom"
-                  />
-                </div>
-                <h2 style={{ margin: "15px 0", fontSize: "20pt" }}>
-                  Unit {unit.name} at {property.street}
-                </h2>
-                <div className="card mb-3">
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Rent
-                        </h6>
-                        ${leaseTemplate.rent}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Term
-                        </h6>
-                        {leaseTemplate.term} Months
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Late Fee
-                        </h6>
-                        {`$${leaseTemplate.late_fee}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Security Deposit
-                        </h6>
-                        {`$${leaseTemplate.security_deposit}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Gas Included?
-                        </h6>
-                        {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Electric Included?
-                        </h6>
-                        {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Water Included?
-                        </h6>
-                        {`${leaseTemplate.water_included ? "Yes" : "No"}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Lease Cancellation Fee
-                        </h6>
-                        {`$${leaseTemplate.lease_cancellation_fee}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Lease Cancellation Notice period
-                        </h6>
-                        {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Typography sx={{ color: "black" }}>
-                    Powered by{" "}
-                    <Link to="/">
-                      <img
-                        src="/assets/img/key-flow-logo-black-transparent.png"
-                        width={150}
-                      />
-                    </Link>
-                  </Typography>
-                </div>
-              </div>
-              {/* */}
               {property && unit ? (
                 <>
                   {isLoading && (
@@ -522,7 +427,7 @@ const CreateRentalApplication = () => {
                     />
                   )}
                   {!isLoading && (
-                    <div className="col-md-6  justify-content-center align-items-center">
+                    <div className="col-md-6  justify-content-center align-items-center mb-3">
                       <UIStepper steps={steps} step={step} />
                       <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -839,7 +744,104 @@ const CreateRentalApplication = () => {
                     </div>
                   </div>
                 </div>
-              )}
+              )}{" "}
+              <div className="col-md-6 ">
+                {" "}
+                <div
+                  className="gallery-container"
+                  style={{
+                    overflow: "hidden",
+                  }}
+                >
+                  <ImageGallery
+                    items={unitImages}
+                    showFullscreenButton={true}
+                    showPlayButton={true}
+                    showNav={false}
+                    showThumbnails={true}
+                    autoPlay={true}
+                    slideDuration={1000}
+                    slideInterval={5000}
+                    lazyLoad={true}
+                    infinite={true}
+                    thumbnailPosition="bottom"
+                  />
+                </div>
+                <h2 style={{ margin: "15px 0", fontSize: "20pt" }}>
+                  Unit {unit.name} at {property.street}
+                </h2>
+                <div className="card mb-3">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Rent
+                        </h6>
+                        ${leaseTemplate.rent}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Term
+                        </h6>
+                        {leaseTemplate.term} Months
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Late Fee
+                        </h6>
+                        {`$${leaseTemplate.late_fee}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Security Deposit
+                        </h6>
+                        {`$${leaseTemplate.security_deposit}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Gas Included?
+                        </h6>
+                        {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Electric Included?
+                        </h6>
+                        {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Water Included?
+                        </h6>
+                        {`${leaseTemplate.water_included ? "Yes" : "No"}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Lease Cancellation Fee
+                        </h6>
+                        {`$${leaseTemplate.lease_cancellation_fee}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Lease Cancellation Notice period
+                        </h6>
+                        {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Typography sx={{ color: "black" }}>
+                    Powered by{" "}
+                    <Link to="/">
+                      <img
+                        src="/assets/img/key-flow-logo-black-transparent.png"
+                        width={150}
+                      />
+                    </Link>
+                  </Typography>
+                </div>
+              </div>
             </div>
           )}
         </div>

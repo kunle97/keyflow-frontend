@@ -16,6 +16,7 @@ import UploadLeaseDocument from "./Steps/UploadLeaseDocument";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
+import useScreen from "../../../../../hooks/useScreen";
 const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
@@ -28,12 +29,13 @@ const CreateLeaseTemplate = (props) => {
    * Step 7: Show completion screen animation and Landlord is navigated to the lease term detail page
    *
    */
+  const { isMobile } = useScreen();
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
-    "Upload & Prepare Lease Document",
-    "Add Terms",
-    "Add Addtional Charges",
-    "Assign to Units and Properties",
+    "Upload Document",
+    "Terms",
+    "Addtional Charges",
+    "Assign ",
     "Done",
   ]);
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
@@ -205,7 +207,12 @@ const CreateLeaseTemplate = (props) => {
         />
       )}
       {!props.hideBackButton && <BackButton />}
-      <h2 style={{  }}>
+      <h2
+        style={{
+          fontSize: isMobile ? "15pt" : "25pt",
+          marginBottom: "15px",
+        }}
+      >
         {props.isLeaseRenewal
           ? props.customTitle
           : "Create Lease Agreement Template"}
@@ -289,11 +296,34 @@ const CreateLeaseTemplate = (props) => {
                   style={{
                     fontSize: "5rem",
                     color: uiGreen,
-                    marginBottom: "1rem",
+                    marginBottom: isMobile ? "0" : "1rem",
                   }}
                 />
-                <h3>Would you like to save this lease agreement template?</h3>
-                <p>You can always make changes later.</p>
+                <div
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  <h3
+                    style={{
+                      textAlign: "center",
+                      fontSize: isMobile ? "12pt" : "15pt",
+                      margin: isMobile ? "0 " : "1rem 0",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Would you like to save this lease agreement template?
+                  </h3>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      fontSize: isMobile ? "10pt" : "12pt",
+                    }}
+                    className="text-black"
+                  >
+                    You can always make changes later.
+                  </p>
+                </div>
                 <Stack
                   direction="row"
                   justifyContent="center"
@@ -302,16 +332,22 @@ const CreateLeaseTemplate = (props) => {
                 >
                   <UIButton
                     type="button"
-                    style={{ margin: "1rem 0" }}
+                    style={{
+                      margin: "1rem 0",
+                      fontSize: isMobile ? "10pt" : "12pt",
+                    }}
                     onClick={() => {
                       setStep(1);
                     }}
-                    btnText="Continue editing"
+                    btnText="Continue Editing"
                   />
                   <UIButton
                     type="submit"
-                    style={{ margin: "1rem 0" }}
-                    btnText="Save Lease Template"
+                    style={{
+                      margin: "1rem 0",
+                      fontSize: isMobile ? "10pt" : "12pt",
+                    }}
+                    btnText="Save Template"
                   />
                 </Stack>
               </Stack>

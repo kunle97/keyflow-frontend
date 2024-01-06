@@ -1,146 +1,129 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Button from "@mui/material/Button";
 import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import MapsHomeWorkOutlinedIcon from "@mui/icons-material/MapsHomeWorkOutlined";
-import { landlordMenuItems, uiGrey1 } from "../../../../constants";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  authUser,
+  landlordMenuItems,
+  tenantMenuItems,
+  uiGreen,
+  uiGrey2,
+} from "../../../../constants";
 import { Link } from "react-router-dom";
 
 export default function SidebarDrawer(props) {
-  const [state, setState] = React.useState({
-    top: false,
-    left: false,
-    bottom: false,
-    right: false,
-  });
+  const menuItems =
+    authUser.account_type === "owner" ? landlordMenuItems : tenantMenuItems;
 
-  const toggleDrawer = (anchor, open) => (event) => {
+  const [openSubMenu, setOpenSubMenu] = React.useState(null);
+
+  const toggleDrawer = (open) => (event) => {
     if (
+      event &&
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
     ) {
       return;
     }
-
-    setState({ ...state, [anchor]: open });
+    props.onClose(open);
+  };
+  const handleMenuItemClick = () => {
+    // Close drawer when a regular menu item is clicked
+    props.onClose(false);
   };
 
-  const list = (anchor) => (
-    <Box
-      sx={{
-        width: anchor === "top" || anchor === "bottom" ? "auto" : 250,
-        background: uiGrey1,
-      }}
-      role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
-    >
-      <Box>
-        <img
-          src="/assets/img/key-flow-logo-white-transparent.png"
-          style={{ width: "175px", textAlign: "center", margin: "25px" }}
-        />
-      </Box>
-      <List>
-        {landlordMenuItems.map((item, index) => {
-          return (
-            <ListItem key={index} disablePadding>
-              <Link
-                to={item.link}
-                style={{ width: "100%", textDecoration: "none" }}
-              >
-                <ListItemButton>
-                  <ListItemIcon>
-                    <i className={item.icon} />
-                  </ListItemIcon>
-                  <ListItemText primary={item.label} sx={{ color: "white" }} />
-                </ListItemButton>
-              </Link>
-            </ListItem>
-          );
-        })}
-        {/* <ListItem disablePadding>
+  const handleSubMenuClick = (index) => {
+    setOpenSubMenu(openSubMenu === index ? null : index);
+    // event.stopPropagation();
+  };
+
+  const renderSubMenu = (subMenuItems) => (
+    <List>
+      {subMenuItems.map((subItem, subIndex) => (
+        <ListItem key={subIndex} disablePadding>
           <Link
-            to={"/dashboard/"}
+            to={subItem.link}
             style={{ width: "100%", textDecoration: "none" }}
           >
-            <ListItemButton>
-              <ListItemIcon>
-                <DashboardOutlinedIcon sx={{ color: "white" }} />
-              </ListItemIcon>
-              <ListItemText primary={"Dashboard"} sx={{ color: "white" }} />
+            <ListItemButton onClick={() => props.onClose(false)}>
+              <ListItemText
+                secondary={subItem.label}
+                sx={{ fontSize: "5pt", color: "black", marginLeft: "15px" }}
+              />
             </ListItemButton>
           </Link>
         </ListItem>
-        <ListItem disablePadding>
-          <Link
-            to={"/dashboard/landlord/properties"}
-            style={{ width: "100%", textDecoration: "none" }}
-          >
-            <ListItemButton>
-              <ListItemIcon>
-                <MapsHomeWorkOutlinedIcon sx={{ color: "white" }} />
-              </ListItemIcon>
-              <ListItemText primary={"Properties"} sx={{ color: "white" }} />
-            </ListItemButton>
-          </Link>
-        </ListItem> */}
-        {/* {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))} */}
-      </List>
-      <Divider />
+      ))}
+    </List>
+  );
+
+  const list = (
+    <Box
+      sx={{
+        width: 250,
+      }}
+      role="presentation"
+      // onClick={toggleDrawer(false)}
+      // onKeyDown={toggleDrawer(false)}
+    >
+      <Box>
+        <img
+          src="/assets/img/key-flow-logo-black-transparent.png"
+          style={{ width: "175px", textAlign: "center", margin: "25px" }}
+          alt="logo"
+        />
+      </Box>
       <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
+        {menuItems.map((item, index) => (
+          <div key={index}>
+            {item.subMenuItems ? (
+              <div>
+                <ListItem disablePadding>
+                  <ListItemButton onClick={() => handleSubMenuClick(index)}>
+                    <ListItemIcon>{item.muiIcon}</ListItemIcon>
+                    <ListItemText primary={item.label} />
+                    {openSubMenu === index ? (
+                      <ExpandMoreIcon />
+                    ) : (
+                      <ChevronRightIcon />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+                {openSubMenu === index && renderSubMenu(item.subMenuItems)}
+              </div>
+            ) : (
+              <ListItem disablePadding>
+                <Link
+                  to={item.link}
+                  style={{ width: "100%", textDecoration: "none" }}
+                >
+                  <ListItemButton onClick={handleMenuItemClick}>
+                    <ListItemIcon sx={{ color: uiGreen }}>
+                      {item.muiIcon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      sx={{ color: "black" }}
+                    />
+                  </ListItemButton>
+                </Link>
+              </ListItem>
+            )}
+          </div>
         ))}
       </List>
     </Box>
   );
 
   return (
-    <div className="buttonx">
-      {["left", "left", "left", "left"].map((anchor) => (
-        <React.Fragment key={anchor}>
-          <Button
-            sx={{ marginTop: "150px" }}
-            onClick={toggleDrawer(anchor, true)}
-          >
-            {anchor}
-          </Button>
-          <Drawer
-            anchor={"left"}
-            open={props.open}
-            onClose={toggleDrawer(anchor, false)}
-            // sx={{ "& .MuiDrawer-paper": { backgroundColor: uiGrey1 } }}
-          >
-            {list(anchor)}
-          </Drawer>
-        </React.Fragment>
-      ))}
-    </div>
+    <Drawer anchor={"left"} open={props.open} onClose={toggleDrawer(false)}>
+      {list}
+    </Drawer>
   );
 }

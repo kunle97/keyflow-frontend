@@ -5,14 +5,14 @@ import { Box, Button, Input } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@material-ui/core";
 import { authUser, uiGreen, uiGrey1, uiGrey2 } from "../../../../../constants";
-import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
-import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import DescriptionIcon from "@mui/icons-material/Description";
+import WeekendIcon from "@mui/icons-material/Weekend";
+import HandymanIcon from "@mui/icons-material/Handyman";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import PaidIcon from "@mui/icons-material/Paid";
+import SearchIcon from "@mui/icons-material/Search";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import SearchResultCard from "./SearchResultCard";
 import { useCallback } from "react";
 import { authenticatedInstance } from "../../../../../api/api";
@@ -36,7 +36,7 @@ import AllUnitResults from "./Results/AllUnitResults";
 import AllRentalApplicationResults from "./Results/AllRentalApplicationResults";
 import UITabs from "../../UITabs";
 import UIPrompt from "../../UIPrompt";
-
+import useScreen from "../../../../../hooks/useScreen";
 const SearchDialog = (props) => {
   //Create a useCallback version of the Transition component
   const Transition = useCallback(
@@ -45,6 +45,7 @@ const SearchDialog = (props) => {
     }),
     []
   );
+  const { isMobile } = useScreen();
   const [open, setOpen] = useState(false);
   const [dashboardPages, setDashboardPages] = useState(routes);
   const [allProperties, setAllProperties] = useState([]);
@@ -69,22 +70,22 @@ const SearchDialog = (props) => {
   const [searchResultLimit, setSearchResultLimit] = useState(6);
 
   const pages = [
-    { name: "all", label: "All", icon: <SearchOutlinedIcon /> },
-    { name: "pages", label: "Pages", icon: <DescriptionOutlinedIcon /> },
-    { name: "properties", label: "Properties", icon: <HomeWorkOutlinedIcon /> },
-    { name: "units", label: "Units", icon: <WeekendOutlinedIcon /> },
+    { name: "all", label: "All", icon: <SearchIcon /> },
+    { name: "pages", label: "Pages", icon: <DescriptionIcon /> },
+    { name: "properties", label: "Properties", icon: <HomeWorkIcon /> },
+    { name: "units", label: "Units", icon: <WeekendIcon /> },
     {
       name: "maintenance",
       label: "Requests",
-      icon: <HandymanOutlinedIcon />,
+      icon: <HandymanIcon />,
     },
     {
       name: "rental",
       label: " Applications",
-      icon: <ReceiptLongOutlinedIcon />,
+      icon: <ReceiptLongIcon />,
     },
-    { name: "transactions", label: "Transactions", icon: <PaidOutlinedIcon /> },
-    { name: "tenants", label: "Tenants", icon: <PeopleAltOutlinedIcon /> },
+    { name: "transactions", label: "Transactions", icon: <PaidIcon /> },
+    { name: "tenants", label: "Tenants", icon: <PeopleAltIcon /> },
   ];
 
   const handleChangeTabPage = (event, newValue) => {
@@ -240,10 +241,11 @@ const SearchDialog = (props) => {
             id="input-with-icon-textfield"
             placeholder="Looking For Something?"
             sx={{
-              fontSize: "30pt",
               p: 2,
               "&.Mui-focused .MuiIconButton-root": { color: uiGreen },
               color: "black",
+              //have the place holder font size be smaller on mobile
+              fontSize: isMobile ? "15pt" : "30pt",
             }}
             fullWidth
             variant="standard"
@@ -259,8 +261,7 @@ const SearchDialog = (props) => {
               value={tabPage}
               handleChange={handleChangeTabPage}
               tabs={pages}
-              variant="fullWidth"
-              scrollButtons="auto"
+              scrollButtons="false"
               ariaLabel="scrollable auto tabs example"
             />
           </Box>
@@ -300,7 +301,7 @@ const SearchDialog = (props) => {
                       title="No Results"
                       message="No results found. Try adjusting your search filters."
                       icon={
-                        <SearchOutlinedIcon
+                        <SearchIcon
                           style={{
                             width: "50px",
                             height: "50px",
@@ -373,7 +374,7 @@ const SearchDialog = (props) => {
                         title={property.name}
                         description={`${property.street}, ${property.city}, ${property.state} ${property.zip_code}`}
                         icon={
-                          <HomeWorkOutlinedIcon
+                          <HomeWorkIcon
                             style={{ width: "30px", height: "30px" }}
                           />
                         }
@@ -417,7 +418,7 @@ const SearchDialog = (props) => {
                           </>
                         }
                         icon={
-                          <WeekendOutlinedIcon
+                          <WeekendIcon
                             style={{ width: "30px", height: "30px" }}
                           />
                         }
@@ -463,7 +464,7 @@ const SearchDialog = (props) => {
                           title={`Maintenanace Request from ${tenant.user.first_name} ${tenant.user.last_name}`}
                           subtitle={`${maintenance_request.description}`}
                           icon={
-                            <HandymanOutlinedIcon
+                            <HandymanIcon
                               style={{ width: "30px", height: "30px" }}
                             />
                           }
@@ -522,7 +523,7 @@ const SearchDialog = (props) => {
                             </>
                           }
                           icon={
-                            <ReceiptLongOutlinedIcon
+                            <ReceiptLongIcon
                               style={{ width: "30px", height: "30px" }}
                             />
                           }
@@ -572,7 +573,7 @@ const SearchDialog = (props) => {
                         }`}
                         description={transaction.description}
                         icon={
-                          <PaidOutlinedIcon
+                          <PaidIcon
                             style={{ width: "30px", height: "30px" }}
                           />
                         }
@@ -614,7 +615,7 @@ const SearchDialog = (props) => {
                             title={`${tenant.user.first_name} ${tenant.user.last_name}`}
                             subtitle={`${tenant.user.email}`}
                             icon={
-                              <PeopleAltOutlinedIcon
+                              <PeopleAltIcon
                                 style={{ width: "30px", height: "30px" }}
                               />
                             }

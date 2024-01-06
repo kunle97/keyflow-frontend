@@ -8,6 +8,7 @@ import {
 import { getLandlordUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const LeaseTemplates = () => {
   const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [units, setUnits] = useState([]);
@@ -70,8 +71,8 @@ const LeaseTemplates = () => {
     };
   }
 
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/lease-templates/${rowData}`;
+  const handleRowClick = (row) => {
+    const navlink = `/dashboard/landlord/lease-templates/${row.id}`;
     navigate(navlink);
   };
 
@@ -153,14 +154,21 @@ const LeaseTemplates = () => {
           options={options}
         /> */}
       </div>
-      <UITable
-        columns={columns}
-        options={options}
+      <UITableMobile
+        tableTitle="Lease Templates"
         endpoint="/lease-templates/"
-        title="Lease Agreement Templates"
-        createURL="/dashboard/landlord/lease-templates/create"
-        detailURL="/dashboard/landlord/lease-templates/"
+        createInfo={(row) => `$${row.rent}/mo | ${row.term} months `}
+        createSubtitle={(row) => `Late Fee:  $${row.late_fee}`}
+        createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
+        onRowClick={handleRowClick}
+        orderingFields={[
+          { field: "timestamp", label: "Date Created (Ascending)" },
+          { field: "-timestamp", label: "Date Created (Descending)" },
+          { field: "type", label: "type (Ascending)" },
+          { field: "-type", label: "type (Descending)" },
+        ]}
         showCreate={true}
+        createURL="/dashboard/landlord/lease-templates/create"
       />
     </div>
   );

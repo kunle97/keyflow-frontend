@@ -4,21 +4,29 @@ import { useEffect } from "react";
 import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
 import UILineChartCard from "../../UIComponents/UICards/UILineChartCard";
-import UITableCard from "../../UIComponents/UICards/UITableCard";
+import UItableMiniCard from "../../UIComponents/UICards/UITableMiniCard";
 import UIPieChartCard from "../../UIComponents/UICards/UIPieChartCard";
 import { getLandlordUnits } from "../../../../api/units";
 import { getProperties } from "../../../../api/properties";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UICardList from "../../UIComponents/UICards/UICardList";
+import UIChartCard from "../../UIComponents/UICards/UICard";
 import UICard from "../../UIComponents/UICards/UICard";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
 import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
 import { Stack } from "@mui/material";
+import useScreen from "../../../../hooks/useScreen";
+import { authenticatedInstance } from "../../../../api/api";
+import {
+  getAllOwnerMaintenanceRequests,
+  getMaintenanceRequests,
+} from "../../../../api/maintenance_requests";
 
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
+  const { isMobile, breakpoints, screenWidth } = useScreen();
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Set loading to true on component mount
@@ -28,13 +36,20 @@ const Dashboard = () => {
   const [leaseCancellationRequests, setLeaseCancellationRequests] = useState(
     []
   );
+  const [maintenanceRequests, setMaintenanceRequests] = useState([]);
+
   const [occupiedUnits, setOccupiedUnits] = useState([]);
   const [vacantUnits, setVacantUnits] = useState([]);
-  const [groupedTransactions, setGroupedTransactions] = useState([]);
+  const [leaseAgreements, setLeaseAgreements] = useState([]);
+
+  /*Transaction Related States*/
+  const [transactionTypes, setTransactionTypes] = useState([]); // ["revenue", "expense", "rent_payment", "security_deposit"
+  const [groupedTransactionData, setGroupedTransactionData] = useState([]);
   const [transactionLabels, setTransactionLabels] = useState([]);
   const [transactionDataValues, setTransactionDataValues] = useState([]);
   const [groupedPropertiesByTransactions, setGroupedPropertiesByTransactions] =
     useState([]);
+
   const [groupedLeaseRenewalRequests, setGroupedLeaseRenewalRequests] =
     useState([]);
   const [
@@ -302,16 +317,17 @@ const Dashboard = () => {
       1
     ); // Determine the start date based on numMonthsToShow
 
-    const allMonths = {};
+    const allMonths = [];
     while (pastDate <= currentDate) {
       const yearMonth = pastDate.toLocaleString("en-US", {
         year: "numeric",
-        month: "long",
+        month: "short",
       }); // Get month name
-      allMonths[yearMonth] = {
+      allMonths.push({
         month: yearMonth,
-        totalAmount: 0,
-      };
+        totalRevenue: 0,
+        totalExpense: 0,
+      });
       pastDate.setMonth(pastDate.getMonth() + 1);
     }
 
@@ -319,30 +335,44 @@ const Dashboard = () => {
       const date = new Date(transaction.timestamp);
       const monthYear = date.toLocaleString("en-US", {
         year: "numeric",
-        month: "long",
+        month: "short",
       }); // Get month name
 
       if (!acc[monthYear]) {
         acc[monthYear] = {
-          month: date.toLocaleString("en-US", {
-            year: "numeric",
-            month: "long",
-          }),
-          totalAmount: 0,
+          month: monthYear,
+          totalRevenue: 0,
+          totalExpense: 0,
         };
       }
 
-      acc[monthYear].totalAmount += parseFloat(transaction.amount);
+      if (
+        transaction.type === "expense" ||
+        transaction.type === "vendor_payment"
+      ) {
+        acc[monthYear].totalExpense += parseFloat(transaction.amount);
+      } else {
+        acc[monthYear].totalRevenue += parseFloat(transaction.amount);
+      }
       return acc;
     }, {});
 
-    return { ...allMonths, ...groupedData };
+    // Merge allMonths and groupedData in the correct order
+    const mergedData = allMonths.map((monthData) => {
+      const { month, totalRevenue, totalExpense } =
+        groupedData[monthData.month] || monthData;
+      return { month, totalRevenue, totalExpense };
+    });
+
+    return mergedData;
   }
 
-  const groupedData = groupTransactionsByMonth(transactions, 5);
-  const labels = Object.values(groupedData).map((data) => data.month);
-  const dataValues = Object.values(groupedData).map((data) => data.totalAmount);
-
+  const groupedData = groupTransactionsByMonth(transactions, 5); // Use your function to get grouped data
+  const labels = groupedData.map((data) => data.month);
+  const dataValues = groupedData.map((data) => ({
+    totalRevenue: data.totalRevenue,
+    totalExpense: data.totalExpense,
+  }));
   //Create a function to group properties by the amount of transactions they have. Group them as an array of objects with the property name and total amount of transactions {name:"property name", totalAmount: 1900"}
 
   const groupPropertiesByTransactions = (
@@ -440,37 +470,58 @@ const Dashboard = () => {
     setVacantUnits(
       property.units.filter((unit) => unit.is_occupied === false).length
     );
-    console.log(occupiedUnits, vacantUnits);
+  };
+  //Create a function to change the transaction data based on the transaction type selected
+  const handleTransactionTypeChange = (e) => {
+    const transactionType = e.target.value;
+
+    // If transaction type is 'all', set transaction data to all transactions
+    if (transactionType === "all") {
+      setTransactionDataValues(dataValues);
+      return;
+    }
+
+    // Filter the dataValues based on the selected transaction type
+    const filteredData = groupedTransactionData.map((data) => ({
+      month: data.month,
+      totalAmount: data[transactionType],
+    }));
+
+    setTransactionDataValues(filteredData);
   };
 
+  const fetchTransactionData = async () => {
+    try {
+      const res = await getTransactionsByUser(); // Assuming getTransactionsByUser is an async function
+      setTransactions(res.data.reverse());
+
+      const groupedData = groupTransactionsByMonth(res.data, 5);
+      setGroupedTransactionData(groupedData);
+
+      const labels = groupedData.map((data) => data.month);
+      setTransactionLabels(labels);
+
+      const dataValues = groupedData.map((data) => ({
+        totalRevenue: data.totalRevenue,
+        totalExpense: data.totalExpense,
+      }));
+      setTransactionDataValues(dataValues);
+
+      setGroupedPropertiesByTransactions(
+        groupPropertiesByTransactions(res.data),
+        3
+      );
+    } catch (error) {
+      // Handle any errors here
+      console.error("Error fetching transaction data:", error);
+    }
+  };
   useEffect(() => {
     authUser.account_type === "tenant" && navigate("/dashboard/tenant");
     setIsLoading(true);
     //retrieve transactions from api
     try {
-      getTransactionsByUser().then((res) => {
-        setTransactions(res.data.reverse());
-        setGroupedTransactions(groupTransactionsByMonth(res.data, 5));
-        setTransactionLabels(
-          Object.values(groupTransactionsByMonth(res.data)).map(
-            (data) => data.month
-          )
-        );
-        setTransactionDataValues(
-          Object.values(groupTransactionsByMonth(res.data)).map(
-            (data) => data.totalAmount
-          )
-        );
-        setGroupedPropertiesByTransactions(
-          groupPropertiesByTransactions(res.data),
-          3
-        );
-        console.log(
-          "Grouped properties byu transaction",
-          groupPropertiesByTransactions(res.data),
-          3
-        );
-      });
+      fetchTransactionData();
       getLandlordUnits().then((res) => {
         setUnits(res.data);
         setOccupiedUnits(
@@ -493,12 +544,20 @@ const Dashboard = () => {
           groupLeaseCancellationRequests(res.data)
         );
       });
+      authenticatedInstance
+        .get("/lease-agreements/?ordering=end_date")
+        .then((res) => {
+          setLeaseAgreements(res.data);
+        });
+      getAllOwnerMaintenanceRequests().then((res) => {
+        setMaintenanceRequests(res.data.results);
+      });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
     }
     setIsLoading(false);
-  }, []);
+  }, [screenWidth]);
   return isLoading ? (
     <UIProgressPrompt
       title={"Fetching your data for ya. Give us a sec..."}
@@ -513,74 +572,56 @@ const Dashboard = () => {
         <div className="col-md-12 ">
           <UILineChartCard
             isLoading={isLoading}
-            height={"360px"}
-            title="Total Revenue"
+            height={isMobile ? "270px" : "400px"}
+            title="Total Revenue and Expenses"
             info={`$${transactionDataValues
-              .reduce((a, b) => a + b, 0)
+              .reduce((a, b) => a + b.totalRevenue, 0)
               .toLocaleString()}`}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "22pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "15pt" }}
-            // data={data1}
-            labels={labels}
-            data={dataValues}
+            infoStyle={{
+              color: uiGrey2,
+              fontSize: isMobile ? "15pt" : "22pt",
+            }}
+            titleStyle={{
+              color: uiGrey2,
+              fontSize: isMobile ? "12pt" : "16pt",
+            }}
+            labels={transactionLabels}
+            data={transactionDataValues}
+            onDropdownChange={handleTransactionTypeChange}
             dropDownOptions={[
-              { value: "monthly", label: "Monthly" },
-              { value: "daily", label: "Daily" },
-              { value: "weekly", label: "Weekly" },
-              { value: "yearly", label: "Yearly" },
+              { value: "all", label: "All Transactions" }, // Hardcoded default option
+              { value: "noi", label: "Net Operating Income" }, //Should display two lines on the chart. one for revenue and one for expenses
+              { value: "rent_payments", label: "Rent Payments" },
+              { value: "security_deposits", label: "Security Deposits" },
+              { value: "expenses", label: "Expenses" },
+              { value: "revenue", label: "Revenue" },
             ]}
-            onDropdownChange={(e) => console.log(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Info Card Row */}
-      <div className="row my-2">
+      {/* Info Card Row (hidden on mobile and desktop too) */}
+      {/* <div className="row my-2">
         {multiplier.map((item, index) => {
           return (
-            <div className="col-md-3">
+            <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
               <UIInfoCard
                 cardStyle={{ background: "white", color: uiGrey2 }}
-                infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
+                infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt", margin: 0 }}
                 titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
-                info={`$${transactionDataValues
-                  .reduce((a, b) => a + b, 0)
-                  .toLocaleString()}`}
+                info={`$`}
                 title={"Total Revenue"}
                 icon={<AttachMoneyIcon style={{ fontSize: "25pt" }} />}
               />
             </div>
           );
         })}
-      </div>
+      </div> */}
 
       {/* Vacancies & Transactions Row */}
       <div className="row">
-        <div className="col-md-8">
-          <UIPieChartCard
-            isLoading={isLoading}
-            info={"Unit Vacancies"}
-            title={"Occupied vs Vacant Units"}
-            height={"386px"}
-            legendPosition={"right"}
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            data={[occupiedUnits, vacantUnits]}
-            labels={["Occupied", "Vacant"]}
-            colors={[uiGreen, "#f4f7f8"]}
-            dropDownOptions={[
-              { value: "all", label: "All Properties" }, // Hardcoded default option
-              ...properties.map((property) => ({
-                value: property.id,
-                label: property.name,
-              })),
-            ]}
-            onDropdownChange={handlePropertyChange}
-          />
-        </div>
-        <div className="col-md-4">
+        <div className="col-sm-12 col-md-6 col-lg-4">
           {transactions.length === 0 ? (
             <UICard cardStyle={{ height: "478px" }}>
               <Stack
@@ -597,9 +638,9 @@ const Dashboard = () => {
           ) : (
             <UICardList
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={""}
+              title={"Recent Transactions"}
               info={"Recent Transactions"}
               onInfoClick={() => navigate("/dashboard/landlord/transactions")}
               //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
@@ -618,36 +659,85 @@ const Dashboard = () => {
                   }$${transaction.amount}`,
                   icon: <AttachMoneyIcon />,
                 }))
-                .slice(0, 4)}
+                .slice(0, 5)}
               tertiaryStyles={{ color: uiGreen }}
             />
           )}
+        </div>{" "}
+        <div className="col-sm-12 col-md-6 col-lg-8">
+          <UIPieChartCard
+            isLoading={isLoading}
+            info={"Unit Vacancies"}
+            title={"Occupied vs Vacant Units"}
+            height={isMobile ? "256px" : "456px"}
+            legendPosition={isMobile ? "bottom" : "right"}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            data={[occupiedUnits, vacantUnits]}
+            labels={["Occupied", "Vacant"]}
+            colors={[uiGreen, "#f4f7f8"]}
+            dropDownOptions={[
+              { value: "all", label: "All Properties" }, // Hardcoded default option
+              ...properties.map((property) => ({
+                value: property.id,
+                label: property.name,
+              })),
+            ]}
+            onDropdownChange={handlePropertyChange}
+          />
         </div>
       </div>
 
       {/* Lease Agreements &  Row */}
       <div className="row">
         <div className="col-md-6">
-          <UITableCard
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            title={"Upcoming Lease Endings"}
-            columns={lease_agreement_columns}
-            info={"Lease Agreements"}
-            endpoint={"/lease-agreements/"}
-            options={lease_agreement_options}
-          />
+          {screenWidth > breakpoints.md ? (
+            <UItableMiniCard
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Upcoming Lease Endings"}
+              columns={lease_agreement_columns}
+              info={"Lease Agreements"}
+              // endpoint={"/lease-agreements/"}
+              data={leaseAgreements}
+              options={lease_agreement_options}
+            />
+          ) : (
+            <UICardList
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Upcoming Lease Endings"}
+              info={"Lease Agreements"}
+              onInfoClick={() =>
+                navigate("/dashboard/landlord/lease-agreements")
+              }
+              items={leaseAgreements
+                .map((leaseAgreement) => ({
+                  primary: `${leaseAgreement.tenant?.user.first_name} ${leaseAgreement.tenant?.user.last_name}`,
+                  secondary: "Unit " + leaseAgreement.rental_unit.name,
+                  tertiary: `Ends: ${new Date(
+                    leaseAgreement.end_date
+                  ).toLocaleDateString()}`,
+                  icon: <AttachMoneyIcon />,
+                }))
+                .slice(0, 5)}
+              tertiaryStyles={{ color: uiGreen }}
+            />
+          )}
         </div>
+
         <div className="col-md-6">
           <UIPieChartCard
             isLoading={isLoading}
             info={"Best Performing Properties"}
             title={"Revenue Per Property"}
-            height={"456px"}
+            height={isMobile ? "356px" : "456px"}
             legendPosition={"bottom"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             chartContainerStyles={{ padding: "1rem" }}
             data={groupedPropertiesByTransactions.map((property) => {
@@ -664,42 +754,153 @@ const Dashboard = () => {
       {/*Maintenance Request Row*/}
       <div className="row">
         <div className="col-md-12">
-          <UITableCard
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            title={"Recent Maintenance Requests"}
-            columns={maintenance_request_columns}
-            info={"Recent Maintenance Requests"}
-            endpoint={"/maintenance-requests/"}
-            options={maintenance_request_options}
-          />
+          {screenWidth > breakpoints.md ? (
+            <UItableMiniCard
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Maintenance Requests"}
+              columns={maintenance_request_columns}
+              info={"Recent Maintenance Requests"}
+              data={maintenanceRequests}
+              options={maintenance_request_options}
+            />
+          ) : (
+            <UICardList
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Maintenance Requests"}
+              info={"Maintenance Requests"}
+              onInfoClick={() =>
+                navigate("/dashboard/landlord/maintenance-requests")
+              }
+              items={maintenanceRequests
+                .map((maintenanceRequest) => {
+                  let status = maintenanceRequest.status.replace("_", " ");
+
+                  if (status === "pending") {
+                    status = (
+                      <span>
+                        {maintenanceRequest.type} |{" "}
+                        <span className="text-warning">Pending</span>
+                      </span>
+                    );
+                  } else if (status === "in progress") {
+                    status = (
+                      <span>
+                        {maintenanceRequest.type} |{" "}
+                        <span className="text-info">In Progress</span>
+                      </span>
+                    );
+                  } else if (status === "completed") {
+                    status = (
+                      <span>
+                        {maintenanceRequest.type} |{" "}
+                        <span className="text-success">Completed</span>
+                      </span>
+                    );
+                  }
+
+                  const combinedStatus = `${maintenanceRequest.type} | ${status}`;
+
+                  return {
+                    primary: maintenanceRequest.description,
+                    secondary: status,
+                    tertiary: new Date(
+                      maintenanceRequest.created_at
+                    ).toLocaleDateString(),
+                    icon: <AttachMoneyIcon />,
+                  };
+                })
+                .slice(0, 5)}
+              tertiaryStyles={{ color: uiGreen }}
+            />
+          )}
         </div>
       </div>
 
       {/* Lease Cancellation  Row */}
       <div className="row">
         <div className="col-md-6">
-          <UITableCard
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            title={"Recent Lease Cancellation Requests"}
-            columns={lease_cancellation_columns}
-            info={"Recent Lease Cancellation Requests"}
-            endpoint={"/lease-cancellation-requests/"}
-            options={lease_agreement_options}
-          />
+          {screenWidth > breakpoints.md ? (
+            <UItableMiniCard
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Lease Cancellation Requests"}
+              columns={lease_cancellation_columns}
+              info={"Recent Lease Cancellation Requests"}
+              endpoint={"/lease-cancellation-requests/"}
+              data={leaseCancellationRequests}
+              options={lease_agreement_options}
+            />
+          ) : (
+            <UICardList
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Lease Cancellation Requests"}
+              info={"Lease Cancellation Requests"}
+              onInfoClick={() =>
+                navigate("/dashboard/landlord/lease-cancellation-requests")
+              }
+              items={leaseCancellationRequests
+                .map((leaseCancellationRequest) => {
+                  let status = leaseCancellationRequest.status.replace(
+                    "_",
+                    " "
+                  );
+
+                  if (status === "pending") {
+                    status = (
+                      <span>
+                        Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
+                        <span className="text-warning">Pending</span>
+                      </span>
+                    );
+                  } else if (status === "approved") {
+                    status = (
+                      <span>
+                        Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
+                        <span className="text-success">Approved</span>
+                      </span>
+                    );
+                  } else if (status === "rejected") {
+                    status = (
+                      <span>
+                        Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
+                        <span className="text-danger">Rejected</span>
+                      </span>
+                    );
+                  }
+
+                  return {
+                    primary:
+                      leaseCancellationRequest.tenant.user.first_name +
+                      " " +
+                      leaseCancellationRequest.tenant.user.last_name,
+                    secondary: status,
+                    tertiary: new Date(
+                      leaseCancellationRequest.created_at
+                    ).toLocaleDateString(),
+                    icon: <AttachMoneyIcon />,
+                  };
+                })
+                .slice(0, 5)}
+              tertiaryStyles={{ color: uiGreen }}
+            />
+          )}
         </div>
         <div className="col-md-6">
           <UIPieChartCard
             isLoading={isLoading}
             info={"Pending vs Approved Requests"}
             title={"Lease Cancellation Requests"}
-            height={"456px"}
+            height={isMobile ? "356px" : "456px"}
             legendPosition={"bottom"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             chartContainerStyles={{ padding: "1rem" }}
             data={[
@@ -717,26 +918,80 @@ const Dashboard = () => {
       {/* Lease Renewal  Row */}
       <div className="row">
         <div className="col-md-6">
-          <UITableCard
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            title={"Recent Lease Renewal Requests"}
-            columns={lease_renewal_columns}
-            info={"Recent Lease Renewal Requests"}
-            endpoint={"/lease-renewal-requests/"}
-            options={lease_agreement_options}
-          />
+          {screenWidth > breakpoints.md ? (
+            <UItableMiniCard
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Lease Renewal Requests"}
+              columns={lease_renewal_columns}
+              info={"Recent Lease Renewal Requests"}
+              data={leaseRenewalRequests}
+              options={lease_agreement_options}
+            />
+          ) : (
+            <UICardList
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Lease Renewal Requests"}
+              info={"Lease Renewal Requests"}
+              onInfoClick={() =>
+                navigate("/dashboard/landlord/lease-renewal-requests")
+              }
+              items={leaseRenewalRequests
+                .map((leaseRenewalRequest) => {
+                  let status = leaseRenewalRequest.status.replace("_", " ");
+
+                  if (status === "pending") {
+                    status = (
+                      <span>
+                        Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
+                        <span className="text-warning">Pending</span>
+                      </span>
+                    );
+                  } else if (status === "denied") {
+                    status = (
+                      <span>
+                        Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
+                        <span className="text-danger">Denied</span>
+                      </span>
+                    );
+                  } else if (status === "approved") {
+                    status = (
+                      <span>
+                        Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
+                        <span className="text-success">Approved</span>
+                      </span>
+                    );
+                  }
+
+                  return {
+                    primary:
+                      leaseRenewalRequest.tenant.user.first_name +
+                      " " +
+                      leaseRenewalRequest.tenant.user.last_name,
+                    secondary: status,
+                    tertiary: new Date(
+                      leaseRenewalRequest.created_at
+                    ).toLocaleDateString(),
+                    icon: <AttachMoneyIcon />,
+                  };
+                })
+                .slice(0, 5)}
+              tertiaryStyles={{ color: uiGreen }}
+            />
+          )}
         </div>
         <div className="col-md-6">
           <UIPieChartCard
             isLoading={isLoading}
             info={"Pending vs Approved Requests"}
             title={"Lease Renewal Requests"}
-            height={"456px"}
+            height={isMobile ? "356px" : "456px"}
             legendPosition={"bottom"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             chartContainerStyles={{ padding: "1rem" }}
             data={[

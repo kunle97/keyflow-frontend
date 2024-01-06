@@ -1,6 +1,7 @@
 import React from "react";
 import UITable from "../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router";
+import UITableMobile from "../UIComponents/UITable/UITableMobile";
 const Notifications = () => {
   const navigate = useNavigate();
   const columns = [
@@ -33,17 +34,34 @@ const Notifications = () => {
       direction: "desc",
     },
     onRowClick: (rowData, rowMeta) => {
-      const navlink = `/dashboard/landlord/notifications/${rowData}`;
+      const navlink = `/dashboard/notifications/${rowData}`;
       navigate(navlink);
     },
   };
   return (
     <div className="container-fluid">
-      <UITable
+      {/* <UITable
         endpoint="/notifications/"
         columns={columns}
         options={options}
         title="Notification Center"
+      /> */}
+      <UITableMobile
+        endpoint="/notifications/"
+        tableTitle="Notification Center"
+        createInfo={(row) => {
+          return row.title;
+        }}
+        createTitle={(row) => {
+          return row.message;
+        }}
+        createSubtitle={(row) => {
+          return new Date(row.timestamp).toLocaleDateString();
+        }}
+        onRowClick={(row) => {
+          const navlink = `/dashboard/notifications/${row.id}`;
+          navigate(navlink);
+        }}
       />
     </div>
   );
