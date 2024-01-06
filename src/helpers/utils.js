@@ -180,3 +180,12 @@ export const generateVariedColors = (baseColor, numberOfColors) => {
 
   return colors;
 };
+
+
+export const removeUnderscoresAndCapitalize = (value) => {
+  //remove the underscore from the value and capitalize the first letter of each word
+  let transactionType = value
+    .replace(/_/g, " ")
+    .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
+  return transactionType;
+};

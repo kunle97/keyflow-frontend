@@ -6,7 +6,7 @@ const UnitRow = (props) => {
   const { beds, baths, size, name } = props.unit;
   return (
     <div className="row unit-row" style={{ ...props.style }}>
-      <div className="col-md-3">
+      <div className="col-md-3 mb-3">
         <label className="form-label text-black" htmlFor="street">
           <strong>Name</strong>
         </label>
@@ -22,7 +22,7 @@ const UnitRow = (props) => {
           {props.unitNameErrors && props.unitNameErrors.message}
         </span>
       </div>
-      <div className="col-md-3">
+      <div className="col-md-3 mb-3">
         <label className="form-label text-black" htmlFor="street">
           <strong>Beds</strong>
         </label>
@@ -39,7 +39,7 @@ const UnitRow = (props) => {
           {props.unitBedsErrors && props.unitBedsErrors.message}
         </span>
       </div>
-      <div className="col-md-3">
+      <div className="col-md-3 mb-3">
         <label className="form-label text-black" htmlFor="street">
           <strong>Baths</strong>
         </label>
@@ -56,7 +56,7 @@ const UnitRow = (props) => {
           {props.unitBathsErrors && props.unitBathsErrors.message}
         </span>
       </div>
-      <div className="col-md-3">
+      <div className="col-md-3 mb-3">
         <label className="form-label text-black" htmlFor="street">
           <strong>Size (sqft)</strong>
         </label>

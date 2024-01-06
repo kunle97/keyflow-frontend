@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
-import { Dialog, Slide } from "@mui/material";
-import { uiGrey1 } from "../../../../constants";
+import { Dialog, Slide, Stack } from "@mui/material";
+import { uiGreen, uiGrey1 } from "../../../../constants";
+import CloseIcon from "@mui/icons-material/Close";
+import { IconButton } from "@mui/material";
+import useScreen from "../../../../hooks/useScreen";
 const UIDialog = ({
   children,
   open,
@@ -10,6 +13,7 @@ const UIDialog = ({
   title,
   bgColor,
 }) => {
+  const { isMobile } = useScreen();
   const Transition = useCallback(
     React.forwardRef(function Transition(props, ref) {
       return <Slide direction="up" ref={ref} {...props} />;
@@ -33,7 +37,27 @@ const UIDialog = ({
       maxWidth={maxWidth}
     >
       <div>
-        <h3>{title}</h3>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          alignContent={"center"}
+          sx={{ marginBottom: "5px" }}
+        >
+          <h3
+            style={{
+              fontSize: isMobile ? "12pt" : "15pt",
+            }}
+          >
+            {title}
+          </h3>
+          <IconButton
+            onClick={onClose}
+            style={{ float: "right", color: uiGreen }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Stack>
       </div>
       {children}
     </Dialog>

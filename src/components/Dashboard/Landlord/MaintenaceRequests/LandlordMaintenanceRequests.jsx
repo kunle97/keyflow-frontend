@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import {
   deleteMaintenanceRequest,
-  getMaintenanceRequestsByLandlord,
+  getAllOwnerMaintenanceRequests,
 } from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,8 @@ import TitleCard from "../../UIComponents/TitleCard";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import { set } from "react-hook-form";
 
 const LandlordMaintenanceRequests = () => {
   const navigate = useNavigate();
@@ -24,6 +26,11 @@ const LandlordMaintenanceRequests = () => {
   const [inProgressIssues, setInProgressIssues] = useState(0);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const [orderingField, setOrderingField] = useState("created_at");
+  const [searchField, setSearchField] = useState("");
+  const [limit, setLimit] = useState(10);
+  const [nextEndpoint, setNextEndpoint] = useState(null);
+  const [previousEndpoint, setPreviousEndpoint] = useState(null);
 
   const columns = [
     { name: "description", label: "Issue" },
@@ -70,53 +77,54 @@ const LandlordMaintenanceRequests = () => {
     onRowClick: handleRowClick,
     rowHover: true,
     //Create a delete function that will delete the maintenance request only if it is not in progress
-    onRowsDelete: (rowsDeleted, newTableData) => {
-      console.log(rowsDeleted);
-      console.log(newTableData);
-      let idsToDelete = [];
-      rowsDeleted.data.map((row) => {
-        //Check if the status is in progress
-        if (maintenanceRequests[row.dataIndex].status === "in_progress") {
-          setShowDeleteError(true);
-          setDeleteErrorMessage(
-            "One or more of the maintenance requests you have selected are in progress. You cannot delete a maintenance request that is in progress. Please mark it as completed first."
-          );
-          return false;
-        } else {
-          idsToDelete.push(maintenanceRequests[row.dataIndex].id);
-        }
-      });
-      console.log(idsToDelete);
-      idsToDelete.map((id) => {
-        deleteMaintenanceRequest(id).then((res) => {
-          console.log(res.data);
-        });
-      });
-    },
+    // onRowsDelete: (rowsDeleted, newTableData) => {
+    //   console.log(rowsDeleted);
+    //   console.log(newTableData);
+    //   let idsToDelete = [];
+    //   rowsDeleted.data.map((row) => {
+    //     //Check if the status is in progress
+    //     if (maintenanceRequests[row.dataIndex].status === "in_progress") {
+    //       setShowDeleteError(true);
+    //       setDeleteErrorMessage(
+    //         "One or more of the maintenance requests you have selected are in progress. You cannot delete a maintenance request that is in progress. Please mark it as completed first."
+    //       );
+    //       return false;
+    //     } else {
+    //       idsToDelete.push(maintenanceRequests[row.dataIndex].id);
+    //     }
+    //   });
+    //   console.log(idsToDelete);
+    //   idsToDelete.map((id) => {
+    //     deleteMaintenanceRequest(id).then((res) => {
+    //       console.log(res.data);
+    //     });
+    //   });
+    // },
   };
 
   useEffect(() => {
     //Retrieve the maintenance requests
-    getMaintenanceRequestsByLandlord().then((res) => {
-      console.log(res.data);
-      setMaintenanceRequests(res.data);
-      setResolvedIssues(
-        res.data.filter((request) => {
-          return request.status === "completed";
-        }).length
-      );
-      setPendingIssues(
-        res.data.filter((request) => {
-          return request.status === "pending";
-        }).length
-      );
-      setInProgressIssues(
-        res.data.filter((request) => {
-          return request.status === "in_progress";
-        }).length
-      );
-    });
-  }, []);
+    getAllOwnerMaintenanceRequests(orderingField, searchField, limit).then(
+      (res) => {
+        setMaintenanceRequests(res.data.results);
+        setResolvedIssues(
+          res.data.results.filter((request) => {
+            return request.status === "completed";
+          }).length
+        );
+        setPendingIssues(
+          res.data.results.filter((request) => {
+            return request.status === "pending";
+          }).length
+        );
+        setInProgressIssues(
+          res.data.results.filter((request) => {
+            return request.status === "in_progress";
+          }).length
+        );
+      }
+    );
+  }, [orderingField, searchField, limit]);
 
   return (
     <div className="container-fluid">
@@ -131,7 +139,7 @@ const LandlordMaintenanceRequests = () => {
             // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
-        <div className="col-md-4 mb-4">
+        <div className="col-6 col-md-4 mb-4">
           <UIInfoCard
             cardStyle={{ background: "white", color: uiGrey2 }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
@@ -141,7 +149,7 @@ const LandlordMaintenanceRequests = () => {
             // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
-        <div className="col-md-4 mb-4">
+        <div className="col-6 col-md-4 mb-4">
           <UIInfoCard
             cardStyle={{ background: "white", color: uiGrey2 }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt", margin: 0 }}
@@ -159,13 +167,34 @@ const LandlordMaintenanceRequests = () => {
         message={deleteErrorMessage}
         btnText="Close"
       />
-      <UITable
-        columns={columns}
-        options={options}
+      <UITableMobile
+        data={maintenanceRequests}
         endpoint="/maintenance-requests/"
-        title="Maintenance Requests"
-        showCreate={false}
-        detailURL="/dashboard/landlord/maintenance-requests/"
+        createInfo={(row) =>
+          `${row.tenant.user["first_name"]} ${row.tenant.user["last_name"]}`
+        }
+        createTitle={(row) => `${row.description}`}
+        createSubtitle={(row) => `${row.status.replace("_", " ")}`}
+        onRowClick={(row) => {
+          const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+          navigate(navlink);
+        }}
+        titleStyle={{
+          maxHeight: "17px",
+          maxWidth: "180px",
+          overflow: "hidden",
+          textOverflow: "ellipsis", 
+        }}
+        orderingFields={[
+          { field: "created_at", label: "Date Created (Ascending)" },
+          { field: "-created_at", label: "Date Created (Descending)" },
+          { field: "status", label: "Status (Ascending)" },
+          { field: "-status", label: "Status (Descending)" },
+        ]}
+        showResultLimit={false}
+        tableTitle="Maintenance Requests"
+        loadingTitle="Maintenance Requests"
+        loadingMessage="Loading your maintenance requests..."
       />
     </div>
   );

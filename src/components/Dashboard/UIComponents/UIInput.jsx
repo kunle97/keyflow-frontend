@@ -4,7 +4,10 @@ const UIInput = (props) => {
   const defaultStyles = {
     borderRadius: "5px",
     border: "none",
-    padding: "5px",
+    padding: "5px 10px",
+    outline: "none",
+    backgroundColor: "white",
+    boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
   };
   return (
     <div>

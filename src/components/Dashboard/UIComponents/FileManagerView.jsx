@@ -13,6 +13,8 @@ import AlertModal from "./Modals/AlertModal";
 import { useNavigate } from "react-router";
 import UIInput from "./UIInput";
 import UIDropdown from "./UIDropdown";
+import useScreen from "../../../hooks/useScreen";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 const FileManagerView = (props) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -29,6 +31,7 @@ const FileManagerView = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6); // State for items per page
   const navigate = useNavigate();
+  const { screenWidth, breakpoints } = useScreen();
 
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
@@ -51,7 +54,19 @@ const FileManagerView = (props) => {
   const prevPage = () => {
     setCurrentPage((prevPage) => prevPage - 1);
   };
-
+  const calculateImageContainerHeight = () => {
+    if (screenWidth < breakpoints.sm) {
+      return "100px";
+    } else if (screenWidth < breakpoints.md) {
+      return "150px";
+    } else if (screenWidth < breakpoints.lg) {
+      return "200px";
+    } else if (screenWidth < breakpoints.xl) {
+      return "250px";
+    } else {
+      return "300px";
+    }
+  };
   const handleItemsPerPageChange = (event) => {
     setItemsPerPage(parseInt(event.target.value, 10));
     setCurrentPage(1); // Reset to the first page when changing items per page
@@ -81,6 +96,11 @@ const FileManagerView = (props) => {
         setIsLoading(false);
       });
   };
+  useEffect(() => {
+    if (screenWidth < breakpoints.md) {
+      setItemsPerPage(9);
+    }
+  }, [props.files]);
   return (
     <div className="row">
       <div className="col-md-12">
@@ -126,43 +146,62 @@ const FileManagerView = (props) => {
         />
       </div>
       <div className="col-md-12 mt-1" style={{ overflow: "auto" }}>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems="center"
-          spacing={2}
-          style={{ marginBottom: "20px" }}
-        >
-          <h2>{filteredFiles.length} Results</h2>
+        <div className={`${screenWidth < breakpoints.md && "container-fluid"} `}>
           <Stack
-            direction={{ xs: "column", sm: "row" }}
-            justifyContent="flex-end"
+            direction={"row"}
+            justifyContent="space-between"
             alignItems="center"
             spacing={2}
+            style={{ marginBottom: "20px" }}
           >
-            <UIDropdown
-              value={itemsPerPage}
-              onChange={handleItemsPerPageChange}
-              options={[1, 2, 3, 6, 12, 18, 24]}
-              prefixText={"Show "}
-              suffixText={" Items"}
-            />
-            <UIInput
-              placeholder={"Search..."}
-              value={searchQuery}
-              onChange={handleSearchInputChange} // Connect the input to the search handler
-              style={{ width: "160px" }}
-            />
-            <UIButton
-              btnText={"Upload File"}
-              onClick={() => setUploadDialogOpen(true)}
-              style={{ width: "110px" }}
-            />
+            <h2
+              style={{
+                fontSize: screenWidth < breakpoints.md ? "15pt" : "22pt",
+              }}
+            >
+              {filteredFiles.length} Results
+            </h2>
+            <Stack
+              direction={"row"}
+              justifyContent="flex-end"
+              alignItems="center"
+              spacing={2}
+            >
+              {screenWidth > breakpoints.md && (
+                <UIDropdown
+                  value={itemsPerPage}
+                  onChange={handleItemsPerPageChange}
+                  options={[1, 2, 3, 6, 12, 18, 24]}
+                  prefixText={"Show "}
+                  suffixText={" Items"}
+                />
+              )}
+              <UIInput
+                placeholder={"Search..."}
+                value={searchQuery}
+                onChange={handleSearchInputChange} // Connect the input to the search handler
+                style={{ width: "160px" }}
+              />
+              {screenWidth > breakpoints.md ? (
+                <UIButton
+                  btnText={"Upload File"}
+                  onClick={() => setUploadDialogOpen(true)}
+                  style={{ width: "130px" }}
+                />
+              ) : (
+                <IconButton
+                  onClick={() => setUploadDialogOpen(true)}
+                  style={{ color: uiGreen }}
+                >
+                  <CloudUploadIcon />
+                </IconButton>
+              )}
+            </Stack>
           </Stack>
-        </Stack>
+        </div>
         <div className="row">
           {currentItems.length > 0 ? (
-            <>
+            <div className="row">
               {currentItems.map((media, index) => {
                 const { fileName, extension } = extractFileNameAndExtension(
                   media.file
@@ -171,7 +210,7 @@ const FileManagerView = (props) => {
                 return (
                   <div
                     key={index}
-                    className="col-xs-4 col-sm-3 col-md-3"
+                    className="col-4 col-sm-3 col-md-3"
                     style={{ padding: 0 }}
                     onMouseEnter={() => setHoverIndex(index)}
                     onMouseLeave={() => setHoverIndex(null)}
@@ -180,9 +219,9 @@ const FileManagerView = (props) => {
                       className="image-container"
                       style={{
                         width: "100%",
-                        height: "300px",
+                        height: calculateImageContainerHeight(),
                         overflow: "hidden",
-                        // position: "relative",
+                        position: "relative",
                       }}
                     >
                       <img
@@ -226,7 +265,7 @@ const FileManagerView = (props) => {
                   </div>
                 );
               })}
-            </>
+            </div>
           ) : (
             <UIPrompt
               title={
@@ -269,7 +308,7 @@ const FileManagerView = (props) => {
               onClick={prevPage}
               disabled={currentPage === 1}
             />
-            <span style={{ margin: "0 10px", color:uiGrey2 }}>
+            <span style={{ margin: "0 10px", color: uiGrey2 }}>
               Page {currentPage} of{" "}
               {Math.ceil(filteredFiles.length / itemsPerPage)}
             </span>

@@ -1,38 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
-import { authenticatedInstance } from "../../../../api/api";
-import { logout } from "../../../../api/auth";
-import { redirect, useNavigate } from "react-router";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link } from "react-router-dom";
 import {
   authUser,
   dateDiffForHumans,
   defaultWhiteInputStyle,
-  token,
   uiGreen,
-  uiGrey1,
-  uiGrey2,
-  uiGrey3,
   uiRed,
 } from "../../../../constants";
-import { faker } from "@faker-js/faker";
-import { getMessagesWithLimit, getMessages } from "../../../../api/messages";
-import { createThreads } from "../../../../helpers/messageUtils";
 import { IconButton, Stack } from "@mui/material";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import SearchIcon from "@mui/icons-material/Search";
-import SearchDialog from "../../UIComponents/Modals/Search/SearchDialog";
 import MenuIcon from "@mui/icons-material/Menu";
 const Topbar = (props) => {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [notificationCount, setNotificationCount] = useState(0);
+
   const [profilePictures, setProfilePictures] = useState(null);
-  const [messageThreads, setMessageThreads] = useState([]);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
-  const [showSearchMenu, setShowSearchMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const { logoutUser } = useAuth();
   const searchBarStyle = {
     ...defaultWhiteInputStyle,
@@ -53,15 +38,7 @@ const Topbar = (props) => {
     e.preventDefault();
     logoutUser();
   };
-  const fetchMessages = () => {
-    getMessages().then((res) => {
-      // Use the messages to create threads
-      let threads = createThreads(res.data);
-      //Filter the threads variable to show 5 threads with the most recent messages
-      threads = threads.slice(0, 5);
-      setMessageThreads(threads);
-    });
-  };
+
   const getProfilePicture = async (user_id) => {
     try {
       const res = await retrieveFilesBySubfolder(
@@ -81,7 +58,7 @@ const Topbar = (props) => {
   };
   const fetchProfilePictures = async () => {
     const pictures = {};
-    for (const thread of messageThreads || []) {
+    for (const thread of props.messageThreads || []) {
       const user_id = thread.recipient_id;
       const picture = await getProfilePicture(user_id);
       pictures[user_id] = picture;
@@ -91,16 +68,6 @@ const Topbar = (props) => {
   //REtrieve user notifications
   useEffect(() => {
     try {
-      authenticatedInstance
-        .get("/notifications/?limit=5&ordering=-timestamp")
-        .then((response) => {
-          setNotifications(response.data.results);
-          setNotificationCount(response.data.count);
-        })
-        .catch((error) => {
-          console.log("Error: ", error);
-        });
-      fetchMessages();
       retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
         (res) => {
           setProfilePictureFile(res.data[0]);
@@ -151,13 +118,6 @@ const Topbar = (props) => {
           >
             <MenuIcon style={{ color: uiGreen, fontSize: "25pt" }} />
           </IconButton>
-          {showSearchMenu && (
-            <SearchDialog
-              open={showSearchMenu}
-              handleClose={() => setShowSearchMenu(false)}
-              query={searchQuery}
-            />
-          )}
           <Link
             className="navbar-brand"
             to={`${
@@ -193,10 +153,10 @@ const Topbar = (props) => {
                 type="search"
                 placeholder="Search"
                 style={searchBarStyle}
-                value={searchQuery}
+                value={props.searchQuery}
                 onChange={(e) => {
-                  setShowSearchMenu(true);
-                  setSearchQuery(e.target.value);
+                  props.setShowSearchDialog(true);
+                  props.setSearchQuery(e.target.value);
                 }}
               />
               <IconButton
@@ -205,7 +165,7 @@ const Topbar = (props) => {
                   position: "relative",
                   right: "50px",
                 }}
-                onClick={() => setShowSearchMenu(true)}
+                onClick={() => props.setShowSearchDialog(true)}
               >
                 <SearchIcon style={{ color: "white" }} />
               </IconButton>
@@ -250,8 +210,9 @@ const Topbar = (props) => {
                   href="#"
                 >
                   {" "}
-                  {notifications.filter((notification) => !notification.is_read)
-                    .length > 0 && (
+                  {props.notifications.filter(
+                    (notification) => !notification.is_read
+                  ).length > 0 && (
                     <>
                       {/* <span className="badge bg-danger badge-counter">
                         {notifications.length}
@@ -278,7 +239,7 @@ const Topbar = (props) => {
                   >
                     Notifications
                   </h5>
-                  {notifications.length === 0 ? (
+                  {props.notifications.length === 0 ? (
                     <div
                       style={{
                         background: "white",
@@ -302,13 +263,13 @@ const Topbar = (props) => {
                     </div>
                   ) : (
                     <>
-                      {notifications.map((notification) => (
+                      {props.notifications.map((notification) => (
                         <Link
                           className="dropdown-item d-flex align-items-center"
                           to={
                             notification.resource_url
                               ? notification.resource_url
-                              : `/dashboard/landlord/notifications/${notification.id}`
+                              : `/dashboard/notifications/${notification.id}`
                           }
                           style={
                             notification.is_read
@@ -347,7 +308,7 @@ const Topbar = (props) => {
                   )}
                   <Link
                     className="dropdown-item text-center large"
-                    to="/dashboard/landlord/notifications"
+                    to="/dashboard/notifications"
                     style={{
                       borderStyle: "none",
                       background: uiGreen,
@@ -390,7 +351,7 @@ const Topbar = (props) => {
                     Messages
                   </h5>
 
-                  {messageThreads.length === 0 ? (
+                  {props.messageThreads.length === 0 ? (
                     <div
                       style={{
                         background: "white",
@@ -414,7 +375,7 @@ const Topbar = (props) => {
                     </div>
                   ) : (
                     <ul className="list-group ">
-                      {messageThreads.map((thread) => {
+                      {props.messageThreads.map((thread) => {
                         const profilePic =
                           profilePictures[thread.recipient_id] ||
                           "/assets/img/avatars/default-user-profile-picture.png";

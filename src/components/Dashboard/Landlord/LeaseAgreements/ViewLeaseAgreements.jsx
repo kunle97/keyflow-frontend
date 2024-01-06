@@ -2,6 +2,7 @@ import React from "react";
 import UITable from "../../UIComponents/UITable/UITable";
 import { uiGreen, uiRed } from "../../../../constants";
 import { useNavigate } from "react-router";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const ViewLeaseAgreements = () => {
   const navigate = useNavigate();
   const columns = [
@@ -72,12 +73,47 @@ const ViewLeaseAgreements = () => {
     onRowClick: handleRowClick,
   };
   return (
-    <div className="container-fluid" >
-      <UITable
+    <div className="container-fluid">
+      {/* <UITable
         columns={columns}
         endpoint={"/lease-agreements/"}
         options={options}
         title={"Lease Agreements"}
+      /> */}
+      <UITableMobile
+        tableTitle={"Lease Agreements"}
+        endpoint={"/lease-agreements/"}
+        createInfo={(row) =>
+          `${
+            row.tenant
+              ? row.tenant.user.first_name + row.tenant.user.last_name
+              : "N/A"
+          }`
+        }
+        createSubtitle={(row) =>
+          `${row.is_active ? "Active" : "Inactive"} - Ends: ${
+            row.end_date ? new Date(row.end_date).toLocaleDateString() : "N/A"
+          }`
+        }
+        createTitle={(row) =>
+          `Unit ${row.rental_unit.name}`
+        }
+        orderingFields={[
+          { field: "created_at", label: "Date Created (Ascending)" },
+          { field: "-created_at", label: "Date Created (Descending)" },
+          { field: "is_active", label: "Status (Ascending)" },
+          { field: "-is_active", label: "Status (Descending)" },
+          { field: "tenant__last_name", label: "Tenant (Ascending)" },
+          { field: "-tenant__last_name", label: "Tenant (Descending)" },
+          { field: "start_date", label: "Start Date (Ascending)" },
+          { field: "-start_date", label: "Start Date (Descending)" },
+          { field: "end_date", label: "End Date (Ascending)" },
+          { field: "-end_date", label: "End Date (Descending)" },
+        ]}
+        onRowClick={(row) => {
+          const navlink = `/dashboard/landlord/lease-agreements/${row.id}`;
+          navigate(navlink);
+        }}
       />
     </div>
   );

@@ -15,49 +15,17 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { uiGrey1, uiGrey2 } from "../../../../constants";
+import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
+import { Link, useNavigate } from "react-router-dom";
+import PersonIcon from "@mui/icons-material/Person";
 
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
-  },
-}));
-
-export default function PrimarySearchAppBar({ openMenu }) {
+export default function PrimarySearchAppBar({
+  openMenu,
+  setShowSearchDialog,
+  notificationCount,
+  messageCount,
+}) {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -120,15 +88,23 @@ export default function PrimarySearchAppBar({ openMenu }) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
+      <MenuItem onClick={() => navigate("/dashboard/messages")}>
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="error">
-            <MailIcon />
+            <MailIcon sx={{ color: uiGreen }} />
           </Badge>
         </IconButton>
         <p>Messages</p>
       </MenuItem>
-      <MenuItem>
+      <MenuItem
+        onClick={() =>
+          navigate(
+            authUser.account_type === "owner"
+              ? "/dashboard/notifications"
+              : "/dashboard/tenant/notifications"
+          )
+        }
+      >
         <IconButton
           size="large"
           aria-label="show 17 new notifications"
@@ -159,53 +135,70 @@ export default function PrimarySearchAppBar({ openMenu }) {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
         position="fixed"
-        sx={{ backgroundColor: uiGrey2, marginBottom: "20px" }}
+        sx={{ backgroundColor: "white", color: uiGrey2, marginBottom: "20px" }}
       >
-        <div className="container">
+        <div className="">
           <Toolbar>
             <IconButton
               size="large"
               edge="start"
               color="inherit"
               aria-label="open drawer"
-              sx={{ mr: 2 }}
+              sx={{ mr: 0 }}
               onClick={openMenu}
             >
-              <MenuIcon />
+              <MenuIcon sx={{ color: uiGreen }} />
             </IconButton>
+            <Link
+              to={
+                authUser.account_type === "owner"
+                  ? "/dashboard/landlord"
+                  : "/dashboard/tenant"
+              }
+            >
+              <img
+                src="/assets/img/key-flow-logo-black-transparent.png"
+                style={{
+                  width: "130px",
+                  textAlign: "center",
+                  margin: "25px 0",
+                }}
+                alt="logo"
+              />
+            </Link>
             <Typography
               variant="h6"
               noWrap
               component="div"
               sx={{ display: { xs: "none", sm: "block" } }}
             ></Typography>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ "aria-label": "search" }}
-              />
-            </Search>
+
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "flex" } }}>
+
+            <IconButton onClick={() => setShowSearchDialog(true)}>
+              <SearchIcon style={{ color: uiGreen }} />
+            </IconButton>
+            <Box sx={{ display: "flex" }}>
               <IconButton
                 size="large"
                 aria-label="show 4 new mails"
-                color="inherit"
+                onClick={() => {
+                  navigate("/dashboard/messages/");
+                }}
               >
-                <Badge badgeContent={4} color="error">
-                  <MailIcon />
+                <Badge badgeContent={messageCount} color="error">
+                  <MailIcon sx={{ color: uiGreen }} />
                 </Badge>
               </IconButton>
               <IconButton
                 size="large"
                 aria-label="show 17 new notifications"
-                color="inherit"
+                onClick={() => {
+                  navigate("/dashboard/notifications/");
+                }}
               >
-                <Badge badgeContent={17} color="error">
-                  <NotificationsIcon />
+                <Badge badgeContent={notificationCount} color="error">
+                  <NotificationsIcon sx={{ color: uiGreen }} />
                 </Badge>
               </IconButton>
               <IconButton
@@ -214,24 +207,29 @@ export default function PrimarySearchAppBar({ openMenu }) {
                 aria-label="account of current user"
                 aria-controls={menuId}
                 aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
+                onClick={() => {
+                  navigate(
+                    authUser.account_type === "owner"
+                      ? "/dashboard/landlord/my-account"
+                      : "/dashboard/tenant/my-account"
+                  );
+                }}
               >
-                <AccountCircle />
+                <PersonIcon sx={{ color: uiGreen }} />
               </IconButton>
             </Box>
-            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+
+            {/* <Box sx={{ display: { xs: "flex", md: "none" } }}>
               <IconButton
                 size="large"
                 aria-label="show more"
                 aria-controls={mobileMenuId}
                 aria-haspopup="true"
                 onClick={handleMobileMenuOpen}
-                color="inherit"
               >
-                <MoreIcon />
+                <PersonIcon sx={{ color: uiGreen }} />
               </IconButton>
-            </Box>
+            </Box> */}
           </Toolbar>
         </div>
       </AppBar>

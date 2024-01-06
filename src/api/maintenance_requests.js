@@ -60,10 +60,16 @@ export async function getMaintenanceRequestsByUser() {
 }
 
 //Create a function to list all maintenance requests for a specific landlord user
-export async function getMaintenanceRequestsByLandlord() {
+export async function getAllOwnerMaintenanceRequests(ordering = "-created_at", query = "", limit = 10) {
   try {
     const res = await authenticatedInstance
-      .get(`/maintenance-requests/`)
+      .get(`/maintenance-requests/`, {
+        params: {
+          ordering: ordering,
+          search: query,
+          limit: limit,
+        },
+      })
       .then((res) => {
         return res;
       });

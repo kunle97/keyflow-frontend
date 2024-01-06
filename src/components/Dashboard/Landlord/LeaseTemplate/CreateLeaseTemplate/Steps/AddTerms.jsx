@@ -198,7 +198,7 @@ const AddTerms = (props) => {
             htmlFor="rent"
           >
             Grace Period
-            <Tooltip title="The grace period is the amount of time you give a tenant until they mus pay for thier first rent payment.">
+            <Tooltip title="The grace period is the amount of time you give a tenant until they must pay for thier first rent payment.">
               <HelpOutline
                 sx={{
                   marginLeft: "5px",
