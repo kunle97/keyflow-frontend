@@ -5,6 +5,8 @@ import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import TitleCard from "../../../Dashboard/UIComponents/TitleCard";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 const LandlordTransactions = () => {
   let revenueData = [];
   const navigate = useNavigate();
@@ -75,9 +77,7 @@ const LandlordTransactions = () => {
           //remove the underscore from the value and capitalize the first letter of each word
           let transactionType = value
             .replace(/_/g, " ")
-            .replace(/\w\S*/g, (w) =>
-              w.replace(/^\w/, (c) => c.toUpperCase())
-            );
+            .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
           return <>{transactionType}</>;
         },
       },
@@ -92,8 +92,8 @@ const LandlordTransactions = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/transactions/${rowData}`;
+  const handleRowClick = (row) => {
+    const navlink = `/dashboard/landlord/transactions/${row.id}`;
     navigate(navlink);
   };
   const options = {
@@ -105,6 +105,7 @@ const LandlordTransactions = () => {
       direction: "desc",
     },
   };
+
   useEffect(() => {
     //retrieve transactions from api
     getTransactionsByUser().then((res) => {
@@ -139,13 +140,39 @@ const LandlordTransactions = () => {
         style={{ marginBottom: "1rem" }}
       />
       {tabPage === 0 && (
-        <UITable
-          columns={columns}
-          options={options}
+        // <UITable
+        //   columns={columns}
+        //   options={options}
+        //   endpoint="/transactions/"
+        //   title="Transactions"
+        //   detailURL="/dashboard/landlord/transactions/"
+        //   showCreate={false}
+        // />
+        <UITableMobile
+          tableTitle="Transactions"
           endpoint="/transactions/"
-          title="Transactions"
-          detailURL="/dashboard/landlord/transactions/"
-          showCreate={false}
+          createInfo={(row) =>
+            `${
+              row.type === "vendor_payment" || row.type === "expense"
+                ? "-$"
+                : "+$"
+            }${String(row.amount).toLocaleString("en-US")}`
+          }
+          createSubtitle={(row) =>
+            `${removeUnderscoresAndCapitalize(row.type)}`
+          }
+          createTitle={(row) =>
+            `${new Date(row.timestamp).toLocaleDateString()}`
+          }
+          onRowClick={handleRowClick}
+          orderingFields={[
+            { field: "timestamp", label: "Date Created (Ascending)" },
+            { field: "-timestamp", label: "Date Created (Descending)" },
+            { field: "type", label: "Transaction Type (Ascending)" },
+            { field: "-type", label: "Transaction Type (Descending)" },
+            { field: "amount", label: "Amount (Ascending)" },
+            { field: "-amount", label: "Amount (Descending)" },
+          ]}
         />
       )}
       {tabPage === 1 && (

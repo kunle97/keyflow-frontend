@@ -32,7 +32,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { getTenantLeaseRenewalRequests } from "../../../api/lease_renewal_requests";
 import UICard from "../UIComponents/UICards/UICard";
 import UICardList from "../UIComponents/UICards/UICardList";
-import UITableCard from "../UIComponents/UICards/UITableCard";
+import UItableMiniCard from "../UIComponents/UICards/UITableMiniCard";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -358,35 +358,37 @@ const TenantDashboard = () => {
               </Stack>
             </UICard>
           ) : (
-            <UICardList
-              cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={""}
-              info={"Recent Transactions"}
-              onInfoClick={() => navigate("/dashboard/landlord/transactions")}
-              //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
-              items={transactions
-                .map((transaction) => ({
-                  primary: transaction.description,
-                  secondary: new Date(
-                    transaction.timestamp
-                  ).toLocaleDateString(),
-                  tertiary: `${
-                    transaction.type === "revenue" ||
-                    transaction.type === "rent_payment" ||
-                    transaction.type === "security_deposit"
-                      ? "+"
-                      : "-"
-                  }$${transaction.amount}`,
-                  icon: <AttachMoneyIcon />,
-                }))
-                .slice(0, 4)}
-              tertiaryStyles={{ color: uiGreen }}
-            />
+            <>
+              {/* <UICardList
+                cardStyle={{ background: "white", color: "black" }}
+                infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                title={""}
+                info={"Recent Transactions"}
+                onInfoClick={() => navigate("/dashboard/landlord/transactions")}
+                //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
+                items={transactions
+                  .map((transaction) => ({
+                    primary: transaction.description,
+                    secondary: new Date(
+                      transaction.timestamp
+                    ).toLocaleDateString(),
+                    tertiary: `${
+                      transaction.type === "revenue" ||
+                      transaction.type === "rent_payment" ||
+                      transaction.type === "security_deposit"
+                        ? "+"
+                        : "-"
+                    }$${transaction.amount}`,
+                    icon: <AttachMoneyIcon />,
+                  }))
+                  .slice(0, 4)}
+                tertiaryStyles={{ color: uiGreen }}
+              /> */}
+            </>
           )}
 
-          <UITableCard
+          <UItableMiniCard
             cardStyle={{ background: "white", color: "black" }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}

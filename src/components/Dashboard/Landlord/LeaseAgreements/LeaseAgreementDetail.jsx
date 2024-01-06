@@ -18,6 +18,15 @@ import {
 } from "../../../../api/manage_subscriptions";
 import { downloadBoldSignDocument } from "../../../../api/boldsign";
 import BackButton from "../../UIComponents/BackButton";
+import SensorsIcon from "@mui/icons-material/Sensors";
+import HomeIcon from "@mui/icons-material/Home";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import DrawIcon from "@mui/icons-material/Draw";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import useScreen from "../../../../hooks/useScreen";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState({});
@@ -28,6 +37,9 @@ const LeaseAgreementDetail = () => {
   const [tenant, setTenant] = useState({});
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   const [nextPaymentDate, setNextPaymentDate] = useState(null);
+  const { isMobile } = useScreen();
+
+  const iconStyles = { color: uiGreen, fontSize: "24pt", marginBottom: "5px" };
 
   const getTenantName = () => {
     if (leaseAgreement.tenant) {
@@ -60,7 +72,6 @@ const LeaseAgreementDetail = () => {
       setRentalApplication(res.data.rental_application);
       setRentalUnit(res.data.rental_unit);
       getProperty(res.data.rental_unit.rental_property).then((res) => {
-        console.log("Rental Property:", res);
         setRentalProperty(res);
       });
       setTenant(res.data.tenant);
@@ -84,106 +95,141 @@ const LeaseAgreementDetail = () => {
     });
   }, []);
   return (
-    <div className="container-fluid" >
+    <div className="container-fluid">
       <BackButton />
       <div className="row">
         <div className="col-md-4">
-          <div className="card">
-            <div className="card-body">
-              <div className="row">
-                <div className="col-md-6">
-                  <div>
-                    <h5>Tenant</h5>
-                    <p className="text-black">{getTenantName()}</p>
-                  </div>
-                  <div>
-                    <h5>Rental Property</h5>
-                    <p className="text-black">
-                      {leaseAgreement.rental_unit ? rentalUnit.rental_property_name : "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <h5>Rental Unit</h5>
-                    <p className="text-black">
-                      {leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
-                    </p>
-                  </div>{" "}
-                  <div>
-                    <h5>Rent</h5>
-                    <p className="text-black">${leaseTemplate.rent}</p>
-                  </div>
-                </div>
-                <div className="col-md-6">
-                  <div>
-                    <h5>Status</h5>
-                    <p className="text-black">
-                      {leaseAgreement.is_active ? (
-                        <span style={{ color: uiGreen }}>Active</span>
-                      ) : (
-                        <span style={{ color: uiRed }}>Inactive</span>
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <h5>Date Signed</h5>
-                    <p className="text-black">
-                      {leaseAgreement.start_date ? (
-                        new Date(leaseAgreement.start_date).toLocaleDateString()
-                      ) : (
-                        <span>N/A</span>
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <h5>End Date</h5>
-                    <p className="text-black">
-                      {leaseAgreement.end_date ? (
-                        new Date(leaseAgreement.end_date).toLocaleDateString()
-                      ) : (
-                        <span>N/A</span>
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <h5>Term</h5>
-                    <p className="text-black">{leaseTemplate.term} months</p>
-                  </div>
+          <div className="row">
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <PeopleAltIcon sx={iconStyles} />
+                  <h5>Tenant</h5>
+                  <p className="text-black">{getTenantName()}</p>
                 </div>
               </div>
+            </div>
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <HomeIcon sx={iconStyles} />
+                  <h5>Property</h5>
+                  <p className="text-black">
+                    {leaseAgreement.rental_unit
+                      ? rentalUnit.rental_property_name
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <MeetingRoomIcon sx={iconStyles} />
+                  <h5>Rental Unit</h5>
+                  <p className="text-black">
+                    {leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <PaymentsIcon sx={iconStyles} />
+                  <h5>Rent</h5>
+                  <p className="text-black">${leaseTemplate.rent}</p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <SensorsIcon sx={iconStyles} />
+                  <h5>Status</h5>
+                  <p className="text-black">
+                    {leaseAgreement.is_active ? (
+                      <span style={{ color: uiGreen }}>Active</span>
+                    ) : (
+                      <span style={{ color: uiRed }}>Inactive</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-              <p style={{ color: uiGrey2 }}>
-                <strong>Auto Pay Enabled:</strong>{" "}
-                {leaseAgreement.is_active ? (
-                  <span>
-                    {leaseAgreement.auto_pay_is_enabled ? "Yes" : "No"}
-                  </span>
-                ) : (
-                  "N/A"
-                )}
-              </p>
-              <p style={{ color: uiGrey2 }}>
-                {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
-                  <ReportIcon sx={{ color: "red" }} />
-                )}{" "}
-                <strong>Rent due </strong>
-                {leaseAgreement.is_active
-                  ? dateDiffForHumans(new Date(nextPaymentDate))
-                  : "N/A"}
-              </p>
-              {leaseAgreement.document_id !== "" && (
-                <UIButton
-                  btnText="Download Document"
-                  style={{ width: "100%" }}
-                  onClick={handleDownloadDocument}
-                />
-              )}
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <DrawIcon sx={iconStyles} />
+                  <h5>Sign Date</h5>
+                  <p className="text-black">
+                    {leaseAgreement.start_date ? (
+                      new Date(leaseAgreement.start_date).toLocaleDateString()
+                    ) : (
+                      <span>N/A</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-6 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">
+                  <CalendarMonthIcon sx={iconStyles} />
+                  <h5>End Date</h5>
+                  <p className="text-black">
+                    {leaseAgreement.end_date ? (
+                      new Date(leaseAgreement.end_date).toLocaleDateString()
+                    ) : (
+                      <span>N/A</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-6 col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <AccessTimeIcon sx={iconStyles} />
+                  <h5>Term</h5>
+                  <p className="text-black">{leaseTemplate.term} months</p>
+                </div>
+              </div>
             </div>
           </div>
+
+          <p style={{ color: uiGrey2 }}>
+            <strong>Auto Pay Enabled:</strong>{" "}
+            {leaseAgreement.is_active ? (
+              <span>{leaseAgreement.auto_pay_is_enabled ? "Yes" : "No"}</span>
+            ) : (
+              "N/A"
+            )}
+          </p>
+          <p style={{ color: uiGrey2 }}>
+            {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
+              <ReportIcon sx={{ color: "red" }} />
+            )}{" "}
+            <strong>Rent due </strong>
+            {leaseAgreement.is_active
+              ? dateDiffForHumans(new Date(nextPaymentDate))
+              : "N/A"}
+          </p>
+          {leaseAgreement.document_id !== "" && (
+            <UIButton
+              btnText="Download Document"
+              style={{ width: "100%", marginBottom: "25px" }}
+              onClick={handleDownloadDocument}
+            />
+          )}
         </div>
         <div className="col-md-8">
           <div className="card">
             <div className="card-body">
               <FullCalendar
+                height={isMobile ? "500px" : "600px"}
                 plugins={[dayGridPlugin]}
                 initialView="dayGridMonth"
                 weekends={true}

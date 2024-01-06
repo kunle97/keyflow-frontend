@@ -22,10 +22,19 @@ import { getProperty } from "../../../../api/properties";
 import { getLeaseAgreementsByTenant } from "../../../../api/lease_agreements";
 import { getTransactionsByTenant } from "../../../../api/transactions";
 import { getMaintenanceRequestsByTenant } from "../../../../api/maintenance_requests";
-
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import UIDetailCard from "../../UIComponents/UICards/UIDetailCard";
+import HomeIcon from "@mui/icons-material/Home";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import useScreen from "../../../../hooks/useScreen";
+import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
   const [tenant, setTenant] = useState(null);
   const [unit, setUnit] = useState({});
   const [property, setProperty] = useState({});
@@ -74,8 +83,8 @@ const ManageTenant = () => {
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
   };
-  const transactionHandleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/transactions/${rowData[0]}`;
+  const handleTransactionRowClick = (row) => {
+    const navlink = `/dashboard/landlord/transactions/${row.id}`;
     navigate(navlink);
   };
   const transaction_options = {
@@ -85,7 +94,6 @@ const ManageTenant = () => {
       name: "created_at",
       direction: "desc",
     },
-    onRowClick: transactionHandleRowClick,
   };
 
   const maintenance_request_columns = [
@@ -128,6 +136,12 @@ const ManageTenant = () => {
     },
     onRowClick: maintenanceRequestHandleRowClick,
   };
+  const titleStyle = {
+    fontSize: isMobile ? "12pt" : "17pt",
+    marginTop: "12px",
+    fontWeight: "600",
+  };
+  const infoStyle = { fontSize: isMobile ? "12pt" : "15pt" };
 
   useEffect(() => {
     if (!tenant) {
@@ -178,6 +192,32 @@ const ManageTenant = () => {
     <>
       {tenant && (
         <div className="container">
+          <div
+            style={{
+              borderRadius: "50%",
+              overflow: "hidden",
+              width: isMobile ? "100px" : "200px",
+              height: isMobile ? "100px" : "200px",
+              margin: "15px auto",
+            }}
+          >
+            <img
+              style={{ height: "100%" }}
+              src={
+                tenantProfilePicture
+                  ? tenantProfilePicture.file
+                  : "/assets/img/avatars/default-user-profile-picture.png"
+              }
+            />
+          </div>
+          <h4 style={{ width: "100%", textAlign: "center" }}>
+            {tenant.user.first_name} {tenant.user.last_name}
+          </h4>
+          <div style={{ width: "100%", textAlign: "center" }}>
+            <a href={`mailto:${tenant.user.email}`} className="text-muted">
+              {tenant.user.email}
+            </a>
+          </div>
           <BackButton to="/dashboard/landlord/tenants" />
           <UITabs
             value={tabPage}
@@ -189,53 +229,126 @@ const ManageTenant = () => {
             style={{ marginBottom: "20px" }}
           />
           {tabPage === 0 && (
-            <div className="row mb-3">
-              <div className="col-sm-12 col-md-12 col-lg-4">
-                <div className="card mb-3">
-                  <div className="card-body text-center shadow">
-                    <div
-                      style={{
-                        borderRadius: "50%",
-                        overflow: "hidden",
-                        width: "200px",
-                        height: "200px",
-                        margin: "15px auto",
-                      }}
-                    >
-                      <img
-                        style={{ height: "100%" }}
-                        src={
-                          tenantProfilePicture
-                            ? tenantProfilePicture.file
-                            : "/assets/img/avatars/default-user-profile-picture.png"
-                        }
+            <>
+              <div className="row">
+                <div className="col-6 col-md-4 mb-4">
+                  <UIDetailCard
+                    title="Property"
+                    titleStyle={titleStyle}
+                    infoStyle={infoStyle}
+                    info={property.name}
+                    muiIcon={
+                      <HomeIcon
+                        style={{
+                          color: uiGreen,
+                          fontSize: "29pt",
+                        }}
                       />
-                    </div>
-                    <h4
-                      className="text-black tenant-info-heading"
-                      style={{ width: "100%" }}
-                    >
-                      <center>
-                        <p>
-                          {tenant.user.first_name} {tenant.user.last_name}
-                        </p>
-                      </center>
-                    </h4>
-                    <span className="text-muted">{tenant.user.username}</span>
-                    <div className="mb-3">
-                      <a href={`mailto:${tenant.user.email}`}>
-                        <UIButton sx={{ margin: "0 10px" }} btnText="Email" />
-                      </a>
-                      {/* <UIButton sx={{ margin: "0 10px" }} btnText="Text" /> */}
-                    </div>
-                  </div>
+                    }
+                  />
+                </div>
+                <div className="col-6 col-md-4 mb-4">
+                  <UIDetailCard
+                    title="Unit"
+                    titleStyle={titleStyle}
+                    infoStyle={infoStyle}
+                    info={unit.name}
+                    muiIcon={
+                      <MeetingRoomIcon
+                        style={{
+                          color: uiGreen,
+                          fontSize: "29pt",
+                        }}
+                      />
+                    }
+                  />
+                </div>
+                <div className="col-6 col-md-4 mb-4">
+                  <UIDetailCard
+                    title="Lease Start"
+                    titleStyle={titleStyle}
+                    infoStyle={infoStyle}
+                    info={
+                      lease
+                        ? new Date(lease.start_date).toLocaleDateString()
+                        : "N/A"
+                    }
+                    muiIcon={
+                      <CalendarMonthIcon
+                        style={{
+                          color: uiGreen,
+                          fontSize: "29pt",
+                        }}
+                      />
+                    }
+                  />
+                </div>
+                <div className="col-6 col-md-4 mb-4">
+                  <UIDetailCard
+                    title="Lease End"
+                    titleStyle={titleStyle}
+                    infoStyle={infoStyle}
+                    info={
+                      lease
+                        ? new Date(lease.end_date).toLocaleDateString()
+                        : "N/A"
+                    }
+                    muiIcon={
+                      <CalendarMonthIcon
+                        style={{
+                          color: uiGreen,
+                          fontSize: "29pt",
+                        }}
+                      />
+                    }
+                  />
+                </div>
+                <div className="col-6 col-md-4 mb-4">
+                  <UIDetailCard
+                    title="Next Payment"
+                    titleStyle={titleStyle}
+                    infoStyle={infoStyle}
+                    info={
+                      nextPaymentDate
+                        ? new Date(nextPaymentDate).toLocaleDateString()
+                        : "N/A"
+                    }
+                    muiIcon={
+                      <PaymentsIcon
+                        style={{
+                          color: uiGreen,
+                          fontSize: "29pt",
+                        }}
+                      />
+                    }
+                  />
+                </div>
+                <div className="col-6 col-md-4 mb-4">
+                  <UIDetailCard
+                    title="Time Left"
+                    titleStyle={titleStyle}
+                    infoStyle={infoStyle}
+                    info={
+                      lease
+                        ? dateDiffForHumans(new Date(lease.end_date))
+                        : "N/A"
+                    }
+                    muiIcon={
+                      <AccessTimeIcon
+                        style={{
+                          color: uiGreen,
+                          fontSize: "29pt",
+                        }}
+                      />
+                    }
+                  />
                 </div>
               </div>
-
-              <div className="col-lg-8">
-                <div className="row">
-                  <div className="col-sm-12">
-                    <div className="row">
+              {/* <div className="row mb-3">
+                <div className="col-lg-8">
+                  <div className="row">
+                    <div className="col-sm-12">
+                      <div className="row">
                       <div className="col-sm-12 col-md-6 mb-4">
                         <UICard
                           cardStyle={{ background: "white", color: uiGreen }}
@@ -261,73 +374,11 @@ const ManageTenant = () => {
                         />
                       </div>
                     </div>
-
-                    <div className="card shadow mb-3">
-                      <div className="card-body">
-                        <div className="row">
-                          <div className="col-md-6">
-                            <h6>
-                              <strong>Property</strong>
-                            </h6>
-                            <p className="text-black">{property.name}</p>
-                          </div>
-                          <div className="col-md-6">
-                            <h6>
-                              <strong>Unit</strong>
-                            </h6>
-                            <p className="text-black">{unit.name}</p>
-                          </div>
-                          <div className="col-md-6">
-                            <h6>
-                              <strong>Lease Start Date</strong>
-                            </h6>
-                            <p className="text-black">
-                              {lease
-                                ? new Date(
-                                    lease.start_date
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                          </div>
-                          <div className="col-md-6">
-                            <h6>
-                              <strong>Lease End Date</strong>
-                            </h6>
-                            <p className="text-black">
-                              {lease
-                                ? new Date(lease.end_date).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                          </div>
-                          <div className="col-md-6">
-                            <h6>
-                              <strong>Next Payment Date</strong>
-                            </h6>
-                            <p className="text-black">
-                              {nextPaymentDate
-                                ? new Date(nextPaymentDate).toLocaleDateString()
-                                : "N/A"}
-                            </p>
-                          </div>
-                          <div className="col-md-6">
-                            <h6>
-                              <strong>Time Left</strong>
-                            </h6>
-                            <p className="text-black">
-                              {lease
-                                ? `Lease ends ${dateDiffForHumans(
-                                    new Date(lease.end_date)
-                                  )}`
-                                : "N/A"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </div> */}
+            </>
           )}
           {tabPage === 1 && (
             <>
@@ -346,22 +397,70 @@ const ManageTenant = () => {
           )}
           {tabPage === 2 && (
             <div className="mb-3" style={{ overflow: "hidden" }}>
-              <UITable
+              {/* <UITable
                 title="Transactions"
                 data={transactions}
                 searchFields={["first_name", "last_name", "email"]}
                 columns={transaction_columns}
                 options={transaction_options}
+              /> */}
+              <UITableMobile
+                title="Transactions"
+                data={transactions}
+                createInfo={(row) =>
+                  `${
+                    row.type === "vendor_payment" || row.type === "expense"
+                      ? "-$"
+                      : "+$"
+                  }${String(row.amount).toLocaleString("en-US")}`
+                }
+                createSubtitle={(row) =>
+                  `${removeUnderscoresAndCapitalize(row.type)}`
+                }
+                createTitle={(row) =>
+                  `${new Date(row.timestamp).toLocaleDateString()}`
+                }
+                onRowClick={handleTransactionRowClick}
+                orderingFields={[
+                  { field: "timestamp", label: "Date Created (Ascending)" },
+                  { field: "-timestamp", label: "Date Created (Descending)" },
+                  { field: "type", label: "Transaction Type (Ascending)" },
+                  { field: "-type", label: "Transaction Type (Descending)" },
+                  { field: "amount", label: "Amount (Ascending)" },
+                  { field: "-amount", label: "Amount (Descending)" },
+                ]}
               />
             </div>
           )}
           {tabPage === 3 && (
             <div className="mb-3" style={{ overflow: "hidden" }}>
-              <UITable
-                title="Maintenance Requests"
+              <UITableMobile
                 data={maintenanceRequests}
-                columns={maintenance_request_columns}
-                options={maintenance_request_options}
+                createInfo={(row) =>
+                  `${row.tenant.user["first_name"]} ${row.tenant.user["last_name"]}`
+                }
+                createTitle={(row) => `${row.description}`}
+                createSubtitle={(row) => `${row.status.replace("_", " ")}`}
+                onRowClick={(row) => {
+                  const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+                  navigate(navlink);
+                }}
+                titleStyle={{
+                  maxHeight: "17px",
+                  maxWidth: "180px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                orderingFields={[
+                  { field: "created_at", label: "Date Created (Ascending)" },
+                  { field: "-created_at", label: "Date Created (Descending)" },
+                  { field: "status", label: "Status (Ascending)" },
+                  { field: "-status", label: "Status (Descending)" },
+                ]}
+                showResultLimit={false}
+                tableTitle="Maintenance Requests"
+                loadingTitle="Maintenance Requests"
+                loadingMessage="Loading your maintenance requests..."
               />
             </div>
           )}

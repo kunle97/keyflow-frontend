@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { deleteUnit } from "../../../../api/units";
-import { Alert, CircularProgress, Snackbar, Typography } from "@mui/material";
+import {
+  Alert,
+  Avatar,
+  CircularProgress,
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Snackbar,
+  Stack,
+  Typography,
+} from "@mui/material";
 import {
   deleteProperty,
   updateProperty,
@@ -23,15 +36,26 @@ import UIPrompt from "../../UIComponents/UIPrompt";
 import { authenticatedInstance } from "../../../../api/api";
 import FileManagerView from "../../UIComponents/FileManagerView";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
-
+import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+import useScreen from "../../../../hooks/useScreen";
+import HotelIcon from "@mui/icons-material/Hotel";
+import BathtubIcon from "@mui/icons-material/Bathtub";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import EditIcon from "@mui/icons-material/Edit";
+import UIDialog from "../../UIComponents/Modals/UIDialog";
+import UISwitch from "../../UIComponents/UISwitch";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
   const [units, setUnits] = useState([]);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
   const [isLoading, setIsLoading] = useState(true); //create a loading variable to display a loading message while the units are  being retrieved
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
-
+  const [bedsCount, setBedsCount] = useState(0); //Create a state to hold the number of beds in the property
+  const [bathsCount, setBathsCount] = useState(0); //Create a state to hold the number of baths in the property
   const [responseMessage, setResponseMessage] = useState("Property updated");
   const [alertSeverity, setAlertSeverity] = useState("success");
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
@@ -41,7 +65,7 @@ const ManageProperty = () => {
   const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
   const [propertyMediaCount, setPropertyMediaCount] = useState(0); //Create a propertyMediaCount state to hold the number of property media files
-
+  const { isMobile, breakpoints, screenWidth } = useScreen();
   const navigate = useNavigate();
 
   const handleClose = (event, reason) => {
@@ -52,10 +76,11 @@ const ManageProperty = () => {
   };
 
   const tabs = [
-    { name: "property_details", label: "Property Details" },
+    { name: "details", label: "Details" },
     { name: "units", label: `Units (${unitCount})` },
     { name: "analytics", label: "Finances/Analytics" },
     { name: "media", label: `Files (${propertyMediaCount})` },
+    { name: "preferences", label: "Preferences" },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -186,95 +211,69 @@ const ManageProperty = () => {
         });
         setUnits(res.data.units);
         setUnitCount(res.data.units.length);
-        setIsLoading(false);
+        setBedsCount(
+          res.data.units.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
+        );
+        setBathsCount(
+          res.data.units.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
+        );
       });
-      retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id).then(
-        (res) => {
+      retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id)
+        .then((res) => {
           setPropertyMedia(res.data);
+          console.log(res.data);
           setPropertyMediaCount(res.data.length);
-        }
-      );
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   }, [property]);
 
   return (
-    <div className="container-fluid">
-      <Snackbar
-        open={showUpdateSuccess}
-        autoHideDuration={6000}
-        onClose={handleClose}
-      >
-        <Alert
-          onClose={handleClose}
-          severity={alertSeverity}
-          sx={{ width: "100%" }}
-        >
-          <>{responseMessage}</>
-        </Alert>
-      </Snackbar>
-      <div className="row mb-3">
-        <div className="col-lg-12">
-          <BackButton />
-          <UITabs
-            tabs={tabs}
-            value={tabPage}
-            handleChange={handleChangeTabPage}
-            variant="scrollable"
-            scrollButtons="auto"
-            style={{ margin: "1rem 0" }}
-          />
-          {tabPage === 0 && (
-            <>
+    <>
+      {isLoading ? (
+        <UIProgressPrompt
+          title="Loading Property"
+          message="Please wait while we load the property information for you."
+        />
+      ) : (
+        <div className={`${screenWidth > breakpoints.md && "container-fluid"}`}>
+          {/* <BackButton  /> */}
+
+          <div>
+            {propertyMedia && propertyMedia.length > 0 && (
+              <div
+                style={{
+                  width: "100%",
+                  height: isMobile ? "200px" : "320px",
+                  //Vertical center the image
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  marginBottom: "10px",
+                }}
+              >
+                <img
+                  src={propertyMedia[0].file}
+                  style={{
+                    width: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+            )}
+            {/* Property Detail Edit Dialog  */}
+            <UIDialog
+              open={editDialogOpen}
+              onClose={() => setEditDialogOpen(false)}
+              maxWidth="md"
+              title="Edit Property Details"
+            >
               <div className="row">
-                <div className="col-md-3">
-                  <div className="card shadow mb-3">
-                    <div className="card-body">
-                      <form>
-                        <div className="row">
-                          <div className="col">
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="first_name"
-                              >
-                                <strong>Beds</strong>
-                              </label>
-                              <p className="text-dark">
-                                {units
-                                  .map((unit) => unit.beds)
-                                  .reduce((a, b) => a + b, 0)}
-                              </p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="last_name"
-                              >
-                                <strong>Baths</strong>
-                              </label>
-                              <p className="text-dark">
-                                {units
-                                  .map((unit) => unit.baths)
-                                  .reduce((a, b) => a + b, 0)}
-                              </p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="last_name"
-                              >
-                                <strong>MLS #</strong>
-                              </label>
-                              <p className="text-dark">732EFH82F8BO189FB917B</p>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-9">
-                  <div className="card shadow mb-3">
+                <div className="col-md-12">
+                  <div className=" mb-3">
                     <div className="card-body">
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-3">
@@ -437,189 +436,420 @@ const ManageProperty = () => {
                   </div>
                 </div>
               </div>
-              <>
-                <AlertModal
-                  open={showDeleteError}
-                  setOpen={setShowDeleteError}
-                  title={"Error"}
-                  message={errorMessage}
-                  btnText={"Ok"}
-                  onClick={() => setShowDeleteError(false)}
-                />
-                <ConfirmModal
-                  open={showDeleteAlert}
-                  title="Delete Property"
-                  message="Are you sure you want to delete this property?"
-                  confirmBtnText="Delete"
-                  cancelBtnText="Cancel"
-                  confirmBtnStyle={{
-                    backgroundColor: uiRed,
-                    color: "white",
-                  }}
-                  cancelBtnStyle={{
-                    backgroundColor: uiGreen,
-                    color: "white",
-                  }}
-                  handleCancel={() => {
-                    setShowDeleteAlert(false);
-                  }}
-                  handleConfirm={handleDeleteProperty}
-                />
-                <DeleteButton
-                  style={{
-                    background: uiRed,
-                    textTransform: "none",
-                    float: "right",
-                  }}
-                  onClick={() => {
-                    setShowDeleteAlert(true);
-                  }}
-                  btnText="Delete Property"
-                />
-              </>
-            </>
-          )}
-
-          {tabPage === 1 && (
-            <>
-              <div className="row">
-                {isLoading ? (
-                  <Box sx={{ display: "flex" }}>
-                    <Box m={"55px auto"}>
-                      <CircularProgress sx={{ color: uiGreen }} />
-                    </Box>
-                  </Box>
-                ) : (
-                  <>
-                    {" "}
-                    {units.length === 0 ? (
-                      <UIPrompt
-                        title={"No Units Created"}
-                        icon={<i className="fas fa-home fa-2x text-gray-300" />}
-                        message={
-                          "You have not created any units for this property. Would you like to create one now?"
-                        }
-                        btnText={"Create Unit"}
-                        body={
-                          <UIButton
-                            btnText={"Create Unit"}
-                            onClick={() => {
-                              navigate(
-                                `/dashboard/landlord/units/create/${id}`
-                              );
-                            }}
-                          />
-                        }
-                      />
-                    ) : (
-                      <>
-                        <UITable
-                          columns={columns}
-                          options={options}
-                          data={units}
-                          title="Units"
-                          createURL={`/dashboard/landlord/units/create/${id}`}
-                          showCreate={true}
-                        />
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-            </>
-          )}
-          {tabPage === 2 && (
-            <div className="col-md-4 col-sm-12">
-              <div className="card shadow mb-3">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h6 className="text-primary fw-bold m-0 card-header-text">
-                    Finances
-                  </h6>
-                  <div className="dropdown no-arrow">
-                    <button
-                      className="btn btn-link btn-sm dropdown-toggle"
-                      aria-expanded="false"
-                      data-bs-toggle="dropdown"
-                      type="button"
-                    >
-                      <i className="fas fa-ellipsis-v text-gray-400" />
-                    </button>
-                    <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                      <p className="text-center dropdown-header">
-                        dropdown header:
-                      </p>
-                      <a className="dropdown-item" href="#">
-                        &nbsp;Action
-                      </a>
-                      <a className="dropdown-item" href="#">
-                        &nbsp;Another action
-                      </a>
-                      <div className="dropdown-divider" />
-                      <a className="dropdown-item" href="#">
-                        &nbsp;Something else here
-                      </a>
-                    </div>
-                  </div>
+            </UIDialog>
+            <div className="p-2">
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <div>
+                  <h4>{property?.name}</h4>
+                  <span className="text-black">
+                    {property?.street} {property?.city}, {property?.state}{" "}
+                    {property?.zip_code}
+                  </span>
                 </div>
-                <div className="card-body">
-                  <form>
-                    <div className="row">
-                      <div className="col">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-dark"
-                            htmlFor="username"
+                <IconButton
+                  onClick={() => {
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  <EditIcon sx={{ color: uiGreen }} />
+                </IconButton>
+              </Stack>
+            </div>
+          </div>
+          <div className="row mb-3">
+            <div className="col-lg-12">
+              <UITabs
+                tabs={tabs}
+                value={tabPage}
+                handleChange={handleChangeTabPage}
+                variant="scrollable"
+                scrollButtons="auto"
+                style={{ margin: "1rem 0" }}
+              />
+              {tabPage === 0 && (
+                <div className="px-2">
+                  <div className="row mb-3">
+                    <div className="col-4 col-sm-4 col-md-3 mb-4">
+                      <div className="card">
+                        <div className="card-body">
+                          <div>
+                            <MeetingRoomIcon
+                              sx={{
+                                fontSize: "22pt",
+                                color: uiGreen,
+                                marginBottom: "10px",
+                              }}
+                            />
+                          </div>
+                          <span
+                            className="text-black"
+                            style={{
+                              fontSize:
+                                isMobile ? "12pt" : "15pt",
+                            }}
                           >
-                            <strong>Total Revenue</strong>
-                          </label>
-                          <p className="text-dark">$23,049</p>
-                        </div>
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-dark"
-                            htmlFor="first_name"
-                          >
-                            <strong>Net Operating Income (NOI)</strong>
-                          </label>
-                          <p className="text-dark">23.4%</p>
-                        </div>
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-dark"
-                            htmlFor="first_name"
-                          >
-                            <strong>Property Value</strong>
-                          </label>
-                          <p className="text-dark">$428,324</p>
-                        </div>
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-dark"
-                            htmlFor="email"
-                          >
-                            <strong>Total Expenses</strong>
-                          </label>
-                          <p className="text-dark">$13,123</p>
+                            {unitCount} Units
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </form>
+                    <div className="col-4 col-sm-4 col-md-3 mb-4">
+                      <div className="card">
+                        <div className="card-body">
+                          <div>
+                            <HotelIcon
+                              sx={{
+                                fontSize: "22pt",
+                                color: uiGreen,
+                                marginBottom: "10px",
+                              }}
+                            />
+                          </div>
+                          <span
+                            className="text-black"
+                            style={{
+                              fontSize:
+                                isMobile ? "12pt" : "15pt",
+                            }}
+                          >
+                            {bedsCount} Beds
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-4 col-sm-4 col-md-3 mb-4">
+                      <div className="card">
+                        <div className="card-body">
+                          <div>
+                            <BathtubIcon
+                              sx={{
+                                fontSize: "22pt",
+                                color: uiGreen,
+                                marginBottom: "10px",
+                              }}
+                            />
+                          </div>
+                          <span
+                            className="text-black"
+                            style={{
+                              fontSize:
+                                isMobile ? "12pt" : "15pt",
+                            }}
+                          >
+                            {bathsCount} Baths
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-4 col-sm-4 col-md-3 mb-4">
+                      <div className="card">
+                        <div className="card-body">
+                          <div>
+                            <ZoomOutMapIcon
+                              sx={{
+                                fontSize: "22pt",
+                                color: uiGreen,
+                                marginBottom: "10px",
+                              }}
+                            />
+                          </div>
+                          <span
+                            className="text-black"
+                            style={{
+                              fontSize:
+                                isMobile ? "12pt" : "15pt",
+                            }}
+                          >
+                            1234 Sq. Ft.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {property?.description && (
+                      <div className="col-12 mb-4">
+                        <div className="card">
+                          <div className="card-body">
+                            <h5 className="text-black ">Description</h5>
+                            <p className="text-black">
+                              {property?.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <AlertModal
+                      open={showDeleteError}
+                      setOpen={setShowDeleteError}
+                      title={"Error"}
+                      message={errorMessage}
+                      btnText={"Ok"}
+                      onClick={() => setShowDeleteError(false)}
+                    />
+                    <ConfirmModal
+                      open={showDeleteAlert}
+                      title="Delete Property"
+                      message="Are you sure you want to delete this property?"
+                      confirmBtnText="Delete"
+                      cancelBtnText="Cancel"
+                      confirmBtnStyle={{
+                        backgroundColor: uiRed,
+                        color: "white",
+                      }}
+                      cancelBtnStyle={{
+                        backgroundColor: uiGreen,
+                        color: "white",
+                      }}
+                      handleCancel={() => {
+                        setShowDeleteAlert(false);
+                      }}
+                      handleConfirm={handleDeleteProperty}
+                    />
+                    <DeleteButton
+                      style={{
+                        background: uiRed,
+                        textTransform: "none",
+                        float: "right",
+                      }}
+                      onClick={() => {
+                        setShowDeleteAlert(true);
+                      }}
+                      btnText="Delete Property"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {tabPage === 1 && (
+                <>
+                  <div className="row">
+                    {isLoading ? (
+                      <Box sx={{ display: "flex" }}>
+                        <Box m={"55px auto"}>
+                          <CircularProgress sx={{ color: uiGreen }} />
+                        </Box>
+                      </Box>
+                    ) : (
+                      <>
+                        {" "}
+                        {units.length === 0 ? (
+                          <UIPrompt
+                            title={"No Units Created"}
+                            icon={
+                              <i className="fas fa-home fa-2x text-gray-300" />
+                            }
+                            message={
+                              "You have not created any units for this property. Would you like to create one now?"
+                            }
+                            btnText={"Create Unit"}
+                            body={
+                              <UIButton
+                                btnText={"Create Unit"}
+                                onClick={() => {
+                                  navigate(
+                                    `/dashboard/landlord/units/create/${id}`
+                                  );
+                                }}
+                              />
+                            }
+                          />
+                        ) : (
+                          <div>
+                            {false ? (
+                              <UITable
+                                columns={columns}
+                                options={options}
+                                data={units}
+                                title="Units"
+                                createURL={`/dashboard/landlord/units/create/${id}`}
+                                showCreate={true}
+                              />
+                            ) : (
+                              <UITableMobile
+                                data={units}
+                                infoProperty="name"
+                                createTitle={(row) =>
+                                  `Occupied: ${row.is_occupied ? `Yes` : "No"} `
+                                }
+                                createSubtitle={(row) =>
+                                  `Beds: ${row.beds} | Baths: ${row.baths}`
+                                }
+                                createURL={`/dashboard/landlord/units/create/${id}`}
+                                showCreate={true}
+                                // getImage={(row) => {
+                                //   retrieveFilesBySubfolder(
+                                //     `properties/${property.id}/units/${row.id}`,
+                                //     authUser.user_id
+                                //   ).then((res) => {
+                                //     if (res.data.length > 0) {
+                                //       return res.data[0].file;
+                                //     } else {
+                                //       return "https://picsum.photos/200";
+                                //     }
+                                //   });
+                                // }}
+                                onRowClick={(row) => {
+                                  const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
+                                  navigate(navlink);
+                                }}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
+              {tabPage === 2 && (
+                <div className="col-md-4 col-sm-12">
+                  <div className="card shadow mb-3">
+                    <div className="card-header d-flex justify-content-between align-items-center">
+                      <h6 className="text-primary fw-bold m-0 card-header-text">
+                        Finances
+                      </h6>
+                      <div className="dropdown no-arrow">
+                        <button
+                          className="btn btn-link btn-sm dropdown-toggle"
+                          aria-expanded="false"
+                          data-bs-toggle="dropdown"
+                          type="button"
+                        >
+                          <i className="fas fa-ellipsis-v text-gray-400" />
+                        </button>
+                        <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                          <p className="text-center dropdown-header">
+                            dropdown header:
+                          </p>
+                          <a className="dropdown-item" href="#">
+                            &nbsp;Action
+                          </a>
+                          <a className="dropdown-item" href="#">
+                            &nbsp;Another action
+                          </a>
+                          <div className="dropdown-divider" />
+                          <a className="dropdown-item" href="#">
+                            &nbsp;Something else here
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      <form>
+                        <div className="row">
+                          <div className="col">
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-dark"
+                                htmlFor="username"
+                              >
+                                <strong>Total Revenue</strong>
+                              </label>
+                              <p className="text-dark">$23,049</p>
+                            </div>
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-dark"
+                                htmlFor="first_name"
+                              >
+                                <strong>Net Operating Income (NOI)</strong>
+                              </label>
+                              <p className="text-dark">23.4%</p>
+                            </div>
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-dark"
+                                htmlFor="first_name"
+                              >
+                                <strong>Property Value</strong>
+                              </label>
+                              <p className="text-dark">$428,324</p>
+                            </div>
+                            <div className="mb-3">
+                              <label
+                                className="form-label text-dark"
+                                htmlFor="email"
+                              >
+                                <strong>Total Expenses</strong>
+                              </label>
+                              <p className="text-dark">$13,123</p>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {tabPage === 3 && (
+                <div>
+                  <FileManagerView
+                    files={propertyMedia}
+                    subfolder={`properties/${id}`}
+                    acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
+                  />
+                </div>
+              )}
+              {tabPage === 4 && (
+                <div
+                  className={isMobile && "container-fluid"}
+                >
+                  <List
+                    sx={{
+                      width: "100%",
+                      // maxWidth: 360,
+                    }}
+                  >
+                    {[0, 1, 2, 3].map((value) => {
+                      return (
+                        <ListItem
+                          style={{
+                            borderRadius: "10px",
+                            background: "white",
+                            margin: "10px 0",
+                            boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            sx={{ width: "100%" }}
+                          >
+                            <ListItemText
+                              primary={
+                                <Typography sx={{ color: "black" }}>
+                                  Open Applications
+                                </Typography>
+                              }
+                              secondary={
+                                <React.Fragment>
+                                  {
+                                    "Rental applications that are allowed to be created for units in this property."
+                                  }
+                                </React.Fragment>
+                              }
+                            />
+                            <UISwitch />
+                          </Stack>
+                        </ListItem>
+                      );
+                    })}
+                  </List>
+                </div>
+              )}
             </div>
-          )}
-          {tabPage === 3 && (
-            <>
-              <FileManagerView
-                files={propertyMedia}
-                subfolder={`properties/${id}`}
-                acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
-              />
-            </>
-          )}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

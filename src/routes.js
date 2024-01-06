@@ -572,7 +572,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/notifications",
+    path: "/dashboard/notifications",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Notifications />
@@ -580,7 +580,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/notifications/:id",
+    path: "/dashboard/notifications/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <NotificationDetail />

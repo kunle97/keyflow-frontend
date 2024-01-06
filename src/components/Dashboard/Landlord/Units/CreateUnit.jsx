@@ -16,8 +16,10 @@ import UnitRow from "../Properties/UnitRow";
 import { Button, Stack } from "@mui/material";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import useScreen from "../../../../hooks/useScreen";
 const CreateUnit = () => {
   //Create a state for the form data
+  const {isMobile} = useScreen()
   const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
   const [unitCreateError, setUnitCreateError] = useState(false);
@@ -204,7 +206,7 @@ const CreateUnit = () => {
                     justifyContent="space-between"
                     sx={{ marginBottom: "20px" }}
                   >
-                    <h6 className="text-primary fw-bold m-0 card-header-text">
+                    <h6 className="text-black fw-bold m-0 card-header-text">
                       Add Units
                     </h6>
                     <div>
@@ -215,7 +217,7 @@ const CreateUnit = () => {
                         name="rental_property"
                         onChange={handlePropertySelectChange}
                         className="form-control"
-                        style={{ width: "250px" }}
+                        style={{ width: isMobile ? "inherit" : "250px" }}
                       >
                         {selectedPropertyId ? (
                           <option value={selectedPropertyId}>

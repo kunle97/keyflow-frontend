@@ -9,7 +9,7 @@ import ProgressModal from "../../../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 import UIRadioGroup from "../../../../UIComponents/UIRadioGroup";
-
+import useScreen from "../../../../../../hooks/useScreen";
 const UploadLeaseDocument = (props) => {
   const [file, setFile] = useState(null); //TODO: Change to array of files
   const [renderIframe, setRenderIframe] = useState(false);
@@ -18,7 +18,7 @@ const UploadLeaseDocument = (props) => {
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
-
+  const { isMobile } = useScreen();
   //Create handleTemplateEditUpdate function
   const handleTemplateEditUpdate = (event) => {
     if (event.origin !== "https://app.boldsign.com") {
@@ -126,7 +126,7 @@ const UploadLeaseDocument = (props) => {
             id="prepare_page"
             src={iframeUrl}
             width="100%"
-            height="1200px"
+            height={isMobile ? "500px" : "1200px"}
           />
           {/* <StepControl
             step={props.step}
@@ -191,8 +191,8 @@ const UploadLeaseDocument = (props) => {
                     })}
                     style={{
                       width: "100%",
-                      height: "400px",
-                      border: `1px dashed ${uiGreen}`,
+                      height: isMobile ? "inherit" : "400px",
+                      border: isMobile ? "none" : `1px dashed ${uiGreen}`,
                       marginBottom: "15px",
                     }}
                   >
@@ -208,13 +208,18 @@ const UploadLeaseDocument = (props) => {
                       name="file"
                     />
 
-                    <p className="text-black">
-                      Drag'n'drop the file representing your lease agreeement{" "}
-                    </p>
-                    <p className="text-black">
-                      Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files will
-                      be accepted (Max. file size: 3MB)
-                    </p>
+                    {!isMobile && (
+                      <div>
+                        <p className="text-black text-center px-2">
+                          Drag'n'drop the file representing your lease
+                          agreeement{" "}
+                        </p>
+                        <p className="text-black text-center px-2">
+                          Only .pdf, .doc, .docx, .png, .jpg, and .jpeg files
+                          will be accepted (Max. file size: 3MB)
+                        </p>
+                      </div>
+                    )}
                     <UIButton btnText="Upload File" type="button" />
                   </Stack>
                 );

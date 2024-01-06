@@ -205,7 +205,7 @@ export async function getStripeSubscription(subscription_id) {
   }
 }
 //Create a function to retrieve a users data
-export async function getUserData(user_id) {
+export async function getUserData(user_id) { //TODO: Delete this functiuon. To be replaced with the getLandlordTenant function in landlords.js
   try {
     const res = await authenticatedInstance
       .post(`/users/${authUser.user_id}/tenant/`, {

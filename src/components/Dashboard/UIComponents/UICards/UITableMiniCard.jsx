@@ -1,7 +1,7 @@
 import React from "react";
 import UICard from "./UICard";
 import UITableMini from "../UITable/UITableMini";
-const UITableCard = (props) => {
+const UITableMiniCard = (props) => {
   return (
     <UICard
       info={props.info}
@@ -22,4 +22,4 @@ const UITableCard = (props) => {
   );
 };
 
-export default UITableCard;
+export default UITableMiniCard;

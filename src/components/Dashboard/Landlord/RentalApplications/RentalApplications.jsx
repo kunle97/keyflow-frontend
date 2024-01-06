@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getRentalApplicationsByUser } from "../../../../api/rental_applications";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,10 +74,10 @@ const RentalApplications = () => {
       console.log(res);
       if (res) {
         //Create a new array that only holds data with the is_arhived property set to false
-        const filteredData = res.data.filter((data) => {
-          return data.is_archived === false;
-        });
-        setRentalApplications(filteredData);
+        // const filteredData = res.data.filter((data) => {
+        //   return data.is_archived === false;
+        // });
+        setRentalApplications(res.data);
         setIsLoading(false);
       }
       console.log("Rental Applications: ", rentalApplications);
@@ -84,13 +85,36 @@ const RentalApplications = () => {
   }, []);
   return (
     <div className="container-fluid">
-      <UITable
+      {/* <UITable
         columns={columns}
         options={options}
         endpoint={`/rental-applications/`}
         title="Rental Applications"
         detailURL="/dashboard/landlord/rental-applications/"
         showCreate={false}
+      /> */}
+      <UITableMobile
+        tableTitle={"Rental Applications"}
+        endpoint={`/rental-applications/`}
+        createInfo={(row) => `${row.first_name} ${row.last_name}`}
+        createTitle={(row) => `${row.unit.name}`}
+        createSubtitle={(row) => `${row.is_approved ? "Approved" : "Pending"}`}
+        // getImage={(row) => {
+        //   retrieveFilesBySubfolder(
+        //     `properties/${row.id}`,
+        //     authUser.user_id
+        //   ).then((res) => {
+        //     if (res.data.length > 0) {
+        //       return res.data[0].file;
+        //     } else {
+        //       return "https://picsum.photos/200";
+        //     }
+        //   });
+        // }}
+        onRowClick={(row) => {
+          const navlink = `/dashboard/landlord/rental-applications/${row.id}`;
+          navigate(navlink);
+        }}
       />
     </div>
   );

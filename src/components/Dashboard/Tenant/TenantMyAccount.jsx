@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { authUser, uiGreen, uiRed } from "../../../constants";
 import {
@@ -18,7 +18,9 @@ import AlertModal from "../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import UploadDialog from "../UIComponents/Modals/UploadDialog/UploadDialog";
 import { retrieveFilesBySubfolder } from "../../../api/file_uploads";
+import useScreen from "../../../hooks/useScreen";
 const TenantMyAccount = () => {
+  const { isMobile } = useScreen();
   const [email, setEmail] = useState(authUser.email);
   const [firstName, setFirstName] = useState(authUser.first_name);
   const [lastName, setLastName] = useState(authUser.last_name);
@@ -138,9 +140,11 @@ const TenantMyAccount = () => {
         setPrimaryPaymentMethod(res.default_payment_method);
       });
     });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then((res) => {
-      setProfilePictureFile(res.data[0]);
-    });
+    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+      (res) => {
+        setProfilePictureFile(res.data[0]);
+      }
+    );
   }, []);
 
   return (
@@ -160,55 +164,58 @@ const TenantMyAccount = () => {
         handleClose={() => setShowResponseModal(false)}
         onClick={() => setShowResponseModal(false)}
       />
-      <h3 className="text-white mb-4">My Account</h3>
+      <Stack
+        direction={"column"}
+        justifyContent="center"
+        alignItems="center"
+        spacing={1}
+        sx={{ marginBottom: "30px" }}
+      >
+        <div
+          style={{
+            borderRadius: "50%",
+            overflow: "hidden",
+            width: isMobile ? "100px" : "200px",
+            height: isMobile ? "100px" : "200px",
+            margin: "15px auto",
+          }}
+        >
+          <img
+            style={{ height: "100%" }}
+            src={
+              profilePictureFile
+                ? profilePictureFile.file
+                : "/assets/img/avatars/default-user-profile-picture.png"
+            }
+          />
+        </div>
+        <Button
+          btnText="Change Profile Picture"
+          onClick={() => setUploadDialogOpen(true)}
+          variant="text"
+          sx={{
+            color: uiGreen,
+            textTransform: "none",
+            fontSize: "12pt",
+            margin: "0 10px",
+          }}
+        >
+          Change Profile Picture
+        </Button>
+        <h4 style={{ width: "100%", textAlign: "center" }}>
+          {authUser.first_name} {authUser.last_name}
+        </h4>
+        <div style={{ width: "100%", textAlign: "center" }}>
+          <span className="text-muted">{authUser.email}</span>
+        </div>
+      </Stack>
       <div className="row mb-3">
         <div className="col">
           <div className="row">
-            <div className="col-sm-12 col-md-4 col-lg-4">
-              <div className="card mb-3">
-                <div className="card-body text-center shadow">
-                  <div
-                    style={{
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      width: "200px",
-                      height: "200px",
-                      margin: "15px auto",
-                    }}
-                  >
-                    <img
-                      style={{ height: "100%" }}
-                      src={
-                        profilePictureFile
-                          ? profilePictureFile.file
-                          : "/assets/img/avatars/default-user-profile-picture.png"
-                      }
-                    />
-                  </div>
-                  <h4
-                    className="text-white tenant-info-heading"
-                    style={{ width: "100%" }}
-                  >
-                    <center>
-                      {authUser.first_name} {authUser.last_name}
-                    </center>
-                  </h4>
-                  <div className="mb-3">
-                    <UIButton
-                      sx={{ margin: "0 10px" }}
-                      btnText="Change Profile Picture"
-                      onClick={() => setUploadDialogOpen(true)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-8">
-              <h5 className="text-primary mb-2 card-header-text">
-                Basic Information
-              </h5>
+            <div className="col-md-12">
               <div className="card shadow mb-3">
                 <div className="card-body">
+                  <h5 className="text-black mb-2 ">Basic Information</h5>
                   <form
                     onSubmit={handleSubmitAccountUpdate(onSubmitUpdateAccount)}
                   >
@@ -217,7 +224,7 @@ const TenantMyAccount = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="first_name"
                           >
                             First Name
@@ -245,7 +252,7 @@ const TenantMyAccount = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="last_name"
                           >
                             Last Name
@@ -275,7 +282,7 @@ const TenantMyAccount = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="email"
                           >
                             Email Address
@@ -320,11 +327,9 @@ const TenantMyAccount = () => {
           </div>
           <div className="row">
             <div className="col-md-6">
-              <h5 className="text-primary mb-2 card-header-text">
-                Change Password
-              </h5>
               <div className="card shadow mb-3">
                 <div className="card-body">
+                  <h5 className="text-black mb-2 ">Change Password</h5>
                   <form
                     onSubmit={handleSubmitChangePassword(
                       onSubmitChangePassword
@@ -334,7 +339,7 @@ const TenantMyAccount = () => {
                       <div className="col-12">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="username"
                           >
                             Current Password
@@ -355,7 +360,7 @@ const TenantMyAccount = () => {
                       <div className="col-12">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="email"
                           >
                             Retype-Current Password
@@ -385,7 +390,7 @@ const TenantMyAccount = () => {
                       <div className="col-12">
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black"
                             htmlFor="first_name"
                           >
                             New Password
@@ -429,23 +434,20 @@ const TenantMyAccount = () => {
               </div>
             </div>
             <div className="col-md-6 ">
-              <div className="mb-3" style={{ overflow: "auto" }}>
-                <h5
-                  className="text-primary  my-1 card-header-text"
-                  style={{ float: "left" }}
-                >
-                  Payment Methods
-                </h5>
-                <UIButton
-                  style={{ float: "right" }}
-                  onClick={() => {
-                    navigate("/dashboard/tenant/add-payment-method");
-                  }}
-                  btnText="Add New"
-                />
-              </div>
               <div className="card shadow mb-3">
                 <div className="card-body">
+                  <div className="mb-3" style={{ overflow: "auto" }}>
+                    <h5 className="text-black  my-1 " style={{ float: "left" }}>
+                      Payment Methods
+                    </h5>
+                    <UIButton
+                      style={{ float: "right" }}
+                      onClick={() => {
+                        navigate("/dashboard/tenant/add-payment-method");
+                      }}
+                      btnText="Add New"
+                    />
+                  </div>
                   <form>
                     <div className="row">
                       <ConfirmModal
@@ -477,65 +479,73 @@ const TenantMyAccount = () => {
                         }}
                         handleCancel={() => setShowDeleteConfirm(false)}
                       />
-                      {paymentMethods.map((paymentMethod) => {
-                        return (
-                          <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
-                            <Box className="mb-3" sx={{ display: "flex" }}>
-                              <Box sx={{ flex: "2" }}>
-                                <Typography className="text-white">
-                                  {paymentMethod.card.brand} ending in{" "}
-                                  {paymentMethod.card.last4}
-                                </Typography>
-                                <Typography
-                                  sx={{ fontSize: "10pt" }}
-                                  className="text-white"
-                                >
-                                  Expires {paymentMethod.card.exp_month}/
-                                  {paymentMethod.card.exp_year}
-                                  {paymentMethod.id === defaultPaymentMethod ? (
-                                    <Typography
-                                      sx={{ fontSize: "10pt", color: uiGreen }}
-                                    >
-                                      Default Payment Method
-                                    </Typography>
-                                  ) : (
-                                    <>
-                                      <br />
-                                      <UIButton
+                      <div style={{ maxHeight: "277px", overflowY: "auto" }}>
+                        {paymentMethods.map((paymentMethod) => {
+                          return (
+                            <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
+                              <Box className="mb-3" sx={{ display: "flex" }}>
+                                <Box sx={{ flex: "2" }}>
+                                  <Typography className="text-black">
+                                    {paymentMethod.card.brand} ending in{" "}
+                                    {paymentMethod.card.last4}
+                                  </Typography>
+                                  <Typography
+                                    sx={{ fontSize: "10pt" }}
+                                    className="text-black"
+                                  >
+                                    Expires {paymentMethod.card.exp_month}/
+                                    {paymentMethod.card.exp_year}
+                                    {paymentMethod.id ===
+                                    defaultPaymentMethod ? (
+                                      <Typography
                                         sx={{
+                                          fontSize: "10pt",
                                           color: uiGreen,
-                                          textTransform: "none",
-                                          display: "block",
-                                          fontSize: "6pt",
                                         }}
-                                        onClick={() => {
-                                          setPaymentMethodDefaultId(
-                                            paymentMethod.id
-                                          );
-                                          setShowDefaultConfirm(true);
-                                        }}
-                                        btnText="Set As Default"
-                                      />
-                                    </>
-                                  )}
-                                </Typography>
+                                      >
+                                        Default Payment Method
+                                      </Typography>
+                                    ) : (
+                                      <>
+                                        <br />
+                                        <UIButton
+                                          sx={{
+                                            color: uiGreen,
+                                            textTransform: "none",
+                                            display: "block",
+                                            fontSize: "6pt",
+                                          }}
+                                          onClick={() => {
+                                            setPaymentMethodDefaultId(
+                                              paymentMethod.id
+                                            );
+                                            setShowDefaultConfirm(true);
+                                          }}
+                                          btnText="Set As Default"
+                                        />
+                                      </>
+                                    )}
+                                  </Typography>
+                                </Box>
+                                <Box>
+                                  <Button
+                                    sx={{ color: uiRed, textTransform: "none" }}
+                                    onClick={() => {
+                                      setPaymentMethodDeleteId(
+                                        paymentMethod.id
+                                      );
+                                      setShowDeleteConfirm(true);
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </Box>
                               </Box>
-                              <Box>
-                                <Button
-                                  sx={{ color: uiRed, textTransform: "none" }}
-                                  onClick={() => {
-                                    setPaymentMethodDeleteId(paymentMethod.id);
-                                    setShowDeleteConfirm(true);
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </Box>
-                            </Box>
-                            <ListDivider sx={{ color: "white" }} />
-                          </div>
-                        );
-                      })}
+                              <ListDivider sx={{ color: "white" }} />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </form>
                 </div>

@@ -8,7 +8,12 @@ import {
 import { getUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
+import useScreen from "../../../../hooks/useScreen";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import { authUser } from "../../../../constants";
 const Properties = () => {
+  const { screenWidth, breakpoints } = useScreen();
   const [properties, setProperties] = useState([]);
   const [filters, setFilters] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +25,10 @@ const Properties = () => {
     { name: "street", label: "Street Address" },
     { name: "city", label: "City" },
     { name: "state", label: "State" },
+  ];
+  const mobileLabels = [
+    { name: "title", key: "name" },
+    { name: "info", key: "value" },
   ];
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/landlord/properties/${rowData}`;
@@ -91,25 +100,55 @@ const Properties = () => {
         title={"Error"}
         message={errorMessage}
         btnText={"Ok"}
-      onClick={() => setShowDeleteError(false)}
+        onClick={() => setShowDeleteError(false)}
       />
-      <UITable
-        columns={columns}
-        options={options}
-        endpoint="/properties/"
-        title="Properties"
-        createURL="/dashboard/landlord/properties/create"
-        detailURL="/dashboard/landlord/properties/"
-        showCreate={true}
-        filters={
-          filters
-            ? [
-                { param: "state", label: "State", values: filters.states },
-                { param: "city", label: "City", values: filters.cities },
-              ]
-            : []
-        }
-      />
+      {false ? (
+        <UITable
+          columns={columns}
+          options={options}
+          endpoint="/properties/"
+          title="Properties"
+          createURL="/dashboard/landlord/properties/create"
+          detailURL="/dashboard/landlord/properties/"
+          showCreate={true}
+          filters={
+            filters
+              ? [
+                  { param: "state", label: "State", values: filters.states },
+                  { param: "city", label: "City", values: filters.cities },
+                ]
+              : []
+          }
+        />
+      ) : (
+        <>
+          <UITableMobile
+            tableTitle="Properties"
+            endpoint={"/properties/"}
+            infoProperty="name"
+            createTitle={(row) => `${row.street}, ${row.city}, ${row.state}`}
+            subtitleProperty="somthing"
+            // getImage={(row) => {
+            //   retrieveFilesBySubfolder(
+            //     `properties/${row.id}`,
+            //     authUser.user_id
+            //   ).then((res) => {
+            //     if (res.data.length > 0) {
+            //       return res.data[0].file;
+            //     } else {
+            //       return "https://picsum.photos/200";
+            //     }
+            //   });
+            // }}
+            onRowClick={(row) => {
+              const navlink = `/dashboard/landlord/properties/${row.id}`;
+              navigate(navlink);
+            }}
+            createURL="/dashboard/landlord/properties/create"
+            showCreate={true}
+          />
+        </>
+      )}
     </div>
   );
 };

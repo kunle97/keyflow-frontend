@@ -74,7 +74,7 @@ const CallToActionForm = (props) => {
           </span>
         </div>
         <div className="">
-          <UIButton type="submit" btnText="Request Demo" />
+          <UIButton type="submit" btnText="Notify Me" />
         </div>
       </form>
     </div>
