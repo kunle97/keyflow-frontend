@@ -37,15 +37,13 @@ export async function createProperty(
 //Create function to get all properties for this user
 export async function getProperties() {
   try {
-    const res = await authenticatedInstance
-      .get(`/properties/`)
-      .then((res) => {
-        console.log(res);
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
+    const res = await authenticatedInstance.get(`/properties/`).then((res) => {
+      console.log(res);
+      if (res.status == 200 && res.data.length == 0) {
+        return { data: [] };
+      }
+      return { data: res.data };
+    });
     return res;
   } catch (error) {
     console.log("Get Properties Error: ", error);
@@ -112,12 +110,12 @@ export async function updateProperty(propertyId, data) {
     const res = await authenticatedInstance
       .patch(`/properties/${propertyId}/`, data)
       .then((res) => {
-        if (res.status == 200) {
-          return { data: res.data };
+        if (res.status !== 200) {
+          return { status: 200, message: "Property updated successfully" };
         }
         return { data: [] };
       });
-    return res.data;
+    return { data: res.data, status: 200, message: "Property updated successfully" };
   } catch (error) {
     console.log("Get Properties Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };

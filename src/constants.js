@@ -27,13 +27,13 @@ export const stripe_onboarding_link = localStorage.getItem(
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";
-export const uiGrey = "#f4f7f8";
+export const uiGrey = "#eff4f5";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
 export const uiGrey3 = "#dcdde3"; //Used to set background color of a read notification
 
 export const validationMessageStyle = {
-  color: "red !important",
+  color: "red",
   fontSize: "14px",
 };
 
@@ -84,6 +84,24 @@ export const landlordMenuItems = [
     description: "View your properties",
     icon: "fa fa-home",
     isSearchable: true,
+    subMenuItems: [
+      {
+        label: "Properties",
+        link: "/dashboard/landlord/properties",
+        muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+        description: "View your properties",
+        icon: "fa fa-home",
+        isSearchable: true,
+      },
+      {
+        label: "Portfolios ",
+        link: "/dashboard/landlord/portfolios",
+        muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+        description: "Add a new property",
+        icon: "fa fa-home",
+        isSearchable: true,
+      },
+    ],
   },
   {
     label: "Tenants",
@@ -256,6 +274,8 @@ export const defaultWhiteInputStyle = {
   width: "100%",
   borderRadius: "5px",
   background: "white",
+  outline: "none",
+  border: "none",
 };
 export const fakeData = {
   fakeFirstName:

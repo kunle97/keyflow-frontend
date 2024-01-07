@@ -80,12 +80,16 @@ const UITableMobile = (props) => {
       setResults([]);
       setIsLoading(false);
     }
-  }, [orderingField, searchField, limit, endpoint]);
+  }, [orderingField, searchField, limit, endpoint, props.data]);
   return (
     <div>
       <>
         <div style={{ width: "100%", overflow: "auto" }}>
-          <Stack direction="row" justifyContent="flex-end" alignItems="center">
+          <Stack
+            direction="row"
+            justifyContent={isMobile ? "flex-end" : `space-between`}
+            alignItems="center"
+          >
             {screenWidth > breakpoints.md && (
               <h4>
                 {props.tableTitle} ({count})
@@ -112,8 +116,23 @@ const UITableMobile = (props) => {
                   </IconButton>
                 </ButtonBase>
               )}
-
               <>
+                {!isMobile && (
+                  <input
+                    style={{
+                      ...defaultWhiteInputStyle,
+                      width: "220px",
+                      border: "none",
+                      outline: "none",
+                      marginBottom: "10px",
+                    }}
+                    type="text"
+                    placeholder="Search"
+                    onChange={(e) => {
+                      setSearchField(e.target.value);
+                    }}
+                  />
+                )}
                 {screenWidth > breakpoints.md && (
                   <span style={{ color: "black" }}>Show</span>
                 )}
@@ -177,19 +196,22 @@ const UITableMobile = (props) => {
             </Stack>
           </Stack>
         </div>
-        <input
-          style={{
-            ...defaultWhiteInputStyle,
-            width: "100%",
-            border: "none",
-            outline: "none",
-          }}
-          type="text"
-          placeholder="Search"
-          onChange={(e) => {
-            setSearchField(e.target.value);
-          }}
-        />
+        {isMobile && (
+          <input
+            style={{
+              ...defaultWhiteInputStyle,
+              width: "100%",
+              border: "none",
+              outline: "none",
+              marginBottom: "10px",
+            }}
+            type="text"
+            placeholder="Search"
+            onChange={(e) => {
+              setSearchField(e.target.value);
+            }}
+          />
+        )}
         {isLoading ? (
           <UIProgressPrompt
             title={props.loadingTitle ? props.loadingTitle : "Loading..."}

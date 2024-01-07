@@ -4,6 +4,7 @@ import { deleteUnit } from "../../../../api/units";
 import {
   Alert,
   Avatar,
+  Button,
   CircularProgress,
   Divider,
   IconButton,
@@ -23,7 +24,7 @@ import {
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { authUser, uiGreen, uiRed } from "../../../../constants";
+import { authUser, uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import BackButton from "../../UIComponents/BackButton";
 import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
@@ -46,18 +47,26 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import EditIcon from "@mui/icons-material/Edit";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UISwitch from "../../UIComponents/UISwitch";
+import { getPortfolios } from "../../../../api/portfolios";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
+  const [portfolios, setPortfolios] = useState([]); //Create a state to hold the portfolios
+  const [currentPortfolio, setCurrentPortfolio] = useState(null); //Create a state to hold the current portfolio
+
+  const [selectPortfolioDialogOpen, setSelectPortfolioDialogOpen] =
+    useState(false); //Create a state to hold the select portfolio dialog open state
   const [units, setUnits] = useState([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
+  const [updateAlertTitle, setUpdateAlertTitle] = useState("Success"); //Create a state to hold the update alert title
+  const [updateAlertMessage, setUpdateAlertMessage] =
+    useState("Property updated"); //Create a state to hold the update alert message
+  const [updateAlertIsOpen, setUpdateAlertIsOpen] = useState(false); //Create a state to hold the update alert open state
   const [isLoading, setIsLoading] = useState(true); //create a loading variable to display a loading message while the units are  being retrieved
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
   const [bedsCount, setBedsCount] = useState(0); //Create a state to hold the number of beds in the property
   const [bathsCount, setBathsCount] = useState(0); //Create a state to hold the number of baths in the property
-  const [responseMessage, setResponseMessage] = useState("Property updated");
-  const [alertSeverity, setAlertSeverity] = useState("success");
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [tabPage, setTabPage] = useState(0);
@@ -108,43 +117,7 @@ const ManageProperty = () => {
       },
     },
   ];
-  const options = {
-    filter: true,
-    sort: true,
-    sortOrder: {
-      name: "created_at",
-      direction: "desc",
-    },
-    onRowClick: handleRowClick,
-    //CREate a function to handle the row delete
-    onRowsDelete: (rowsDeleted, data) => {
-      console.log(rowsDeleted);
-      //Create an array to hold the ids of the rows to be deleted
-      const idsToDelete = [];
-      //Loop through the rows to be deleted and push the ids to the idsToDelete array
-      rowsDeleted.data.map((row) => {
-        //Check if the unit is occupied before deleting
-        if (units[row.dataIndex].is_occupied === true) {
-          setShowDeleteError(true);
-          setErrorMessage(
-            `One or more of the units you have selected is occupied. Please make sure the unit is vacant before deleting it.`
-          );
-          return false;
-        } else {
-          idsToDelete.push(units[row.dataIndex].id);
-        }
-      });
-      //Delete Unit if it is not occupied
-      idsToDelete.map((id) => {
-        deleteUnit(id).then((res) => {
-          console.log(res);
-          //If the delete was successful, remove the deleted rows from the properties state
-          const newUnits = units.filter((unit) => unit.id !== id);
-          setUnits(newUnits);
-        });
-      });
-    },
-  };
+
   const {
     register,
     setValue,
@@ -166,15 +139,40 @@ const ManageProperty = () => {
   //Create a handle function to handle the form submission of updating property info
   const onSubmit = async (data) => {
     const res = await updateProperty(id, data);
-    if (res.id) {
-      setShowUpdateSuccess(true);
-      setAlertSeverity("success");
-      setResponseMessage("Property updated");
+    console.log("Property Detaiuls submit res ", res);
+    if (res.status === 200) {
+      setUpdateAlertTitle("Success");
+      setUpdateAlertMessage("Property updated");
+      setUpdateAlertIsOpen(true);
+      setEditDialogOpen(false);
     } else {
-      setShowUpdateSuccess(true);
-      setAlertSeverity("error");
-      setResponseMessage("Something went wrong");
+      setUpdateAlertTitle("Error");
+      setUpdateAlertMessage("Something went wrong");
+      setUpdateAlertIsOpen(true);
+      setEditDialogOpen(false);
     }
+  };
+
+  const handleChangePortfolio = (selected_portfolio_id) => {
+    setCurrentPortfolio(
+      portfolios.find((portfolio) => portfolio.id === selected_portfolio_id)
+    );
+    updateProperty(property.id, { portfolio: selected_portfolio_id }).then(
+      (res) => {
+        console.log("Portfolio Change Res", res);
+        if (res.status === 200) {
+          setUpdateAlertTitle("Portfolio Updated");
+          setUpdateAlertMessage("The property's portfolio has been updated");
+          setUpdateAlertIsOpen(true);
+        } else {
+          setShowUpdateSuccess(true);
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong");
+          setUpdateAlertIsOpen(true);
+        }
+      }
+    );
+    setSelectPortfolioDialogOpen(false);
   };
 
   const handleDeleteProperty = async () => {
@@ -217,6 +215,24 @@ const ManageProperty = () => {
         setBathsCount(
           res.data.units.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
         );
+        getPortfolios().then((portfolio_res) => {
+          console.log("Portfolios ", portfolio_res);
+          if (portfolio_res.status === 200) {
+            setPortfolios(portfolio_res.data);
+            if (res.data?.portfolio) {
+              setCurrentPortfolio(
+                portfolio_res.data.find(
+                  (portfolio) => portfolio.id === res.data?.portfolio
+                )
+              );
+            }
+          } else {
+            console.error(
+              "An error occured retieving portfolios",
+              portfolio_res
+            );
+          }
+        });
       });
       retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id)
         .then((res) => {
@@ -264,6 +280,15 @@ const ManageProperty = () => {
                 />
               </div>
             )}
+
+            <AlertModal
+              open={updateAlertIsOpen}
+              title={updateAlertTitle}
+              message={updateAlertMessage}
+              btnText={"Ok"}
+              onClick={() => setUpdateAlertIsOpen(false)}
+            />
+
             {/* Property Detail Edit Dialog  */}
             <UIDialog
               open={editDialogOpen}
@@ -437,7 +462,71 @@ const ManageProperty = () => {
                 </div>
               </div>
             </UIDialog>
+
             <div className="p-2">
+              <UIDialog
+                open={selectPortfolioDialogOpen}
+                onClose={() => setSelectPortfolioDialogOpen(false)}
+                maxWidth="md"
+                title="Select Portfolio"
+              >
+                <List
+                  sx={{
+                    width: "650px",
+                    maxWidth: "100%",
+                    maxHeight: 500,
+                    overflow: "auto",
+                    color: uiGrey2,
+                    bgcolor: "white",
+                  }}
+                >
+                  {portfolios.length > 0 ? (
+                    <div>
+                      {portfolios.map((portfolio) => (
+                        <ListItem key={portfolio.id} alignItems="flex-start">
+                          <ListItemText
+                            primary={
+                              <Stack
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center"
+                              >
+                                <div>
+                                  {" "}
+                                  <h5 style={{ fontSize: "12pt" }}>
+                                    {portfolio.name}
+                                  </h5>
+                                  <p>{portfolio.description}</p>
+                                </div>
+                                <Button
+                                  onClick={() =>
+                                    handleChangePortfolio(portfolio.id)
+                                  }
+                                  sx={{
+                                    background: uiGreen,
+                                    color: "white",
+                                    textTransform: "none",
+                                    marginTop: "10px",
+                                  }}
+                                  variant="container"
+                                  className="ui-btn"
+                                >
+                                  Select
+                                </Button>
+                              </Stack>
+                            }
+                          />
+                          <Divider light />
+                        </ListItem>
+                      ))}
+                    </div>
+                  ) : (
+                    <div>
+                      <p>No portfolios created</p>
+                    </div>
+                  )}
+                </List>
+              </UIDialog>
               <Stack
                 direction="row"
                 justifyContent="space-between"
@@ -449,6 +538,45 @@ const ManageProperty = () => {
                     {property?.street} {property?.city}, {property?.state}{" "}
                     {property?.zip_code}
                   </span>
+                  {currentPortfolio ? (
+                    <Stack
+                      direction="row"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      alignContent={"center"}
+                    >
+                      <span className="text-black">
+                        Portfolio: {currentPortfolio?.name}
+                      </span>
+                      <Button
+                        sx={{
+                          display: "block",
+                          color: uiGreen,
+                          textTransform: "none",
+                        }}
+                        variant="text"
+                        onClick={() => {
+                          setSelectPortfolioDialogOpen(true);
+                        }}
+                      >
+                        Change Portfolio
+                      </Button>
+                    </Stack>
+                  ) : (
+                    <Button
+                      sx={{
+                        display: "block",
+                        color: uiGreen,
+                        textTransform: "none",
+                      }}
+                      variant="text"
+                      onClick={() => {
+                        setSelectPortfolioDialogOpen(true);
+                      }}
+                    >
+                      Select Portfolio
+                    </Button>
+                  )}
                 </div>
                 <IconButton
                   onClick={() => {
@@ -488,8 +616,7 @@ const ManageProperty = () => {
                           <span
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
                           >
                             {unitCount} Units
@@ -512,8 +639,7 @@ const ManageProperty = () => {
                           <span
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
                           >
                             {bedsCount} Beds
@@ -536,8 +662,7 @@ const ManageProperty = () => {
                           <span
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
                           >
                             {bathsCount} Baths
@@ -560,8 +685,7 @@ const ManageProperty = () => {
                           <span
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
                           >
                             1234 Sq. Ft.
@@ -662,45 +786,35 @@ const ManageProperty = () => {
                           />
                         ) : (
                           <div>
-                            {false ? (
-                              <UITable
-                                columns={columns}
-                                options={options}
-                                data={units}
-                                title="Units"
-                                createURL={`/dashboard/landlord/units/create/${id}`}
-                                showCreate={true}
-                              />
-                            ) : (
-                              <UITableMobile
-                                data={units}
-                                infoProperty="name"
-                                createTitle={(row) =>
-                                  `Occupied: ${row.is_occupied ? `Yes` : "No"} `
-                                }
-                                createSubtitle={(row) =>
-                                  `Beds: ${row.beds} | Baths: ${row.baths}`
-                                }
-                                createURL={`/dashboard/landlord/units/create/${id}`}
-                                showCreate={true}
-                                // getImage={(row) => {
-                                //   retrieveFilesBySubfolder(
-                                //     `properties/${property.id}/units/${row.id}`,
-                                //     authUser.user_id
-                                //   ).then((res) => {
-                                //     if (res.data.length > 0) {
-                                //       return res.data[0].file;
-                                //     } else {
-                                //       return "https://picsum.photos/200";
-                                //     }
-                                //   });
-                                // }}
-                                onRowClick={(row) => {
-                                  const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
-                                  navigate(navlink);
-                                }}
-                              />
-                            )}
+                            {" "}
+                            <UITableMobile
+                              data={units}
+                              infoProperty="name"
+                              createTitle={(row) =>
+                                `Occupied: ${row.is_occupied ? `Yes` : "No"} `
+                              }
+                              createSubtitle={(row) =>
+                                `Beds: ${row.beds} | Baths: ${row.baths}`
+                              }
+                              createURL={`/dashboard/landlord/units/create/${id}`}
+                              showCreate={true}
+                              // getImage={(row) => {
+                              //   retrieveFilesBySubfolder(
+                              //     `properties/${property.id}/units/${row.id}`,
+                              //     authUser.user_id
+                              //   ).then((res) => {
+                              //     if (res.data.length > 0) {
+                              //       return res.data[0].file;
+                              //     } else {
+                              //       return "https://picsum.photos/200";
+                              //     }
+                              //   });
+                              // }}
+                              onRowClick={(row) => {
+                                const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
+                                navigate(navlink);
+                              }}
+                            />
                           </div>
                         )}
                       </>
@@ -798,9 +912,7 @@ const ManageProperty = () => {
                 </div>
               )}
               {tabPage === 4 && (
-                <div
-                  className={isMobile && "container-fluid"}
-                >
+                <div className={isMobile && "container-fluid"}>
                   <List
                     sx={{
                       width: "100%",
