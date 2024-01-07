@@ -101,54 +101,34 @@ const Properties = () => {
         message={errorMessage}
         btnText={"Ok"}
         onClick={() => setShowDeleteError(false)}
-      />
-      {false ? (
-        <UITable
-          columns={columns}
-          options={options}
-          endpoint="/properties/"
-          title="Properties"
+      />{" "}
+      <>
+        <UITableMobile
+          tableTitle="Properties"
+          endpoint={"/properties/"}
+          infoProperty="name"
+          createTitle={(row) => `${row.street}, ${row.city}, ${row.state}`}
+          subtitleProperty="somthing"
+          // getImage={(row) => {
+          //   retrieveFilesBySubfolder(
+          //     `properties/${row.id}`,
+          //     authUser.user_id
+          //   ).then((res) => {
+          //     if (res.data.length > 0) {
+          //       return res.data[0].file;
+          //     } else {
+          //       return "https://picsum.photos/200";
+          //     }
+          //   });
+          // }}
+          onRowClick={(row) => {
+            const navlink = `/dashboard/landlord/properties/${row.id}`;
+            navigate(navlink);
+          }}
           createURL="/dashboard/landlord/properties/create"
-          detailURL="/dashboard/landlord/properties/"
           showCreate={true}
-          filters={
-            filters
-              ? [
-                  { param: "state", label: "State", values: filters.states },
-                  { param: "city", label: "City", values: filters.cities },
-                ]
-              : []
-          }
         />
-      ) : (
-        <>
-          <UITableMobile
-            tableTitle="Properties"
-            endpoint={"/properties/"}
-            infoProperty="name"
-            createTitle={(row) => `${row.street}, ${row.city}, ${row.state}`}
-            subtitleProperty="somthing"
-            // getImage={(row) => {
-            //   retrieveFilesBySubfolder(
-            //     `properties/${row.id}`,
-            //     authUser.user_id
-            //   ).then((res) => {
-            //     if (res.data.length > 0) {
-            //       return res.data[0].file;
-            //     } else {
-            //       return "https://picsum.photos/200";
-            //     }
-            //   });
-            // }}
-            onRowClick={(row) => {
-              const navlink = `/dashboard/landlord/properties/${row.id}`;
-              navigate(navlink);
-            }}
-            createURL="/dashboard/landlord/properties/create"
-            showCreate={true}
-          />
-        </>
-      )}
+      </>
     </div>
   );
 };

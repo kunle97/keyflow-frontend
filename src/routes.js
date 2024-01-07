@@ -5,6 +5,9 @@ import { createBrowserRouter } from "react-router-dom";
 import Properties from "./components/Dashboard/Landlord/Properties/Properties";
 import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
 import ManageProperty from "./components/Dashboard/Landlord/Properties/ManageProperty";
+import CreatePortfolio from "./components/Dashboard/Landlord/Portfolios/CreatePortfolio";
+import Portfolios from "./components/Dashboard/Landlord/Portfolios/Portfolios";
+import ManagePortfolio from "./components/Dashboard/Landlord/Portfolios/ManagePortfolio";
 import Units from "./components/Dashboard/Landlord/Units/Units";
 import ManageUnit from "./components/Dashboard/Landlord/Units/ManageUnit";
 import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
@@ -48,6 +51,8 @@ import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import PaidOutlined from "@mui/icons-material/PaidOutlined";
 import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import FolderCopyIcon from "@mui/icons-material/FolderCopy";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import {
   AddHomeOutlined,
   AddHomeWorkOutlined,
@@ -269,6 +274,40 @@ export const routes = [
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageProperty />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/portfolios",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Portfolios />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Portfolios",
+    description: "Manage your portfolios",
+    isQuickLink: true,
+    muiIcon: <FolderCopyIcon />,
+  },
+  {
+    path: "/dashboard/landlord/portfolios/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreatePortfolio />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Portfolio",
+    description: "Create a new portfolio",
+    isQuickLink: true,
+    muiIcon: <CreateNewFolderIcon />,
+  },
+  {
+    path: "/dashboard/landlord/portfolios/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManagePortfolio />
       </DashboardProtectedRoute>
     ),
   },
