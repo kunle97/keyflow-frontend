@@ -29,7 +29,7 @@ const StyledTab = styled((props) => <Tab disableRipple {...props} />)(
     fontSize: "12pt",
     color: `${uiGrey2} !important`,
     "&.Mui-selected": {
-      color: "#fff",
+      color: "black",
     },
     "&.Mui-focusVisible": {
       backgroundColor: uiGreen,

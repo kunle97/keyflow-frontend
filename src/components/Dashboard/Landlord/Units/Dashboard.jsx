@@ -128,7 +128,7 @@ const Dashboard = () => {
         customBodyRender: (value) => {
           let output = "";
           if (value) {
-            output = `${value.first_name} ${value.last_name}`;
+            output = `${value.user.first_name} ${value.user.last_name}`;
           } else {
             output = "N/A";
           }
@@ -638,7 +638,10 @@ const Dashboard = () => {
           ) : (
             <UICardList
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Transactions"}
               info={"Recent Transactions"}
@@ -672,7 +675,7 @@ const Dashboard = () => {
             height={isMobile ? "256px" : "456px"}
             legendPosition={isMobile ? "bottom" : "right"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             data={[occupiedUnits, vacantUnits]}
             labels={["Occupied", "Vacant"]}
@@ -694,8 +697,14 @@ const Dashboard = () => {
         <div className="col-md-6">
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
-              cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              cardStyle={{
+                background: "white",
+                color: "black",
+              }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Upcoming Lease Endings"}
               columns={lease_agreement_columns}
@@ -707,7 +716,10 @@ const Dashboard = () => {
           ) : (
             <UICardList
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Upcoming Lease Endings"}
               info={"Lease Agreements"}
@@ -737,7 +749,7 @@ const Dashboard = () => {
             height={isMobile ? "356px" : "456px"}
             legendPosition={"bottom"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             chartContainerStyles={{ padding: "1rem" }}
             data={groupedPropertiesByTransactions.map((property) => {
@@ -757,7 +769,10 @@ const Dashboard = () => {
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Maintenance Requests"}
               columns={maintenance_request_columns}
@@ -768,7 +783,10 @@ const Dashboard = () => {
           ) : (
             <UICardList
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Maintenance Requests"}
               info={"Maintenance Requests"}
@@ -825,8 +843,16 @@ const Dashboard = () => {
         <div className="col-md-6">
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
-              cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              cardStyle={{
+                background: "white",
+                color: "black",
+                height: "530px",
+                overflowY: "auto",
+              }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Lease Cancellation Requests"}
               columns={lease_cancellation_columns}
@@ -838,7 +864,10 @@ const Dashboard = () => {
           ) : (
             <UICardList
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Lease Cancellation Requests"}
               info={"Lease Cancellation Requests"}
@@ -900,7 +929,7 @@ const Dashboard = () => {
             height={isMobile ? "356px" : "456px"}
             legendPosition={"bottom"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             chartContainerStyles={{ padding: "1rem" }}
             data={[
@@ -921,7 +950,10 @@ const Dashboard = () => {
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Lease Renewal Requests"}
               columns={lease_renewal_columns}
@@ -932,7 +964,10 @@ const Dashboard = () => {
           ) : (
             <UICardList
               cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+              infoStyle={{
+                color: uiGrey2,
+                fontSize: isMobile ? "12pt" : "16pt",
+              }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
               title={"Recent Lease Renewal Requests"}
               info={"Lease Renewal Requests"}
@@ -991,7 +1026,7 @@ const Dashboard = () => {
             height={isMobile ? "356px" : "456px"}
             legendPosition={"bottom"}
             cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
             chartContainerStyles={{ padding: "1rem" }}
             data={[

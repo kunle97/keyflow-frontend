@@ -68,10 +68,11 @@ const Sidebar = (props) => {
                       href="#"
                       style={{ color: uiGrey2, fontSize: "13pt" }}
                     >
-                      <i
+                      {/* <i
                         className={"${item.icon} text-gray-400"}
                         style={{ color: uiGrey2, fontSize: "13pt" }}
-                      />
+                      /> */}
+                      <span style={{marginRight:"10px"}} >{item.muiIcon}</span>
                       {item.label}
                     </a>
                     <div
@@ -119,14 +120,7 @@ const Sidebar = (props) => {
                       to={item.link}
                       style={{ color: uiGrey2, fontSize: "13pt" }}
                     >
-                      <i
-                        className={`${item.icon} text-gray-400`}
-                        style={{
-                          color: uiGrey2,
-                          fontSize: "17pt",
-                          marginRight: "15px",
-                        }}
-                      />
+                      <span style={{marginRight:"10px"}} >{item.muiIcon}</span>
                       <span>{item.label}</span>
                     </Link>
                   </li>

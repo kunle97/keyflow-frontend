@@ -24,7 +24,6 @@ const useScreen = () => {
   const isMobile = screenWidth < breakpoints.md;
 
   useEffect(() => {
-    console.log(screenWidth);
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleResize);
 
