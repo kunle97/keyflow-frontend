@@ -631,7 +631,6 @@ const CreateUnit = () => {
                                 bgcolor: "white",
                               }}
                             >
-                              {console.log(leaseTemplates === 0)}
                               {leaseTemplates.map((leaseTemplate, index) => {
                                 if (leaseTemplates.length == 0) {
                                   return (
@@ -850,7 +849,7 @@ const CreateUnit = () => {
                 </div>
               </>
             )}
-            {tabPage === 3 && (
+            {!isOccupied && tabPage === 3 && (
               <UITableMobile
                 data={rentalApplications}
                 tableTitle={"Rental Applications"}
