@@ -162,10 +162,12 @@ const LeaseTemplates = () => {
         createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
         onRowClick={handleRowClick}
         orderingFields={[
-          { field: "timestamp", label: "Date Created (Ascending)" },
-          { field: "-timestamp", label: "Date Created (Descending)" },
-          { field: "type", label: "type (Ascending)" },
-          { field: "-type", label: "type (Descending)" },
+          { field: "created_at", label: "Date Created (Ascending)" },
+          { field: "-created_at", label: "Date Created (Descending)" },
+          { field: "rent", label: "Rent (Ascending)" },
+          { field: "-rent", label: "Rent (Descending)" },
+          { field: "term", label: "Term (Ascending)" },
+          { field: "-term", label: "Term (Descending)" },
         ]}
         showCreate={true}
         createURL="/dashboard/landlord/lease-templates/create"
