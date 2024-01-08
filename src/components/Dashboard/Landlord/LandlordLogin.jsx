@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { getLandlordsEmails, getLandlordsUsernames } from "../../../api/api";
 import { login } from "../../../api/auth";
-import AuthContext, { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import {
   defaultWhiteInputStyle,
@@ -15,11 +15,10 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
 
 const LandlordLogin = () => {
-  let { loginUser, user } = useContext(AuthContext);
-  const [email, setEmail] = useState("Madalyn_Murray@gmail.com");
+  const [email, setEmail] = useState("");
   const [landlordsEmails, setLandlordsEmails] = useState([]);
   const [landlordUsernames, setLandlordUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(false); //Toggle to determine what login credentials to use
+  const [emailLoginMode, setEmailLoginMode] = useState(true); //Toggle to determine what login credentials to use
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const [openError, setOpenError] = useState(false);
@@ -35,13 +34,32 @@ const LandlordLogin = () => {
       email:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : "Madalyn_Murray@gmail.com",
+          : email,
       password:
         process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
   });
-  const onJWTSubmit = async (e) => {
-    let response = await loginUser(e);
+
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    console.log(data);
+    const response = await login(data.email, data.password);
+
+    //if token is returned, set it in local storage
+    if (response.token) {
+      setRedirectURL("/dashboard/landlord");
+      setAuthUser(response.userData);
+      setIsLoggedIn(true);
+      setIsLoading(false);
+      //Navigate to dashboard
+      setOpenError(false);
+      setOpen(true);
+    } else {
+      setErrMsg(response.message);
+      setIsLoading(false);
+      setOpen(false);
+      setOpenError(true);
+    }
   };
 
   useEffect(() => {
@@ -89,7 +107,7 @@ const LandlordLogin = () => {
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-black-transparent.png"
               />
-              <form className="user" onSubmit={onJWTSubmit}>
+              <form className="user" onSubmit={handleSubmit(onSubmit)}>
                 {process.env.REACT_APP_ENVIRONMENT === "development" ? (
                   <div>
                     {emailLoginMode ? (

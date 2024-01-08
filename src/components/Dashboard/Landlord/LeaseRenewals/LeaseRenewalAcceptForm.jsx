@@ -100,7 +100,7 @@ const LeaseRenewalAcceptForm = () => {
       const leaseAgreementPayload = {
         rental_unit: leaseRenewalRequest.rental_unit.id,
         tenant: leaseRenewalRequest.tenant.id,
-        user: authUser.user_id,
+        user: authUser.id,
         approval_hash: makeId(64),
         lease_template: currentLeaseTemplate.id,
         document_id: sendDocResponse.documentId,

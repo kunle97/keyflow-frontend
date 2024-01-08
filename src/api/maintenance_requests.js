@@ -48,7 +48,7 @@ export async function getMaintenanceRequests(unitId) {
 export async function getMaintenanceRequestsByUser() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/tenant-maintenance-requests/`)
+      .get(`/users/${authUser.id}/tenant-maintenance-requests/`)
       .then((res) => {
         return res;
       });

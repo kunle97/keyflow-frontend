@@ -8,22 +8,18 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import { jwtDecode } from "jwt-decode";
 
-export const authUser = localStorage.getItem("authTokens")
-  ? jwtDecode(localStorage.getItem("authTokens"))
+export const authUser = localStorage.getItem("authUser")
+  ? JSON.parse(localStorage.getItem("authUser"))
   : {};
-
-export const token = localStorage.getItem("authTokens")
-  ? JSON.parse(localStorage.getItem("authTokens")).access
+export const token = localStorage.getItem("accessToken")
+  ? localStorage.getItem("accessToken")
   : {};
-
 export const stripe_onboarding_link = localStorage.getItem(
   "stripe_onboarding_link"
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
-
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";

@@ -50,7 +50,7 @@ const TransactionGeneratorForm = (props) => {
     const payload = {
       count: parseInt(data.numberOfItems),
       type: data.type,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       start_date: data.startDate,
       end_date: data.endDate,
       transaction_target: data.transactionTarget,

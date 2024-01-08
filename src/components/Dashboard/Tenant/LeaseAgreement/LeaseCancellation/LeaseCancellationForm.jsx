@@ -44,7 +44,7 @@ const LeaseCancellationForm = (props) => {
       reason: data.reason,
       request_date: data.moveOutDate,
       comments: data.comments,
-      tenant: authUser.user_id,
+      tenant: authUser.id,
       owner: props.leaseAgreement.owner.id,
       rental_unit: props.leaseAgreement.rental_unit.id,
       rental_property: props.leaseAgreement.rental_unit.rental_property,

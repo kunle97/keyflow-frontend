@@ -8,7 +8,7 @@ export async function createLeaseTemplate(data) {
   try {
     const res = await authenticatedInstance
       .post(`/lease-templates/`, {
-        user_id: authUser.user_id,
+        user_id: authUser.id,
         rent: parseFloat(data.rent),
         term: data.term,
         description: "_",

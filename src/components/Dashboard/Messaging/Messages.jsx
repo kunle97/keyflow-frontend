@@ -109,7 +109,7 @@ const Messages = () => {
     let payload = {
       file: file,
       body: message,
-      sender: authUser.user_id,
+      sender: authUser.id,
       recipient: selectedThread.recipient_id,
       subfolder: "messages",
     };

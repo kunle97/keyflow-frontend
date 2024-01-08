@@ -78,7 +78,7 @@ import PricingPage from "./components/Landing/PricingPage";
 import FeaturesPage from "./components/Landing/FeaturesPage";
 import BlogPage from "./components/Landing/BlogPage";
 //retrieve token from storage
-const token = localStorage.getItem("authTokens");
+const token = localStorage.getItem("accessToken");
 
 export const routes = [
   {

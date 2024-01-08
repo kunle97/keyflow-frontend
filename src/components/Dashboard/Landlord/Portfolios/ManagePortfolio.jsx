@@ -226,7 +226,7 @@ const ManagePortfolio = () => {
                 // getImage={(row) => {
                 //   retrieveFilesBySubfolder(
                 //     `properties/${row.id}`,
-                //     authUser.user_id
+                //     authUser.id
                 //   ).then((res) => {
                 //     if (res.data.length > 0) {
                 //       return res.data[0].file;

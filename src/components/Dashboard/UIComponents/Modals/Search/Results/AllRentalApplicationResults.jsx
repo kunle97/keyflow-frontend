@@ -13,13 +13,13 @@ const AllRentalApplicationResults = (props) => {
   const batchEndpoints = [
     {
       name: "properties",
-      endpoint: `/users/${authUser.user_id}/properties/`,
+      endpoint: `/users/${authUser.id}/properties/`,
       limit: 10,
       query: null,
     },
     {
       name: "units",
-      endpoint: `/users/${authUser.user_id}/units/`,
+      endpoint: `/users/${authUser.id}/units/`,
       limit: 10,
       query: null,
     },

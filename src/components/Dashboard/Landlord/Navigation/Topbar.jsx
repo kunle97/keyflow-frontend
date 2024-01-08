@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../../../../contexts/AuthContext";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   authUser,
   dateDiffForHumans,
@@ -13,12 +12,12 @@ import { IconButton, Stack } from "@mui/material";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuIcon from "@mui/icons-material/Menu";
+import { logout } from "../../../../api/auth";
 const Topbar = (props) => {
   const [open, setOpen] = useState(false);
-
+  const navigate = useNavigate();
   const [profilePictures, setProfilePictures] = useState(null);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
-  const { logoutUser } = useAuth();
   const searchBarStyle = {
     ...defaultWhiteInputStyle,
     borderRadius: "40px",
@@ -36,7 +35,21 @@ const Topbar = (props) => {
   };
   const handleLogout = async (e) => {
     e.preventDefault();
-    logoutUser();
+    let returnURL = "/";
+    //call logout api
+    if (authUser && authUser.account_type === "owner") {
+      returnURL = "/dashboard/landlord/login";
+    } else if (authUser && authUser.account_type === "tenant") {
+      returnURL = "/dashboard/tenant/login";
+    }
+    let response = await logout();
+    if (response.status === 200) {
+      console.log("User was logged out successfully");
+      setOpen(true);
+    } else {
+      console.error("Error logging user out");
+      navigate("/")
+    }
   };
 
   const getProfilePicture = async (user_id) => {
@@ -68,7 +81,7 @@ const Topbar = (props) => {
   //REtrieve user notifications
   useEffect(() => {
     try {
-      retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+      retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
         (res) => {
           setProfilePictureFile(res.data[0]);
         }
@@ -91,11 +104,7 @@ const Topbar = (props) => {
           title={"Logout Successful!"}
           message="You have been logged Out Successfully! Click the link below to  return to the home page"
           btnText="Return Home"
-          to={
-            authUser.account_type === "owner"
-              ? "/dashboard/landlord/login"
-              : "/dashboard/tenant/login"
-          }
+          to={"/"}
         />
       )}
       <nav

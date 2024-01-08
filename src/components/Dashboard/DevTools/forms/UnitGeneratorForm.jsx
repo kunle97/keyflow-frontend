@@ -19,7 +19,7 @@ const UnitGeneratorForm = (props) => {
     // Collect input values
     const data = {
       count: numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       rental_property: selectedPropertyId,
       subscription_id: currentSubscriptionPlan.id,
       product_id: currentSubscriptionPlan.plan.product,
@@ -36,7 +36,7 @@ const UnitGeneratorForm = (props) => {
       });
   };
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }
