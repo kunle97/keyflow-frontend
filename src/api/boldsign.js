@@ -12,7 +12,7 @@ export async function createBoldSignEmbeddedTemplateLink(data) {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Token ${token}`,
           },
         }
       )
@@ -37,7 +37,7 @@ export async function createBoldSignEmbeddedTemplateEditLink(data) {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Token ${token}`,
           },
         }
       )
@@ -61,7 +61,7 @@ export async function createBoldSignEmbeddedDocumentSendLink(data) {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Token ${token}`,
           },
         }
       )
@@ -86,7 +86,7 @@ export async function sendDocumentToUser(data) {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Token ${token}`,
           },
         }
       )

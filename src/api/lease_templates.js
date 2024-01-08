@@ -50,7 +50,7 @@ export async function getLeaseTemplatesByUser() {
       .get(`/lease-templates/?ordering=-created_at`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -107,7 +107,7 @@ export async function updateLeaseTemplate(leaseTemplateId, data) {
       .patch(`/lease-templates/${leaseTemplateId}/`, data, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -129,7 +129,7 @@ export async function deleteLeaseTemplate(data) {
       .delete(`/lease-templates/`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
         data: data,
       })
