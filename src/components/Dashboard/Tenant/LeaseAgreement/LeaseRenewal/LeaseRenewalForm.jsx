@@ -96,7 +96,7 @@ const LeaseRenewalForm = (props) => {
           ? props.leaseAgreement.lease_template.term
           : data.leaseTerm,
       comments: data.comments,
-      tenant: authUser.user_id,
+      tenant: authUser.id,
       owner: props.leaseAgreement.owner.id,
       rental_unit:
         unitMode === "current_unit"

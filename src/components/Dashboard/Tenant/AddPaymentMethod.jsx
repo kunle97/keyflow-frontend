@@ -55,7 +55,7 @@ const AddPaymentMethod = (props) => {
         console.log("PaymentMethod:", paymentMethod);
         const data = {
           payment_method_id: paymentMethod.id,
-          user_id: authUser.user_id,
+          user_id: authUser.id,
         };
         console.log(data);
         addStripePaymentMethod(data).then((res) => {
@@ -90,7 +90,7 @@ const AddPaymentMethod = (props) => {
   };
   useEffect(() => {
     //Create a Plaid link token by callig the API
-    // createPlaidLinkToken(`${authUser.user_id}`).then((res) => {
+    // createPlaidLinkToken(`${authUser.id}`).then((res) => {
     createPlaidLinkToken(`1`).then((res) => {
       console.log("PLAID responseew", res);
       //Open the Plaid Link

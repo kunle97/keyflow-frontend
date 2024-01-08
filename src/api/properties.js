@@ -14,7 +14,7 @@ export async function createProperty(
     const res = await authenticatedInstance
       .post(`/properties/`, {
         name,
-        user: authUser.user_id,
+        user: authUser.id,
         owner: authUser.owner_id,
         street,
         city,

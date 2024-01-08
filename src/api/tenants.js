@@ -4,7 +4,7 @@ import { authUser } from "../constants";
 export async function makePayment(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/tenants-v1/${authUser.user_id}/make-payment/`, data)
+      .post(`/tenants-v1/${authUser.id}/make-payment/`, data)
       .then((res) => {
         console.log(res);
         return res.data;
@@ -19,7 +19,7 @@ export async function makePayment(data) {
 export async function getTenantDashboardData() {
   try {
     const res = await authenticatedInstance
-      .post(`/retrieve-tenant-dashboard-data/`, { user_id: authUser.user_id })
+      .post(`/retrieve-tenant-dashboard-data/`, { user_id: authUser.id })
       .then((res) => {
         console.log(res);
         return res.data;

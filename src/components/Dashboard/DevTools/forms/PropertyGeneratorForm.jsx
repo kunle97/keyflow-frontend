@@ -15,7 +15,7 @@ const PropertyGeneratorForm = (props) => {
     // Collect input values
     const data = {
       count: numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       // Add other options as needed
     };
 

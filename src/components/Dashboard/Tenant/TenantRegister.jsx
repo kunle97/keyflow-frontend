@@ -126,7 +126,7 @@ const TenantRegister = () => {
     const response = await registerTenant(data).then((res) => {
       console.log(res);
       if (res.status === 200) {
-        setUserId(authUser.user_id);
+        setUserId(authUser.id);
 
         //Show success message
         setMessage("Your account has been created successfully!");

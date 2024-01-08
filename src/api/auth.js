@@ -46,18 +46,23 @@ export async function login(email, password) {
         accessToken: res.token,
         susbcription_plan: {},
       };
-      getUserStripeSubscriptions(res.user.id, res.token)
-        .then((res) => {
-          console.log(res.subscriptions.plan);
-          userData.susbcription_plan = res.subscriptions.plan;
-          localStorage.setItem(
-            "subscriptionPlan",
-            JSON.stringify(res.subscriptions)
-          );
-        })
-        .catch((error) => {
-          console.log("Error Retrieveing user subscription plan", error);
-        });
+      if (res.user.account_type === "owner") {
+        userData.owner_id = res.owner_id;
+      } else {
+        userData.tenant_id = res.tenant_id;
+      }
+      // getUserStripeSubscriptions(res.user.id, res.token)
+      //   .then((res) => {
+      //     console.log(res.subscriptions.plan);
+      //     userData.susbcription_plan = res.subscriptions.plan;
+      //     localStorage.setItem(
+      //       "subscriptionPlan",
+      //       JSON.stringify(res.subscriptions)
+      //     );
+      //   })
+      //   .catch((error) => {
+      //     console.log("Error Retrieveing user subscription plan", error);
+      //   });
       localStorage.setItem("authUser", JSON.stringify(userData));
       //Check for response code before storing data in context
       const redirect_url =
@@ -191,7 +196,7 @@ export async function getStripeSubscription(subscription_id) {
     const res = await authenticatedInstance
       .post(`/stripe/retrieve-subscription/`, {
         subscription_id: subscription_id,
-        user_id: authUser.user_id,
+        user_id: authUser.id,
       })
 
       .then((res) => {
@@ -205,12 +210,13 @@ export async function getStripeSubscription(subscription_id) {
   }
 }
 //Create a function to retrieve a users data
-export async function getUserData(user_id) { //TODO: Delete this functiuon. To be replaced with the getLandlordTenant function in landlords.js
+export async function getUserData(user_id) {
+  //TODO: Delete this functiuon. To be replaced with the getLandlordTenant function in landlords.js
   try {
     const res = await authenticatedInstance
-      .post(`/users/${authUser.user_id}/tenant/`, {
+      .post(`/users/${authUser.id}/tenant/`, {
         tenant_id: user_id,
-        landlord_id: authUser.user_id,
+        landlord_id: authUser.id,
       })
       .then((res) => {
         console.log(res);
@@ -226,7 +232,7 @@ export async function getUserData(user_id) { //TODO: Delete this functiuon. To b
 export async function updateUserData(data) {
   try {
     const res = await authenticatedInstance
-      .patch(`/users/${authUser.user_id}/`, data)
+      .patch(`/users/${authUser.id}/`, data)
       .then((res) => {
         console.log(res);
         return res;

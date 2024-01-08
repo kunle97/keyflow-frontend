@@ -14,13 +14,13 @@ const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { loginUser } = useContext(AuthContext);
+  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const [email, setEmail] = useState("");
   const [tenantsEmails, setTenantsEmails] = useState([]); //TODO: get usernames from db and set here
   const [tenantsUsernames, setTenantsUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(false); //T
+  const [emailLoginMode, setEmailLoginMode] = useState(true); //T
   const {
     register,
     handleSubmit,
@@ -30,18 +30,37 @@ const TenantLogin = () => {
       email:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : "Kamille86@yahoo.com",
+          : email,
       password:
         process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
   });
 
-  const onJWTSubmit = async (e) => {
-    let response = await loginUser(e);
+  const onSubmit = async (data) => {
+    const response = await login(data.email, data.password);
+    setIsLoading(true);
+
+    //if token is returned, set it in local storage
+    if (response.token) {
+      //Set authUser and isLoggedIn in context
+      localStorage.setItem("accessToken", response.token);
+      //Save auth user in local storage
+      localStorage.setItem("authUser", JSON.stringify(response.userData));
+      setRedirectURL("/dashboard/tenant");
+      setAuthUser(response.userData);
+      setIsLoggedIn(true);
+      setIsLoading(false);
+      //Navigate to dashboard
+      setOpen(true);
+    } else {
+      setErrMsg(response.message);
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     getTenantsEmails().then((res) => {
+      console.log("Tenant emails res: ", res);
       if (res) {
         setTenantsEmails(res);
       }
@@ -97,7 +116,7 @@ const TenantLogin = () => {
               <Typography color="black" className="mb-4 ml-4">
                 Tenant Login
               </Typography>
-              <form className="user" onSubmit={onJWTSubmit}>
+              <form className="user" onSubmit={handleSubmit(onSubmit)}>
                 {/* <div className="mb-3">
                   <Input
                     {...register("email", {

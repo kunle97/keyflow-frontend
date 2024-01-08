@@ -27,7 +27,7 @@ const NewMessageDialog = (props) => {
     const payload = {
       recipient: selectedRecipient,
       body: body,
-      sender: authUser.user_id,
+      sender: authUser.id,
     };
     //Retrieve tenant
     const tenant = tenants.find(

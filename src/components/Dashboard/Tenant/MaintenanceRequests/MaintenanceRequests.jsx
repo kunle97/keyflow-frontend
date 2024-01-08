@@ -81,14 +81,6 @@ const MaintenanceRequests = () => {
   return (
     <div className="container-fluid">
       {leaseAgreement ? (
-        // <UITable
-        //   title={"Maintenance Requests"}
-        //   columns={columns}
-        //   endpoint={"/maintenance-requests/"}
-        //   options={options}
-        //   showCreate={true}
-        //   createURL={"/dashboard/tenant/maintenance-requests/create"}
-        // />
         <UITableMobile
         data={maintenanceRequests}
         endpoint="/maintenance-requests/"
@@ -113,6 +105,8 @@ const MaintenanceRequests = () => {
           { field: "status", label: "Status (Ascending)" },
           { field: "-status", label: "Status (Descending)" },
         ]}
+        showCreate={true}
+        createURL="/dashboard/tenant/maintenance-requests/create"
         showResultLimit={false}
         tableTitle="Maintenance Requests"
         loadingTitle="Maintenance Requests"

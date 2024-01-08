@@ -34,7 +34,7 @@ const MaintenanceRequestGeneratorForm = (props) => {
 
     let payload = {
       count: data.numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       tenant_mode: data.tenantMode,
       conversation_mode: data.conversationMode,
       type: data.type,

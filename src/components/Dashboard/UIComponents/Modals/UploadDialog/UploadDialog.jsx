@@ -95,7 +95,7 @@ const UploadDialog = (props) => {
     files.forEach((file) => {
       const payload = {
         file: file,
-        user: authUser.user_id,
+        user: authUser.id,
         subfolder: props.subfolder,
       };
 

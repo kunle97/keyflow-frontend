@@ -43,7 +43,7 @@ export async function deleteStripePaymentMethod(data) {
   try {
     const res = await authenticatedInstance
       .post(`/stripe/delete-payment-method/`, {
-        user_id: authUser.user_id,
+        user_id: authUser.id,
         payment_method_id: data.payment_method_id,
       })
       .then((res) => {
