@@ -99,6 +99,16 @@ const RentalApplications = () => {
         createInfo={(row) => `${row.first_name} ${row.last_name}`}
         createTitle={(row) => `${row.unit.name}`}
         createSubtitle={(row) => `${row.is_approved ? "Approved" : "Pending"}`}
+        orderingFields={[
+          { field: "created_at", label: "Date Submitted (Ascending)" },
+          { field: "-created_at", label: "Date Submitted (Descending)" },
+          { field: "first_name", label: "First Name (Ascending)" },
+          { field: "-first_name", label: "First Name (Descending)" },
+          { field: "last_name", label: "Last Name (Ascending)" },
+          { field: "-last_name", label: "Last Name (Descending)" },
+          {field: "is_approved", label: "Approved (Ascending)"},
+          {field: "-is_approved", label: "Approved (Descending)"}
+        ]}  
         // getImage={(row) => {
         //   retrieveFilesBySubfolder(
         //     `properties/${row.id}`,
