@@ -25,6 +25,7 @@ import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import useScreen from "../../../../hooks/useScreen";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 const ManagePortfolio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -244,7 +245,7 @@ const ManagePortfolio = () => {
             </div>
           )}
           {tabPage === 1 && (
-            <div>
+            <div   >
               <ConfirmModal
                 open={showDeleteConfirmModal}
                 setOpen={setShowDeleteConfirmModal}
@@ -263,10 +264,18 @@ const ManagePortfolio = () => {
                 confirmBtnText={"Delete"}
                 cancelBtnText={"Cancel"}
               />
+              <UIPreferenceRow
+                title="Auto-Collect Rent"
+                description="Automatically collect rent from tenants on the first of the month."
+                onChange={() => {
+                  console.log("Changed Preference");
+                }}
+              />
 
               <DeleteButton
                 onClick={() => setShowDeleteConfirmModal(true)}
                 btnText="Delete Portfolio"
+                style={{ float: "right" }}
               />
             </div>
           )}
