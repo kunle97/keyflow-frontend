@@ -18,7 +18,7 @@ const LeaseTemplateGeneratorForm = (props) => {
     // Collect input values
     const data = {
       count: numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
     };
 
     // Use Axios or your preferred HTTP client to call the appropriate endpoints in your DRF backend.

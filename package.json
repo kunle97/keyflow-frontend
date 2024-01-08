@@ -31,7 +31,6 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.4.0",
     "chart.js": "^4.4.1",
-    "jwt-decode": "^4.0.0",
     "material-ui-credit-card-icons": "^3.2.1",
     "moment": "^2.29.4",
     "mui-datatables": "^4.3.0",

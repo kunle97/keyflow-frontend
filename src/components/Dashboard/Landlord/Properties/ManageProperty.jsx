@@ -235,7 +235,7 @@ const ManageProperty = () => {
           }
         });
       });
-      retrieveFilesBySubfolder(`properties/${id}`, authUser.user_id)
+      retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
         .then((res) => {
           setPropertyMedia(res.data);
           console.log(res.data);
@@ -803,7 +803,7 @@ const ManageProperty = () => {
                               // getImage={(row) => {
                               //   retrieveFilesBySubfolder(
                               //     `properties/${property.id}/units/${row.id}`,
-                              //     authUser.user_id
+                              //     authUser.id
                               //   ).then((res) => {
                               //     if (res.data.length > 0) {
                               //       return res.data[0].file;

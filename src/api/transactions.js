@@ -1,7 +1,7 @@
 import { authenticatedInstance } from "./api";
 import { authUser } from "../constants";
 //---------TRANSACTION API FUNCTIONS-----------------///
-//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.user_id}/transactions/
+//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/transactions/
 export async function getTransactionsByUser() {
   try {
     const res = await authenticatedInstance
@@ -16,11 +16,11 @@ export async function getTransactionsByUser() {
   }
 }
 
-//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.user_id}/tenant-transactions/
+//Create A function to get all transactions for a specific user using the endpoint /users/{authUser.id}/tenant-transactions/
 export async function getTenantTransactionsByUser() { //TODO: Delete this function and replace with getTransactionsByTenant
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/tenant-transactions/`)
+      .get(`/users/${authUser.id}/tenant-transactions/`)
       .then((res) => {
         return res;
       });

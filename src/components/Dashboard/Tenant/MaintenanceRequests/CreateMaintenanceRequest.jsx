@@ -46,7 +46,7 @@ const CreateMaintenanceRequest = () => {
       type: data.type,
       owner: leaseAgreement.owner.id,
     };
-    console.log("Payload",payload);
+    console.log("Payload", payload);
     createMaintenanceRequest(payload).then((res) => {
       setIsLoading(false);
       console.log(res);
@@ -91,7 +91,7 @@ const CreateMaintenanceRequest = () => {
                     <div className="col-12">
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-3">
-                          <label className="form-label">Type</label>
+                          <label className="form-label text-black">Type</label>
                           <div>
                             <select
                               className="form-control"
@@ -114,7 +114,7 @@ const CreateMaintenanceRequest = () => {
                         </div>
                         <div className="mb-3">
                           <label
-                            className="form-label text-white"
+                            className="form-label text-black "
                             htmlFor="signature"
                           >
                             Please Describe Your Issue

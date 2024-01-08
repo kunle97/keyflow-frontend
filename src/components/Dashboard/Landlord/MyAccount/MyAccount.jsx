@@ -41,6 +41,7 @@ import { authenticatedInstance } from "../../../../api/api";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UISwitch from "../../UIComponents/UISwitch";
 import useScreen from "../../../../hooks/useScreen";
+import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 
 const MyAccount = () => {
   const { isMobile } = useScreen();
@@ -74,7 +75,7 @@ const MyAccount = () => {
       console.log("Set as default PM: ", paymentMethodId);
       let data = {};
       data.payment_method_id = paymentMethodId;
-      data.user_id = authUser.user_id;
+      data.user_id = authUser.id;
       console.log(res.lease_agreement.id);
       //Retrieve the lease agreement
       data.lease_agreement_id = res.lease_agreement.id;
@@ -85,7 +86,7 @@ const MyAccount = () => {
         setResponseMessage("Payment method set as default");
         setShowResponseModal(true);
         //Get the payment methods for the user
-        listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+        listStripePaymentMethods(`${authUser.id}`).then((res) => {
           console.log(res.data);
           setPaymentMethods(res.data);
         });
@@ -104,7 +105,7 @@ const MyAccount = () => {
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
-      listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
         console.log(res.data);
         setPaymentMethods(res.data);
       });
@@ -164,16 +165,16 @@ const MyAccount = () => {
 
   useEffect(() => {
     //Get the payment methods for the user
-    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.id}`).then((res) => {
       setPaymentMethods(res.data);
     });
     getSubscriptionPlanPrices().then((res) => {
       setPlans(res.products);
     });
-    getUserStripeSubscriptions(authUser.user_id, token).then((res) => {
+    getUserStripeSubscriptions(authUser.id, token).then((res) => {
       setCurrentSubscriptionPlan(res.subscriptions);
     });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+    retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
       (res) => {
         setProfilePictureFile(res.data[0]);
       }
@@ -744,37 +745,12 @@ const MyAccount = () => {
           >
             {[0, 1, 2, 3].map((value) => {
               return (
-                <ListItem
-                  style={{
-                    borderRadius: "10px",
-                    background: "white",
-                    margin: "10px 0",
-                    boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ width: "100%" }}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography sx={{ color: "black" }}>
-                          Open Applications
-                        </Typography>
-                      }
-                      secondary={
-                        <React.Fragment>
-                          {
-                            "Rental applications that are allowed to be created for units in this property."
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                    <UISwitch />
-                  </Stack>
-                </ListItem>
+                <UIPreferenceRow
+                  key={value}
+                  title={faker.lorem.words(3)}
+                  description={faker.lorem.words(10)}
+                  value={faker.datatype.boolean()}
+                />
               );
             })}
           </List>

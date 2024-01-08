@@ -4,7 +4,7 @@ import { authUser } from "../constants";
 export async function changePassword(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/users/${authUser.user_id}/change-password/`, {
+      .post(`/users/${authUser.id}/change-password/`, {
         old_password: data.old_password,
         new_password: data.new_password,
       })

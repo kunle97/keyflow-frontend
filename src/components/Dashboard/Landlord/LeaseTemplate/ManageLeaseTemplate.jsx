@@ -827,7 +827,7 @@ const ManageLeaseTemplate = () => {
             // getImage={(row) => {
             //   retrieveFilesBySubfolder(
             //     `properties/${property.id}/units/${row.id}`,
-            //     authUser.user_id
+            //     authUser.id
             //   ).then((res) => {
             //     if (res.data.length > 0) {
             //       return res.data[0].file;

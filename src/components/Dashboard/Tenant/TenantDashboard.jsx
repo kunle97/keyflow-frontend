@@ -142,7 +142,7 @@ const TenantDashboard = () => {
 
   useEffect(() => {
     //Get the payment methods for the user and check if they at least have one
-    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.id}`).then((res) => {
       setIsLoadingPaymentMethods(true);
       if (res.data.length < 1) {
         setShowAddPaymentMethodAlert(true);
@@ -211,7 +211,7 @@ const TenantDashboard = () => {
       setLeaseTemplate(res.lease_template);
       if (res.lease_agreement) {
         //Retrieve next payment date
-        getNextPaymentDate(authUser.user_id).then((res) => {
+        getNextPaymentDate(authUser.id).then((res) => {
           console.log("nExt pay date data", res);
           setNextPaymentDate(res.data.next_payment_date);
         });

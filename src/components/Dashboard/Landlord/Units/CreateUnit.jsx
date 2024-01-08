@@ -139,7 +139,7 @@ const CreateUnit = () => {
     payload.rental_property = selectedPropertyId;
     payload.subscription_id = currentSubscriptionPlan.id;
     payload.product_id = currentSubscriptionPlan.plan.product;
-    payload.user = authUser.user_id;
+    payload.user = authUser.id;
     console.log("Data ", data);
     console.log("Pay load ", payload);
     console.log("UNits ", units);
@@ -165,7 +165,7 @@ const CreateUnit = () => {
     console.log(e.target.value);
   };
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }

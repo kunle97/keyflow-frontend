@@ -41,7 +41,7 @@ const RentalApplicationGeneratorForm = (props) => {
 
     let payload = {
       count: data.numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
       rental_application_is_approved: data.rentalApplicationIsApproved,

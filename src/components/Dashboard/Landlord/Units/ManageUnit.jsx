@@ -105,7 +105,7 @@ const CreateUnit = () => {
   };
 
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }
@@ -217,7 +217,7 @@ const CreateUnit = () => {
     retrieveSubscriptionPlan();
     retrieveFilesBySubfolder(
       `properties/${property_id}/units/${unit_id}`,
-      authUser.user_id
+      authUser.id
     )
       .then((res) => {
         setunitMedia(res.data);
@@ -455,10 +455,10 @@ const CreateUnit = () => {
                       <div className="card-body">
                         <input
                           className="form-control"
-                          value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
+                          value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
                         />
                         <a
-                          href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.user_id}/`}
+                          href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
                           target="_blank"
                         >
                           <Button
@@ -863,7 +863,7 @@ const CreateUnit = () => {
                 // getImage={(row) => {
                 //   retrieveFilesBySubfolder(
                 //     `properties/${row.id}`,
-                //     authUser.user_id
+                //     authUser.id
                 //   ).then((res) => {
                 //     if (res.data.length > 0) {
                 //       return res.data[0].file;

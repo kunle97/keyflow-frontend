@@ -28,7 +28,7 @@ const LeaseRenewalRequestGeneratorForm = (props) => {
     // Collect input values
     const data = {
       count: numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       request_term: leaseTerm,
       // Add other options as needed
     };

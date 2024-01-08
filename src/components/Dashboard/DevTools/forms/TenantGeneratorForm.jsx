@@ -56,7 +56,7 @@ export const TenantGeneratorForm = (props) => {
     // Collect input values
     let payload = {
       count: data.numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
       lease_template_mode: data.leaseTemplateMode,
