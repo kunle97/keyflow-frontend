@@ -48,6 +48,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UISwitch from "../../UIComponents/UISwitch";
 import { getPortfolios } from "../../../../api/portfolios";
+import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -788,6 +789,7 @@ const ManageProperty = () => {
                           <div>
                             {" "}
                             <UITableMobile
+                              tableTitle="Units"
                               data={units}
                               infoProperty="name"
                               createTitle={(row) =>
@@ -921,37 +923,13 @@ const ManageProperty = () => {
                   >
                     {[0, 1, 2, 3].map((value) => {
                       return (
-                        <ListItem
-                          style={{
-                            borderRadius: "10px",
-                            background: "white",
-                            margin: "10px 0",
-                            boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                        <UIPreferenceRow
+                          title="Open Applications"
+                          description="Rental applications that are allowed to be created for units in this property."
+                          onChange={() => {
+                            console.log("Changed Preference");
                           }}
-                        >
-                          <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="center"
-                            sx={{ width: "100%" }}
-                          >
-                            <ListItemText
-                              primary={
-                                <Typography sx={{ color: "black" }}>
-                                  Open Applications
-                                </Typography>
-                              }
-                              secondary={
-                                <React.Fragment>
-                                  {
-                                    "Rental applications that are allowed to be created for units in this property."
-                                  }
-                                </React.Fragment>
-                              }
-                            />
-                            <UISwitch />
-                          </Stack>
-                        </ListItem>
+                        />
                       );
                     })}
                   </List>
