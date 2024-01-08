@@ -25,7 +25,7 @@ export async function getStripeSubscription(subscription_id) {
 export async function turnOffAutoPay() {
   try {
     const res = await authenticatedInstance
-      .post(`/manage-lease/turn-off-autopay/`, {
+      .post(`/tenants/turn-off-autopay/`, {
         user_id: authUser.id,
       })
       .then((res) => {
@@ -41,7 +41,7 @@ export async function turnOffAutoPay() {
 export async function turnOnAutoPay() {
   try {
     const res = await authenticatedInstance
-      .post(`/manage-lease/turn-on-autopay/`, { user_id: authUser.id })
+      .post(`/tenants/turn-on-autopay/`, { user_id: authUser.id })
       .then((res) => {
         return res;
       });
