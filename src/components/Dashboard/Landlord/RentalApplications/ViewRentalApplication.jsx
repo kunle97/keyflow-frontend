@@ -59,7 +59,7 @@ const ViewRentalApplication = () => {
         const approval_hash = approvalResponse.approval_hash;
 
         // Retrieve Rental Unit
-        const rental_unit = await getUnit(approvalResponse.unit);
+        const rental_unit = await getUnit(approvalResponse.unit.id);
         console.log("Rental Unit", rental_unit);
 
         // Retrieve Lease Term
