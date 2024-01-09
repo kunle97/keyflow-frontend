@@ -37,9 +37,8 @@ const TenantLogin = () => {
   });
 
   const onSubmit = async (data) => {
-    const response = await login(data.email, data.password);
     setIsLoading(true);
-
+    const response = await login(data.email, data.password);
     //if token is returned, set it in local storage
     if (response.token) {
       //Set authUser and isLoggedIn in context
