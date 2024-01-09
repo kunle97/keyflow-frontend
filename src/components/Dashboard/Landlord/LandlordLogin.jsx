@@ -42,7 +42,6 @@ const LandlordLogin = () => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log(data);
     const response = await login(data.email, data.password);
 
     //if token is returned, set it in local storage
