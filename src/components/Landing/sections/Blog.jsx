@@ -58,7 +58,7 @@ const Blog = () => {
               >
                 {blog.text}
               </p>
-              <UIButton btnText="Read More" />
+              {/* <UIButton btnText="Read More" /> */}
             </div>
           ))}
         </div>

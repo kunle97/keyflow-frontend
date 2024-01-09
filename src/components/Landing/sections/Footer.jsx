@@ -35,16 +35,20 @@ const Footer = () => {
           <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item ">
             <h3 className="fs-6 text-white">Members</h3>
             <ul className="list-unstyled">
-              <li>
-                <Link className="link-light" to="/dashboard/landlord/login">
-                  Landlord Login
-                </Link>
-              </li>
-              <li>
-                <Link className="link-light" href="/dashboard/tenant/login">
-                  Tenant Login
-                </Link>
-              </li>
+              {process.env.REACT_APP_ENVIRONMENT === "production" && (
+                <li>
+                  <Link className="link-light" to="/dashboard/landlord/login">
+                    Landlord Login
+                  </Link>
+                </li>
+              )}
+              {process.env.REACT_APP_ENVIRONMENT === "production" && (
+                <li>
+                  <Link className="link-light" href="/dashboard/tenant/login">
+                    Tenant Login
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link className="link-light" to="/dashboard/forgot-password">
                   Forgot Password
