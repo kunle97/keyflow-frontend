@@ -77,24 +77,28 @@ const LandingPageNavbar = (props) => {
                 Blog
               </Link>
             </li>
-            <li className="nav-item">
-              <Link
-                className="nav-link"
-                to="/dashboard/tenant/login"
-                style={{ color: "rgb(255,255,255)" }}
-              >
-                Tenants
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className="nav-link"
-                to="/dashboard/landlord/login"
-                style={{ color: "rgb(255,255,255)" }}
-              >
-                Landlords
-              </Link>{" "}
-            </li>
+            {process.env.REACT_APP_ENVIRONMENT === "production" && (
+              <li className="nav-item">
+                <Link
+                  className="nav-link"
+                  to="/dashboard/tenant/login"
+                  style={{ color: "rgb(255,255,255)" }}
+                >
+                  Tenants
+                </Link>
+              </li>
+            )}
+            {process.env.REACT_APP_ENVIRONMENT === "production" && (
+              <li className="nav-item">
+                <Link
+                  className="nav-link"
+                  to="/dashboard/landlord/login"
+                  style={{ color: "rgb(255,255,255)" }}
+                >
+                  Landlords
+                </Link>{" "}
+              </li>
+            )}
             <li className="nav-item">
               <Link
                 className="nav-link"
@@ -111,7 +115,7 @@ const LandingPageNavbar = (props) => {
                 style={{ color: "rgb(255,255,255)", width: "160px" }}
               >
                 <button className="btn btn-primary ui-button" type="button">
-                  Request A Demo
+                  Notify Me
                 </button>
               </a>
             </li>
