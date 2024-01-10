@@ -10,6 +10,7 @@ export async function createLeaseTemplate(data) {
       .post(`/lease-templates/`, {
         user_id: authUser.id,
         rent: parseFloat(data.rent),
+        rent_frequency: data.rent_frequency,
         term: data.term,
         description: "_",
         security_deposit: data.security_deposit,
