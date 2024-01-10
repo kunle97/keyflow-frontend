@@ -41,6 +41,9 @@ const TenantDashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
     useState(false);
+  const [tenantData, setTenantData] = useState(null); //TODO: Remove this and replace with [leaseAgreement, setLeaseAgreement
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [lateFees, setLateFees] = useState(0);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
@@ -158,15 +161,13 @@ const TenantDashboard = () => {
       setTransactions(res.data);
     });
 
-    //Active subscription
-
     //Retrieve the unit
     getTenantDashboardData().then((res) => {
-      console.log(res);
+      setTenantData(res);
       setUnit(res.unit);
       setLeaseAgreement(res.lease_agreement);
-
-      console.log(res.lease_agreement);
+      setCurrentBalance(res.current_balance);
+      setLateFees(res.late_fees);
 
       //Check if lease agreement endate is in 2 months or less, if so show confirm modal
       if (res.lease_agreement) {
@@ -277,9 +278,11 @@ const TenantDashboard = () => {
                       {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
                         <ReportIcon sx={{ color: "red" }} />
                       )}{" "}
-                      Rent due in {dateDiffForHumans(new Date(nextPaymentDate))}
+                      <span>
+                        ${parseFloat(currentBalance) + parseFloat(lateFees)}
+                      </span>{" "}
+                      due in {dateDiffForHumans(new Date(nextPaymentDate))}
                     </Typography>
-
                     <Box
                       sx={
                         {
@@ -319,7 +322,7 @@ const TenantDashboard = () => {
                             }}
                           />
                         )}
-                      </div>{" "}
+                      </div>
                       {leaseAgreement &&
                         !leaseAgreement.auto_pay_is_enabled && (
                           <Button

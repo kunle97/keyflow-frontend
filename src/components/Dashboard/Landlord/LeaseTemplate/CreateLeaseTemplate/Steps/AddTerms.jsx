@@ -65,7 +65,9 @@ const AddTerms = (props) => {
           >
             Term Duration
           </Typography>
-          <select
+
+          <input
+            type="number"
             {...props.register("term", {
               required: "This field is required",
               pattern: {
@@ -73,19 +75,12 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
-            className="form-select"
-            sx={{ width: "100%", color: uiGrey2, background: uiGrey2 }}
+            step={1}
+            className="form-control"
+            id="term"
+            placeholder="Days/Weeks/Months/Years"
             name="term"
-          >
-            <option value="">Select One</option>
-            <option value={1}>1 Month</option>
-            <option value={2}>2 Months</option>
-            <option value={6}>6 Months</option>
-            <option value={12}>12 Months</option>
-            <option value={13}>13 Months</option>
-            <option value={24}>24 Months</option>
-            <option value={36}>36 Months</option>
-          </select>
+          />
           <span style={validationMessageStyle}>
             {props.errors.term && props.errors.term.message}
           </span>

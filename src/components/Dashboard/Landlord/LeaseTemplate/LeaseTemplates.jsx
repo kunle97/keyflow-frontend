@@ -157,7 +157,27 @@ const LeaseTemplates = () => {
       <UITableMobile
         tableTitle="Lease Templates"
         endpoint="/lease-templates/"
-        createInfo={(row) => `$${row.rent}/mo | ${row.term} months `}
+        createInfo={(row) => {
+          let frequency_unit = "";
+          let frequency = "";
+          if (row.rent_frequency === "month") {
+            frequency_unit = "mo";
+            frequency = "month(s)";
+          } else if (row.rent_frequency === "week") {
+            frequency_unit = "wk";
+            frequency = "week(s)";
+          } else if (row.rent_frequency === "day") {
+            frequency_unit = "day";
+            frequency = "day(s)";
+          } else if (row.rent_frequency === "year") {
+            frequency_unit = "yr";
+            frequency = "year(s)";
+          }else{
+            frequency_unit = "mo";
+            frequency = "month(s)";
+          }
+          return `$${row.rent}/${frequency_unit} | ${row.term} ${frequency} `;
+        }}
         createSubtitle={(row) => `Late Fee:  $${row.late_fee}`}
         createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
         onRowClick={handleRowClick}
