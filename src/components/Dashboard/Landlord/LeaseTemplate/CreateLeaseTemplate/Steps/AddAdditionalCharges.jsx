@@ -11,7 +11,7 @@ const AddAdditionalCharges = (props) => {
       {
         name: "",
         amount: "",
-        frequency: "month",
+        frequency: "",
       },
     ]);
   };
