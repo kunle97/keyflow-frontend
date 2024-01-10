@@ -64,7 +64,6 @@ const ManageLeaseTemplate = () => {
         frequency: "",
       },
     ]);
-    console.log(additionalCharges);
   };
   const removeCharge = (index) => {
     if (additionalCharges.length === 1) return;
@@ -152,6 +151,7 @@ const ManageLeaseTemplate = () => {
     authenticatedInstance
       .get(`/lease-templates/${id}/`)
       .then((res) => {
+        console.log(res.data.additional_charges);
         setLeaseTemplate(res.data);
         setAdditionalCharges(JSON.parse(res.data.additional_charges));
         setUnits(res.data.units);
@@ -261,10 +261,10 @@ const ManageLeaseTemplate = () => {
                 className="form-control"
               >
                 <option value="">Select Frequency</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
+                <option value="day">Daily</option>
+                <option value="week">Weekly</option>
+                <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
               </select>
               <span style={validationMessageStyle}>
                 {errors[`additionalChargeFrequency_${index}`] &&

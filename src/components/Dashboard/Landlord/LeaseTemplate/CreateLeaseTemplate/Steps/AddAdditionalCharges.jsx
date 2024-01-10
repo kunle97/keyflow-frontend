@@ -6,25 +6,25 @@ import { uiRed, validationMessageStyle } from "../../../../../../constants";
 const AddAdditionalCharges = (props) => {
   const [chargesValid, setChargesValid] = useState(false);
   const addCharge = () => {
-    props.setAddtionalCharges([
-      ...props.addtionalCharges,
+    props.setAdditionalCharges([
+      ...props.additionalCharges,
       {
         name: "",
         amount: "",
-        frequency: "monthly",
+        frequency: "month",
       },
     ]);
   };
   const removeCharge = (index) => {
-    if (props.addtionalCharges.length === 1) return;
-    let newCharges = [...props.addtionalCharges];
+    if (props.additionalCharges.length === 1) return;
+    let newCharges = [...props.additionalCharges];
     newCharges.splice(index, 1);
-    props.setAddtionalCharges(newCharges);
+    props.setAdditionalCharges(newCharges);
   };
 
   return (
     <div style={{ ...props.style }}>
-      {props.addtionalCharges.map((charge, index) => (
+      {props.additionalCharges.map((charge, index) => (
         <div key={index} className="row mt-3">
           <div className="col-md-3">
             <label className="form-label text-dark" htmlFor="street">
@@ -41,9 +41,9 @@ const AddAdditionalCharges = (props) => {
               value={charge.name}
               onChange={(e) => {
                 props.trigger(`additionalChargeName_${index}`);
-                let newCharges = [...props.addtionalCharges];
+                let newCharges = [...props.additionalCharges];
                 newCharges[index].name = e.target.value;
-                props.setAddtionalCharges(newCharges);
+                props.setAdditionalCharges(newCharges);
               }}
               className="form-control"
             />
@@ -67,9 +67,9 @@ const AddAdditionalCharges = (props) => {
               value={charge.amount}
               onChange={(e) => {
                 props.trigger(`additionalChargeAmount_${index}`);
-                let newCharges = [...props.addtionalCharges];
+                let newCharges = [...props.additionalCharges];
                 newCharges[index].amount = e.target.value;
-                props.setAddtionalCharges(newCharges);
+                props.setAdditionalCharges(newCharges);
               }}
               className="form-control"
             />
@@ -89,19 +89,20 @@ const AddAdditionalCharges = (props) => {
                   message: "Charge frequency is required",
                 },
               })}
+              value={charge.frequency}
               onChange={(e) => {
                 props.trigger(`additionalChargeFrequency_${index}`);
-                let newCharges = [...props.addtionalCharges];
+                let newCharges = [...props.additionalCharges];
                 newCharges[index].frequency = e.target.value;
-                props.setAddtionalCharges(newCharges);
+                props.setAdditionalCharges(newCharges);
               }}
               className="form-control"
             >
               <option value="">Select Frequency</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
+              <option value="day">Daily</option>
+              <option value="week">Weekly</option>
+              <option value="month">Monthly</option>
+              <option value="year">Yearly</option>
             </select>
             <span style={validationMessageStyle}>
               {props.errors[`additionalChargeFrequency_${index}`] &&
@@ -129,19 +130,19 @@ const AddAdditionalCharges = (props) => {
         onClick={() => {
           //TODO: Trigger validation
           props.trigger([
-            `additionalChargeName_${props.addtionalCharges.length - 1}`,
-            `additionalChargeAmount_${props.addtionalCharges.length - 1}`,
-            `additionalChargeFrequency_${props.addtionalCharges.length - 1}`,
+            `additionalChargeName_${props.additionalCharges.length - 1}`,
+            `additionalChargeAmount_${props.additionalCharges.length - 1}`,
+            `additionalChargeFrequency_${props.additionalCharges.length - 1}`,
           ]);
           if (
             (props.errors[
-              `additionalChargeName_${props.addtionalCharges.length - 1}`
+              `additionalChargeName_${props.additionalCharges.length - 1}`
             ] ||
               props.errors[
-                `additionalChargeAmount_${props.addtionalCharges.length - 1}`
+                `additionalChargeAmount_${props.additionalCharges.length - 1}`
               ] ||
               props.errors[
-                `additionalChargeFrequency_${props.addtionalCharges.length - 1}`
+                `additionalChargeFrequency_${props.additionalCharges.length - 1}`
               ]) &&
             !chargesValid
           ) {
@@ -167,16 +168,16 @@ const AddAdditionalCharges = (props) => {
 
 
           props.trigger([
-            `additionalChargeName_${props.addtionalCharges.length - 1}`,
-            `additionalChargeAmount_${props.addtionalCharges.length - 1}`,
-            `additionalChargeFrequency_${props.addtionalCharges.length - 1}`,
+            `additionalChargeName_${props.additionalCharges.length - 1}`,
+            `additionalChargeAmount_${props.additionalCharges.length - 1}`,
+            `additionalChargeFrequency_${props.additionalCharges.length - 1}`,
           ]);
 
           if (
             props.errors.length > 0 ||
-            props.errors[`additionalChargeName_${props.addtionalCharges.length - 1}`] ||
-            props.errors[`additionalChargeAmount_${props.addtionalCharges.length - 1}`] ||
-            props.errors[`additionalChargeFrequency_${props.addtionalCharges.length - 1}`]
+            props.errors[`additionalChargeName_${props.additionalCharges.length - 1}`] ||
+            props.errors[`additionalChargeAmount_${props.additionalCharges.length - 1}`] ||
+            props.errors[`additionalChargeFrequency_${props.additionalCharges.length - 1}`]
           ) {
             setChargesValid(false);
             return;
