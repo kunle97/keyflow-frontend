@@ -44,14 +44,9 @@ const CreateLeaseTemplate = (props) => {
   const [alertLink, setAlertLink] = useState("");
   const [additionalCharges, setAdditionalCharges] = useState([
     {
-      name: "Pet Fee",
-      amount: 350,
-      frequency: "month",
-    },
-    {
-      name: "Parking Fee",
-      amount: 500,
-      frequency: "month",
+      name: "",
+      amount: "",
+      frequency: "",
     },
   ]);
   const [selectedAssignments, setSelectedAssignments] = useState([
