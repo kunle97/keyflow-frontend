@@ -19,7 +19,7 @@ export const ContactPage = () => {
             <div className="row d-flex justify-content-center">
               <div className="col-md-6 col-lg-4 col-xl-4">
                 <div className="d-flex flex-column justify-content-center align-items-start h-100">
-                  <div className="d-flex align-items-center p-3">
+                  {/* <div className="d-flex align-items-center p-3">
                     <div className="bs-icon-md bs-icon-rounded bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block bs-icon">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +36,7 @@ export const ContactPage = () => {
                       <h6 className="mb-0 text-dark">Phone</h6>
                       <p className="mb-0 text-dark">+123456789</p>
                     </div>
-                  </div>
+                  </div> */}
                   <div className="d-flex align-items-center p-3">
                     <div className="bs-icon-md bs-icon-rounded bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block bs-icon">
                       <svg
@@ -55,10 +55,10 @@ export const ContactPage = () => {
                     </div>
                     <div className="px-2">
                       <h6 className="mb-0 text-dark">Email</h6>
-                      <p className="mb-0 text-dark">info@example.com</p>
+                      <p className="mb-0 text-dark">keyflowsoftware@gmail.com</p>
                     </div>
                   </div>
-                  <div className="d-flex align-items-center p-3">
+                  {/* <div className="d-flex align-items-center p-3">
                     <div className="bs-icon-md bs-icon-rounded bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block bs-icon">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -75,10 +75,10 @@ export const ContactPage = () => {
                       <h6 className="mb-0 text-dark">Location</h6>
                       <p className="mb-0 text-dark">12 Example Street</p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
-              <div className="col-md-6 col-lg-5 col-xl-4">
+              <div className="col-md-6 col-lg-5 col-xl-4 offset">
                 <div>
                   <form className="p-3 p-xl-4" method="post">
                     <div className="mb-3">
