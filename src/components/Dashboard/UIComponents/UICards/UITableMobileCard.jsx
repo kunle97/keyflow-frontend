@@ -7,6 +7,7 @@ const UICard = ({
   info,
   onClick,
   title,
+  dataTestId,
   imageSrc,
   subtitle,
   children,
@@ -25,6 +26,7 @@ const UICard = ({
       className="card"
       style={{ margin: "10px 0", overflow: "hidden", ...cardStyle }}
       onClick={onClick}
+      data-testId={dataTestId}
     >
       <div className="card-body">
         <Stack

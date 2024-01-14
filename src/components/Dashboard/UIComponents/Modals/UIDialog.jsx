@@ -12,6 +12,7 @@ const UIDialog = ({
   style,
   title,
   bgColor,
+  dataTestId,
 }) => {
   const { isMobile } = useScreen();
   const Transition = useCallback(
@@ -22,6 +23,7 @@ const UIDialog = ({
   );
   return (
     <Dialog
+      data-testId={dataTestId}
       PaperProps={{
         style: {
           backgroundColor: bgColor ? bgColor : "white",
@@ -48,10 +50,12 @@ const UIDialog = ({
             style={{
               fontSize: isMobile ? "12pt" : "15pt",
             }}
+            data-testid="ui-dialog-title"
           >
             {title}
           </h3>
           <IconButton
+            data-testid="ui-dialog-close-button"
             onClick={onClose}
             style={{ float: "right", color: uiGreen }}
           >

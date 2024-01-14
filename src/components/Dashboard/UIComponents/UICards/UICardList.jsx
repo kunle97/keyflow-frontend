@@ -24,7 +24,7 @@ const UICardList = (props) => {
       dropDownOptions={props.dropDownOptions}
       onDropdownChange={props.onDropdownChange}
     >
-      <ul className="list-group">
+      <ul className="list-group" data-testId={props.dataTestId} >
         {props.items.map((item) => (
           <>
             <li

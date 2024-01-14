@@ -5,6 +5,7 @@ import { uiGreen } from "../../../constants";
 const UIProgressPrompt = (props) => {
   return (
     <UIPrompt
+      data-testid={props.dataTestId}
       style={props.style}
       icon={<CircularProgress sx={{ color: uiGreen }} />}
       title={props.title}

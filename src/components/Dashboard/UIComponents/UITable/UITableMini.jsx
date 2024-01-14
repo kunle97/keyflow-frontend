@@ -121,7 +121,7 @@ const UITableMini = (props) => {
               />
             </div>
           ) : (
-            <table id="ui-table-mini" style={{ width: "100%" }}>
+            <table id="ui-table-mini" data-testId={props.dataTestId} style={{ width: "100%" }}>
               <thead>
                 <tr>
                   {props.columns.map((column) => {

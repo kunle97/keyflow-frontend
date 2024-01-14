@@ -16,15 +16,31 @@ import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router";
 import UIDropdown from "../UIDropdown";
 import useScreen from "../../../../hooks/useScreen";
-import { authenticatedInstance } from "../../../../api/api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+} from "../../../../api/api";
 import UIProgressPrompt from "../UIProgressPrompt";
 import UIPrompt from "../UIPrompt";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import UIDialog from "../Modals/UIDialog";
+import UIDropzone from "../Modals/UploadDialog/UIDropzone";
+import AlertModal from "../Modals/AlertModal";
+import UIButton from "../UIButton";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import {
+  isValidFileExtension,
+  isValidFileName,
+} from "../../../../helpers/utils";
 const UITableMobile = (props) => {
+  const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
+
   const navigate = useNavigate();
   const { isMobile, screenWidth, breakpoints } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
   const [results, setResults] = useState([]);
   const [orderingField, setOrderingField] = useState("created_at");
   const [searchField, setSearchField] = useState("");
@@ -33,13 +49,88 @@ const UITableMobile = (props) => {
   const [nextEndpoint, setNextEndpoint] = useState(null);
   const [previousEndpoint, setPreviousEndpoint] = useState(null);
   const [count, setCount] = useState(0);
-
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
+  const [responseTitle, setResponseTitle] = useState(null);
+  const [responseMessage, setResponseMessage] = useState(null);
   const nextPage = () => {
     setEndpoint(nextEndpoint);
   };
 
   const previousPage = () => {
     setEndpoint(previousEndpoint);
+  };
+
+  const handleUpload = () => {
+    setIsUploading(true); //Set isUploading to true to show the progress bar
+    //Create a function to handle the file upload from the  files array
+    const formData = new FormData(); //Create a new FormData object
+    files.forEach((file) => {
+      formData.append("file", file); //Append each file to the FormData object
+    });
+    authenticatedMediaInstance
+      .post(props.fileUploadEndpoint, formData)
+      .then((res) => {
+        console.log("res", res);
+        setResponseTitle("File Upload Success");
+        setResponseMessage("File(s) uploaded successfully");
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        setFiles([]); //Clear the files array
+      })
+      .catch((err) => {
+        console.log("err", err);
+        setResponseTitle("File Upload Error");
+        setResponseMessage("There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again.");
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        setFiles([]); //Clear the files array
+      })
+      .finally(() => {
+        setIsUploading(false); //Set isUploading to false to hide the progress bar
+      });
+  };
+
+  const onDrop = (acceptedFiles) => {
+    let validFiles = true;
+
+    acceptedFiles.forEach((file) => {
+      if (!isValidFileName(file.name)) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file names is invalid. File name can only contain numbers, letters, underscores, and dashes. No special characters or spaces."
+        );
+        setShowFileUploadAlert(true);
+        validFiles = false;
+        setShowUploadDialog(false);
+        return;
+      } else if (!isValidFileExtension(file.name, props.acceptedFileTypes)) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file types is invalid. Accepted file types: " +
+            props.acceptedFileTypes.join(", ")
+        );
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        validFiles = false;
+        return;
+      }
+    });
+
+    if (!validFiles) {
+      return;
+    }
+
+    // Process valid files
+    const updatedFiles = acceptedFiles.map((file) =>
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      })
+    );
+    console.log("updatedFiles", updatedFiles);
+    setFiles(updatedFiles);
+    setResponseMessage(null);
+    setResponseTitle(null);
   };
 
   useEffect(() => {
@@ -84,6 +175,47 @@ const UITableMobile = (props) => {
   return (
     <div>
       <>
+        {props.showUpload && (
+          <>
+            <AlertModal
+              title={responseTitle}
+              message={responseMessage}
+              open={showFileUploadAlert}
+              onClick={() => setShowFileUploadAlert(false)}
+              btnText="OK"
+            />
+            <UIDialog
+              open={showUploadDialog}
+              onClose={() => setShowUploadDialog(false)}
+              maxWidth="lg"
+              style={{ width: "700px", zIndex: 991 }}
+            >
+              <UIDropzone
+                onDrop={onDrop}
+                acceptedFileTypes={props.acceptedFileTypes}
+                files={files}
+                setFiles={setFiles}
+              />
+              {props.uploadHelpText && (
+                <div style={{ margin: "10px" }}>
+                  <HelpOutlineIcon
+                    style={{ color: uiGreen, marginRight: "5px" }}
+                  />
+                  <span style={{ color: uiGrey2, fontSize: "10pt" }}>
+                    {props.uploadHelpText}
+                  </span>
+                </div>
+              )}
+              {files.length > 0 && (
+                <UIButton
+                  onClick={handleUpload}
+                  btnText="Upload File"
+                  style={{ width: "100%" }}
+                />
+              )}
+            </UIDialog>
+          </>
+        )}
         <div style={{ width: "100%", overflow: "auto" }}>
           <Stack
             direction="row"
@@ -91,7 +223,7 @@ const UITableMobile = (props) => {
             alignItems="center"
           >
             {screenWidth > breakpoints.md && (
-              <h4>
+              <h4 data-testId="ui-table-mobile-title">
                 {props.tableTitle} ({count})
               </h4>
             )}
@@ -103,8 +235,26 @@ const UITableMobile = (props) => {
               alignItems="center"
               style={{ padding: "10px" }}
             >
+              {props.showUpload && (
+                <>
+                  <ButtonBase
+                    data-testid="ui-table-mobile-create-button"
+                    style={{ color: uiGreen, float: "right" }}
+                    onClick={() => {
+                      setShowUploadDialog(true);
+                    }}
+                  >
+                    Upload CSV
+                    <IconButton style={{ color: uiGreen }}>
+                      <FileUploadIcon />
+                    </IconButton>
+                  </ButtonBase>
+                </>
+              )}
+
               {props.showCreate && (
                 <ButtonBase
+                  data-testid="ui-table-mobile-create-button"
                   style={{ color: uiGreen, float: "right" }}
                   onClick={() => {
                     navigate(props.createURL);
@@ -225,9 +375,10 @@ const UITableMobile = (props) => {
           <div>
             {results.length > 0 ? (
               <div>
-                {results.map((row) => {
+                {results.map((row, index) => {
                   return (
                     <UITableMobileCard
+                      dataTestId={`${props.testRowIdentifier}-${index}`}
                       onClick={
                         props.onRowClick ? () => props.onRowClick(row) : null
                       }

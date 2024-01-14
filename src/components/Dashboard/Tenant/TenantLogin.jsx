@@ -27,10 +27,7 @@ const TenantLogin = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : email,
+      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : email,
       password:
         process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
@@ -109,6 +106,7 @@ const TenantLogin = () => {
           <div className="row">
             <div className=" ">
               <img
+                data-testid="keyflow-black-logo"
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-black-transparent.png"
               />
@@ -147,6 +145,7 @@ const TenantLogin = () => {
                             message: "Please enter a valid email address",
                           },
                         })}
+                        data-testid="email-select"
                         className="form-control card"
                         style={{
                           background: uiGrey2,
@@ -156,7 +155,7 @@ const TenantLogin = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       >
-                        {tenantsEmails.map((email) => (
+                        {tenantsEmails.map((email, index) => (
                           <option value={email}>{email}</option>
                         ))}
                       </select>
@@ -209,6 +208,7 @@ const TenantLogin = () => {
                     {...register("password", {
                       required: "This is a required field",
                     })}
+                    data-testid="password-input"
                     className="form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
@@ -253,6 +253,7 @@ const TenantLogin = () => {
                   />
                 )}
                 <Button
+                  data-testid="login-button"
                   className="d-block w-100 ui-btN"
                   type="submit"
                   style={{

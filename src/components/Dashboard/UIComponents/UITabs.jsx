@@ -49,7 +49,12 @@ const UITabs = (props) => {
         scrollButtons={"false"}
       >
         {props.tabs.map((tab) => (
-          <StyledTab label={tab.label} value={tab.value} icon={tab.icon} />
+          <StyledTab
+            label={tab.label}
+            value={tab.value}
+            icon={tab.icon}
+            data-testId={tab.dataTestId ? tab.dataTestId : ""}
+          />
         ))}
       </StyledTabs>
     </div>

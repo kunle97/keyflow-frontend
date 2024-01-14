@@ -102,8 +102,8 @@ const UILineChartCard = (props) => {
       onDropdownChange={props.onDropdownChange}
       chartHeaderMode={true}
     >
-      <div style={{ width: "100%", height: props.height, padding: "10px 0" }}>
-        <Line options={options} data={data} />
+      <div data-testId={props.dataTestId} style={{ width: "100%", height: props.height, padding: "10px 0" }}>
+        <Line data-testId="ui-line-chart" options={options} data={data} />
       </div>
     </UIChartCard>
   );

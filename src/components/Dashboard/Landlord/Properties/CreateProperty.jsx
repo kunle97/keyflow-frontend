@@ -157,7 +157,9 @@ const CreateProperty = () => {
         navigate(`/dashboard/landlord/properties/${newPropertyId}`);
       } else {
         setUnitCreateError(true);
-        setErrorMessage("There was an error creating your property"+res.message);
+        setErrorMessage(
+          "There was an error creating your property" + res.message
+        );
         setIsLoading(false);
       }
     }
@@ -192,6 +194,7 @@ const CreateProperty = () => {
         <div className="col-sm-12 col-md-12 col-lg-8 offset-sm-0 offset-md-0 offset-lg-2">
           <div className="card shadow mb-3">
             <UIStepper
+              dataTestId="create-property-stepper"
               steps={steps}
               activeStep={step}
               style={{ margin: "40px 0 20px" }}
@@ -201,10 +204,15 @@ const CreateProperty = () => {
                 {step === 0 && (
                   <div className="property-info-section">
                     <div className="mb-3">
-                      <label className="form-label text-black" htmlFor="street">
+                      <label
+                        className="form-label text-black"
+                        htmlFor="street"
+                        data-testid="create-property-name-label"
+                      >
                         <strong>Name</strong>
                       </label>
                       <input
+                        data-testid="create-property-name-input"
                         {...register("name", {
                           required: "This is a required field",
                           minLength: {
@@ -224,10 +232,15 @@ const CreateProperty = () => {
                       </span>
                     </div>
                     <div className="mb-3">
-                      <label className="form-label text-black" htmlFor="street">
+                      <label
+                        className="form-label text-black"
+                        htmlFor="street"
+                        data-testid="create-property-street-label"
+                      >
                         <strong>Street Address</strong>
                       </label>
                       <input
+                        data-testid="create-property-street-input"
                         {...register("street", {
                           required: "This is a required field",
                           minLength: {
@@ -257,10 +270,12 @@ const CreateProperty = () => {
                           <label
                             className="form-label text-black"
                             htmlFor="city"
+                            data-testid="create-property-city-label"
                           >
                             <strong>City</strong>
                           </label>
                           <input
+                            data-testid="create-property-city-input"
                             {...register("city", {
                               required: "This is a required field",
                               minLength: {
@@ -283,12 +298,14 @@ const CreateProperty = () => {
                       <div className="col-12 col-md-4">
                         <div className="mb-3">
                           <label
+                            data-testid="create-property-state-label"
                             className="form-label text-black"
                             htmlFor="state"
                           >
                             <strong>State</strong>
                           </label>
                           <select
+                            data-testId="create-property-state-input"
                             {...register("state", {
                               required: "This is a required field",
                               minLength: {
@@ -373,12 +390,14 @@ const CreateProperty = () => {
                       <div className="col-12 col-md-4">
                         <div className="mb-3">
                           <label
+                            data-testid="create-property-zip-code-label"
                             className="form-label text-black"
                             htmlFor="zipcode"
                           >
                             <strong>Zip Code</strong>
                           </label>
                           <input
+                            data-testid="create-property-zip-code-input"
                             {...register("zipcode", {
                               required: "This is a required field",
                               //Create pattern to only be in zip code format
@@ -404,10 +423,12 @@ const CreateProperty = () => {
                           <label
                             className="form-label text-black"
                             htmlFor="country"
+                            data-testid="create-property-country-label"
                           >
                             <strong>Country</strong>
                           </label>
                           <input
+                            data-testid="create-property-country-input"
                             {...register("country", {
                               required: "This is a required field",
                             })}
@@ -426,6 +447,7 @@ const CreateProperty = () => {
                       </div>
                     </div>
                     <UIButton
+                      dataTestId="create-property-next-button"
                       type="submit"
                       style={{ float: "right" }}
                       btnText="Next"
@@ -472,15 +494,17 @@ const CreateProperty = () => {
                       alignItems="center"
                     >
                       <UIButton
+                        dataTestId="create-property-back-button"
                         type="button"
                         btnText="Back"
                         onClick={() => setStep(0)}
                       />
                       <div className="text-end my-3">
                         <UIButton
+                          dataTestId="create-property-submit-button"
                           type="submit"
                           btnText="Create Property"
-                          />
+                        />
                       </div>
                     </Stack>
                   </div>

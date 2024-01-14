@@ -1,22 +1,28 @@
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { logout } from "../../api/auth";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
+import { authUser } from "../../constants";
 
-const Logout = async () => {
+const Logout = () => {
   const navigate = useNavigate();
-  const handleLogout = async () => {
-    //call logout api
-    let response = await logout();
-    console.log("Logout funtion return value on Login.jsx: ", response);
 
-    navigate("/");
-
-  };
   useEffect(() => {
+    let redirect_link = "/";
+    const handleLogout = async () => {
+      try {
+        const res = await logout();
+        console.log("Logout response:", res);
+        // Navigate to the login page or any other page after successful logout
+        navigate(redirect_link);
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
+    // Call the asynchronous function
     handleLogout();
-  }, []);
+  }, [navigate]);
 
-  return <>Logout</>;
+  return <>You have been logged out.</>;
 };
 
 export default Logout;

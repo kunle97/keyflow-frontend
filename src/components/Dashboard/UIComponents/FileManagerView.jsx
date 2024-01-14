@@ -146,7 +146,9 @@ const FileManagerView = (props) => {
         />
       </div>
       <div className="col-md-12 mt-1" style={{ overflow: "auto" }}>
-        <div className={`${screenWidth < breakpoints.md && "container-fluid"} `}>
+        <div
+          className={`${screenWidth < breakpoints.md && "container-fluid"} `}
+        >
           <Stack
             direction={"row"}
             justifyContent="space-between"
@@ -217,6 +219,7 @@ const FileManagerView = (props) => {
                   >
                     <div
                       className="image-container"
+                      data-testid={props.dataTestIdentifier + "-" + index}
                       style={{
                         width: "100%",
                         height: calculateImageContainerHeight(),
@@ -247,10 +250,11 @@ const FileManagerView = (props) => {
                             padding: "0 10px",
                           }}
                         >
-                          <span style={{ color: "white" }}>
+                          <span style={{ color: "white" }} data-testId="file-name" >
                             {full_file_name}
                           </span>
                           <IconButton
+                            data-testId="delete-file-icon"
                             onClick={() => {
                               console.log("delete", media);
                               setShowDeleteConfirmation(true);

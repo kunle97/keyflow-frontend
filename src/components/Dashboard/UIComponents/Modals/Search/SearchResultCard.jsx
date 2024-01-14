@@ -1,7 +1,7 @@
 import React from "react";
 import { IconButton, Stack } from "@mui/material";
 import { uiGreen, uiGrey2 } from "../../../../../constants";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 const SearchResultCard = (props) => {
@@ -11,6 +11,7 @@ const SearchResultCard = (props) => {
       className={`col-md-${props.gridSize} my-3`}
       onClick={props.onClick}
       style={{ pointer: "cursor" }}
+      data-testId={props.dataTestId}
     >
       <div
         onClick={() => {
@@ -68,7 +69,7 @@ const SearchResultCard = (props) => {
                 )}
               </div>
               <IconButton onClick={props.onClick}>
-                <ArrowForwardIcon sx={{ color: uiGreen }} />
+                <ArrowForwardIosIcon sx={{ color: uiGreen }} />
               </IconButton>
             </Stack>
           </div>

@@ -53,12 +53,12 @@ const ManagePortfolio = () => {
       console.log(res);
       if (res.status === 200 || res.status === 201) {
         setAlertTitle("Success");
-        setAlertMessage("Portfolio Updated Successfully");
+        setAlertMessage("Portfolio updated successfully");
         setOpen(true);
         setEditDialogOpen(false);
       } else {
         setAlertTitle("Error");
-        setAlertMessage("Error Updating Portfolio");
+        setAlertMessage("Error updating portfolio");
         setOpen(true);
         setEditDialogOpen(false);
       }
@@ -127,6 +127,7 @@ const ManagePortfolio = () => {
           />
           {/* Property Detail Edit Dialog  */}
           <UIDialog
+            dataTestId={"edit-portfolio-dialog"}
             open={editDialogOpen}
             onClose={() => setEditDialogOpen(false)}
             maxWidth="md"
@@ -136,12 +137,20 @@ const ManagePortfolio = () => {
               <div className="col-md-12">
                 <div className=" mb-3">
                   <div className="card-body">
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form
+                      data-dataTestId="edit-portfolio-form"
+                      onSubmit={handleSubmit(onSubmit)}
+                    >
                       <div className="form-group mb-4">
-                        <label className="text-black" htmlFor="name">
+                        <label
+                          className="text-black"
+                          htmlFor="name"
+                          data-testid="edit-portfolio-name-label"
+                        >
                           Name
                         </label>
                         <input
+                          data-testid="edit-portfolio-name-input"
                           style={{
                             ...defaultWhiteInputStyle,
                             background: uiGrey,
@@ -161,10 +170,15 @@ const ManagePortfolio = () => {
                       </div>
 
                       <div className="form-group mb-4">
-                        <label className="text-black" htmlFor="description">
+                        <label
+                          className="text-black"
+                          htmlFor="description"
+                          data-testid="edit-portfolio-description-label"
+                        >
                           Description
                         </label>
                         <textarea
+                          data-testid="edit-portfolio-description-textarea"
                           style={{
                             ...defaultWhiteInputStyle,
                             background: uiGrey,
@@ -177,6 +191,7 @@ const ManagePortfolio = () => {
                       </div>
                       <div className="text-end mb-3">
                         <UIButton
+                          dataTestId="edit-portfolio-submit-button"
                           className="btn btn-primary btn-sm ui-btn"
                           type="submit"
                           btnText="Save Changes"
@@ -195,10 +210,15 @@ const ManagePortfolio = () => {
             sx={{ marginBottom: "25px" }}
           >
             <div>
-              <h3 className="text-black">{portfolio.name}</h3>
-              <p className="text-black">{portfolio.description}</p>
+              <h3 className="text-black" data-testid="portfolio-name">
+                {portfolio.name}
+              </h3>
+              <p className="text-black" data-testid="portfolio-description">
+                {portfolio.description}
+              </p>
             </div>
             <IconButton
+              data-testid="edit-portfolio-button"
               onClick={() => {
                 setEditDialogOpen(true);
               }}
@@ -216,6 +236,7 @@ const ManagePortfolio = () => {
           {tabPage === 0 && (
             <div>
               <UITableMobile
+                testRowIdentifier="portfolio-property"
                 tableTitle="Properties"
                 data={properties}
                 infoProperty="name"
@@ -223,6 +244,7 @@ const ManagePortfolio = () => {
                   `${row.street}, ${row.city}, ${row.state}`
                 }
                 subtitleProperty="somthing"
+                acceptedFileTypes={[".csv"]}
                 // getImage={(row) => {
                 //   retrieveFilesBySubfolder(
                 //     `properties/${row.id}`,
@@ -245,7 +267,7 @@ const ManagePortfolio = () => {
             </div>
           )}
           {tabPage === 1 && (
-            <div   >
+            <div>
               <ConfirmModal
                 open={showDeleteConfirmModal}
                 setOpen={setShowDeleteConfirmModal}

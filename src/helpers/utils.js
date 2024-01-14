@@ -1,4 +1,3 @@
-
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
 //Create a fucntion to surround a component with the DashboardContainer
@@ -12,7 +11,7 @@ export function stringToBoolean(value) {
   if (typeof value !== "string") {
     return value;
   }
-  
+
   switch (value.toLowerCase().trim()) {
     case "true":
     case "yes":
@@ -44,8 +43,12 @@ export function makeId(length) {
 export const filterTenants = (tenants, searchValue) => {
   return tenants.filter((tenant) => {
     return (
-      tenant.user?.first_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      tenant.user?.last_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      tenant.user?.first_name
+        ?.toLowerCase()
+        .includes(searchValue.toLowerCase()) ||
+      tenant.user?.last_name
+        ?.toLowerCase()
+        .includes(searchValue.toLowerCase()) ||
       tenant.user?.email?.toLowerCase().includes(searchValue.toLowerCase())
     );
   });
@@ -93,11 +96,9 @@ export const convertMaintenanceRequestStatus = (status) => {
   }
 };
 
-
-
 export function extractFileNameAndExtension(url) {
   // Extract the part of the URL after the last '/'
-  const filenameWithExtension = url.substring(url.lastIndexOf('/') + 1);
+  const filenameWithExtension = url.substring(url.lastIndexOf("/") + 1);
 
   // Use regex to separate the file name and extension
   const match = filenameWithExtension.match(/([^/?#]+)(\.[^./?#]+)($|\?)/);
@@ -112,7 +113,7 @@ export function extractFileNameAndExtension(url) {
 }
 
 export function removeTFromDate(date) {
-  return date.toISOString().split('T')[0];
+  return date.toISOString().split("T")[0];
 }
 
 export const generateSimilarColor = (baseColor) => {
@@ -121,9 +122,18 @@ export const generateSimilarColor = (baseColor) => {
 
   // You can adjust these values for slight variations
   const variation = 20; // Change this value for variation in color
-  const randomR = Math.min(255, Math.max(0, r + Math.floor(Math.random() * variation)));
-  const randomG = Math.min(255, Math.max(0, g + Math.floor(Math.random() * variation)));
-  const randomB = Math.min(255, Math.max(0, b + Math.floor(Math.random() * variation)));
+  const randomR = Math.min(
+    255,
+    Math.max(0, r + Math.floor(Math.random() * variation))
+  );
+  const randomG = Math.min(
+    255,
+    Math.max(0, g + Math.floor(Math.random() * variation))
+  );
+  const randomB = Math.min(
+    255,
+    Math.max(0, b + Math.floor(Math.random() * variation))
+  );
 
   return `rgb(${randomR}, ${randomG}, ${randomB})`;
 };
@@ -181,11 +191,29 @@ export const generateVariedColors = (baseColor, numberOfColors) => {
   return colors;
 };
 
-
 export const removeUnderscoresAndCapitalize = (value) => {
   //remove the underscore from the value and capitalize the first letter of each word
   let transactionType = value
     .replace(/_/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
   return transactionType;
+};
+
+//Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
+export const isValidFileName = (file_name) => {
+  console.log("File Name:", file_name); // Log the file name
+  const regex = /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9]+)?$/;
+  const isValid = regex.test(file_name);
+  console.log("isValid name", isValid);
+  return isValid;
+};
+
+//Create a function that checks the props.acceptedFileTypes array to see if the file extension is valid
+export const isValidFileExtension = (file_name, acceptedFileTypes) => {
+  console.log("File Name:", file_name); // Log the file name
+  const file_extension = file_name.split(".").pop();
+  console.log("File Extension:", file_extension); // Log the file extension
+  const isValid = acceptedFileTypes.includes("." + file_extension);
+  console.log("isValid extension", isValid);
+  return isValid;
 };

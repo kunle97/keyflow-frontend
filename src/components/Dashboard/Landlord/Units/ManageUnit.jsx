@@ -47,7 +47,7 @@ import BathtubIcon from "@mui/icons-material/Bathtub";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const CreateUnit = () => {
   //Create a state for the form data
-  const {isMobile } = useScreen();
+  const { isMobile } = useScreen();
   const [unit, setUnit] = useState({});
   const [tenant, setTenant] = useState({});
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
@@ -74,10 +74,22 @@ const CreateUnit = () => {
   const [unitMediaCount, setunitMediaCount] = useState(0);
   const [rentalApplications, setRentalApplications] = useState([]);
   const tabs = [
-    { label: "Unit", name: "unit" },
-    { label: "Lease Template", name: "lease_templates" },
-    { label: `Files (${unitMediaCount})`, name: "files" },
-    { label: "Rental Applications", name: "rental_applications" },
+    { label: "Unit", name: "unit", dataTestId: "unit-details-tab" },
+    {
+      label: "Lease Template",
+      name: "lease_templates",
+      dataTestId: "unit-lease-template-tab",
+    },
+    {
+      label: `Files (${unitMediaCount})`,
+      name: "files",
+      dataTestId: "unit-media-tab",
+    },
+    {
+      label: "Rental Applications",
+      name: "rental_applications",
+      dataTestId: "unit-rental-applications-tab",
+    },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -240,12 +252,14 @@ const CreateUnit = () => {
     <>
       {isLoading ? (
         <UIProgressPrompt
+          dataTestId="loading-unit-ui-progress-prompt"
           title="Loading Unit"
           message="Please wait while we load the unit information for you."
         />
       ) : (
         <div className="container">
           <UIDialog
+            dataTestId="edit-unit-dialog"
             open={editDialogOpen}
             onClose={() => setEditDialogOpen(false)}
             title="Edit Unit"
@@ -256,10 +270,15 @@ const CreateUnit = () => {
                   <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="row mb-3">
                       <div className="col-md-12 mb-3">
-                        <label className="form-label text-black" htmlFor="name">
+                        <label
+                          data-testid="edit-unit-name-label"
+                          className="form-label text-black"
+                          htmlFor="name"
+                        >
                           <strong>Unit #/Name</strong>
                         </label>
                         <input
+                          data-testid="edit-unit-name-input"
                           {...register("name", {
                             required: "This is a required field",
                           })}
@@ -279,10 +298,14 @@ const CreateUnit = () => {
                       </div>
                       <div className="col-md-12">
                         <div>
-                          <label className="form-label text-black">
+                          <label
+                            data-testid="edit-unit-beds-label"
+                            className="form-label text-black"
+                          >
                             <strong>Beds</strong>
                           </label>
                           <input
+                            data-testid="edit-unit-beds-input"
                             {...register("beds", {
                               required: "This is a required field",
                             })}
@@ -304,10 +327,14 @@ const CreateUnit = () => {
 
                       <div className="col-md-12">
                         <div>
-                          <label className="form-label text-black">
+                          <label
+                            data-testid="edit-unit-baths-label"
+                            className="form-label text-black"
+                          >
                             <strong>Baths</strong>
                           </label>
                           <input
+                            data-testid="edit-unit-baths-input"
                             {...register("baths", {
                               required: "This is a required field",
                             })}
@@ -328,7 +355,11 @@ const CreateUnit = () => {
                       </div>
                     </div>
                     <div className="text-end my-3">
-                      <button className="btn btn-primary ui-btn" type="submit">
+                      <button
+                        className="btn btn-primary ui-btn"
+                        type="submit"
+                        data-testid="edit-unit-submit-button"
+                      >
                         Update Unit
                       </button>
                     </div>
@@ -337,6 +368,7 @@ const CreateUnit = () => {
               </div>
               <>
                 <AlertModal
+                  dataTestId={"delete-unit-alert-modal"}
                   open={showDeleteError}
                   setOpen={setShowDeleteError}
                   title={"Error"}
@@ -345,6 +377,7 @@ const CreateUnit = () => {
                   onClick={() => setShowDeleteError(false)}
                 />
                 <DeleteButton
+                  dataTestId={"delete-unit-button"}
                   style={{
                     background: uiRed,
                     textTransform: "none",
@@ -381,6 +414,7 @@ const CreateUnit = () => {
           </UIDialog>
           {unitMedia && unitMedia.length > 0 && (
             <div
+              data-testid="unit-media-header-container"
               style={{
                 width: "100%",
                 height: isMobile ? "200px" : "320px",
@@ -393,6 +427,7 @@ const CreateUnit = () => {
               }}
             >
               <img
+                data-testid="unit-media-header-image"
                 src={unitMedia[0].file}
                 style={{
                   width: "100%",
@@ -408,8 +443,8 @@ const CreateUnit = () => {
               alignItems="center"
             >
               <div>
-                <h4>{unit?.name}</h4>
-                <span className="text-black">
+                <h4 data-testId="unit-name">{unit?.name}</h4>
+                <span className="text-black" data-testId="unit-tenant">
                   {isOccupied ? (
                     <>
                       <Link
@@ -426,9 +461,12 @@ const CreateUnit = () => {
                   )}
                 </span>
                 <br />
-                <span className="text-black">{unit?.rental_property_name}</span>
+                <span className="text-black" data-testId="unit-property">
+                  {unit?.rental_property_name}
+                </span>
               </div>
               <IconButton
+                data-testid="edit-unit-button"
                 onClick={() => {
                   setEditDialogOpen(true);
                 }}
@@ -454,6 +492,7 @@ const CreateUnit = () => {
                     <div className="card shadow mb-3">
                       <div className="card-body">
                         <input
+                          data-testid="rental-application-link-input"
                           className="form-control"
                           value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
                         />
@@ -462,6 +501,7 @@ const CreateUnit = () => {
                           target="_blank"
                         >
                           <Button
+                            data-testid="rental-application-link-preview-button"
                             style={{
                               background: uiGreen,
                               color: "white",
@@ -495,9 +535,9 @@ const CreateUnit = () => {
                           <span
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
+                            data-testid="unit-details-name"
                           >
                             {unit.name}
                           </span>
@@ -518,10 +558,10 @@ const CreateUnit = () => {
                           </div>
                           <h4>Bed</h4>
                           <span
+                            data-testid="unit-details-beds"
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
                           >
                             {unit.beds}
@@ -543,10 +583,10 @@ const CreateUnit = () => {
                           </div>
                           <h4>Baths</h4>
                           <span
+                            data-testid="unit-details-baths"
                             className="text-black"
                             style={{
-                              fontSize:
-                                isMobile ? "12pt" : "15pt",
+                              fontSize: isMobile ? "12pt" : "15pt",
                             }}
                           >
                             {unit.baths}
@@ -557,6 +597,7 @@ const CreateUnit = () => {
                   </div>
                   <>
                     <AlertModal
+                      dataTestId={"delete-unit-alert-modal"}
                       open={showDeleteError}
                       setOpen={setShowDeleteError}
                       title={"Error"}
@@ -565,6 +606,7 @@ const CreateUnit = () => {
                       onClick={() => setShowDeleteError(false)}
                     />
                     <ConfirmModal
+                      dataTestId={"delete-unit-confirm-modal"}
                       open={showDeleteAlert}
                       title="Delete Unit"
                       message="Are you sure you want to delete this unit?"
@@ -600,7 +642,10 @@ const CreateUnit = () => {
                   <div className="card-body">
                     <div className="mb-3">
                       <div>
-                        <Modal open={showLeaseTemplateSelector}>
+                        <Modal
+                          data-testid="lease-template-selector-modal"
+                          open={showLeaseTemplateSelector}
+                        >
                           <div
                             className="card"
                             style={{
@@ -696,6 +741,7 @@ const CreateUnit = () => {
                                                 </div>
 
                                                 <Button
+                                                  data-testid={`select-lease-template-button-${index}`}
                                                   onClick={() =>
                                                     handleChangeLeaseTemplate(
                                                       leaseTemplate.id
@@ -851,6 +897,7 @@ const CreateUnit = () => {
             )}
             {!isOccupied && tabPage === 3 && (
               <UITableMobile
+                testRowIdentifier={"unit-rental-application-row"}
                 data={rentalApplications}
                 tableTitle={"Rental Applications"}
                 // endpoint={`/units/${unit_id}/rental-applications/`}

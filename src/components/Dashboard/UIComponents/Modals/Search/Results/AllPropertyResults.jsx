@@ -1,49 +1,84 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import SearchResultCard from "../SearchResultCard";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import { useEffect } from "react";
-import {
-  Box,
-  CircularProgress,
-} from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { uiGreen } from "../../../../../../constants";
 import { useSearch } from "../../../../../../contexts/SearchContext";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import UIPrompt from "../../../UIPrompt";
+import { authenticatedInstance } from "../../../../../../api/api";
+import AlertModal from "../../AlertModal";
+import UIProgressPrompt from "../../../UIProgressPrompt";
 const AllPropertyResults = (props) => {
-  const {
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    search,
-    isLoading,
-    changeEndpoint,
-    changeSearchLimit,
-    searchLimit,
-    nextPageEndPoint,
-    previousPageEndPoint,
-    nextPage,
-    previousPage,
-    resultCount,
-  } = useSearch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [endpoint, setEndpoint] = useState(`/properties/`);
+  const [resultCount, setResultCount] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [searchResults, setSearchResults] = useState([]);
+  const [nextPageEndPoint, setNextPageEndPoint] = useState(null);
+  const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const nextPage = () => {
+    setEndpoint(nextPageEndPoint);
+  };
+
+  const previousPage = () => {
+    setEndpoint(previousPageEndPoint);
+  };
+
+  const search = () => {
+    setIsLoading(true);
+    authenticatedInstance
+      .get(endpoint, {
+        params: {
+          search: props.searchValue,
+          limit: limit,
+        },
+      })
+      .then((response) => {
+        setSearchResults(response.data.results);
+        setResultCount(response.data.count);
+        setNextPageEndPoint(response.data.next);
+        setPreviousPageEndPoint(response.data.previous);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occured retrieving properties: " + error.message
+        );
+        setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
-    setSearchQuery(props.searchValue);
-    changeEndpoint(`/properties/`);
-    changeSearchLimit(6);
     search();
-  }, [searchQuery, props.searchValue]);
+  }, [props.searchValue, endpoint]);
   return (
     <div>
+      <AlertModal
+        open={open}
+        handleClose={() => {
+          setOpen(false);
+        }}
+        title={alertTitle}
+        message={alertMessage}
+      />
       <div id="properties" style={{ overflow: "hidden" }}>
         <div className="row">
           {isLoading ? (
-            <Box sx={{ display: "flex" }}>
-              <Box sx={{ margin: "55px auto" }}>
-                <CircularProgress sx={{ color: uiGreen }} />
-              </Box>
-            </Box>
+            <UIProgressPrompt
+              title="Loading Properties"
+              message="Please wait while we retrieve your properties."
+            />
           ) : (
             <Fragment>
               {resultCount === 0 ? (
@@ -52,7 +87,7 @@ const AllPropertyResults = (props) => {
                     title="No Results"
                     message="No properties found. Try adjusting your search filters."
                     icon={
-                      <HomeWorkOutlinedIcon 
+                      <HomeWorkOutlinedIcon
                         style={{
                           width: "50px",
                           height: "50px",
@@ -68,11 +103,12 @@ const AllPropertyResults = (props) => {
                     title="Properties"
                     resultCount={resultCount}
                     refresh={search}
-                    searchLimit={searchLimit}
-                    changeSearchLimit={changeSearchLimit}
+                    searchLimit={limit}
+                    changeSearchLimit={setLimit}
                   />
-                  {searchResults.map((property) => (
+                  {searchResults.map((property, index) => (
                     <SearchResultCard
+                      dataTestId={`property-search-result-${index}`}
                       to={`/dashboard/landlord/properties/${property.id}`}
                       handleClose={props.handleClose}
                       gridSize={6}
