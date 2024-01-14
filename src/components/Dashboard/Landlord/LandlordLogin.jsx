@@ -31,10 +31,7 @@ const LandlordLogin = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : email,
+      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : email,
       password:
         process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
@@ -82,12 +79,23 @@ const LandlordLogin = () => {
         title="Logging you in..."
       />
       <AlertModal
+        data-testid="success-modal"
         open={open}
         onClose={() => setOpen(false)}
         title={"Login Successful!"}
         message="You have been logged in Successfully! Click the link below to view your dashboard"
         btnText="Go to Dashboard"
         to={redirectURL}
+      />
+      <AlertModal
+        dataTestId="error-modal"
+        className="error-modal"
+        open={openError && errMsg}
+        onClose={() => setErrMsg(null)}
+        title={"Login Failed"}
+        message={errMsg}
+        onClick={() => setErrMsg(null)}
+        btnText="Close"
       />
       <div className="row">
         <div
@@ -103,6 +111,7 @@ const LandlordLogin = () => {
           <div className="row">
             <div className=" ">
               <img
+                data-testid="keyflow-black-logo"
                 style={{ width: "60%", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-black-transparent.png"
               />
@@ -111,6 +120,7 @@ const LandlordLogin = () => {
                   <div>
                     {emailLoginMode ? (
                       <select
+                        data-testid="email-select"
                         {...register("email", {
                           required: "This is a required field",
                           pattern: {
@@ -188,6 +198,7 @@ const LandlordLogin = () => {
                     {...register("password", {
                       required: "This is a required field",
                     })}
+                    data-testid="password-input"
                     className="form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
@@ -221,15 +232,9 @@ const LandlordLogin = () => {
                     </div>
                   </div>
                 </div>
-                <AlertModal
-                  open={openError && errMsg}
-                  onClose={() => setErrMsg(null)}
-                  title={"Login Failed"}
-                  message={errMsg}
-                  onClick={() => setErrMsg(null)}
-                  btnText="Close"
-                />
+
                 <Button
+                  data-testid="login-button"
                   className="d-block w-100 ui-btN"
                   type="submit"
                   style={{

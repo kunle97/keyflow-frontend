@@ -6,45 +6,83 @@ import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
 import { checkIfTenantMatchesMaintenanceRequest } from "../../../../../../helpers/utils";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
-import { useGlobalSearch } from "../../../../../../hooks/useGlobalSearch";
 import UIPrompt from "../../../UIPrompt";
+import { useSearch } from "../../../../../../contexts/SearchContext";
+import { authenticatedInstance } from "../../../../../../api/api";
+import { set } from "react-hook-form";
+import AlertModal from "../../AlertModal";
+import UIProgressPrompt from "../../../UIProgressPrompt";
 const AllMaintenanceRequestResults = (props) => {
-  // First instance of useSearch hook with its own endpoint
   const [tenants, setTenants] = useState(props.tenants);
+  const [isLoading, setIsLoading] = useState(false);
+  const [endpoint, setEndpoint] = useState(`/maintenance-requests/`);
+  const [resultCount, setResultCount] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [searchResults, setSearchResults] = useState([]);
+  const [nextPageEndPoint, setNextPageEndPoint] = useState(null);
+  const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
-  const {
-    searchQuery,
-    searchResults,
-    search,
-    isLoading,
-    changeEndpoint,
-    changeSearchLimit,
-    setSearchQuery,
-    searchLimit,
-    nextPageEndPoint,
-    previousPageEndPoint,
-    nextPage,
-    previousPage,
-    resultCount,
-  } = useGlobalSearch();
+  const nextPage = () => {
+    setEndpoint(nextPageEndPoint);
+  };
+
+  const previousPage = () => {
+    setEndpoint(previousPageEndPoint);
+  };
+
+  const search = () => {
+    setIsLoading(true);
+    authenticatedInstance
+      .get(endpoint, {
+        params: {
+          search: props.searchValue,
+          limit: limit,
+        },
+      })
+      .then((response) => {
+        setSearchResults(response.data.results);
+        setResultCount(response.data.count);
+        setNextPageEndPoint(response.data.next);
+        setPreviousPageEndPoint(response.data.previous);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occured retrieving maintenance requests: " + error.message
+        );
+        setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
-    setSearchQuery(props.searchValue);
-    changeEndpoint(`/maintenance-requests/`);
-    changeSearchLimit(10);
     search();
-  }, [searchQuery, tenants, props.searchValue]);
+  }, [tenants, props.searchValue, endpoint]);
 
   return (
     <div>
+      <AlertModal
+        open={open}
+        handleClose={() => {
+          setOpen(false);
+        }}
+        title={alertTitle}
+        message={alertMessage}
+      />
+
       <div id="maintenance-requests" style={{ overflow: "hidden" }}>
         <div className="row">
           {isLoading ? (
-            <Box sx={{ display: "flex" }}>
-              <Box m={"55px auto"}>
-                <CircularProgress sx={{ color: uiGreen }} />
-              </Box>
-            </Box>
+            <UIProgressPrompt
+              title="Loading Maintenance Requests"
+              message="Please wait while we retrieve your maintenance requests."
+            />
           ) : (
             <Fragment>
               {resultCount === 0 ? (
@@ -70,19 +108,11 @@ const AllMaintenanceRequestResults = (props) => {
                     title="Maintenance Requests"
                     resultCount={resultCount}
                     refresh={search}
-                    searchLimit={searchLimit}
-                    changeSearchLimit={changeSearchLimit}
+                    searchLimit={limit}
+                    changeSearchLimit={setLimit}
                   />
-                  {searchResults.map((maintenance_request) => {
-                    //Retrieve the tenant information for the maintenance request
-                    let tenant = tenants
-                      ? tenants.filter((tenant) =>
-                          checkIfTenantMatchesMaintenanceRequest(
-                            tenant,
-                            maintenance_request
-                          )
-                        )[0]
-                      : null;
+                  {searchResults.map((maintenance_request, index) => {
+                    console.log("MR Searhc Tenant", maintenance_request);
                     let status = <></>;
                     if (maintenance_request.status === "pending") {
                       status = <span className="text-warning">Pending</span>;
@@ -94,15 +124,16 @@ const AllMaintenanceRequestResults = (props) => {
 
                     return (
                       <SearchResultCard
+                        dataTestId={`maintenance-request-search-result-${index}`}
                         to={`/dashboard/landlord/maintenance-requests/${maintenance_request.id}/`}
                         gridSize={12}
                         key={maintenance_request.id}
                         handleClose={props.handleClose}
                         title={
-                          tenant
-                            ? `Maintenanace Request from 
-                          ${tenant.first_name} 
-                          ${tenant.last_name}
+                          maintenance_request.tenant.user
+                            ? `Maintenanace Request from
+                          ${maintenance_request.tenant.user.first_name}
+                          ${maintenance_request.tenant.user.last_name}
                           `
                             : "Maintenanace Request"
                         }

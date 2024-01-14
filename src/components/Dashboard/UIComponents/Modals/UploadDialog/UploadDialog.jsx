@@ -43,8 +43,8 @@ const UploadDialog = (props) => {
 
   const onDrop = (acceptedFiles) => {
     let validFiles = true;
-  
     acceptedFiles.forEach((file) => {
+      console.log("File Data info",file)
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(

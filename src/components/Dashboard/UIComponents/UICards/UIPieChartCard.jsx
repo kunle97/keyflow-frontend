@@ -58,7 +58,7 @@ const UIPieChartCard = (props) => {
             <h6>No data to display</h6>
           </div>
         ) : (
-          <Doughnut options={options} data={data} />
+          <Doughnut data-testId={props.dataTestId} options={options} data={data} />
         )}
       </div>
     </UIChartCard>

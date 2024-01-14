@@ -169,9 +169,9 @@ const LandlordRegister = () => {
               onClose={() => setOpen(false)}
               title={"Registration Successful!"}
               message="You have been registered Successfully! Be sure to check your email
-              for confirmation to activate your account. \nOn the next screen you will be
-              onboarded to our payment processing platform. YOu will be asked for your industry.
-              Be sure to select property Rentals. Click the link below to continue the registration process"
+              for confirmation to activate your account. On the next screen you will be
+              onboarded to our payment processing platform. You will be asked for your industry.
+              Be sure to select Property Rentals. Click the link below to continue the registration process"
               btnText="Continue"
               to={stripeRedirectLink}
             />

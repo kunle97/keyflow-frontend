@@ -571,6 +571,7 @@ const Dashboard = () => {
       <div className="row">
         <div className="col-md-12 ">
           <UILineChartCard
+            dataTestId="dashboard-line-chart-card"
             isLoading={isLoading}
             height={isMobile ? "270px" : "400px"}
             title="Total Revenue and Expenses"
@@ -623,7 +624,10 @@ const Dashboard = () => {
       <div className="row">
         <div className="col-sm-12 col-md-6 col-lg-4">
           {transactions.length === 0 ? (
-            <UICard cardStyle={{ height: "478px" }}>
+            <UICard
+              cardStyle={{ height: "478px" }}
+              dataTestId={"dashboard-transactions-card-no-data"}
+            >
               <Stack
                 direction={"column"}
                 justifyContent={"center"}
@@ -637,6 +641,7 @@ const Dashboard = () => {
             </UICard>
           ) : (
             <UICardList
+              dataTestId="dashboard-transactions-card"
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
@@ -669,6 +674,7 @@ const Dashboard = () => {
         </div>{" "}
         <div className="col-sm-12 col-md-6 col-lg-8">
           <UIPieChartCard
+            dataTestId="dashboard-pie-chart-card"
             isLoading={isLoading}
             info={"Unit Vacancies"}
             title={"Occupied vs Vacant Units"}
@@ -697,6 +703,7 @@ const Dashboard = () => {
         <div className="col-md-6">
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
+              dataTestId="dashboard-lease-agreements-card-list-desktop"
               cardStyle={{
                 background: "white",
                 color: "black",
@@ -715,6 +722,7 @@ const Dashboard = () => {
             />
           ) : (
             <UICardList
+              dataTestId="dashboard-lease-agreements-card-list-mobile"
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
@@ -743,6 +751,7 @@ const Dashboard = () => {
 
         <div className="col-md-6">
           <UIPieChartCard
+            dataTestId="dashboard-revenue-by-property-pie-chart-card"
             isLoading={isLoading}
             info={"Best Performing Properties"}
             title={"Revenue Per Property"}
@@ -768,6 +777,7 @@ const Dashboard = () => {
         <div className="col-md-12">
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
+              dataTestId="dashboard-maintenance-requests-table-card-desktop"
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
@@ -782,6 +792,7 @@ const Dashboard = () => {
             />
           ) : (
             <UICardList
+              dataTestId="dashboard-maintenance-requests-card-list-mobile"
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
@@ -839,205 +850,221 @@ const Dashboard = () => {
       </div>
 
       {/* Lease Cancellation  Row */}
-      <div className="row">
-        <div className="col-md-6">
-          {screenWidth > breakpoints.md ? (
-            <UItableMiniCard
-              cardStyle={{
-                background: "white",
-                color: "black",
-                height: "530px",
-                overflowY: "auto",
-              }}
-              infoStyle={{
-                color: uiGrey2,
-                fontSize: isMobile ? "12pt" : "16pt",
-              }}
-              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={"Recent Lease Cancellation Requests"}
-              columns={lease_cancellation_columns}
-              info={"Recent Lease Cancellation Requests"}
-              endpoint={"/lease-cancellation-requests/"}
-              data={leaseCancellationRequests}
-              options={lease_agreement_options}
-            />
-          ) : (
-            <UICardList
+      {leaseCancellationRequests.length === 0 ?? (
+        <div className="row">
+          <div className="col-md-6">
+            {screenWidth > breakpoints.md ? (
+              <UItableMiniCard
+                dataTestId="dashboard-lease-cancellation-requests-table-card-desktop"
+                cardStyle={{
+                  background: "white",
+                  color: "black",
+                  height: "530px",
+                  overflowY: "auto",
+                }}
+                infoStyle={{
+                  color: uiGrey2,
+                  fontSize: isMobile ? "12pt" : "16pt",
+                }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                title={"Recent Lease Cancellation Requests"}
+                columns={lease_cancellation_columns}
+                info={"Recent Lease Cancellation Requests"}
+                endpoint={"/lease-cancellation-requests/"}
+                data={leaseCancellationRequests}
+                options={lease_agreement_options}
+              />
+            ) : (
+              <UICardList
+                dataTestId="dashboard-lease-cancellation-requests-card-mobile"
+                cardStyle={{ background: "white", color: "black" }}
+                infoStyle={{
+                  color: uiGrey2,
+                  fontSize: isMobile ? "12pt" : "16pt",
+                }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                title={"Recent Lease Cancellation Requests"}
+                info={"Lease Cancellation Requests"}
+                onInfoClick={() =>
+                  navigate("/dashboard/landlord/lease-cancellation-requests")
+                }
+                items={leaseCancellationRequests
+                  .map((leaseCancellationRequest) => {
+                    let status = leaseCancellationRequest.status.replace(
+                      "_",
+                      " "
+                    );
+
+                    if (status === "pending") {
+                      status = (
+                        <span>
+                          Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
+                          <span className="text-warning">Pending</span>
+                        </span>
+                      );
+                    } else if (status === "approved") {
+                      status = (
+                        <span>
+                          Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
+                          <span className="text-success">Approved</span>
+                        </span>
+                      );
+                    } else if (status === "rejected") {
+                      status = (
+                        <span>
+                          Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
+                          <span className="text-danger">Rejected</span>
+                        </span>
+                      );
+                    }
+
+                    return {
+                      primary:
+                        leaseCancellationRequest.tenant.user.first_name +
+                        " " +
+                        leaseCancellationRequest.tenant.user.last_name,
+                      secondary: status,
+                      tertiary: new Date(
+                        leaseCancellationRequest.created_at
+                      ).toLocaleDateString(),
+                      icon: <AttachMoneyIcon />,
+                    };
+                  })
+                  .slice(0, 5)}
+                tertiaryStyles={{ color: uiGreen }}
+              />
+            )}
+          </div>
+          <div className="col-md-6">
+            <UIPieChartCard
+              dataTestId="dashboard-lease-cancellation-requests-pie-chart-card"
+              isLoading={isLoading}
+              info={"Pending vs Approved Requests"}
+              title={"Lease Cancellation Requests"}
+              height={isMobile ? "356px" : "456px"}
+              legendPosition={"bottom"}
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
                 fontSize: isMobile ? "12pt" : "16pt",
               }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={"Recent Lease Cancellation Requests"}
-              info={"Lease Cancellation Requests"}
-              onInfoClick={() =>
-                navigate("/dashboard/landlord/lease-cancellation-requests")
-              }
-              items={leaseCancellationRequests
-                .map((leaseCancellationRequest) => {
-                  let status = leaseCancellationRequest.status.replace(
-                    "_",
-                    " "
-                  );
-
-                  if (status === "pending") {
-                    status = (
-                      <span>
-                        Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
-                        <span className="text-warning">Pending</span>
-                      </span>
-                    );
-                  } else if (status === "approved") {
-                    status = (
-                      <span>
-                        Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
-                        <span className="text-success">Approved</span>
-                      </span>
-                    );
-                  } else if (status === "rejected") {
-                    status = (
-                      <span>
-                        Unit {leaseCancellationRequest.rental_unit?.name} |{" "}
-                        <span className="text-danger">Rejected</span>
-                      </span>
-                    );
-                  }
-
-                  return {
-                    primary:
-                      leaseCancellationRequest.tenant.user.first_name +
-                      " " +
-                      leaseCancellationRequest.tenant.user.last_name,
-                    secondary: status,
-                    tertiary: new Date(
-                      leaseCancellationRequest.created_at
-                    ).toLocaleDateString(),
-                    icon: <AttachMoneyIcon />,
-                  };
-                })
-                .slice(0, 5)}
-              tertiaryStyles={{ color: uiGreen }}
+              chartContainerStyles={{ padding: "1rem" }}
+              data={[
+                groupLeaseCancellationRequests(leaseCancellationRequests)
+                  .pending.length,
+                groupLeaseCancellationRequests(leaseCancellationRequests)
+                  .approved.length,
+              ]}
+              labels={["Pending", "Approved"]}
+              colors={["#f4f7f8", uiGreen]}
             />
-          )}
+          </div>
         </div>
-        <div className="col-md-6">
-          <UIPieChartCard
-            isLoading={isLoading}
-            info={"Pending vs Approved Requests"}
-            title={"Lease Cancellation Requests"}
-            height={isMobile ? "356px" : "456px"}
-            legendPosition={"bottom"}
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            chartContainerStyles={{ padding: "1rem" }}
-            data={[
-              groupLeaseCancellationRequests(leaseCancellationRequests).pending
-                .length,
-              groupLeaseCancellationRequests(leaseCancellationRequests).approved
-                .length,
-            ]}
-            labels={["Pending", "Approved"]}
-            colors={["#f4f7f8", uiGreen]}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Lease Renewal  Row */}
-      <div className="row">
-        <div className="col-md-6">
-          {screenWidth > breakpoints.md ? (
-            <UItableMiniCard
+      {leaseRenewalRequests.length === 0 ?? (
+        <div className="row">
+          <div className="col-md-6">
+            {screenWidth > breakpoints.md ? (
+              <UItableMiniCard
+                dataTestId="dashboard-lease-renewal-requests-table-card-desktop"
+                cardStyle={{ background: "white", color: "black" }}
+                infoStyle={{
+                  color: uiGrey2,
+                  fontSize: isMobile ? "12pt" : "16pt",
+                }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                title={"Recent Lease Renewal Requests"}
+                columns={lease_renewal_columns}
+                info={"Recent Lease Renewal Requests"}
+                data={leaseRenewalRequests}
+                options={lease_agreement_options}
+              />
+            ) : (
+              <UICardList
+                dataTestId="dashboard-lease-renewal-requests-card-mobile"
+                cardStyle={{ background: "white", color: "black" }}
+                infoStyle={{
+                  color: uiGrey2,
+                  fontSize: isMobile ? "12pt" : "16pt",
+                }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                title={"Recent Lease Renewal Requests"}
+                info={"Lease Renewal Requests"}
+                onInfoClick={() =>
+                  navigate("/dashboard/landlord/lease-renewal-requests")
+                }
+                items={leaseRenewalRequests
+                  .map((leaseRenewalRequest) => {
+                    let status = leaseRenewalRequest.status.replace("_", " ");
+
+                    if (status === "pending") {
+                      status = (
+                        <span>
+                          Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
+                          <span className="text-warning">Pending</span>
+                        </span>
+                      );
+                    } else if (status === "denied") {
+                      status = (
+                        <span>
+                          Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
+                          <span className="text-danger">Denied</span>
+                        </span>
+                      );
+                    } else if (status === "approved") {
+                      status = (
+                        <span>
+                          Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
+                          <span className="text-success">Approved</span>
+                        </span>
+                      );
+                    }
+
+                    return {
+                      primary:
+                        leaseRenewalRequest.tenant.user.first_name +
+                        " " +
+                        leaseRenewalRequest.tenant.user.last_name,
+                      secondary: status,
+                      tertiary: new Date(
+                        leaseRenewalRequest.created_at
+                      ).toLocaleDateString(),
+                      icon: <AttachMoneyIcon />,
+                    };
+                  })
+                  .slice(0, 5)}
+                tertiaryStyles={{ color: uiGreen }}
+              />
+            )}
+          </div>
+          <div className="col-md-6">
+            <UIPieChartCard
+              dataTestId="dashboard-lease-renewal-requests-pie-chart-card"
+              isLoading={isLoading}
+              info={"Pending vs Approved Requests"}
+              title={"Lease Renewal Requests"}
+              height={isMobile ? "356px" : "456px"}
+              legendPosition={"bottom"}
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
                 fontSize: isMobile ? "12pt" : "16pt",
               }}
               titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={"Recent Lease Renewal Requests"}
-              columns={lease_renewal_columns}
-              info={"Recent Lease Renewal Requests"}
-              data={leaseRenewalRequests}
-              options={lease_agreement_options}
+              chartContainerStyles={{ padding: "1rem" }}
+              data={[
+                groupLeaseRenewalRequests(leaseRenewalRequests).pending.length,
+                groupLeaseRenewalRequests(leaseRenewalRequests).approved.length,
+              ]}
+              labels={["Pending", "Approved"]}
+              colors={["#f4f7f8", uiGreen]}
             />
-          ) : (
-            <UICardList
-              cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{
-                color: uiGrey2,
-                fontSize: isMobile ? "12pt" : "16pt",
-              }}
-              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={"Recent Lease Renewal Requests"}
-              info={"Lease Renewal Requests"}
-              onInfoClick={() =>
-                navigate("/dashboard/landlord/lease-renewal-requests")
-              }
-              items={leaseRenewalRequests
-                .map((leaseRenewalRequest) => {
-                  let status = leaseRenewalRequest.status.replace("_", " ");
-
-                  if (status === "pending") {
-                    status = (
-                      <span>
-                        Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
-                        <span className="text-warning">Pending</span>
-                      </span>
-                    );
-                  } else if (status === "denied") {
-                    status = (
-                      <span>
-                        Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
-                        <span className="text-danger">Denied</span>
-                      </span>
-                    );
-                  } else if (status === "approved") {
-                    status = (
-                      <span>
-                        Unit {leaseRenewalRequest.rental_unit?.name} |{" "}
-                        <span className="text-success">Approved</span>
-                      </span>
-                    );
-                  }
-
-                  return {
-                    primary:
-                      leaseRenewalRequest.tenant.user.first_name +
-                      " " +
-                      leaseRenewalRequest.tenant.user.last_name,
-                    secondary: status,
-                    tertiary: new Date(
-                      leaseRenewalRequest.created_at
-                    ).toLocaleDateString(),
-                    icon: <AttachMoneyIcon />,
-                  };
-                })
-                .slice(0, 5)}
-              tertiaryStyles={{ color: uiGreen }}
-            />
-          )}
+          </div>
         </div>
-        <div className="col-md-6">
-          <UIPieChartCard
-            isLoading={isLoading}
-            info={"Pending vs Approved Requests"}
-            title={"Lease Renewal Requests"}
-            height={isMobile ? "356px" : "456px"}
-            legendPosition={"bottom"}
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            chartContainerStyles={{ padding: "1rem" }}
-            data={[
-              groupLeaseRenewalRequests(leaseRenewalRequests).pending.length,
-              groupLeaseRenewalRequests(leaseRenewalRequests).approved.length,
-            ]}
-            labels={["Pending", "Approved"]}
-            colors={["#f4f7f8", uiGreen]}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 };

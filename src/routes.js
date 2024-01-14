@@ -129,11 +129,7 @@ export const routes = [
   },
   {
     path: "/dashboard/logout",
-    element: (
-      <DashboardProtectedRoute token={token}>
-        <Logout />
-      </DashboardProtectedRoute>
-    ),
+    element: <Logout />,
     isSearchable: false,
     label: "Landlord Logout",
   },

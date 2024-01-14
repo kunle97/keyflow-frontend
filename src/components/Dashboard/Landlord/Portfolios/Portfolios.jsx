@@ -9,6 +9,7 @@ const Portfolios = () => {
   return (
     <div className={`${screenWidth > breakpoints.md && "container-fluid"}`}>
       <UITableMobile
+        testRowIdentifier="portfolio"
         tableTitle="Portfolios"
         endpoint="/portfolios/"
         createInfo={(row) => {

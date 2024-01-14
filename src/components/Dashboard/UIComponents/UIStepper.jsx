@@ -100,6 +100,7 @@ function UIStepper(props) {
       spacing={4}
     >
       <Stepper
+        data-testid={props.dataTestId}
         alternativeLabel
         activeStep={props.step}
         connector={<QontoConnector />}

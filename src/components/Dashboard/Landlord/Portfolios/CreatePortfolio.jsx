@@ -34,7 +34,7 @@ const CreatePortfolio = () => {
         console.log(res);
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
-          setAlertMessage("Portfolio Created Successfully");
+          setAlertMessage("Portfolio created successfully");
           setOpen(true);
         } else {
           setAlertTitle("Error");
@@ -64,15 +64,23 @@ const CreatePortfolio = () => {
         btnText={"Ok"}
         onClick={() => navigate("/dashboard/landlord/portfolios")}
       />
-      <h4>Create Portfolio</h4>
+      <h4 data-testid="create-portfolio-title">Create Portfolio</h4>
       <div className="card">
         <div className="card-body">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form
+            data-testid="create-portfolio-form"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <div className="form-group mb-4">
-              <label className="text-black" htmlFor="name">
+              <label
+                className="text-black"
+                data-testid="create-portfolio-name-label"
+                htmlFor="name"
+              >
                 Name
               </label>
               <input
+                data-testid="create-portfolio-name-input"
                 style={{ ...defaultWhiteInputStyle, background: uiGrey }}
                 type="text"
                 id="name"
@@ -82,10 +90,15 @@ const CreatePortfolio = () => {
             </div>
 
             <div className="form-group mb-4">
-              <label className="text-black" htmlFor="description">
+              <label
+                data-testid="create-portfolio-description-label"
+                className="text-black"
+                htmlFor="description"
+              >
                 Description
               </label>
               <textarea
+                data-testid="create-portfolio-description-textarea"
                 style={{ ...defaultWhiteInputStyle, background: uiGrey }}
                 type="text"
                 id="description"
@@ -93,6 +106,7 @@ const CreatePortfolio = () => {
               ></textarea>
             </div>
             <UIButton
+              dataTestId="create-portfolio-submit-button"
               type="submit"
               btnText="Create"
               buttonStyle="btnGreen"

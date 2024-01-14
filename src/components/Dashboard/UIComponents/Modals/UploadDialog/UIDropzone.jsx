@@ -16,14 +16,14 @@ const UIDropzone = (props) => {
     cursor: "pointer",
     width: "100%",
     height: "400px",
-    marginBottom: "15px",
+    // marginBottom: "15px",
     justifyContent: "center",
     alignItems: "center",
     display: "flex",
   };
 
   const textStyles = {
-    color: "white",
+    color: "black",
     padding: "10px",
     textAlign: "center",
   };
@@ -83,6 +83,12 @@ const UIDropzone = (props) => {
     props.setFiles(newFiles);
   };
 
+  //Create a function to check if a file is an image file
+  function isImage(file) {
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif|\.webp)$/i;
+    return allowedExtensions.test(file.name);
+  }
+
   return (
     <>
       <div {...getRootProps()} style={dropzoneStyles}>
@@ -92,23 +98,33 @@ const UIDropzone = (props) => {
           <p style={textStyles}>
             Accepted file types: {props.acceptedFileTypes.join(", ")}
             (Max. file size: 3MB)
+            {props.files.length > 0 && (
+              <div>
+                {props.files.map((file, index) => (
+                  <strong>
+                    <span key={index}>{file.name}</span>
+                  </strong>
+                ))}
+              </div>
+            )}
           </p>
         </div>
       </div>
-      {props.files.length > 0 && (
-        <div style={previewStyles}>
-          {props.files.map((file, index) => (
+      {props.files.length > 0 &&
+        props.files.map((file, index) => (
+          <div key={index} style={isImage(file) ? previewStyles : {}}>
             <div
-              key={index}
               style={{ position: "relative" }}
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={() => handleMouseLeave(index)}
             >
-              <img
-                src={file.preview}
-                alt={`Preview ${index}`}
-                style={previewImageStyles}
-              />
+              {isImage(file) && (
+                <img
+                  src={file.preview}
+                  alt={`Preview ${index}`}
+                  style={previewImageStyles}
+                />
+              )}
               <div className="preview-overlay" style={overlayStyles}>
                 <div style={fileOverlay}>
                   <p style={{ margin: "0" }}>{file.name}</p>
@@ -121,9 +137,8 @@ const UIDropzone = (props) => {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
     </>
   );
 };
