@@ -17,12 +17,14 @@ const UICard = ({
   onDropdownChange,
   showChevron,
   chartHeaderMode,
+  dataTestId,
 }) => {
   return (
     <div
       className="card"
       style={{ margin: "10px 0", overflow: "hidden", ...cardStyle }}
       onClick={onClick}
+      data-testid={dataTestId}
     >
       <div className="card-body">
         <Stack

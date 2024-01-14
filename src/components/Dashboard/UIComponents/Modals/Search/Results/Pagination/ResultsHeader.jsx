@@ -25,7 +25,7 @@ const ResultsHeader = (props) => {
             <RefreshIcon />
           </IconButton>
         </ButtonBase>
-        <span style={{ fontSize: "15pt !important", color: "white" }}>
+        <span style={{ fontSize: "15pt !important", color: "black" }}>
           Show
         </span>
         <select
@@ -34,8 +34,9 @@ const ResultsHeader = (props) => {
           value={props.searchLimit}
           style={{
             width: "55px",
-            background: uiGrey2,
-            color: "white",
+            background: "white",
+            color: "black",
+            boxShadow: "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
           }}
         >
           <option value={1}>1</option>
@@ -49,7 +50,7 @@ const ResultsHeader = (props) => {
           <option value={20}>20</option>
           <option value={50}>50</option>
         </select>
-        <span style={{ fontSize: "15pt !important", color: "white" }}>
+        <span style={{ fontSize: "15pt !important", color: "black" }}>
           Results
         </span>
       </Stack>

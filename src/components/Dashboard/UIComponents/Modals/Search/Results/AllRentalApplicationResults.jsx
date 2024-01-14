@@ -9,62 +9,77 @@ import { useSearch } from "../../../../../../contexts/SearchContext";
 import { useEffect } from "react";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import UIPrompt from "../../../UIPrompt";
+import { authenticatedInstance } from "../../../../../../api/api";
+import AlertModal from "../../AlertModal";
+import UIProgressPrompt from "../../../UIProgressPrompt";
 const AllRentalApplicationResults = (props) => {
-  const batchEndpoints = [
-    {
-      name: "properties",
-      endpoint: `/users/${authUser.id}/properties/`,
-      limit: 10,
-      query: null,
-    },
-    {
-      name: "units",
-      endpoint: `/users/${authUser.id}/units/`,
-      limit: 10,
-      query: null,
-    },
-  ];
-  const [allProperties, setAllProperties] = useState([]);
-  const [allUnits, setAllUnits] = useState([]);
-  const {
-    searchQuery,
-    searchResults,
-    search,
-    searchResultsBatch,
-    isLoading,
-    changeEndpoint,
-    changeSearchLimit,
-    setSearchQuery,
-    nextPageEndPoint,
-    previousPageEndPoint,
-    nextPage,
-    previousPage,
-    resultCount,
-    searchLimit,
-    changeEndpointBatch,
-  } = useSearch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [endpoint, setEndpoint] = useState(`/rental-applications/`);
+  const [resultCount, setResultCount] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [searchResults, setSearchResults] = useState([]);
+  const [nextPageEndPoint, setNextPageEndPoint] = useState(null);
+  const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const nextPage = () => {
+    setEndpoint(nextPageEndPoint);
+  };
+
+  const previousPage = () => {
+    setEndpoint(previousPageEndPoint);
+  };
+
+  const search = () => {
+    setIsLoading(true);
+    authenticatedInstance
+      .get(endpoint, {
+        params: {
+          search: props.searchValue,
+          limit: limit,
+        },
+      })
+      .then((response) => {
+        setSearchResults(response.data.results);
+        setResultCount(response.data.count);
+        setNextPageEndPoint(response.data.next);
+        setPreviousPageEndPoint(response.data.previous);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occured retrieving properties: " + error.message
+        );
+        setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
-    setSearchQuery(props.searchValue);
-    changeEndpoint(`/rental-applications/`);
-    changeSearchLimit(6);
     search();
-  }, [searchQuery, props.searchValue]);
-
-  useEffect(() => {
-    console.log("searchResultsBatch", searchResultsBatch);
-  }, []);
-
+  }, [props.searchValue, endpoint, limit]);
   return (
     <div>
+      <AlertModal
+        open={open}
+        handleClose={() => {
+          setOpen(false);
+        }}
+        title={alertTitle}
+        message={alertMessage}
+      />
       <div id="rental-applications" style={{ overflow: "hidden" }}>
         <div className="row">
           {isLoading ? (
-            <Box sx={{ display: "flex" }}>
-              <Box sx={{ margin: "55px auto" }}>
-                <CircularProgress sx={{ color: uiGreen }} />
-              </Box>
-            </Box>
+            <UIProgressPrompt
+              title="Loading"
+              message="Please wait while we retrieve your rental applications."
+            />
           ) : (
             <Fragment>
               {resultCount === 0 ? (
@@ -89,44 +104,25 @@ const AllRentalApplicationResults = (props) => {
                     title="Rental Applications"
                     resultCount={resultCount}
                     refresh={search}
-                    searchLimit={searchLimit}
-                    changeSearchLimit={changeSearchLimit}
+                    searchLimit={limit}
+                    changeSearchLimit={setLimit}
                   />
                   {searchResults &&
-                    searchResults.map((rental_application) => {
-                      //Retrive unit information for the rental application
-                      // const unit = allUnits.filter(
-                      //   (unit) => unit.id === rental_application.unit
-                      // )[0];
-                      // const property = allProperties.filter(
-                      //   (property) => property.id === unit.rental_property
-                      // )[0];
-                      // let property_name = property.name;
-                      // let unit_name = unit.name;
-
+                    searchResults.map((rental_application, index) => {
                       return (
                         <SearchResultCard
+                          dataTestId={`rental-application-search-result-${index}`}
                           to={`/dashboard/landlord/rental-applications/${rental_application.id}`}
                           key={rental_application.id}
                           handleClose={props.handleClose}
                           title={`${rental_application.first_name} ${rental_application.last_name}`}
                           gridSize={4}
-                          subtitle={
-                            rental_application.email
-                            // <>
-                            //   For Unit {unit_name} at {property_name} |{" "}
-                            //   {rental_application.is_approved ? (
-                            //     <span style={{ color: uiGreen }}>Approved</span>
-                            //   ) : (
-                            //     ""
-                            //   )}{" "}
-                            // </>
-                          }
+                          subtitle={rental_application.email}
                           description={
                             rental_application.is_approved ? (
                               <span style={{ color: uiGreen }}>Approved</span>
                             ) : (
-                              ""
+                              <span className="text-warning">Pending</span>
                             )
                           }
                           icon={

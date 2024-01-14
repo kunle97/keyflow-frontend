@@ -48,7 +48,7 @@ const Topbar = (props) => {
       setOpen(true);
     } else {
       console.error("Error logging user out");
-      navigate("/")
+      navigate("/");
     }
   };
 
@@ -119,6 +119,7 @@ const Topbar = (props) => {
       >
         <div className="container">
           <IconButton
+            data-testid="nav-menu-button"
             color={uiGreen}
             aria-label="open drawer"
             onClick={() => props.setShowNavMenu(!props.showNavMenu)}
@@ -159,6 +160,7 @@ const Topbar = (props) => {
               sx={{ marginRight: "-50px" }}
             >
               <input
+                data-testid="search-bar-desktop"
                 type="search"
                 placeholder="Search"
                 style={searchBarStyle}
@@ -169,6 +171,7 @@ const Topbar = (props) => {
                 }}
               />
               <IconButton
+                data-testid="search-bar-submit-button"
                 style={{
                   background: uiGreen,
                   position: "relative",

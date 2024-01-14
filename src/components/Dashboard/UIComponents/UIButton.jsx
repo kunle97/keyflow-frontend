@@ -7,16 +7,16 @@ const UIButton = (props) => {
     textTransform: "none !important",
     color: "white !important",
     borderRadius: "5px !important",
-    fontSize: "12pt !important",  
+    fontSize: "12pt !important",
   };
   return (
     <Button
+      data-testid={props.dataTestId}
       disabled={props.disabled}
       onClick={props.onClick}
       sx={{ ...defaultStyle, ...props.style }}
-      variant={!props.variant ? "contained" : props.variant }
+      variant={!props.variant ? "contained" : props.variant}
       type={props.type}
-      
     >
       {props.btnText}
     </Button>

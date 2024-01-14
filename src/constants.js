@@ -72,6 +72,7 @@ export const landlordMenuItems = [
     muiIcon: <DashboardIcon sx={muiIconStyle} />,
     description: "View your dashboard",
     isSearchable: true,
+    dataTestId: "landlord-dashboard-menu-item",
   },
   {
     label: "Properties",
@@ -80,6 +81,7 @@ export const landlordMenuItems = [
     description: "View your properties",
     icon: "fa fa-home",
     isSearchable: true,
+    dataTestId: "landlord-properties-dropdown-menu-item",
     subMenuItems: [
       {
         label: "Properties",
@@ -88,14 +90,16 @@ export const landlordMenuItems = [
         description: "View your properties",
         icon: "fa fa-home",
         isSearchable: true,
+        dataTestId: "landlord-properties-menu-item",
       },
       {
         label: "Portfolios ",
         link: "/dashboard/landlord/portfolios",
         muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
-        description: "Add a new property",
+        description: "Create a new portfolio",
         icon: "fa fa-home",
         isSearchable: true,
+        dataTestId: "landlord-portfolios-menu-item",
       },
     ],
   },
@@ -106,6 +110,7 @@ export const landlordMenuItems = [
     muiIcon: <PeopleAltIcon sx={muiIconStyle} />,
     description: "View your tenants",
     isSearchable: true,
+    dataTestId: "landlord-tenants-menu-item",
   },
 
   {
@@ -115,6 +120,7 @@ export const landlordMenuItems = [
     description: "View all maintenance requests",
     icon: "fas fa-tools",
     isSearchable: true,
+    dataTestId: "landlord-maintenance-requests-menu-item",
   },
   {
     label: "Lease Agreements",
@@ -123,6 +129,7 @@ export const landlordMenuItems = [
     description: "View your lease terms",
     icon: "fas fa-user-circle",
     isSearchable: true,
+    dataTestId: "landlord-lease-agreements-dropdown-menu-item",
     subMenuItems: [
       {
         label: "View Lease Agreements",
@@ -131,6 +138,7 @@ export const landlordMenuItems = [
         description: "View your lease agreements",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "landlord-lease-agreements-menu-item",
       },
       {
         label: "New Lease Template",
@@ -139,6 +147,7 @@ export const landlordMenuItems = [
         description: "Create a new lease agreement",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "landlord-new-lease-template-menu-item",
       },
       {
         label: "Lease Templates",
@@ -147,6 +156,7 @@ export const landlordMenuItems = [
         description: "View your lease terms",
         icon: "fas fa-user-circle",
         isSearchable: true,
+        dataTestId: "landlord-lease-templates-menu-item",
       },
       {
         label: "Lease Cancellation Requests",
@@ -155,6 +165,7 @@ export const landlordMenuItems = [
         description: "View your lease cancellation requests",
         icon: "fas fa-user-circle",
         isSearchable: true,
+        dataTestId: "landlord-lease-cancellation-requests-menu-item",
       },
       {
         label: "Lease Renewal Requests",
@@ -163,6 +174,7 @@ export const landlordMenuItems = [
         description: "View your lease renewal requests",
         icon: "fas fa-user-circle",
         isSearchable: true,
+        dataTestId: "landlord-lease-renewal-requests-menu-item",
       },
     ],
   },
@@ -173,6 +185,7 @@ export const landlordMenuItems = [
     description: "View your rental applications",
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
+    dataTestId: "landlord-rental-applications-menu-item",
   },
   {
     label: "Finances",
@@ -180,18 +193,21 @@ export const landlordMenuItems = [
     icon: "fas fa-tachometer-alt",
     isSearchable: false,
     muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
+    dataTestId: "landlord-finances-dropdown-menu-item",
     subMenuItems: [
       {
         label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
         link: "/dashboard/landlord/transactions",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "landlord-transactions-menu-item",
       },
       {
         label: "Accounting", //TODO: page for accounting: taxes, etc
         link: "/dashboard/maintenance-requests/",
         icon: "fas fa-tools",
         isSearchable: false,
+        dataTestId: "landlord-accounting-menu-item",
       },
     ],
   },

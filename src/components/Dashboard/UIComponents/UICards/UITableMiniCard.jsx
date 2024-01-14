@@ -14,6 +14,7 @@ const UITableMiniCard = (props) => {
     >
       <div style={props.tableStyle} >
         <UITableMini
+          dataTestid={props.dataTestId}
           data={props.data ? props.data : null}
           endpoint={props.endpoint}
           columns={props.columns}

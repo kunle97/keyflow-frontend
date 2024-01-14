@@ -70,22 +70,54 @@ const SearchDialog = (props) => {
   const [searchResultLimit, setSearchResultLimit] = useState(6);
 
   const pages = [
-    { name: "all", label: "All", icon: <SearchIcon /> },
-    { name: "pages", label: "Pages", icon: <DescriptionIcon /> },
-    { name: "properties", label: "Properties", icon: <HomeWorkIcon /> },
-    { name: "units", label: "Units", icon: <WeekendIcon /> },
+    {
+      name: "all",
+      label: "All",
+      icon: <SearchIcon />,
+      dataTestId: "all-search-tab",
+    },
+    {
+      name: "pages",
+      label: "Pages",
+      icon: <DescriptionIcon />,
+      dataTestId: "pages-search-tab",
+    },
+    {
+      name: "properties",
+      label: "Properties",
+      icon: <HomeWorkIcon />,
+      dataTestId: "properties-search-tab",
+    },
+    {
+      name: "units",
+      label: "Units",
+      icon: <WeekendIcon />,
+      dataTestId: "units-search-tab",
+    },
     {
       name: "maintenance",
       label: "Requests",
       icon: <HandymanIcon />,
+      dataTestId: "maintenance-request-search-tab",
     },
     {
       name: "rental",
       label: " Applications",
       icon: <ReceiptLongIcon />,
+      dataTestId: "rental-application-search-tab",
     },
-    { name: "transactions", label: "Transactions", icon: <PaidIcon /> },
-    { name: "tenants", label: "Tenants", icon: <PeopleAltIcon /> },
+    {
+      name: "transactions",
+      label: "Transactions",
+      icon: <PaidIcon />,
+      dataTestId: "transactions-search-tab",
+    },
+    {
+      name: "tenants",
+      label: "Tenants",
+      icon: <PeopleAltIcon />,
+      dataTestId: "tenants-search-tab",
+    },
   ];
 
   const handleChangeTabPage = (event, newValue) => {
@@ -99,6 +131,19 @@ const SearchDialog = (props) => {
     if (event.target.value === "") {
       setProperties([]);
     }
+    authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/tenants/`)
+      .then((res) => {
+        console.log("Tenant REsponse: ", res);
+        setTenants(res.data);
+      });
+    console.log("SEARCH DIOALOIEHG Tenants:", tenants);
+    getLandlordUnits().then((res) => {
+      setAllUnits(res.data);
+    });
+    getProperties().then((res) => {
+      setAllProperties(res.data);
+    });
     setSearchValue(event.target.value);
     //Search for the properties using the GEt request funtion on the authenticated instance using the endpoint /properties/?search=
     authenticatedInstance
@@ -175,21 +220,7 @@ const SearchDialog = (props) => {
       });
   };
 
-  useEffect(() => {
-    authenticatedInstance
-      .get(`/owners/${authUser.owner_id}/tenants/`)
-      .then((res) => {
-        console.log("Tenant REsponse: ", res);
-        setTenants(res.data);
-      });
-    console.log("SEARCH DIOALOIEHG Tenants:", tenants);
-    getLandlordUnits().then((res) => {
-      setAllUnits(res.data);
-    });
-    getProperties().then((res) => {
-      setAllProperties(res.data);
-    });
-  }, []);
+  useEffect(() => {}, []);
   return (
     <div>
       <Dialog
@@ -214,6 +245,7 @@ const SearchDialog = (props) => {
           }}
         >
           <IconButton
+            data-testId="close-search-dialog"
             sx={{ color: "white" }}
             edge="start"
             color="inherit"
@@ -225,6 +257,7 @@ const SearchDialog = (props) => {
         </div>
         <div className="container py-5">
           <Input
+            data-testId="search-dialog-input"
             value={searchValue}
             onChange={handleSearchChange}
             endAdornment={
@@ -461,7 +494,7 @@ const SearchDialog = (props) => {
                           key={maintenance_request.id}
                           gridSize={6}
                           handleClose={props.handleClose}
-                          title={`Maintenanace Request from ${tenant.user.first_name} ${tenant.user.last_name}`}
+                          title={`Maintenanace Request from ${maintenance_request.tenant.user.first_name} ${maintenance_request.tenant.user.last_name}`}
                           subtitle={`${maintenance_request.description}`}
                           icon={
                             <HandymanIcon
@@ -496,14 +529,12 @@ const SearchDialog = (props) => {
                   <div className="row">
                     {rentalApplications.map((rental_application) => {
                       //Retrive unit information for the rental application
-                      const unit = allUnits.filter(
-                        (unit) => unit.id === rental_application.unit
-                      )[0];
-                      const property = allProperties.filter(
-                        (property) => property.id === unit.rental_property
-                      )[0];
-                      let property_name = property.name;
-                      let unit_name = unit.name;
+                      // const unit = allUnits.filter(
+                      //   (unit) => unit.id === rental_application.unit
+                      // )[0];
+                      let unit_name = rental_application.unit.name;
+                      let property_name =
+                        rental_application.unit.rental_property_name;
 
                       return (
                         <SearchResultCard
@@ -573,9 +604,7 @@ const SearchDialog = (props) => {
                         }`}
                         description={transaction.description}
                         icon={
-                          <PaidIcon
-                            style={{ width: "30px", height: "30px" }}
-                          />
+                          <PaidIcon style={{ width: "30px", height: "30px" }} />
                         }
                       />
                     ))}

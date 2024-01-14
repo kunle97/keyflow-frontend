@@ -34,7 +34,10 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import { authenticatedInstance } from "../../../../api/api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+} from "../../../../api/api";
 import FileManagerView from "../../UIComponents/FileManagerView";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -46,14 +49,21 @@ import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import EditIcon from "@mui/icons-material/Edit";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
-import UISwitch from "../../UIComponents/UISwitch";
 import { getPortfolios } from "../../../../api/portfolios";
 import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
+import UIDropzone from "../../UIComponents/Modals/UploadDialog/UIDropzone";
+import {
+  isValidFileExtension,
+  isValidFileName,
+} from "../../../../helpers/utils";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
   const [portfolios, setPortfolios] = useState([]); //Create a state to hold the portfolios
   const [currentPortfolio, setCurrentPortfolio] = useState(null); //Create a state to hold the current portfolio
+  const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
 
   const [selectPortfolioDialogOpen, setSelectPortfolioDialogOpen] =
     useState(false); //Create a state to hold the select portfolio dialog open state
@@ -76,6 +86,11 @@ const ManageProperty = () => {
   const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
   const [propertyMediaCount, setPropertyMediaCount] = useState(0); //Create a propertyMediaCount state to hold the number of property media files
   const { isMobile, breakpoints, screenWidth } = useScreen();
+  const [csvFiles, setCsvFiles] = useState([]); //Create a csvFiles state to hold the csv file to be uploaded
+  const [showCsvFileUploadDialog, setShowCsvFileUploadDialog] = useState(false); //Create a state to hold the value of the csv file upload dialog
+  const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
+  const [responseTitle, setResponseTitle] = useState(null);
+  const [responseMessage, setResponseMessage] = useState(null);
   const navigate = useNavigate();
 
   const handleClose = (event, reason) => {
@@ -86,38 +101,103 @@ const ManageProperty = () => {
   };
 
   const tabs = [
-    { name: "details", label: "Details" },
-    { name: "units", label: `Units (${unitCount})` },
-    { name: "analytics", label: "Finances/Analytics" },
-    { name: "media", label: `Files (${propertyMediaCount})` },
-    { name: "preferences", label: "Preferences" },
+    { name: "details", label: "Details", dataTestId: "property-detail-tab" },
+    {
+      name: "units",
+      label: `Units (${unitCount})`,
+      dataTestId: "property-units-tab",
+    },
+    {
+      name: "analytics",
+      label: "Finances/Analytics",
+      dataTestId: "propery-analytics-tab",
+    },
+    {
+      name: "media",
+      label: `Files (${propertyMediaCount})`,
+      dataTestId: "property-media-tab",
+    },
+    {
+      name: "preferences",
+      label: "Preferences",
+      dataTestId: "property-preference-tab",
+    },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
   };
 
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/units/${rowData}/${property.id}`;
-    navigate(navlink);
+  //Function for CSV File Dropzone
+  const onDrop = (acceptedFiles) => {
+    let validFiles = true;
+    acceptedFiles.forEach((file) => {
+      if (!isValidFileName(file.name)) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file names is invalid. File name can only contain numbers, letters, underscores, and dashes. No special characters or spaces."
+        );
+        setShowFileUploadAlert(true);
+        validFiles = false;
+        setShowCsvFileUploadDialog(false);
+        return;
+      } else if (!isValidFileExtension(file.name, [".csv"])) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file types is invalid. Accepted file types: " +
+            [".csv"].join(", ")
+        );
+        setShowFileUploadAlert(true);
+        setShowCsvFileUploadDialog(false);
+        validFiles = false;
+        return;
+      }
+    });
+
+    if (!validFiles) {
+      return;
+    }
+
+    // Process valid files
+    const updatedFiles = acceptedFiles.map((file) =>
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      })
+    );
+    console.log("updatedFiles", updatedFiles);
+    setCsvFiles(updatedFiles);
+    setResponseMessage(null);
+    setResponseTitle(null);
   };
-  const columns = [
-    { name: "name", label: "Name" },
-    { name: "beds", label: "Beds" },
-    { name: "baths", label: "Baths" },
-    {
-      name: "is_occupied",
-      label: "Occupied",
-      options: {
-        customBodyRender: (value) => {
-          if (value === true) {
-            return <span>Yes</span>;
-          } else {
-            return <span>No</span>;
-          }
-        },
-      },
-    },
-  ];
+  //Handling Upload via CSV file dropzone
+  const handleUpload = () => {
+    setIsUploading(true); //Set isUploading to true to show the progress bar
+    //Create a function to handle the file upload from the  files array
+    const formData = new FormData(); //Create a new FormData object
+    csvFiles.forEach((file) => {
+      formData.append("file", file); //Append each file to the FormData object
+    });
+    authenticatedMediaInstance
+      .post(`/properties/${id}/upload-csv-units/`, formData)
+      .then((res) => {
+        console.log("res", res);
+        setResponseTitle("File Upload Success");
+        setResponseMessage("File(s) uploaded successfully");
+        setShowFileUploadAlert(true);
+        setShowCsvFileUploadDialog(false);
+        setCsvFiles([]); //Clear the files array
+      })
+      .catch((err) => {
+        console.log("err", err);
+        setResponseTitle("File Upload Error");
+        setResponseMessage("There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again.");
+        setShowFileUploadAlert(true);
+        setShowCsvFileUploadDialog(false);
+        setCsvFiles([]); //Clear the files array
+      })
+      .finally(() => {
+        setIsUploading(false); //Set isUploading to false to hide the progress bar
+      });
+  };
 
   const {
     register,
@@ -140,7 +220,7 @@ const ManageProperty = () => {
   //Create a handle function to handle the form submission of updating property info
   const onSubmit = async (data) => {
     const res = await updateProperty(id, data);
-    console.log("Property Detaiuls submit res ", res);
+    console.log("Property Details submit res ", res);
     if (res.status === 200) {
       setUpdateAlertTitle("Success");
       setUpdateAlertMessage("Property updated");
@@ -251,6 +331,7 @@ const ManageProperty = () => {
     <>
       {isLoading ? (
         <UIProgressPrompt
+          dataTestId="property-loading-progress-prompt"
           title="Loading Property"
           message="Please wait while we load the property information for you."
         />
@@ -283,6 +364,7 @@ const ManageProperty = () => {
             )}
 
             <AlertModal
+              dataTestId="property-update-alert-modal"
               open={updateAlertIsOpen}
               title={updateAlertTitle}
               message={updateAlertMessage}
@@ -292,6 +374,7 @@ const ManageProperty = () => {
 
             {/* Property Detail Edit Dialog  */}
             <UIDialog
+              dataTestId="property-detail-edit-dialog"
               open={editDialogOpen}
               onClose={() => setEditDialogOpen(false)}
               maxWidth="md"
@@ -304,12 +387,14 @@ const ManageProperty = () => {
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-3">
                           <label
+                            data-testid="property-edit-dialog-name-label"
                             className="form-label text-dark"
                             htmlFor="name"
                           >
                             <strong>Property Name</strong>
                           </label>
                           <input
+                            data-testid="property-edit-dialog-name-input"
                             {...register("name", {
                               required: "This is a required field",
                             })}
@@ -327,12 +412,14 @@ const ManageProperty = () => {
                         </div>
                         <div className="mb-3">
                           <label
+                            data-testid="property-edit-dialog-street-label"
                             className="form-label text-dark"
                             htmlFor="address"
                           >
                             <strong>Street Address</strong>
                           </label>
                           <input
+                            data-testid="property-edit-dialog-street-input"
                             {...register("street", {
                               required: "This is a required field",
                               minLength: {
@@ -360,12 +447,14 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
+                                data-testid="property-edit-dialog-city-label"
                                 className="form-label text-dark"
                                 htmlFor="city"
                               >
                                 <strong>City</strong>
                               </label>
                               <input
+                                data-testid="property-edit-dialog-city-input"
                                 {...register("city", {
                                   required: "This is a required field",
                                 })}
@@ -383,12 +472,14 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
+                                data-testid="property-edit-dialog-state-label"
                                 className="form-label text-dark"
                                 htmlFor="state"
                               >
                                 <strong>State</strong>
                               </label>
                               <input
+                                data-testid="property-edit-dialog-state-input"
                                 {...register("state", {
                                   required: "This is a required field",
                                 })}
@@ -404,12 +495,14 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-4 col-lg-4">
                             <div className="mb-3">
                               <label
+                                data-testid="property-edit-dialog-zip-code-label"
                                 className="form-label text-dark"
                                 htmlFor="zipcode"
                               >
                                 <strong>Zip Code</strong>
                               </label>
                               <input
+                                data-testid="property-edit-dialog-zip-code-input"
                                 {...register("zip_code", {
                                   required: "This is a required field",
                                 })}
@@ -428,12 +521,14 @@ const ManageProperty = () => {
                           <div className="col-sm-12 col-md-12 col-lg-12">
                             <div className="mb-3">
                               <label
+                                data-testid="property-edit-dialog-country-label"
                                 className="form-label text-dark"
                                 htmlFor="country"
                               >
                                 <strong>Country</strong>
                               </label>
                               <input
+                                data-testid="property-edit-dialog-country-input"
                                 {...register("country", {
                                   required: "This is a required field",
                                 })}
@@ -452,6 +547,7 @@ const ManageProperty = () => {
                         </div>
                         <div className="text-end mb-3">
                           <UIButton
+                            dataTestId="property-edit-dialog-save-button"
                             className="btn btn-primary btn-sm ui-btn"
                             type="submit"
                             btnText="Save Changes"
@@ -470,6 +566,7 @@ const ManageProperty = () => {
                 onClose={() => setSelectPortfolioDialogOpen(false)}
                 maxWidth="md"
                 title="Select Portfolio"
+                dataTestId={"property-select-portfolio-dialog"}
               >
                 <List
                   sx={{
@@ -550,6 +647,7 @@ const ManageProperty = () => {
                         Portfolio: {currentPortfolio?.name}
                       </span>
                       <Button
+                        data-testid="property-change-portfolio-button"
                         sx={{
                           display: "block",
                           color: uiGreen,
@@ -580,6 +678,7 @@ const ManageProperty = () => {
                   )}
                 </div>
                 <IconButton
+                  data-testid="property-edit-button"
                   onClick={() => {
                     setEditDialogOpen(true);
                   }}
@@ -615,6 +714,7 @@ const ManageProperty = () => {
                             />
                           </div>
                           <span
+                            data-testId="property-unit-count"
                             className="text-black"
                             style={{
                               fontSize: isMobile ? "12pt" : "15pt",
@@ -638,6 +738,7 @@ const ManageProperty = () => {
                             />
                           </div>
                           <span
+                            data-testId="property-bed-count"
                             className="text-black"
                             style={{
                               fontSize: isMobile ? "12pt" : "15pt",
@@ -665,6 +766,7 @@ const ManageProperty = () => {
                             style={{
                               fontSize: isMobile ? "12pt" : "15pt",
                             }}
+                            data-testId="property-bath-count"
                           >
                             {bathsCount} Baths
                           </span>
@@ -684,6 +786,7 @@ const ManageProperty = () => {
                             />
                           </div>
                           <span
+                            data-testId="property-size"
                             className="text-black"
                             style={{
                               fontSize: isMobile ? "12pt" : "15pt",
@@ -765,30 +868,97 @@ const ManageProperty = () => {
                       <>
                         {" "}
                         {units.length === 0 ? (
-                          <UIPrompt
-                            title={"No Units Created"}
-                            icon={
-                              <i className="fas fa-home fa-2x text-gray-300" />
-                            }
-                            message={
-                              "You have not created any units for this property. Would you like to create one now?"
-                            }
-                            btnText={"Create Unit"}
-                            body={
-                              <UIButton
-                                btnText={"Create Unit"}
-                                onClick={() => {
-                                  navigate(
-                                    `/dashboard/landlord/units/create/${id}`
-                                  );
-                                }}
+                          <> 
+                            <AlertModal
+                              open={showFileUploadAlert}
+                              setOpen={setShowFileUploadAlert}
+                              title={responseTitle}
+                              message={responseMessage}
+                              btnText={"Ok"}
+                              onClick={() => setShowFileUploadAlert(false)}
+                            />
+                            <UIDialog
+                              open={showCsvFileUploadDialog}
+                              onClose={() => setShowCsvFileUploadDialog(false)}
+                              maxWidth="lg"
+                              style={{ width: "700px", zIndex: 991 }}
+                            >
+                              <UIDropzone
+                                onDrop={onDrop}
+                                acceptedFileTypes={[".csv"]}
+                                files={csvFiles}
+                                setFiles={setCsvFiles}
                               />
-                            }
-                          />
+                              <div style={{ margin: "10px" }}>
+                                <HelpOutlineIcon
+                                  style={{
+                                    color: uiGreen,
+                                    marginRight: "5px",
+                                  }}
+                                />
+                                <span
+                                  style={{ color: uiGrey2, fontSize: "10pt" }}
+                                >
+                                  CSV file must contain the following columns:
+                                  name, beds, baths, size. All lowercase and no
+                                  spaces.
+                                </span>
+                              </div>
+                              {csvFiles.length > 0 && (
+                                <UIButton
+                                  onClick={handleUpload}
+                                  btnText="Upload File"
+                                  style={{ width: "100%" }}
+                                />
+                              )}
+                            </UIDialog>
+                            <UIPrompt
+                              title={"No Units Created"}
+                              icon={
+                                <MeetingRoomIcon
+                                  style={{ fontSize: "32pt", color: uiGreen }}
+                                />
+                              }
+                              message={
+                                "You have not created any units for this property. Would you like to create one now?"
+                              }
+                              btnText={"Create Unit"}
+                              body={
+                                <Stack
+                                  direction="row"
+                                  justifyContent="space-between"
+                                  alignItems="center"
+                                  spacing={2}
+                                >
+                                  <UIButton
+                                    btnText={"Create Unit"}
+                                    onClick={() => {
+                                      navigate(
+                                        `/dashboard/landlord/units/create/${id}`
+                                      );
+                                    }}
+                                  />
+                                  <span>Or</span>
+                                  <Button
+                                    onClick={() => {
+                                      setShowCsvFileUploadDialog(true);
+                                    }}
+                                    style={{
+                                      textTransform: "none",
+                                      color: uiGreen,
+                                    }}
+                                  >
+                                    Upload CSV
+                                  </Button>
+                                </Stack>
+                              }
+                            />
+                          </>
                         ) : (
                           <div>
                             {" "}
                             <UITableMobile
+                              testRowIdentifier="rental-unit"
                               tableTitle="Units"
                               data={units}
                               infoProperty="name"
@@ -800,6 +970,10 @@ const ManageProperty = () => {
                               }
                               createURL={`/dashboard/landlord/units/create/${id}`}
                               showCreate={true}
+                              acceptedFileTypes={[".csv"]}
+                              showUpload={true}
+                              uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                              fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
                               // getImage={(row) => {
                               //   retrieveFilesBySubfolder(
                               //     `properties/${property.id}/units/${row.id}`,
@@ -907,6 +1081,7 @@ const ManageProperty = () => {
               {tabPage === 3 && (
                 <div>
                   <FileManagerView
+                    dataTestIdentifier="property-media"
                     files={propertyMedia}
                     subfolder={`properties/${id}`}
                     acceptedFileTypes={[".png", ".jpg", ".jpeg"]}

@@ -4,14 +4,22 @@ import PaymentIcon from "@mui/icons-material/Payment";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import HomeRepairServiceIcon from "@mui/icons-material/HomeRepairService";
 import { uiGreen } from "../../../constants";
-import SouthIcon from "@mui/icons-material/South";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import CurrencyBitcoinIcon from "@mui/icons-material/CurrencyBitcoin";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
 import { faker } from "@faker-js/faker";
 import DrawIcon from "@mui/icons-material/Draw";
+import HandymanIcon from '@mui/icons-material/Handyman';
+import PostAddIcon from '@mui/icons-material/PostAdd';import ReceiptIcon from '@mui/icons-material/Receipt';
+import CachedIcon from '@mui/icons-material/Cached';
+import Timeline from "@mui/lab/Timeline";
+import TimelineItem from "@mui/lab/TimelineItem";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import TimelineConnector from "@mui/lab/TimelineConnector";
+import TimelineContent from "@mui/lab/TimelineContent";
+import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
+import TimelineDot from "@mui/lab/TimelineDot";
 const Features = () => {
   const featureIconStyle = {
     color: uiGreen,
@@ -50,75 +58,96 @@ const Features = () => {
       align: "right",
       icon: <HomeRepairServiceIcon sx={featureIconStyle} />,
       infoGraphic: (
-        <div className="">
-          <div className="card feature-card">
-            <div className="card-body">
-              <h4 className="card-title" style={{ color: "rgb(255,255,255)" }}>
-                <i className="fas fa-tools feature-card-icon" />
-                &nbsp; Maintenance Request Initiated
-              </h4>
-              <p>
-                <span style={{ color: "rgb(255, 255, 255)" }}>
-                  One of your properties requires servicing
-                </span>
-                <br />
-              </p>
-              <h4 className="feature-card-text" />
-              <p className="feature-card-text">
-                Status:&nbsp;<span className="pending-text">Pending</span>
-              </p>
-            </div>
-          </div>
-          {/* <div className="mr-divider" /> */}
-          <center style={{ margin: "15px 0" }}>
-            {" "}
-            <SouthIcon sx={featureIconStyle} />
-          </center>
-          <div className="card feature-card">
-            <div className="card-body">
-              <h4 className="card-title" style={{ color: "rgb(255,255,255)" }}>
-                <i className="fas fa-tools feature-card-icon" />
-                &nbsp; Vendor found
-              </h4>
-              <p>
-                <span style={{ color: "rgb(255, 255, 255)" }}>
-                  A vendor has been found for your maintenance request and will
-                  contact you on further&nbsp;details about repairs
-                </span>
-                <br />
-              </p>
-              <h4 className="feature-card-text" />
-              <p className="feature-card-text">
-                Status:&nbsp;
-                <span className="in-progress-text">In Progress</span>
-              </p>
-            </div>
-          </div>
-          {/* <div className="mr-divider" /> */}
-          <center style={{ margin: "15px 0" }}>
-            {" "}
-            <SouthIcon sx={featureIconStyle} />
-          </center>
-          <div className="card feature-card">
-            <div className="card-body">
-              <h4 className="card-title" style={{ color: "rgb(255,255,255)" }}>
-                <i className="fas fa-tools feature-card-icon" />
-                &nbsp; Issue has been resolved
-              </h4>
-              <p>
-                <span style={{ color: "rgb(255, 255, 255)" }}>
-                  Your maintenance&nbsp;is now resolved.
-                </span>
-                <br />
-              </p>
-              <h4 className="feature-card-text" />
-              <p className="feature-card-text">
-                Status:&nbsp;
-                <span className="resolved-text">Resolved</span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <Timeline align="left">
+          <TimelineItem>
+            <TimelineOppositeContent sx={{ flex: 0.1 }}>
+              <Typography variant="body2" color="text.secondary">
+                9:30 am
+              </Typography>
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineConnector />
+              <TimelineDot sx={{ background: uiGreen }}>
+                <PostAddIcon  />
+              </TimelineDot>
+              <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent sx={{ py: "12px", px: 2 }}>
+              <Typography sx={{ color: "black" }} variant="h6" component="span">
+                Maintenance Request Created
+              </Typography>
+              <Typography sx={{ color: "black" }}>
+                Your tenant has submitted a maintenance request
+              </Typography>
+            </TimelineContent>
+          </TimelineItem>
+          <TimelineItem>
+            <TimelineOppositeContent sx={{ flex: 0.1 }}>
+              <Typography variant="body2" color="text.secondary">
+                9:30 am
+              </Typography>
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineConnector />
+              <TimelineDot sx={{ background: uiGreen }}>
+                <ReceiptIcon />
+              </TimelineDot>
+              <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent sx={{ py: "12px", px: 2 }}>
+              <Typography sx={{ color: "black" }} variant="h6" component="span">
+                Work Order Created
+              </Typography>
+              <Typography sx={{ color: "black" }}>
+                A work order has been created for your maintenance request
+              </Typography>
+            </TimelineContent>
+          </TimelineItem>
+          <TimelineItem>
+            <TimelineOppositeContent sx={{ flex: 0.1 }}>
+              <Typography variant="body2" color="text.secondary">
+                9:30 am
+              </Typography>
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineConnector />
+              <TimelineDot sx={{ background: uiGreen }} variant="outlined">
+                <HandymanIcon />
+              </TimelineDot>
+              <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
+            </TimelineSeparator>
+            <TimelineContent sx={{ py: "12px", px: 2 }}>
+              <Typography sx={{ color: "black" }} variant="h6" component="span">
+                Vendor Assigned
+              </Typography>
+              <Typography sx={{ color: "black" }}>
+                A vendor has been assigned to your work order
+              </Typography>
+            </TimelineContent>
+          </TimelineItem>
+          <TimelineItem>
+            <TimelineOppositeContent sx={{ flex: 0.1 }}>
+              <Typography variant="body2" color="text.secondary">
+                9:30 am
+              </Typography>
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
+              <TimelineDot sx={{ background: uiGreen }}>
+                <CachedIcon />
+              </TimelineDot>
+              <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent sx={{ py: "12px", px: 2 }}>
+              <Typography sx={{ color: "black" }} variant="h6" component="span">
+                Work Order In Progress
+              </Typography>
+              <Typography sx={{ color: "black" }}>
+                The vendor is working on your work order
+              </Typography>
+            </TimelineContent>
+          </TimelineItem>
+        </Timeline>
       ),
     },
     {

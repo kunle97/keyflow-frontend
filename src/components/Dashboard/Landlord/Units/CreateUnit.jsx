@@ -19,7 +19,7 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import useScreen from "../../../../hooks/useScreen";
 const CreateUnit = () => {
   //Create a state for the form data
-  const {isMobile} = useScreen()
+  const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
   const [unitCreateError, setUnitCreateError] = useState(false);
@@ -199,18 +199,25 @@ const CreateUnit = () => {
             <BackButton />
             <div className="card shadow my-3">
               <div className="card-body">
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form
+                  data-testid="create-unit-form"
+                  onSubmit={handleSubmit(onSubmit)}
+                >
                   <Stack
                     direction="row"
                     alignItems="center"
                     justifyContent="space-between"
                     sx={{ marginBottom: "20px" }}
                   >
-                    <h6 className="text-black fw-bold m-0 card-header-text">
+                    <h6
+                      data-testid="create-unit-title"
+                      className="text-black fw-bold m-0 card-header-text"
+                    >
                       Add Units
                     </h6>
                     <div>
                       <select
+                        data-testid="create-unit-property-select"
                         {...register("rental_property", {
                           required: "This is a required field",
                         })}
@@ -231,7 +238,9 @@ const CreateUnit = () => {
                             Current Property
                           </option>
                         ) : (
-                          <option value="">Select Property</option>
+                          <option value="" selected disabled>
+                            Select Property
+                          </option>
                         )}
 
                         {properties.map((property) => {
@@ -251,6 +260,7 @@ const CreateUnit = () => {
                     {units.map((unit, index) => {
                       return (
                         <UnitRow
+                          dataTestId={`unit-row-${index}`}
                           style={{ marginBottom: "20px" }}
                           key={index}
                           id={index}
@@ -265,6 +275,7 @@ const CreateUnit = () => {
                           removeBtn={
                             index !== 0 && (
                               <Button
+                                data-testid={`unit-row-${index}-delete-button`}
                                 sx={{
                                   color: uiRed,
                                   textTransform: "none",
@@ -281,7 +292,11 @@ const CreateUnit = () => {
                   </div>
 
                   <div className="text-end my-3">
-                    <button className="btn btn-primary ui-btn" type="submit">
+                    <button
+                      data-testid="create-unit-submit-button"
+                      className="btn btn-primary ui-btn"
+                      type="submit"
+                    >
                       Create Unit
                     </button>
                   </div>

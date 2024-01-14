@@ -7,11 +7,9 @@ import { stripePromise } from "./constants";
 
 function App() {
   return (
-    <GlobalSearchProvider>
       <Elements stripe={stripePromise}>
         <RouterProvider router={router} />
       </Elements>
-    </GlobalSearchProvider>
   );
 }
 

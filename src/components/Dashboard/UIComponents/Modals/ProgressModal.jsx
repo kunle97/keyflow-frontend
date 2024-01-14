@@ -16,18 +16,35 @@ const style = {
 const ProgressModal = (props) => {
   return (
     <Modal
+      data-testId={props.dataTestId ? props.dataTestId : "progress-modal"}
       open={props.open}
       onClose={props.handleClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h2">
+        <Typography
+          id="modal-modal-title"
+          variant="h6"
+          component="h2"
+          data-testId={
+            props.dataTestId
+              ? props.dataTestId + "-title"
+              : "progress-modal-title"
+          }
+        >
           {props.title}
         </Typography>
         <Box sx={{ display: "flex" }}>
           <Box m={"55px auto"}>
-            <CircularProgress sx={{ color: uiGreen }} />
+            <CircularProgress
+              sx={{ color: uiGreen }}
+              data-testId={
+                props.dataTestId
+                  ? props.dataTestId + "-progress"
+                  : "progress-modal-loading-icon"
+              }
+            />
           </Box>
         </Box>
       </Box>
