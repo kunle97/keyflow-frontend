@@ -23,6 +23,7 @@ import useScreen from "../../../../hooks/useScreen";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
+  const [unit, setUnit] = useState(null); 
   const [rentalApplication, setRentalApplication] = useState({});
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
@@ -48,6 +49,16 @@ const ViewRentalApplication = () => {
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
     console.log("Accepting Application...");
+    console.log("unt", unit)
+    //Check if unit has a template
+    if (!unit.template_id && !unit.signed_lease_document_file) {
+      setAlertModalTitle("An error occurred");
+      setAlertModalMessage(
+        "This unit does not have a lease agreement document or template document. Please upload a lease agreement template for this unit and try again."
+      );
+      setOpenAlertModal(true);
+      return false;
+    }
 
     try {
       // Approve and Archive this application
@@ -60,24 +71,15 @@ const ViewRentalApplication = () => {
 
         // Retrieve Rental Unit
         const rental_unit = await getUnit(approvalResponse.unit.id);
-        console.log("Rental Unit", rental_unit);
+       
 
-        // Retrieve Lease Term
-        const lease_template = rental_unit.lease_template;
-
-        // Retrieve Lease Agreement Data
-        const leaseTemplateResponse = await authenticatedInstance.get(
-          `${process.env.REACT_APP_API_HOSTNAME}/lease-templates/${lease_template}/`
-        );
-        console.log("Lease Term", leaseTemplateResponse);
-
-        if (leaseTemplateResponse.data.template_id) {
+        if (unit.template_id) {
           const doc_payload = {
-            template_id: leaseTemplateResponse.data.template_id,
+            template_id: unit.template_id,
             tenant_first_name: rentalApplication.first_name,
             tenant_last_name: rentalApplication.last_name,
             tenant_email: rentalApplication.email,
-            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${rental_unit.name}`,
+            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${unit.name}`,
             message: "Please sign the lease agreement",
           };
 
@@ -113,7 +115,6 @@ const ViewRentalApplication = () => {
                 rental_unit: rental_unit.id,
                 user: authUser.id,
                 approval_hash: approval_hash,
-                lease_template: lease_template,
                 document_id: sendDocResponse.documentId,
               };
 
@@ -203,6 +204,7 @@ const ViewRentalApplication = () => {
       //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
       if (res) {
         setRentalApplication(res);
+        setUnit(res.unit);
         //Check if res.employment_history is an oject if so parse it if string leave it
         if (isJsonString(res.employment_history)) {
           setEmploymentHistory(JSON.parse(res.employment_history));

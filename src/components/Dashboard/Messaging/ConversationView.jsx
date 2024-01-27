@@ -46,7 +46,7 @@ const ConversationView = (props) => {
     //             ))}
     //         </ul>
     //       </div>
-    //       <form onSubmit={handleSendMessage} className="mt-3">
+    //<form onSubmit={handleSendMessage} className="mt-3">
     //         <div className="input-group">
     //           <input
     //             type="text"

@@ -1,3 +1,5 @@
+import { authenticatedMediaInstance } from "../api/api";
+import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
 //Create a fucntion to surround a component with the DashboardContainer
@@ -216,4 +218,58 @@ export const isValidFileExtension = (file_name, acceptedFileTypes) => {
   const isValid = acceptedFileTypes.includes("." + file_extension);
   console.log("isValid extension", isValid);
   return isValid;
+};
+
+//Change LEase terms for a unit using a lease template
+export const handleChangeLeaseTemplate = (
+  leaseTemplates,
+  lease_template_id,
+  unit_lease_terms,
+  unit_id
+) => {
+  let changeResponse = false;
+  try {
+    // set Current Lease Term
+    let leaseTemplate = leaseTemplates.find(
+      (term) => term.id === lease_template_id
+    );
+
+    // Set the unit leaseTerms to match the lease template
+    const updatedUnitLeaseTerms = unit_lease_terms.map((leaseTerm) => {
+      const leaseTermName = leaseTerm.name;
+
+      // Check if the leaseTermName exists in both objects
+      if (leaseTermName in leaseTemplate) {
+        // Update the value from leaseTemplate
+        leaseTerm.value = leaseTemplate[leaseTermName];
+      }
+
+      return leaseTerm;
+    });
+
+    // Update the unit with the new lease term with the API
+    authenticatedMediaInstance
+      .patch(`/units/${unit_id}/`, {
+        lease_template: lease_template_id,
+        lease_terms: JSON.stringify(updatedUnitLeaseTerms),
+        template_id: leaseTemplate.template_id,
+        signed_lease_document_file: null,
+        signed_lease_document_metadata: null,
+        additional_charges: leaseTemplate.additional_charges,
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200) {
+          changeResponse = true;
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        changeResponse = false;
+      });
+  } catch (err) {
+    console.log("An error occured trying to change the lease template", err);
+    changeResponse = false;
+  }
+  return changeResponse;
 };
