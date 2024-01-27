@@ -17,6 +17,7 @@ import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
 import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
+import { get } from "react-hook-form";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -32,42 +33,68 @@ const SignLeaseAgreement = () => {
   const [errorTitle, setErrorTitle] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [unitLeaseTerms, setUnitLeaseTerms] = useState([]);
   const navigate = useNavigate();
+
+  const getUnitPreferenceValueByName = (name, unitLeaseTerms) => {
+    const preference = unitLeaseTerms.find((pref) => pref.name === name);
+    return preference ? preference.value : null; // Return null or handle the case where preference is not found
+  };
 
   //Create a function to sign the lease agreement which calls the API to update the lease agreement
   const handleSignLeaseAgreement = () => {
-    if (!leaseTemplate) {
-      // Handle the case when leaseTemplate is not available
-      setErrorTitle("Error");
-      setErrorMessage(
-        "Lease term information is not available. Please try again."
+    let date = new Date();
+    let end_date;
+    if (
+      getUnitPreferenceValueByName("rent_frequency", unitLeaseTerms) === "month"
+    ) {
+      end_date = date.setMonth(
+        date.getMonth() +
+          parseInt(getUnitPreferenceValueByName("term", unitLeaseTerms))
       );
-      setShowErrorMessage(true);
-      return;
-    } else {
-      let date = new Date();
-      let end_date = date.setMonth(date.getMonth() + leaseTemplate.term);
-      const data = {
-        lease_agreement_id: leaseAgreement.id,
-        approval_hash: approval_hash,
-        unit_id: leaseAgreement.rental_unit.id,
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date(end_date).toISOString().split("T")[0],
-        signed_date: new Date().toISOString().split("T")[0],
-      };
-
-      signLeaseAgreement(data).then((res) => {
-        if (res.status === 200) {
-          //On update success redirect to tenant registration page with approval_hash
-          setShowSignResponse(true);
-          setShowSignConfirmation(false);
-          setSignResponseMessage(
-            "Lease Agreement Signed Successfully. Click the button below to create your account."
-          );
-          setSigningLink(null);
-        }
-      });
+    } else if (
+      getUnitPreferenceValueByName("rent_frequency", unitLeaseTerms) === "year"
+    ) {
+      end_date = date.setFullYear(
+        date.getFullYear() +
+          parseInt(getUnitPreferenceValueByName("term", unitLeaseTerms))
+      );
+    } else if (
+      getUnitPreferenceValueByName("rent_frequency", unitLeaseTerms) === "week"
+    ) {
+      end_date = date.setDate(
+        date.getDate() +
+          parseInt(getUnitPreferenceValueByName("term", unitLeaseTerms)) * 7
+      );
+    } else if (
+      getUnitPreferenceValueByName("rent_frequency", unitLeaseTerms) === "day"
+    ) {
+      end_date = date.setDate(
+        date.getDate() +
+          parseInt(getUnitPreferenceValueByName("term", unitLeaseTerms))
+      );
     }
+
+    const data = {
+      lease_agreement_id: leaseAgreement.id,
+      approval_hash: approval_hash,
+      unit_id: leaseAgreement.rental_unit.id,
+      start_date: new Date().toISOString().split("T")[0],
+      end_date: new Date(end_date).toISOString().split("T")[0],
+      signed_date: new Date().toISOString().split("T")[0],
+    };
+
+    signLeaseAgreement(data).then((res) => {
+      if (res.status === 200) {
+        //On update success redirect to tenant registration page with approval_hash
+        setShowSignResponse(true);
+        setShowSignConfirmation(false);
+        setSignResponseMessage(
+          "Lease Agreement Signed Successfully. Click the button below to create your account."
+        );
+        setSigningLink(null);
+      }
+    });
   };
 
   //TODO: implement solutions for remaining onDocumentSigningUpdate cases
@@ -132,7 +159,7 @@ const SignLeaseAgreement = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (!leaseTemplate && !leaseAgreement) {
+    if (!leaseAgreement) {
       try {
         // Get Lease Agreement from API
         getLeaseAgreementByIdAndApprovalHash({
@@ -141,7 +168,8 @@ const SignLeaseAgreement = () => {
         }).then((res) => {
           if (res.id) {
             setLeaseAgreement(res);
-            setLeaseTemplate(res.lease_template);
+            setUnitLeaseTerms(JSON.parse(res.rental_unit.lease_terms));
+            console.log(JSON.parse(res.rental_unit.lease_terms));
             let redirectLink =
               process.env.REACT_APP_HOSTNAME +
               "/dashboard/tenant/register" +
@@ -154,7 +182,9 @@ const SignLeaseAgreement = () => {
             setRedirectLink(redirectLink);
             let payload = {
               document_id: res.document_id,
-              tenant_email: res.rental_application.email,
+              tenant_email: res.tenant_invite
+                ? res.tenant_invite.email
+                : res.rental_application.email,
               tenant_register_redirect_url: redirectLink,
               link_validity: "12/31/2030",
             };
@@ -197,7 +227,7 @@ const SignLeaseAgreement = () => {
     return () => {
       window.removeEventListener("message", handleDocumentSigningUpdate);
     };
-  }, [leaseTemplate, leaseAgreement]);
+  }, [leaseAgreement]);
   return (
     <div className="container" style={{ paddingTop: "105px" }}>
       <LandingPageNavbar isDarkNav={true} />
@@ -247,72 +277,117 @@ const SignLeaseAgreement = () => {
                         <h6 className="card-title text-black">
                           Lease Agreement Overview
                         </h6>
-                        {leaseTemplate && (
-                          <div className="row">
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Rent
-                              </h6>
-                              ${leaseTemplate.rent}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Term
-                              </h6>
-                              {leaseTemplate.term} Months
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Late Fee
-                              </h6>
-                              {`$${leaseTemplate.late_fee}`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Security Deposit
-                              </h6>
-                              {`$${leaseTemplate.security_deposit}`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Gas Included?
-                              </h6>
-                              {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Electric Included?
-                              </h6>
-                              {`${
-                                leaseTemplate.electric_included ? "Yes" : "No"
-                              }`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Water Included?
-                              </h6>
-                              {`${leaseTemplate.water_included ? "Yes" : "No"}`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Lease Cancellation Fee
-                              </h6>
-                              {`$${leaseTemplate.lease_cancellation_fee}`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Lease Cancellation Notice period
-                              </h6>
-                              {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
-                            </div>
-                            <div className="col-sm-6 col-md-6 mb-4 text-black">
-                              <h6 className="rental-application-lease-heading">
-                                Grace period
-                              </h6>
-                              {`${leaseTemplate.grace_period} Month(s)`}
-                            </div>
+                        <div className="row">
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Rent
+                            </h6>
+                            $
+                            {getUnitPreferenceValueByName(
+                              "rent",
+                              unitLeaseTerms
+                            )}
                           </div>
-                        )}
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Term
+                            </h6>
+                            {getUnitPreferenceValueByName(
+                              "term",
+                              unitLeaseTerms
+                            )}{" "}
+                            {getUnitPreferenceValueByName(
+                              "rent_frequency",
+                              unitLeaseTerms
+                            )}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Late Fee
+                            </h6>
+                            $
+                            {getUnitPreferenceValueByName(
+                              "late_fee",
+                              unitLeaseTerms
+                            )}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Security Deposit
+                            </h6>
+                            $
+                            {getUnitPreferenceValueByName(
+                              "security_deposit",
+                              unitLeaseTerms
+                            )}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Gas Included?
+                            </h6>
+                            {`${
+                              getUnitPreferenceValueByName(
+                                "gas_included",
+                                unitLeaseTerms
+                              )
+                                ? "Yes"
+                                : "No"
+                            }`}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Electric Included?
+                            </h6>
+                            {`${
+                              getUnitPreferenceValueByName(
+                                "electric_included",
+                                unitLeaseTerms
+                              )
+                                ? "Yes"
+                                : "No"
+                            }`}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Water Included?
+                            </h6>
+                            {`${
+                              getUnitPreferenceValueByName(
+                                "water_included",
+                                unitLeaseTerms
+                              )
+                                ? "Yes"
+                                : "No"
+                            }`}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Lease Cancellation Fee
+                            </h6>
+                            {`$${getUnitPreferenceValueByName(
+                              "lease_cancellation_fee",
+                              unitLeaseTerms
+                            )}`}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Lease Cancellation Notice period
+                            </h6>
+                            {`${getUnitPreferenceValueByName(
+                              "lease_cancellation_notice_period",
+                              unitLeaseTerms
+                            )} Month(s)`}
+                          </div>
+                          <div className="col-sm-6 col-md-6 mb-4 text-black">
+                            <h6 className="rental-application-lease-heading">
+                              Grace period
+                            </h6>
+                            {`${getUnitPreferenceValueByName(
+                              "grace_period",
+                              unitLeaseTerms
+                            )} Month(s)`}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="mt-4">

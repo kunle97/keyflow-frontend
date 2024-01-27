@@ -163,6 +163,7 @@ const TenantDashboard = () => {
 
     //Retrieve the unit
     getTenantDashboardData().then((res) => {
+      console.log("Tenant Dashboard Data", res);
       setTenantData(res);
       setUnit(res.unit);
       setLeaseAgreement(res.lease_agreement);
@@ -279,7 +280,7 @@ const TenantDashboard = () => {
                         <ReportIcon sx={{ color: "red" }} />
                       )}{" "}
                       <span>
-                        ${parseFloat(currentBalance) + parseFloat(lateFees)}
+                        ${currentBalance + lateFees}
                       </span>{" "}
                       due in {dateDiffForHumans(new Date(nextPaymentDate))}
                     </Typography>

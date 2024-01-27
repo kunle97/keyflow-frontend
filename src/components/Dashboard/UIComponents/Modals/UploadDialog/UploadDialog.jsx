@@ -6,8 +6,6 @@ import UIButton from "../../UIButton";
 import { useState } from "react";
 import {
   uploadFile,
-  deleteFile,
-  retrieveFilesBySubfolder,
 } from "../../../../../api/file_uploads";
 import AlertModal from "../AlertModal";
 import ProgressModal from "../ProgressModal";
@@ -113,6 +111,7 @@ const UploadDialog = (props) => {
         }
       });
     });
+    
     props.onClose();
     setShowFileUploadAlert(true);
   };

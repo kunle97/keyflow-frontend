@@ -12,7 +12,7 @@ const UIRadioGroup = (props) => {
   return (
     <div>
       {" "}
-      <FormControl>
+      <FormControl sx={props.style}>
         <FormLabel
           id="demo-controlled-radio-buttons-group"
           sx={{ ...props.labelStyle }}

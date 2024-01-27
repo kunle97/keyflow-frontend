@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import { makeId } from "../../../helpers/utils";
 import { send } from "@emailjs/browser";
+import { getLeaseAgreementByIdAndApprovalHash } from "../../../api/lease_agreements";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -175,37 +176,73 @@ const TenantRegister = () => {
         //TODO: Show error message modal to make the tenant contact thier landlord
       }
     });
-    //TODO: Populate the form with rental application data
-    //Retrieve users rental application data using the approval_hash
-    getRentalApplicationByApprovalHash(approval_hash).then((res) => {
-      console.log(res);
-      if (res.id) {
-        //Populate the form with the rental application data
-        const first_name = res.first_name;
-        const last_name = res.last_name;
-        const preloadedData = {
-          first_name: res.first_name,
-          last_name: res.last_name,
-          email: res.email,
-          account_type: "tenant",
-          //Mock Data bleow
-          username:
-            process.env.REACT_APP_ENVIRONMENT !== "development"
-              ? ""
-              : faker.internet.userName({ first_name, last_name }),
-          password:
-            process.env.REACT_APP_ENVIRONMENT !== "development"
-              ? ""
-              : "Password1",
-          password_repeat:
-            process.env.REACT_APP_ENVIRONMENT !== "development"
-              ? ""
-              : "Password1",
-        };
-        // Set the preloaded data in the form using setValue
-        Object.keys(preloadedData).forEach((key) => {
-          setValue(key, preloadedData[key]);
-        });
+    //TODO: Populate the form with rental application or tenant invite data
+    getLeaseAgreementByIdAndApprovalHash({
+      lease_agreement_id,
+      approval_hash,
+    }).then((res) => {
+      if(res.id){
+        if(res.rental_application){
+          //Retrieve users rental application data using the approval_hash
+          getRentalApplicationByApprovalHash(approval_hash).then((res) => {
+            console.log(res);
+            if (res.id) {
+              //Populate the form with the rental application data
+              const first_name = res.first_name;
+              const last_name = res.last_name;
+              const preloadedData = {
+                first_name: res.first_name,
+                last_name: res.last_name,
+                email: res.email,
+                account_type: "tenant",
+                //Mock Data bleow
+                username:
+                  process.env.REACT_APP_ENVIRONMENT !== "development"
+                    ? ""
+                    : faker.internet.userName({ first_name, last_name }),
+                password:
+                  process.env.REACT_APP_ENVIRONMENT !== "development"
+                    ? ""
+                    : "Password1",
+                password_repeat:
+                  process.env.REACT_APP_ENVIRONMENT !== "development"
+                    ? ""
+                    : "Password1",
+              };
+              // Set the preloaded data in the form using setValue
+              Object.keys(preloadedData).forEach((key) => {
+                setValue(key, preloadedData[key]);
+              });
+            }
+          });
+        }else if(res.tenant_invite){
+          //Populate the form with the tenant invite data
+          const first_name = res.tenant_invite.first_name;
+          const last_name = res.tenant_invite.last_name;
+          const preloadedData = {
+            first_name: res.tenant_invite.first_name,
+            last_name: res.tenant_invite.last_name,
+            email: res.tenant_invite.email,
+            account_type: "tenant",
+            //Mock Data bleow
+            username:
+              process.env.REACT_APP_ENVIRONMENT !== "development"
+                ? ""
+                : faker.internet.userName({ first_name, last_name }),
+            password:
+              process.env.REACT_APP_ENVIRONMENT !== "development"
+                ? ""
+                : "Password1",
+            password_repeat:
+              process.env.REACT_APP_ENVIRONMENT !== "development"
+                ? ""
+                : "Password1",
+          };
+          // Set the preloaded data in the form using setValue
+          Object.keys(preloadedData).forEach((key) => {
+            setValue(key, preloadedData[key]);
+          });
+        }
       }
     });
   }, []);

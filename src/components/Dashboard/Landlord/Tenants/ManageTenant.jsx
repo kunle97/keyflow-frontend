@@ -165,7 +165,7 @@ const ManageTenant = () => {
           getProperty(unit_res.data.rental_property).then((property_res) => {
             setProperty(property_res.data);
           });
-          getLeaseAgreementsByTenant(tenant_res.data.user.id).then((res) => {
+          getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
             setLease(res.data[0]);
           });
           getTransactionsByTenant(tenant_res.data.id).then((res) => {

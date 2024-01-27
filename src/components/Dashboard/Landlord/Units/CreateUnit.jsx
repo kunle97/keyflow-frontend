@@ -17,6 +17,7 @@ import { Button, Stack } from "@mui/material";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import useScreen from "../../../../hooks/useScreen";
+import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 const CreateUnit = () => {
   //Create a state for the form data
   const { isMobile } = useScreen();
@@ -31,6 +32,7 @@ const CreateUnit = () => {
     items: { data: [{ plan: { product: "" } }] },
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [progressModalTitle, setProgressModalTitle] = useState("");
   const navigate = useNavigate();
 
   const [units, setUnits] = useState([
@@ -134,16 +136,19 @@ const CreateUnit = () => {
 
   //Call the create unit api function and pass the form data
   const onSubmit = async (data) => {
+    setIsLoading(true);
+    setProgressModalTitle("Creating Unit...");
     let payload = {};
     payload.units = JSON.stringify(units);
     payload.rental_property = selectedPropertyId;
     payload.subscription_id = currentSubscriptionPlan.id;
     payload.product_id = currentSubscriptionPlan.plan.product;
     payload.user = authUser.id;
+    payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
+
     console.log("Data ", data);
     console.log("Pay load ", payload);
     console.log("UNits ", units);
-    setIsLoading(true);
 
     const res = await createUnit(payload);
     console.log(res);
@@ -165,11 +170,15 @@ const CreateUnit = () => {
     console.log(e.target.value);
   };
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.id, token).then(
-      (res) => {
+    setIsLoading(true);
+    setProgressModalTitle("Retrieving Subscription Data...");
+    const res = await getUserStripeSubscriptions(authUser.id, token)
+      .then((res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
-      }
-    );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
     return res;
   };
 
@@ -183,7 +192,7 @@ const CreateUnit = () => {
 
   return (
     <>
-      <ProgressModal open={isLoading} title="Adding units..." />
+      <ProgressModal open={isLoading} title={progressModalTitle} />
       <AlertModal
         open={unitCreateError}
         onClick={() => {

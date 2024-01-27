@@ -3,7 +3,7 @@ import React from "react";
 
 const UIPrompt = (props) => {
   return (
-    <div className={`${props.hideBoxShadow ? "" : "card"}`}>
+    <div style={props.style} className={`${props.hideBoxShadow ? "" : "card"}`}>
       <Stack
         direction={"column"}
         alignContent={"center"}
