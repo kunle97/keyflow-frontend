@@ -1,4 +1,4 @@
-import { authenticatedInstance, unauthenticatedInstance } from "./api";
+import { authenticatedInstance, authenticatedMediaInstance, unauthenticatedInstance } from "./api";
 import { authUser } from "../constants";
 ///-----------------UNIT API FUNCTIONS---------------------------///
 //create a function to create a unit
@@ -105,11 +105,11 @@ export async function updateUnit(unitId, data) {
       .patch(`/units/${unitId}/`, data)
       .then((res) => {
         if (res.status == 200) {
-          return { data: res.data };
+          return res;
         }
         return { data: [] };
       });
-    return res.data;
+    return res;
   } catch (error) {
     console.log("Update Unit Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };

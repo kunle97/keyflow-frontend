@@ -154,6 +154,16 @@ export const routes = [
     ),
   },
   {
+    path: "/dashboard/tenant/register/:tenant_invite_id/:unit_id/:approval_hash/",
+    element: (
+      <LoggedInRedirect token={token}>
+        <Elements stripe={stripePromise}>
+          <TenantRegister />
+        </Elements>
+      </LoggedInRedirect>
+    ),
+  },
+  {
     path: "/dashboard/activate-account/",
     element: <ActivateAccountMessage />,
   },

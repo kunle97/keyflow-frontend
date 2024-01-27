@@ -545,9 +545,9 @@ const Dashboard = () => {
         );
       });
       authenticatedInstance
-        .get("/lease-agreements/?ordering=end_date")
+        .get("/lease-agreements/?ordering=end_date&limit=10")
         .then((res) => {
-          setLeaseAgreements(res.data);
+          setLeaseAgreements(res.data.results);
         });
       getAllOwnerMaintenanceRequests().then((res) => {
         setMaintenanceRequests(res.data.results);

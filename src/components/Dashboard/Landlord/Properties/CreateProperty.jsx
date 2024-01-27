@@ -19,6 +19,7 @@ import UnitRow from "./UnitRow";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
+import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 const CreateProperty = () => {
   const navigate = useNavigate();
   const [unitCreateError, setUnitCreateError] = useState(false);
@@ -149,6 +150,7 @@ const CreateProperty = () => {
       payload.subscription_id = currentSubscriptionPlan.id;
       payload.product_id = currentSubscriptionPlan.plan.product;
       payload.user = authUser.id;
+      payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms)
 
       const res = await createUnit(payload);
       console.log(res);

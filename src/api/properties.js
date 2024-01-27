@@ -1,4 +1,4 @@
-import { authenticatedInstance, unauthenticatedInstance } from "./api";
+import { authenticatedInstance, authenticatedMediaInstance, unauthenticatedInstance } from "./api";
 import { authUser } from "../constants";
 
 // create an api function to create a property
@@ -11,7 +11,7 @@ export async function createProperty(
   country
 ) {
   try {
-    const res = await authenticatedInstance
+    const res = await authenticatedMediaInstance
       .post(`/properties/`, {
         name,
         user: authUser.id,

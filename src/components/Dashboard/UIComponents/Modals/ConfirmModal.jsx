@@ -22,17 +22,17 @@ const useStyles = makeStyles(() => ({
     backgroundColor: "white",
     borderRadius: "10px",
     boxShadow: "0px 4px 24px rgba(0, 0, 0, 0.15)",
-    padding: "16px", 
+    padding: "16px",
     zIndex: 1000,
   },
   confirmBtn: {
-    marginTop: "16px", 
+    marginTop: "16px",
     backgroundColor: uiGreen,
-    marginRight: "16px", 
+    marginRight: "16px",
     textTransform: "none",
   },
   cancelBtn: {
-    marginTop: "16px", 
+    marginTop: "16px",
     backgroundColor: "red",
     textTransform: "none",
   },
@@ -67,19 +67,18 @@ const ConfirmModal = (props) => {
           <Typography
             id="modal-modal-description"
             data-testid="confirm-modal-message"
-            sx={{ mt: "16px" }} 
+            sx={{ mt: "16px" }}
           >
             {props.message}
           </Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ mt: "16px" }} 
-          >
+          <Stack direction="row" spacing={2} sx={{ mt: "16px" }}>
             <Button
               data-testid="confirm-modal-cancel-button"
               onClick={props.handleCancel}
               className={classes.cancelBtn}
+              style={{
+                ...props.cancelBtnStyle,
+              }}
               variant="contained"
             >
               {props.cancelBtnText}
@@ -88,6 +87,9 @@ const ConfirmModal = (props) => {
               data-testid="confirm-modal-confirm-button"
               onClick={props.handleConfirm}
               className={classes.confirmBtn}
+              style={{
+                ...props.confirmBtnStyle,
+              }}
               variant="contained"
             >
               {props.confirmBtnText}

@@ -46,3 +46,18 @@ export async function verifyTenantRegistrationCredentials(data) {
     return error.response;
   }
 }
+export async function verifyTenantInviteRegistrationCredentials(data) {
+  try {
+    const res = await unauthenticatedInstance
+      .post(`/auth/tenant/invite/register/verify/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Sign Lease Agreement Error: ", error);
+    return error.response;
+  }
+}
+
