@@ -131,14 +131,6 @@ const LandlordTransactions = () => {
   ]);
   return (
     <div className="container-fluid">
-      <UITabs
-        tabs={tabs}
-        value={tabPage}
-        handleChange={handleChangeTabPage}
-        variant="scrollable"
-        scrollButtons="auto"
-        style={{ marginBottom: "1rem" }}
-      />
       {tabPage === 0 && (
         // <UITable
         //   columns={columns}
@@ -149,6 +141,7 @@ const LandlordTransactions = () => {
         //   showCreate={false}
         // />
         <UITableMobile
+          showCreate={true}
           tableTitle="Transactions"
           endpoint="/transactions/"
           createInfo={(row) =>

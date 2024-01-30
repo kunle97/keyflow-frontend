@@ -9,7 +9,7 @@ import {
   uiGrey2,
   validationMessageStyle,
 } from "../../../constants";
-import { Input, Button } from "@mui/material";
+import { Input, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useForm } from "react-hook-form";
@@ -97,30 +97,86 @@ const LandlordLogin = () => {
         onClick={() => setErrMsg(null)}
         btnText="Close"
       />
-      <div className="row">
-        <div
-          className="col-md-8 banner-col  d-none d-md-block"
-          style={{
-            background: "url('/assets/img/login-page-banner.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            height: "100vh",
-          }}
-        ></div>
-        <div className="col-md-4 col-sm-12 login-col " style={{}}>
-          <div className="row">
-            <div className=" ">
-              <img
-                data-testid="keyflow-black-logo"
-                style={{ width: "60%", marginBottom: "25px" }}
-                src="/assets/img/key-flow-logo-black-transparent.png"
-              />
-              <form className="user" onSubmit={handleSubmit(onSubmit)}>
-                {process.env.REACT_APP_ENVIRONMENT === "development" ? (
-                  <div>
-                    {emailLoginMode ? (
-                      <select
-                        data-testid="email-select"
+      <div
+        className="row"
+        style={{
+          background: "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%), url('/assets/img/house6.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          // height: "100vh",
+        }}
+      >
+        <div className="  col-md-3 offset-md-5">
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+            sx={{ height: "100vh", px: 2, width: "100%" }}
+          >
+            <div
+              className="card py-3"
+              style={{
+                width: "100%",
+              }}
+            >
+              <div className="card-body">
+                <img
+                  data-testid="keyflow-black-logo"
+                  style={{ maxWidth: "175px", marginBottom: "25px" }}
+                  src="/assets/img/key-flow-logo-black-transparent.png"
+                />
+                <form className="user" onSubmit={handleSubmit(onSubmit)}>
+                  {process.env.REACT_APP_ENVIRONMENT === "development" ? (
+                    <div>
+                      {emailLoginMode ? (
+                        <select
+                          data-testid="email-select"
+                          {...register("email", {
+                            required: "This is a required field",
+                            pattern: {
+                              value: /\S+@\S+\.\S+/,
+                              message: "Please enter a valid email address",
+                            },
+                          })}
+                          className="form-control card"
+                          style={{
+                            color: "white !important",
+                            marginBottom: "25px",
+                            padding: "15px",
+                            borderRadius: "10px",
+                            background: "white",
+                          }}
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        >
+                          {landlordsEmails.map((email) => (
+                            <option value={email}>{email}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <select
+                          {...register("username", {
+                            required: "This is a required field",
+                          })}
+                          className="form-control card"
+                          style={{
+                            background: uiGrey2,
+                            color: "white !important",
+                            marginBottom: "25px",
+                          }}
+                          name="username"
+                        >
+                          {landlordUsernames.map((username) => (
+                            <option value={username}>{username}</option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <input
+                        input
                         {...register("email", {
                           required: "This is a required field",
                           pattern: {
@@ -128,158 +184,116 @@ const LandlordLogin = () => {
                             message: "Please enter a valid email address",
                           },
                         })}
-                        className="form-control card"
+                        className="form-control form-control-user"
+                        type="email"
+                        id="exampleInputEmail"
+                        aria-describedby="emailHelp"
+                        placeholder="Enter Email Address..."
+                        name="email"
+                        value={email}
                         style={{
-                          color: "white !important",
-                          marginBottom: "25px",
+                          ...defaultWhiteInputStyle,
                           padding: "15px",
                           borderRadius: "10px",
                           background: "white",
                         }}
-                        value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                      >
-                        {landlordsEmails.map((email) => (
-                          <option value={email}>{email}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <select
-                        {...register("username", {
-                          required: "This is a required field",
-                        })}
-                        className="form-control card"
-                        style={{
-                          background: uiGrey2,
-                          color: "white !important",
-                          marginBottom: "25px",
-                        }}
-                        name="username"
-                      >
-                        {landlordUsernames.map((username) => (
-                          <option value={username}>{username}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
-                ) : (
+                      />
+                      <span style={validationMessageStyle}>
+                        {errors.email && errors.email.message}
+                      </span>
+                    </div>
+                  )}
                   <div className="mb-3">
                     <input
-                      input
-                      {...register("email", {
+                      {...register("password", {
                         required: "This is a required field",
-                        pattern: {
-                          value: /\S+@\S+\.\S+/,
-                          message: "Please enter a valid email address",
-                        },
                       })}
-                      className="form-control form-control-user"
-                      type="email"
-                      id="exampleInputEmail"
-                      aria-describedby="emailHelp"
-                      placeholder="Enter Email Address..."
-                      name="email"
-                      value={email}
+                      data-testid="password-input"
+                      className="form-control-user"
+                      sx={{ borderColor: uiGreen }}
+                      type="password"
+                      id="exampleInputPassword"
+                      placeholder="Password"
                       style={{
                         ...defaultWhiteInputStyle,
+                        border: "none",
                         padding: "15px",
                         borderRadius: "10px",
-                        background: "white",
+                        background: "#f4f7f8",
                       }}
-                      onChange={(e) => setEmail(e.target.value)}
                     />
                     <span style={validationMessageStyle}>
-                      {errors.email && errors.email.message}
+                      {errors.password && errors.password.message}
                     </span>
                   </div>
-                )}
-                <div className="mb-3">
-                  <input
-                    {...register("password", {
-                      required: "This is a required field",
-                    })}
-                    data-testid="password-input"
-                    className="form-control-user"
-                    sx={{ borderColor: uiGreen }}
-                    type="password"
-                    id="exampleInputPassword"
-                    placeholder="Password"
-                    style={{
-                      ...defaultWhiteInputStyle,
-                      border: "none",
-                      padding: "15px",
-                      borderRadius: "10px",
-                    }}
-                  />
-                  <span style={validationMessageStyle}>
-                    {errors.password && errors.password.message}
-                  </span>
-                </div>
-                <div className="mb-3">
-                  <div className="custom-control custom-checkbox small">
-                    <div className="form-check">
-                      <input
-                        className="form-check-input custom-control-input"
-                        type="checkbox"
-                        id="formCheck-1"
-                      />
-                      <label
-                        className="form-check-label custom-control-label text-black"
-                        htmlFor="formCheck-1"
-                      >
-                        Remember Me
-                      </label>
+                  <div className="mb-3">
+                    <div className="custom-control custom-checkbox small">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input custom-control-input"
+                          type="checkbox"
+                          id="formCheck-1"
+                        />
+                        <label
+                          className="form-check-label custom-control-label text-black"
+                          htmlFor="formCheck-1"
+                        >
+                          Remember Me
+                        </label>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <Button
-                  data-testid="login-button"
-                  className="d-block w-100 ui-btN"
-                  type="submit"
-                  style={{
-                    backgroundColor: uiGreen,
-                    textTransform: "none",
-                    padding: "10px",
-                    fontSize: "12pt",
-                    fontWeight: "lighter",
-                    margin: "25px 0",
-                  }}
-                  variant="contained"
-                >
-                  Login
-                </Button>
-              </form>
-              <div className="mb-2">
-                <Link
-                  className="small"
-                  to="/dashboard/forgot-password/"
-                  style={{ color: uiGreen }}
-                >
-                  Forgot Password?
-                </Link>
-              </div>
-              <div className="mb-2">
-                <Link
-                  className="small"
-                  to="/dashboard/landlord/register"
-                  style={{ color: uiGreen }}
-                >
-                  Create an Account!
-                </Link>
-              </div>
-              <div className="mb-2">
-                <Link
-                  className="small"
-                  to="/dashboard/tenant/login"
-                  style={{ color: uiGreen }}
-                >
-                  Tenant Login
-                </Link>
+                  <Button
+                    data-testid="login-button"
+                    className="d-block w-100 ui-btN"
+                    type="submit"
+                    style={{
+                      backgroundColor: uiGreen,
+                      textTransform: "none",
+                      padding: "10px",
+                      fontSize: "12pt",
+                      fontWeight: "lighter",
+                      margin: "25px 0",
+                    }}
+                    variant="contained"
+                  >
+                    Login
+                  </Button>
+                </form>
+                <div className="mb-2">
+                  <Link
+                    className="small"
+                    to="/dashboard/forgot-password/"
+                    style={{ color: uiGreen }}
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
+                <div className="mb-2">
+                  <Link
+                    className="small"
+                    to="/dashboard/landlord/register"
+                    style={{ color: uiGreen }}
+                  >
+                    Create an Account!
+                  </Link>
+                </div>
+                <div className="mb-2">
+                  <Link
+                    className="small"
+                    to="/dashboard/tenant/login"
+                    style={{ color: uiGreen }}
+                  >
+                    Resident Login
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          </Stack>
         </div>
+        {/* <div className="col-md-4 col-sm-12" style={{ padding: "0 15px" }}></div> */}
       </div>
     </div>
   );
