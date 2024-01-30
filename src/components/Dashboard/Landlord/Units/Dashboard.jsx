@@ -676,7 +676,7 @@ const Dashboard = () => {
           <UIPieChartCard
             dataTestId="dashboard-pie-chart-card"
             isLoading={isLoading}
-            info={"Unit Vacancies"}
+            info={"Vacancies"}
             title={"Occupied vs Vacant Units"}
             height={isMobile ? "256px" : "456px"}
             legendPosition={isMobile ? "bottom" : "right"}

@@ -220,9 +220,9 @@ const CreateUnit = () => {
                   >
                     <h6
                       data-testid="create-unit-title"
-                      className="text-black fw-bold m-0 card-header-text"
+                      className="text-black fw-bold m-0 "
                     >
-                      Add Units
+                      Add Unit(s)
                     </h6>
                     <div>
                       <select
@@ -233,7 +233,10 @@ const CreateUnit = () => {
                         name="rental_property"
                         onChange={handlePropertySelectChange}
                         className="form-control"
-                        style={{ width: isMobile ? "inherit" : "250px" }}
+                        style={{
+                          width: isMobile ? "inherit" : "250px",
+                          visibility: property_id ? "hidden" : "visible",
+                        }}
                       >
                         {selectedPropertyId ? (
                           <option value={selectedPropertyId}>
