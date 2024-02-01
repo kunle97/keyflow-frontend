@@ -13,12 +13,13 @@ const UIRadioGroup = (props) => {
     <div>
       {" "}
       <FormControl sx={props.style}>
-        <FormLabel
+        <label
           id="demo-controlled-radio-buttons-group"
-          sx={{ ...props.labelStyle }}
+          style={{ ...props.labelStyle }}
+          className="text-black"
         >
           {props.formLabel}
-        </FormLabel>
+        </label>
         <RadioGroup
           sx={{
             "& .MuiFormControlLabel-label": {
@@ -28,7 +29,7 @@ const UIRadioGroup = (props) => {
               color: "black", // Set radio button color to white
             },
             "& .Mui-checked": {
-              color: uiGreen, // Set checked radio button color
+              color: `${uiGreen} !important`, // Set checked radio button color
             },
             "& .MuiRadio-root.Mui-checked:hover": {
               backgroundColor: "transparent", // Set checked radio hover background color
@@ -38,7 +39,7 @@ const UIRadioGroup = (props) => {
             ...props.radioGroupStyles,
           }} // radioGroupStyle is an object
           aria-labelledby="demo-controlled-radio-buttons-group"
-          name="controlled-radio-buttons-group"
+          name={props.name}
           value={props.value}
           onChange={props.onChange}
         >
