@@ -77,6 +77,9 @@ import { ContactPage } from "./components/Landing/ContactPage";
 import PricingPage from "./components/Landing/PricingPage";
 import FeaturesPage from "./components/Landing/FeaturesPage";
 import BlogPage from "./components/Landing/BlogPage";
+import BillingEntries from "./components/Dashboard/Landlord/BillingEntry/BillingEntries";
+import ManageBillingEntry from "./components/Dashboard/Landlord/BillingEntry/ManageBillingEntry";
+import CreateBillingEntry from "./components/Dashboard/Landlord/BillingEntry/CreateBillingEntry";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -653,6 +656,45 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
     isSearchable: false,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <BillingEntries />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Billing Entries",
+    description: "Manage your billing entries",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Billing Entry",
+    description: "Create a new billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Billing Entry",
+    description: "Manage your billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
   },
 ];
 

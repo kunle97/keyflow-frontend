@@ -203,6 +203,13 @@ export const landlordMenuItems = [
         dataTestId: "landlord-transactions-menu-item",
       },
       {
+        label:"Billing Entries",
+        link: "/dashboard/landlord/billing-entries",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "landlord-billing-entries-menu-item",
+      },
+      {
         label: "Accounting", //TODO: page for accounting: taxes, etc
         link: "/dashboard/maintenance-requests/",
         icon: "fas fa-tools",

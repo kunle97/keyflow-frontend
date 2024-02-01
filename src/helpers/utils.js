@@ -273,3 +273,17 @@ export const handleChangeLeaseTemplate = (
   }
   return changeResponse;
 };
+//Create a function that takes in an object of strings and a regex patern and returs if each string in the object matches the regex pattern
+export const regexCheck = (strings, patterns) => {
+  let matches = true;
+  let i = 0
+  let errors = []
+  for (let key in strings) {
+    if (!patterns[i].test(strings[key])) {
+      matches = false;
+      errors.push(key)
+    }
+    i++;
+  }
+  return { matches, errors};
+};
