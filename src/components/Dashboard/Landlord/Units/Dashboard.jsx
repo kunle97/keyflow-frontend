@@ -380,9 +380,9 @@ const Dashboard = () => {
     numberOfPropertiesToShow = 5
   ) => {
     const groupedProperties = {};
-
+    console.log("transactions", transactions);
     transactions.forEach((transaction) => {
-      const propName = transaction.rental_property.name;
+      const propName = transaction.rental_property?.name;
       const propAmount = parseFloat(transaction.amount);
 
       if (!groupedProperties[propName]) {
@@ -508,8 +508,7 @@ const Dashboard = () => {
       setTransactionDataValues(dataValues);
 
       setGroupedPropertiesByTransactions(
-        groupPropertiesByTransactions(res.data),
-        3
+        groupPropertiesByTransactions(res.data)
       );
     } catch (error) {
       // Handle any errors here
@@ -522,6 +521,7 @@ const Dashboard = () => {
     //retrieve transactions from api
     try {
       fetchTransactionData();
+      console.log(groupedPropertiesByTransactions);
       getLandlordUnits().then((res) => {
         setUnits(res.data);
         setOccupiedUnits(

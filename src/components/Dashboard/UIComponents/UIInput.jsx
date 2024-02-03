@@ -10,6 +10,9 @@ const UIInput = (props) => {
   //   boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
   //   display: "block",
   // };
+  const disabledStyle = {
+    color: "green",
+  };
   return (
     <div>
       <div className="form-group">
@@ -21,13 +24,17 @@ const UIInput = (props) => {
         </label>
         <input
           className="form-control"
-          style={{  ...props.inputStyle }}
+          style={{
+            ...props.inputStyle,
+            ...(props.disabled ? disabledStyle : {}),
+          }}
           type={props.type ? props.type : "text"}
           placeholder={props.placeholder ? props.placeholder : ""}
           onChange={props.onChange ? props.onChange : () => {}}
           defaultValue={props.defaultValue ? props.defaultValue : ""}
           name={props.name ? props.name : ""}
           step={props.step ? props.step : ""}
+          disabled={props.disabled ? props.disabled : false}
         />
         <small id="amountHelp" className="form-text text-muted">
           {props.description ? props.description : ""}
