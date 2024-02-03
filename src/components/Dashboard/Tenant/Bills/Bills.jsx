@@ -3,11 +3,11 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import { useNavigate } from "react-router";
 import { uiGreen, uiRed } from "../../../../constants";
-const BillingEntries = () => {
+const Bills = () => {
   const navigate = useNavigate();
   const handleRowClick = (row) => {
-    navigate(`/dashboard/landlord/billing-entries/${row.id}`);
-  };
+    navigate(`/dashboard/tenant/bills/pay/${row.id}`);
+  }
   return (
     <div className="container-fluid">
       <UITableMobile
@@ -44,4 +44,4 @@ const BillingEntries = () => {
   );
 };
 
-export default BillingEntries;
+export default Bills;

@@ -59,6 +59,24 @@ export async function getBillingEntry(billingEntryId) {
   }
 }
 
+//Create a function to call the API endpoint /billing-entries/ to make a PATCH request to update a tenant invite using the authenticatedInstance
+export async function updateBillingEntry(billingEntryId, data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/billing-entries/${billingEntryId}/`, data)
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Update tenant invite Error: ", error);
+    return error.response;
+  }
+}
+
 //Create a function to call the API endpoint /billing-entries/ to make a DELETE request to delete a tenant invite using the authenticatedInstance
 export async function deleteBillingEntry(billingEntryId) {
   try {
@@ -66,11 +84,11 @@ export async function deleteBillingEntry(billingEntryId) {
       .delete(`/billing-entries/${billingEntryId}/`)
       .then((res) => {
         if (res.status == 204) {
-          return { data: res.data };
+          return { message: res.message, status: res.status};
         }
         return { data: [] };
       });
-    return res.data;
+    return { data: res.data, status: res.status };
   } catch (error) {
     console.log("Delete tenant invite Error: ", error);
     return error.response;

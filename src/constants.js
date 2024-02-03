@@ -228,6 +228,14 @@ export const tenantMenuItems = [
     muiIcon: <DashboardIcon sx={muiIconStyle} />,
   },
   {
+    label:"Bills",
+    link: "/dashboard/tenant/bills",
+    icon: "fas fa-tachometer-alt",
+    isSearchable: true,
+    muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
+
+  },
+  {
     label: "Maintenance Requests",
     link: "#",
     muiIcon: <HandymanIcon sx={muiIconStyle} />,

@@ -106,7 +106,7 @@ const LandlordLogin = () => {
           // height: "100vh",
         }}
       >
-        <div className="  col-md-3 offset-md-5">
+        <div className="  col-md-3 offset-md-4">
           <Stack
             direction="column"
             justifyContent="center"

@@ -11,7 +11,11 @@ import SearchDialog from "./UIComponents/Modals/Search/SearchDialog";
 import { getMessages } from "../../api/messages";
 import { authenticatedInstance } from "../../api/api";
 import { createThreads } from "../../helpers/messageUtils"; // src\helpers\messageUtils.js
+import { routes } from "../../routes";
+import { useLocation } from "react-router-dom";
 const DashboardContainer = ({ children }) => {
+  const [pageTitle, setPageTitle] = useState("");
+  const [pageBreadCrumb, setPageBreadCrumb] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [muiMode, setMUIMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,6 +28,7 @@ const DashboardContainer = ({ children }) => {
   const [messageThreads, setMessageThreads] = useState([]);
   const [messageCount, setMessageCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const style = { paddingTop: muiMode ? "80px " : "" };
   //Check if user account is active
   if (authUser.is_active === false) {
@@ -62,15 +67,25 @@ const DashboardContainer = ({ children }) => {
     }
   };
 
+  //Using useLocation retrieve the current path and find the object in the routes array that matches the path
+  const findCurrentRoute = () => {
+    const currentPath = location.pathname;
+    console.log("path anme ", currentPath)
+    const currentRoute = routes.find((route) => route.path === currentPath);
+    console.log("current route ", currentRoute)
+    return currentRoute;
+  };
+
   useEffect(() => {
     fetchNotifications(5);
     fetchMessages();
+    // setPageTitle(findCurrentRoute().label);
     if (screenWidth < breakpoints.lg) {
       setMUIMode(true);
     } else {
       setMUIMode(false);
     }
-  }, [screenWidth]);
+  }, [screenWidth, location.pathname]);
   return (
     <div id="wrapper pb-2">
       {showSearchDialog && (
@@ -120,7 +135,7 @@ const DashboardContainer = ({ children }) => {
                 messageCount={messageCount}
               />
             )}
-
+            {<h1>{pageTitle}</h1>}
             {/* Page Content */}
             {authUser.is_active === false ? (
               <Navigate to="/dashboard/activate-account/" replace />
