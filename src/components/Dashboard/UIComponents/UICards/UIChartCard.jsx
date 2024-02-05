@@ -74,7 +74,7 @@ const UIChartCard = ({
           {dropDownOptions && (
             <Stack>
               <select
-                className="text-muted"
+                className="form-control"
                 style={{ border: "none", outline: "none" }}
                 aria-label="Default select example"
                 onChange={onDropdownChange}
