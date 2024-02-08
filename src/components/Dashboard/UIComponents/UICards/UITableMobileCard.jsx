@@ -61,7 +61,7 @@ const UICard = ({
                   }}
                 >
                   <h5
-                    className="card-title"
+                    className="card-title ui-table-mobile-info"
                     style={{
                       maxWidth: isMobile ? "150px" : "600px",
                       // maxHeight: "60px",
@@ -74,7 +74,7 @@ const UICard = ({
                     <b>{info}</b>
                   </h5>
                   <p
-                    className="card-text text-muted"
+                    className="card-text text-muted ui-table-mobile-title"
                     style={{
                       maxWidth: isMobile ? "160px" : "600px",
                       // maxHeight: "70px",
@@ -88,7 +88,7 @@ const UICard = ({
                   </p>
                   {subtitle && (
                     <p
-                      className="text-dark"
+                      className="text-dark ui-table-mobile-subtitle"
                       style={{
                         maxWidth: isMobile ? "160px" : "600px",
                         // maxHeight: "80px",

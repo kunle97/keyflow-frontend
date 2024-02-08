@@ -35,6 +35,7 @@ const UIInput = (props) => {
           name={props.name ? props.name : ""}
           step={props.step ? props.step : ""}
           disabled={props.disabled ? props.disabled : false}
+          data-testId={props.dataTestId ? props.dataTestId : ""}
         />
         <small id="amountHelp" className="form-text text-muted">
           {props.description ? props.description : ""}

@@ -24,6 +24,7 @@ const BillingEntries = () => {
             <span
               style={{
                 color: row.status === "paid" ? uiGreen : uiRed,
+                textTransform: "capitalize",
               }}
             >
               {row.status}
@@ -39,6 +40,23 @@ const BillingEntries = () => {
           { field: "amount", label: "Amount (Ascending)" },
           { field: "-amount", label: "Amount (Descending)" },
         ]}
+        testRowIdentifier={`billing-entries-table-row`}
+        createTestRowIdentifier={(row) => {
+          let identifier = "";
+          if (
+            row.type === "revenue" ||
+            row.type === "rent_payment" ||
+            row.type === "late_fee" ||
+            row.type === "security_deposit" ||
+            row.type === "application_fee" ||
+            row.type === "maintenance_fee"
+          ) {
+            identifier = "billing-entries-table-revenue-row";
+          } else if (row.type === "expense" || row.type === "vendor_payment") {
+            identifier = "billing-entries-table-expense-row";
+          }
+          return identifier;
+        }}
       />
     </div>
   );
