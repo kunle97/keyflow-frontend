@@ -52,23 +52,23 @@ const AlertModal = (props) => {
         },
       }}
     >
-      <div data-testid={props.dataTestId} className={props.dataTestId}>
-        <div className={classes.modalContent}>
-          <Typography
+      <div className={props.dataTestId}>
+        <div data-testid={props.dataTestId} className={classes.modalContent}>
+          <h5
             id="modal-modal-title"
             variant="h6"
             component="h2"
             data-testid="alert-modal-title"
           >
             {props.title}
-          </Typography>
-          <Typography
+          </h5>
+          <p
             id="modal-modal-description"
-            sx={{ mt: 2, mb:2 }}
+            sx={{ mt: 2, mb: 2 }}
             data-testid="alert-modal-message"
           >
             {props.message}
-          </Typography>
+          </p>
 
           {props.to ? (
             <a href={props.to}>

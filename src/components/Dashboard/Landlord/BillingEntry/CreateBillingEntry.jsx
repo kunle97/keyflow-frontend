@@ -1,10 +1,15 @@
 import React, { useCallback, useState } from "react";
 import UIInput from "../../UIComponents/UIInput";
-import UIRadioGroup from "../../UIComponents/UIRadioGroup";
 import { createBillingEntry } from "../../../../api/billing-entries";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
+import {
+  authUser,
+  uiGreen,
+  uiGrey2,
+  uiRed,
+  validationMessageStyle,
+} from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import {
@@ -25,7 +30,11 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 import UIPrompt from "../../UIComponents/UIPrompt";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
-import useFormValidation from "../../../../hooks/useFormValidation";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
+import { set } from "react-hook-form";
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
@@ -45,7 +54,10 @@ const CreateBillingEntry = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [isExpense, setIsExpense] = useState(false);
-  const { errors, validateForm, triggerValidation } = useFormValidation();
+  const [errors, setErrors] = useState({});
+  // const { errors, validateForm, triggerValidation } = useFormValidation();
+  const [redirectToBillingEntries, setRedirectToBillingEntries] =
+    useState(false);
 
   const navigate = useNavigate();
 
@@ -57,30 +69,28 @@ const CreateBillingEntry = () => {
     create_subscription: "",
     collection_method: "",
     description: "",
+    due_date: "",
     owner: authUser.owner_id,
     tenant: null,
     rental_unit: null,
   });
-  const handleChange = useCallback(
-    (e) => {
-      console.log("Handle Chnage");
-      console.log("E target value ", e.target.value);
-      const { name, value } = e.target;
-      triggerValidation(
-        name,
-        value,
-        formInputs.find((input) => input.name === name).validations
-      );
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-      console.log("Form data ", formData);
-    },
-    [setFormData]
-  );
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
   const formInputs = [
     {
       id: 1,
       label: "Amount",
-      type: "number",
+      type: "text",
       placeholder: "Enter amount",
       name: "amount",
       step: "0.01",
@@ -88,38 +98,48 @@ const CreateBillingEntry = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^\d+(\.\d{1,2})?$/,
+        regex: /^\d+\.\d{2}$/,
         errorMessage:
           "Amount cannot be blank and must be a decimal number with two decimal places",
       },
+      dataTestId: "amount-input",
+      errorMessageDataTestId: "amount-error-message",
     },
     {
       id: 2,
       label: "Tenant",
       type: "button_select",
+      selectTarget: selectedTenant,
+      selectTargetLabel: selectedTenant
+        ? selectedTenant.user?.first_name + " " + selectedTenant.user?.last_name
+        : "",
       name: "tenant",
       dialogAction: () => handleOpenTenantSelectModal(),
-      errorMessage: "Tenant cannot be blank",
       hide: isExpense,
       validations: {
         required: false,
         errorMessage: "Tenant cannot be blank",
-        regex: null,
+        regex: /^\d+$/,
       },
+      dataTestId: "tenant-select",
+      errorMessageDataTestId: "tenant-error-message",
     },
     {
       id: 3,
       label: "Rental Unit",
       type: "button_select",
+      selectTarget: selectedRentalUnit,
+      selectTargetLabel: selectedRentalUnit?.name,
       name: "rental_unit",
       dialogAction: () => handleOpenRentalUnitSelectModal(),
-      errorMessage: "Rental Unit cannot be blank",
       hide: !isExpense,
       validations: {
         required: false,
         errorMessage: "Rental Unit cannot be blank",
-        regex: null,
+        regex: /^\d+$/,
       },
+      dataTestId: "rental-unit-select",
+      errorMessageDataTestId: "rental-unit-error-message",
     },
     {
       id: 4,
@@ -127,25 +147,45 @@ const CreateBillingEntry = () => {
       type: "select",
       name: "type",
       options: [
-        { value: "revenue", text: "Revenue" },
-        { value: "expense", text: "Expense" },
-        { value: "security_deposit", text: "Security Deposit" },
-        { value: "rent_payment", text: "Rent Payment" },
-        { value: "late_fee", text: "Late Fee" },
-        { value: "pet_fee", text: "Pet Fee" },
-        { value: "lease_renewal_fee", text: "Lease Renewal Fee" },
-        { value: "lease_cancellation_fee", text: "Lease Cancellation Fee" },
-        { value: "maintenance_fee", text: "Maintenance Fee" },
-        { value: "vendor_payment", text: "Vendor Payment" },
+        { value: "revenue", text: "General Revenue", optGroup: "Revenues" },
+        {
+          value: "security_deposit",
+          text: "Security Deposit",
+          optGroup: "Revenues",
+        },
+        { value: "rent_payment", text: "Rent Payment", optGroup: "Revenues" },
+        { value: "late_fee", text: "Late Fee", optGroup: "Revenues" },
+        { value: "pet_fee", text: "Pet Fee", optGroup: "Revenues" },
+        {
+          value: "lease_renewal_fee",
+          text: "Lease Renewal Fee",
+          optGroup: "Revenues",
+        },
+        {
+          value: "lease_cancellation_fee",
+          text: "Lease Cancellation Fee",
+          optGroup: "Revenues",
+        },
+        {
+          value: "maintenance_fee",
+          text: "Maintenance Fee",
+          optGroup: "Revenues",
+        },
+        { value: "expense", text: "General Expense", optGroup: "Expenses" },
+        {
+          value: "vendor_payment",
+          text: "Vendor Payment",
+          optGroup: "Expenses",
+        },
       ],
-      errorMessage: "Type cannot be blank",
-      validations:  {
+      validations: {
         required: true,
-        errorMessage: "Type cannot be blank",
+        errorMessage: "Please specify the type of billing entry.",
         regex: null,
       },
       hide: false,
       onChange: (e) => {
+        setErrors({});
         if (
           e.target.value === "expense" ||
           e.target.value === "vendor_payment"
@@ -156,12 +196,26 @@ const CreateBillingEntry = () => {
             ...prevData,
             collection_method: null,
             due_date: null,
+            rental_unit: null,
+            tenant: null,
           }));
+          setSelectedRentalUnit(null);
+          setSelectedTenant(null);
         } else {
           setIsExpense(false);
+          setFormData((prevData) => ({
+            ...prevData,
+            rental_unit: null,
+            tenant: null,
+          }));
+
+          setSelectedRentalUnit(null);
+          setSelectedTenant(null);
         }
         handleChange(e);
       },
+      dataTestId: "type-select",
+      errorMessageDataTestId: "type-error-message",
     },
     {
       id: 5,
@@ -172,14 +226,15 @@ const CreateBillingEntry = () => {
         { value: "unpaid", text: "Unpaid" },
         { value: "paid", text: "Paid" },
       ],
-      errorMessage: "Status cannot be blank",
       hide: false,
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        errorMessage: "Status cannot be blank",
+        errorMessage: "Please specify the status of the billing entry.",
         regex: null,
-      }
+      },
+      dataTestId: "status-select",
+      errorMessageDataTestId: "status-error-message",
     },
     {
       id: 6,
@@ -190,28 +245,33 @@ const CreateBillingEntry = () => {
         { value: "charge_automatically", text: "Charge Immediately" },
         { value: "send_invoice", text: "Send Invoice" },
       ],
-      errorMessage: "Collection Method cannot be blank",
-      hide: isExpense,
-      onChange: (e) => handleChange(e),
-      validations:{
-        required: true,
-        errorMessage: "Collection Method cannot be blank",
-        regex: null,
-      }
-    },
-    {
-      id: 7,
-      label: "Due Date",
-      type: "date",
-      name: "due_date",
-      errorMessage: "Due Date cannot be blank",
       hide: isExpense,
       onChange: (e) => handleChange(e),
       validations: {
-        required: false,
-        errorMessage: "Due Date cannot be blank",
+        required: true,
+        errorMessage:
+          "Please specify the collection method for the invoice of this billing entry.",
         regex: null,
-      }
+      },
+      dataTestId: "collection-method-select",
+      errorMessageDataTestId: "collection-method-error-message",
+    },
+    {
+      id: 7,
+      label: isExpense ? "Transaction Date" : "Due Date",
+      type: "date",
+      name: "due_date",
+      hide: false,
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        errorMessage: isExpense
+          ? "A transaction date is required for the billing entry."
+          : "A due date is required for the billing entry.",
+        regex: /^\d{4}-\d{2}-\d{2}$/,
+      },
+      dataTestId: "due-date-input",
+      errorMessageDataTestId: "due-date-error-message",
     },
     {
       id: 8,
@@ -219,19 +279,30 @@ const CreateBillingEntry = () => {
       type: "textarea",
       name: "description",
       placeholder: "Enter description",
-      errorMessage: "Description cannot be blank",
       hide: false,
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        errorMessage: "Description cannot be blank",
+        errorMessage: "A description is required for the billing entry.",
         regex: null,
-      }
-
+      },
+      dataTestId: "description-input",
+      errorMessageDataTestId: "description-error-message",
     },
   ];
   const retrieveTenants = async () => {
     setLoadingTenants(true);
+    const res = await getLandlordTenants()
+      .then((res) => {
+        setTenants(res.data);
+      })
+      .catch((err) => {
+        console.error("Retrieve tenants error ", err);
+        setTenants([]);
+      })
+      .finally(() => {
+        setLoadingTenants(false);
+      });
   };
 
   const handleSearchRentalUnits = async () => {
@@ -280,8 +351,10 @@ const CreateBillingEntry = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const isValid = validateForm(formData, formInputs);
+    const { isValid, newErrors } = validateForm(formData, formInputs);
+    setErrors(newErrors);
     if (isValid) {
+      // if (errorCount.length === 0 || Object.keys(errors).length === 0) {
       setIsLoading(true);
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -289,21 +362,23 @@ const CreateBillingEntry = () => {
       });
       createBillingEntry(formData)
         .then((res) => {
-          console.log("Create biling entrry res ", res);
           if (res.status === 200) {
             console.log("Billing entry created successfully");
             setAlertTitle("Success");
             setAlertMessage("Billing entry created successfully");
+            setRedirectToBillingEntries(true);
           } else {
             console.error("Create billing entry error ", res);
             setAlertTitle("Error");
             setAlertMessage("There was an error creating the billing entry.");
+            setRedirectToBillingEntries(false);
           }
         })
         .catch((err) => {
           console.error("Create billing entry error ", err);
           setAlertTitle("Error");
           setAlertMessage("There was an error creating the billing entry.");
+          setRedirectToBillingEntries(false);
         })
         .finally(() => {
           console.log("Create billing entry finally");
@@ -311,28 +386,29 @@ const CreateBillingEntry = () => {
           setIsLoading(false);
         });
     } else {
-      console.log("There are errors in this form ",errors);
-      setAlertTitle("Error");
+      setAlertTitle("Error Submitting Form");
       let form_errors = "";
       Object.entries(errors).forEach(([key, value]) => {
         form_errors += `${value}\n`;
       });
-      setAlertMessage(
-        "The following errors were found in the form. Please fix them and try again.",
-        form_errors
-      );
+      setAlertMessage("Please fix the form errors before submitting.");
+      setAlertOpen(true);
+      setRedirectToBillingEntries(false);
     }
   };
   return (
     <div className="container-fluid">
       <ProgressModal open={isLoading} title="Creating Billing Entry..." />
       <AlertModal
+        dataTestId="create-billing-entry-alert-modal"
         open={alertOpen}
         title={alertTitle}
         message={alertMessage}
         btnText={"Ok"}
         onClick={() => {
-          navigate("/dashboard/landlord/billing-entries/");
+          if (redirectToBillingEntries) {
+            navigate("/dashboard/landlord/billing-entries/");
+          }
           setAlertOpen(false);
         }}
       />
@@ -409,13 +485,32 @@ const CreateBillingEntry = () => {
                               <span></span>
                             </div>
                             <div>
-                              <Button
-                                data-testid={`select-tenant-button-${index}`}
+                              <UIButton
+                                dataTestId={`select-tenant-button-${index}`}
                                 onClick={() => {
                                   setSelectedTenant(tenant);
+                                  triggerValidation(
+                                    "tenant",
+                                    tenant.id,
+                                    formInputs.find(
+                                      (input) => input.name === "tenant"
+                                    ).validations
+                                  );
                                   setFormData((prevData) => ({
                                     ...prevData,
                                     tenant: tenant.id,
+                                  }));
+                                  //sett the rental unit to null
+                                  setFormData((prevData) => ({
+                                    ...prevData,
+                                    rental_unit: null,
+                                  }));
+                                  setSelectedRentalUnit(null);
+                                  //Clear errors for tenant and rental unit
+                                  setErrors((prevErrors) => ({
+                                    ...prevErrors,
+                                    tenant: "",
+                                    rental_unit: "",
                                   }));
                                   setTenantModalOpen(false);
                                 }}
@@ -428,9 +523,8 @@ const CreateBillingEntry = () => {
                                 }}
                                 variant="container"
                                 className="ui-btn"
-                              >
-                                Select
-                              </Button>
+                                btnText="Select"
+                              />
                             </div>
                           </Stack>
                         }
@@ -478,9 +572,27 @@ const CreateBillingEntry = () => {
                 alignItems="flex-start"
                 onClick={() => {
                   setSelectedRentalUnit(unit);
+                  triggerValidation(
+                    "rental_unit",
+                    unit.id,
+                    formInputs.find((input) => input.name === "rental_unit")
+                      .validations
+                  );
                   setFormData((prevData) => ({
                     ...prevData,
                     rental_unit: unit.id,
+                  }));
+                  //Set the tenant to null
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    tenant: null,
+                  }));
+                  setSelectedTenant(null);
+                  //CLear errors for tenant and rental unit
+                  setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    tenant: "",
+                    rental_unit: "",
                   }));
                   setRentalUnitModalOpen(false);
                 }}
@@ -498,6 +610,7 @@ const CreateBillingEntry = () => {
                     secondary={unit.rental_property_name}
                   />
                   <UIButton
+                    dataTestId={`select-unit-button-${index}`}
                     onClick={() => {
                       setSelectedRentalUnit(unit);
                       setFormData((prevData) => ({
@@ -555,195 +668,20 @@ const CreateBillingEntry = () => {
           )}
         </Stack>
       </UIDialog>
-      <h4 className="">Create Billing Entry</h4>
+      <h4 className="" data-testId="create-billing-entry-page-title">
+        Create Billing Entry
+      </h4>
       <div className="card">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             <div className="row">
-              {/* <div className="col-md-6 mb-3">
-                <UIInput
-                  onChange={handleChange}
-                  label="Amount"
-                  type="number"
-                  placeholder="Enter amount"
-                  //   description="Enter the amount of the billing entry."
-                  inputStyle={{ margin: "10px 0" }}
-                  name="amount"
-                  step="0.01"
-                />
-              </div>
-              {!isExpense ? (
-                <div className="col-md-6 mb-3">
-                  <label className="text-black" style={{ display: "block" }}>
-                    Tenant
-                  </label>
-
-                  {!selectedTenant ? (
-                    <UIButton
-                      onClick={handleOpenTenantSelectModal}
-                      btnText="Select Tenant"
-                      style={{ margin: "10px 0" }}
-                    />
-                  ) : (
-                    <span className="text-black">
-                      {selectedTenant.user.first_name}{" "}
-                      {selectedTenant.user.last_name}
-                      <Button
-                        onClick={handleOpenTenantSelectModal}
-                        sx={{
-                          textTransform: "none",
-                          color: uiGreen,
-                        }}
-                      >
-                        Change Tenant
-                      </Button>
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="col-md-6 mb-3">
-                  <label className="text-black" style={{ display: "block" }}>
-                    Rental Unit
-                  </label>
-                  {!selectedRentalUnit ? (
-                    <UIButton
-                      onClick={() => setRentalUnitModalOpen(true)}
-                      btnText="Select Rental Unit"
-                      style={{ margin: "10px 0" }}
-                    />
-                  ) : (
-                    <span className="text-black">
-                      {selectedRentalUnit.name} -{" "}
-                      {selectedRentalUnit.rental_property_name}
-                      <Button
-                        onClick={() => setRentalUnitModalOpen(true)}
-                        sx={{
-                          textTransform: "none",
-                          color: uiGreen,
-                        }}
-                      >
-                        Change Rental Unit
-                      </Button>
-                    </span>
-                  )}
-                </div>
-              )}
-              <div className="col-md-6 mb-3">
-                <label className="text-black" style={{ display: "block" }}>
-                  Type
-                </label>
-                <select
-                  className="form-select"
-                  name="type"
-                  style={{ margin: "10px 0" }}
-                  onChange={(e) => {
-                    console.log("Type change ", e.target.value);
-                    //Check if type is expense or vendor payment
-                    if (
-                      e.target.value === "expense" ||
-                      e.target.value === "vendor_payment"
-                    ) {
-                      setIsExpense(true);
-                      //Set collection_method and due_date to null in form data
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        collection_method: null,
-                        due_date: null,
-                      }));
-                    } else {
-                      setIsExpense(false);
-                    }
-                    handleChange(e);
-                  }}
-                >
-                  <option value={null} selected disabled>
-                    Select One
-                  </option>
-                  <option value="revenue">Revenue</option>
-                  <option value="expense">Expense</option>
-                  <option value="security_deposit">Security Deposit</option>
-                  <option value="rent_payment">Rent Payment</option>
-                  <option value="late_fee">Late Fee</option>
-                  <option value="pet_fee">Pet Fee</option>
-                  <option value="lease_renewal_fee">Lease Renewal Fee</option>
-                  <option value="lease_cancellation_fee">
-                    Lease Cancellation Fee
-                  </option>
-                  <option value="maintenance_fee">Maintenance Fee</option>
-                  <option value="vendor_payment">Vendor Payment</option>
-                </select>
-              </div>
-
-              <div className="col-md-6 mb-3">
-                <label className="text-black" style={{ display: "block" }}>
-                  Status
-                </label>
-                <select
-                  onChange={handleChange}
-                  className="form-select"
-                  name="status"
-                  style={{ margin: "10px 0" }}
-                >
-                  <option value={null} selected disabled>
-                    Select One
-                  </option>
-                  <option value="unpaid">Unpaid</option>
-                  <option value="paid">Paid</option>
-                </select>
-              </div>
-              {!isExpense && (
-                <>
-                  <div className="col-md-6 mb-3">
-                    <label className="text-black" style={{ display: "block" }}>
-                      Collection Method
-                    </label>
-                    <select
-                      className="form-select"
-                      name="collection_method"
-                      style={{ margin: "10px 0" }}
-                      onChange={handleChange}
-                    >
-                      <option value={null} selected disabled>
-                        Select One
-                      </option>
-                      <option value="charge_automatically">
-                        Charge Immediately
-                      </option>
-                      <option value="send_invoice">Send Invoice</option>
-                    </select>
-                  </div>
-                  <div className="col-md-6">
-                    <UIInput
-                      onChange={handleChange}
-                      type="date"
-                      label={isExpense ? "Transaction Date" : "Due Date"}
-                      placeholder="Enter due date"
-                      inputStyle={{ margin: "10px 0" }}
-                      name="due_date"
-                    />
-                  </div>
-                </>
-              )}
-              <div className="col-md-12">
-                <label className="text-black" style={{ display: "block" }}>
-                  Description
-                </label>
-                <textarea
-                  onChange={handleChange}
-                  className="form-control"
-                  placeholder="Enter description"
-                  style={{ margin: "10px 0" }}
-                  name="description"
-                  rows={5}
-                ></textarea>
-              </div> */}
               {formInputs.map((input, index) => {
                 return (
                   <>
                     {input.hide === false && (
                       <>
                         {input.type === "select" && (
-                          <div className="col-md-6">
+                          <div className="col-md-6 mb-2">
                             <label
                               className="text-black"
                               style={{ display: "block" }}
@@ -755,8 +693,9 @@ const CreateBillingEntry = () => {
                               name={input.name}
                               style={{ margin: "10px 0" }}
                               onChange={input.onChange}
+                              data-testid={input.dataTestId}
                             >
-                              <option value={null} selected disabled>
+                              <option value="" selected>
                                 Select One
                               </option>
                               {input.options.map((option, index) => {
@@ -767,26 +706,72 @@ const CreateBillingEntry = () => {
                                 );
                               })}
                             </select>
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{ ...validationMessageStyle }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
                           </div>
                         )}
                         {input.type === "button_select" && (
-                          <div className="col-md-6">
+                          <div className="col-md-6 mb-2">
                             <label
                               className="text-black"
                               style={{ display: "block" }}
                             >
                               {input.label}
                             </label>
-                            <UIButton
-                              onClick={input.dialogAction}
-                              btnText={`Select ${input.label}`}
-                              style={{ margin: "10px 0" }}
-                            />
+                            {input.selectTarget ? (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  color: "black",
+                                  marginTop: "5px",
+                                }}
+                              >
+                                {input.selectTargetLabel} -
+                                <Button
+                                  dataTestId={input.dataTestId}
+                                  onClick={input.dialogAction}
+                                  variant="text"
+                                  style={{
+                                    textTransform: "none",
+                                    color: uiGreen,
+                                  }}
+                                >
+                                  {`Change ${input.label}`}
+                                </Button>
+                              </span>
+                            ) : (
+                              <UIButton
+                                dataTestId={input.dataTestId}
+                                onClick={input.dialogAction}
+                                btnText={`Select ${input.label}`}
+                                style={{ margin: "10px 0" }}
+                              />
+                            )}
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                  display: "block",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
                           </div>
                         )}
-                        {(input.type === "number" || input.type === "date") && (
-                          <div className="col-md-6">
+                        {(input.type === "number" ||
+                          input.type === "date" ||
+                          input.type === "text") && (
+                          <div className="col-md-6 mb-2">
                             <UIInput
+                              dataTestId={input.dataTestId}
                               key={index}
                               onChange={input.onChange}
                               label={input.label}
@@ -798,6 +783,16 @@ const CreateBillingEntry = () => {
                               errorMessage={input.errorMessage}
                               hide={input.hide}
                             />
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
                           </div>
                         )}
                         {input.type === "textarea" && (
@@ -815,7 +810,20 @@ const CreateBillingEntry = () => {
                               style={{ margin: "10px 0" }}
                               name={input.name}
                               rows={5}
+                              data-testId={input.dataTestId}
                             ></textarea>
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  color: uiRed,
+                                  fontSize: "12px",
+                                  marginTop: "5px",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
                           </div>
                         )}
                       </>
@@ -824,9 +832,19 @@ const CreateBillingEntry = () => {
                 );
               })}
             </div>
-            <button type="submit" className="btn btn-primary">
-              Create
-            </button>
+            <Stack
+              direction="row"
+              justifyContent="flex-end"
+              alignItems="center"
+              spacing={2}
+              style={{ marginTop: "20px" }}
+            >
+              <UIButton
+                type="submit"
+                btnText="Create Billing Entry"
+                dataTestId="create-billing-entry-submit-button"
+              />
+            </Stack>
           </form>
         </div>
       </div>

@@ -81,7 +81,9 @@ const UITableMobile = (props) => {
       .catch((err) => {
         console.log("err", err);
         setResponseTitle("File Upload Error");
-        setResponseMessage("There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again.");
+        setResponseMessage(
+          "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
+        );
         setShowFileUploadAlert(true);
         setShowUploadDialog(false);
         setFiles([]); //Clear the files array
@@ -287,6 +289,7 @@ const UITableMobile = (props) => {
                   <span style={{ color: "black" }}>Show</span>
                 )}
                 <select
+                 className="limit-select"
                   style={{
                     maxWidth: isMobile ? "75px" : "150px",
                     borderRadius: "5px",
@@ -378,7 +381,11 @@ const UITableMobile = (props) => {
                 {results.map((row, index) => {
                   return (
                     <UITableMobileCard
-                      dataTestId={`${props.testRowIdentifier}-${index}`}
+                      dataTestId={
+                        props.createTestRowIdentifier
+                          ? `${props.createTestRowIdentifier(row)}-${index}`
+                          : `${props.testRowIdentifier}-${index}`
+                      }
                       onClick={
                         props.onRowClick ? () => props.onRowClick(row) : null
                       }

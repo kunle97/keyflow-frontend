@@ -380,7 +380,6 @@ const Dashboard = () => {
     numberOfPropertiesToShow = 5
   ) => {
     const groupedProperties = {};
-    console.log("transactions", transactions);
     transactions.forEach((transaction) => {
       const propName = transaction.rental_property?.name;
       const propAmount = parseFloat(transaction.amount);
@@ -512,7 +511,6 @@ const Dashboard = () => {
       );
     } catch (error) {
       // Handle any errors here
-      console.error("Error fetching transaction data:", error);
     }
   };
   useEffect(() => {
@@ -521,7 +519,6 @@ const Dashboard = () => {
     //retrieve transactions from api
     try {
       fetchTransactionData();
-      console.log(groupedPropertiesByTransactions);
       getLandlordUnits().then((res) => {
         setUnits(res.data);
         setOccupiedUnits(
