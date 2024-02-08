@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Backdrop, Box, Typography, Button, Stack } from "@mui/material";
-import { uiGreen, uiGrey1 } from "../../../../constants";
+import { uiGreen, uiGrey1, uiRed } from "../../../../constants";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles(() => ({
@@ -77,6 +77,8 @@ const ConfirmModal = (props) => {
               onClick={props.handleCancel}
               className={classes.cancelBtn}
               style={{
+                background: uiGreen,
+                textTransform: "none",
                 ...props.cancelBtnStyle,
               }}
               variant="contained"
@@ -88,6 +90,8 @@ const ConfirmModal = (props) => {
               onClick={props.handleConfirm}
               className={classes.confirmBtn}
               style={{
+                background: uiRed,
+                textTransform: "none",
                 ...props.confirmBtnStyle,
               }}
               variant="contained"

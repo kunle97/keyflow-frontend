@@ -77,6 +77,11 @@ import { ContactPage } from "./components/Landing/ContactPage";
 import PricingPage from "./components/Landing/PricingPage";
 import FeaturesPage from "./components/Landing/FeaturesPage";
 import BlogPage from "./components/Landing/BlogPage";
+import BillingEntries from "./components/Dashboard/Landlord/BillingEntry/BillingEntries";
+import ManageBillingEntry from "./components/Dashboard/Landlord/BillingEntry/ManageBillingEntry";
+import CreateBillingEntry from "./components/Dashboard/Landlord/BillingEntry/CreateBillingEntry";
+import Bills from "./components/Dashboard/Tenant/Bills/Bills";
+import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -214,7 +219,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord",
+    path: "/dashboard/landlord/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Dashboard />
@@ -225,6 +230,7 @@ export const routes = [
     description: "An overview of your properties",
     isQuickLink: true,
     muiIcon: <DashboardOutlined />,
+    breadcrumbs: [],
   },
   {
     path: "/dashboard/landlord/my-account",
@@ -238,6 +244,7 @@ export const routes = [
     description: "Manage your account",
     isQuickLink: true,
     muiIcon: <PeopleAltOutlined />,
+    breadcrumbs: ["My Account"],
   },
   {
     path: "/dashboard/tenant/my-account",
@@ -248,6 +255,7 @@ export const routes = [
     ),
     isSearchable: false,
     label: "My Account (Tenant)",
+    breadcrumbs: ["My Account"],
   },
   {
     path: "/dashboard/landlord/properties",
@@ -261,6 +269,7 @@ export const routes = [
     description: "Manage your properties",
     isQuickLink: true,
     muiIcon: <HomeWorkOutlined />,
+    breadcrumbs: ["Properties"],
   },
   {
     path: "/dashboard/landlord/properties/create",
@@ -274,6 +283,7 @@ export const routes = [
     description: "Create a new property",
     isQuickLink: true,
     muiIcon: <AddHomeWorkOutlined />,
+    breadcrumbs: ["Properties", "Create Property"],
   },
   {
     path: "/dashboard/landlord/properties/:id",
@@ -282,6 +292,7 @@ export const routes = [
         <ManageProperty />
       </DashboardProtectedRoute>
     ),
+    breadcrumbs: ["Properties", "Manage Property", "[:id]_name"],
   },
   {
     path: "/dashboard/landlord/portfolios",
@@ -413,6 +424,22 @@ export const routes = [
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyLeaseAgreement />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/bills/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Bills />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/bills/pay/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <PayBill />
       </DashboardProtectedRoute>
     ),
   },
@@ -653,6 +680,45 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
     isSearchable: false,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <BillingEntries />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Billing Entries",
+    description: "Manage your billing entries",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Billing Entry",
+    description: "Create a new billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Billing Entry",
+    description: "Manage your billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
   },
 ];
 
