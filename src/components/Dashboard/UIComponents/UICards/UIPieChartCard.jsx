@@ -2,6 +2,7 @@ import React from "react";
 import UIChartCard from "./UIChartCard";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { Stack } from "@mui/material";
 
 const UIPieChartCard = (props) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -54,9 +55,15 @@ const UIPieChartCard = (props) => {
         }}
       >
         {props.data.length === 0 ? (
-          <div style={{ textAlign: "center" }}>
-            <h6>No data to display</h6>
-          </div>
+          <Stack 
+            spacing={2} 
+            direction="column" 
+            alignItems="center" 
+            justifyContent="center" 
+            sx={{ height: "100%" }}
+          >
+            <h5>No data to display</h5>
+          </Stack>
         ) : (
           <Doughnut data-testId={props.dataTestId} options={options} data={data} />
         )}
