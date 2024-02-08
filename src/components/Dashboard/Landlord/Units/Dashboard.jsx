@@ -380,9 +380,8 @@ const Dashboard = () => {
     numberOfPropertiesToShow = 5
   ) => {
     const groupedProperties = {};
-
     transactions.forEach((transaction) => {
-      const propName = transaction.rental_property.name;
+      const propName = transaction.rental_property?.name;
       const propAmount = parseFloat(transaction.amount);
 
       if (!groupedProperties[propName]) {
@@ -508,12 +507,10 @@ const Dashboard = () => {
       setTransactionDataValues(dataValues);
 
       setGroupedPropertiesByTransactions(
-        groupPropertiesByTransactions(res.data),
-        3
+        groupPropertiesByTransactions(res.data)
       );
     } catch (error) {
       // Handle any errors here
-      console.error("Error fetching transaction data:", error);
     }
   };
   useEffect(() => {
@@ -676,7 +673,7 @@ const Dashboard = () => {
           <UIPieChartCard
             dataTestId="dashboard-pie-chart-card"
             isLoading={isLoading}
-            info={"Unit Vacancies"}
+            info={"Vacancies"}
             title={"Occupied vs Vacant Units"}
             height={isMobile ? "256px" : "456px"}
             legendPosition={isMobile ? "bottom" : "right"}

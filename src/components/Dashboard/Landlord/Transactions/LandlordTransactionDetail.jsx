@@ -11,6 +11,8 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { uiGreen, uiGrey2 } from "../../../../constants";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import useScreen from "../../../../hooks/useScreen";
+import { Button, Stack } from "@mui/material";
+import { Link } from "react-router-dom";
 const LandlordTransactionDetail = () => {
   const { id } = useParams();
   const [transaction, setTransaction] = useState({}); //initialize transaction state
@@ -90,11 +92,40 @@ const LandlordTransactionDetail = () => {
                   </span>
                 </div>
                 <div className="col-md-12" style={{ color: uiGrey2 }}>
-                  <p>
+                  <span style={{ fontSize: "14pt" }}>
                     <strong>Description:</strong>
-                  </p>{" "}
-                  {transaction.description}
+                  </span>{" "}
+                  <p>{transaction.description}</p>
                 </div>
+
+                {transaction.billing_entry && (
+                  <div
+                    className="col-md-12 mb-3"
+                    style={{
+                      fontSize: "14pt",
+                      overflow: "auto",
+                      width: "100%",
+                    }}
+                  >
+                    <Stack
+                      spacing={2}
+                      direction="row"
+                      alignContent={"center"}
+                      justifyContent={"center"}
+                    >
+                      <Link
+                        to={`/dashboard/landlord/billing-entries/${transaction.billing_entry.id}`}
+                        sx={{
+                          color: uiGreen,
+                          textTransform: "None",
+                          margin: "auto",
+                        }}
+                      >
+                        View Billing Entry
+                      </Link>
+                    </Stack>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -88,52 +88,27 @@ const TenantLogin = () => {
         to={redirectURL}
       />
 
-      <div className="row">
-        <div
-          className="col-md-8 banner-col  d-none d-md-block"
-          style={{
-            background: "url('/assets/img/tenant-login-page-banner-1.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "50%",
-            height: "100vh",
-          }}
-        >
-          {/* <img style={{width:"100%"}} src="/assets/img/login-page-banner.jpg" /> */}
-        </div>
-        {/* d-flex justify-content-center */}
-
-        <div className="col-md-4 col-sm-12 login-col " style={{}}>
-          <div className="row">
-            <div className=" ">
+      <div
+        className="row"
+        style={{
+          background: "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%),url('/assets/img/tenant-login-page-banner-1.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "50%",
+          height: "100vh",
+        }}
+      >
+        <div className="col-md-4 offset-md-4 d-flex justify-content-center align-items-center">
+          <div className="card">
+            <div className="card-body">
               <img
                 data-testid="keyflow-black-logo"
-                style={{ width: "60%", marginBottom: "25px" }}
+                style={{ maxWidth: "170px", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-black-transparent.png"
               />
               <Typography color="black" className="mb-4 ml-4">
                 Tenant Login
               </Typography>
               <form className="user" onSubmit={handleSubmit(onSubmit)}>
-                {/* <div className="mb-3">
-                  <Input
-                    {...register("email", {
-                      required: "This is a required field",
-                      pattern: {
-                        value: /\S+@\S+\.\S+/,
-                        message: "Please enter a valid email",
-                      },
-                    })}
-                    className="form-control form-control-user"
-                    type="email"
-                    id="exampleInputEmail"
-                    aria-describedby="emailHelp"
-                    placeholder="Enter Email Address..."
-                    name="email"
-                  />
-                  <span style={validationMessageStyle}>
-                    {errors.email && errors.email.message}
-                  </span>
-                </div> */}
                 {process.env.REACT_APP_ENVIRONMENT === "development" ? (
                   <div>
                     {emailLoginMode ? (
@@ -219,6 +194,7 @@ const TenantLogin = () => {
                       border: "none",
                       padding: "15px",
                       borderRadius: "10px",
+                      backgroundColor: "#f4f7f8",
                     }}
                   />
                   <span style={validationMessageStyle}>

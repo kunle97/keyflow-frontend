@@ -65,11 +65,12 @@ import {
 } from "../../../../helpers/utils";
 import UIRadioGroup from "../../UIComponents/UIRadioGroup";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
-import NoMeetingRoomIcon from "@mui/icons-material/NoMeetingRoom";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import TaskIcon from "@mui/icons-material/Task";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
 import DescriptionIcon from "@mui/icons-material/Description";
+import UnitLeaseTerms from "./UnitLeaseTerms/UnitLeaseTerms";
+import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -603,6 +604,14 @@ const ManageUnit = () => {
 
   //Create a function that handles the change of the unit lease_terms. WHen a change is made the function should stringify the lease_terms and update the unit's  with the api
   const handleChangeUnitLeaseTerms = (event, preference_name) => {
+    //If unitLeaseTerms is null update the unit's lease_term to be defaultRentalUnitLEaseTerms using updateUnit
+    if (!unitLeaseTerms) {
+      updateUnit(unit_id, {
+        lease_terms: JSON.stringify(defaultRentalUnitLeaseTerms),
+      });
+      setUnitLeaseTerms(defaultRentalUnitLeaseTerms);
+    }
+
     //Find the preference that was changed
     const preference = unitLeaseTerms.find(
       (preference) => preference.name === preference_name
@@ -1422,81 +1431,14 @@ const ManageUnit = () => {
                       </select>
                     )}
                   </Stack>
-                  {unitLeaseTerms && !unit.is_occupied ? (
-                    unitLeaseTerms.map((preference) => {
-                      if (preference.inputType === "select") {
-                        const selectOptions = preference.options;
-                        return (
-                          <UIPreferenceRow
-                            title={preference.label}
-                            value={preference.value}
-                            description={preference.description}
-                            type={preference.inputType}
-                            selectOptions={selectOptions}
-                            onChange={(e) =>
-                              handleChangeUnitLeaseTerms(e, preference.name)
-                            }
-                          />
-                        );
-                      } else if (preference.inputType === "switch") {
-                        return (
-                          <UIPreferenceRow
-                            title={preference.label}
-                            value={preference.value}
-                            description={preference.description}
-                            type={preference.inputType}
-                            onChange={handlePreferenceSwitchChange(
-                              preference.name
-                            )}
-                          />
-                        );
-                      } else {
-                        return (
-                          <UIPreferenceRow
-                            title={preference.label}
-                            value={preference.value}
-                            description={preference.description}
-                            type={preference.inputType}
-                            onChange={(e) =>
-                              handleChangeUnitLeaseTerms(e, preference.name)
-                            }
-                          />
-                        );
-                      }
-                    })
-                  ) : (
-                    <>
-                      <UIPrompt
-                        style={{
-                          marginTop: "15px",
-                        }}
-                        icon={<NoMeetingRoomIcon style={iconStyles} />}
-                        title="Unit Occupied"
-                        message="You cannot edit the lease terms for this unit because it is occupied."
-                        body={
-                          <div className="row">
-                            <div className="col-md-12">
-                              <Link
-                                to={`/dashboard/landlord/tenants/${tenant?.id}`}
-                              >
-                                <Button
-                                  style={{
-                                    background: uiGreen,
-                                    color: "white",
-                                    textTransform: "none",
-                                    marginTop: "1rem",
-                                    width: "100%",
-                                  }}
-                                >
-                                  View Tenant
-                                </Button>
-                              </Link>
-                            </div>
-                          </div>
-                        }
-                      />
-                    </>
-                  )}
+
+                  <UnitLeaseTerms
+                    tenant={tenant}
+                    unit={unit}
+                    unitLeaseTerms={unitLeaseTerms}
+                    handleChangeUnitLeaseTerms={handleChangeUnitLeaseTerms}
+                    handlePreferenceSwitchChange={handlePreferenceSwitchChange}
+                  />
                 </div>
               </>
             )}
