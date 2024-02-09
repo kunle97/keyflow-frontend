@@ -6,7 +6,7 @@ import { uiGreen, validationMessageStyle } from "../../../constants";
 import CallToActionForm from "./CallToAction/CallToActionForm";
 import { Stack } from "@mui/material";
 const Hero = () => {
-  const [heroVideoURL, setHeroVideoURL] = useState("/assets/videos/video1.mp4");
+  const [heroVideoURL, setHeroVideoURL] = useState("/assets/videos/keyflow-hero-video-hd.mp4");
   const {
     register,
     handleSubmit,
@@ -67,7 +67,7 @@ const Hero = () => {
             alignItems="center"
             justifyContent="center"
             style={{ padding: "rem" }}
-            sx={{ height: "100%", padding: "200px 0 450px" }}
+            className="hero-content-container"
           >
             <h1
               style={{

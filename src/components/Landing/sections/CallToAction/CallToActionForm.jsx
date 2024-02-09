@@ -5,6 +5,7 @@ import { validationMessageStyle } from "../../../../constants";
 import UIButton from "../../../Dashboard/UIComponents/UIButton";
 import AlertModal from "../../../Dashboard/UIComponents/Modals/AlertModal";
 import { Stack } from "@mui/material";
+import ReactGA from "react-ga4";
 const CallToActionForm = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -20,6 +21,11 @@ const CallToActionForm = (props) => {
       const res = await requestDemo(data).then((res) => {
         console.log(res);
         if (res.status === 200) {
+          ReactGA.event({
+            category: "Call To Action",
+            action: "mailing_list_signup",
+            label: "Demo Requested",
+          });
           setModalTitle("Success!");
           setModalMessage(
             "Thank you for your interest in KeyFlow! We will be in touch shortly."
@@ -56,7 +62,7 @@ const CallToActionForm = (props) => {
         method="post"
       >
         <Stack
-          direction="row"
+          direction={{ xs: "column", sm: "row" }}
           justifyContent="center"
           alignItems="center"
           spacing={2}
@@ -77,7 +83,13 @@ const CallToActionForm = (props) => {
               placeholder="Your Email"
               style={{ width: "250px" }}
             />
-            <span className={validationMessageStyle}>
+            <span
+              className={{
+                ...validationMessageStyle,
+                width: "100%",
+                color: "red",
+              }}
+            >
               {errors.email && errors.email.message}
             </span>
           </div>

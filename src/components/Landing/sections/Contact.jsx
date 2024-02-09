@@ -2,7 +2,10 @@ import React from "react";
 
 const Contact = () => {
   return (
-    <section className="position-relative py-4 py-xl-5 landing-section">
+    <section
+      id="#contact"
+      className="position-relative py-4 py-xl-5 landing-section"
+    >
       <div className="container position-relative pt-5">
         <div className="row my-5">
           <div className="col-md-8 col-xl-6 text-center mx-auto">

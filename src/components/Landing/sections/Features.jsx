@@ -128,7 +128,6 @@ const Features = () => {
   };
 
   useEffect(() => {
-    console.log(featureRows.length);
     window.addEventListener("resize", handleScreenWidth);
     return () => {
       window.removeEventListener("resize", handleScreenWidth);
@@ -146,9 +145,12 @@ const Features = () => {
             of powerful features.
           </p>
         </div>
-        <div className="row" style={{ margin: "10px 0 80px" }}>
+        <div className="row">
           {featureRows.map((featureRow, index) => (
-            <div key={index} className="col-md-3 mb-5">
+            <div
+              key={index}
+              className=" col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mb-5"
+            >
               <div
                 className="card"
                 style={{

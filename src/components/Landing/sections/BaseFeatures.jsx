@@ -54,8 +54,8 @@ const BaseFeatures = () => {
   ]);
 
   return (
-    <div className="container">
-      <div className="row" style={{ margin: "440px 0 0px" }}>
+    <div id="base-features"  className="container">
+      <div className="row base-feature-row" >
         <div className="col-md-6 align-self-center ">
           <div>
             <h3>All the essential features included in every plan</h3>

@@ -5,10 +5,10 @@ const CallToAction = () => {
   return (
     <section
       id="call-to-action"
-      className="newsletter-subscribe  landing-section"
+      className="newsletter-subscribe"
       style={{
         background:
-          'linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%), url("/assets/img/landing-page/call-to-action-bg.jpg") center fixed',
+          'linear-gradient(rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.60) 99%), url("/assets/img/landing-page/call-to-action-bg.jpg") center fixed',
           padding: "100px 0",
       }}
     >

@@ -4,14 +4,18 @@ import Features from "./sections/Features";
 import PropertyTypes from "./sections/PropertyTypes";
 import Pricing from "./sections/Pricing";
 import CallToAction from "./sections/CallToAction/CallToAction";
-import Blog from "./sections/Blog";
-import Testimonials from "./sections/Testimonials";
 import Home from "./Home";
 import BaseFeatures from "./sections/BaseFeatures";
-import { ContactPage } from "@mui/icons-material";
-import Contact from "./sections/Contact";
-
+import ReactGA from "react-ga4";
 const LandingPage = () => {
+  ReactGA.initialize([
+    {
+      trackingId: "G-Z7X45HF5K6",
+    },
+  ]);
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, [window.location.pathname]);
   return (
     <Home>
       <Hero />
@@ -22,7 +26,7 @@ const LandingPage = () => {
       {/* <Testimonials /> */}
       <CallToAction />
       {/* <Contact /> */}
-      <Blog />
+      {/* <Blog /> */}
     </Home>
   );
 };

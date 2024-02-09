@@ -5,16 +5,17 @@ import UIButton from "../../Dashboard/UIComponents/UIButton";
 import { Chip, Stack } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { uiGreen } from "../../../constants";
-
+import UISwitch from "../../Dashboard/UIComponents/UISwitch";
 const Pricing = () => {
   const [plans, setPlans] = useState([]);
-
+  const [isMonthly, setIsMonthly] = useState(true);
   const [staticPlans, setStaticPlans] = useState([
     {
       name: "Beginner",
       description:
         "For those who are just starting out and need to manage a few units",
       price_per_month: 0,
+      price_per_year: 0,
       per_unit: false,
       best_value: false,
       features: [
@@ -30,6 +31,7 @@ const Pricing = () => {
       description:
         "For those who are getting the hang of things and need to manage more units",
       price_per_month: 29,
+      price_per_year: 249,
       per_unit: false,
       best_value: false,
       features: [
@@ -46,15 +48,16 @@ const Pricing = () => {
       ],
     },
     {
-      name: "Pro",
+      name: "Professional",
       description:
         "For those with a growing portfolio and need to manage more units",
       price_per_month: 0.65,
+      price_per_year: 5,
       per_unit: true,
       best_value: true,
       features: [
         "All Features from standard plan",
-        "Up to 2000 Units (Minimum 10)",
+        "Up to 50 Units (Minimum 10)",
         "Bulk Management",
         "24/7 Customer support",
         "Mass onboarding",
@@ -68,6 +71,7 @@ const Pricing = () => {
       description:
         "For those managing large portfolios and need a custom solution",
       price_per_month: 0.99,
+      price_per_year: 10,
       per_unit: true,
       best_value: false,
       features: [
@@ -79,6 +83,9 @@ const Pricing = () => {
       ],
     },
   ]);
+  const handleChangeMonthlySwitch = (event) => {
+    setIsMonthly(!isMonthly);
+  };
   useEffect(() => {
     if (process.env.REACT_APP_ENVIRONMENT !== "development") {
       getSubscriptionPlanPrices().then((res) => {
@@ -90,22 +97,37 @@ const Pricing = () => {
   return (
     <section id="pricing" className="landing-section">
       <div className="container py-4 py-xl-5">
-        <div className="text-center mx-auto section-header">
+        <div className="text-center mx-auto section-header mb-0 pb-2">
           <h2>Pricing</h2>
-          <p className="w-lg-50">
+          <p className="w-lg-50 text-black">
             Transparent plans tailored for your needs. Explore our flexible
             pricing options designed to fit every property manager's
             requirements and budget.
           </p>
         </div>
+        <Stack
+          direction={"row"}
+          spacing={2}
+          alignItems="center"
+          justifyContent="center"
+          style={{ margin: "5px 0 35px" }}
+        >
+          <span className="pricing-switch-label">Monthly</span>
+          <UISwitch checked={isMonthly} onChange={handleChangeMonthlySwitch} />
+          <span className="pricing-switch-label">Yearly</span>
+        </Stack>
         <div className="row ">
           {staticPlans.map((plan, index) => (
-            <div className="col-md-3">
-              <div className="standard-price-card bg-white border-0">
+            <div className="col-12 col-sm-12 col-md-6 col-lg-3  mb-4">
+              <div
+                className="standard-price-card border-0 h-100"
+                style={{
+                  background: plan.best_value ? uiGreen : "white",
+                }}
+              >
                 <div
                   style={{
                     padding: "50px 15px 25px",
-                    background: plan.best_value ? uiGreen : "white",
                   }}
                 >
                   <Stack
@@ -128,19 +150,24 @@ const Pricing = () => {
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <span>${plan.price_per_month}</span>
+                        <span>
+                          $
+                          {isMonthly
+                            ? plan.price_per_month
+                            : plan.price_per_year}
+                        </span>
                         <span
                           style={{
                             fontSize: "1rem",
                           }}
                         >
                           {plan.per_unit ? (
-                            <Stack spacing={0.3}>
+                            <Stack spacing={0}>
                               <span> /unit</span>
-                              <span>/month</span>
+                              <span>{isMonthly ? "/month" : "/year"}</span>
                             </Stack>
                           ) : (
-                            "/month"
+                            <>{isMonthly ? "/month" : "/year"}</>
                           )}
                         </span>
                       </Stack>
@@ -153,7 +180,7 @@ const Pricing = () => {
                         color: plan.best_value ? "white" : uiGreen,
                       }}
                     >
-                      {plan.name} Plan
+                      {plan.name}
                     </h4>{" "}
                     <p
                       style={{

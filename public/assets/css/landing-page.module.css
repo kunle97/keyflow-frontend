@@ -44,10 +44,7 @@ img.logo {
   max-width: 755px;
   margin: 0 auto;
 }
-#features {
-  /* background: #f9fffd; */
-  padding: 60px 0;
-}
+
 .feature-icon {
   font-size: 29pt;
 }
@@ -114,6 +111,11 @@ img.logo {
 .property-type-text {
   color: black !important;
 }
+/* Features Section */
+.base-feature-row {
+  margin: 440px 0 0px;
+}
+
 .feature-icon-container {
   background: #3aaf5c;
 }
@@ -143,10 +145,12 @@ img.logo {
 
 .standard-price-card > * {
   color: black !important;
-
 }
-.standard-price-card{
-  box-shadow:0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+.pricing-switch-label {
+  color: black !important;
+}
+.standard-price-card {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23) !important;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -157,10 +161,32 @@ img.logo {
 .gallery-container .image-gallery-thumbnail img {
   height: 60px; /* Set the height for thumbnails */
 }
+.hero-content-container {
+  height: 100%;
+  padding: 200px 0 450px;
+}
 
+@media screen and (max-width: 955px) {
+  .header-image-container {
+    display: none;
+  }
+  .base-feature-row {
+    margin: 40px 0 0px;
+  }
+  
+  .hero-title {
+    font-size: 30pt;
+  }
+  .hero-content-container {
+    padding: 200px 50px;
+  }
+  .hero-container {
+    margin-bottom: 100px;
+  }
+}
 @media screen and (max-width: 767px) {
   .landing-hero {
-    padding: 100px 0;
+    padding: 0px 0;
   }
   .section-header {
     padding: 20px 0;
@@ -169,11 +195,32 @@ img.logo {
     margin: 30px 0 60px;
   }
 }
+
+@media screen and (max-width: 570px) {
+  .hero-content-container {
+    padding: 50px 50px;
+  }
+}
 @media screen and (max-width: 480px) {
   .landing-hero {
-    padding: 50px 0;
+    padding: 0;
+  }
+  .hero-content-container {
+    padding: 150px 50px;
+  }
+  .hero-title {
+    font-size: 22pt;
   }
   .x_001_laptop_inner_wrap {
     display: none;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .hero-content-container {
+    padding: 70px 10px;
+  }
+  .hero-title {
+    font-size: 20pt;
   }
 }

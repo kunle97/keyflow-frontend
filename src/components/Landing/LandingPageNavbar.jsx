@@ -44,7 +44,7 @@ const LandingPageNavbar = (props) => {
             <img
               className="logo"
               src={
-                scrollPosition > 250
+                scrollPosition > 250 || window.innerWidth <= breakpoint
                   ? "/assets/img/key-flow-logo-black-transparent.png"
                   : "/assets/img/key-flow-logo-white-transparent.png"
               }
@@ -61,25 +61,43 @@ const LandingPageNavbar = (props) => {
         </div>
         <div className="collapse navbar-collapse" id="navcol-1">
           <ul className="navbar-nav ms-auto">
-            <li className="">
-              <Link
+            <li className="nav-item">
+              <a
                 className="nav-link landing-nav-link"
-                to="/features"
+                href="#"
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
+              >
+                Home
+              </a>
+            </li>
+            <li className="nav-item">
+              <a
+                className="nav-link landing-nav-link"
+                href="#base-features"
                 style={{ color: scrollPosition > 250 ? "black" : "white" }}
               >
                 Features
-              </Link>
+              </a>
             </li>
             <li className="nav-item">
-              <Link
+              <a
                 className="nav-link landing-nav-link"
-                to="/pricing"
+                href="#rentals"
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
+              >
+                Rentals
+              </a>
+            </li>
+            <li className="nav-item">
+              <a
+                className="nav-link landing-nav-link"
+                href="#pricing"
                 style={{ color: scrollPosition > 250 ? "black" : "white" }}
               >
                 Pricing
-              </Link>
+              </a>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link
                 className="nav-link landing-nav-link"
                 to="/blog"
@@ -87,7 +105,7 @@ const LandingPageNavbar = (props) => {
               >
                 Blog
               </Link>
-            </li>
+            </li> */}
             {process.env.REACT_APP_ENVIRONMENT === "production" && (
               <li className="nav-item">
                 <Link
@@ -110,7 +128,7 @@ const LandingPageNavbar = (props) => {
                 </Link>{" "}
               </li>
             )}
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link
                 className="nav-link landing-nav-link"
                 to="/contact"
@@ -118,7 +136,7 @@ const LandingPageNavbar = (props) => {
               >
                 Contact
               </Link>
-            </li>
+            </li> */}
             <li className="nav-item">
               <a
                 className="nav-link  nav-button"
@@ -128,7 +146,11 @@ const LandingPageNavbar = (props) => {
                   width: "160px",
                 }}
               >
-                <UIButton type="button" btnText="Request Demo" style={{width:"145px"}} />
+                <UIButton
+                  type="button"
+                  btnText="Request Demo"
+                  style={{ width: "145px" }}
+                />
               </a>
             </li>
           </ul>
