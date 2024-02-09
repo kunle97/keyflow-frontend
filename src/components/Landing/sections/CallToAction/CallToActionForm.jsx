@@ -6,7 +6,14 @@ import UIButton from "../../../Dashboard/UIComponents/UIButton";
 import AlertModal from "../../../Dashboard/UIComponents/Modals/AlertModal";
 import { Stack } from "@mui/material";
 import ReactGA from "react-ga4";
-const CallToActionForm = (props) => {
+import ProgresModal from "../../../Dashboard/UIComponents/Modals/ProgressModal";
+const CallToActionForm = () => {
+  ReactGA.initialize([
+    {
+      trackingId: "G-Z7X45HF5K6",
+    },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("");
@@ -17,14 +24,15 @@ const CallToActionForm = (props) => {
     formState: { errors },
   } = useForm();
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
       const res = await requestDemo(data).then((res) => {
         console.log(res);
         if (res.status === 200) {
           ReactGA.event({
-            category: "Call To Action",
+            category: "Mailing List",
             action: "mailing_list_signup",
-            label: "Demo Requested",
+            label: "Mailing List Sign Up from Demo Request",
           });
           setModalTitle("Success!");
           setModalMessage(
@@ -43,12 +51,16 @@ const CallToActionForm = (props) => {
       setModalTitle("Error!");
       setModalMessage(
         "Something went wrong. Please try  using a  different email address or try again later."
-      );
+      )
       setShowModal(true);
+    }finally{
+      setIsLoading(false);
     }
+
   };
   return (
     <div>
+      <ProgresModal open={isLoading} title="Please wait..." />
       <AlertModal
         title={modalTitle}
         message={modalMessage}
