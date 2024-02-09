@@ -195,25 +195,39 @@ const Pricing = () => {
                       {plan.description}
                     </p>
                     {plan.best_value ? (
-                      <button
-                        className="btn btn-primary"
+                      <a
+                        href="#call-to-action"
                         style={{
                           width: "100%",
-                          background: "white",
-                          color: uiGreen,
-                          padding: "8px 0",
                         }}
                       >
-                        Join Now
-                      </button>
+                        <button
+                          className="btn btn-primary"
+                          style={{
+                            width: "100%",
+                            background: "white",
+                            color: uiGreen,
+                            padding: "8px 0",
+                          }}
+                        >
+                          Learn More
+                        </button>
+                      </a>
                     ) : (
-                      <UIButton
+                      <a
+                        href="#call-to-action"
                         style={{
                           width: "100%",
-                          margin: 0,
                         }}
-                        btnText="Join Now"
-                      />
+                      >
+                        <UIButton
+                          style={{
+                            width: "100%",
+                            margin: 0,
+                          }}
+                          btnText="Learn More"
+                        />
+                      </a>
                     )}
                     <ul
                       style={{
