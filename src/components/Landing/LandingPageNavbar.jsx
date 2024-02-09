@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
 import UIButton from "../Dashboard/UIComponents/UIButton";
+=======
+import { uiGrey1 } from "../../constants";
+>>>>>>> 18c38cd3d4d747e63362bc02d0d83d401c6de336
 
 const LandingPageNavbar = (props) => {
   const [scrollPosition, setScrollPosition] = useState(0);
