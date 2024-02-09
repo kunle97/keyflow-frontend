@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import UIButton from "../../../Dashboard/UIComponents/UIButton";
 import AlertModal from "../../../Dashboard/UIComponents/Modals/AlertModal";
+import { Stack } from "@mui/material";
+import ReactGA from "react-ga4";
 const CallToActionForm = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -19,6 +21,11 @@ const CallToActionForm = (props) => {
       const res = await requestDemo(data).then((res) => {
         console.log(res);
         if (res.status === 200) {
+          ReactGA.event({
+            category: "Call To Action",
+            action: "mailing_list_signup",
+            label: "Demo Requested",
+          });
           setModalTitle("Success!");
           setModalMessage(
             "Thank you for your interest in KeyFlow! We will be in touch shortly."
@@ -34,7 +41,9 @@ const CallToActionForm = (props) => {
     } catch (error) {
       console.log(error);
       setModalTitle("Error!");
-      setModalMessage("Something went wrong. Please try  using a  different email address or try again later.");
+      setModalMessage(
+        "Something went wrong. Please try  using a  different email address or try again later."
+      );
       setShowModal(true);
     }
   };
@@ -52,30 +61,42 @@ const CallToActionForm = (props) => {
         className="d-flex justify-content-center flex-wrap"
         method="post"
       >
-        <div
-          className="mb-3"
-          style={props.flexInput ? { flex: 2 } : { marginRight: "10px" }}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
         >
-          <input
-            {...register("email", {
-              required: true,
-              pattern: {
-                value: /\S+@\S+\.\S+/,
-                message: "Entered value does not match email format",
-              },
-            })}
-            className="form-control"
-            type="email"
-            name="email"
-            placeholder="Your Email"
-          />
-          <span className={validationMessageStyle}>
-            {errors.email && errors.email.message}
-          </span>
-        </div>
-        <div className="">
-          <UIButton type="submit" btnText="Notify Me" />
-        </div>
+          {" "}
+          <div className="">
+            <input
+              {...register("email", {
+                required: true,
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Entered value does not match email format",
+                },
+              })}
+              className="form-control"
+              type="email"
+              name="email"
+              placeholder="Your Email"
+              style={{ width: "250px" }}
+            />
+            <span
+              className={{
+                ...validationMessageStyle,
+                width: "100%",
+                color: "red",
+              }}
+            >
+              {errors.email && errors.email.message}
+            </span>
+          </div>
+          <div className="">
+            <UIButton type="submit" btnText="Request Demo" />
+          </div>
+        </Stack>
       </form>
     </div>
   );

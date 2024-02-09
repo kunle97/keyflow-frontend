@@ -4,8 +4,8 @@ import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import { HolidayVillageOutlined } from "@mui/icons-material";
 const PropertyTypes = () => {
   return (
-    <section className="landing-section">
-      <div className="container py-4 py-xl-5">
+    <section id="rentals"  className="landing-section">
+      <div className="container ">
         {" "}
         <div className="section-header">
           <h2>Keyflow is here to help manage any property</h2>
