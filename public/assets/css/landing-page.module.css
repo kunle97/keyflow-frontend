@@ -1,13 +1,37 @@
 img.logo {
   max-width: 258px;
 }
-
+.hero-container {
+  margin-bottom: 345px;
+}
 .header-text {
   color: white !important;
 }
-
+.content-overlay {
+  background: "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%)";
+}
+.nav-item {
+  margin: 0 10px;
+}
+.hero-title {
+  font-size: 40pt;
+  max-width: 950px;
+  text-align: center;
+}
+.hero-text {
+  font-size: 12pt;
+  max-width: 850px;
+}
+.header-image-container {
+  width: 100%;
+  position: absolute;
+  top: 540px;
+  z-index: 100;
+}
 .header-image {
-  width: 107%;
+  width: 950px;
+  margin: 0 auto;
+  display: block;
 }
 
 .header-laptop-img {
@@ -17,11 +41,13 @@ img.logo {
 .section-header {
   text-align: center;
   padding: 45px 0;
+  max-width: 755px;
+  margin: 0 auto;
 }
-.landing-hero {
-  padding: 225px 0;
+#features {
+  /* background: #f9fffd; */
+  padding: 60px 0;
 }
-
 .feature-icon {
   font-size: 29pt;
 }
@@ -40,7 +66,7 @@ img.logo {
 }
 
 .feature-row {
-  margin: 60px 0 120px;
+  margin-bottom: 260px;
 }
 .feature-row-info-column {
   margin-bottom: 20px;
@@ -68,19 +94,62 @@ img.logo {
   background: rgb(58, 175, 92);
   border: none !important;
 }
+.nav-link.landing-nav-link:hover {
+  background: none !important;
+  border-bottom: 1px solid #3aaf5c !important;
+}
+.nav-link.landing-nav-link {
+  border-radius: 0;
+}
+.nav-link.nav-button:hover {
+  background: none !important;
+  border: none !important;
+}
 
 .section-header > h2,
 .section-header p,
 .feature-heading,
+.feature-description,
 .property-type-heading,
 .property-type-text {
   color: black !important;
 }
+.feature-icon-container {
+  background: #3aaf5c;
+}
+.feature-details-container,
+.feature-img-container {
+  padding: 15px;
+}
+
+.feature-heading-2 {
+  color: #3aaf5c;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 12pt;
+}
+
+.feature-img-container {
+  overflow: hidden;
+  height: 350px;
+  border-radius: 15px;
+}
+
+.feature-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .standard-price-card > * {
   color: black !important;
-}
 
+}
+.standard-price-card{
+  box-shadow:0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23) !important;
+  border-radius: 10px;
+  overflow: hidden;
+}
 .gallery-container .image-gallery-slide img {
   height: 400px; /* Set the height for images */
   border-radius: 15px;

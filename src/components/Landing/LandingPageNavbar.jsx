@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { uiGrey1 } from "../../constants";
+import UIButton from "../Dashboard/UIComponents/UIButton";
 
 const LandingPageNavbar = (props) => {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -27,16 +27,27 @@ const LandingPageNavbar = (props) => {
         props.isDarkNav ||
         scrollPosition > 250 ||
         window.innerWidth <= breakpoint
-          ? "bg-dark"
+          ? "bg-white"
           : ""
       }   navbar-expand-md fixed-top navbar-transparency`}
+      // add  a box shadow to the bottom of the navbar when the user scrolls
+      style={{
+        boxShadow:
+          scrollPosition > 250 || window.innerWidth <= breakpoint
+            ? "0px 2px 4px rgba(0, 0, 0, 0.1)"
+            : "none",
+      }}
     >
       <div className="container">
         <div style={{ width: "100%" }}>
           <a className="navbar-brand" href="/">
             <img
               className="logo"
-              src="/assets/img/key-flow-logo-white-transparent.png"
+              src={
+                scrollPosition > 250
+                  ? "/assets/img/key-flow-logo-black-transparent.png"
+                  : "/assets/img/key-flow-logo-white-transparent.png"
+              }
             />
           </a>
           <button
@@ -50,29 +61,29 @@ const LandingPageNavbar = (props) => {
         </div>
         <div className="collapse navbar-collapse" id="navcol-1">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
+            <li className="">
               <Link
-                className="nav-link"
+                className="nav-link landing-nav-link"
                 to="/features"
-                style={{ color: "rgb(255,255,255)" }}
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
               >
                 Features
               </Link>
             </li>
             <li className="nav-item">
               <Link
-                className="nav-link"
+                className="nav-link landing-nav-link"
                 to="/pricing"
-                style={{ color: "rgb(255,255,255)" }}
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
               >
                 Pricing
               </Link>
             </li>
             <li className="nav-item">
               <Link
-                className="nav-link"
+                className="nav-link landing-nav-link"
                 to="/blog"
-                style={{ color: "rgb(255,255,255)" }}
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
               >
                 Blog
               </Link>
@@ -80,9 +91,9 @@ const LandingPageNavbar = (props) => {
             {process.env.REACT_APP_ENVIRONMENT === "production" && (
               <li className="nav-item">
                 <Link
-                  className="nav-link"
+                  className="nav-link landing-nav-link"
                   to="/dashboard/tenant/login"
-                  style={{ color: "rgb(255,255,255)" }}
+                  style={{ color: scrollPosition > 250 ? "black" : "white" }}
                 >
                   Tenants
                 </Link>
@@ -91,9 +102,9 @@ const LandingPageNavbar = (props) => {
             {process.env.REACT_APP_ENVIRONMENT === "production" && (
               <li className="nav-item">
                 <Link
-                  className="nav-link"
+                  className="nav-link landing-nav-link"
                   to="/dashboard/landlord/login"
-                  style={{ color: "rgb(255,255,255)" }}
+                  style={{ color: scrollPosition > 250 ? "black" : "white" }}
                 >
                   Landlords
                 </Link>{" "}
@@ -101,22 +112,23 @@ const LandingPageNavbar = (props) => {
             )}
             <li className="nav-item">
               <Link
-                className="nav-link"
+                className="nav-link landing-nav-link"
                 to="/contact"
-                style={{ color: "rgb(255,255,255)" }}
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
               >
                 Contact
               </Link>
             </li>
             <li className="nav-item">
               <a
-                className="nav-link"
+                className="nav-link  nav-button"
                 href="#call-to-action"
-                style={{ color: "rgb(255,255,255)", width: "160px" }}
+                style={{
+                  color: scrollPosition > 250 ? "black" : "white",
+                  width: "160px",
+                }}
               >
-                <button className="btn btn-primary ui-button" type="button">
-                  Notify Me
-                </button>
+                <UIButton type="button" btnText="Request Demo" style={{width:"145px"}} />
               </a>
             </li>
           </ul>
