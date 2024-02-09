@@ -2,15 +2,22 @@ import React, { useState } from "react";
 
 import CallToActionForm from "./CallToActionForm";
 const CallToAction = () => {
-
   return (
-    <section id="call-to-action" className="newsletter-subscribe py-4 py-xl-5 landing-section">
+    <section
+      id="call-to-action"
+      className="newsletter-subscribe"
+      style={{
+        background:
+          'linear-gradient(rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.60) 99%), url("/assets/img/landing-page/call-to-action-bg.jpg") center fixed',
+          padding: "100px 0",
+      }}
+    >
       <div className="container">
-        <div className="text-center mx-auto section-header">
-          <h2 className="display-6 fw-bold">
-            Ready to save time and enjoy a life of true freedom?
+        <div className="text-center mx-auto">
+          <h2 style={{ color: "white" }}>
+            Ready to streamline your property management? Request a demo today!
           </h2>
-          <p className="text-muted">
+          <p className="text-white">
             Unlock efficiency and freedom in property management today.
             Experience seamless workflows with KeyFlow. Start your journey to
             stress-free management now!
