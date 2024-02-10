@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import { makeId } from "../../../helpers/utils";
 import { send } from "@emailjs/browser";
+import { getLeaseAgreementByIdAndApprovalHash } from "../../../api/lease_agreements";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -126,7 +127,7 @@ const TenantRegister = () => {
     const response = await registerTenant(data).then((res) => {
       console.log(res);
       if (res.status === 200) {
-        setUserId(authUser.user_id);
+        setUserId(authUser.id);
 
         //Show success message
         setMessage("Your account has been created successfully!");
@@ -175,37 +176,73 @@ const TenantRegister = () => {
         //TODO: Show error message modal to make the tenant contact thier landlord
       }
     });
-    //TODO: Populate the form with rental application data
-    //Retrieve users rental application data using the approval_hash
-    getRentalApplicationByApprovalHash(approval_hash).then((res) => {
-      console.log(res);
+    //TODO: Populate the form with rental application or tenant invite data
+    getLeaseAgreementByIdAndApprovalHash({
+      lease_agreement_id,
+      approval_hash,
+    }).then((res) => {
       if (res.id) {
-        //Populate the form with the rental application data
-        const first_name = res.first_name;
-        const last_name = res.last_name;
-        const preloadedData = {
-          first_name: res.first_name,
-          last_name: res.last_name,
-          email: res.email,
-          account_type: "tenant",
-          //Mock Data bleow
-          username:
-            process.env.REACT_APP_ENVIRONMENT !== "development"
-              ? ""
-              : faker.internet.userName({ first_name, last_name }),
-          password:
-            process.env.REACT_APP_ENVIRONMENT !== "development"
-              ? ""
-              : "Password1",
-          password_repeat:
-            process.env.REACT_APP_ENVIRONMENT !== "development"
-              ? ""
-              : "Password1",
-        };
-        // Set the preloaded data in the form using setValue
-        Object.keys(preloadedData).forEach((key) => {
-          setValue(key, preloadedData[key]);
-        });
+        if (res.rental_application) {
+          //Retrieve users rental application data using the approval_hash
+          getRentalApplicationByApprovalHash(approval_hash).then((res) => {
+            console.log(res);
+            if (res.id) {
+              //Populate the form with the rental application data
+              const first_name = res.first_name;
+              const last_name = res.last_name;
+              const preloadedData = {
+                first_name: res.first_name,
+                last_name: res.last_name,
+                email: res.email,
+                account_type: "tenant",
+                //Mock Data bleow
+                username:
+                  process.env.REACT_APP_ENVIRONMENT !== "development"
+                    ? ""
+                    : faker.internet.userName({ first_name, last_name }),
+                password:
+                  process.env.REACT_APP_ENVIRONMENT !== "development"
+                    ? ""
+                    : "Password1",
+                password_repeat:
+                  process.env.REACT_APP_ENVIRONMENT !== "development"
+                    ? ""
+                    : "Password1",
+              };
+              // Set the preloaded data in the form using setValue
+              Object.keys(preloadedData).forEach((key) => {
+                setValue(key, preloadedData[key]);
+              });
+            }
+          });
+        } else if (res.tenant_invite) {
+          //Populate the form with the tenant invite data
+          const first_name = res.tenant_invite.first_name;
+          const last_name = res.tenant_invite.last_name;
+          const preloadedData = {
+            first_name: res.tenant_invite.first_name,
+            last_name: res.tenant_invite.last_name,
+            email: res.tenant_invite.email,
+            account_type: "tenant",
+            //Mock Data bleow
+            username:
+              process.env.REACT_APP_ENVIRONMENT !== "development"
+                ? ""
+                : faker.internet.userName({ first_name, last_name }),
+            password:
+              process.env.REACT_APP_ENVIRONMENT !== "development"
+                ? ""
+                : "Password1",
+            password_repeat:
+              process.env.REACT_APP_ENVIRONMENT !== "development"
+                ? ""
+                : "Password1",
+          };
+          // Set the preloaded data in the form using setValue
+          Object.keys(preloadedData).forEach((key) => {
+            setValue(key, preloadedData[key]);
+          });
+        }
       }
     });
   }, []);
@@ -241,199 +278,203 @@ const TenantRegister = () => {
         </>
       )}
 
-      <div className="row">
+      <div
+        className="row"
+        style={{
+          background:
+            "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%),url('/assets/img/tenant-register-page-banner.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "5%",
+          height: "100vh",
+        }}
+      >
         {" "}
-        <div className="col-md-4 col-sm-12 login-col " style={{}}>
-          <div className="row">
-            <div className="card">
-              <div className="card-body">
-                <img
-                  style={{ maxWidth: "200px", marginBottom: "25px" }}
-                  src="/assets/img/key-flow-logo-black-transparent.png"
-                />
-                <form className="user" onSubmit={handleSubmit(onSubmit)}>
-                  <input type="hidden" name="account_type" value="tenant" />
-                  {showStep1 && (
-                    <div className="step-1">
-                      <h5 className="mb-3"> Create Your Account</h5>
-                      <div className="row mb-3">
-                        <div className="col-sm-6 mb-3 mb-sm-0">
-                          <label className="form-label text-black">
-                            First Name
-                          </label>
-                          <input
-                            {...register("first_name", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 3,
-                                message: "First name must be at least 3 chars",
-                              },
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="exampleFirstName"
-                            placeholder="First Name"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.first_name && errors.first_name.message}
-                          </span>
-                        </div>
-                        <div className="col-sm-6">
-                          <label className="form-label text-black">
-                            Last Name
-                          </label>
-                          <input
-                            {...register("last_name", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 3,
-                                message: "Last name must be at least 3 chars",
-                              },
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="exampleLastName"
-                            placeholder="Last Name"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.last_name && errors.last_name.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mb-3">
+        <div className="col-md-4 offset-md-4 d-flex justify-content-center align-items-center">
+          <div className="card">
+            <div className="card-body">
+              <img
+                style={{ maxWidth: "170px", marginBottom: "25px" }}
+                src="/assets/img/key-flow-logo-black-transparent.png"
+              />
+              <form className="user" onSubmit={handleSubmit(onSubmit)}>
+                <input type="hidden" name="account_type" value="tenant" />
+                {showStep1 && (
+                  <div className="step-1">
+                    <h5 className="mb-3"> Create Your Account</h5>
+                    <div className="row mb-3">
+                      <div className="col-sm-6 mb-3 mb-sm-0">
                         <label className="form-label text-black">
-                          Username
+                          First Name
                         </label>
                         <input
-                          {...register("username", {
+                          {...register("first_name", {
                             required: "This is a required field",
                             minLength: {
                               value: 3,
-                              message: "Minimum length should be 3 characters",
+                              message: "First name must be at least 3 chars",
                             },
                           })}
                           className="form-control"
                           type="text"
-                          placeholder="Username"
+                          id="exampleFirstName"
+                          placeholder="First Name"
                         />
                         <span style={validationMessageStyle}>
-                          {errors.username && errors.username.message}
+                          {errors.first_name && errors.first_name.message}
                         </span>
                       </div>
-                      <div className="mb-3">
-                        <label className="form-label text-black">E-mail</label>
+                      <div className="col-sm-6">
+                        <label className="form-label text-black">
+                          Last Name
+                        </label>
                         <input
-                          {...register("email", {
+                          {...register("last_name", {
                             required: "This is a required field",
-                            pattern: {
-                              value: /\S+@\S+\.\S+/,
-                              message: "Please enter a valid email address",
+                            minLength: {
+                              value: 3,
+                              message: "Last name must be at least 3 chars",
                             },
                           })}
                           className="form-control"
-                          type="email"
-                          id="exampleInputEmail"
-                          aria-describedby="emailHelp"
-                          placeholder="Email Address"
+                          type="text"
+                          id="exampleLastName"
+                          placeholder="Last Name"
                         />
                         <span style={validationMessageStyle}>
-                          {errors.email && errors.email.message}
+                          {errors.last_name && errors.last_name.message}
                         </span>
                       </div>
-                      <div className="row mb-3">
-                        <div className="col-sm-12 col-md-6 mb-3 mb-sm-0">
-                          <label className="form-label text-black">
-                            Password
-                          </label>
-                          <input
-                            {...register("password", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 6,
-                                message:
-                                  "Minimum length should be 6 characters",
-                              },
-                              pattern: {
-                                value:
-                                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                                message:
-                                  "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                              },
-                            })}
-                            className="form-control"
-                            type="password"
-                            id="examplePasswordInput"
-                            placeholder="Password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.password && errors.password.message}
-                          </span>
-                        </div>
-                        <div className="col-sm-12 col-md-6">
-                          <label className="form-label text-black">
-                            Retype Password
-                          </label>
-                          <input
-                            {...register("password_repeat", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 6,
-                                message:
-                                  "Minimum length should be 6 characters",
-                              },
-                              validate: (val) => {
-                                if (watch("password") != val) {
-                                  return "Your passwords do not match";
-                                }
-                              },
-                            })}
-                            className="form-control"
-                            type="password"
-                            id="exampleRepeatPasswordInput"
-                            placeholder="Repeat Password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.password_repeat &&
-                              errors.password_repeat.message}
-                          </span>
-                        </div>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label text-black">Username</label>
+                      <input
+                        {...register("username", {
+                          required: "This is a required field",
+                          minLength: {
+                            value: 3,
+                            message: "Minimum length should be 3 characters",
+                          },
+                        })}
+                        className="form-control"
+                        type="text"
+                        placeholder="Username"
+                      />
+                      <span style={validationMessageStyle}>
+                        {errors.username && errors.username.message}
+                      </span>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label text-black">E-mail</label>
+                      <input
+                        {...register("email", {
+                          required: "This is a required field",
+                          pattern: {
+                            value: /\S+@\S+\.\S+/,
+                            message: "Please enter a valid email address",
+                          },
+                        })}
+                        className="form-control"
+                        type="email"
+                        id="exampleInputEmail"
+                        aria-describedby="emailHelp"
+                        placeholder="Email Address"
+                      />
+                      <span style={validationMessageStyle}>
+                        {errors.email && errors.email.message}
+                      </span>
+                    </div>
+                    <div className="row mb-3">
+                      <div className="col-sm-12 col-md-6 mb-3 mb-sm-0">
+                        <label className="form-label text-black">
+                          Password
+                        </label>
+                        <input
+                          {...register("password", {
+                            required: "This is a required field",
+                            minLength: {
+                              value: 6,
+                              message: "Minimum length should be 6 characters",
+                            },
+                            pattern: {
+                              value:
+                                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                              message:
+                                "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+                            },
+                          })}
+                          className="form-control"
+                          type="password"
+                          id="examplePasswordInput"
+                          placeholder="Password"
+                        />
+                        <span style={validationMessageStyle}>
+                          {errors.password && errors.password.message}
+                        </span>
                       </div>
-                      <Button
-                        onClick={() => {
-                          trigger([
-                            "first_name",
-                            "last_name",
-                            "username",
-                            "email",
-                            "password",
-                            "password_repeat",
-                          ]);
-                          if (
-                            !errors.firstName &&
-                            !errors.lastName &&
-                            !errors.username &&
-                            !errors.email &&
-                            !errors.password &&
-                            !errors.password_repeat
-                          ) {
-                            setShowStep1(false);
-                            setShowStep2(true);
-                          }
-                        }}
-                        className="btn btn-primary d-block  w-100 mb-2"
-                        type="button"
-                        style={{
-                          marginTop: "20px",
-                          background: uiGreen,
-                          border: "none",
-                          textTransform: "none",
-                          color: "white",
-                        }}
-                      >
-                        Next
-                      </Button>
+                      <div className="col-sm-12 col-md-6">
+                        <label className="form-label text-black">
+                          Retype Password
+                        </label>
+                        <input
+                          {...register("password_repeat", {
+                            required: "This is a required field",
+                            minLength: {
+                              value: 6,
+                              message: "Minimum length should be 6 characters",
+                            },
+                            validate: (val) => {
+                              if (watch("password") != val) {
+                                return "Your passwords do not match";
+                              }
+                            },
+                          })}
+                          className="form-control"
+                          type="password"
+                          id="exampleRepeatPasswordInput"
+                          placeholder="Repeat Password"
+                        />
+                        <span style={validationMessageStyle}>
+                          {errors.password_repeat &&
+                            errors.password_repeat.message}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        trigger([
+                          "first_name",
+                          "last_name",
+                          "username",
+                          "email",
+                          "password",
+                          "password_repeat",
+                        ]);
+                        if (
+                          !errors.firstName &&
+                          !errors.lastName &&
+                          !errors.username &&
+                          !errors.email &&
+                          !errors.password &&
+                          !errors.password_repeat
+                        ) {
+                          setShowStep1(false);
+                          setShowStep2(true);
+                        }
+                      }}
+                      className="btn btn-primary d-block  w-100 mb-2"
+                      type="button"
+                      style={{
+                        marginTop: "20px",
+                        background: uiGreen,
+                        border: "none",
+                        textTransform: "none",
+                        color: "white",
+                      }}
+                    >
+                      Next
+                    </Button>
 
-                      {/* <div className="mb-2">
+                    {/* <div className="mb-2">
                         <Link
                           className="small"
                           to="/dashboard/tenant/login"
@@ -442,180 +483,167 @@ const TenantRegister = () => {
                           Already have an account? Login!
                         </Link>
                       </div> */}
-                    </div>
-                  )}
-                  {showStep2 && (
-                    <div className="">
-                      <IconButton>
-                        <ArrowBack
-                          sx={{ color: uiGreen }}
-                          onClick={() => {
-                            setShowStep1(true);
-                            setShowStep2(false);
-                          }}
-                        />
-                      </IconButton>
-                      <h5 className="mb-3 text-black">Add A Payment Method</h5>
-                      <p className="text-black">
-                        This will be used to pay for your rent monthly and all
-                        other expenses.
-                      </p>
-                      <AlertModal
-                        open={errorMode}
-                        title="Error"
-                        message={message}
-                        handleClose={() => setErrorMode(false)}
-                        btnText="Close"
-                        onClick={() => setErrorMode(false)}
+                  </div>
+                )}
+                {showStep2 && (
+                  <div className="">
+                    <IconButton>
+                      <ArrowBack
+                        sx={{ color: uiGreen }}
+                        onClick={() => {
+                          setShowStep1(true);
+                          setShowStep2(false);
+                        }}
                       />
-                      <AlertModal
-                        open={successMode}
-                        title="Success"
-                        message={message}
-                        handleClose={() => setSuccessMode(false)}
-                        btnText="Close"
-                        to="/dashboard/tenant/"
-                      />
+                    </IconButton>
+                    <h5 className="mb-3 text-black">Add A Payment Method</h5>
+                    <p className="text-black">
+                      This will be used to pay for your rent monthly and all
+                      other expenses.
+                    </p>
+                    <AlertModal
+                      open={errorMode}
+                      title="Error"
+                      message={message}
+                      handleClose={() => setErrorMode(false)}
+                      btnText="Close"
+                      onClick={() => setErrorMode(false)}
+                    />
+                    <AlertModal
+                      open={successMode}
+                      title="Success"
+                      message={message}
+                      handleClose={() => setSuccessMode(false)}
+                      btnText="Close"
+                      to="/dashboard/tenant/"
+                    />
 
-                      <div className="">
-                        <FormControl sx={{ marginBottom: "10px" }}>
-                          <FormLabel
-                            sx={{ fontSize: "12pt" }}
-                            id="payment-type"
-                          >
-                            Method Type
-                          </FormLabel>
-                          <RadioGroup
-                            row
-                            defaultValue={"card"}
-                            aria-labelledby="payment-type"
-                            name="payment_method"
-                          >
-                            <FormControlLabel
-                              value="card"
-                              control={
-                                <Radio
-                                  onClick={() => setCardMode(true)}
-                                  onSelect={() => setCardMode(true)}
-                                  sx={{
-                                    color: "#f2f2f2",
-                                    "&.Mui-checked": {
-                                      color: uiGreen,
-                                    },
-                                  }}
-                                />
-                              }
-                              label="Debit/Credit Card"
-                              sx={{ color: "black" }}
-                            />
-                            <FormControlLabel
-                              value="bank_account"
-                              control={
-                                <Radio
-                                  onClick={() => setCardMode(false)}
-                                  onSelect={() => setCardMode(false)}
-                                  sx={{
-                                    color: "#f2f2f2",
-                                    "&.Mui-checked": {
-                                      color: uiGreen,
-                                    },
-                                  }}
-                                />
-                              }
-                              label="Bank Account"
-                              sx={{ color: "black" }}
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                        <div className="stripeSection">
-                          {cardMode ? (
-                            <>
-                              {" "}
-                              <div className="form-row">
-                                <label
-                                  className="form-label text-black"
-                                  htmlFor="card-element"
-                                >
-                                  Credit or Debit Card
-                                </label>
-                                <div
-                                  style={{
-                                    backgroundColor: "#f2f2f2",
-                                    padding: "10px",
-                                    borderRadius: "5px",
-                                  }}
-                                >
-                                  <CardElement
-                                    options={{
-                                      style: {
-                                        base: {
-                                          fontSize: "16px",
-                                          color: "black",
-                                          marginBottom: "15px",
-                                        },
-                                      },
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              {errorMode && message && (
-                                <div
-                                  className="error-message"
-                                  style={{
-                                    fontSize: "14pt",
-                                    width: "100%",
+                    <div className="">
+                      <FormControl sx={{ marginBottom: "10px" }}>
+                        <FormLabel sx={{ fontSize: "12pt" }} id="payment-type">
+                          Method Type
+                        </FormLabel>
+                        <RadioGroup
+                          row
+                          defaultValue={"card"}
+                          aria-labelledby="payment-type"
+                          name="payment_method"
+                        >
+                          <FormControlLabel
+                            value="card"
+                            control={
+                              <Radio
+                                onClick={() => setCardMode(true)}
+                                onSelect={() => setCardMode(true)}
+                                sx={{
+                                  color: "#f2f2f2",
+                                  "&.Mui-checked": {
                                     color: uiGreen,
+                                  },
+                                }}
+                              />
+                            }
+                            label="Debit/Credit Card"
+                            sx={{ color: "black" }}
+                          />
+                          <FormControlLabel
+                            value="bank_account"
+                            control={
+                              <Radio
+                                onClick={() => setCardMode(false)}
+                                onSelect={() => setCardMode(false)}
+                                sx={{
+                                  color: "#f2f2f2",
+                                  "&.Mui-checked": {
+                                    color: uiGreen,
+                                  },
+                                }}
+                              />
+                            }
+                            label="Bank Account"
+                            sx={{ color: "black" }}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                      <div className="stripeSection">
+                        {cardMode ? (
+                          <>
+                            {" "}
+                            <div className="form-row">
+                              <label
+                                className="form-label text-black"
+                                htmlFor="card-element"
+                              >
+                                Credit or Debit Card
+                              </label>
+                              <div
+                                style={{
+                                  backgroundColor: "#f2f2f2",
+                                  padding: "10px",
+                                  borderRadius: "5px",
+                                }}
+                              >
+                                <CardElement
+                                  options={{
+                                    style: {
+                                      base: {
+                                        fontSize: "16px",
+                                        color: "black",
+                                        marginBottom: "15px",
+                                      },
+                                    },
                                   }}
-                                >
-                                  {message}
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <PlaidLink
-                              token={`${process.env.REACT_APP_PLAID_CLIENT_ID}`}
-                              onSuccess={handlePlaidSuccess}
-                              // Additional Plaid Link configuration options
-                            >
-                              Add Bank Account
-                            </PlaidLink>
-                          )}
-                          {/* <UIButton
+                                />
+                              </div>
+                            </div>
+                            {errorMode && message && (
+                              <div
+                                className="error-message"
+                                style={{
+                                  fontSize: "14pt",
+                                  width: "100%",
+                                  color: uiGreen,
+                                }}
+                              >
+                                {message}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <PlaidLink
+                            token={`${process.env.REACT_APP_PLAID_CLIENT_ID}`}
+                            onSuccess={handlePlaidSuccess}
+                            // Additional Plaid Link configuration options
+                          >
+                            Add Bank Account
+                          </PlaidLink>
+                        )}
+                        {/* <UIButton
                               onClick={handleSubmit}
                               btnText="Add Payment Method"
                               style={{ marginTop: "15px", width: "100%" }}
                             /> */}
-                          <Button
-                            className="btn btn-primary d-block  w-100 mb-2"
-                            type="submit"
-                            style={{
-                              marginTop: "20px",
-                              background: uiGreen,
-                              border: "none",
-                              textTransform: "none",
-                              color: "white",
-                            }}
-                          >
-                            Sign Up
-                          </Button>
-                        </div>
+                        <Button
+                          className="btn btn-primary d-block  w-100 mb-2"
+                          type="submit"
+                          style={{
+                            marginTop: "20px",
+                            background: uiGreen,
+                            border: "none",
+                            textTransform: "none",
+                            color: "white",
+                          }}
+                        >
+                          Sign Up
+                        </Button>
                       </div>
                     </div>
-                  )}
-                </form>
-              </div>
+                  </div>
+                )}
+              </form>
             </div>
           </div>
         </div>
-        <div
-          className="col-md-8 banner-col  d-none d-md-block"
-          style={{
-            background: "url('/assets/img/tenant-register-page-banner.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "5%",
-            height: "100vh",
-          }}
-        ></div>
       </div>
     </div>
   );

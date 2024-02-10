@@ -32,7 +32,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { getTenantLeaseRenewalRequests } from "../../../api/lease_renewal_requests";
 import UICard from "../UIComponents/UICards/UICard";
 import UICardList from "../UIComponents/UICards/UICardList";
-import UITableCard from "../UIComponents/UICards/UITableCard";
+import UItableMiniCard from "../UIComponents/UICards/UITableMiniCard";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -41,6 +41,9 @@ const TenantDashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
     useState(false);
+  const [tenantData, setTenantData] = useState(null); //TODO: Remove this and replace with [leaseAgreement, setLeaseAgreement
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [lateFees, setLateFees] = useState(0);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
@@ -142,7 +145,7 @@ const TenantDashboard = () => {
 
   useEffect(() => {
     //Get the payment methods for the user and check if they at least have one
-    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.id}`).then((res) => {
       setIsLoadingPaymentMethods(true);
       if (res.data.length < 1) {
         setShowAddPaymentMethodAlert(true);
@@ -158,15 +161,14 @@ const TenantDashboard = () => {
       setTransactions(res.data);
     });
 
-    //Active subscription
-
     //Retrieve the unit
     getTenantDashboardData().then((res) => {
-      console.log(res);
+      console.log("Tenant Dashboard Data", res);
+      setTenantData(res);
       setUnit(res.unit);
       setLeaseAgreement(res.lease_agreement);
-
-      console.log(res.lease_agreement);
+      setCurrentBalance(res.current_balance);
+      setLateFees(res.late_fees);
 
       //Check if lease agreement endate is in 2 months or less, if so show confirm modal
       if (res.lease_agreement) {
@@ -211,7 +213,7 @@ const TenantDashboard = () => {
       setLeaseTemplate(res.lease_template);
       if (res.lease_agreement) {
         //Retrieve next payment date
-        getNextPaymentDate(authUser.user_id).then((res) => {
+        getNextPaymentDate(authUser.id).then((res) => {
           console.log("nExt pay date data", res);
           setNextPaymentDate(res.data.next_payment_date);
         });
@@ -277,9 +279,11 @@ const TenantDashboard = () => {
                       {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
                         <ReportIcon sx={{ color: "red" }} />
                       )}{" "}
-                      Rent due in {dateDiffForHumans(new Date(nextPaymentDate))}
+                      <span>
+                        ${currentBalance + lateFees}
+                      </span>{" "}
+                      due in {dateDiffForHumans(new Date(nextPaymentDate))}
                     </Typography>
-
                     <Box
                       sx={
                         {
@@ -319,7 +323,7 @@ const TenantDashboard = () => {
                             }}
                           />
                         )}
-                      </div>{" "}
+                      </div>
                       {leaseAgreement &&
                         !leaseAgreement.auto_pay_is_enabled && (
                           <Button
@@ -358,35 +362,37 @@ const TenantDashboard = () => {
               </Stack>
             </UICard>
           ) : (
-            <UICardList
-              cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={""}
-              info={"Recent Transactions"}
-              onInfoClick={() => navigate("/dashboard/landlord/transactions")}
-              //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
-              items={transactions
-                .map((transaction) => ({
-                  primary: transaction.description,
-                  secondary: new Date(
-                    transaction.timestamp
-                  ).toLocaleDateString(),
-                  tertiary: `${
-                    transaction.type === "revenue" ||
-                    transaction.type === "rent_payment" ||
-                    transaction.type === "security_deposit"
-                      ? "+"
-                      : "-"
-                  }$${transaction.amount}`,
-                  icon: <AttachMoneyIcon />,
-                }))
-                .slice(0, 4)}
-              tertiaryStyles={{ color: uiGreen }}
-            />
+            <>
+              {/* <UICardList
+                cardStyle={{ background: "white", color: "black" }}
+                infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                title={""}
+                info={"Recent Transactions"}
+                onInfoClick={() => navigate("/dashboard/landlord/transactions")}
+                //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
+                items={transactions
+                  .map((transaction) => ({
+                    primary: transaction.description,
+                    secondary: new Date(
+                      transaction.timestamp
+                    ).toLocaleDateString(),
+                    tertiary: `${
+                      transaction.type === "revenue" ||
+                      transaction.type === "rent_payment" ||
+                      transaction.type === "security_deposit"
+                        ? "+"
+                        : "-"
+                    }$${transaction.amount}`,
+                    icon: <AttachMoneyIcon />,
+                  }))
+                  .slice(0, 4)}
+                tertiaryStyles={{ color: uiGreen }}
+              /> */}
+            </>
           )}
 
-          <UITableCard
+          <UItableMiniCard
             cardStyle={{ background: "white", color: "black" }}
             infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}

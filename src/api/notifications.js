@@ -5,7 +5,7 @@ import { authUser } from "../constants";
 export async function getNotifications() {
   try {
     const res = await authenticatedInstance
-      .get(`/users/${authUser.user_id}/notifications/`)
+      .get(`/users/${authUser.id}/notifications/`)
       .then((res) => {
         console.log(res);
         return res.data;

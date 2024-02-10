@@ -33,8 +33,8 @@ const PaymentModal = (props) => {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: uiGrey1,
-    color: "white",
+    bgcolor: "white",
+    color: "black",
     borderRadius: "10px",
     boxShadow: 24,
     p: 4,
@@ -49,7 +49,7 @@ const PaymentModal = (props) => {
     setIsLoading(true);
     console.log("Payment Method", selectedPaymentMethod);
     const data = {
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       payment_method_id: selectedPaymentMethod.id,
       amount: props.amount,
     };
@@ -86,7 +86,7 @@ const PaymentModal = (props) => {
                 card
               </Typography>
               <FormControl>
-                <FormLabel sx={{ color: "white" }}>
+                <FormLabel sx={{ color: "black" }}>
                   Please select a payment method
                 </FormLabel>
                 <RadioGroup
@@ -105,7 +105,7 @@ const PaymentModal = (props) => {
                           control={
                             <Radio
                               sx={{
-                                color: "white",
+                                color: "black",
                                 "&.Mui-checked": {
                                   color: uiGreen,
                                 },
@@ -114,7 +114,7 @@ const PaymentModal = (props) => {
                                 setSelectedPaymentMethod(paymentMethod);
                                 console.log("onSelect");
                                 console.log(
-                                  "CUrrent Selected Payment Method",
+                                  "Current Selected Payment Method",
                                   selectedPaymentMethod
                                 );
                               }}
@@ -122,7 +122,7 @@ const PaymentModal = (props) => {
                                 setSelectedPaymentMethod(paymentMethod);
                                 console.log("onCLick");
                                 console.log(
-                                  "CUrrent Selected Payment Method",
+                                  "Current Selected Payment Method",
                                   selectedPaymentMethod
                                 );
                               }}
@@ -131,7 +131,7 @@ const PaymentModal = (props) => {
                           label={`${
                             paymentMethod.card.brand
                           } ending in ${" "}  ${paymentMethod.card.last4}`}
-                          sx={{ color: "white" }}
+                          sx={{ color: "black" }}
                         />
                       </>
                     );
@@ -145,6 +145,7 @@ const PaymentModal = (props) => {
                     marginTop: "20px",
                     backgroundColor: "red",
                     marginRight: "20px",
+                    textTransform: "none",
                   }}
                   variant="contained"
                 >
@@ -156,6 +157,7 @@ const PaymentModal = (props) => {
                     marginTop: "20px",
                     backgroundColor: uiGreen,
                     marginRight: "20px",
+                    textTransform: "none",
                   }}
                   variant="contained"
                 >

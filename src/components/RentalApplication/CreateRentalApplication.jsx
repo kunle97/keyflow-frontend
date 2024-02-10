@@ -22,16 +22,17 @@ import UIStepper from "../Dashboard/UIComponents/UIStepper";
 import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads";
 import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
-
+import useScreen from "../../hooks/useScreen";
 const CreateRentalApplication = () => {
   const { unit_id, landlord_id } = useParams();
-
+  const { isMobile } = useScreen();
   const [step, setStep] = useState(0); // step state
   const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
   const [step1IsValid, setStep1IsValid] = useState(false); // step 2 validation state
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
   const [unit, setUnit] = useState({}); // unit data
+  const [unitLeaseTerms, setUnitLeaseTerms] = useState([]); // unit preferences data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
   const [isLoading, setIsLoading] = useState(false); // loading state
@@ -43,77 +44,6 @@ const CreateRentalApplication = () => {
   const navigate = useNavigate();
   const [unitImages, setUnitImages] = useState([]); // unit images state
   const [errorMode, setErrorMode] = useState(false); // error mode state
-
-  useEffect(() => {
-    /**
-     *
-     * TODO: Create a functioning checkbox for the employment history and residence history sections for current employment and current residence
-     *
-     * */
-
-    // get unit data
-    getUnitUnauthenticated(unit_id).then((unit_res) => {
-      setIsLoading(true);
-      console.log(unit_res);
-      if (unit_res.data) {
-        setUnit(unit_res.data);
-        //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
-        retrieveUnauthenticatedFilesBySubfolder(
-          `properties/${unit_res.data.rental_property}/units/${unit_id}`
-        ).then((res) => {
-          console.log(res.data);
-          res.data.forEach((file) => {
-            setUnitImages((unitImages) => [
-              ...unitImages,
-              {
-                original: file.file,
-                thumbnail: file.file,
-              },
-            ]);
-          });
-        });
-        //Retrieve Lease Term for the unit
-        getLeaseTemplateByUnitId(unit_res.data.id).then((res) => {
-          setLeaseTemplate(res);
-          if (
-            res.rent === null ||
-            res.created_at === null ||
-            res.grace_period === null ||
-            res.late_fee === null ||
-            res.lease_cancellation_fee === null ||
-            res.lease_cancellation_notice_period === null ||
-            res.security_deposit === null ||
-            res.term === null ||
-            res.user === null
-          ) {
-            navigate("/*");
-          }
-        });
-        if (unit_res.data.is_occupied) {
-          //Redirect to 404 screen if unit is occupied
-          navigate("/*");
-        }
-        if (unit_res.data.rental_property) {
-          // get property data from unit data
-          getPropertyUnauthenticated(unit_res.data.rental_property).then(
-            (property_res) => {
-              if (property_res.data) {
-                setProperty(property_res.data);
-                setIsLoading(false);
-                setErrorMode(false);
-              } else {
-                setIsLoading(false);
-                setErrorMode(true);
-                setProperty(null);
-              }
-            }
-          );
-        } else {
-          setUnit(null);
-        }
-      }
-    });
-  }, []);
 
   //Step one data
   const [firstName, setFirstName] = useState(
@@ -399,13 +329,98 @@ const CreateRentalApplication = () => {
     "Residence History",
     "Submit Application",
   ];
+  //Create a function to retrieve a unit preference by its name
+  const getUnitLeaseTermValueByName = (name) => {
+    const preference = unitLeaseTerms.find((pref) => pref.name === name);
+    return preference ? preference.value : null; // Return null or handle the case where preference is not found
+  };
+
+  const getRentFrequencyUnit = () => {
+    const rentFrequencyObj = unitLeaseTerms.find(
+      (pref) => pref.name === "rent_frequency"
+    );
+    if (rentFrequencyObj) {
+      const rent_frequency = rentFrequencyObj.value;
+      if (rent_frequency === "day") {
+        return "/day";
+      } else if (rent_frequency === "week") {
+        return "/week";
+      } else if (rent_frequency === "month") {
+        return "/month";
+      } else if (rent_frequency === "year") {
+        return "/year";
+      }
+    }
+    return ""; // Handle the case where rent_frequency is not found
+  };
+
+  useEffect(() => {
+    /**
+     *
+     * TODO: Create a functioning checkbox for the employment history and residence history sections for current employment and current residence
+     *
+     * */
+
+    // get unit data
+    getUnitUnauthenticated(unit_id).then((unit_res) => {
+      setIsLoading(true);
+      console.log(unit_res);
+      if (unit_res.data) {
+        setUnit(unit_res.data);
+        console.log("unit lease terms", JSON.parse(unit_res.data.lease_terms));
+        setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
+        //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
+        retrieveUnauthenticatedFilesBySubfolder(
+          `properties/${unit_res.data.rental_property}/units/${unit_id}`
+        ).then((res) => {
+          console.log(res.data);
+          res.data.forEach((file) => {
+            setUnitImages((unitImages) => [
+              ...unitImages,
+              {
+                original: file.file,
+                thumbnail: file.file,
+              },
+            ]);
+          });
+        });
+
+        if (unit_res.data.is_occupied) {
+          //Redirect to 404 screen if unit is occupied
+          navigate("/*");
+        }
+        if (unit_res.data.rental_property) {
+          // get property data from unit data
+          getPropertyUnauthenticated(unit_res.data.rental_property).then(
+            (property_res) => {
+              if (property_res.data) {
+                setProperty(property_res.data);
+                setIsLoading(false);
+                setErrorMode(false);
+              } else {
+                setIsLoading(false);
+                setErrorMode(true);
+                setProperty(null);
+              }
+            }
+          );
+        } else {
+          setUnit(null);
+        }
+      }
+    });
+  }, []);
+
   return (
     <>
       <LandingPageNavbar isDarkNav={true} />
       {isLoading ? (
         <ProgressModal open={isLoading} title="Loading Application" />
       ) : (
-        <div className="container py-4" style={{ marginTop: "100px" }}>
+        <div
+          className={`container py-4`}
+          style={{ marginTop: isMobile ? "0" : "100px" }}
+        >
           {errorMode ? (
             <AlertModal
               open={errorMode}
@@ -415,104 +430,6 @@ const CreateRentalApplication = () => {
             />
           ) : (
             <div className="row">
-              <div className="col-md-6 ">
-                {" "}
-                <div
-                  className="gallery-container"
-                  style={{
-                    overflow: "hidden",
-                  }}
-                >
-                  <ImageGallery
-                    items={unitImages}
-                    showFullscreenButton={true}
-                    showPlayButton={true}
-                    showNav={false}
-                    showThumbnails={true}
-                    autoPlay={true}
-                    slideDuration={1000}
-                    slideInterval={5000}
-                    lazyLoad={true}
-                    infinite={true}
-                    thumbnailPosition="bottom"
-                  />
-                </div>
-                <h2 style={{ margin: "15px 0", fontSize: "20pt" }}>
-                  Unit {unit.name} at {property.street}
-                </h2>
-                <div className="card mb-3">
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Rent
-                        </h6>
-                        ${leaseTemplate.rent}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Term
-                        </h6>
-                        {leaseTemplate.term} Months
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Late Fee
-                        </h6>
-                        {`$${leaseTemplate.late_fee}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Security Deposit
-                        </h6>
-                        {`$${leaseTemplate.security_deposit}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Gas Included?
-                        </h6>
-                        {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Electric Included?
-                        </h6>
-                        {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Water Included?
-                        </h6>
-                        {`${leaseTemplate.water_included ? "Yes" : "No"}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Lease Cancellation Fee
-                        </h6>
-                        {`$${leaseTemplate.lease_cancellation_fee}`}
-                      </div>
-                      <div className="col-sm-6 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Lease Cancellation Notice period
-                        </h6>
-                        {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <Typography sx={{ color: "black" }}>
-                    Powered by{" "}
-                    <Link to="/">
-                      <img
-                        src="/assets/img/key-flow-logo-black-transparent.png"
-                        width={150}
-                      />
-                    </Link>
-                  </Typography>
-                </div>
-              </div>
-              {/* */}
               {property && unit ? (
                 <>
                   {isLoading && (
@@ -522,7 +439,7 @@ const CreateRentalApplication = () => {
                     />
                   )}
                   {!isLoading && (
-                    <div className="col-md-6  justify-content-center align-items-center">
+                    <div className="col-md-6  justify-content-center align-items-center mb-3">
                       <UIStepper steps={steps} step={step} />
                       <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -839,7 +756,121 @@ const CreateRentalApplication = () => {
                     </div>
                   </div>
                 </div>
-              )}
+              )}{" "}
+              <div className="col-md-6 ">
+                {" "}
+                <div
+                  className="gallery-container"
+                  style={{
+                    overflow: "hidden",
+                  }}
+                >
+                  <ImageGallery
+                    items={unitImages}
+                    showFullscreenButton={true}
+                    showPlayButton={true}
+                    showNav={false}
+                    showThumbnails={true}
+                    autoPlay={true}
+                    slideDuration={1000}
+                    slideInterval={5000}
+                    lazyLoad={true}
+                    infinite={true}
+                    thumbnailPosition="bottom"
+                  />
+                </div>
+                <h2 style={{ margin: "15px 0", fontSize: "20pt" }}>
+                  Unit {unit.name} at {property.street}
+                </h2>
+                <div className="card mb-3">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Rent
+                        </h6>
+                        ${getUnitLeaseTermValueByName("rent")}
+                        {getRentFrequencyUnit()}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Term
+                        </h6>
+                        {getUnitLeaseTermValueByName("term")} {getUnitLeaseTermValueByName("rent_frequency")}(s)
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Late Fee
+                        </h6>
+                        {`$${getUnitLeaseTermValueByName("late_fee")}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Security Deposit
+                        </h6>
+                        {`$${getUnitLeaseTermValueByName("security_deposit")}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Gas Included?
+                        </h6>
+                        {`${
+                          getUnitLeaseTermValueByName("gas_included")
+                            ? "Yes"
+                            : "No"
+                        }`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Electric Included?
+                        </h6>
+                        {`${
+                          getUnitLeaseTermValueByName("electric_included")
+                            ? "Yes"
+                            : "No"
+                        }`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Water Included?
+                        </h6>
+                        {`${
+                          getUnitLeaseTermValueByName("water_included")
+                            ? "Yes"
+                            : "No"
+                        }`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Lease Cancellation Fee
+                        </h6>
+                        {`$${getUnitLeaseTermValueByName(
+                          "lease_cancellation_fee"
+                        )}`}
+                      </div>
+                      <div className="col-sm-6 col-md-6 mb-4 text-black">
+                        <h6 className="rental-application-lease-heading">
+                          Lease Cancellation Notice period
+                        </h6>
+                        {`${getUnitLeaseTermValueByName(
+                          "lease_cancellation_notice_period"
+                        )} Month(s)`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Typography sx={{ color: "black" }}>
+                    Powered by{" "}
+                    <Link to="/">
+                      <img
+                        src="/assets/img/key-flow-logo-black-transparent.png"
+                        width={150}
+                      />
+                    </Link>
+                  </Typography>
+                </div>
+              </div>
             </div>
           )}
         </div>

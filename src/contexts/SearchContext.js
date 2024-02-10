@@ -105,7 +105,14 @@ export function GlobalSearchProvider({ children }) {
   const search = async () => {
     setIsLoading(true);
     try {
-      authenticatedInstance.get(currentPageEndPoint).then((res) => {
+      authenticatedInstance.get(endpoint,
+          {
+            params: {
+              limit: searchLimit,
+              search: searchQuery,
+            },
+          }
+        ).then((res) => {
         if (res.data.results) {
           setSearchResults(res.data.results);
           setNextPageEndPoint(res.data.next);
@@ -153,12 +160,13 @@ export function GlobalSearchProvider({ children }) {
   };
 
   useEffect(() => {
-    
-  }, [isLoading]);
+  }, [isLoading, endpoint, searchQuery, searchLimit]);
 
   return (
     <SearchContext.Provider
       value={{
+        setEndpoint,
+        endpoint,
         searchQuery,
         setSearchQuery,
         searchResults,

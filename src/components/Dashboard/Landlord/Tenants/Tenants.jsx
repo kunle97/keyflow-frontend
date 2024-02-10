@@ -9,6 +9,7 @@ import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
 import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const [leaseRenewals, setLeaseRenewals] = useState([]);
@@ -149,12 +150,29 @@ const Tenants = () => {
               />
             </div>
           </div>
-          <UITable
+          {/* <UITable
             title="Tenants"
             endpoint={`/tenants/`}
             searchFields={["first_name", "last_name", "email"]}
             columns={columns}
             options={options}
+          /> */}
+          <UITableMobile
+            tableTitle="Tenants"
+            endpoint={`/tenants/`}
+            onRowClick={(row) => {
+              const navlink = `/dashboard/landlord/tenants/${row.id}`;
+              navigate(navlink);
+            }}
+            createInfo={(row) => `${row.user.first_name} ${row.user.last_name}`}
+            createSubtitle={(row) => `${row.user.email}`}
+            createTitle={(row) => `${row.user.email}`}
+            orderingFields={[
+              { field: "created_at", label: "Date Created" },
+              { field: "-created_at", label: "Date Created (Descending)" },
+            ]}
+            loadingTitle="Loading Tenants..."
+            loadingMessage="Please wait while we load all the tenants."
           />
         </div>
       </div>

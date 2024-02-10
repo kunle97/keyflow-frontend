@@ -1,38 +1,35 @@
 import { faker } from "@faker-js/faker";
 import { loadStripe } from "@stripe/stripe-js";
 import { createTheme } from "react-data-table-component";
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import { jwtDecode } from "jwt-decode";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import DescriptionIcon from "@mui/icons-material/Description";
+import HandymanIcon from "@mui/icons-material/Handyman";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 
-export const authUser = localStorage.getItem("authTokens")
-  ? jwtDecode(localStorage.getItem("authTokens"))
+export const authUser = localStorage.getItem("authUser")
+  ? JSON.parse(localStorage.getItem("authUser"))
   : {};
-
-export const token = localStorage.getItem("authTokens")
-  ? JSON.parse(localStorage.getItem("authTokens")).access
+export const token = localStorage.getItem("accessToken")
+  ? localStorage.getItem("accessToken")
   : {};
-
 export const stripe_onboarding_link = localStorage.getItem(
   "stripe_onboarding_link"
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
-
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";
-export const uiGrey = "#f4f7f8"; 
+export const uiGrey = "#eff4f5";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
 export const uiGrey3 = "#dcdde3"; //Used to set background color of a read notification
 
 export const validationMessageStyle = {
-  color: "red !important",
+  color: uiRed,
   fontSize: "14px",
 };
 
@@ -66,114 +63,158 @@ export const devToolInputStyle = {
   outline: "none",
   border: "none",
 };
+const muiIconStyle = { color: uiGreen };
 export const landlordMenuItems = [
   {
     label: "Dashboard",
     link: "/dashboard/landlord",
     icon: "fas fa-tachometer-alt",
-    muiIcon: <DashboardOutlinedIcon />,
+    muiIcon: <DashboardIcon sx={muiIconStyle} />,
     description: "View your dashboard",
     isSearchable: true,
+    dataTestId: "landlord-dashboard-menu-item",
+  },
+  {
+    label: "Properties",
+    link: "/dashboard/landlord/properties",
+    muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+    description: "View your properties",
+    icon: "fa fa-home",
+    isSearchable: true,
+    dataTestId: "landlord-properties-dropdown-menu-item",
+    subMenuItems: [
+      {
+        label: "Properties",
+        link: "/dashboard/landlord/properties",
+        muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+        description: "View your properties",
+        icon: "fa fa-home",
+        isSearchable: true,
+        dataTestId: "landlord-properties-menu-item",
+      },
+      {
+        label: "Portfolios ",
+        link: "/dashboard/landlord/portfolios",
+        muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+        description: "Create a new portfolio",
+        icon: "fa fa-home",
+        isSearchable: true,
+        dataTestId: "landlord-portfolios-menu-item",
+      },
+    ],
   },
   {
     label: "Tenants",
     link: "/dashboard/landlord/tenants",
     icon: "fa fa-group",
-    muiIcon: <PeopleAltOutlinedIcon />,
+    muiIcon: <PeopleAltIcon sx={muiIconStyle} />,
     description: "View your tenants",
     isSearchable: true,
+    dataTestId: "landlord-tenants-menu-item",
   },
-  {
-    label: "Properties",
-    link: "/dashboard/landlord/properties",
-    muiIcon: <HomeWorkOutlinedIcon />,
-    description: "View your properties",
-    icon: "fa fa-home",
-    isSearchable: true,
-  },
+
   {
     label: "Maintenance ",
     link: "/dashboard/landlord/maintenance-requests",
-    muiIcon: <HandymanOutlinedIcon />,
+    muiIcon: <HandymanIcon sx={muiIconStyle} />,
     description: "View all maintenance requests",
     icon: "fas fa-tools",
     isSearchable: true,
+    dataTestId: "landlord-maintenance-requests-menu-item",
   },
   {
     label: "Lease Agreements",
-    link: "/dashboard/landlord/lease-templates",
-    muiIcon: <DescriptionOutlinedIcon />,
+    link: "#",
+    muiIcon: <DescriptionIcon sx={muiIconStyle} />,
     description: "View your lease terms",
     icon: "fas fa-user-circle",
     isSearchable: true,
+    dataTestId: "landlord-lease-agreements-dropdown-menu-item",
     subMenuItems: [
       {
         label: "View Lease Agreements",
         link: "/dashboard/landlord/lease-agreements",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease agreements",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "landlord-lease-agreements-menu-item",
       },
       {
         label: "New Lease Template",
         link: "/dashboard/landlord/lease-templates/create",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "Create a new lease agreement",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "landlord-new-lease-template-menu-item",
       },
       {
         label: "Lease Templates",
         link: "/dashboard/landlord/lease-templates",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease terms",
         icon: "fas fa-user-circle",
         isSearchable: true,
+        dataTestId: "landlord-lease-templates-menu-item",
       },
       {
         label: "Lease Cancellation Requests",
         link: "/dashboard/landlord/lease-cancellation-requests",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease cancellation requests",
         icon: "fas fa-user-circle",
         isSearchable: true,
+        dataTestId: "landlord-lease-cancellation-requests-menu-item",
       },
       {
         label: "Lease Renewal Requests",
         link: "/dashboard/landlord/lease-renewal-requests",
-        muiIcon: <DescriptionOutlinedIcon />,
+        muiIcon: <DescriptionIcon />,
         description: "View your lease renewal requests",
         icon: "fas fa-user-circle",
         isSearchable: true,
+        dataTestId: "landlord-lease-renewal-requests-menu-item",
       },
     ],
   },
   {
     label: "Rental Applications",
     link: "/dashboard/landlord/rental-applications",
-    muiIcon: <ReceiptLongOutlinedIcon />,
+    muiIcon: <ReceiptLongIcon sx={muiIconStyle} />,
     description: "View your rental applications",
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
+    dataTestId: "landlord-rental-applications-menu-item",
   },
   {
     label: "Finances",
     link: "#",
     icon: "fas fa-tachometer-alt",
     isSearchable: false,
+    muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
+    dataTestId: "landlord-finances-dropdown-menu-item",
     subMenuItems: [
       {
         label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
         link: "/dashboard/landlord/transactions",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "landlord-transactions-menu-item",
+      },
+      {
+        label:"Billing Entries",
+        link: "/dashboard/landlord/billing-entries",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "landlord-billing-entries-menu-item",
       },
       {
         label: "Accounting", //TODO: page for accounting: taxes, etc
         link: "/dashboard/maintenance-requests/",
         icon: "fas fa-tools",
         isSearchable: false,
+        dataTestId: "landlord-accounting-menu-item",
       },
     ],
   },
@@ -184,10 +225,20 @@ export const tenantMenuItems = [
     link: "/dashboard/tenant",
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
+    muiIcon: <DashboardIcon sx={muiIconStyle} />,
+  },
+  {
+    label:"Bills",
+    link: "/dashboard/tenant/bills",
+    icon: "fas fa-tachometer-alt",
+    isSearchable: true,
+    muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
+
   },
   {
     label: "Maintenance Requests",
     link: "#",
+    muiIcon: <HandymanIcon sx={muiIconStyle} />,
     subMenuItems: [
       {
         label: "Create New",
@@ -208,6 +259,7 @@ export const tenantMenuItems = [
     label: "My Lease Agreement",
     link: "#",
     icon: "fas fa-user-circle",
+    muiIcon: <DescriptionIcon sx={muiIconStyle} />,
     subMenuItems: [
       {
         label: "View Lease Agreement",
@@ -249,6 +301,8 @@ export const defaultWhiteInputStyle = {
   width: "100%",
   borderRadius: "5px",
   background: "white",
+  outline: "none",
+  border: "none",
 };
 export const fakeData = {
   fakeFirstName:

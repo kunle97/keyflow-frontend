@@ -16,8 +16,11 @@ import UnitRow from "../Properties/UnitRow";
 import { Button, Stack } from "@mui/material";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import useScreen from "../../../../hooks/useScreen";
+import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 const CreateUnit = () => {
   //Create a state for the form data
+  const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
   const [unitCreateError, setUnitCreateError] = useState(false);
@@ -29,6 +32,7 @@ const CreateUnit = () => {
     items: { data: [{ plan: { product: "" } }] },
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [progressModalTitle, setProgressModalTitle] = useState("");
   const navigate = useNavigate();
 
   const [units, setUnits] = useState([
@@ -132,16 +136,19 @@ const CreateUnit = () => {
 
   //Call the create unit api function and pass the form data
   const onSubmit = async (data) => {
+    setIsLoading(true);
+    setProgressModalTitle("Creating Unit...");
     let payload = {};
     payload.units = JSON.stringify(units);
     payload.rental_property = selectedPropertyId;
     payload.subscription_id = currentSubscriptionPlan.id;
     payload.product_id = currentSubscriptionPlan.plan.product;
-    payload.user = authUser.user_id;
+    payload.user = authUser.id;
+    payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
+
     console.log("Data ", data);
     console.log("Pay load ", payload);
     console.log("UNits ", units);
-    setIsLoading(true);
 
     const res = await createUnit(payload);
     console.log(res);
@@ -163,11 +170,15 @@ const CreateUnit = () => {
     console.log(e.target.value);
   };
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
-      (res) => {
+    setIsLoading(true);
+    setProgressModalTitle("Retrieving Subscription Data...");
+    const res = await getUserStripeSubscriptions(authUser.id, token)
+      .then((res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
-      }
-    );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
     return res;
   };
 
@@ -181,7 +192,7 @@ const CreateUnit = () => {
 
   return (
     <>
-      <ProgressModal open={isLoading} title="Adding units..." />
+      <ProgressModal open={isLoading} title={progressModalTitle} />
       <AlertModal
         open={unitCreateError}
         onClick={() => {
@@ -197,25 +208,35 @@ const CreateUnit = () => {
             <BackButton />
             <div className="card shadow my-3">
               <div className="card-body">
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form
+                  data-testid="create-unit-form"
+                  onSubmit={handleSubmit(onSubmit)}
+                >
                   <Stack
                     direction="row"
                     alignItems="center"
                     justifyContent="space-between"
                     sx={{ marginBottom: "20px" }}
                   >
-                    <h6 className="text-primary fw-bold m-0 card-header-text">
-                      Add Units
+                    <h6
+                      data-testid="create-unit-title"
+                      className="text-black fw-bold m-0 "
+                    >
+                      Add Unit(s)
                     </h6>
                     <div>
                       <select
+                        data-testid="create-unit-property-select"
                         {...register("rental_property", {
                           required: "This is a required field",
                         })}
                         name="rental_property"
                         onChange={handlePropertySelectChange}
                         className="form-control"
-                        style={{ width: "250px" }}
+                        style={{
+                          width: isMobile ? "inherit" : "250px",
+                          visibility: property_id ? "hidden" : "visible",
+                        }}
                       >
                         {selectedPropertyId ? (
                           <option value={selectedPropertyId}>
@@ -229,7 +250,9 @@ const CreateUnit = () => {
                             Current Property
                           </option>
                         ) : (
-                          <option value="">Select Property</option>
+                          <option value="" selected disabled>
+                            Select Property
+                          </option>
                         )}
 
                         {properties.map((property) => {
@@ -249,6 +272,7 @@ const CreateUnit = () => {
                     {units.map((unit, index) => {
                       return (
                         <UnitRow
+                          dataTestId={`unit-row-${index}`}
                           style={{ marginBottom: "20px" }}
                           key={index}
                           id={index}
@@ -263,6 +287,7 @@ const CreateUnit = () => {
                           removeBtn={
                             index !== 0 && (
                               <Button
+                                data-testid={`unit-row-${index}-delete-button`}
                                 sx={{
                                   color: uiRed,
                                   textTransform: "none",
@@ -279,7 +304,11 @@ const CreateUnit = () => {
                   </div>
 
                   <div className="text-end my-3">
-                    <button className="btn btn-primary ui-btn" type="submit">
+                    <button
+                      data-testid="create-unit-submit-button"
+                      className="btn btn-primary ui-btn"
+                      type="submit"
+                    >
                       Create Unit
                     </button>
                   </div>

@@ -2,6 +2,7 @@ import React from "react";
 import UITable from "../../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const LeaseRenewalRequests = () => {
   const navigate = useNavigate();
   const columns = [
@@ -58,8 +59,8 @@ const LeaseRenewalRequests = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/lease-renewal-requests/${rowData}/`;
+  const handleRowClick = (row) => {
+    const navlink = `/dashboard/landlord/lease-renewal-requests/${row.id}/`;
     navigate(navlink);
   };
   const options = {
@@ -74,11 +75,25 @@ const LeaseRenewalRequests = () => {
   };
   return (
     <div className="container-fluid">
-      <UITable
-        title="Lease Renewal Requests"
+      <UITableMobile
         endpoint={"/lease-renewal-requests/"}
-        columns={columns}
-        options={options}
+        tableTitle={"Lease Renewal Requests"}
+        createInfo={(row) =>
+          `${row.tenant.user.first_name} ${row.tenant.user.last_name}`
+        }
+        createTitle={(row) =>
+          `Unit ${row.rental_unit.name} | ${row.rental_property.name}`
+        }
+        createSubtitle={(row) => `${row.status}`}
+        orderingFields={[
+          { field: "created_at", label: "Date Created (Ascending)" },
+          { field: "-created_at", label: "Date Created (Descending)" },
+          { field: "status", label: "Status (Ascending)" },
+          { field: "-status", label: "Status (Descending)" },
+        ]}
+        onRowClick={handleRowClick}
+        loadingTitle="Lease renewal Requests"
+        loadingMessage="Please wait while we fetch your lease renewal requests."
       />
     </div>
   );

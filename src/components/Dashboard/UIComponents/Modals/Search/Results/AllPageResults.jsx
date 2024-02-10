@@ -35,12 +35,14 @@ const AllPageResults = (props) => {
             <div id="pages" style={{ overflow: "hidden" }}>
               <h2 className="text-black" >Pages ({filteredPages.length})</h2>
               <div className="row">
-                {filteredPages.map((page) => (
+                {filteredPages.map((page, index) => (
+
                   <SearchResultCard
+                    dataTestId={`page-search-result-${index}`}
                     to={page.link}
                     handleClose={props.handleClose}
                     gridSize={4}
-                    key={page.name}
+                    key={`${page.name}-${index}`}
                     title={page.label}
                     subtitle={page.description}
                     icon={page.muiIcon}

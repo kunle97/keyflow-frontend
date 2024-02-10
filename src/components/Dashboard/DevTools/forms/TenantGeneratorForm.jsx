@@ -15,8 +15,6 @@ import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UIButton from "../../UIComponents/UIButton";
 import { getLeaseTemplatesByUser } from "../../../../api/lease_templates";
 import { useForm } from "react-hook-form";
-import { CardElement } from "@stripe/react-stripe-js";
-import { useStripe, useElements } from "@stripe/react-stripe-js";
 export const TenantGeneratorForm = (props) => {
   const [numberOfItems, setNumberOfItems] = useState(10); // Default value
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +56,7 @@ export const TenantGeneratorForm = (props) => {
     // Collect input values
     let payload = {
       count: data.numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       unit_mode: data.unitMode,
       rental_unit_id: data.rentalUnitId,
       lease_template_mode: data.leaseTemplateMode,

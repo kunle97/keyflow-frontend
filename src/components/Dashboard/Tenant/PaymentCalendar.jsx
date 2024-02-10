@@ -9,7 +9,7 @@ const PaymentCalendar = () => {
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   //TODO Retriueve pay dates from backend
   useEffect(() => {
-    getPaymentDates(authUser.user_id).then((res) => {
+    getPaymentDates(authUser.id).then((res) => {
       if (res.status === 200) {
         const payment_dates = res.data.payment_dates;
         const due_dates = payment_dates.map((date) => {

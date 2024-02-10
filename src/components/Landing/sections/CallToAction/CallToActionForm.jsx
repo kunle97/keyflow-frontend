@@ -4,7 +4,16 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import UIButton from "../../../Dashboard/UIComponents/UIButton";
 import AlertModal from "../../../Dashboard/UIComponents/Modals/AlertModal";
-const CallToActionForm = (props) => {
+import { Stack } from "@mui/material";
+import ReactGA from "react-ga4";
+import ProgresModal from "../../../Dashboard/UIComponents/Modals/ProgressModal";
+const CallToActionForm = () => {
+  ReactGA.initialize([
+    {
+      trackingId: "G-Z7X45HF5K6",
+    },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("");
@@ -15,10 +24,16 @@ const CallToActionForm = (props) => {
     formState: { errors },
   } = useForm();
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
       const res = await requestDemo(data).then((res) => {
         console.log(res);
         if (res.status === 200) {
+          ReactGA.event({
+            category: "Mailing List",
+            action: "mailing_list_signup",
+            label: "Mailing List Sign Up from Demo Request",
+          });
           setModalTitle("Success!");
           setModalMessage(
             "Thank you for your interest in KeyFlow! We will be in touch shortly."
@@ -34,12 +49,18 @@ const CallToActionForm = (props) => {
     } catch (error) {
       console.log(error);
       setModalTitle("Error!");
-      setModalMessage("Something went wrong. Please try  using a  different email address or try again later.");
+      setModalMessage(
+        "Something went wrong. Please try  using a  different email address or try again later."
+      )
       setShowModal(true);
+    }finally{
+      setIsLoading(false);
     }
+
   };
   return (
     <div>
+      <ProgresModal open={isLoading} title="Please wait..." />
       <AlertModal
         title={modalTitle}
         message={modalMessage}
@@ -52,30 +73,42 @@ const CallToActionForm = (props) => {
         className="d-flex justify-content-center flex-wrap"
         method="post"
       >
-        <div
-          className="mb-3"
-          style={props.flexInput ? { flex: 2 } : { marginRight: "10px" }}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
         >
-          <input
-            {...register("email", {
-              required: true,
-              pattern: {
-                value: /\S+@\S+\.\S+/,
-                message: "Entered value does not match email format",
-              },
-            })}
-            className="form-control"
-            type="email"
-            name="email"
-            placeholder="Your Email"
-          />
-          <span className={validationMessageStyle}>
-            {errors.email && errors.email.message}
-          </span>
-        </div>
-        <div className="">
-          <UIButton type="submit" btnText="Request Demo" />
-        </div>
+          {" "}
+          <div className="">
+            <input
+              {...register("email", {
+                required: true,
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Entered value does not match email format",
+                },
+              })}
+              className="form-control"
+              type="email"
+              name="email"
+              placeholder="Your Email"
+              style={{ width: "250px" }}
+            />
+            <span
+              className={{
+                ...validationMessageStyle,
+                width: "100%",
+                color: "red",
+              }}
+            >
+              {errors.email && errors.email.message}
+            </span>
+          </div>
+          <div className="">
+            <UIButton type="submit" btnText="Request Demo" />
+          </div>
+        </Stack>
       </form>
     </div>
   );

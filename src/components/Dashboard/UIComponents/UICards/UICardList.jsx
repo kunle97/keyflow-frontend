@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import UICard from "./UICard";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -9,8 +9,11 @@ import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import { uiGreen } from "../../../../constants";
 import { Stack } from "@mui/material";
-
+import useScreen from "../../../../hooks/useScreen";
 const UICardList = (props) => {
+  const { screenWidth, breakpoints } = useScreen();
+
+  useEffect(() => {}, [screenWidth]);
   return (
     <UICard
       info={props.info}
@@ -21,7 +24,7 @@ const UICardList = (props) => {
       dropDownOptions={props.dropDownOptions}
       onDropdownChange={props.onDropdownChange}
     >
-      <ul className="list-group">
+      <ul className="list-group" data-testId={props.dataTestId} >
         {props.items.map((item) => (
           <>
             <li
@@ -36,7 +39,9 @@ const UICardList = (props) => {
                 justifyContent={"space-between"}
               >
                 <>
-                  <Avatar sx={{ background: uiGreen }}>{item.icon}</Avatar>
+                  {screenWidth > breakpoints.lg && (
+                    <Avatar sx={{ backgrounfd: uiGreen }}>{item.icon}</Avatar>
+                  )}
 
                   <ListItemText
                     sx={{ color: "black" }}

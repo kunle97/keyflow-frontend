@@ -20,7 +20,12 @@ const styles = (theme) => ({
   },
 });
 const UISwitch = withStyles(styles)(({ classes, ...props }) => (
-  <Switch {...props} classes={{ root: classes.customSwitch }} />
+  <Switch
+    {...props}
+    classes={{ root: classes.customSwitch }}
+    checked={props.value} // Pass the value to control the switch state
+    onChange={props.onChange}
+  />
 ));
 
 export default UISwitch;

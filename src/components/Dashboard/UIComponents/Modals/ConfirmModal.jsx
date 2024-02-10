@@ -1,58 +1,99 @@
 import React from "react";
-import { Modal } from "@mui/base/Modal";
-import { Button, Box, Typography, Stack } from "@mui/material";
-import { uiGreen, uiGrey1 } from "../../../../constants";
+import { Modal, Backdrop, Box, Typography, Button, Stack } from "@mui/material";
+import { uiGreen, uiGrey1, uiRed } from "../../../../constants";
+import { makeStyles } from "@mui/styles";
 
-const ConfirmModal = (props) => {
-  const style = {
+const useStyles = makeStyles(() => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backdrop: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: 400,
     color: uiGrey1,
-    bgcolor: "white",
+    backgroundColor: "white",
     borderRadius: "10px",
-    boxShadow: 24,
-    p: 4,
+    boxShadow: "0px 4px 24px rgba(0, 0, 0, 0.15)",
+    padding: "16px",
     zIndex: 1000,
-  };
-
-  const confirmBtnStyle = {
-    marginTop: "20px",
+  },
+  confirmBtn: {
+    marginTop: "16px",
     backgroundColor: uiGreen,
-    marginRight: "20px",
+    marginRight: "16px",
     textTransform: "none",
-  };
-
-  const cancelBtnStyle = {
-    marginTop: "20px",
+  },
+  cancelBtn: {
+    marginTop: "16px",
     backgroundColor: "red",
-    marginRight: "20px",
     textTransform: "none",
-  };
+  },
+}));
+
+const ConfirmModal = (props) => {
+  const classes = useStyles();
 
   return (
     <div>
-      <Modal open={props.open} onClose={props.handleClose}>
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+      <Modal
+        className={classes.modal}
+        open={props.open}
+        onClose={props.handleClose}
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+          classes: {
+            root: classes.backdrop,
+          },
+        }}
+      >
+        <Box className={classes.modalContent}>
+          <Typography
+            id="modal-modal-title"
+            data-testid="confirm-modal-title"
+            variant="h6"
+            component="h2"
+          >
             {props.title}
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+          <Typography
+            id="modal-modal-description"
+            data-testid="confirm-modal-message"
+            sx={{ mt: "16px" }}
+          >
             {props.message}
           </Typography>
-          <Stack direction="row">
+          <Stack direction="row" spacing={2} sx={{ mt: "16px" }}>
             <Button
+              data-testid="confirm-modal-cancel-button"
               onClick={props.handleCancel}
-              style={{ ...cancelBtnStyle, ...props.cancelBtnStyle }}
+              className={classes.cancelBtn}
+              style={{
+                background: uiGreen,
+                textTransform: "none",
+                ...props.cancelBtnStyle,
+              }}
               variant="contained"
             >
               {props.cancelBtnText}
             </Button>
             <Button
+              data-testid="confirm-modal-confirm-button"
               onClick={props.handleConfirm}
-              style={{ ...confirmBtnStyle, ...props.confirmBtnStyle }}
+              className={classes.confirmBtn}
+              style={{
+                background: uiRed,
+                textTransform: "none",
+                ...props.confirmBtnStyle,
+              }}
               variant="contained"
             >
               {props.confirmBtnText}

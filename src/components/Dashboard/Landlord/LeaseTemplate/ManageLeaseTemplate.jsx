@@ -23,6 +23,8 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIPrompt from "../../UIComponents/UIPrompt";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import useScreen from "../../../../hooks/useScreen";
 const ManageLeaseTemplate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -36,6 +38,7 @@ const ManageLeaseTemplate = () => {
     { name: "unitsAssigned", label: "Units Assigned" },
     { name: "editDocument", label: "Edit Document" },
   ];
+  const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [progressModalTitle, setProgressModalTitle] = useState("");
   const [alertModalIsOpen, setAlertModalIsOpen] = useState(false);
@@ -61,7 +64,6 @@ const ManageLeaseTemplate = () => {
         frequency: "",
       },
     ]);
-    console.log(additionalCharges);
   };
   const removeCharge = (index) => {
     if (additionalCharges.length === 1) return;
@@ -149,6 +151,7 @@ const ManageLeaseTemplate = () => {
     authenticatedInstance
       .get(`/lease-templates/${id}/`)
       .then((res) => {
+        console.log(res.data.additional_charges);
         setLeaseTemplate(res.data);
         setAdditionalCharges(JSON.parse(res.data.additional_charges));
         setUnits(res.data.units);
@@ -258,10 +261,10 @@ const ManageLeaseTemplate = () => {
                 className="form-control"
               >
                 <option value="">Select Frequency</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
+                <option value="day">Daily</option>
+                <option value="week">Weekly</option>
+                <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
               </select>
               <span style={validationMessageStyle}>
                 {errors[`additionalChargeFrequency_${index}`] &&
@@ -344,6 +347,7 @@ const ManageLeaseTemplate = () => {
         tabs={tabs}
         value={tabPage}
         handleChange={handleChangeTabPage}
+        scrollable={true}
       />
       {tabPage === 0 && (
         <div className="card">
@@ -594,7 +598,7 @@ const ManageLeaseTemplate = () => {
                   htmlFor="rent"
                 >
                   Grace Period
-                  <Tooltip title="The grace period is the amount of time you give a tenant until they mus pay for thier first rent payment.">
+                  <Tooltip title="The grace period is the amount of time you give a tenant until they must pay for thier first rent payment.">
                     <HelpOutline
                       sx={{
                         marginLeft: "5px",
@@ -779,13 +783,10 @@ const ManageLeaseTemplate = () => {
                   placeholder="$"
                 />
                 <span style={validationMessageStyle}>
-                  {errors.lease_renewal_fee &&
-                    errors.lease_renewal_fee.message}
+                  {errors.lease_renewal_fee && errors.lease_renewal_fee.message}
                 </span>
               </div>
 
-
-              
               <div className="form-group col-md-12">
                 <Button
                   variant="contained"
@@ -814,19 +815,42 @@ const ManageLeaseTemplate = () => {
       )}
       {tabPage === 2 && (
         <>
-          <UITable
-            columns={columns}
-            options={options}
+          <UITableMobile
             data={units}
-            title="Units"
-            showCreate={false}
+            infoProperty="name"
+            createTitle={(row) =>
+              `Occupied: ${row.is_occupied ? `Yes` : "No"} `
+            }
+            createSubtitle={(row) => `Beds: ${row.beds} | Baths: ${row.baths}`}
+            createURL={`/dashboard/landlord/units/create/${id}`}
+            showCreate={true}
+            // getImage={(row) => {
+            //   retrieveFilesBySubfolder(
+            //     `properties/${property.id}/units/${row.id}`,
+            //     authUser.id
+            //   ).then((res) => {
+            //     if (res.data.length > 0) {
+            //       return res.data[0].file;
+            //     } else {
+            //       return "https://picsum.photos/200";
+            //     }
+            //   });
+            // }}
+            onRowClick={(row) => {
+              const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
+              navigate(navlink);
+            }}
           />
         </>
       )}
       {tabPage === 3 && (
         <>
           <div className="card">
-            <iframe src={editLink} height="1200px" width="100%" />
+            <iframe
+              src={editLink}
+              height={isMobile ? "500px" : "1200px"}
+              width="100%"
+            />
           </div>
         </>
       )}

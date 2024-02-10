@@ -25,27 +25,24 @@ const addErrorHandler = (instance) => {
 
 export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
-  timeout: 20000,
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    Authorization: `Token ${token}`,
   },
 });
 addErrorHandler(authenticatedInstance);
 
 export const authenticatedMediaInstance = axios.create({
   baseURL: API_HOST,
-  timeout: 10000,
   headers: {
     "Content-Type": "multipart/form-data",
-    Authorization: `Bearer ${token}`,
+    Authorization: `Token ${token}`,
   },
 });
 addErrorHandler(authenticatedMediaInstance);
 
 export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
-  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },

@@ -20,7 +20,15 @@ import {
 } from "../../../../api/auth";
 import { useForm } from "react-hook-form";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { useNavigate } from "react-router";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
@@ -31,8 +39,12 @@ import { faker } from "@faker-js/faker";
 import UploadDialog from "../../UIComponents/Modals/UploadDialog/UploadDialog";
 import { authenticatedInstance } from "../../../../api/api";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
+import UISwitch from "../../UIComponents/UISwitch";
+import useScreen from "../../../../hooks/useScreen";
+import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 
 const MyAccount = () => {
+  const { isMobile } = useScreen();
   const [tabPage, setTabPage] = useState(0);
   const [tabs, setTabs] = useState([
     { label: "Account" },
@@ -63,7 +75,7 @@ const MyAccount = () => {
       console.log("Set as default PM: ", paymentMethodId);
       let data = {};
       data.payment_method_id = paymentMethodId;
-      data.user_id = authUser.user_id;
+      data.user_id = authUser.id;
       console.log(res.lease_agreement.id);
       //Retrieve the lease agreement
       data.lease_agreement_id = res.lease_agreement.id;
@@ -74,7 +86,7 @@ const MyAccount = () => {
         setResponseMessage("Payment method set as default");
         setShowResponseModal(true);
         //Get the payment methods for the user
-        listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+        listStripePaymentMethods(`${authUser.id}`).then((res) => {
           console.log(res.data);
           setPaymentMethods(res.data);
         });
@@ -93,7 +105,7 @@ const MyAccount = () => {
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
-      listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
         console.log(res.data);
         setPaymentMethods(res.data);
       });
@@ -153,16 +165,16 @@ const MyAccount = () => {
 
   useEffect(() => {
     //Get the payment methods for the user
-    listStripePaymentMethods(`${authUser.user_id}`).then((res) => {
+    listStripePaymentMethods(`${authUser.id}`).then((res) => {
       setPaymentMethods(res.data);
     });
     getSubscriptionPlanPrices().then((res) => {
       setPlans(res.products);
     });
-    getUserStripeSubscriptions(authUser.user_id, token).then((res) => {
+    getUserStripeSubscriptions(authUser.id, token).then((res) => {
       setCurrentSubscriptionPlan(res.subscriptions);
     });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.user_id).then(
+    retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
       (res) => {
         setProfilePictureFile(res.data[0]);
       }
@@ -179,7 +191,53 @@ const MyAccount = () => {
         handleClose={() => setShowResponseModal(false)}
         onClick={() => setShowResponseModal(false)}
       />
-      <h3 className="text-black mb-4">My Account</h3>
+      <Stack
+        direction={"column"}
+        justifyContent="center"
+        alignItems="center"
+        spacing={1}
+        sx={{ marginBottom: "30px" }}
+      >
+        <div
+          style={{
+            borderRadius: "50%",
+            overflow: "hidden",
+            width: isMobile ? "100px" : "200px",
+            height: isMobile ? "100px" : "200px",
+            margin: "15px auto",
+          }}
+        >
+          <img
+            style={{ height: "100%" }}
+            src={
+              profilePictureFile
+                ? profilePictureFile.file
+                : "/assets/img/avatars/default-user-profile-picture.png"
+            }
+          />
+        </div>
+        <Button
+          btnText="Change Profile Picture"
+          onClick={() => setUploadDialogOpen(true)}
+          variant="text"
+          sx={{
+            color: uiGreen,
+            textTransform: "none",
+            fontSize: "12pt",
+            margin: "0 10px",
+          }}
+        >
+          Change Profile Picture
+        </Button>
+        <h4 style={{ width: "100%", textAlign: "center" }}>
+          {authUser.first_name} {authUser.last_name}
+        </h4>
+        <div style={{ width: "100%", textAlign: "center" }}>
+          <a href={`mailto:${authUser.email}`} className="text-muted">
+            {authUser.email}
+          </a>
+        </div>
+      </Stack>
 
       <UITabs
         style={{ marginBottom: "30px" }}
@@ -198,46 +256,7 @@ const MyAccount = () => {
             acceptedFileTypes={[".png", ".jpg", ".jpeg"]}
           />
           <div className="row basic-info-row">
-            <div className="col-sm-12 col-md-4 col-lg-4">
-              <div className="card mb-3">
-                <div className="card-body text-center shadow">
-                  <div
-                    style={{
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      width: "200px",
-                      height: "200px",
-                      margin: "15px auto",
-                    }}
-                  >
-                    <img
-                      style={{ height: "100%" }}
-                      src={
-                        profilePictureFile
-                          ? profilePictureFile.file
-                          : "/assets/img/avatars/default-user-profile-picture.png"
-                      }
-                    />
-                  </div>
-                  <h4
-                    className="text-black tenant-info-heading"
-                    style={{ width: "100%" }}
-                  >
-                    <center>
-                      {authUser.first_name} {authUser.last_name}
-                    </center>
-                  </h4>
-                  <div className="mb-3">
-                    <UIButton
-                      sx={{ margin: "0 10px" }}
-                      btnText="Change Profile Picture"
-                      onClick={() => setUploadDialogOpen(true)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-8">
+            <div className="col-md-12">
               <div className="card shadow mb-3">
                 <div className="card-body">
                   <form
@@ -714,6 +733,27 @@ const MyAccount = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {tabPage === 5 && (
+        <div className={isMobile && "container-fluid"}>
+          <List
+            sx={{
+              width: "100%",
+              // maxWidth: 360,
+            }}
+          >
+            {[0, 1, 2, 3].map((value) => {
+              return (
+                <UIPreferenceRow
+                  key={value}
+                  title={faker.lorem.words(3)}
+                  description={faker.lorem.words(10)}
+                  value={faker.datatype.boolean()}
+                />
+              );
+            })}
+          </List>
         </div>
       )}
     </div>

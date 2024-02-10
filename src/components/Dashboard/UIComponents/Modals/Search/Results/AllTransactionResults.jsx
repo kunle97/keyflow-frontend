@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSearch } from "../../../../../../contexts/SearchContext";
 import { Box, CircularProgress } from "@mui/material";
 import { Fragment } from "react";
@@ -9,40 +9,77 @@ import { uiGreen } from "../../../../../../constants";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import { useEffect } from "react";
 import UIPrompt from "../../../UIPrompt";
+import { authenticatedInstance } from "../../../../../../api/api";
+import AlertModal from "../../AlertModal";
+import UIProgressPrompt from "../../../UIProgressPrompt";
 const AllTransactionResults = (props) => {
-  const {
-    searchQuery,
-    searchResults,
-    searchResultsBatch,
-    search,
-    setSearchQuery,
-    isLoading,
-    changeEndpoint,
-    changeSearchLimit,
-    searchLimit,
-    nextPageEndPoint,
-    previousPageEndPoint,
-    nextPage,
-    previousPage,
-    resultCount,
-  } = useSearch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [endpoint, setEndpoint] = useState(`/transactions/`);
+  const [resultCount, setResultCount] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [searchResults, setSearchResults] = useState([]);
+  const [nextPageEndPoint, setNextPageEndPoint] = useState(null);
+  const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const nextPage = () => {
+    setEndpoint(nextPageEndPoint);
+  };
+
+  const previousPage = () => {
+    setEndpoint(previousPageEndPoint);
+  };
+
+  const search = () => {
+    setIsLoading(true);
+    authenticatedInstance
+      .get(endpoint, {
+        params: {
+          search: props.searchValue,
+          limit: limit,
+        },
+      })
+      .then((response) => {
+        setSearchResults(response.data.results);
+        setResultCount(response.data.count);
+        setNextPageEndPoint(response.data.next);
+        setPreviousPageEndPoint(response.data.previous);
+      })
+      .catch((error) => {
+        console.log(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occured retrieving properties: " + error.message
+        );
+        setOpen(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
-    changeEndpoint(`/transactions/`);
-    changeSearchLimit(6);
-    setSearchQuery(props.searchValue);
     search();
-  }, [searchQuery, props.searchValue]);
+  }, [props.searchValue, endpoint, limit]);
   return (
     <div>
+      <AlertModal
+        open={open}
+        handleClose={() => {
+          setOpen(false);
+        }}
+        title={alertTitle}
+        message={alertMessage}
+      />
       <div id="rental-applications" style={{ overflow: "hidden" }}>
         <div className="row">
           {isLoading ? (
-            <Box sx={{ display: "flex" }}>
-              <Box sx={{ margin: "55px auto" }}>
-                <CircularProgress sx={{ color: uiGreen }} />
-              </Box>
-            </Box>
+            <UIProgressPrompt
+              title="Loading Transactions"
+              message="Please wait while we retrieve your transactions."
+            />
           ) : (
             <Fragment>
               {resultCount === 0 ? (
@@ -67,12 +104,13 @@ const AllTransactionResults = (props) => {
                     title="Transactions"
                     resultCount={resultCount}
                     refresh={search}
-                    searchLimit={searchLimit}
-                    changeSearchLimit={changeSearchLimit}
+                    searchLimit={limit}
+                    changeSearchLimit={setLimit}
                   />
-                  {searchResults.map((transaction) => {
+                  {searchResults.map((transaction, index) => {
                     return (
                       <SearchResultCard
+                        dataTestId={`transaction-search-result-${index}`}
                         to={`/dashboard/landlord/transactions/${transaction.id}`}
                         key={transaction.id}
                         handleClose={props.handleClose}

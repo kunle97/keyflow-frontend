@@ -8,7 +8,7 @@ export const createThreads = (messages) => {
   // Group messages by sender and recipient pairs
   messages.forEach((message) => {
     const key =
-      message.sender.id === authUser.user_id
+      message.sender.id === authUser.id
         ? `${message.sender.id}-${message.recipient.id}`
         : `${message.recipient.id}-${message.sender.id}`;
 
@@ -16,11 +16,11 @@ export const createThreads = (messages) => {
       threadsMap[key] = {
         id: key,
         recipient_id:
-          message.sender.id === authUser.user_id
+          message.sender.id === authUser.id
             ? message.recipient.id
             : message.sender.id,
         name:
-          message.sender.id === authUser.user_id
+          message.sender.id === authUser.id
             ? `${message.recipient.first_name} ${message.recipient.last_name}`
             : `${message.sender.first_name} ${message.sender.last_name}`,
         messages: [],
@@ -31,7 +31,7 @@ export const createThreads = (messages) => {
       id: message.id,
       text: message.body,
       timestamp: message.timestamp,
-      isSender: message.sender.id === authUser.user_id,
+      isSender: message.sender.id === authUser.id,
       file: message.file ? message.file : null,
     });
   });

@@ -121,7 +121,7 @@ const UITableMini = (props) => {
               />
             </div>
           ) : (
-            <table id="ui-table-mini" style={{ width: "100%" }}>
+            <table id="ui-table-mini" data-testId={props.dataTestId} style={{ width: "100%" }}>
               <thead>
                 <tr>
                   {props.columns.map((column) => {
@@ -189,7 +189,7 @@ const UITableMini = (props) => {
                       return (
                         <tr style={{ borderBottom: "1px solid #ccc" }}>
                           {props.columns.map((column) => {
-                            //Check if column has an option property with a function in it called customBodyRender
+                            //Check if column has an o ption property with a function in it called customBodyRender
                             if (column.options) {
                               if (column.options.customBodyRender) {
                                 return (

@@ -8,6 +8,7 @@ import { useState } from "react";
 import BackButton from "../UIComponents/BackButton";
 import { uiGreen, uiGrey2 } from "../../../constants";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import { removeUnderscoresAndCapitalize } from "../../../helpers/utils";
 export const NotificationDetail = () => {
   const { id } = useParams();
   const [notification, setNotification] = useState({}); //initialize notification state
@@ -28,7 +29,7 @@ export const NotificationDetail = () => {
       <div className="row">
         {" "}
         <div className="col-md-5  offset-md-3">
-          <BackButton to="/dashboard/landlord/notifications" />
+          <BackButton to="/dashboard/notifications" />
           <div className="card">
             {/* <center className="py-4 mt-3">
               <NotificationsNoneOutlinedIcon
@@ -37,8 +38,11 @@ export const NotificationDetail = () => {
             </center> */}
             <div className="card-body">
               <div className="row">
-                <div className="col-md-12">
-                  <p className="text-black">
+                <div className="col-md-12 mb-3">
+                  <p
+                    className="text-black"
+                    style={{ fontSize: "14pt", color: uiGrey2 }}
+                  >
                     <strong>Message:</strong>
                   </p>{" "}
                   <span style={{ color: uiGrey2 }}>{notification.message}</span>
@@ -53,7 +57,7 @@ export const NotificationDetail = () => {
                     <strong>Type</strong>
                   </span>{" "}
                   <span style={{ float: "right", color: uiGrey2 }}>
-                    {notification.type}
+                    {removeUnderscoresAndCapitalize(notification.type)}
                   </span>
                 </div>
                 <div

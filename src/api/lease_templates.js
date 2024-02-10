@@ -8,8 +8,9 @@ export async function createLeaseTemplate(data) {
   try {
     const res = await authenticatedInstance
       .post(`/lease-templates/`, {
-        user_id: authUser.user_id,
+        user_id: authUser.id,
         rent: parseFloat(data.rent),
+        rent_frequency: data.rent_frequency,
         term: data.term,
         description: "_",
         security_deposit: data.security_deposit,
@@ -50,7 +51,7 @@ export async function getLeaseTemplatesByUser() {
       .get(`/lease-templates/?ordering=-created_at`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -107,7 +108,7 @@ export async function updateLeaseTemplate(leaseTemplateId, data) {
       .patch(`/lease-templates/${leaseTemplateId}/`, data, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       })
       .then((res) => {
@@ -129,7 +130,7 @@ export async function deleteLeaseTemplate(data) {
       .delete(`/lease-templates/`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
         data: data,
       })

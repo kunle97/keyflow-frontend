@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { uiGreen, uiRed } from "../../../../constants";
+import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 import UITableMini from "../../UIComponents/UITable/UITableMini";
@@ -19,7 +19,7 @@ import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import { getLeaseAgreementsByTenant } from "../../../../api/lease_agreements";
 import UITable from "../../UIComponents/UITable/UITable";
 import BackButton from "../../UIComponents/BackButton";
-
+import useScreen from "../../../../hooks/useScreen";
 const LeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,6 +41,7 @@ const LeaseRenewalRequestDetail = () => {
     { name: "status", label: "Status" },
   ];
 
+  const { isMobile } = useScreen();
   const handleReject = () => {
     rejectLeaseRenewalRequest({
       lease_renewal_request_id: leaseRenewalRequest.id,
@@ -175,19 +176,21 @@ const LeaseRenewalRequestDetail = () => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <h4>
+            <h4
+              style={{ color: uiGrey2, fontSize: isMobile ? "15pt" : "24pt" }}
+            >
               {" "}
               {leaseRenewalRequest.tenant.user.first_name}{" "}
-              {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal Request (
-              {leaseRenewalRequest.status})
+              {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal
+              Request ({leaseRenewalRequest.status})
             </h4>
-            {actionStack}
+            {(leaseRenewalRequest.status !== "approved" && !isMobile) && actionStack}
           </Stack>
 
           <div className="row">
             {currentLeaseAgreement && (
               <div className="col-md-6 align-self-center">
-                <div className="card">
+                <div className="card mb-3">
                   <div className="card-body">
                     <div className="row">
                       <h5 className="mb-3">Current Lease Agreement Details</h5>
@@ -279,20 +282,34 @@ const LeaseRenewalRequestDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-12">
-              <UITable
-                title="Rent Payments"
-                data={dueDates}
-                columns={columns}
-                options={{
-                  isSelectable: false,
-                  onRowClick: null,
-                }}
-              />
-            </div>
+            {isMobile ? (
+              <div className={`col-md-12 ${isMobile && "mt-3"}`}>
+                <div className="card">
+                  <div className="card-body">
+                    <UITableMini
+                      title="Remaining Payments"
+                      data={dueDates}
+                      columns={columns}
+                      showViewButton={false}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="col-md-12">
+                <UITable
+                  title="Rent Payments"
+                  data={dueDates}
+                  columns={columns}
+                  options={{
+                    isSelectable: false,
+                    onRowClick: null,
+                  }}
+                />
+              </div>
+            )}
           </div>
-
-          {actionStack}
+          {leaseRenewalRequest.status !== "approved" && actionStack}
         </>
       )}
     </div>

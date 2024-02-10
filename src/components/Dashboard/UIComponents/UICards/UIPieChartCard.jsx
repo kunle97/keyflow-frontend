@@ -1,11 +1,11 @@
 import React from "react";
-import UICard from "./UICard";
+import UIChartCard from "./UIChartCard";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { Stack } from "@mui/material";
 
 const UIPieChartCard = (props) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
-  console.log("Piechart data",props.data);
   const data = {
     labels: props.labels,
     datasets: [
@@ -37,7 +37,7 @@ const UIPieChartCard = (props) => {
     },
   };
   return (
-    <UICard
+    <UIChartCard
       info={props.info}
       title={props.title}
       cardStyle={props.cardStyle}
@@ -45,6 +45,7 @@ const UIPieChartCard = (props) => {
       titleStyle={props.titleStyle}
       dropDownOptions={props.dropDownOptions}
       onDropdownChange={props.onDropdownChange}
+      chartHeaderMode={true}
     >
       <div
         style={{
@@ -54,14 +55,20 @@ const UIPieChartCard = (props) => {
         }}
       >
         {props.data.length === 0 ? (
-          <div style={{ textAlign: "center" }}>
-            <h6>No data to display</h6>
-          </div>
+          <Stack 
+            spacing={2} 
+            direction="column" 
+            alignItems="center" 
+            justifyContent="center" 
+            sx={{ height: "100%" }}
+          >
+            <h5>No data to display</h5>
+          </Stack>
         ) : (
-          <Doughnut options={options} data={data} />
+          <Doughnut data-testId={props.dataTestId} options={options} data={data} />
         )}
       </div>
-    </UICard>
+    </UIChartCard>
   );
 };
 

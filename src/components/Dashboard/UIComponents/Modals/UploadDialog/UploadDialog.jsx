@@ -6,8 +6,6 @@ import UIButton from "../../UIButton";
 import { useState } from "react";
 import {
   uploadFile,
-  deleteFile,
-  retrieveFilesBySubfolder,
 } from "../../../../../api/file_uploads";
 import AlertModal from "../AlertModal";
 import ProgressModal from "../ProgressModal";
@@ -43,8 +41,8 @@ const UploadDialog = (props) => {
 
   const onDrop = (acceptedFiles) => {
     let validFiles = true;
-  
     acceptedFiles.forEach((file) => {
+      console.log("File Data info",file)
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(
@@ -95,7 +93,7 @@ const UploadDialog = (props) => {
     files.forEach((file) => {
       const payload = {
         file: file,
-        user: authUser.user_id,
+        user: authUser.id,
         subfolder: props.subfolder,
       };
 
@@ -113,6 +111,7 @@ const UploadDialog = (props) => {
         }
       });
     });
+    
     props.onClose();
     setShowFileUploadAlert(true);
   };

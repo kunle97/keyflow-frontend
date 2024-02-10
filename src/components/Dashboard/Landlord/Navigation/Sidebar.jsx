@@ -29,6 +29,7 @@ const Sidebar = (props) => {
         style={{ background: uiGrey}}
       ></div> */}
       <nav
+        data-testid="sidebar-desktop"
         className={`navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark ${
           props.showNavMenu ? "" : "dashboard-navbar-hidden"
         }`}
@@ -60,7 +61,10 @@ const Sidebar = (props) => {
             {menuItems.map((item, index) => {
               if (item.subMenuItems) {
                 return (
-                  <li class=" dropdown show dashboard-nav-item">
+                  <li
+                    class=" dropdown show dashboard-nav-item"
+                    data-testId={item.dataTestId}
+                  >
                     <a
                       class="dropdown-toggle nav-link"
                       aria-expanded="true"
@@ -68,10 +72,13 @@ const Sidebar = (props) => {
                       href="#"
                       style={{ color: uiGrey2, fontSize: "13pt" }}
                     >
-                      <i
+                      {/* <i
                         className={"${item.icon} text-gray-400"}
                         style={{ color: uiGrey2, fontSize: "13pt" }}
-                      />
+                      /> */}
+                      <span style={{ marginRight: "10px" }}>
+                        {item.muiIcon}
+                      </span>
                       {item.label}
                     </a>
                     <div
@@ -87,21 +94,22 @@ const Sidebar = (props) => {
                     >
                       {item.subMenuItems.map((subItem, index) => {
                         return (
-                          <Link
-                            class="dropdown-item"
-                            to={subItem.link}
-                            style={{ color: uiGrey2 }}
+                          <li
+                            onClick={hideNavMenu} // Hides menu when clicked
+                            data-testId={subItem.dataTestId}
                           >
-                            <li
-                              onClick={hideNavMenu} // Hides menu when clicked
+                            <Link
+                              class="dropdown-item"
+                              to={subItem.link}
+                              style={{ color: uiGrey2 }}
                             >
                               <i
                                 className={`${subItem.icon} text-gray-400`}
                                 style={{ color: uiGrey2, fontSize: "13pt" }}
                               />{" "}
                               <span>{subItem.label}</span>
-                            </li>
-                          </Link>
+                            </Link>
+                          </li>
                         );
                       })}
                     </div>
@@ -110,6 +118,7 @@ const Sidebar = (props) => {
               } else {
                 return (
                   <li
+                    data-testId={item.dataTestId}
                     className=" dashboard-nav-item"
                     key={index}
                     onClick={hideNavMenu} // Hides menu when clicked
@@ -119,14 +128,9 @@ const Sidebar = (props) => {
                       to={item.link}
                       style={{ color: uiGrey2, fontSize: "13pt" }}
                     >
-                      <i
-                        className={`${item.icon} text-gray-400`}
-                        style={{
-                          color: uiGrey2,
-                          fontSize: "17pt",
-                          marginRight: "15px",
-                        }}
-                      />
+                      <span style={{ marginRight: "10px" }}>
+                        {item.muiIcon}
+                      </span>
                       <span>{item.label}</span>
                     </Link>
                   </li>

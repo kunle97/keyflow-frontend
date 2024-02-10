@@ -1,5 +1,5 @@
 import React from "react";
-import UICard from "./UICard";
+import UIChartCard from "./UIChartCard";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { uiGreen, uiGrey2 } from "../../../../constants";
+import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import UIProgressPrompt from "../UIProgressPrompt";
 
 const UILineChartCard = (props) => {
@@ -65,25 +65,23 @@ const UILineChartCard = (props) => {
   }
   labels.reverse();
 
+  //UPDATED DATA Variable
   const data = {
     labels: props.labels,
     datasets: [
-      //   {
-      //     label: "Expenses",
-      //     data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-      //     borderColor: "rgb(255, 99, 132)",
-      //     backgroundColor: "rgba(255, 99, 132, 0.5)",
-      //     // pointRadius: 1, // Set point radius to 0 to remove points
-      //     tension: 0.4, // Adjust tension for curve, default is 0.4
-      //   },
       {
         label: "Revenue",
-        // data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-        data: props.data,
+        data: props.data.map((monthData) => monthData.totalRevenue),
         borderColor: uiGreen,
         backgroundColor: uiGreen,
-        // pointRadius: 1, // Set point radius to 0 to remove points
-        tension: 0.4, // Adjust tension for curve, default is 0.4
+        tension: 0.4,
+      },
+      {
+        label: "Expenses",
+        data: props.data.map((monthData) => monthData.totalExpense),
+        borderColor: uiRed,
+        backgroundColor: uiRed,
+        tension: 0.4,
       },
     ],
   };
@@ -94,7 +92,7 @@ const UILineChartCard = (props) => {
       message="Fetching your data for ya. Give us a sec..."
     />
   ) : (
-    <UICard
+    <UIChartCard
       title={props.title}
       info={props.info}
       cardStyle={props.cardStyle}
@@ -102,11 +100,12 @@ const UILineChartCard = (props) => {
       titleStyle={props.titleStyle}
       dropDownOptions={props.dropDownOptions}
       onDropdownChange={props.onDropdownChange}
+      chartHeaderMode={true}
     >
-      <div style={{ width: "100%", height: props.height, padding: "10px 0" }}>
-        <Line options={options} data={data} />
+      <div data-testId={props.dataTestId} style={{ width: "100%", height: props.height, padding: "10px 0" }}>
+        <Line data-testId="ui-line-chart" options={options} data={data} />
       </div>
-    </UICard>
+    </UIChartCard>
   );
 };
 

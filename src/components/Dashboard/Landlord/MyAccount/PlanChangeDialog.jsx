@@ -70,7 +70,7 @@ const PlanChangeDialog = (props) => {
     });
   };
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.user_id, token).then(
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
       (res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       }

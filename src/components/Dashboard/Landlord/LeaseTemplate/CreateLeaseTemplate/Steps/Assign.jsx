@@ -49,6 +49,20 @@ const Assign = (props) => {
     { name: "city", label: "City" },
     { name: "state", label: "State" },
   ];
+
+  const portfolio_columns = [
+    { name: "name", label: "Portfolio Name" },
+    { name: "description", label: "Description" },
+    {
+      name: "created_at",
+      label: "Created At",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
+    },
+  ];
   const options = {
     isSelectable: true,
     filter: true,
@@ -62,6 +76,21 @@ const Assign = (props) => {
       props.navigate(navlink);
     },
   };
+
+  const portfolio_options = {
+    isSelectable: true,
+    filter: true,
+    sort: true,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
+    onRowClick: (rowData, rowMeta) => {
+      const navlink = `/dashboard/landlord/portfolios/${rowData}`;
+      props.navigate(navlink);
+    },
+  };
+  
   const handleTabChange = (event, newValue) => {
     setTabPage(newValue);
   };
@@ -117,6 +146,19 @@ const Assign = (props) => {
           options={options}
           endpoint="/properties/"
           title="Properties"
+          createURL="/dashboard/landlord/properties/create"
+          detailURL="/dashboard/landlord/properties/"
+          showCreate={false}
+          checked={props.selectedAssignments}
+          setChecked={props.setSelectedAssignments}
+        />
+      )}
+      {tabPage === 2 && (
+        <UITable
+          columns={portfolio_columns}
+          options={portfolio_options}
+          endpoint="/portfolios/"
+          title="Portfolios"
           createURL="/dashboard/landlord/properties/create"
           detailURL="/dashboard/landlord/properties/"
           showCreate={false}

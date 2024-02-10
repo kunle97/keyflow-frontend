@@ -37,7 +37,7 @@ const MessageGeneratorForm = (props) => {
 
     let payload = {
       count: data.numberOfItems,
-      user_id: authUser.user_id,
+      user_id: authUser.id,
       message_mode: data.messageMode,
       conversation_mode: data.conversationMode,
       tenant_id: data.tenantId,

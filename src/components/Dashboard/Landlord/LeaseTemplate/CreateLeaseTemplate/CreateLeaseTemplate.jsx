@@ -16,6 +16,7 @@ import UploadLeaseDocument from "./Steps/UploadLeaseDocument";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
+import useScreen from "../../../../../hooks/useScreen";
 const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
@@ -28,18 +29,20 @@ const CreateLeaseTemplate = (props) => {
    * Step 7: Show completion screen animation and Landlord is navigated to the lease term detail page
    *
    */
+  const { isMobile } = useScreen();
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
-    "Upload & Prepare Lease Document",
-    "Add Terms",
-    "Add Addtional Charges",
-    "Assign to Units and Properties",
+    "Upload Document",
+    "Terms",
+    "Addtional Charges",
+    "Assign ",
     "Done",
   ]);
-  const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
+  const [showResponseMessage, setShowResponseMessage] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
   const [responseTitle, setResponseTitle] = useState("");
-  const [addtionalCharges, setAddtionalCharges] = useState([
+  const [alertLink, setAlertLink] = useState("");
+  const [additionalCharges, setAdditionalCharges] = useState([
     {
       name: "",
       amount: "",
@@ -53,7 +56,6 @@ const CreateLeaseTemplate = (props) => {
   const [templateId, setTemplateId] = useState("");
   const [skippedSteps, setSkippedSteps] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
   const {
     register,
@@ -64,25 +66,42 @@ const CreateLeaseTemplate = (props) => {
     defaultValues: {
       rent: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.rent
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
         : "",
-      term: props.isLeaseRenewal ? props.leaseRenewalRequest.request_term : "",
+      rent_frequency: props.isLeaseRenewal
+        ? props.currentLeaseAgreement.lease_template.rent_frequency
+        : "month",
+      term: props.isLeaseRenewal ? props.leaseRenewalRequest.request_term : 12,
       late_fee: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.late_fee
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
         : "",
       security_deposit: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.security_deposit
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
         : "",
       gas_included: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.gas_included
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? false
         : "",
       water_included: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.water_included
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? false
         : "",
       electric_included: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.electric_included
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? false
         : "",
       repairs_included: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.repairs_included
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? false
         : "",
       grace_period: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.grace_period
@@ -90,28 +109,22 @@ const CreateLeaseTemplate = (props) => {
       lease_cancellation_notice_period: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template
             .lease_cancellation_notice_period
-        : 2,
+        : 0,
       lease_cancellation_fee: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.lease_cancellation_fee
-        : 0,
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
       lease_renewal_notice_period: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.lease_renewal_notice_period
-        : 2,
+        : 0,
       lease_renewal_fee: props.isLeaseRenewal
         ? props.currentLeaseAgreement.lease_template.lease_renewal_fee
-        : 0,
+        : process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
     },
   });
-
-  const [alertSeverity, setAlertSeverity] = useState("success");
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setShowUpdateSuccess(false);
-  };
 
   const handleNextStep = () => {
     if (step < steps.length - 1) {
@@ -129,11 +142,48 @@ const CreateLeaseTemplate = (props) => {
     setIsLoading(true);
     //Get the values from the form
     console.log("Form data", data);
-    console.log("Additional charges", addtionalCharges);
+    console.log("Additional charges array", additionalCharges);
     console.log("Selected assignments", selectedAssignments);
     console.log("Skipped", skippedSteps);
+
     if (!skippedSteps.includes(2)) {
-      data.additional_charges = JSON.stringify(addtionalCharges);
+      //Check if additional charges all have the same frequency
+      const frequencies = additionalCharges.map((charge) => charge.frequency);
+      const allFrequenciesEqual = frequencies.every(
+        (freq, index) => freq === frequencies[0]
+      );
+      if (!allFrequenciesEqual) {
+        // Handle case where frequencies are not all the same
+        console.log("Additional charges have different frequencies");
+        // Perform actions or show an error message to the user
+        // You can return early, show an error message, or prevent form submission
+        setIsLoading(false);
+        setResponseMessage(
+          "All additional charges must have the same frequency"
+        );
+        setResponseTitle("Error creating lease term");
+        setAlertLink(null);
+        setShowResponseMessage(true);
+        return; // Example: return or show an error message
+      }
+
+      //Check if additional charges have the same frequency as the rent frequency
+      const rentFrequency = data.rent_frequency;
+      const chargesMatchRentFrequency = additionalCharges.every(
+        (charge) => charge.frequency === rentFrequency
+      );
+      if (!chargesMatchRentFrequency) {
+        // Handle case where frequencies don't match rent frequency
+        setIsLoading(false);
+        setResponseMessage(
+          "Additional charges must have the same frequency as the rent frequency"
+        );
+        setResponseTitle("Error creating lease term");
+        setAlertLink(null);
+        setShowResponseMessage(true);
+        return; // Example: return or show an error message
+      }
+      data.additional_charges = JSON.stringify(additionalCharges);
     } else {
       data.additional_charges = JSON.stringify([]);
     }
@@ -164,37 +214,50 @@ const CreateLeaseTemplate = (props) => {
     console.log("Full Form data", data);
 
     // Call the API to createLeaseTemplate() function to create the lease term
-    createLeaseTemplate(data).then((res) => {
-      console.log(res);
-      if (res.status === 200) {
-        if (props.isLeaseRenewal) {
-          props.setCurrentLeaseTemplate(res.res.data);
-          props.setViewMode("review");
+    createLeaseTemplate(data)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          if (props.isLeaseRenewal) {
+            props.setCurrentLeaseTemplate(res.res.data);
+            props.setViewMode("review");
+          }
+          setResponseTitle("Success");
+          setResponseMessage("Lease term created!");
+          setShowResponseMessage(true);
+          setAlertLink("/dashboard/landlord/lease-templates");
+          setIsLoading(false);
+        } else {
+          setIsLoading(false);
+          setResponseTitle("Error");
+          setResponseMessage("Something went wrong");
+          setShowResponseMessage(true);
         }
-        setAlertSeverity("success");
-        setResponseTitle("Success");
-        setResponseMessage("Lease term created!");
-        setShowUpdateSuccess(true);
+      })
+      .catch((err) => {
         setIsLoading(false);
-      } else {
-        setShowUpdateSuccess(true);
-        setAlertSeverity("error");
         setResponseTitle("Error");
-        setResponseMessage("Something went wrong");
-        setIsLoading(false);
-      }
-    });
+        setResponseMessage("Something went wrong: " + err.message);
+        setAlertLink(null);
+        setShowResponseMessage(true);
+      });
   };
+
   return (
     <div className="container">
       <AlertModal
-        open={showUpdateSuccess}
-        handleClose={() => setShowUpdateSuccess(false)}
+        open={showResponseMessage}
+        handleClose={() => setShowResponseMessage(false)}
         title={responseTitle}
         message={responseMessage}
         onClick={() => {
-          //navigate to previous page
-          navigate("/dashboard/landlord/lease-templates");
+          if (alertLink) {
+            //navigate to previous page
+            navigate(alertLink);
+          } else {
+            //close modal
+            setShowResponseMessage(false);
+          }
         }}
         btnText="Okay"
       />
@@ -205,7 +268,12 @@ const CreateLeaseTemplate = (props) => {
         />
       )}
       {!props.hideBackButton && <BackButton />}
-      <h2 style={{  }}>
+      <h2
+        style={{
+          fontSize: isMobile ? "15pt" : "25pt",
+          marginBottom: "15px",
+        }}
+      >
         {props.isLeaseRenewal
           ? props.customTitle
           : "Create Lease Agreement Template"}
@@ -251,8 +319,8 @@ const CreateLeaseTemplate = (props) => {
                 register={register}
                 errors={errors}
                 trigger={trigger}
-                addtionalCharges={addtionalCharges}
-                setAddtionalCharges={setAddtionalCharges}
+                additionalCharges={additionalCharges}
+                setAdditionalCharges={setAdditionalCharges}
                 validationMessageStyle={validationMessageStyle}
                 handlePreviousStep={handlePreviousStep}
                 handleNextStep={handleNextStep}
@@ -289,11 +357,34 @@ const CreateLeaseTemplate = (props) => {
                   style={{
                     fontSize: "5rem",
                     color: uiGreen,
-                    marginBottom: "1rem",
+                    marginBottom: isMobile ? "0" : "1rem",
                   }}
                 />
-                <h3>Would you like to save this lease agreement template?</h3>
-                <p>You can always make changes later.</p>
+                <div
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  <h3
+                    style={{
+                      textAlign: "center",
+                      fontSize: isMobile ? "12pt" : "15pt",
+                      margin: isMobile ? "0 " : "1rem 0",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    Would you like to save this lease agreement template?
+                  </h3>
+                  <p
+                    style={{
+                      textAlign: "center",
+                      fontSize: isMobile ? "10pt" : "12pt",
+                    }}
+                    className="text-black"
+                  >
+                    You can always make changes later.
+                  </p>
+                </div>
                 <Stack
                   direction="row"
                   justifyContent="center"
@@ -302,16 +393,22 @@ const CreateLeaseTemplate = (props) => {
                 >
                   <UIButton
                     type="button"
-                    style={{ margin: "1rem 0" }}
+                    style={{
+                      margin: "1rem 0",
+                      fontSize: isMobile ? "10pt" : "12pt",
+                    }}
                     onClick={() => {
                       setStep(1);
                     }}
-                    btnText="Continue editing"
+                    btnText="Continue Editing"
                   />
                   <UIButton
                     type="submit"
-                    style={{ margin: "1rem 0" }}
-                    btnText="Save Lease Template"
+                    style={{
+                      margin: "1rem 0",
+                      fontSize: isMobile ? "10pt" : "12pt",
+                    }}
+                    btnText="Save Template"
                   />
                 </Stack>
               </Stack>

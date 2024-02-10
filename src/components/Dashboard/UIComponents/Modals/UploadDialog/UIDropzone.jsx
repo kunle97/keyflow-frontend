@@ -2,6 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton } from "@mui/material";
+import UIButton from "../../UIButton";
 
 const UIDropzone = (props) => {
   const { getRootProps, getInputProps } = useDropzone({
@@ -16,19 +17,21 @@ const UIDropzone = (props) => {
     cursor: "pointer",
     width: "100%",
     height: "400px",
-    marginBottom: "15px",
+    // marginBottom: "15px",
     justifyContent: "center",
     alignItems: "center",
     display: "flex",
   };
 
   const textStyles = {
-    color: "white",
-    padding: "10px",
+    color: "black",
     textAlign: "center",
+    padding: "0",
+    margin: "0",
+    marginBottom: "10px",
   };
   const previewStyles = {
-    display: "flex",
+    display: "inline-block",
     margin: "20px 0",
     overflow: "auto",
     height: "120px",
@@ -83,32 +86,57 @@ const UIDropzone = (props) => {
     props.setFiles(newFiles);
   };
 
+  //Create a function to check if a file is an image file
+  function isImage(file) {
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif|\.webp)$/i;
+    return allowedExtensions.test(file.name);
+  }
+
   return (
     <>
-      <div {...getRootProps()} style={dropzoneStyles}>
+      <div
+        {...getRootProps()}
+        style={{ ...dropzoneStyles, ...props.dropzoneStyles }}
+      >
         <input {...getInputProps()} />
         <div>
-          <p style={textStyles}>Drag'n'drop your file</p>
+          <p style={textStyles}>Drag and drop your file</p>
           <p style={textStyles}>
-            Accepted file types: {props.acceptedFileTypes.join(", ")}
-            (Max. file size: 3MB)
+            Accepted file types: {props.acceptedFileTypes.join(", ")} (Max. file
+            size: 3MB)
           </p>
+          <span className="text-black">
+            {props.files.length > 0 ? (
+              <div>
+                {props.files.map((file, index) => (
+                  <strong>
+                    <span key={index}>{file.name}</span>
+                  </strong>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <UIButton btnText="Upload File" type="button" />
+              </div>
+            )}
+          </span>
         </div>
       </div>
-      {props.files.length > 0 && (
-        <div style={previewStyles}>
-          {props.files.map((file, index) => (
+      {props.files.length > 0 &&
+        props.files.map((file, index) => (
+          <div key={index} style={isImage(file) ? previewStyles : {}}>
             <div
-              key={index}
               style={{ position: "relative" }}
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={() => handleMouseLeave(index)}
             >
-              <img
-                src={file.preview}
-                alt={`Preview ${index}`}
-                style={previewImageStyles}
-              />
+              {isImage(file) && (
+                <img
+                  src={file.preview}
+                  alt={`Preview ${index}`}
+                  style={previewImageStyles}
+                />
+              )}
               <div className="preview-overlay" style={overlayStyles}>
                 <div style={fileOverlay}>
                   <p style={{ margin: "0" }}>{file.name}</p>
@@ -121,9 +149,8 @@ const UIDropzone = (props) => {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
     </>
   );
 };

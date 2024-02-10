@@ -38,7 +38,7 @@ export async function getMessagesWithLimit(limit) {
 export async function getMessageByRecipient() {
   try {
     const res = await authenticatedInstance
-      .get(`/messages/?recipient=${authUser.user_id}`)
+      .get(`/messages/?recipient=${authUser.id}`)
       .then((res) => {
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };

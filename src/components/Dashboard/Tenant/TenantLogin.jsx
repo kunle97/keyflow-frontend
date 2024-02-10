@@ -14,34 +14,49 @@ const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { loginUser } = useContext(AuthContext);
+  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const [email, setEmail] = useState("");
   const [tenantsEmails, setTenantsEmails] = useState([]); //TODO: get usernames from db and set here
   const [tenantsUsernames, setTenantsUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(false); //T
+  const [emailLoginMode, setEmailLoginMode] = useState(true); //T
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : "Kamille86@yahoo.com",
+      email: process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : email,
       password:
         process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
     },
   });
 
-  const onJWTSubmit = async (e) => {
-    let response = await loginUser(e);
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    const response = await login(data.email, data.password);
+    //if token is returned, set it in local storage
+    if (response.token) {
+      //Set authUser and isLoggedIn in context
+      localStorage.setItem("accessToken", response.token);
+      //Save auth user in local storage
+      localStorage.setItem("authUser", JSON.stringify(response.userData));
+      setRedirectURL("/dashboard/tenant");
+      setAuthUser(response.userData);
+      setIsLoggedIn(true);
+      setIsLoading(false);
+      //Navigate to dashboard
+      setOpen(true);
+    } else {
+      setErrMsg(response.message);
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     getTenantsEmails().then((res) => {
+      console.log("Tenant emails res: ", res);
       if (res) {
         setTenantsEmails(res);
       }
@@ -73,51 +88,27 @@ const TenantLogin = () => {
         to={redirectURL}
       />
 
-      <div className="row">
-        <div
-          className="col-md-8 banner-col  d-none d-md-block"
-          style={{
-            background: "url('/assets/img/tenant-login-page-banner-1.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "50%",
-            height: "100vh",
-          }}
-        >
-          {/* <img style={{width:"100%"}} src="/assets/img/login-page-banner.jpg" /> */}
-        </div>
-        {/* d-flex justify-content-center */}
-
-        <div className="col-md-4 col-sm-12 login-col " style={{}}>
-          <div className="row">
-            <div className=" ">
+      <div
+        className="row"
+        style={{
+          background: "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%),url('/assets/img/tenant-login-page-banner-1.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "50%",
+          height: "100vh",
+        }}
+      >
+        <div className="col-md-4 offset-md-4 d-flex justify-content-center align-items-center">
+          <div className="card">
+            <div className="card-body">
               <img
-                style={{ width: "60%", marginBottom: "25px" }}
+                data-testid="keyflow-black-logo"
+                style={{ maxWidth: "170px", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-black-transparent.png"
               />
               <Typography color="black" className="mb-4 ml-4">
                 Tenant Login
               </Typography>
-              <form className="user" onSubmit={onJWTSubmit}>
-                {/* <div className="mb-3">
-                  <Input
-                    {...register("email", {
-                      required: "This is a required field",
-                      pattern: {
-                        value: /\S+@\S+\.\S+/,
-                        message: "Please enter a valid email",
-                      },
-                    })}
-                    className="form-control form-control-user"
-                    type="email"
-                    id="exampleInputEmail"
-                    aria-describedby="emailHelp"
-                    placeholder="Enter Email Address..."
-                    name="email"
-                  />
-                  <span style={validationMessageStyle}>
-                    {errors.email && errors.email.message}
-                  </span>
-                </div> */}
+              <form className="user" onSubmit={handleSubmit(onSubmit)}>
                 {process.env.REACT_APP_ENVIRONMENT === "development" ? (
                   <div>
                     {emailLoginMode ? (
@@ -129,6 +120,7 @@ const TenantLogin = () => {
                             message: "Please enter a valid email address",
                           },
                         })}
+                        data-testid="email-select"
                         className="form-control card"
                         style={{
                           background: uiGrey2,
@@ -138,7 +130,7 @@ const TenantLogin = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       >
-                        {tenantsEmails.map((email) => (
+                        {tenantsEmails.map((email, index) => (
                           <option value={email}>{email}</option>
                         ))}
                       </select>
@@ -191,6 +183,7 @@ const TenantLogin = () => {
                     {...register("password", {
                       required: "This is a required field",
                     })}
+                    data-testid="password-input"
                     className="form-control-user"
                     sx={{ borderColor: uiGreen }}
                     type="password"
@@ -201,6 +194,7 @@ const TenantLogin = () => {
                       border: "none",
                       padding: "15px",
                       borderRadius: "10px",
+                      backgroundColor: "#f4f7f8",
                     }}
                   />
                   <span style={validationMessageStyle}>
@@ -235,6 +229,7 @@ const TenantLogin = () => {
                   />
                 )}
                 <Button
+                  data-testid="login-button"
                   className="d-block w-100 ui-btN"
                   type="submit"
                   style={{

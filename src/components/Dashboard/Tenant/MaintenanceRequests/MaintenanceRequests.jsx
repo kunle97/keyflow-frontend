@@ -11,11 +11,14 @@ import { getTenantDashboardData } from "../../../../api/tenants";
 import UIPrompt from "../../UIComponents/UIPrompt";
 import { authUser, uiGreen } from "../../../../constants";
 import DescriptionIcon from "@mui/icons-material/Description";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import { useNavigate } from "react-router";
 
 const MaintenanceRequests = () => {
   //Create a astate for the maintenance requests
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
+  const navigate = useNavigate();
   const columns = [
     { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
@@ -78,14 +81,37 @@ const MaintenanceRequests = () => {
   return (
     <div className="container-fluid">
       {leaseAgreement ? (
-        <UITable
-          title={"Maintenance Requests"}
-          columns={columns}
-          endpoint={"/maintenance-requests/"}
-          options={options}
-          showCreate={true}
-          createURL={"/dashboard/tenant/maintenance-requests/create"}
-        />
+        <UITableMobile
+        data={maintenanceRequests}
+        endpoint="/maintenance-requests/"
+        createInfo={(row) =>
+          `${row.tenant.user["first_name"]} ${row.tenant.user["last_name"]}`
+        }
+        createTitle={(row) => `${row.description}`}
+        createSubtitle={(row) => `${row.status.replace("_", " ")}`}
+        onRowClick={(row) => {
+          const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+          navigate(navlink);
+        }}
+        titleStyle={{
+          maxHeight: "17px",
+          maxWidth: "180px",
+          overflow: "hidden",
+          textOverflow: "ellipsis", 
+        }}
+        orderingFields={[
+          { field: "created_at", label: "Date Created (Ascending)" },
+          { field: "-created_at", label: "Date Created (Descending)" },
+          { field: "status", label: "Status (Ascending)" },
+          { field: "-status", label: "Status (Descending)" },
+        ]}
+        showCreate={true}
+        createURL="/dashboard/tenant/maintenance-requests/create"
+        showResultLimit={false}
+        tableTitle="Maintenance Requests"
+        loadingTitle="Maintenance Requests"
+        loadingMessage="Loading your maintenance requests..."
+      />
       ) : (
         <UIPrompt
           icon={<DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />}

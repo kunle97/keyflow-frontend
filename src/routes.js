@@ -5,6 +5,9 @@ import { createBrowserRouter } from "react-router-dom";
 import Properties from "./components/Dashboard/Landlord/Properties/Properties";
 import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
 import ManageProperty from "./components/Dashboard/Landlord/Properties/ManageProperty";
+import CreatePortfolio from "./components/Dashboard/Landlord/Portfolios/CreatePortfolio";
+import Portfolios from "./components/Dashboard/Landlord/Portfolios/Portfolios";
+import ManagePortfolio from "./components/Dashboard/Landlord/Portfolios/ManagePortfolio";
 import Units from "./components/Dashboard/Landlord/Units/Units";
 import ManageUnit from "./components/Dashboard/Landlord/Units/ManageUnit";
 import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
@@ -48,6 +51,8 @@ import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import PaidOutlined from "@mui/icons-material/PaidOutlined";
 import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import FolderCopyIcon from "@mui/icons-material/FolderCopy";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import {
   AddHomeOutlined,
   AddHomeWorkOutlined,
@@ -72,8 +77,13 @@ import { ContactPage } from "./components/Landing/ContactPage";
 import PricingPage from "./components/Landing/PricingPage";
 import FeaturesPage from "./components/Landing/FeaturesPage";
 import BlogPage from "./components/Landing/BlogPage";
+import BillingEntries from "./components/Dashboard/Landlord/BillingEntry/BillingEntries";
+import ManageBillingEntry from "./components/Dashboard/Landlord/BillingEntry/ManageBillingEntry";
+import CreateBillingEntry from "./components/Dashboard/Landlord/BillingEntry/CreateBillingEntry";
+import Bills from "./components/Dashboard/Tenant/Bills/Bills";
+import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
 //retrieve token from storage
-const token = localStorage.getItem("authTokens");
+const token = localStorage.getItem("accessToken");
 
 export const routes = [
   {
@@ -124,11 +134,7 @@ export const routes = [
   },
   {
     path: "/dashboard/logout",
-    element: (
-      <DashboardProtectedRoute token={token}>
-        <Logout />
-      </DashboardProtectedRoute>
-    ),
+    element: <Logout />,
     isSearchable: false,
     label: "Landlord Logout",
   },
@@ -144,6 +150,16 @@ export const routes = [
   },
   {
     path: "/dashboard/tenant/register/:lease_agreement_id/:unit_id/:approval_hash/",
+    element: (
+      <LoggedInRedirect token={token}>
+        <Elements stripe={stripePromise}>
+          <TenantRegister />
+        </Elements>
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/register/:tenant_invite_id/:unit_id/:approval_hash/",
     element: (
       <LoggedInRedirect token={token}>
         <Elements stripe={stripePromise}>
@@ -203,7 +219,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord",
+    path: "/dashboard/landlord/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Dashboard />
@@ -214,6 +230,7 @@ export const routes = [
     description: "An overview of your properties",
     isQuickLink: true,
     muiIcon: <DashboardOutlined />,
+    breadcrumbs: [],
   },
   {
     path: "/dashboard/landlord/my-account",
@@ -227,6 +244,7 @@ export const routes = [
     description: "Manage your account",
     isQuickLink: true,
     muiIcon: <PeopleAltOutlined />,
+    breadcrumbs: ["My Account"],
   },
   {
     path: "/dashboard/tenant/my-account",
@@ -237,6 +255,7 @@ export const routes = [
     ),
     isSearchable: false,
     label: "My Account (Tenant)",
+    breadcrumbs: ["My Account"],
   },
   {
     path: "/dashboard/landlord/properties",
@@ -250,6 +269,7 @@ export const routes = [
     description: "Manage your properties",
     isQuickLink: true,
     muiIcon: <HomeWorkOutlined />,
+    breadcrumbs: ["Properties"],
   },
   {
     path: "/dashboard/landlord/properties/create",
@@ -263,12 +283,48 @@ export const routes = [
     description: "Create a new property",
     isQuickLink: true,
     muiIcon: <AddHomeWorkOutlined />,
+    breadcrumbs: ["Properties", "Create Property"],
   },
   {
     path: "/dashboard/landlord/properties/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageProperty />
+      </DashboardProtectedRoute>
+    ),
+    breadcrumbs: ["Properties", "Manage Property", "[:id]_name"],
+  },
+  {
+    path: "/dashboard/landlord/portfolios",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Portfolios />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Portfolios",
+    description: "Manage your portfolios",
+    isQuickLink: true,
+    muiIcon: <FolderCopyIcon />,
+  },
+  {
+    path: "/dashboard/landlord/portfolios/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreatePortfolio />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Portfolio",
+    description: "Create a new portfolio",
+    isQuickLink: true,
+    muiIcon: <CreateNewFolderIcon />,
+  },
+  {
+    path: "/dashboard/landlord/portfolios/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManagePortfolio />
       </DashboardProtectedRoute>
     ),
   },
@@ -368,6 +424,22 @@ export const routes = [
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyLeaseAgreement />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/bills/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Bills />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/bills/pay/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <PayBill />
       </DashboardProtectedRoute>
     ),
   },
@@ -572,7 +644,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/notifications",
+    path: "/dashboard/notifications",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Notifications />
@@ -580,7 +652,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/notifications/:id",
+    path: "/dashboard/notifications/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <NotificationDetail />
@@ -608,6 +680,45 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
     isSearchable: false,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <BillingEntries />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Billing Entries",
+    description: "Manage your billing entries",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Billing Entry",
+    description: "Create a new billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/billing-entries/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Billing Entry",
+    description: "Manage your billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
   },
 ];
 

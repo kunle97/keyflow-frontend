@@ -15,7 +15,21 @@ import BackButton from "../../UIComponents/BackButton";
 import { Button } from "@mui/material";
 import { uiGreen, uiRed } from "../../../../constants";
 import { useForm } from "react-hook-form";
-
+import useScreen from "../../../../hooks/useScreen";
+import HomeIcon from "@mui/icons-material/Home";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import Timeline from "@mui/lab/Timeline";
+import TimelineItem from "@mui/lab/TimelineItem";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import TimelineConnector from "@mui/lab/TimelineConnector";
+import TimelineContent from "@mui/lab/TimelineContent";
+import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
+import TimelineDot from "@mui/lab/TimelineDot";
+import FastfoodIcon from "@mui/icons-material/Fastfood";
+import LaptopMacIcon from "@mui/icons-material/LaptopMac";
+import HotelIcon from "@mui/icons-material/Hotel";
+import RepeatIcon from "@mui/icons-material/Repeat";
+import Typography from "@mui/material/Typography";
 const LandlordMaintenanceRequestDetail = () => {
   const { id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState({});
@@ -28,7 +42,7 @@ const LandlordMaintenanceRequestDetail = () => {
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [showDeleteErrorMessage, setShowDeleteErrorMessage] = useState(false);
   const [status, setStatus] = useState(null); //["pending", "in_progress", "completed"]
-
+  const { screenWidth, breakpoints, isMobile } = useScreen();
   const navigate = useNavigate();
 
   const {
@@ -123,23 +137,82 @@ const LandlordMaintenanceRequestDetail = () => {
           />
           <div className="row">
             <div className="col-md-4">
-              <div className="card">
-                <div className="card-body">
-                  <h6>
-                    <strong>Property Name</strong>
-                  </h6>
-                  <p className="text-black">{property.name}</p>
-                  <h6>
-                    <strong>Address</strong>
-                  </h6>
-                  <p className="text-black">
-                    {property.street}, {property.city} {property.state}{" "}
-                    {property.zip_code}
-                  </p>
-                  <h6>
-                    <strong>Unit</strong>
-                  </h6>
-                  <p className="text-black">{unit.name}</p>
+              <div className="mb-4">
+                <h5>Change Status</h5>
+                <form onSubmit={handleSubmit(handleChangeStatus)}>
+                  <select
+                    {...register("status", { required: true })}
+                    className="form-select"
+                    style={{ background: "white" }}
+                  >
+                    <option value={maintenanceRequest.status}>
+                      Select One
+                    </option>
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                  {errors.status && (
+                    <p className="text-danger">Please select a status</p>
+                  )}
+                  <UIButton
+                    type="submit"
+                    className="btn btn-primary mt-3"
+                    btnText="Change Status"
+                    style={{ marginTop: "15px", width: "100%" }}
+                  />
+                </form>
+              </div>
+              <div className="row">
+                <div className="col-6 col-md-6 mb-4">
+                  <div className="card">
+                    <div className="card-body">
+                      <HomeIcon style={{ fontSize: "25pt", color: uiGreen }} />
+                      <h5 className="mb-1">Type</h5>
+                      <p className="text-black">{maintenanceRequest.type}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-6 col-md-6 mb-4">
+                  <div className="card">
+                    <div className="card-body">
+                      <MeetingRoomIcon
+                        style={{ fontSize: "25pt", color: uiGreen }}
+                      />
+                      <h5 className="mb-1">Status</h5>
+                      <p>
+                        {status === "pending" && (
+                          <span className="text-warning">Pending</span>
+                        )}
+                        {status === "in_progress" && (
+                          <span className="text-info">In Progress</span>
+                        )}
+                        {status === "completed" && (
+                          <span className="text-success">Completed</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-6 col-md-6 mb-4">
+                  <div className="card">
+                    <div className="card-body">
+                      <HomeIcon style={{ fontSize: "25pt", color: uiGreen }} />
+                      <h5 className="mb-1">Property</h5>
+                      <p className="text-black">{property.name}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-6 col-md-6 mb-4">
+                  <div className="card">
+                    <div className="card-body">
+                      <MeetingRoomIcon
+                        style={{ fontSize: "25pt", color: uiGreen }}
+                      />
+                      <h5 className="mb-1">Unit</h5>
+                      <p className="text-black">{unit.name}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -155,67 +228,119 @@ const LandlordMaintenanceRequestDetail = () => {
                         {maintenanceRequest.description}
                       </p>
                     </div>
-                    <div className="col-md-4">
-                      <h6>
-                        <strong>Type</strong>
-                      </h6>
-                      <p
-                        className="text-black"
-                        style={{ textTransform: "capitalize" }}
-                      >
-                        {maintenanceRequest.type}
-                      </p>
-                    </div>
-                    <div className="col-md-4">
-                      <h6>
-                        <strong>Status</strong>
-                      </h6>
-                      <p>
-                        {status === "pending" && (
-                          <span className="text-warning">Pending</span>
-                        )}
-                        {status === "in_progress" && (
-                          <span className="text-info">In Progress</span>
-                        )}
-                        {status === "completed" && (
-                          <span className="text-success">Completed</span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="col-md-4">
-                      <h6>
-                        <strong>Change Status</strong>
-                      </h6>
-                      <p style={{ textTransform: "capitalize" }}>
-                        <form onSubmit={handleSubmit(handleChangeStatus)}>
-                          <select
-                            {...register("status", { required: true })}
-                            className="form-select"
-                          >
-                            <option value={maintenanceRequest.status}>
-                              Select One
-                            </option>
-                            <option value="pending">Pending</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                          </select>
-                          {errors.status && (
-                            <p className="text-danger">
-                              Please select a status
-                            </p>
-                          )}
-                          <UIButton
-                            type="submit"
-                            className="btn btn-primary mt-3"
-                            btnText="Change Status"
-                            style={{ marginTop: "15px", width: "100%" }}
-                          />
-                        </form>
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
+              <Timeline align="left">
+                <TimelineItem>
+                  <TimelineOppositeContent sx={{ flex: 0.1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      9:30 am
+                    </Typography>
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineConnector />
+                    <TimelineDot sx={{ background: uiGreen }}>
+                      <FastfoodIcon />
+                    </TimelineDot>
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: "12px", px: 2 }}>
+                    <Typography
+                      sx={{ color: "black" }}
+                      variant="h6"
+                      component="span"
+                    >
+                      Maintenance Request Created
+                    </Typography>
+                    <Typography sx={{ color: "black" }}>
+                      Your tenant has submitted a maintenance request
+                    </Typography>
+                  </TimelineContent>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineOppositeContent sx={{ flex: 0.1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      9:30 am
+                    </Typography>
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineConnector />
+                    <TimelineDot sx={{ background: uiGreen }}>
+                      <LaptopMacIcon />
+                    </TimelineDot>
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: "12px", px: 2 }}>
+                    <Typography
+                      sx={{ color: "black" }}
+                      variant="h6"
+                      component="span"
+                    >
+                      Work Order Created
+                    </Typography>
+                    <Typography sx={{ color: "black" }}>
+                      A work order has been created for your maintenance request
+                    </Typography>
+                  </TimelineContent>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineOppositeContent sx={{ flex: 0.1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      9:30 am
+                    </Typography>
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineConnector />
+                    <TimelineDot
+                      sx={{ background: uiGreen }}
+                      variant="outlined"
+                    >
+                      <HotelIcon />
+                    </TimelineDot>
+                    <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: "12px", px: 2 }}>
+                    <Typography
+                      sx={{ color: "black" }}
+                      variant="h6"
+                      component="span"
+                    >
+                      Vendor Assigned
+                    </Typography>
+                    <Typography sx={{ color: "black" }}>
+                      A vendor has been assigned to your work order
+                    </Typography>
+                  </TimelineContent>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineOppositeContent sx={{ flex: 0.1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      9:30 am
+                    </Typography>
+                  </TimelineOppositeContent>
+                  <TimelineSeparator>
+                    <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
+                    <TimelineDot sx={{ background: uiGreen }}>
+                      <RepeatIcon />
+                    </TimelineDot>
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ py: "12px", px: 2 }}>
+                    <Typography
+                      sx={{ color: "black" }}
+                      variant="h6"
+                      component="span"
+                    >
+                      Work Order In Progress
+                    </Typography>
+                    <Typography sx={{ color: "black" }}>
+                      The vendor is working on your work order
+                    </Typography>
+                  </TimelineContent>
+                </TimelineItem>
+              </Timeline>
+
               <AlertModal
                 open={showDeleteError}
                 handleClose={() => setShowDeleteError(false)}
@@ -247,6 +372,8 @@ const LandlordMaintenanceRequestDetail = () => {
                   background: uiRed,
                   textTransform: "none",
                   marginLeft: "10px",
+                  float: "right",
+                  width: isMobile ? "100%" : "auto",
                 }}
               >
                 Delete Request

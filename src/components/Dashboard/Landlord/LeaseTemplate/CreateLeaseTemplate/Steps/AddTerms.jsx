@@ -4,6 +4,7 @@ import UIButton from "../../../../UIComponents/UIButton";
 import { Tooltip, Typography } from "@mui/material";
 import { HelpOutline } from "@mui/icons-material";
 import StepControl from "./StepControl";
+import { faker } from "@faker-js/faker";
 
 const AddTerms = (props) => {
   return (
@@ -26,6 +27,7 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
+            step="1"
             type="number"
             className="form-control"
             id="rent"
@@ -37,6 +39,25 @@ const AddTerms = (props) => {
           </span>
         </div>
         <div className="form-group col-md-6 mb-4">
+          <label className="mb-2 text-black">Rent Frequency</label>
+          <select
+            {...props.register("rent_frequency", {
+              required: "This field is required",
+            })}
+            className="form-select"
+            name="rent_frequency"
+          >
+            <option value="">Select One</option>
+            <option value="day">Daily</option>
+            <option value="week">Weekly</option>
+            <option value="month">Monthly</option>
+            <option value="year">Annually</option>
+          </select>
+          <span style={validationMessageStyle}>
+            {props.errors.rent_frequency && props.errors.rent_frequency.message}
+          </span>
+        </div>
+        <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
             sx={{ color: uiGrey2, fontSize: "12pt" }}
@@ -44,7 +65,9 @@ const AddTerms = (props) => {
           >
             Term Duration
           </Typography>
-          <select
+
+          <input
+            type="number"
             {...props.register("term", {
               required: "This field is required",
               pattern: {
@@ -52,19 +75,12 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
-            className="form-select"
-            sx={{ width: "100%", color: uiGrey2, background: uiGrey2 }}
+            step={1}
+            className="form-control"
+            id="term"
+            placeholder="Days/Weeks/Months/Years"
             name="term"
-          >
-            <option value="">Select One</option>
-            <option value={1}>1 Month</option>
-            <option value={2}>2 Months</option>
-            <option value={6}>6 Months</option>
-            <option value={12}>12 Months</option>
-            <option value={13}>13 Months</option>
-            <option value={24}>24 Months</option>
-            <option value={36}>36 Months</option>
-          </select>
+          />
           <span style={validationMessageStyle}>
             {props.errors.term && props.errors.term.message}
           </span>
@@ -86,7 +102,8 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
-            type="text"
+            step="1"
+            type="number"
             className="form-control"
             id="lateFee"
             placeholder="$"
@@ -112,7 +129,7 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
-            type="text"
+            type="number"
             className="form-control"
             id="security_deposit"
             placeholder="$"
@@ -191,14 +208,14 @@ const AddTerms = (props) => {
               props.errors.repairs_included.message}
           </span>
         </div>
-        <div className="form-group col-md-12 mb-4">
+        <div className="form-group col-md-6 mb-4">
           <Typography
             className="mb-2"
             sx={{ color: uiGrey2, fontSize: "12pt" }}
             htmlFor="rent"
           >
             Grace Period
-            <Tooltip title="The grace period is the amount of time you give a tenant until they mus pay for thier first rent payment.">
+            <Tooltip title="The grace period is the amount of time you give a tenant until they must pay for thier first rent payment.">
               <HelpOutline
                 sx={{
                   marginLeft: "5px",
@@ -253,7 +270,9 @@ const AddTerms = (props) => {
             sx={{ width: "100%", color: uiGrey2 }}
           >
             <option value="">Select One</option>
-            <option value={0} selected>None</option>
+            <option value={0} selected>
+              None
+            </option>
             <option value={1}>1 Months</option>
             <option value={2}>2 Months</option>
             <option value={6}>6 Months</option>
@@ -283,7 +302,8 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
-            type="text"
+            step="1"
+            type="number"
             className="form-control"
             id="leaseCancellationFee"
             placeholder="$"
@@ -314,7 +334,9 @@ const AddTerms = (props) => {
             sx={{ width: "100%", color: uiGrey2 }}
           >
             <option value="">Select One</option>
-            <option value={0} selected>None</option>
+            <option value={0} selected>
+              None
+            </option>
             <option value={1}>1 Months</option>
             <option value={2}>2 Months</option>
             <option value={6}>6 Months</option>
@@ -344,7 +366,8 @@ const AddTerms = (props) => {
                 message: "Please enter a valid number",
               },
             })}
-            type="text"
+            step="1"
+            type="number"
             className="form-control"
             id="leaseRenewalFee"
             placeholder="$"
@@ -354,7 +377,6 @@ const AddTerms = (props) => {
               props.errors.lease_renewal_fee.message}
           </span>
         </div>
-
       </div>
       <StepControl
         step={props.step}

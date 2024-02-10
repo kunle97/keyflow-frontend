@@ -18,9 +18,12 @@ import { authenticatedInstance } from "../../../../api/api";
 import UITabs from "../../UIComponents/UITabs";
 import UIButton from "../../UIComponents/UIButton";
 import BackButton from "../../UIComponents/BackButton";
+import useScreen from "../../../../hooks/useScreen";
 
 const ViewRentalApplication = () => {
   const { id } = useParams();
+  const { isMobile } = useScreen();
+  const [unit, setUnit] = useState(null); 
   const [rentalApplication, setRentalApplication] = useState({});
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
@@ -34,11 +37,9 @@ const ViewRentalApplication = () => {
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [tabPage, setTabPage] = useState(0);
   const tabs = [
-    { label: "Personal Information", name: "personal_information" },
-    { label: "Questionaire Answers", name: "questionaire_answers" },
+    { label: "Details", name: "details" },
     { label: "Employment History", name: "employment_history" },
     { label: "Residential History", name: "residential_history" },
-    { label: "Additional Comments", name: "additional_comments" },
   ];
 
   const handleChangeTabPage = (event, newValue) => {
@@ -48,6 +49,16 @@ const ViewRentalApplication = () => {
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
     console.log("Accepting Application...");
+    console.log("unt", unit)
+    //Check if unit has a template
+    if (!unit.template_id && !unit.signed_lease_document_file) {
+      setAlertModalTitle("An error occurred");
+      setAlertModalMessage(
+        "This unit does not have a lease agreement document or template document. Please upload a lease agreement template for this unit and try again."
+      );
+      setOpenAlertModal(true);
+      return false;
+    }
 
     try {
       // Approve and Archive this application
@@ -59,25 +70,16 @@ const ViewRentalApplication = () => {
         const approval_hash = approvalResponse.approval_hash;
 
         // Retrieve Rental Unit
-        const rental_unit = await getUnit(approvalResponse.unit);
-        console.log("Rental Unit", rental_unit);
+        const rental_unit = await getUnit(approvalResponse.unit.id);
+       
 
-        // Retrieve Lease Term
-        const lease_template = rental_unit.lease_template;
-
-        // Retrieve Lease Agreement Data
-        const leaseTemplateResponse = await authenticatedInstance.get(
-          `${process.env.REACT_APP_API_HOSTNAME}/lease-templates/${lease_template}/`
-        );
-        console.log("Lease Term", leaseTemplateResponse);
-
-        if (leaseTemplateResponse.data.template_id) {
+        if (unit.template_id) {
           const doc_payload = {
-            template_id: leaseTemplateResponse.data.template_id,
+            template_id: unit.template_id,
             tenant_first_name: rentalApplication.first_name,
             tenant_last_name: rentalApplication.last_name,
             tenant_email: rentalApplication.email,
-            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${rental_unit.name}`,
+            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${unit.name}`,
             message: "Please sign the lease agreement",
           };
 
@@ -111,9 +113,8 @@ const ViewRentalApplication = () => {
               const leaseAgreementData = {
                 rental_application: parseInt(id),
                 rental_unit: rental_unit.id,
-                user: authUser.user_id,
+                user: authUser.id,
                 approval_hash: approval_hash,
-                lease_template: lease_template,
                 document_id: sendDocResponse.documentId,
               };
 
@@ -203,6 +204,7 @@ const ViewRentalApplication = () => {
       //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
       if (res) {
         setRentalApplication(res);
+        setUnit(res.unit);
         //Check if res.employment_history is an oject if so parse it if string leave it
         if (isJsonString(res.employment_history)) {
           setEmploymentHistory(JSON.parse(res.employment_history));
@@ -265,7 +267,7 @@ const ViewRentalApplication = () => {
             confirmBtnStyle={{ background: uiRed }}
           />
           <div className="mb-3" style={{ overflow: "auto" }}>
-            <h4 style={{ float: "left" }}>
+            <h4 style={{ float: "left", fontSize: isMobile ? "14pt":"20pt" }}>
               {" "}
               {rentalApplication.first_name} {rentalApplication.last_name}{" "}
               Rental Application (Status :{" "}
@@ -289,107 +291,115 @@ const ViewRentalApplication = () => {
             style={{ marginBottom: "20px" }}
           />
           {tabPage === 0 && (
-            <div className="mb-4">
-              <div className="card">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Full Name</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.first_name}{" "}
-                        {rentalApplication.last_name}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Email</b>
-                      </h6>
-                      <p className="text-black">{rentalApplication.email}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Date Of Birth</b>
-                      </h6>
-                      <p className="text-black">
-                        {new Date(rentalApplication.date_of_birth).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Phone</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.phone_number}
-                      </p>
+            <>
+              <div className="mb-4">
+                <div className="card">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Full Name</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.first_name}{" "}
+                          {rentalApplication.last_name}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Email</b>
+                        </h6>
+                        <p className="text-black">{rentalApplication.email}</p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Date Of Birth</b>
+                        </h6>
+                        <p className="text-black">
+                          {new Date(
+                            rentalApplication.date_of_birth
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Phone</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.phone_number}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+              <div className="mb-4">
+                <div className="card">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Other Occupants</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.other_occupants ? "Yes" : "No"}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Pets</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.pets ? "Yes" : "No"}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Do you have any vehicles?</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.vehicles ? "Yes" : "No"}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Ever Convicted?</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.conviceted ? "Yes" : "No"}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Ever Filed for bankrupcy?</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.bankrupcy_filed ? "Yes" : "No"}
+                        </p>
+                      </div>
+                      <div className="col-md-6">
+                        <h6>
+                          <b>Ever evicted?</b>
+                        </h6>
+                        <p className="text-black">
+                          {rentalApplication.evicted ? "Yes" : "No"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mb-4">
+                <div className="card">
+                  <div className="card-body text-black">
+                    {rentalApplication.comments}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
 
           {tabPage === 1 && (
-            <div className="mb-4">
-              <div className="card">
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Other Occupants</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.other_occupants ? "Yes" : "No"}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Pets</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.pets ? "Yes" : "No"}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Do you have any vehicles?</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.vehicles ? "Yes" : "No"}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Ever Convicted?</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.conviceted ? "Yes" : "No"}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Ever Filed for bankrupcy?</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.bankrupcy_filed ? "Yes" : "No"}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <h6>
-                        <b>Ever evicted?</b>
-                      </h6>
-                      <p className="text-black">
-                        {rentalApplication.evicted ? "Yes" : "No"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tabPage === 2 && (
             <div className="mb-4">
               <div className="card">
                 <div className="card-body">
@@ -455,7 +465,7 @@ const ViewRentalApplication = () => {
             </div>
           )}
 
-          {tabPage === 3 && (
+          {tabPage === 2 && (
             <div className="mb-4">
               <div className="card">
                 <div className="card-body">
@@ -499,14 +509,6 @@ const ViewRentalApplication = () => {
                     );
                   })}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {tabPage === 4 && (
-            <div className="mb-4">
-              <div className="card">
-                <div className="card-body text-black">{rentalApplication.comments}</div>
               </div>
             </div>
           )}
