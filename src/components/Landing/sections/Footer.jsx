@@ -11,12 +11,12 @@ const Footer = () => {
             <h3 className="fs-6 text-white">Navigation</h3>
             <ul className="list-unstyled">
               <li>
-                <Link className="link-light" to="/features">
+                <Link className="link-light" to="#base-features">
                   Features
                 </Link>
               </li>
               <li>
-                <Link className="link-light" to="/pricing">
+                <Link className="link-light" to="#pricing">
                   Pricing
                 </Link>
               </li>
@@ -26,9 +26,9 @@ const Footer = () => {
                 </Link>
               </li> */}
               <li>
-                <Link className="link-light" to="/contact">
+                <a className="link-light" href="mailto:keyflowsoftware@gmail.com">
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

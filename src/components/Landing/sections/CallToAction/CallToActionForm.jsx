@@ -7,12 +7,14 @@ import AlertModal from "../../../Dashboard/UIComponents/Modals/AlertModal";
 import { Stack } from "@mui/material";
 import ReactGA from "react-ga4";
 import ProgresModal from "../../../Dashboard/UIComponents/Modals/ProgressModal";
+import useScreen from "../../../../hooks/useScreen";
 const CallToActionForm = () => {
   ReactGA.initialize([
     {
       trackingId: "G-Z7X45HF5K6",
     },
   ]);
+  const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -51,12 +53,11 @@ const CallToActionForm = () => {
       setModalTitle("Error!");
       setModalMessage(
         "Something went wrong. Please try  using a  different email address or try again later."
-      )
+      );
       setShowModal(true);
-    }finally{
+    } finally {
       setIsLoading(false);
     }
-
   };
   return (
     <div>
@@ -94,6 +95,7 @@ const CallToActionForm = () => {
               name="email"
               placeholder="Your Email"
               style={{ width: "250px" }}
+              required
             />
             <span
               className={{
@@ -105,8 +107,12 @@ const CallToActionForm = () => {
               {errors.email && errors.email.message}
             </span>
           </div>
-          <div className="">
-            <UIButton type="submit" btnText="Request Demo" />
+          <div className="" style={{ width: isMobile ? "100%" : "auto" }}>
+            <UIButton
+              type="submit"
+              btnText="Request Demo"
+              style={{ width: isMobile ? "100%" : "auto" }}
+            />
           </div>
         </Stack>
       </form>
