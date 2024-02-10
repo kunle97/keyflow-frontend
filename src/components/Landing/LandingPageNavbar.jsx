@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UIButton from "../Dashboard/UIComponents/UIButton";
-
+import useScreen from "../../hooks/useScreen";
 const LandingPageNavbar = (props) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   //Retrieve screen width
   const [width, setWidth] = useState(window.innerWidth);
   const breakpoint = 768;
-
+  const { isMobile } = useScreen();
   const handleScroll = () => {
     const currentPosition = window.pageYOffset;
     setScrollPosition(currentPosition);
+  };
+
+  const mobileLinkStyle = {
+    color: "black",
+    height: "auto",
+    padding: "10px 0",
   };
 
   useEffect(() => {
@@ -24,18 +30,14 @@ const LandingPageNavbar = (props) => {
     <nav
       id="landing-page-navbar"
       className={`navbar ${
-        props.isDarkNav ||
-        scrollPosition > 250 ||
-        window.innerWidth <= breakpoint
-          ? "bg-white"
-          : ""
+        props.isDarkNav || scrollPosition > 250 || isMobile ? "bg-white" : ""
       }   navbar-expand-md fixed-top navbar-transparency`}
       // add  a box shadow to the bottom of the navbar when the user scrolls
       style={{
         boxShadow:
-          scrollPosition > 250 || window.innerWidth <= breakpoint
+          scrollPosition > 250 || isMobile
             ? "0px 2px 4px rgba(0, 0, 0, 0.1)"
-            : "none",
+            : "none",        
       }}
     >
       <div className="container">
@@ -44,7 +46,7 @@ const LandingPageNavbar = (props) => {
             <img
               className="logo"
               src={
-                scrollPosition > 250 || window.innerWidth <= breakpoint
+                scrollPosition > 250 || isMobile
                   ? "/assets/img/key-flow-logo-black-transparent.png"
                   : "/assets/img/key-flow-logo-white-transparent.png"
               }
@@ -62,50 +64,89 @@ const LandingPageNavbar = (props) => {
         <div className="collapse navbar-collapse" id="navcol-1">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <a
-                className="nav-link landing-nav-link"
-                href="#"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Home
-              </a>
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#"
+                  style={mobileLinkStyle}
+                >
+                  Home
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#"
+                  style={{
+                    color: scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Home
+                </a>
+              )}
             </li>
             <li className="nav-item">
-              <a
-                className="nav-link landing-nav-link"
-                href="#base-features"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Features
-              </a>
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#base-features"
+                  style={mobileLinkStyle}
+                >
+                  Features
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#base-features"
+                  style={{
+                    color: scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Features
+                </a>
+              )}
             </li>
             <li className="nav-item">
-              <a
-                className="nav-link landing-nav-link"
-                href="#rentals"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Rentals
-              </a>
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#rentals"
+                  style={mobileLinkStyle}
+                >
+                  Rentals
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#rentals"
+                  style={{
+                    color: scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Rentals
+                </a>
+              )}
             </li>
             <li className="nav-item">
-              <a
-                className="nav-link landing-nav-link"
-                href="#pricing"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Pricing
-              </a>
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#pricing"
+                  style={mobileLinkStyle}
+                >
+                  Pricing
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="#pricing"
+                  style={{
+                    color: scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Pricing
+                </a>
+              )}
             </li>
-            {/* <li className="nav-item">
-              <Link
-                className="nav-link landing-nav-link"
-                to="/blog"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Blog
-              </Link>
-            </li> */}
             {process.env.REACT_APP_ENVIRONMENT === "production" && (
               <li className="nav-item">
                 <Link
@@ -128,22 +169,13 @@ const LandingPageNavbar = (props) => {
                 </Link>{" "}
               </li>
             )}
-            {/* <li className="nav-item">
-              <Link
-                className="nav-link landing-nav-link"
-                to="/contact"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Contact
-              </Link>
-            </li> */}
             <li className="nav-item">
               <a
                 className="nav-link  nav-button"
                 href="#call-to-action"
                 style={{
                   color: scrollPosition > 250 ? "black" : "white",
-                  width: "160px",
+                  width: isMobile ? "100%" : "160px",
                 }}
               >
                 <UIButton
