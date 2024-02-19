@@ -185,6 +185,26 @@ export async function changeMaintenanceRequestStatus(
   }
 }
 
+//Create a function to change the priorty of a maintenance request
+export async function changeMaintenanceRequestPriority(
+  maintenanceRequestId,
+  data
+) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/maintenance-requests/${maintenanceRequestId}/`, data)
+      .then((res) => {
+        //TODO: Create notification for priority change if assigned to a staff memeber
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Change Maintenance Request Priority Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+
 //Create a function to delete a maintenance request
 export async function deleteMaintenanceRequest(maintenanceRequestId) {
   try {

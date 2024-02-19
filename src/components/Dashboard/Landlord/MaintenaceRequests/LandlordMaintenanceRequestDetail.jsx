@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   changeMaintenanceRequestStatus,
+  changeMaintenanceRequestPriority,
   deleteMaintenanceRequest,
   getMaintenanceRequestById,
 } from "../../../../api/maintenance_requests";
@@ -14,6 +15,7 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import BackButton from "../../UIComponents/BackButton";
 import {
   Button,
+  Chip,
   ClickAwayListener,
   Grow,
   IconButton,
@@ -24,10 +26,8 @@ import {
   Stack,
 } from "@mui/material";
 import { uiGreen, uiRed } from "../../../../constants";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import useScreen from "../../../../hooks/useScreen";
-import HomeIcon from "@mui/icons-material/Home";
-import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import Timeline from "@mui/lab/Timeline";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
@@ -35,13 +35,8 @@ import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import TimelineDot from "@mui/lab/TimelineDot";
-import FastfoodIcon from "@mui/icons-material/Fastfood";
-import LaptopMacIcon from "@mui/icons-material/LaptopMac";
-import HotelIcon from "@mui/icons-material/Hotel";
-import RepeatIcon from "@mui/icons-material/Repeat";
 import Typography from "@mui/material/Typography";
 import ContactVendorModal from "../../UIComponents/Prototypes/Modals/ContactVendorModal";
-import DrawIcon from "@mui/icons-material/Draw";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import ReceiptIcon from "@mui/icons-material/Receipt";
@@ -61,12 +56,16 @@ const LandlordMaintenanceRequestDetail = () => {
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [showDeleteErrorMessage, setShowDeleteErrorMessage] = useState(false);
   const [status, setStatus] = useState(null); //["pending", "in_progress", "completed"]
+  const [priority, setPriority] = useState(null); //["1", "2", "3", "4", "5"]
   const { screenWidth, breakpoints, isMobile } = useScreen();
-  const [contantVendorModalOpen, setContactVendorModalOpen] = useState(true);
+  const [contantVendorModalOpen, setContactVendorModalOpen] = useState(false);
   const [changeStatusDialogOpen, setChangeStatusDialogOpen] = useState(false);
+  const [changePriorityDialogOpen, setChangePriorityDialogOpen] =
+    useState(false);
   const [progressModalOpen, setProgressModalOpen] = useState(false);
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const [open, setOpen] = useState(false);
+
+  const anchorRef = useRef(null);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -90,8 +89,8 @@ const LandlordMaintenanceRequestDetail = () => {
   }
 
   // return focus to the button when we transitioned from !open -> open
-  const prevOpen = React.useRef(open);
-  React.useEffect(() => {
+  const prevOpen = useRef(open);
+  useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
@@ -126,7 +125,7 @@ const LandlordMaintenanceRequestDetail = () => {
           setConfirmMessage("Maintenance Request status has been changed");
           setShowAlertModal(true);
           setStatus(status);
-          // navigate(0);
+          navigate(0);
         }
       })
       .catch((err) => {
@@ -135,6 +134,31 @@ const LandlordMaintenanceRequestDetail = () => {
       .finally(() => {
         setProgressModalOpen(false);
         setChangeStatusDialogOpen(false);
+      });
+  };
+
+  const handleChangePriority = (e) => {
+    e.preventDefault();
+    setProgressModalOpen(true);
+    const payload = {
+      priority: priority,
+    };
+    changeMaintenanceRequestPriority(id, payload)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          setConfirmMessage("Maintenance Request priority has been changed");
+          setShowAlertModal(true);
+          setPriority(priority);
+          navigate(0);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setProgressModalOpen(false);
+        setChangePriorityDialogOpen(false);
       });
   };
 
@@ -167,6 +191,7 @@ const LandlordMaintenanceRequestDetail = () => {
       .then((res) => {
         setMaintenanceRequest(res.data);
         setStatus(res.data.status);
+        setPriority(res.data.priority);
         setIsLoading(false);
         //Retrieve property by id
         getProperty(res.data.rental_property.id).then((property_res) => {
@@ -261,6 +286,45 @@ const LandlordMaintenanceRequestDetail = () => {
               </form>
             </div>
           </UIDialog>
+          <UIDialog
+            id="changePriorityDialog"
+            title="Change Priority"
+            open={changePriorityDialogOpen}
+            onClose={() => setChangePriorityDialogOpen(false)}
+            style={{ width: "500px" }}
+          >
+            <div className="mb-4">
+              <form onSubmit={handleChangePriority}>
+                <select
+                  {...register("priority", { required: true })}
+                  className="form-select card"
+                  style={{ background: "white" }}
+                  value={priority}
+                  onChange={(e) => {
+                    setPriority(e.target.value);
+                  }}
+                >
+                  <option value={maintenanceRequest.priority}>
+                    Select One
+                  </option>
+                  <option value="1">Low</option>
+                  <option value="2">Medium</option>
+                  <option value="3">High</option>
+                  <option value="4">Urgent</option>
+                  <option value="5">Emergency</option>
+                </select>
+                {errors.priority && (
+                  <p className="text-danger">Please select a priority</p>
+                )}
+                <UIButton
+                  type="submit"
+                  className="btn btn-primary mt-3"
+                  btnText="Change Priority"
+                  style={{ marginTop: "15px", width: "100%" }}
+                />
+              </form>
+            </div>
+          </UIDialog>
           <BackButton to={`/dashboard/landlord/maintenance-requests`} />
           <Stack
             direction="row"
@@ -270,11 +334,58 @@ const LandlordMaintenanceRequestDetail = () => {
             sx={{ mb: 2 }}
           >
             <div className="">
-              <h4>
-                {maintenanceRequest?.tenant.user.first_name +
-                  " " +
-                  maintenanceRequest?.tenant.user.last_name}
-              </h4>
+              <Stack
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                alignContent={"center"}
+                spacing={1}
+                sx={{ mt: 1 }}
+              >
+                <h4 style={{ marginRight: "0px" }}>
+                  {maintenanceRequest?.tenant.user.first_name +
+                    " " +
+                    maintenanceRequest?.tenant.user.last_name}
+                </h4>{" "}
+                <p style={{ marginRight: "0px" }}>
+                  {/* <span className="text-black">Status: </span> */}
+                  {status === "pending" && (
+                    // <span className="text-warning">Pending</span>
+                    <Chip label="Pending" color="warning" />
+                  )}
+                  {status === "in_progress" && (
+                    // <span className="text-info">In Progress</span>
+                    <Chip label="In Progress" color="info" />
+                  )}
+                  {status === "completed" && (
+                    // <span className="text-success">Completed</span>
+                    <Chip label="Completed" color="success" />
+                  )}
+                </p>
+                <p style={{ marginRight: "0px" }}>
+                  {/* <span className="text-black">Priority: </span> */}
+                  {maintenanceRequest.priority === 1 && (
+                    // <span className="text-success">Low</span>
+                    <Chip label="Low Priority" color="success" />
+                  )}
+                  {maintenanceRequest.priority === 2 && (
+                    // <span className="text-warning">Medium</span>
+                    <Chip label="Moderate Priority" color="warning" />
+                  )}
+                  {maintenanceRequest.priority === 3 && (
+                    // <span className="text-danger">High</span>
+                    <Chip label="High Priority" color="error" />
+                  )}
+                  {maintenanceRequest.priority === 4 && (
+                    // <span className="text-danger">Urgent</span>
+                    <Chip label="Urgent Priority" color="error" />
+                  )}
+                  {maintenanceRequest.priority === 5 && (
+                    // <span className="text-danger">Emergency</span>
+                    <Chip label="Emergency Priority" color="error" />
+                  )}
+                </p>
+              </Stack>
               <span className="text-black">
                 Unit {unit?.name} @ {property?.name}
               </span>
@@ -283,19 +394,10 @@ const LandlordMaintenanceRequestDetail = () => {
                 justifyContent="flex-start"
                 alignItems="center"
                 alignContent={"center"}
+                spacing={3}
+                sx={{ mt: 1 }}
               >
-                <p style={{ margin: "0" }}>
-                  <span className="text-black">Status: </span>
-                  {status === "pending" && (
-                    <span className="text-warning">Pending</span>
-                  )}
-                  {status === "in_progress" && (
-                    <span className="text-info">In Progress</span>
-                  )}
-                  {status === "completed" && (
-                    <span className="text-success">Completed</span>
-                  )}
-                </p>
+                <span className="text-black"> </span>
               </Stack>
             </div>
             <div>
@@ -342,6 +444,13 @@ const LandlordMaintenanceRequestDetail = () => {
                             }}
                           >
                             Change Status
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              setChangePriorityDialogOpen(true);
+                            }}
+                          >
+                            Change Priority
                           </MenuItem>
                           <MenuItem
                             onClick={() => setContactVendorModalOpen(true)}
