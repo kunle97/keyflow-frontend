@@ -9,12 +9,14 @@ import { getLandlordUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import useScreen from "../../../../hooks/useScreen";
 const LeaseTemplates = () => {
   const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [units, setUnits] = useState([]);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
   const [deleteErrorMessageTitle, setDeleteErrorMessageTitle] = useState("");
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const { isMobile } = useScreen();
   const navigate = useNavigate();
   const columns = [
     { name: "rent", label: "Rent" },
@@ -154,44 +156,62 @@ const LeaseTemplates = () => {
           options={options}
         /> */}
       </div>
-      <UITableMobile
-        tableTitle="Lease Templates"
-        endpoint="/lease-templates/"
-        createInfo={(row) => {
-          let frequency_unit = "";
-          let frequency = "";
-          if (row.rent_frequency === "month") {
-            frequency_unit = "mo";
-            frequency = "month(s)";
-          } else if (row.rent_frequency === "week") {
-            frequency_unit = "wk";
-            frequency = "week(s)";
-          } else if (row.rent_frequency === "day") {
-            frequency_unit = "day";
-            frequency = "day(s)";
-          } else if (row.rent_frequency === "year") {
-            frequency_unit = "yr";
-            frequency = "year(s)";
-          }else{
-            frequency_unit = "mo";
-            frequency = "month(s)";
-          }
-          return `$${row.rent}/${frequency_unit} | ${row.term} ${frequency} `;
-        }}
-        createSubtitle={(row) => `Late Fee:  $${row.late_fee}`}
-        createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
-        onRowClick={handleRowClick}
-        orderingFields={[
-          { field: "created_at", label: "Date Created (Ascending)" },
-          { field: "-created_at", label: "Date Created (Descending)" },
-          { field: "rent", label: "Rent (Ascending)" },
-          { field: "-rent", label: "Rent (Descending)" },
-          { field: "term", label: "Term (Ascending)" },
-          { field: "-term", label: "Term (Descending)" },
-        ]}
-        showCreate={true}
-        createURL="/dashboard/landlord/lease-templates/create"
-      />
+      {isMobile ? (
+        <UITableMobile
+          tableTitle="Lease Templates"
+          endpoint="/lease-templates/"
+          createInfo={(row) => {
+            let frequency_unit = "";
+            let frequency = "";
+            if (row.rent_frequency === "month") {
+              frequency_unit = "mo";
+              frequency = "month(s)";
+            } else if (row.rent_frequency === "week") {
+              frequency_unit = "wk";
+              frequency = "week(s)";
+            } else if (row.rent_frequency === "day") {
+              frequency_unit = "day";
+              frequency = "day(s)";
+            } else if (row.rent_frequency === "year") {
+              frequency_unit = "yr";
+              frequency = "year(s)";
+            } else {
+              frequency_unit = "mo";
+              frequency = "month(s)";
+            }
+            return `$${row.rent}/${frequency_unit} | ${row.term} ${frequency} `;
+          }}
+          createSubtitle={(row) => `Late Fee:  $${row.late_fee}`}
+          createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
+          onRowClick={handleRowClick}
+          orderingFields={[
+            { field: "created_at", label: "Date Created (Ascending)" },
+            { field: "-created_at", label: "Date Created (Descending)" },
+            { field: "rent", label: "Rent (Ascending)" },
+            { field: "-rent", label: "Rent (Descending)" },
+            { field: "term", label: "Term (Ascending)" },
+            { field: "-term", label: "Term (Descending)" },
+          ]}
+          showCreate={true}
+          createURL="/dashboard/landlord/lease-templates/create"
+        />
+      ) : (
+        <UITable
+          columns={columns}
+          options={options}
+          endpoint="/lease-templates/"
+          title="Lease Templates"
+          menuOptions={[
+            {
+              name: "Manage",
+              onClick: (row) => {
+                const navlink = `/dashboard/landlord/lease-templates/${row.id}`;
+                navigate(navlink);
+              },
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };

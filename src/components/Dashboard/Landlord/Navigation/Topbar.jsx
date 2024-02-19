@@ -13,6 +13,7 @@ import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuIcon from "@mui/icons-material/Menu";
 import { logout } from "../../../../api/auth";
+import EmailIcon from "@mui/icons-material/Email";
 const Topbar = (props) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -81,14 +82,14 @@ const Topbar = (props) => {
   //REtrieve user notifications
   useEffect(() => {
     try {
-      retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
-        (res) => {
-          setProfilePictureFile(res.data[0]);
-        }
-      );
-      if (!profilePictures) {
-        fetchProfilePictures();
-      }
+      // retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
+      //   (res) => {
+      //     setProfilePictureFile(res.data[0]);
+      //   }
+      // );
+      // if (!profilePictures) {
+      //   fetchProfilePictures();
+      // }
     } catch (error) {
       console.log(error);
     } finally {
@@ -339,164 +340,10 @@ const Topbar = (props) => {
                   className="dropdown-toggle nav-link"
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
-                  href="#"
+                  href="/dashboard/messages/"
                 >
-                  {/* <span className="badge bg-danger badge-counter"></span> */}
-                  <i
-                    className="fas fa-envelope fa-fw"
-                    style={{ fontSize: "15pt" }}
-                  />
+                  <EmailIcon style={{ fontSize: "15pt" }} />
                 </a>
-                <div
-                  className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in"
-                  style={dropDownMenuStyles}
-                >
-                  <h5
-                    className="dropdown-header"
-                    style={{
-                      background: uiGreen,
-                      borderStyle: "none",
-                      textTransform: "none !important",
-                      fontSize: "14pt",
-                    }}
-                  >
-                    Messages
-                  </h5>
-
-                  {props.messageThreads.length === 0 ? (
-                    <div
-                      style={{
-                        background: "white",
-                        border: "none",
-                        color: "black",
-                        padding: "15px 0",
-                      }}
-                    >
-                      <center>
-                        <span
-                          style={{
-                            borderStyle: "none",
-                            fontSize: "12pt",
-                            color: "black",
-                            margin: "30px 0",
-                          }}
-                        >
-                          You have no messages
-                        </span>
-                      </center>
-                    </div>
-                  ) : (
-                    <ul className="list-group ">
-                      {props.messageThreads.map((thread) => {
-                        const profilePic =
-                          profilePictures[thread.recipient_id] ||
-                          "/assets/img/avatars/default-user-profile-picture.png";
-                        return (
-                          <li
-                            key={thread.id}
-                            className={`list-group-item`}
-                            style={{
-                              backgroundColor: "white",
-                              color: "black",
-                              border: "none",
-                              borderRadius: "0",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              const redirectLink = `/dashboard/messages/${thread.name}`;
-                              //Use window.location.href to redirect to the thread
-                              window.location.href = redirectLink;
-                            }}
-                          >
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={2}
-                            >
-                              <div
-                                style={{
-                                  borderRadius: "50%",
-                                  overflow: "hidden",
-                                  width: "65px",
-                                  height: "50px",
-                                }}
-                              >
-                                <img
-                                  style={{ height: "100%", margin: "0 auto" }}
-                                  src={profilePic}
-                                />
-                              </div>
-                              <Stack
-                                sx={{ width: "100%" }}
-                                direction="column"
-                                spacing={0}
-                              >
-                                <Stack
-                                  sx={{ width: "100%" }}
-                                  direction="row"
-                                  alignItems="center"
-                                  spacing={0}
-                                  justifyContent="space-between"
-                                >
-                                  <span style={{ fontSize: "12pt" }}>
-                                    {thread.name}
-                                  </span>{" "}
-                                  <span className="text-black">
-                                    {dateDiffForHumans(
-                                      new Date(thread.messages[0].timestamp)
-                                    )}
-                                  </span>
-                                </Stack>
-                                <Stack
-                                  sx={{ width: "100%", marginTop: "5px" }}
-                                  direction="row"
-                                  alignItems="center"
-                                  spacing={0}
-                                  justifyContent="space-between"
-                                >
-                                  <span
-                                    className="text-black"
-                                    style={{
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      maxWidth: "175px", // Adjust the width to accommodate the other span's width
-                                    }}
-                                  >
-                                    {thread.messages[0].text}
-                                  </span>
-                                  <span
-                                    style={{
-                                      backgroundColor: uiRed,
-                                      color: "white",
-                                      borderRadius: "20%",
-                                      padding: "0 5px",
-                                    }}
-                                  >
-                                    {thread.messages.length}
-                                  </span>
-                                </Stack>
-                              </Stack>
-                            </Stack>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-
-                  <Link
-                    className="dropdown-item text-center small"
-                    to="/dashboard/messages"
-                    style={{
-                      borderStyle: "none",
-                      background: uiGreen,
-                      color: "white",
-                      fontSize: "12pt",
-                    }}
-                  >
-                    All Messages
-                  </Link>
-                </div>
               </div>
               <div
                 className="shadow dropdown-list dropdown-menu dropdown-menu-end"

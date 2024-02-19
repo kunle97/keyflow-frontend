@@ -37,15 +37,6 @@ const DashboardContainer = ({ children }) => {
     localStorage.removeItem("stripe_onoboarding_link");
   }
 
-  const fetchMessages = () => {
-    getMessages().then((res) => {
-      // Use the messages to create threads
-      let threads = createThreads(res.data);
-      //Filter the threads variable to show 5 threads with the most recent messages
-      threads = threads.slice(0, 5);
-      setMessageThreads(threads);
-    });
-  };
   const fetchNotifications = async (count = 0) => {
     let endpoint = "";
     if (count === 0) {
@@ -70,15 +61,14 @@ const DashboardContainer = ({ children }) => {
   //Using useLocation retrieve the current path and find the object in the routes array that matches the path
   const findCurrentRoute = () => {
     const currentPath = location.pathname;
-    console.log("path anme ", currentPath)
+    console.log("path anme ", currentPath);
     const currentRoute = routes.find((route) => route.path === currentPath);
-    console.log("current route ", currentRoute)
+    console.log("current route ", currentRoute);
     return currentRoute;
   };
 
   useEffect(() => {
-    fetchNotifications(5);
-    fetchMessages();
+    // fetchNotifications(5);
     // setPageTitle(findCurrentRoute().label);
     if (screenWidth < breakpoints.lg) {
       setMUIMode(true);
@@ -102,10 +92,7 @@ const DashboardContainer = ({ children }) => {
         <Sidebar showNavMenu={showNavMenu} setShowNavMenu={setShowNavMenu} />
       )}
       <div className="d-flex flex-column" id="content-wrapper">
-        <div
-          id="content"
-          style={{ background: isDarkMode ? "#2c3a4a" : uiGrey }}
-        >
+        <div id="content">
           <div
             className={`${screenWidth > breakpoints.md && "container"} `}
             style={{ ...style }}
@@ -118,8 +105,6 @@ const DashboardContainer = ({ children }) => {
                 openMenu={setMenuOpen}
                 notifications={notifications}
                 notificationCount={notificationCount}
-                messageThreads={messageThreads}
-                messageCount={messageCount}
               />
             ) : (
               <Topbar
@@ -131,8 +116,6 @@ const DashboardContainer = ({ children }) => {
                 setShowNavMenu={setShowNavMenu}
                 notifications={notifications}
                 notificationCount={notificationCount}
-                messageThreads={messageThreads}
-                messageCount={messageCount}
               />
             )}
             {<h1>{pageTitle}</h1>}

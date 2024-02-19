@@ -7,9 +7,11 @@ import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
+import useScreen from "../../../../hooks/useScreen";
 const LandlordTransactions = () => {
   let revenueData = [];
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
   const [transactions, setTransactions] = useState([]);
   const [tabPage, setTabPage] = useState(0);
   const [revenueChartData, setRevenueChartData] = useState([{ x: 0, y: 0 }]);
@@ -35,14 +37,6 @@ const LandlordTransactions = () => {
       ],
     },
   ];
-
-  const tabs = [
-    { label: "Transactions", name: "transactions" },
-    { label: "Analytics", name: "analytics" },
-  ];
-  const handleChangeTabPage = (event, newValue) => {
-    setTabPage(newValue);
-  };
 
   //Create a function to calculate the total revenue for all transactions
   const calculateTotalRevenue = () => {
@@ -132,41 +126,55 @@ const LandlordTransactions = () => {
   return (
     <div className="container-fluid">
       {tabPage === 0 && (
-        // <UITable
-        //   columns={columns}
-        //   options={options}
-        //   endpoint="/transactions/"
-        //   title="Transactions"
-        //   detailURL="/dashboard/landlord/transactions/"
-        //   showCreate={false}
-        // />
-        <UITableMobile
-          showCreate={true}
-          tableTitle="Transactions"
-          endpoint="/transactions/"
-          createInfo={(row) =>
-            `${
-              row.type === "vendor_payment" || row.type === "expense"
-                ? "-$"
-                : "+$"
-            }${String(row.amount).toLocaleString("en-US")}`
-          }
-          createSubtitle={(row) =>
-            `${removeUnderscoresAndCapitalize(row.type)}`
-          }
-          createTitle={(row) =>
-            `${new Date(row.timestamp).toLocaleDateString()}`
-          }
-          onRowClick={handleRowClick}
-          orderingFields={[
-            { field: "timestamp", label: "Date Created (Ascending)" },
-            { field: "-timestamp", label: "Date Created (Descending)" },
-            { field: "type", label: "Transaction Type (Ascending)" },
-            { field: "-type", label: "Transaction Type (Descending)" },
-            { field: "amount", label: "Amount (Ascending)" },
-            { field: "-amount", label: "Amount (Descending)" },
-          ]}
-        />
+        <>
+          {isMobile ? (
+            <UITableMobile
+              showCreate={true}
+              tableTitle="Transactions"
+              endpoint="/transactions/"
+              createInfo={(row) =>
+                `${
+                  row.type === "vendor_payment" || row.type === "expense"
+                    ? "-$"
+                    : "+$"
+                }${String(row.amount).toLocaleString("en-US")}`
+              }
+              createSubtitle={(row) =>
+                `${removeUnderscoresAndCapitalize(row.type)}`
+              }
+              createTitle={(row) =>
+                `${new Date(row.timestamp).toLocaleDateString()}`
+              }
+              onRowClick={handleRowClick}
+              orderingFields={[
+                { field: "timestamp", label: "Date Created (Ascending)" },
+                { field: "-timestamp", label: "Date Created (Descending)" },
+                { field: "type", label: "Transaction Type (Ascending)" },
+                { field: "-type", label: "Transaction Type (Descending)" },
+                { field: "amount", label: "Amount (Ascending)" },
+                { field: "-amount", label: "Amount (Descending)" },
+              ]}
+            />
+          ) : (
+            <UITable
+              columns={columns}
+              options={options}
+              endpoint="/transactions/"
+              title="Transactions"
+              detailURL="/dashboard/landlord/transactions/"
+              showCreate={false}
+              menuOptions={[
+                {
+                  name: "View",
+                  onClick: (row) => {
+                    const navlink = `/dashboard/landlord/transactions/${row.id}`;
+                    navigate(navlink);
+                  },
+                },
+              ]}
+            />
+          )}
+        </>
       )}
       {tabPage === 1 && (
         <>

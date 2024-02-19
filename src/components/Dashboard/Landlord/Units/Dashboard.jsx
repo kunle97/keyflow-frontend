@@ -23,6 +23,7 @@ import {
   getAllOwnerMaintenanceRequests,
   getMaintenanceRequests,
 } from "../../../../api/maintenance_requests";
+import UITable from "../../UIComponents/UITable/UITable";
 
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
@@ -230,7 +231,7 @@ const Dashboard = () => {
   ];
 
   const maintenance_request_columns = [
-    { name: "description", label: "Issue" },
+    // { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
     {
       name: "status",
@@ -542,7 +543,7 @@ const Dashboard = () => {
         );
       });
       authenticatedInstance
-        .get("/lease-agreements/?ordering=end_date&limit=10")
+        .get("/lease-agreements/?ordering=end_date&limit=5")
         .then((res) => {
           setLeaseAgreements(res.data.results);
         });
@@ -566,11 +567,11 @@ const Dashboard = () => {
 
       {/* Line Chart Row */}
       <div className="row">
-        <div className="col-md-12 ">
+        <div className="col-md-8 ">
           <UILineChartCard
             dataTestId="dashboard-line-chart-card"
             isLoading={isLoading}
-            height={isMobile ? "270px" : "400px"}
+            height={isMobile ? "270px" : "365px"}
             title="Total Revenue and Expenses"
             info={`$${transactionDataValues
               .reduce((a, b) => a + b.totalRevenue, 0)
@@ -597,28 +598,6 @@ const Dashboard = () => {
             ]}
           />
         </div>
-      </div>
-
-      {/* Info Card Row (hidden on mobile and desktop too) */}
-      {/* <div className="row my-2">
-        {multiplier.map((item, index) => {
-          return (
-            <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
-              <UIInfoCard
-                cardStyle={{ background: "white", color: uiGrey2 }}
-                infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt", margin: 0 }}
-                titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
-                info={`$`}
-                title={"Total Revenue"}
-                icon={<AttachMoneyIcon style={{ fontSize: "25pt" }} />}
-              />
-            </div>
-          );
-        })}
-      </div> */}
-
-      {/* Vacancies & Transactions Row */}
-      <div className="row">
         <div className="col-sm-12 col-md-6 col-lg-4">
           {transactions.length === 0 ? (
             <UICard
@@ -664,18 +643,40 @@ const Dashboard = () => {
                   }$${transaction.amount}`,
                   icon: <AttachMoneyIcon />,
                 }))
-                .slice(0, 5)}
+                .slice(0, 4)}
               tertiaryStyles={{ color: uiGreen }}
             />
           )}
-        </div>{" "}
-        <div className="col-sm-12 col-md-6 col-lg-8">
+        </div>
+      </div>
+
+      {/* Info Card Row (hidden on mobile and desktop too) */}
+      {/* <div className="row my-2">
+        {multiplier.map((item, index) => {
+          return (
+            <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
+              <UIInfoCard
+                cardStyle={{ background: "white", color: uiGrey2 }}
+                infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt", margin: 0 }}
+                titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
+                info={`$`}
+                title={"Total Revenue"}
+                icon={<AttachMoneyIcon style={{ fontSize: "25pt" }} />}
+              />
+            </div>
+          );
+        })}
+      </div> */}
+
+      {/* Vacancies & Transactions Row */}
+      <div className="row">
+        <div className="col-sm-12 col-md-6 col-lg-6">
           <UIPieChartCard
             dataTestId="dashboard-pie-chart-card"
             isLoading={isLoading}
             info={"Vacancies"}
             title={"Occupied vs Vacant Units"}
-            height={isMobile ? "256px" : "456px"}
+            height={isMobile ? "256px" : "306px"}
             legendPosition={isMobile ? "bottom" : "right"}
             cardStyle={{ background: "white", color: "black" }}
             infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
@@ -691,6 +692,27 @@ const Dashboard = () => {
               })),
             ]}
             onDropdownChange={handlePropertyChange}
+          />
+        </div>{" "}
+        <div className="col-md-6">
+          <UIPieChartCard
+            dataTestId="dashboard-revenue-by-property-pie-chart-card"
+            isLoading={isLoading}
+            info={"Best Performing Properties"}
+            title={"Revenue Per Property"}
+            height={isMobile ? "256px" : "306px"}
+            legendPosition={isMobile ? "bottom" : "right"}
+            cardStyle={{ background: "white", color: "black" }}
+            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
+            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+            chartContainerStyles={{ padding: "1rem" }}
+            data={groupedPropertiesByTransactions.map((property) => {
+              return property.totalAmount;
+            })}
+            labels={groupedPropertiesByTransactions.map((property) => {
+              return property.name;
+            })}
+            colors={["#D9E3BC", "#D1EFD5", "#7FC9BB", "#A3F58F", "#3AAF5C"]} // |--X #B5EAD7, #A5DEE4, #A5BEE4
           />
         </div>
       </div>
@@ -744,34 +766,8 @@ const Dashboard = () => {
               tertiaryStyles={{ color: uiGreen }}
             />
           )}
-        </div>
-
+        </div>{" "}
         <div className="col-md-6">
-          <UIPieChartCard
-            dataTestId="dashboard-revenue-by-property-pie-chart-card"
-            isLoading={isLoading}
-            info={"Best Performing Properties"}
-            title={"Revenue Per Property"}
-            height={isMobile ? "356px" : "456px"}
-            legendPosition={"bottom"}
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            chartContainerStyles={{ padding: "1rem" }}
-            data={groupedPropertiesByTransactions.map((property) => {
-              return property.totalAmount;
-            })}
-            labels={groupedPropertiesByTransactions.map((property) => {
-              return property.name;
-            })}
-            colors={["#D9E3BC", "#D1EFD5", "#7FC9BB", "#A3F58F", "#3AAF5C"]} // |--X #B5EAD7, #A5DEE4, #A5BEE4
-          />
-        </div>
-      </div>
-
-      {/*Maintenance Request Row*/}
-      <div className="row">
-        <div className="col-md-12">
           {screenWidth > breakpoints.md ? (
             <UItableMiniCard
               dataTestId="dashboard-maintenance-requests-table-card-desktop"

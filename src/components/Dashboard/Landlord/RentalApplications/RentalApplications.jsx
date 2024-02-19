@@ -3,10 +3,12 @@ import { getRentalApplicationsByUser } from "../../../../api/rental_applications
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import useScreen from "../../../../hooks/useScreen";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
 
   const columns = [
     {
@@ -69,6 +71,7 @@ const RentalApplications = () => {
     },
     onRowClick: handleRowClick,
   };
+
   useEffect(() => {
     getRentalApplicationsByUser().then((res) => {
       console.log(res);
@@ -85,47 +88,61 @@ const RentalApplications = () => {
   }, []);
   return (
     <div className="container-fluid">
-      {/* <UITable
-        columns={columns}
-        options={options}
-        endpoint={`/rental-applications/`}
-        title="Rental Applications"
-        detailURL="/dashboard/landlord/rental-applications/"
-        showCreate={false}
-      /> */}
-      <UITableMobile
-        tableTitle={"Rental Applications"}
-        endpoint={`/rental-applications/`}
-        createInfo={(row) => `${row.first_name} ${row.last_name}`}
-        createTitle={(row) => `${row.unit.name}`}
-        createSubtitle={(row) => `${row.is_approved ? "Approved" : "Pending"}`}
-        orderingFields={[
-          { field: "created_at", label: "Date Submitted (Ascending)" },
-          { field: "-created_at", label: "Date Submitted (Descending)" },
-          { field: "first_name", label: "First Name (Ascending)" },
-          { field: "-first_name", label: "First Name (Descending)" },
-          { field: "last_name", label: "Last Name (Ascending)" },
-          { field: "-last_name", label: "Last Name (Descending)" },
-          {field: "is_approved", label: "Approved (Ascending)"},
-          {field: "-is_approved", label: "Approved (Descending)"}
-        ]}  
-        // getImage={(row) => {
-        //   retrieveFilesBySubfolder(
-        //     `properties/${row.id}`,
-        //     authUser.id
-        //   ).then((res) => {
-        //     if (res.data.length > 0) {
-        //       return res.data[0].file;
-        //     } else {
-        //       return "https://picsum.photos/200";
-        //     }
-        //   });
-        // }}
-        onRowClick={(row) => {
-          const navlink = `/dashboard/landlord/rental-applications/${row.id}`;
-          navigate(navlink);
-        }}
-      />
+      {isMobile ? (
+        <UITableMobile
+          tableTitle={"Rental Applications"}
+          endpoint={`/rental-applications/`}
+          createInfo={(row) => `${row.first_name} ${row.last_name}`}
+          createTitle={(row) => `${row.unit.name}`}
+          createSubtitle={(row) =>
+            `${row.is_approved ? "Approved" : "Pending"}`
+          }
+          orderingFields={[
+            { field: "created_at", label: "Date Submitted (Ascending)" },
+            { field: "-created_at", label: "Date Submitted (Descending)" },
+            { field: "first_name", label: "First Name (Ascending)" },
+            { field: "-first_name", label: "First Name (Descending)" },
+            { field: "last_name", label: "Last Name (Ascending)" },
+            { field: "-last_name", label: "Last Name (Descending)" },
+            { field: "is_approved", label: "Approved (Ascending)" },
+            { field: "-is_approved", label: "Approved (Descending)" },
+          ]}
+          // getImage={(row) => {
+          //   retrieveFilesBySubfolder(
+          //     `properties/${row.id}`,
+          //     authUser.id
+          //   ).then((res) => {
+          //     if (res.data.length > 0) {
+          //       return res.data[0].file;
+          //     } else {
+          //       return "https://picsum.photos/200";
+          //     }
+          //   });
+          // }}
+          onRowClick={(row) => {
+            const navlink = `/dashboard/landlord/rental-applications/${row.id}`;
+            navigate(navlink);
+          }}
+        />
+      ) : (
+        <UITable
+          columns={columns}
+          options={options}
+          endpoint={`/rental-applications/`}
+          title="Rental Applications"
+          detailURL="/dashboard/landlord/rental-applications/"
+          showCreate={false}
+          menuOptions={[
+            {
+              name: "View",
+              onClick: (row) => {
+                const navlink = `/dashboard/landlord/rental-applications/${row.id}`;
+                navigate(navlink);
+              },
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
