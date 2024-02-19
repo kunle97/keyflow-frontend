@@ -3,11 +3,18 @@ import {
   ButtonBase,
   Checkbox,
   CircularProgress,
+  ClickAwayListener,
   FormControlLabel,
+  Grow,
   IconButton,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
   Stack,
+  Typography,
 } from "@mui/material";
-import { ArrowBackOutlined } from "@mui/icons-material";
+import { ArrowBackOutlined, MoreVert } from "@mui/icons-material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, { useEffect } from "react";
 import { uiGreen, uiGrey2 } from "../../../../constants";
@@ -19,6 +26,8 @@ import { useNavigate } from "react-router";
 import { MultiSelectDropdown } from "../MultiSelectDropdown";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
+import SwapVertIcon from "@mui/icons-material/SwapVert";
+
 const UITable = (props) => {
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
@@ -51,6 +60,18 @@ const UITable = (props) => {
   let currentPageEndPoint = `${props.endpoint}?limit=${limit}${
     query ? `&search=${query}` : ""
   }`;
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const handleMenuClick = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedIndex(index);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedIndex(null);
+  };
 
   const refresh = async (endpoint) => {
     setIsLoading(true);
@@ -291,7 +312,7 @@ const UITable = (props) => {
   }, [props.data]);
 
   return (
-    <div style={{ width: "100%", overflowX: "auto" }}>
+    <div style={{ width: "100%", overflowX: "auto", padding: "0 15px" }}>
       <Stack
         direction="row"
         justifyContent="flex-end"
@@ -418,35 +439,42 @@ const UITable = (props) => {
                 />
               </>
             ) : (
-              <table id="ui-table" className="" style={{ width: "100%", padding:"0 35px" }}>
-                {/* Table Header  */}
-                <tr>
-                  {props.options.isSelectable && (
-                    <th>
-                      <Checkbox
-                        // checked={props.checked[0] && props.checked[1]}
-                        indeterminate={props.checked[0] !== props.checked[1]}
-                        onChange={handleSelectAll}
-                      />
-                    </th>
-                  )}
-                  {props.columns.map((column) => {
-                    return (
+              <table
+                // id="ui-table"
+                className="styled-table "
+                style={{ width: "100%", padding: "0 35px" }}
+              >
+                <thead>
+                  {/* Table Header  */}
+                  <tr>
+                    {props.options.isSelectable && (
                       <th>
-                        <ButtonBase
-                          onClick={() => {
-                            handleTableHeaderClick(column.name);
-                          }}
-                        >
-                          {column.label}
-                        </ButtonBase>
+                        <Checkbox
+                          // checked={props.checked[0] && props.checked[1]}
+                          indeterminate={props.checked[0] !== props.checked[1]}
+                          onChange={handleSelectAll}
+                        />
                       </th>
-                    );
-                  })}
-                  <th></th>
-                </tr>
+                    )}
+                    {props.columns.map((column) => {
+                      return (
+                        <th>
+                          <ButtonBase
+                            onClick={() => {
+                              handleTableHeaderClick(column.name);
+                            }}
+                          >
+                            {column.label}{" "}
+                            <SwapVertIcon sx={{ color: uiGreen }} />
+                          </ButtonBase>
+                        </th>
+                      );
+                    })}
+                    <th></th>
+                  </tr>
+                </thead>
                 {/* TableRows */}
-                <>
+                <tbody>
                   {isDrfFilterBackend ? (
                     <>
                       {" "}
@@ -497,12 +525,56 @@ const UITable = (props) => {
                               return <td>{row[column.name]}</td>;
                             })}
                             <td>
-                              <UIButton
-                                onClick={() => {
-                                  props.options.onRowClick(row.id);
-                                }}
-                                btnText="View"
-                              />
+                              <IconButton
+                                onClick={(event) =>
+                                  handleMenuClick(event, index)
+                                }
+                              >
+                                <MoreVert />
+                              </IconButton>
+                              <Popper
+                                open={selectedIndex === index}
+                                anchorEl={anchorEl}
+                                placement="bottom-start"
+                                transition
+                              >
+                                {({ TransitionProps, placement }) => (
+                                  <Grow
+                                    {...TransitionProps}
+                                    style={{
+                                      transformOrigin:
+                                        placement === "bottom-start"
+                                          ? "right top"
+                                          : "right top",
+                                    }}
+                                  >
+                                    <Paper>
+                                      <ClickAwayListener
+                                        onClickAway={handleCloseMenu}
+                                      >
+                                        <MenuList>
+                                          {props.menuOptions.map(
+                                            (option, index) => (
+                                              <MenuItem
+                                                key={index}
+                                                onClick={() =>
+                                                  option.onClick(row)
+                                                }
+                                                id="menu-list-grow"
+                                                onKeyDown={handleCloseMenu}
+                                              >
+                                                <Typography>
+                                                  {option.name}
+                                                </Typography>
+                                              </MenuItem>
+                                            )
+                                          )}
+                                        </MenuList>
+                                      </ClickAwayListener>
+                                    </Paper>
+                                  </Grow>
+                                )}
+                              </Popper>
                             </td>
                           </tr>
                         );
@@ -510,7 +582,7 @@ const UITable = (props) => {
                     </>
                   ) : (
                     <>
-                      {currentItems.map((row) => {
+                      {currentItems.map((row, index) => {
                         return (
                           <tr
                             style={{
@@ -534,21 +606,66 @@ const UITable = (props) => {
                               }
                               return <td>{row[column.name]}</td>;
                             })}
-                            <td>
-                              <UIButton
-                                onClick={() => {
-                                  // navigate(`${props.detailURL}${row.id}`);
-                                  props.options.onRowClick(row.id);
-                                }}
-                                btnText="View"
-                              />
-                            </td>
+                            {props.menuOptions && (
+                              <td>
+                                <IconButton
+                                  onClick={(event) =>
+                                    handleMenuClick(event, index)
+                                  }
+                                >
+                                  <MoreVert />
+                                </IconButton>
+                                <Popper
+                                  open={selectedIndex === index}
+                                  anchorEl={anchorEl}
+                                  placement="bottom-start"
+                                  transition
+                                >
+                                  {({ TransitionProps, placement }) => (
+                                    <Grow
+                                      {...TransitionProps}
+                                      style={{
+                                        transformOrigin:
+                                          placement === "bottom-start"
+                                            ? "right top"
+                                            : "right top",
+                                      }}
+                                    >
+                                      <Paper>
+                                        <ClickAwayListener
+                                          onClickAway={handleCloseMenu}
+                                        >
+                                          <MenuList>
+                                            {props.menuOptions.map(
+                                              (option, index) => (
+                                                <MenuItem
+                                                  key={index}
+                                                  onClick={() =>
+                                                    option.onClick(row)
+                                                  }
+                                                  id="menu-list-grow"
+                                                  onKeyDown={handleCloseMenu}
+                                                >
+                                                  <Typography>
+                                                    {option.name}
+                                                  </Typography>
+                                                </MenuItem>
+                                              )
+                                            )}
+                                          </MenuList>
+                                        </ClickAwayListener>
+                                      </Paper>
+                                    </Grow>
+                                  )}
+                                </Popper>
+                              </td>
+                            )}
                           </tr>
                         );
                       })}
                     </>
                   )}
-                </>
+                </tbody>
               </table>
             )}
           </>

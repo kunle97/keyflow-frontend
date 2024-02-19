@@ -26,8 +26,10 @@ import useScreen from "../../../../hooks/useScreen";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
+import UITable from "../../UIComponents/UITable/UITable";
 const ManagePortfolio = () => {
   const { id } = useParams();
+  const { isMobile } = useScreen();
   const navigate = useNavigate();
   const { screenWidth, breakpoints } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,12 +42,29 @@ const ManagePortfolio = () => {
   const [tabPage, setTabPage] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const tabs = [{ label: "Properties " }, { label: "Preferences" }];
+  const [checked, setChecked] = useState([]);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const columns = [
+    { label: "Name", name: "name" },
+    { label: "Street", name: "street" },
+    { label: "City", name: "city" },
+    { label: "State", name: "state" },
+    { label: "Zip Code", name: "zip_code" },
+    { label: "Country", name: "country" },
+  ];
 
+  const options = {
+    isSelectable: false,
+    onRowClick: (row) => {
+      let navlink = "/";
+      navlink = `/dashboard/landlord/properties/${row}`;
+      navigate(navlink);
+    },
+  };
   const onSubmit = (data) => {
     console.log(data);
     data.owner = authUser.owner_id;
@@ -235,37 +254,69 @@ const ManagePortfolio = () => {
           />
           {tabPage === 0 && (
             <div>
-              <UITableMobile
-                testRowIdentifier="portfolio-property"
-                tableTitle="Properties"
-                data={properties}
-                infoProperty="name"
-                createTitle={(row) =>
-                  `${row.street}, ${row.city}, ${row.state}`
-                }
-                subtitleProperty="somthing"
-                acceptedFileTypes={[".csv"]}
-                // getImage={(row) => {
-                //   retrieveFilesBySubfolder(
-                //     `properties/${row.id}`,
-                //     authUser.id
-                //   ).then((res) => {
-                //     if (res.data.length > 0) {
-                //       return res.data[0].file;
-                //     } else {
-                //       return "https://picsum.photos/200";
-                //     }
-                //   });
-                // }}
-                onRowClick={(row) => {
-                  const navlink = `/dashboard/landlord/properties/${row.id}`;
-                  navigate(navlink);
-                }}
-                createURL="/dashboard/landlord/properties/create"
-                showCreate={true}
-              />
+              {isMobile ? (
+                <UITableMobile
+                  testRowIdentifier="portfolio-property"
+                  tableTitle="Properties"
+                  data={properties}
+                  infoProperty="name"
+                  createTitle={(row) =>
+                    `${row.street}, ${row.city}, ${row.state}`
+                  }
+                  subtitleProperty="something"
+                  acceptedFileTypes={[".csv"]}
+                  // getImage={(row) => {
+                  //   retrieveFilesBySubfolder(
+                  //     `properties/${row.id}`,
+                  //     authUser.id
+                  //   ).then((res) => {
+                  //     if (res.data.length > 0) {
+                  //       return res.data[0].file;
+                  //     } else {
+                  //       return "https://picsum.photos/200";
+                  //     }
+                  //   });
+                  // }}
+                  onRowClick={(row) => {
+                    const navlink = `/dashboard/landlord/properties/${row.id}`;
+                    navigate(navlink);
+                  }}
+                  createURL="/dashboard/landlord/properties/create"
+                  showCreate={true}
+                />
+              ) : (
+                <UITable
+                  
+                  data={properties}
+                  searchFields={[
+                    "name",
+                    "street",
+                    "city",
+                    "state",
+                    "zip_code",
+                    "country",
+                  ]}
+                  menuOptions={[
+                    {
+                      name: "Manage",
+                      onClick: (row) => {
+                        const navlink = `/dashboard/landlord/properties/${row.id}`;
+                        navigate(navlink);
+                      },
+                    },
+                  ]}
+                  title="Properties"
+                  showCreate={true}
+                  createURL="/dashboard/landlord/properties/create"
+                  options={options}
+                  checked={checked}
+                  columns={columns}
+                  setChecked={setChecked}
+                />
+              )}
             </div>
           )}
+
           {tabPage === 1 && (
             <div>
               <ConfirmModal

@@ -13,14 +13,32 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import { authUser } from "../../../../constants";
 const Properties = () => {
-  const { screenWidth, breakpoints } = useScreen();
+  const { screenWidth, breakpoints, isMobile } = useScreen();
   const [properties, setProperties] = useState([]);
   const [filters, setFilters] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [checked, setChecked] = useState([]);
   const navigate = useNavigate();
 
+  const columns = [
+    { label: "Name", name: "name" },
+    { label: "Street", name: "street" },
+    { label: "City", name: "city" },
+    { label: "State", name: "state" },
+    { label: "Zip Code", name: "zip_code" },
+    { label: "Country", name: "country" },
+  ];
+
+  const options = {
+    isSelectable: true,
+    onRowClick: (row) => {
+      let navlink = "/";
+      navlink = `/dashboard/landlord/properties/${row}`;
+      navigate(navlink);
+    },
+  };
 
   //Create a useEffect that calls the get propertiees api function and sets the properties state
   useEffect(() => {
@@ -46,7 +64,7 @@ const Properties = () => {
         btnText={"Ok"}
         onClick={() => setShowDeleteError(false)}
       />{" "}
-      <>
+      {isMobile ? (
         <UITableMobile
           testRowIdentifier="property"
           tableTitle="Properties"
@@ -77,7 +95,35 @@ const Properties = () => {
           createURL="/dashboard/landlord/properties/create"
           showCreate={true}
         />
-      </>
+      ) : (
+        <UITable
+          endpoint={"/properties/"}
+          searchFields={[
+            "name",
+            "street",
+            "city",
+            "state",
+            "zip_code",
+            "country",
+          ]}
+          menuOptions={[
+            {
+              name: "View",
+              onClick: (row) => {
+                const navlink = `/dashboard/landlord/properties/${row.id}`;
+                navigate(navlink);
+              },
+            },
+          ]}
+          title="Properties"
+          showCreate={true}
+          createURL="/dashboard/landlord/properties/create"
+          options={options}
+          checked={checked}
+          columns={columns}
+          setChecked={setChecked}
+        />
+      )}
     </div>
   );
 };

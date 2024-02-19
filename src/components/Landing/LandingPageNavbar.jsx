@@ -37,7 +37,7 @@ const LandingPageNavbar = (props) => {
         boxShadow:
           scrollPosition > 250 || isMobile
             ? "0px 2px 4px rgba(0, 0, 0, 0.1)"
-            : "none",        
+            : "none",
       }}
     >
       <div className="container">
@@ -147,28 +147,24 @@ const LandingPageNavbar = (props) => {
                 </a>
               )}
             </li>
-            {process.env.REACT_APP_ENVIRONMENT === "production" && (
-              <li className="nav-item">
-                <Link
-                  className="nav-link landing-nav-link"
-                  to="/dashboard/tenant/login"
-                  style={{ color: scrollPosition > 250 ? "black" : "white" }}
-                >
-                  Tenants
-                </Link>
-              </li>
-            )}
-            {process.env.REACT_APP_ENVIRONMENT === "production" && (
-              <li className="nav-item">
-                <Link
-                  className="nav-link landing-nav-link"
-                  to="/dashboard/landlord/login"
-                  style={{ color: scrollPosition > 250 ? "black" : "white" }}
-                >
-                  Landlords
-                </Link>{" "}
-              </li>
-            )}
+            <li className="nav-item">
+              <Link
+                className="nav-link landing-nav-link"
+                to="/dashboard/tenant/login"
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
+              >
+                Tenants
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link
+                className="nav-link landing-nav-link"
+                to="/dashboard/landlord/login"
+                style={{ color: scrollPosition > 250 ? "black" : "white" }}
+              >
+                Landlords
+              </Link>{" "}
+            </li>
             <li className="nav-item">
               <a
                 className="nav-link  nav-button"

@@ -121,22 +121,24 @@ const UITableMini = (props) => {
               />
             </div>
           ) : (
-            <table id="ui-table-mini" data-testId={props.dataTestId} style={{ width: "100%" }}>
+            <table
+              id="ui-table-mini"
+              data-testId={props.dataTestId}
+              style={{ width: "100%" }}
+            >
               <thead>
                 <tr>
                   {props.columns.map((column) => {
                     return (
                       <th>
-                        <ButtonBase>
-                          <span
-                            style={{
-                              borderBottom: "2px solid " + uiGreen,
-                              margin: "0 5px",
-                            }}
-                          >
-                            {column.label}
-                          </span>
-                        </ButtonBase>
+                        <span
+                          style={{
+                            margin: "0 5px",
+                          }}
+                          className="text-black"
+                        >
+                          {column.label}
+                        </span>
                       </th>
                     );
                   })}
@@ -148,7 +150,7 @@ const UITableMini = (props) => {
                     {" "}
                     {results.map((row, index) => {
                       return (
-                        <tr style={{ borderBottom: "1px solid #ccc" }}>
+                        <tr>
                           {props.columns.map((column) => {
                             //Check if column has an option property with a function in it called customBodyRender
                             if (column.options) {
@@ -187,7 +189,7 @@ const UITableMini = (props) => {
                   <>
                     {results.map((row) => {
                       return (
-                        <tr style={{ borderBottom: "1px solid #ccc" }}>
+                        <tr>
                           {props.columns.map((column) => {
                             //Check if column has an o ption property with a function in it called customBodyRender
                             if (column.options) {

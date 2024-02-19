@@ -3,8 +3,10 @@ import UITable from "../../UIComponents/UITable/UITable";
 import { uiGreen, uiRed } from "../../../../constants";
 import { useNavigate } from "react-router";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import useScreen from "../../../../hooks/useScreen";
 const ViewLeaseAgreements = () => {
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
   const columns = [
     {
       name: "tenant",
@@ -74,47 +76,57 @@ const ViewLeaseAgreements = () => {
   };
   return (
     <div className="container-fluid">
-      {/* <UITable
-        columns={columns}
-        endpoint={"/lease-agreements/"}
-        options={options}
-        title={"Lease Agreements"}
-      /> */}
-      <UITableMobile
-        tableTitle={"Lease Agreements"}
-        endpoint={"/lease-agreements/"}
-        createInfo={(row) =>
-          `${
-            row.tenant
-              ? row.tenant.user.first_name + row.tenant.user.last_name
-              : "N/A"
-          }`
-        }
-        createSubtitle={(row) =>
-          `${row.is_active ? "Active" : "Inactive"} - Ends: ${
-            row.end_date ? new Date(row.end_date).toLocaleDateString() : "N/A"
-          }`
-        }
-        createTitle={(row) =>
-          `Unit ${row.rental_unit.name}`
-        }
-        orderingFields={[
-          { field: "created_at", label: "Date Created (Ascending)" },
-          { field: "-created_at", label: "Date Created (Descending)" },
-          { field: "is_active", label: "Status (Ascending)" },
-          { field: "-is_active", label: "Status (Descending)" },
-          { field: "tenant__last_name", label: "Tenant (Ascending)" },
-          { field: "-tenant__last_name", label: "Tenant (Descending)" },
-          { field: "start_date", label: "Start Date (Ascending)" },
-          { field: "-start_date", label: "Start Date (Descending)" },
-          { field: "end_date", label: "End Date (Ascending)" },
-          { field: "-end_date", label: "End Date (Descending)" },
-        ]}
-        onRowClick={(row) => {
-          const navlink = `/dashboard/landlord/lease-agreements/${row.id}`;
-          navigate(navlink);
-        }}
-      />
+      {isMobile ? (
+        <UITableMobile
+          tableTitle={"Lease Agreements"}
+          endpoint={"/lease-agreements/"}
+          createInfo={(row) =>
+            `${
+              row.tenant
+                ? row.tenant.user.first_name + row.tenant.user.last_name
+                : "N/A"
+            }`
+          }
+          createSubtitle={(row) =>
+            `${row.is_active ? "Active" : "Inactive"} - Ends: ${
+              row.end_date ? new Date(row.end_date).toLocaleDateString() : "N/A"
+            }`
+          }
+          createTitle={(row) => `Unit ${row.rental_unit.name}`}
+          orderingFields={[
+            { field: "created_at", label: "Date Created (Ascending)" },
+            { field: "-created_at", label: "Date Created (Descending)" },
+            { field: "is_active", label: "Status (Ascending)" },
+            { field: "-is_active", label: "Status (Descending)" },
+            { field: "tenant__last_name", label: "Tenant (Ascending)" },
+            { field: "-tenant__last_name", label: "Tenant (Descending)" },
+            { field: "start_date", label: "Start Date (Ascending)" },
+            { field: "-start_date", label: "Start Date (Descending)" },
+            { field: "end_date", label: "End Date (Ascending)" },
+            { field: "-end_date", label: "End Date (Descending)" },
+          ]}
+          onRowClick={(row) => {
+            const navlink = `/dashboard/landlord/lease-agreements/${row.id}`;
+            navigate(navlink);
+          }}
+        />
+      ) : (
+        <UITable
+          columns={columns}
+          endpoint={"/lease-agreements/"}
+          options={options}
+          title={"Lease Agreements"}
+          menuOptions={[
+            {
+              name: "View",
+              onClick: (row) => {
+                const navlink = `/dashboard/landlord/lease-agreements/${row.id}`;
+                navigate(navlink);
+              },
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
