@@ -211,7 +211,7 @@ export const landlordMenuItems = [
       },
       {
         label: "Accounting", //TODO: page for accounting: taxes, etc
-        link: "/dashboard/maintenance-requests/",
+        link: "/dashboard/landlord/accounts",
         icon: "fas fa-tools",
         isSearchable: false,
         dataTestId: "landlord-accounting-menu-item",

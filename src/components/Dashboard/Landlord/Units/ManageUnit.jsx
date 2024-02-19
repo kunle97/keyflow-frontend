@@ -10,15 +10,21 @@ import BackButton from "../../UIComponents/BackButton";
 import {
   Alert,
   Button,
+  ClickAwayListener,
   Divider,
+  Grow,
   IconButton,
   List,
   ListItem,
   ListItemText,
+  MenuItem,
+  MenuList,
   Modal,
+  Paper,
+  Popper,
   Stack,
 } from "@mui/material";
-import Snackbar from "@mui/material/Snackbar";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { authUser, token, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
@@ -71,6 +77,11 @@ import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstruct
 import DescriptionIcon from "@mui/icons-material/Description";
 import UnitLeaseTerms from "./UnitLeaseTerms/UnitLeaseTerms";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
+import RentPriceSuggestionModal from "../../UIComponents/Prototypes/Modals/RentPriceSuggestionModal";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ListUnitModal from "../../UIComponents/Prototypes/Modals/ListUnitModal";
+import UITable from "../../UIComponents/UITable/UITable";
+
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -118,6 +129,10 @@ const ManageUnit = () => {
   const [templateId, setTemplateId] = useState(null);
   const [progressModalTitle, setProgressModalTitle] = useState("");
   const [chargesValid, setChargesValid] = useState(true);
+  const anchorRef = React.useRef(null);
+  const [open, setOpen] = useState(false);
+  const [openRentalUnitSuggestionModal, setOpenRentalUnitSuggestionModal] =
+    useState(false);
   const [
     showDeleteSignedDocumentConfirmModal,
     setShowDeleteSignedDocumentConfirmModal,
@@ -128,6 +143,9 @@ const ManageUnit = () => {
     useState(false);
   const [addLeaseAgreementDialogIsOpen, setAddLeaseAgreementDialogIsOpen] =
     useState(false);
+  const [viewRentalApplicationModalOpen, setViewRentalApplicationModalOpen] =
+    useState(false);
+  const [showListUnitModal, setShowListUnitModal] = useState(false);
 
   const tabs = [
     { label: "Details", name: "details", dataTestId: "unit-details-tab" },
@@ -174,6 +192,59 @@ const ManageUnit = () => {
       baths: unit.baths,
     },
   });
+
+  const rental_application_table_columns = [
+    {
+      label: "First Name",
+      name: "first_name",
+    },
+    {
+      label: "Last Name",
+      name: "last_name",
+    },
+    {
+      label: "Email",
+      name: "email",
+    },
+    {
+      label: "Status",
+      name: "is_approved",
+      options: {
+        customBodyrender: (value) => {
+          return value ? "Approved" : "Pending";
+        },
+      },
+    },
+  ];
+
+  const rental_application_table_options = {
+    isSelectable: false,
+    onRowClick: (row) => {
+      console.log(row);
+    },
+  };
+
+  // Dropdown
+  const handleToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
+
+  const handleClose = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  function handleListKeyDown(event) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpen(false);
+    } else if (event.key === "Escape") {
+      setOpen(false);
+    }
+  }
 
   const retrieveSubscriptionPlan = async () => {
     const res = await getUserStripeSubscriptions(authUser.id, token).then(
@@ -962,6 +1033,106 @@ const ManageUnit = () => {
               });
             }}
           />
+          <AlertModal
+            dataTestId={"delete-unit-alert-modal"}
+            open={showDeleteError}
+            setOpen={setShowDeleteError}
+            title={"Error"}
+            message={deleteErrorMessage}
+            btnText={"Ok"}
+            onClick={() => setShowDeleteError(false)}
+          />
+          <ConfirmModal
+            dataTestId={"delete-unit-confirm-modal"}
+            open={showDeleteAlert}
+            title="Delete Unit"
+            message="Are you sure you want to delete this unit?"
+            confirmBtnText="Delete"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{
+              backgroundColor: uiRed,
+              color: "white",
+            }}
+            cancelBtnStyle={{
+              backgroundColor: uiGreen,
+              color: "white",
+            }}
+            handleCancel={() => {
+              setShowDeleteAlert(false);
+            }}
+            handleConfirm={handleDeleteUnit}
+          />
+          <ConfirmModal
+            open={showLeaseTemplateChangeWarning}
+            title="Change Lease Template"
+            message="Are you sure you want to change the lease template for this unit? This will delete the current signed and unsigned lease document file."
+            confirmBtnText="Change"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{
+              backgroundColor: uiRed,
+              color: "white",
+            }}
+            cancelBtnStyle={{
+              backgroundColor: uiGreen,
+              color: "white",
+            }}
+            handleCancel={() => {
+              setShowLeaseTemplateChangeWarning(false);
+            }}
+            handleConfirm={() => {
+              handleChangeLeaseTemplate(
+                leaseTemplates,
+                currentLeaseTemplate.id,
+                unitLeaseTerms,
+                unit_id,
+                unit.signed_lease_document_file.id
+              );
+              setShowLeaseTemplateChangeWarning(false);
+              setShowLeaseTemplateSelector(false);
+            }}
+          />
+          <RentPriceSuggestionModal
+            open={openRentalUnitSuggestionModal}
+            onClose={() => setOpenRentalUnitSuggestionModal(false)}
+          />
+          <UIDialog
+            open={viewRentalApplicationModalOpen}
+            onClose={() => setViewRentalApplicationModalOpen(false)}
+            title="Rental Application Link"
+            style={{ width: "100%" }}
+          >
+            {/* Rental Application Link   */}
+            <div className="row">
+              <div className="col-md-12">
+                <input
+                  data-testid="rental-application-link-input"
+                  className="form-control"
+                  value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
+                />
+                <a
+                  href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
+                  target="_blank"
+                >
+                  <Button
+                    data-testid="rental-application-link-preview-button"
+                    style={{
+                      background: uiGreen,
+                      color: "white",
+                      textTransform: "none",
+                      marginTop: "1rem",
+                      width: "100%",
+                    }}
+                  >
+                    Preview
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </UIDialog>
+          <ListUnitModal
+            open={showListUnitModal}
+            onClose={() => setShowListUnitModal(false)}
+          />
           {unitMedia && unitMedia.length > 0 && (
             <div
               data-testid="unit-media-header-container"
@@ -975,6 +1146,7 @@ const ManageUnit = () => {
                 overflow: "hidden",
                 marginBottom: "10px",
               }}
+              className="card"
             >
               <img
                 data-testid="unit-media-header-image"
@@ -986,199 +1158,205 @@ const ManageUnit = () => {
               />
             </div>
           )}
-          <div className="p-2">
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              justifyContent="space-between"
-              alignItems="center"
-              alignContent={{ xs: "center", sm: "flex-start" }}
-            >
-              <div>
-                <BackButton />
-                <h4 data-testId="unit-name" style={{ marginBottom: "0px" }}>
-                  {unit?.name}{" "}
-                  <IconButton
-                    data-testid="edit-unit-button"
-                    onClick={() => {
-                      setEditDialogOpen(true);
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            justifyContent="space-between"
+            alignItems="center"
+            alignContent={{ xs: "center", sm: "flex-start" }}
+          >
+            <div>
+              <h4
+                data-testId="unit-name"
+                style={{ marginBottom: "0px", fontSize: "17pt" }}
+              >
+                Unit {unit?.name}
+              </h4>
+              <span className="text-black" data-testId="unit-tenant">
+                {isOccupied ? (
+                  <>
+                    <Link to={`/dashboard/landlord/tenants/${tenant?.id}`}>
+                      {"Tenant: " +
+                        tenant?.user?.first_name +
+                        " " +
+                        tenant?.user?.last_name}
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <UIDialog
+                      dataTestId="invite-tenant-dialog"
+                      open={tenantInviteDialogOpen}
+                      onClose={() => setTenantInviteDialogOpen(false)}
+                      title="Invite Tenant"
+                    >
+                      <TenantInviteForm
+                        rental_unit_id={unit_id}
+                        templateId={unit.template_id ? unit.template_id : null}
+                        signedLeaseDocumentFileId={
+                          unit.signed_lease_document_file
+                            ? unit.signed_lease_document_file.id
+                            : null
+                        }
+                        setTenantInviteDialogOpen={setTenantInviteDialogOpen}
+                      />
+                    </UIDialog>
+                    <span className="text-black">Vacant</span>
+                    <Button
+                      style={{
+                        marginLeft: "10px",
+                        color: uiGreen,
+                        textTransform: "none",
+                      }}
+                      onClick={() => {
+                        if (
+                          unit.template_id ||
+                          unit.signed_lease_document_file
+                        ) {
+                          setTenantInviteDialogOpen(true);
+                        } else {
+                          setAlertMessage(
+                            "Please upload a lease document or set a lease template for this unit before inviting a tenant"
+                          );
+                          setAlertTitle("Add Lease Document");
+                          setAlertOpen(true);
+                        }
+                      }}
+                    >
+                      Invite Tenant
+                    </Button>
+                  </>
+                )}
+              </span>
+              <Stack
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={3}
+              >
+                <div>
+                  <HotelIcon
+                    sx={{
+                      fontSize: "18pt",
+                      color: uiGreen,
+                      marginBottom: "10px",
+                      marginRight: "5px",
+                    }}
+                  />
+                  <span
+                    data-testid="unit-details-beds"
+                    className="text-black"
+                    style={{
+                      fontSize: isMobile ? "12pt" : "15pt",
                     }}
                   >
-                    <EditIcon sx={{ color: uiGreen }} />
-                  </IconButton>
-                </h4>
-                <span className="text-black" data-testId="unit-tenant">
-                  {isOccupied ? (
-                    <>
-                      <Link to={`/dashboard/landlord/tenants/${tenant?.id}`}>
-                        {"Tenant: " +
-                          tenant?.user?.first_name +
-                          " " +
-                          tenant?.user?.last_name}
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <UIDialog
-                        dataTestId="invite-tenant-dialog"
-                        open={tenantInviteDialogOpen}
-                        onClose={() => setTenantInviteDialogOpen(false)}
-                        title="Invite Tenant"
-                      >
-                        <TenantInviteForm
-                          rental_unit_id={unit_id}
-                          templateId={
-                            unit.template_id ? unit.template_id : null
-                          }
-                          signedLeaseDocumentFileId={
-                            unit.signed_lease_document_file
-                              ? unit.signed_lease_document_file.id
-                              : null
-                          }
-                          setTenantInviteDialogOpen={setTenantInviteDialogOpen}
-                        />
-                      </UIDialog>
-                      <span className="text-black">Vacant</span>
-                      <Button
-                        style={{
-                          marginLeft: "10px",
-                          color: uiGreen,
-                          textTransform: "none",
-                        }}
-                        onClick={() => {
-                          if (
-                            unit.template_id ||
-                            unit.signed_lease_document_file
-                          ) {
-                            setTenantInviteDialogOpen(true);
-                          } else {
-                            setAlertMessage(
-                              "Please upload a lease document or set a lease template for this unit before inviting a tenant"
-                            );
-                            setAlertTitle("Add Lease Document");
-                            setAlertOpen(true);
-                          }
-                        }}
-                      >
-                        Invite Tenant
-                      </Button>
-                    </>
-                  )}
-                </span>
-                <Stack
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  spacing={3}
+                    {unit.beds}
+                  </span>
+                </div>
+                <div>
+                  <BathtubIcon
+                    sx={{
+                      marginRight: "5px",
+                      fontSize: "18pt",
+                      color: uiGreen,
+                      marginBottom: "10px",
+                    }}
+                  />
+                  <span
+                    data-testid="unit-details-baths"
+                    className="text-black"
+                    style={{
+                      fontSize: isMobile ? "12pt" : "15pt",
+                    }}
+                  >
+                    {unit.baths}
+                  </span>
+                </div>
+              </Stack>
+            </div>
+            <IconButton
+              ref={anchorRef}
+              id="composition-button"
+              aria-controls={open ? "composition-menu" : undefined}
+              aria-expanded={open ? "true" : undefined}
+              aria-haspopup="true"
+              onClick={handleToggle}
+            >
+              <MoreVertIcon />
+            </IconButton>
+            <Popper
+              open={open}
+              anchorEl={anchorRef.current}
+              role={undefined}
+              placement="bottom-start"
+              transition
+              disablePortal
+              sx={{
+                zIndex: "1",
+              }}
+            >
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  style={{
+                    transformOrigin:
+                      placement === "bottom-start" ? "right top" : "right top",
+                  }}
                 >
-                  <div>
-                    <HotelIcon
-                      sx={{
-                        fontSize: "22pt",
-                        color: uiGreen,
-                        marginBottom: "10px",
-                        marginRight: "5px",
-                      }}
-                    />
-                    <span
-                      data-testid="unit-details-beds"
-                      className="text-black"
-                      style={{
-                        fontSize: isMobile ? "12pt" : "15pt",
-                      }}
-                    >
-                      {unit.beds}
-                    </span>
-                  </div>
-                  <div>
-                    <BathtubIcon
-                      sx={{
-                        marginRight: "5px",
-                        fontSize: "22pt",
-                        color: uiGreen,
-                        marginBottom: "10px",
-                      }}
-                    />
-                    <span
-                      data-testid="unit-details-baths"
-                      className="text-black"
-                      style={{
-                        fontSize: isMobile ? "12pt" : "15pt",
-                      }}
-                    >
-                      {unit.baths}
-                    </span>
-                  </div>
-                </Stack>
-              </div>
-
-              <div className="row">
-                {!isOccupied && (
-                  <div className="col-md-12">
-                    <h5 className="mb-2">Rental Application Link</h5>
-                    <div className="card shadow mb-3">
-                      <div className="card-body">
-                        <input
-                          data-testid="rental-application-link-input"
-                          className="form-control"
-                          value={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
-                        />
-                        <a
-                          href={`${process.env.REACT_APP_HOSTNAME}/rental-application/${unit_id}/${authUser.id}/`}
-                          target="_blank"
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleClose}>
+                      <MenuList
+                        autoFocusItem={open}
+                        id="composition-menu"
+                        aria-labelledby="composition-button"
+                        onKeyDown={handleListKeyDown}
+                      >
+                        <MenuItem
+                          onClick={() => {
+                            setEditDialogOpen(true);
+                          }}
                         >
-                          <Button
-                            data-testid="rental-application-link-preview-button"
-                            style={{
-                              background: uiGreen,
-                              color: "white",
-                              textTransform: "none",
-                              marginTop: "1rem",
-                              width: "100%",
+                          Edit Rental Unit
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            setOpenRentalUnitSuggestionModal(true);
+                          }}
+                        >
+                          Optimize Rental Unit
+                        </MenuItem>
+                        {!isOccupied && (
+                          <MenuItem
+                            onClick={() => {
+                              setShowListUnitModal(true);
                             }}
                           >
-                            Preview
-                          </Button>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Stack>
-            <div className="col-sm-12 col-md-12 col-lg-8 ">
-              <>
-                <AlertModal
-                  dataTestId={"delete-unit-alert-modal"}
-                  open={showDeleteError}
-                  setOpen={setShowDeleteError}
-                  title={"Error"}
-                  message={deleteErrorMessage}
-                  btnText={"Ok"}
-                  onClick={() => setShowDeleteError(false)}
-                />
-                <ConfirmModal
-                  dataTestId={"delete-unit-confirm-modal"}
-                  open={showDeleteAlert}
-                  title="Delete Unit"
-                  message="Are you sure you want to delete this unit?"
-                  confirmBtnText="Delete"
-                  cancelBtnText="Cancel"
-                  confirmBtnStyle={{
-                    backgroundColor: uiRed,
-                    color: "white",
-                  }}
-                  cancelBtnStyle={{
-                    backgroundColor: uiGreen,
-                    color: "white",
-                  }}
-                  handleCancel={() => {
-                    setShowDeleteAlert(false);
-                  }}
-                  handleConfirm={handleDeleteUnit}
-                />
-              </>
-            </div>
-          </div>
+                            List Unit...
+                          </MenuItem>
+                        )}
+                        {!isOccupied && (
+                          <MenuItem
+                            onClick={() => {
+                              setViewRentalApplicationModalOpen(true);
+                            }}
+                          >
+                            View Rental Application
+                          </MenuItem>
+                        )}
+                        <MenuItem
+                          onClick={() => {
+                            setShowDeleteAlert(true);
+                          }}
+                        >
+                          Delete Rental Unit
+                        </MenuItem>
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+          </Stack>
+
           <UITabs
             tabs={tabs}
             value={tabPage}
@@ -1187,35 +1365,6 @@ const ManageUnit = () => {
             style={{ margin: "1rem 0" }}
           />
           <div className="row mb-3">
-            <ConfirmModal
-              open={showLeaseTemplateChangeWarning}
-              title="Change Lease Template"
-              message="Are you sure you want to change the lease template for this unit? This will delete the current signed and unsigned lease document file."
-              confirmBtnText="Change"
-              cancelBtnText="Cancel"
-              confirmBtnStyle={{
-                backgroundColor: uiRed,
-                color: "white",
-              }}
-              cancelBtnStyle={{
-                backgroundColor: uiGreen,
-                color: "white",
-              }}
-              handleCancel={() => {
-                setShowLeaseTemplateChangeWarning(false);
-              }}
-              handleConfirm={() => {
-                handleChangeLeaseTemplate(
-                  leaseTemplates,
-                  currentLeaseTemplate.id,
-                  unitLeaseTerms,
-                  unit_id,
-                  unit.signed_lease_document_file.id
-                );
-                setShowLeaseTemplateChangeWarning(false);
-                setShowLeaseTemplateSelector(false);
-              }}
-            />
             {tabPage === 0 && (
               <>
                 <div>
@@ -2157,33 +2306,43 @@ const ManageUnit = () => {
                     message="Rental Applications cannot be submitted to an occupied unit"
                   />
                 ) : (
-                  <UITableMobile
-                    testRowIdentifier={"unit-rental-application-row"}
-                    data={rentalApplications}
-                    tableTitle={"Rental Applications"}
-                    // endpoint={`/units/${unit_id}/rental-applications/`}
-                    createInfo={(row) => `${row.first_name} ${row.last_name}`}
-                    createTitle={(row) => `${row.unit.name}`}
-                    createSubtitle={(row) =>
-                      `${row.is_approved ? "Approved" : "Pending"}`
-                    }
-                    // getImage={(row) => {
-                    //   retrieveFilesBySubfolder(
-                    //     `properties/${row.id}`,
-                    //     authUser.id
-                    //   ).then((res) => {
-                    //     if (res.data.length > 0) {
-                    //       return res.data[0].file;
-                    //     } else {
-                    //       return "https://picsum.photos/200";
-                    //     }
-                    //   });
-                    // }}
-                    onRowClick={(row) => {
-                      const navlink = `/dashboard/landlord/rental-applications/${row.id}`;
-                      navigate(navlink);
-                    }}
-                  />
+                  <>
+                    {isMobile ? (
+                      <UITableMobile
+                        testRowIdentifier={"unit-rental-application-row"}
+                        data={rentalApplications}
+                        tableTitle={"Rental Applications"}
+                        // endpoint={`/units/${unit_id}/rental-applications/`}
+                        createInfo={(row) =>
+                          `${row.first_name} ${row.last_name}`
+                        }
+                        createTitle={(row) => `${row.unit.name}`}
+                        createSubtitle={(row) =>
+                          `${row.is_approved ? "Approved" : "Pending"}`
+                        }
+                        onRowClick={(row) => {
+                          const navlink = `/dashboard/landlord/rental-applications/${row.id}`;
+                          navigate(navlink);
+                        }}
+                      />
+                    ) : (
+                      <UITable
+                        title="Rental Applications"
+                        columns={rental_application_table_columns}
+                        options={rental_application_table_options}
+                        data={rentalApplications}
+                        menuOptions={[
+                          {
+                            name: "View",
+                            onClick: (rowData) => {
+                              const navlink = `/dashboard/landlord/rental-applications/${rowData.id}`;
+                              navigate(navlink);
+                            },
+                          },
+                        ]}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             )}

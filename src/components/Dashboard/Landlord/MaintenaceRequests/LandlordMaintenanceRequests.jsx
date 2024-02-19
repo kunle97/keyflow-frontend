@@ -12,11 +12,14 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import { set } from "react-hook-form";
+import VendorPaymentModel from "../../UIComponents/Prototypes/Modals/VendorPaymentModal";
+import UIButton from "../../UIComponents/UIButton";
+import { Stack } from "@mui/material";
+import useScreen from "../../../../hooks/useScreen";
 
 const LandlordMaintenanceRequests = () => {
   const navigate = useNavigate();
-
+  const { isMobile } = useScreen();
   //TODO: Display data on what properties/units have the most pending, respolved isues
 
   //Create a astate for the maintenance requests
@@ -31,6 +34,7 @@ const LandlordMaintenanceRequests = () => {
   const [limit, setLimit] = useState(10);
   const [nextEndpoint, setNextEndpoint] = useState(null);
   const [previousEndpoint, setPreviousEndpoint] = useState(null);
+  const [openVenorPayModal, setOpenVendorPayModal] = useState(false);
 
   const columns = [
     { name: "description", label: "Issue" },
@@ -160,6 +164,12 @@ const LandlordMaintenanceRequests = () => {
           />
         </div>
       </div>
+      <VendorPaymentModel
+        open={openVenorPayModal}
+        onClose={() => {
+          setOpenVendorPayModal(false);
+        }}
+      />
       <AlertModal
         open={showDeleteError}
         onClick={() => setShowDeleteError(false)}
@@ -167,35 +177,71 @@ const LandlordMaintenanceRequests = () => {
         message={deleteErrorMessage}
         btnText="Close"
       />
-      <UITableMobile
-        data={maintenanceRequests}
-        endpoint="/maintenance-requests/"
-        createInfo={(row) =>
-          `${row.tenant.user["first_name"]} ${row.tenant.user["last_name"]}`
-        }
-        createTitle={(row) => `${row.description}`}
-        createSubtitle={(row) => `${row.status.replace("_", " ")}`}
-        onRowClick={(row) => {
-          const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
-          navigate(navlink);
-        }}
-        titleStyle={{
-          maxHeight: "17px",
-          maxWidth: "180px",
-          overflow: "hidden",
-          textOverflow: "ellipsis", 
-        }}
-        orderingFields={[
-          { field: "created_at", label: "Date Created (Ascending)" },
-          { field: "-created_at", label: "Date Created (Descending)" },
-          { field: "status", label: "Status (Ascending)" },
-          { field: "-status", label: "Status (Descending)" },
-        ]}
-        showResultLimit={false}
-        tableTitle="Maintenance Requests"
-        loadingTitle="Maintenance Requests"
-        loadingMessage="Loading your maintenance requests..."
-      />
+      <Stack
+        direction="row"
+        spacing={2}
+        justifyContent="flex-end"
+        alignItems="center"
+      >
+        <div>
+          <UIButton
+            btnText="Pay Vendor"
+            onClick={() => setOpenVendorPayModal(true)}
+            style={{ width: "100%", marginBottom: "15px" }}
+          />
+        </div>
+      </Stack>
+      {isMobile ? (
+        <UITableMobile
+          data={maintenanceRequests}
+          endpoint="/maintenance-requests/"
+          createInfo={(row) =>
+            `${row.tenant.user["first_name"]} ${row.tenant.user["last_name"]}`
+          }
+          createTitle={(row) => `${row.description}`}
+          createSubtitle={(row) => `${row.status.replace("_", " ")}`}
+          onRowClick={(row) => {
+            const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+            navigate(navlink);
+          }}
+          titleStyle={{
+            maxHeight: "17px",
+            maxWidth: "180px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+          orderingFields={[
+            { field: "created_at", label: "Date Created (Ascending)" },
+            { field: "-created_at", label: "Date Created (Descending)" },
+            { field: "status", label: "Status (Ascending)" },
+            { field: "-status", label: "Status (Descending)" },
+          ]}
+          showResultLimit={false}
+          tableTitle="Maintenance Requests"
+          loadingTitle="Maintenance Requests"
+          loadingMessage="Loading your maintenance requests..."
+        />
+      ) : (
+        <UITable 
+          data={maintenanceRequests}
+          columns={columns}
+          options={options}
+          title="Maintenance Requests"
+          searchFields={["description", "status"]}
+          onSearch={(value) => {
+            setSearchField(value);
+          }}
+          onOrderingChange={(value) => {
+            setOrderingField(value);
+          }}
+          onResultLimitChange={(value) => {
+            setLimit(value);
+          }}
+          showResultLimit={true}
+          loadingTitle="Maintenance Requests"
+          loadingMessage="Loading your maintenance requests..."
+        />
+      )}
     </div>
   );
 };

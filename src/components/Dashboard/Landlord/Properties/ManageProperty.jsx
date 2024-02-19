@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import { deleteUnit } from "../../../../api/units";
 import {
@@ -6,12 +6,18 @@ import {
   Avatar,
   Button,
   CircularProgress,
+  ClickAwayListener,
   Divider,
+  Grow,
   IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
   Snackbar,
   Stack,
   Typography,
@@ -57,7 +63,7 @@ import {
   isValidFileName,
 } from "../../../../helpers/utils";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-
+import { MoreVert } from "@mui/icons-material";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -92,7 +98,30 @@ const ManageProperty = () => {
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
   const navigate = useNavigate();
+  const anchorRef = useRef(null);
+  const [openDropdown, setOpenDropdown] = useState(false);
 
+  // Dropdown
+  const handleToggle = () => {
+    setOpenDropdown((prevOpen) => !prevOpen);
+  };
+
+  const handleCloseDropdownMenu = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
+    setOpenDropdown(false);
+  };
+
+  function handleListKeyDown(event) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpenDropdown(false);
+    } else if (event.key === "Escape") {
+      setOpenDropdown(false);
+    }
+  }
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -100,17 +129,31 @@ const ManageProperty = () => {
     setShowUpdateSuccess(false);
   };
 
+  const unit_columns = [
+    { label: "Name", name: "name" },
+    { label: "Beds", name: "beds" },
+    { label: "Baths", name: "baths" },
+    { label: "Size", name: "size" },
+    {
+      label: "Occupied",
+      name: "is_occupied",
+      options: { customBodyRender: (value) => (value ? "Yes" : "No") },
+    },
+  ];
+  const unit_options = {
+    isSelectable: false,
+    onRowClick: (row) => {
+      let navlink = "/";
+      navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
+      navigate(navlink);
+    },
+  };
+
   const tabs = [
-    { name: "details", label: "Details", dataTestId: "property-detail-tab" },
     {
       name: "units",
       label: `Units (${unitCount})`,
       dataTestId: "property-units-tab",
-    },
-    {
-      name: "analytics",
-      label: "Finances/Analytics",
-      dataTestId: "propery-analytics-tab",
     },
     {
       name: "media",
@@ -189,7 +232,9 @@ const ManageProperty = () => {
       .catch((err) => {
         console.log("err", err);
         setResponseTitle("File Upload Error");
-        setResponseMessage("There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again.");
+        setResponseMessage(
+          "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
+        );
         setShowFileUploadAlert(true);
         setShowCsvFileUploadDialog(false);
         setCsvFiles([]); //Clear the files array
@@ -338,7 +383,265 @@ const ManageProperty = () => {
       ) : (
         <div className={`${screenWidth > breakpoints.md && "container-fluid"}`}>
           {/* <BackButton  /> */}
-
+          <AlertModal
+            dataTestId="property-update-alert-modal"
+            open={updateAlertIsOpen}
+            title={updateAlertTitle}
+            message={updateAlertMessage}
+            btnText={"Ok"}
+            onClick={() => setUpdateAlertIsOpen(false)}
+          />
+          {/* Property Detail Edit Dialog  */}
+          <UIDialog
+            dataTestId="property-detail-edit-dialog"
+            open={editDialogOpen}
+            onClose={() => setEditDialogOpen(false)}
+            maxWidth="md"
+            title="Edit Property Details"
+          >
+            <div className="row">
+              <div className="col-md-12">
+                <div className=" mb-3">
+                  <div className="card-body">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                      <div className="mb-3">
+                        <label
+                          data-testid="property-edit-dialog-name-label"
+                          className="form-label text-dark"
+                          htmlFor="name"
+                        >
+                          <strong>Property Name</strong>
+                        </label>
+                        <input
+                          data-testid="property-edit-dialog-name-input"
+                          {...register("name", {
+                            required: "This is a required field",
+                          })}
+                          defaultValue={property?.name}
+                          name="name"
+                          className="form-control"
+                          type="text"
+                          id="name"
+                          placeholder="Sunset Blvd, 38"
+                          style={{ borderStyle: "none" }}
+                        />
+                        <span style={validationMessageStyle}>
+                          {errors.name && errors.name.message}
+                        </span>
+                      </div>
+                      <div className="mb-3">
+                        <label
+                          data-testid="property-edit-dialog-street-label"
+                          className="form-label text-dark"
+                          htmlFor="address"
+                        >
+                          <strong>Street Address</strong>
+                        </label>
+                        <input
+                          data-testid="property-edit-dialog-street-input"
+                          {...register("street", {
+                            required: "This is a required field",
+                            minLength: {
+                              value: 3,
+                              message: "Must be at least 3 characters long",
+                            },
+                            //Create pattern to only be in street address format
+                            pattern: {
+                              value: /^[a-zA-Z0-9\s,'-]*$/,
+                              message: "Must be in street address format",
+                            },
+                          })}
+                          name="street"
+                          defaultValue={property?.street}
+                          className="form-control"
+                          type="text"
+                          placeholder="Sunset Blvd, 38"
+                          style={{ borderStyle: "none" }}
+                        />
+                        <span style={validationMessageStyle}>
+                          {errors.street && errors.street.message}
+                        </span>
+                      </div>
+                      <div className="row">
+                        <div className="col-sm-12 col-md-4 col-lg-4">
+                          <div className="mb-3">
+                            <label
+                              data-testid="property-edit-dialog-city-label"
+                              className="form-label text-dark"
+                              htmlFor="city"
+                            >
+                              <strong>City</strong>
+                            </label>
+                            <input
+                              data-testid="property-edit-dialog-city-input"
+                              {...register("city", {
+                                required: "This is a required field",
+                              })}
+                              defaultValue={property?.city}
+                              className="form-control"
+                              type="text"
+                              placeholder="Los Angeles"
+                              style={{ borderStyle: "none" }}
+                            />
+                            <span style={validationMessageStyle}>
+                              {errors.city && errors.city.message}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="col-sm-12 col-md-4 col-lg-4">
+                          <div className="mb-3">
+                            <label
+                              data-testid="property-edit-dialog-state-label"
+                              className="form-label text-dark"
+                              htmlFor="state"
+                            >
+                              <strong>State</strong>
+                            </label>
+                            <input
+                              data-testid="property-edit-dialog-state-input"
+                              {...register("state", {
+                                required: "This is a required field",
+                              })}
+                              defaultValue={property?.state}
+                              className="form-control"
+                              type="text"
+                              id="state"
+                              placeholder="California"
+                              style={{ borderStyle: "none" }}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-sm-12 col-md-4 col-lg-4">
+                          <div className="mb-3">
+                            <label
+                              data-testid="property-edit-dialog-zip-code-label"
+                              className="form-label text-dark"
+                              htmlFor="zipcode"
+                            >
+                              <strong>Zip Code</strong>
+                            </label>
+                            <input
+                              data-testid="property-edit-dialog-zip-code-input"
+                              {...register("zip_code", {
+                                required: "This is a required field",
+                              })}
+                              defaultValue={property?.zip_code}
+                              className="form-control"
+                              type="text"
+                              id="zip_code"
+                              placeholder="USA"
+                              style={{ borderStyle: "none" }}
+                            />
+                            <span style={validationMessageStyle}>
+                              {errors.zip_code && errors.zip_code.message}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="col-sm-12 col-md-12 col-lg-12">
+                          <div className="mb-3">
+                            <label
+                              data-testid="property-edit-dialog-country-label"
+                              className="form-label text-dark"
+                              htmlFor="country"
+                            >
+                              <strong>Country</strong>
+                            </label>
+                            <input
+                              data-testid="property-edit-dialog-country-input"
+                              {...register("country", {
+                                required: "This is a required field",
+                              })}
+                              defaultValue={property?.country}
+                              className="form-control"
+                              type="text"
+                              id="country-1"
+                              placeholder="USA"
+                              style={{ borderStyle: "none" }}
+                            />
+                            <span style={validationMessageStyle}>
+                              {errors.country && errors.country.message}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-end mb-3">
+                        <UIButton
+                          dataTestId="property-edit-dialog-save-button"
+                          className="btn btn-primary btn-sm ui-btn"
+                          type="submit"
+                          btnText="Save Changes"
+                        />
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </UIDialog>
+          <UIDialog
+            open={selectPortfolioDialogOpen}
+            onClose={() => setSelectPortfolioDialogOpen(false)}
+            maxWidth="md"
+            title="Select Portfolio"
+            dataTestId={"property-select-portfolio-dialog"}
+          >
+            <List
+              sx={{
+                width: "650px",
+                maxWidth: "100%",
+                maxHeight: 500,
+                overflow: "auto",
+                color: uiGrey2,
+                bgcolor: "white",
+              }}
+            >
+              {portfolios.length > 0 ? (
+                <div>
+                  {portfolios.map((portfolio) => (
+                    <ListItem key={portfolio.id} alignItems="flex-start">
+                      <ListItemText
+                        primary={
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                          >
+                            <div>
+                              {" "}
+                              <h5 style={{ fontSize: "12pt" }}>
+                                {portfolio.name}
+                              </h5>
+                              <p>{portfolio.description}</p>
+                            </div>
+                            <Button
+                              onClick={() =>
+                                handleChangePortfolio(portfolio.id)
+                              }
+                              sx={{
+                                background: uiGreen,
+                                color: "white",
+                                textTransform: "none",
+                                marginTop: "10px",
+                              }}
+                              variant="container"
+                              className="ui-btn"
+                            >
+                              Select
+                            </Button>
+                          </Stack>
+                        }
+                      />
+                      <Divider light />
+                    </ListItem>
+                  ))}
+                </div>
+              ) : (
+                <div>
+                  <p>No portfolios created</p>
+                </div>
+              )}
+            </List>
+          </UIDialog>
           <div>
             {propertyMedia && propertyMedia.length > 0 && (
               <div
@@ -351,7 +654,10 @@ const ManageProperty = () => {
                   justifyContent: "center",
                   overflow: "hidden",
                   marginBottom: "10px",
+                  overflow: "hidden",
+                  borderRadius: "5px",
                 }}
+                className="card"
               >
                 <img
                   src={propertyMedia[0].file}
@@ -363,330 +669,172 @@ const ManageProperty = () => {
               </div>
             )}
 
-            <AlertModal
-              dataTestId="property-update-alert-modal"
-              open={updateAlertIsOpen}
-              title={updateAlertTitle}
-              message={updateAlertMessage}
-              btnText={"Ok"}
-              onClick={() => setUpdateAlertIsOpen(false)}
-            />
-
-            {/* Property Detail Edit Dialog  */}
-            <UIDialog
-              dataTestId="property-detail-edit-dialog"
-              open={editDialogOpen}
-              onClose={() => setEditDialogOpen(false)}
-              maxWidth="md"
-              title="Edit Property Details"
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mt: 4 }}
             >
-              <div className="row">
-                <div className="col-md-12">
-                  <div className=" mb-3">
-                    <div className="card-body">
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="mb-3">
-                          <label
-                            data-testid="property-edit-dialog-name-label"
-                            className="form-label text-dark"
-                            htmlFor="name"
-                          >
-                            <strong>Property Name</strong>
-                          </label>
-                          <input
-                            data-testid="property-edit-dialog-name-input"
-                            {...register("name", {
-                              required: "This is a required field",
-                            })}
-                            defaultValue={property?.name}
-                            name="name"
-                            className="form-control"
-                            type="text"
-                            id="name"
-                            placeholder="Sunset Blvd, 38"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.name && errors.name.message}
-                          </span>
-                        </div>
-                        <div className="mb-3">
-                          <label
-                            data-testid="property-edit-dialog-street-label"
-                            className="form-label text-dark"
-                            htmlFor="address"
-                          >
-                            <strong>Street Address</strong>
-                          </label>
-                          <input
-                            data-testid="property-edit-dialog-street-input"
-                            {...register("street", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 3,
-                                message: "Must be at least 3 characters long",
-                              },
-                              //Create pattern to only be in street address format
-                              pattern: {
-                                value: /^[a-zA-Z0-9\s,'-]*$/,
-                                message: "Must be in street address format",
-                              },
-                            })}
-                            name="street"
-                            defaultValue={property?.street}
-                            className="form-control"
-                            type="text"
-                            placeholder="Sunset Blvd, 38"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.street && errors.street.message}
-                          </span>
-                        </div>
-                        <div className="row">
-                          <div className="col-sm-12 col-md-4 col-lg-4">
-                            <div className="mb-3">
-                              <label
-                                data-testid="property-edit-dialog-city-label"
-                                className="form-label text-dark"
-                                htmlFor="city"
-                              >
-                                <strong>City</strong>
-                              </label>
-                              <input
-                                data-testid="property-edit-dialog-city-input"
-                                {...register("city", {
-                                  required: "This is a required field",
-                                })}
-                                defaultValue={property?.city}
-                                className="form-control"
-                                type="text"
-                                placeholder="Los Angeles"
-                                style={{ borderStyle: "none" }}
-                              />
-                              <span style={validationMessageStyle}>
-                                {errors.city && errors.city.message}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="col-sm-12 col-md-4 col-lg-4">
-                            <div className="mb-3">
-                              <label
-                                data-testid="property-edit-dialog-state-label"
-                                className="form-label text-dark"
-                                htmlFor="state"
-                              >
-                                <strong>State</strong>
-                              </label>
-                              <input
-                                data-testid="property-edit-dialog-state-input"
-                                {...register("state", {
-                                  required: "This is a required field",
-                                })}
-                                defaultValue={property?.state}
-                                className="form-control"
-                                type="text"
-                                id="state"
-                                placeholder="California"
-                                style={{ borderStyle: "none" }}
-                              />
-                            </div>
-                          </div>
-                          <div className="col-sm-12 col-md-4 col-lg-4">
-                            <div className="mb-3">
-                              <label
-                                data-testid="property-edit-dialog-zip-code-label"
-                                className="form-label text-dark"
-                                htmlFor="zipcode"
-                              >
-                                <strong>Zip Code</strong>
-                              </label>
-                              <input
-                                data-testid="property-edit-dialog-zip-code-input"
-                                {...register("zip_code", {
-                                  required: "This is a required field",
-                                })}
-                                defaultValue={property?.zip_code}
-                                className="form-control"
-                                type="text"
-                                id="zip_code"
-                                placeholder="USA"
-                                style={{ borderStyle: "none" }}
-                              />
-                              <span style={validationMessageStyle}>
-                                {errors.zip_code && errors.zip_code.message}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="col-sm-12 col-md-12 col-lg-12">
-                            <div className="mb-3">
-                              <label
-                                data-testid="property-edit-dialog-country-label"
-                                className="form-label text-dark"
-                                htmlFor="country"
-                              >
-                                <strong>Country</strong>
-                              </label>
-                              <input
-                                data-testid="property-edit-dialog-country-input"
-                                {...register("country", {
-                                  required: "This is a required field",
-                                })}
-                                defaultValue={property?.country}
-                                className="form-control"
-                                type="text"
-                                id="country-1"
-                                placeholder="USA"
-                                style={{ borderStyle: "none" }}
-                              />
-                              <span style={validationMessageStyle}>
-                                {errors.country && errors.country.message}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-end mb-3">
-                          <UIButton
-                            dataTestId="property-edit-dialog-save-button"
-                            className="btn btn-primary btn-sm ui-btn"
-                            type="submit"
-                            btnText="Save Changes"
-                          />
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </UIDialog>
-
-            <div className="p-2">
-              <UIDialog
-                open={selectPortfolioDialogOpen}
-                onClose={() => setSelectPortfolioDialogOpen(false)}
-                maxWidth="md"
-                title="Select Portfolio"
-                dataTestId={"property-select-portfolio-dialog"}
-              >
-                <List
-                  sx={{
-                    width: "650px",
-                    maxWidth: "100%",
-                    maxHeight: 500,
-                    overflow: "auto",
-                    color: uiGrey2,
-                    bgcolor: "white",
-                  }}
-                >
-                  {portfolios.length > 0 ? (
-                    <div>
-                      {portfolios.map((portfolio) => (
-                        <ListItem key={portfolio.id} alignItems="flex-start">
-                          <ListItemText
-                            primary={
-                              <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems="center"
-                              >
-                                <div>
-                                  {" "}
-                                  <h5 style={{ fontSize: "12pt" }}>
-                                    {portfolio.name}
-                                  </h5>
-                                  <p>{portfolio.description}</p>
-                                </div>
-                                <Button
-                                  onClick={() =>
-                                    handleChangePortfolio(portfolio.id)
-                                  }
-                                  sx={{
-                                    background: uiGreen,
-                                    color: "white",
-                                    textTransform: "none",
-                                    marginTop: "10px",
-                                  }}
-                                  variant="container"
-                                  className="ui-btn"
-                                >
-                                  Select
-                                </Button>
-                              </Stack>
-                            }
-                          />
-                          <Divider light />
-                        </ListItem>
-                      ))}
-                    </div>
-                  ) : (
-                    <div>
-                      <p>No portfolios created</p>
-                    </div>
-                  )}
-                </List>
-              </UIDialog>
               <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
+                direction="column"
+                justifyContent="flex-start"
+                alignItems="flex-start"
+                spacing={0.5}
               >
-                <div>
-                  <h4>{property?.name}</h4>
-                  <span className="text-black">
-                    {property?.street} {property?.city}, {property?.state}{" "}
-                    {property?.zip_code}
-                  </span>
-                  {currentPortfolio ? (
-                    <Stack
-                      direction="row"
-                      justifyContent="flex-start"
-                      alignItems="center"
-                      alignContent={"center"}
-                    >
-                      <span className="text-black">
-                        Portfolio: {currentPortfolio?.name}
-                      </span>
-                      <Button
-                        data-testid="property-change-portfolio-button"
-                        sx={{
-                          display: "block",
-                          color: uiGreen,
-                          textTransform: "none",
-                        }}
-                        variant="text"
-                        onClick={() => {
-                          setSelectPortfolioDialogOpen(true);
-                        }}
-                      >
-                        Change Portfolio
-                      </Button>
-                    </Stack>
-                  ) : (
-                    <Button
+                <h4 style={{ margin: "0" }}>{property?.name}</h4>{" "}
+                <span className="text-black">{currentPortfolio?.name}</span>
+                <span className="text-black">
+                  {property?.street} {property?.city}, {property?.state}{" "}
+                  {property?.zip_code}
+                </span>
+                <Stack
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  alignContent={"center"}
+                  spacing={2}
+                >
+                  <div>
+                    <MeetingRoomIcon
                       sx={{
-                        display: "block",
+                        fontSize: "15pt",
                         color: uiGreen,
-                        textTransform: "none",
+                        marginRight: "5px",
                       }}
-                      variant="text"
-                      onClick={() => {
-                        setSelectPortfolioDialogOpen(true);
+                    />
+                    <span
+                      data-testId="property-unit-count"
+                      className="text-black"
+                      style={{
+                        fontSize: "12pt",
                       }}
                     >
-                      Select Portfolio
-                    </Button>
-                  )}
-                </div>
+                      {unitCount}
+                    </span>
+                  </div>
+                  <div>
+                    <HotelIcon
+                      sx={{
+                        fontSize: "15pt",
+                        color: uiGreen,
+                        marginRight: "5px",
+                      }}
+                    />
+                    <span
+                      data-testId="property-bed-count"
+                      className="text-black"
+                      style={{
+                        fontSize: "12pt",
+                      }}
+                    >
+                      {bedsCount}
+                    </span>
+                  </div>
+                  <div>
+                    <BathtubIcon
+                      sx={{
+                        fontSize: "15pt",
+                        color: uiGreen,
+                        marginRight: "5px",
+                      }}
+                    />
+                    <span
+                      className="text-black"
+                      style={{
+                        fontSize: "12pt",
+                      }}
+                      data-testId="property-bath-count"
+                    >
+                      {bathsCount}
+                    </span>
+                  </div>
+                  <div>
+                    <ZoomOutMapIcon
+                      sx={{
+                        fontSize: "15pt",
+                        color: uiGreen,
+                        marginRight: "5px",
+                      }}
+                    />
+                    <span
+                      data-testId="property-size"
+                      className="text-black"
+                      style={{
+                        fontSize: "12pt",
+                      }}
+                    >
+                      1234 Sq. Ft.
+                    </span>
+                  </div>
+                </Stack>
+              </Stack>
+              <div>
                 <IconButton
                   data-testid="property-edit-button"
-                  onClick={() => {
-                    setEditDialogOpen(true);
+                  onClick={handleToggle}
+                >
+                  <MoreVert />
+                </IconButton>
+                <Popper
+                  open={openDropdown}
+                  anchorEl={anchorRef.current}
+                  role={undefined}
+                  placement="bottom-start"
+                  transition
+                  disablePortal
+                  sx={{
+                    zIndex: "1",
                   }}
                 >
-                  <EditIcon sx={{ color: uiGreen }} />
-                </IconButton>
-              </Stack>
-            </div>
+                  {({ TransitionProps, placement }) => (
+                    <Grow
+                      {...TransitionProps}
+                      style={{
+                        transformOrigin:
+                          placement === "bottom-start"
+                            ? "right top"
+                            : "right top",
+                      }}
+                    >
+                      <Paper>
+                        <ClickAwayListener
+                          onClickAway={handleCloseDropdownMenu}
+                        >
+                          <MenuList
+                            autoFocusItem={openDropdown}
+                            id="composition-menu"
+                            aria-labelledby="composition-button"
+                            onKeyDown={handleListKeyDown}
+                          >
+                            <MenuItem
+                              onClick={() => {
+                                setEditDialogOpen(true);
+                              }}
+                            >
+                              Edit Property
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                setSelectPortfolioDialogOpen(true);
+                              }}
+                            >
+                              Change Portfolio
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                setShowDeleteAlert(true);
+                              }}
+                            >
+                              Delete Property
+                            </MenuItem>
+                          </MenuList>
+                        </ClickAwayListener>
+                      </Paper>
+                    </Grow>
+                  )}
+                </Popper>
+              </div>
+            </Stack>
           </div>
           <div className="row mb-3">
             <div className="col-lg-12">
@@ -698,164 +846,8 @@ const ManageProperty = () => {
                 scrollButtons="auto"
                 style={{ margin: "1rem 0" }}
               />
+
               {tabPage === 0 && (
-                <div className="px-2">
-                  <div className="row mb-3">
-                    <div className="col-4 col-sm-4 col-md-3 mb-4">
-                      <div className="card">
-                        <div className="card-body">
-                          <div>
-                            <MeetingRoomIcon
-                              sx={{
-                                fontSize: "22pt",
-                                color: uiGreen,
-                                marginBottom: "10px",
-                              }}
-                            />
-                          </div>
-                          <span
-                            data-testId="property-unit-count"
-                            className="text-black"
-                            style={{
-                              fontSize: isMobile ? "12pt" : "15pt",
-                            }}
-                          >
-                            {unitCount} Units
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-4 col-sm-4 col-md-3 mb-4">
-                      <div className="card">
-                        <div className="card-body">
-                          <div>
-                            <HotelIcon
-                              sx={{
-                                fontSize: "22pt",
-                                color: uiGreen,
-                                marginBottom: "10px",
-                              }}
-                            />
-                          </div>
-                          <span
-                            data-testId="property-bed-count"
-                            className="text-black"
-                            style={{
-                              fontSize: isMobile ? "12pt" : "15pt",
-                            }}
-                          >
-                            {bedsCount} Beds
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-4 col-sm-4 col-md-3 mb-4">
-                      <div className="card">
-                        <div className="card-body">
-                          <div>
-                            <BathtubIcon
-                              sx={{
-                                fontSize: "22pt",
-                                color: uiGreen,
-                                marginBottom: "10px",
-                              }}
-                            />
-                          </div>
-                          <span
-                            className="text-black"
-                            style={{
-                              fontSize: isMobile ? "12pt" : "15pt",
-                            }}
-                            data-testId="property-bath-count"
-                          >
-                            {bathsCount} Baths
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-4 col-sm-4 col-md-3 mb-4">
-                      <div className="card">
-                        <div className="card-body">
-                          <div>
-                            <ZoomOutMapIcon
-                              sx={{
-                                fontSize: "22pt",
-                                color: uiGreen,
-                                marginBottom: "10px",
-                              }}
-                            />
-                          </div>
-                          <span
-                            data-testId="property-size"
-                            className="text-black"
-                            style={{
-                              fontSize: isMobile ? "12pt" : "15pt",
-                            }}
-                          >
-                            1234 Sq. Ft.
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {property?.description && (
-                      <div className="col-12 mb-4">
-                        <div className="card">
-                          <div className="card-body">
-                            <h5 className="text-black ">Description</h5>
-                            <p className="text-black">
-                              {property?.description}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <AlertModal
-                      open={showDeleteError}
-                      setOpen={setShowDeleteError}
-                      title={"Error"}
-                      message={errorMessage}
-                      btnText={"Ok"}
-                      onClick={() => setShowDeleteError(false)}
-                    />
-                    <ConfirmModal
-                      open={showDeleteAlert}
-                      title="Delete Property"
-                      message="Are you sure you want to delete this property?"
-                      confirmBtnText="Delete"
-                      cancelBtnText="Cancel"
-                      confirmBtnStyle={{
-                        backgroundColor: uiRed,
-                        color: "white",
-                      }}
-                      cancelBtnStyle={{
-                        backgroundColor: uiGreen,
-                        color: "white",
-                      }}
-                      handleCancel={() => {
-                        setShowDeleteAlert(false);
-                      }}
-                      handleConfirm={handleDeleteProperty}
-                    />
-                    <DeleteButton
-                      style={{
-                        background: uiRed,
-                        textTransform: "none",
-                        float: "right",
-                      }}
-                      onClick={() => {
-                        setShowDeleteAlert(true);
-                      }}
-                      btnText="Delete Property"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {tabPage === 1 && (
                 <>
                   <div className="row">
                     {isLoading ? (
@@ -868,7 +860,7 @@ const ManageProperty = () => {
                       <>
                         {" "}
                         {units.length === 0 ? (
-                          <> 
+                          <>
                             <AlertModal
                               open={showFileUploadAlert}
                               setOpen={setShowFileUploadAlert}
@@ -957,40 +949,71 @@ const ManageProperty = () => {
                         ) : (
                           <div>
                             {" "}
-                            <UITableMobile
-                              testRowIdentifier="rental-unit"
-                              tableTitle="Units"
-                              data={units}
-                              infoProperty="name"
-                              createTitle={(row) =>
-                                `Occupied: ${row.is_occupied ? `Yes` : "No"} `
-                              }
-                              createSubtitle={(row) =>
-                                `Beds: ${row.beds} | Baths: ${row.baths}`
-                              }
-                              createURL={`/dashboard/landlord/units/create/${id}`}
-                              showCreate={true}
-                              acceptedFileTypes={[".csv"]}
-                              showUpload={true}
-                              uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
-                              fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                              // getImage={(row) => {
-                              //   retrieveFilesBySubfolder(
-                              //     `properties/${property.id}/units/${row.id}`,
-                              //     authUser.id
-                              //   ).then((res) => {
-                              //     if (res.data.length > 0) {
-                              //       return res.data[0].file;
-                              //     } else {
-                              //       return "https://picsum.photos/200";
-                              //     }
-                              //   });
-                              // }}
-                              onRowClick={(row) => {
-                                const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
-                                navigate(navlink);
-                              }}
-                            />
+                            {isMobile ? (
+                              <UITableMobile
+                                testRowIdentifier="rental-unit"
+                                tableTitle="Units"
+                                data={units}
+                                infoProperty="name"
+                                createTitle={(row) =>
+                                  `Occupied: ${row.is_occupied ? `Yes` : "No"} `
+                                }
+                                createSubtitle={(row) =>
+                                  `Beds: ${row.beds} | Baths: ${row.baths}`
+                                }
+                                createURL={`/dashboard/landlord/units/create/${id}`}
+                                showCreate={true}
+                                acceptedFileTypes={[".csv"]}
+                                showUpload={true}
+                                uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                                fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
+                                // getImage={(row) => {
+                                //   retrieveFilesBySubfolder(
+                                //     `properties/${property.id}/units/${row.id}`,
+                                //     authUser.id
+                                //   ).then((res) => {
+                                //     if (res.data.length > 0) {
+                                //       return res.data[0].file;
+                                //     } else {
+                                //       return "https://picsum.photos/200";
+                                //     }
+                                //   });
+                                // }}
+                                onRowClick={(row) => {
+                                  const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
+                                  navigate(navlink);
+                                }}
+                              />
+                            ) : (
+                              <UITable
+                                testRowIdentifier="rental-unit"
+                                title="Rental Units"
+                                columns={unit_columns}
+                                data={units}
+                                options={unit_options}
+                                showCreate={true}
+                                createURL={`/dashboard/landlord/units/create/${id}`}
+                                menuOptions={[
+                                  {
+                                    name: "Manage",
+                                    onClick: (row) => {
+                                      const navlink = `/dashboard/landlord/units/${row.id}/${row.rental_property}`;
+                                      navigate(navlink);
+                                    },
+                                  },
+                                  // {
+                                  //   name: "Delete",
+                                  //   onClick: (row) => {
+                                  //     deleteUnit(row.id).then((res) => {
+                                  //       if (res) {
+                                  //         setUnits(res.data);
+                                  //       }
+                                  //     });
+                                  //   },
+                                  // },
+                                ]}
+                              />
+                            )}
                           </div>
                         )}
                       </>
@@ -998,87 +1021,7 @@ const ManageProperty = () => {
                   </div>
                 </>
               )}
-              {tabPage === 2 && (
-                <div className="col-md-4 col-sm-12">
-                  <div className="card shadow mb-3">
-                    <div className="card-header d-flex justify-content-between align-items-center">
-                      <h6 className="text-primary fw-bold m-0 card-header-text">
-                        Finances
-                      </h6>
-                      <div className="dropdown no-arrow">
-                        <button
-                          className="btn btn-link btn-sm dropdown-toggle"
-                          aria-expanded="false"
-                          data-bs-toggle="dropdown"
-                          type="button"
-                        >
-                          <i className="fas fa-ellipsis-v text-gray-400" />
-                        </button>
-                        <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                          <p className="text-center dropdown-header">
-                            dropdown header:
-                          </p>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Action
-                          </a>
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Another action
-                          </a>
-                          <div className="dropdown-divider" />
-                          <a className="dropdown-item" href="#">
-                            &nbsp;Something else here
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="card-body">
-                      <form>
-                        <div className="row">
-                          <div className="col">
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="username"
-                              >
-                                <strong>Total Revenue</strong>
-                              </label>
-                              <p className="text-dark">$23,049</p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="first_name"
-                              >
-                                <strong>Net Operating Income (NOI)</strong>
-                              </label>
-                              <p className="text-dark">23.4%</p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="first_name"
-                              >
-                                <strong>Property Value</strong>
-                              </label>
-                              <p className="text-dark">$428,324</p>
-                            </div>
-                            <div className="mb-3">
-                              <label
-                                className="form-label text-dark"
-                                htmlFor="email"
-                              >
-                                <strong>Total Expenses</strong>
-                              </label>
-                              <p className="text-dark">$13,123</p>
-                            </div>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {tabPage === 3 && (
+              {tabPage === 1 && (
                 <div>
                   <FileManagerView
                     dataTestIdentifier="property-media"
@@ -1088,7 +1031,7 @@ const ManageProperty = () => {
                   />
                 </div>
               )}
-              {tabPage === 4 && (
+              {tabPage === 2 && (
                 <div className={isMobile && "container-fluid"}>
                   <List
                     sx={{

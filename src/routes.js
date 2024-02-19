@@ -82,6 +82,13 @@ import ManageBillingEntry from "./components/Dashboard/Landlord/BillingEntry/Man
 import CreateBillingEntry from "./components/Dashboard/Landlord/BillingEntry/CreateBillingEntry";
 import Bills from "./components/Dashboard/Tenant/Bills/Bills";
 import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
+
+//Prototype conponents
+import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accounts";
+import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
+import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
+
+
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -720,6 +727,32 @@ export const routes = [
     isQuickLink: true,
     muiIcon: <PaidOutlined />,
   },
+  //Prototype routes
+  {
+    path: "/dashboard/landlord/accounts",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Accounts />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/website-builder",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <WebsiteBuilder />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/occupancy-progress",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <OccupancyProgress />
+      </DashboardProtectedRoute>
+    ),
+  },
+
 ];
 
 export const router = createBrowserRouter(routes);

@@ -1,4 +1,4 @@
-import { IconButton, Stack } from "@mui/material";
+import { ButtonBase, IconButton, Stack } from "@mui/material";
 import React, { useState, useRef } from "react";
 import {
   authUser,
@@ -9,6 +9,7 @@ import {
   uiGrey2,
   uiRed,
 } from "../../../constants";
+import TryIcon from "@mui/icons-material/Try";
 import UIPrompt from "../UIComponents/UIPrompt";
 import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import UIButton from "../UIComponents/UIButton";
@@ -471,14 +472,25 @@ const Messages = () => {
                           required
                           name="body"
                         />
+                        <div className="input-group-append"></div>
                         <div className="">
+                          <ButtonBase>
+                            <TryIcon
+                              style={{
+                                color: uiGreen,
+                                cursor: "pointer",
+                                padding: "10px",
+                                fontSize: "26pt",
+                              }}
+                            />
+                          </ButtonBase>
                           <UIButton
                             style={{
                               padding: "10px",
                             }}
                             btnText={
                               <>
-                                <i className="fas fa-paper-plane" />
+                                <i className="fas fa-paper-plane mr-1" />
                                 <span> Send</span>
                               </>
                             }

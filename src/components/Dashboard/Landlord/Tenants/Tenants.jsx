@@ -10,11 +10,13 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
 import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import useScreen from "../../../../hooks/useScreen";
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const [leaseRenewals, setLeaseRenewals] = useState([]);
   const [leaseCancellations, setLeaseCancellations] = useState([]); // [
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
   const columns = [
     {
       name: "user",
@@ -150,30 +152,45 @@ const Tenants = () => {
               />
             </div>
           </div>
-          {/* <UITable
-            title="Tenants"
-            endpoint={`/tenants/`}
-            searchFields={["first_name", "last_name", "email"]}
-            columns={columns}
-            options={options}
-          /> */}
-          <UITableMobile
-            tableTitle="Tenants"
-            endpoint={`/tenants/`}
-            onRowClick={(row) => {
-              const navlink = `/dashboard/landlord/tenants/${row.id}`;
-              navigate(navlink);
-            }}
-            createInfo={(row) => `${row.user.first_name} ${row.user.last_name}`}
-            createSubtitle={(row) => `${row.user.email}`}
-            createTitle={(row) => `${row.user.email}`}
-            orderingFields={[
-              { field: "created_at", label: "Date Created" },
-              { field: "-created_at", label: "Date Created (Descending)" },
-            ]}
-            loadingTitle="Loading Tenants..."
-            loadingMessage="Please wait while we load all the tenants."
-          />
+
+          {isMobile ? (
+            <UITableMobile
+              tableTitle="Tenants"
+              endpoint={`/tenants/`}
+              onRowClick={(row) => {
+                const navlink = `/dashboard/landlord/tenants/${row.id}`;
+                navigate(navlink);
+              }}
+              createInfo={(row) =>
+                `${row.user.first_name} ${row.user.last_name}`
+              }
+              createSubtitle={(row) => `${row.user.email}`}
+              createTitle={(row) => `${row.user.email}`}
+              orderingFields={[
+                { field: "created_at", label: "Date Created" },
+                { field: "-created_at", label: "Date Created (Descending)" },
+              ]}
+              loadingTitle="Loading Tenants..."
+              loadingMessage="Please wait while we load all the tenants."
+            />
+          ) : (
+            <UITable
+              title="Tenants"
+              endpoint={`/tenants/`}
+              searchFields={["first_name", "last_name", "email"]}
+              columns={columns}
+              options={options}
+              menuOptions={[
+                {
+                  name: "Manage",
+                  onClick: (row) => {
+                    const navlink = `/dashboard/landlord/tenants/${row.id}`;
+                    navigate(navlink);
+                  },
+                },
+              ]}
+            />
+          )}
         </div>
       </div>
     </div>

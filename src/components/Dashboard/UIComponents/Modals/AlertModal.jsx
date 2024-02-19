@@ -64,7 +64,7 @@ const AlertModal = (props) => {
           </h5>
           <p
             id="modal-modal-description"
-            sx={{ mt: 2, mb: 2 }}
+            sx={{ mt: 2 }}
             data-testid="alert-modal-message"
           >
             {props.message}
