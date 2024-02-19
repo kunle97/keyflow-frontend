@@ -14,7 +14,7 @@ import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import VendorPaymentModel from "../../UIComponents/Prototypes/Modals/VendorPaymentModal";
 import UIButton from "../../UIComponents/UIButton";
-import { Stack } from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import useScreen from "../../../../hooks/useScreen";
 
 const LandlordMaintenanceRequests = () => {
@@ -38,6 +38,25 @@ const LandlordMaintenanceRequests = () => {
 
   const columns = [
     { name: "description", label: "Issue" },
+    {
+      name: "priority",
+      label: "Priority",
+      options: {
+        customBodyRender: (value) => {
+          if (value === 1) {
+            return <Chip label="Low" color="success" />;
+          } else if (value === 2) {
+            return <Chip label="Moderate" color="info" />;
+          } else if (value === 3) {
+            return <Chip label="High" color="warning" />;
+          } else if (value === 4) {
+            return <Chip label="Urgent" color="error" />;
+          } else if (value === 5) {
+            return <Chip label="Emergency" color="error" />;
+          }
+        },
+      },
+    },
     { name: "type", label: "Type" },
     {
       name: "status",
@@ -45,11 +64,11 @@ const LandlordMaintenanceRequests = () => {
       options: {
         customBodyRender: (value) => {
           if (value === "pending") {
-            return <span className="text-warning">Pending</span>;
+            return <Chip label="Pending" color="warning" />;
           } else if (value === "in_progress") {
-            return <span className="text-info">In Progress</span>;
+            return <Chip label="In Progress" color="info" />;
           } else if (value === "completed") {
-            return <span className="text-success">Completed</span>;
+            return <Chip label="Completed" color="success" />;
           }
         },
       },
@@ -222,7 +241,7 @@ const LandlordMaintenanceRequests = () => {
           loadingMessage="Loading your maintenance requests..."
         />
       ) : (
-        <UITable 
+        <UITable
           data={maintenanceRequests}
           columns={columns}
           options={options}
@@ -240,6 +259,16 @@ const LandlordMaintenanceRequests = () => {
           showResultLimit={true}
           loadingTitle="Maintenance Requests"
           loadingMessage="Loading your maintenance requests..."
+          menuOptions={[
+            {
+              name: "View",
+              onClick: (row) => {
+                const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+                navigate(navlink);
+              },
+            },
+            { name: "Delete", onClick: () => console.log("Delete") },
+          ]}
         />
       )}
     </div>
