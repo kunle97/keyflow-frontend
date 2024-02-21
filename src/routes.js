@@ -229,7 +229,7 @@ export const routes = [
     path: "/dashboard/tenant/add-payment-method",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <Elements stripe={stripePromise}>
+        <Elements stripe={stripePromise} options={options}>
           <AddPaymentMethod />
         </Elements>
       </DashboardProtectedRoute>
