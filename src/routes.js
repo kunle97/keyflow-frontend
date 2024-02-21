@@ -91,6 +91,16 @@ import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pa
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
+//StripeELements Options
+const options = {
+  // clientSecret: clientSecret,
+  mode: 'setup',
+  paymentMethodTypes: [/*Insert Payment Method types found in stripe dashboard here*/],
+  layout: {
+    type: 'tabs',
+    defaultCollapsed: false,
+  }
+};
 
 export const routes = [
   {
@@ -149,7 +159,7 @@ export const routes = [
     path: "/dashboard/landlord/register",
     element: (
       <LoggedInRedirect token={token}>
-        <Elements stripe={stripePromise}>
+        <Elements stripe={stripePromise} options={options}>
           <LandlordRegister />
         </Elements>
       </LoggedInRedirect>
@@ -159,7 +169,7 @@ export const routes = [
     path: "/dashboard/tenant/register/:lease_agreement_id/:unit_id/:approval_hash/",
     element: (
       <LoggedInRedirect token={token}>
-        <Elements stripe={stripePromise}>
+        <Elements stripe={stripePromise} options={options}>
           <TenantRegister />
         </Elements>
       </LoggedInRedirect>
@@ -169,7 +179,7 @@ export const routes = [
     path: "/dashboard/tenant/register/:tenant_invite_id/:unit_id/:approval_hash/",
     element: (
       <LoggedInRedirect token={token}>
-        <Elements stripe={stripePromise}>
+        <Elements stripe={stripePromise} options={options}>
           <TenantRegister />
         </Elements>
       </LoggedInRedirect>
