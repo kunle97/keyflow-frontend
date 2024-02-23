@@ -87,7 +87,7 @@ import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
 import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accounts";
 import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
 import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
-
+import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -443,6 +443,14 @@ export const routes = [
     ),
   },
   {
+    path: "/dashboard/tenant/bills/:invoice_id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <BillDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
     path: "/dashboard/tenant/bills/pay/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
@@ -752,7 +760,6 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
-
 ];
 
 export const router = createBrowserRouter(routes);

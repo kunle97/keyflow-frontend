@@ -210,8 +210,8 @@ const ManageUnit = () => {
       label: "Status",
       name: "is_approved",
       options: {
-        customBodyrender: (value) => {
-          return value ? "Approved" : "Pending";
+        customBodyRender: (value) => {
+          return value ? <span>Approved</span> : <span>Pending</span>;
         },
       },
     },

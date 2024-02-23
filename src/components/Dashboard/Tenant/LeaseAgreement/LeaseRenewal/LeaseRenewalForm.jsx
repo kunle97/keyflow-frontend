@@ -93,7 +93,9 @@ const LeaseRenewalForm = (props) => {
       move_in_date: data.moveInDate,
       lease_term:
         leaseMode === "current_lease"
-          ? props.leaseAgreement.lease_template.term
+          ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
+              (term) => term.name === "term"
+            ).value
           : data.leaseTerm,
       comments: data.comments,
       tenant: authUser.id,
@@ -246,26 +248,46 @@ const LeaseRenewalForm = (props) => {
                       <div className="col-md-6">
                         <h5>Term</h5>
                         <p className="text-black">
-                          {props.leaseAgreement.lease_template.term} Months
+                          {
+                            JSON.parse(
+                              props.leaseAgreement.rental_unit.lease_terms
+                            ).find((term) => term.name === "name").value
+                          }{" "}
+                          Months
                         </p>
                       </div>
                       <div className="col-md-6">
                         <h5>Rent</h5>
                         <p className="text-black">
-                          ${props.leaseAgreement.lease_template.rent}
+                          $
+                          {
+                            JSON.parse(
+                              props.leaseAgreement.rental_unit.lease_terms
+                            ).find((term) => term.name === "rent").value
+                          }
                         </p>
                       </div>
                       <div className="col-md-6">
                         <h5>Late Fee</h5>
                         <p className="text-black">
-                          ${props.leaseAgreement.lease_template.late_fee}
+                          $
+                          {
+                            JSON.parse(
+                              props.leaseAgreement.rental_unit.lease_terms
+                            ).find((term) => term.name === "late_fee").value
+                          }
                         </p>
                       </div>
                       <div className="col-md-6">
                         <h5>Security Deposit</h5>
                         <p className="text-black">
                           $
-                          {props.leaseAgreement.lease_template.security_deposit}
+                          {
+                            JSON.parse(
+                              props.leaseAgreement.rental_unit.lease_terms
+                            ).find((term) => term.name === "security_deposit")
+                              .value
+                          }
                         </p>
                       </div>
                     </div>
