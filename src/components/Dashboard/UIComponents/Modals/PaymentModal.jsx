@@ -15,6 +15,7 @@ import {
 import { makePayment } from "../../../../api/tenants";
 import { uiGreen, uiGrey1, authUser } from "../../../../constants";
 import UIButton from "../UIButton";
+import { payTenantInvoice } from "../../../../api/tenants";
 const PaymentModal = (props) => {
   /*
    *Payment data structure
@@ -48,31 +49,34 @@ const PaymentModal = (props) => {
     e.preventDefault();
     setIsLoading(true);
     console.log("Payment Method", selectedPaymentMethod);
-    const data = {
-      user_id: authUser.id,
-      payment_method_id: selectedPaymentMethod.id,
-      amount: props.amount,
-    };
-    console.log(data);
-    makePayment(data)
-      .then((res) => {
-        console.log(res);
-        setIsLoading(false);
-        setSelectPaymentMode(false);
-        if (res.status === 200) {
-          console.log("Payment successful");
-          setPaymentResponseMessage("Payment successful!");
-        } else {
-          // props.handleClose();
-          // props.handleFailure();
-          console.log("Payment failed");
-          setPaymentResponseMessage("Payment failed");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        console.log("Catch: Payment failed");
-      });
+
+    props.invoices.forEach((invoice) => {
+      let data = {
+        invoice_id: invoice.id,
+        payment_method_id: selectedPaymentMethod.id,
+      };
+      console.log(data);
+      // makePayment(data)
+      payTenantInvoice(data)
+        .then((res) => {
+          console.log(res);
+          setIsLoading(false);
+          setSelectPaymentMode(false);
+          if (res.status === 200) {
+            console.log("Payment successful");
+            setPaymentResponseMessage("Payment successful!");
+          } else {
+            // props.handleClose();
+            // props.handleFailure();
+            console.log("Payment failed");
+            setPaymentResponseMessage("Payment failed");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          console.log("Catch: Payment failed");
+        });
+    });
   };
 
   return (
@@ -82,8 +86,7 @@ const PaymentModal = (props) => {
           {!isLoading && selectPaymentMode && (
             <>
               <Typography id="modal-modal-title" variant="h6" component="h2">
-                Amount of ${`${props.amount / 100}`} will be charged to your
-                card
+                Amount of ${`${props.amount}`} will be charged to your card
               </Typography>
               <FormControl>
                 <FormLabel sx={{ color: "black" }}>

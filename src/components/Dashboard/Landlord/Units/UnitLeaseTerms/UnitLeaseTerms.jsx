@@ -13,90 +13,7 @@ const UnitLeaseTerms = (props) => {
   };
   return (
     <div>
-      {props.unitLeaseTerms ? (
-        props.unitLeaseTerms.map((preference) => {
-          if (preference.inputType === "select") {
-            const selectOptions = preference.options;
-            return (
-              <UIPreferenceRow
-                title={preference.label}
-                value={preference.value}
-                description={preference.description}
-                type={preference.inputType}
-                selectOptions={selectOptions}
-                onChange={(e) =>
-                  props.handleChangeUnitLeaseTerms(e, preference.name)
-                }
-              />
-            );
-          } else if (preference.inputType === "switch") {
-            return (
-              <UIPreferenceRow
-                title={preference.label}
-                value={preference.value}
-                description={preference.description}
-                type={preference.inputType}
-                onChange={props.handlePreferenceSwitchChange(preference.name)}
-              />
-            );
-          } else {
-            return (
-              <UIPreferenceRow
-                title={preference.label}
-                value={preference.value}
-                description={preference.description}
-                type={preference.inputType}
-                onChange={(e) =>
-                  props.handleChangeUnitLeaseTerms(e, preference.name)
-                }
-              />
-            );
-          }
-        })
-      ) : (
-        <div>
-          {defaultRentalUnitLeaseTerms.map((preference) => {
-            if (preference.inputType === "select") {
-              const selectOptions = preference.options;
-              return (
-                <UIPreferenceRow
-                  title={preference.label}
-                  value={preference.value}
-                  description={preference.description}
-                  type={preference.inputType}
-                  selectOptions={selectOptions}
-                  onChange={(e) =>
-                    props.handleChangeUnitLeaseTerms(e, preference.name)
-                  }
-                />
-              );
-            } else if (preference.inputType === "switch") {
-              return (
-                <UIPreferenceRow
-                  title={preference.label}
-                  value={preference.value}
-                  description={preference.description}
-                  type={preference.inputType}
-                  onChange={props.handlePreferenceSwitchChange(preference.name)}
-                />
-              );
-            } else {
-              return (
-                <UIPreferenceRow
-                  title={preference.label}
-                  value={preference.value}
-                  description={preference.description}
-                  type={preference.inputType}
-                  onChange={(e) =>
-                    props.handleChangeUnitLeaseTerms(e, preference.name)
-                  }
-                />
-              );
-            }
-          })} 
-        </div>
-      )}
-      {props.unit.is_occupied && (
+      {props.unit.is_occupied ? (
         <>
           <UIPrompt
             style={{
@@ -126,6 +43,96 @@ const UnitLeaseTerms = (props) => {
             }
           />
         </>
+      ) : (
+        <div>
+          {props.unitLeaseTerms ? (
+            props.unitLeaseTerms.map((preference) => {
+              if (preference.inputType === "select") {
+                const selectOptions = preference.options;
+                return (
+                  <UIPreferenceRow
+                    title={preference.label}
+                    value={preference.value}
+                    description={preference.description}
+                    type={preference.inputType}
+                    selectOptions={selectOptions}
+                    onChange={(e) =>
+                      props.handleChangeUnitLeaseTerms(e, preference.name)
+                    }
+                  />
+                );
+              } else if (preference.inputType === "switch") {
+                return (
+                  <UIPreferenceRow
+                    title={preference.label}
+                    value={preference.value}
+                    description={preference.description}
+                    type={preference.inputType}
+                    onChange={props.handlePreferenceSwitchChange(
+                      preference.name
+                    )}
+                  />
+                );
+              } else {
+                return (
+                  <UIPreferenceRow
+                    title={preference.label}
+                    value={preference.value}
+                    description={preference.description}
+                    type={preference.inputType}
+                    onChange={(e) =>
+                      props.handleChangeUnitLeaseTerms(e, preference.name)
+                    }
+                  />
+                );
+              }
+            })
+          ) : (
+            <div>
+              {defaultRentalUnitLeaseTerms.map((preference) => {
+                if (preference.inputType === "select") {
+                  const selectOptions = preference.options;
+                  return (
+                    <UIPreferenceRow
+                      title={preference.label}
+                      value={preference.value}
+                      description={preference.description}
+                      type={preference.inputType}
+                      selectOptions={selectOptions}
+                      onChange={(e) =>
+                        props.handleChangeUnitLeaseTerms(e, preference.name)
+                      }
+                    />
+                  );
+                } else if (preference.inputType === "switch") {
+                  return (
+                    <UIPreferenceRow
+                      title={preference.label}
+                      value={preference.value}
+                      description={preference.description}
+                      type={preference.inputType}
+                      onChange={props.handlePreferenceSwitchChange(
+                        preference.name
+                      )}
+                    />
+                  );
+                } else {
+                  return (
+                    <UIPreferenceRow
+                      title={preference.label}
+                      value={preference.value}
+                      description={preference.description}
+                      type={preference.inputType}
+                      onChange={(e) =>
+                        props.handleChangeUnitLeaseTerms(e, preference.name)
+                      }
+                    />
+                  );
+                }
+              })}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
