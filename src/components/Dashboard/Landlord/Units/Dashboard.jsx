@@ -651,13 +651,17 @@ const Dashboard = () => {
       </div>
 
       {/* Info Card Row (hidden on mobile and desktop too) */}
-      {/* <div className="row my-2">
+      <div className="row my-2">
         {multiplier.map((item, index) => {
           return (
             <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
               <UIInfoCard
                 cardStyle={{ background: "white", color: uiGrey2 }}
-                infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt": "16pt", margin: 0 }}
+                infoStyle={{
+                  color: uiGrey2,
+                  fontSize: isMobile ? "12pt" : "16pt",
+                  margin: 0,
+                }}
                 titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
                 info={`$`}
                 title={"Total Revenue"}
@@ -666,7 +670,7 @@ const Dashboard = () => {
             </div>
           );
         })}
-      </div> */}
+      </div>
 
       {/* Vacancies & Transactions Row */}
       <div className="row">
@@ -677,7 +681,7 @@ const Dashboard = () => {
             info={"Vacancies"}
             title={"Occupied vs Vacant Units"}
             height={isMobile ? "256px" : "306px"}
-            legendPosition={isMobile ? "bottom" : "right"}
+            legendPosition={"right"}
             cardStyle={{ background: "white", color: "black" }}
             infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
@@ -701,7 +705,7 @@ const Dashboard = () => {
             info={"Best Performing Properties"}
             title={"Revenue Per Property"}
             height={isMobile ? "256px" : "306px"}
-            legendPosition={isMobile ? "bottom" : "right"}
+            legendPosition={"right"}
             cardStyle={{ background: "white", color: "black" }}
             infoStyle={{ color: uiGrey2, fontSize: isMobile ? "12pt" : "16pt" }}
             titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
@@ -843,7 +847,7 @@ const Dashboard = () => {
       </div>
 
       {/* Lease Cancellation  Row */}
-      {leaseCancellationRequests.length === 0 ?? (
+      {leaseCancellationRequests && (
         <div className="row">
           <div className="col-md-6">
             {screenWidth > breakpoints.md ? (
@@ -935,7 +939,7 @@ const Dashboard = () => {
               info={"Pending vs Approved Requests"}
               title={"Lease Cancellation Requests"}
               height={isMobile ? "356px" : "456px"}
-              legendPosition={"bottom"}
+              legendPosition={"right"}
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,
@@ -957,7 +961,7 @@ const Dashboard = () => {
       )}
 
       {/* Lease Renewal  Row */}
-      {leaseRenewalRequests.length === 0 ?? (
+      {leaseRenewalRequests && (
         <div className="row">
           <div className="col-md-6">
             {screenWidth > breakpoints.md ? (
@@ -1040,7 +1044,7 @@ const Dashboard = () => {
               info={"Pending vs Approved Requests"}
               title={"Lease Renewal Requests"}
               height={isMobile ? "356px" : "456px"}
-              legendPosition={"bottom"}
+              legendPosition={"right"}
               cardStyle={{ background: "white", color: "black" }}
               infoStyle={{
                 color: uiGrey2,

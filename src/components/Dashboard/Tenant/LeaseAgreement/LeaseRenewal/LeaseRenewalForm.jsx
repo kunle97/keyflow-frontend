@@ -38,7 +38,9 @@ const LeaseRenewalForm = (props) => {
   const [unitMode, setUnitMode] = useState("current_unit"); //This is the unit that the tenant is currently renting
   const [selectedUnit, setSelectedUnit] = useState(null); //This is the unit that the tenant has selected to renew their lease to
   const [leaseMode, setLeaseMode] = useState("current_lease");
+  const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null); //This is the lease terms that the tenant is currently renting
   const [selectedLeaseTerm, setSelectedLeaseTerm] = useState(null); //This is the lease term that the tenant has selected to renew their lease to
+  const [selectedRentFrequency, setSelectedRentFrequency] = useState(null); //This is the rent frequency that the tenant has selected to renew their lease to
   const [units, setUnits] = useState([]);
   const [isSameUnit, setIsSameUnit] = useState(true); //This is true if the tenant is renewing their lease to the same unit that they are currently renting
   const [isSameLeaseTerm, setIsSameLeaseTerm] = useState(true); //This is true if the tenant is renewing their lease to the same lease term that they are currently renting
@@ -97,6 +99,12 @@ const LeaseRenewalForm = (props) => {
               (term) => term.name === "term"
             ).value
           : data.leaseTerm,
+      rent_frequency:
+        leaseMode === "current_lease"
+          ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
+              (term) => term.name === "rent_frequency"
+            ).value
+          : data.rent_frequency,
       comments: data.comments,
       tenant: authUser.id,
       owner: props.leaseAgreement.owner.id,
@@ -147,6 +155,9 @@ const LeaseRenewalForm = (props) => {
 
   useEffect(() => {
     console.log("Lease agreement prop", props.leaseAgreement);
+    setCurrentLeaseTerms(
+      JSON.parse(props.leaseAgreement.rental_unit.lease_terms)
+    );
     //Find only units that have the is_occopied property set to false
     let unoccupied_units = props.leaseAgreement.rental_property.units.filter(
       (unit) => unit.is_occupied === false
@@ -166,7 +177,7 @@ const LeaseRenewalForm = (props) => {
             <div className="row">
               <div className="col-md-12">
                 <div className="form-group">
-                  <label>Desired Move In Date</label>
+                  <label className="text-black">Desired Move In Date</label>
                   <input
                     type="date"
                     {...register("moveInDate", {
@@ -186,7 +197,7 @@ const LeaseRenewalForm = (props) => {
                         );
                       },
                     })}
-                    style={defaultWhiteInputStyle}
+                    style={{ ...defaultWhiteInputStyle, background: "#f4f7f8" }}
                   />
                   {errors.moveInDate && (
                     <span style={validationMessageStyle}>
@@ -218,23 +229,47 @@ const LeaseRenewalForm = (props) => {
                 />
                 {leaseMode === "new_lease" ? (
                   <>
-                    <div className="form-group">
-                      <label>Lease Term</label>
+                    {" "}
+                    <div className="form-group my-2">
+                      <label className="text-black">Rent Frequency</label>
                       <select
-                        style={defaultWhiteInputStyle}
+                        className="form-select"
+                        {...register("rent_frequency", { required: true })}
+                        onChange={(e) => {
+                          setSelectedRentFrequency(e.target.value);
+                        }}
+                        defaultValue={
+                          currentLeaseTerms.find(
+                            (term) => term.name === "rent_frequency"
+                          ).value
+                        }
+                      >
+                        <option value="">Select</option>
+                        <option value="day">Daily</option>
+                        <option value="month">Monthly</option>
+                        <option value="week">Weekly</option>
+                        <option value="year">Yearly</option>
+                      </select>
+                      {errors.rent_frequency && (
+                        <span style={validationMessageStyle}>
+                          This field is required
+                        </span>
+                      )}
+                    </div>
+                    <div className="form-group my-2">
+                      <label className="text-black">Lease Duration</label>
+                      <input
                         {...register("leaseTerm", { required: true })}
+                        type="number"
+                        // defaultValue={parseInt(
+                        //   currentLeaseTerms.find((term) => term.name === "term")
+                        //     .value
+                        // )}
+                        className={"form-control"}
                         onChange={(e) => {
                           setSelectedLeaseTerm(e.target.value);
                         }}
-                      >
-                        <option value="">Select</option>
-                        <option value="6">6 Months</option>
-                        <option value="12">12 Months</option>
-                        <option value="18">18 Months</option>
-                        <option value="24">24 Months</option>
-                        <option value="36">36 Months</option>
-                        <option value="48">48 Months</option>
-                      </select>
+                      />
                       {errors.leaseTerm && (
                         <span style={validationMessageStyle}>
                           This field is required
@@ -249,9 +284,9 @@ const LeaseRenewalForm = (props) => {
                         <h5>Term</h5>
                         <p className="text-black">
                           {
-                            JSON.parse(
-                              props.leaseAgreement.rental_unit.lease_terms
-                            ).find((term) => term.name === "name").value
+                            currentLeaseTerms.find(
+                              (term) => term.name === "term"
+                            ).value
                           }{" "}
                           Months
                         </p>
@@ -261,9 +296,9 @@ const LeaseRenewalForm = (props) => {
                         <p className="text-black">
                           $
                           {
-                            JSON.parse(
-                              props.leaseAgreement.rental_unit.lease_terms
-                            ).find((term) => term.name === "rent").value
+                            currentLeaseTerms.find(
+                              (term) => term.name === "rent"
+                            ).value
                           }
                         </p>
                       </div>
@@ -272,9 +307,9 @@ const LeaseRenewalForm = (props) => {
                         <p className="text-black">
                           $
                           {
-                            JSON.parse(
-                              props.leaseAgreement.rental_unit.lease_terms
-                            ).find((term) => term.name === "late_fee").value
+                            currentLeaseTerms.find(
+                              (term) => term.name === "late_fee"
+                            ).value
                           }
                         </p>
                       </div>
@@ -283,10 +318,9 @@ const LeaseRenewalForm = (props) => {
                         <p className="text-black">
                           $
                           {
-                            JSON.parse(
-                              props.leaseAgreement.rental_unit.lease_terms
-                            ).find((term) => term.name === "security_deposit")
-                              .value
+                            currentLeaseTerms.find(
+                              (term) => term.name === "security_deposit"
+                            ).value
                           }
                         </p>
                       </div>
@@ -348,7 +382,7 @@ const LeaseRenewalForm = (props) => {
                   <label className="text-black">Comments</label>
                   <textarea
                     rows="5"
-                    style={defaultWhiteInputStyle}
+                    style={{ ...defaultWhiteInputStyle, background: "#f4f7f8" }}
                     {...register("comments", { required: true })}
                   ></textarea>
                   {errors.comments && (

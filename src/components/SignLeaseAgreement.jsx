@@ -191,9 +191,9 @@ const SignLeaseAgreement = () => {
             if (!signingLink) {
               generateSigningLink(payload).then((res) => {
                 console.log(res);
-                if (res.status === 200) {
+                if (res.data.status === 200) {
                   //Set the src of the iframe to the signing link
-                  setSigningLink(res.data.signLink);
+                  setSigningLink(res.data.data.signLink);
                   setSigningLinkIsValid(true);
                 } else {
                   setSigningLink("invalid");

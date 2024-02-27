@@ -81,7 +81,7 @@ import RentPriceSuggestionModal from "../../UIComponents/Prototypes/Modals/RentP
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ListUnitModal from "../../UIComponents/Prototypes/Modals/ListUnitModal";
 import UITable from "../../UIComponents/UITable/UITable";
-
+import UnitDocumentManager from "./UnitDocumentManager";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -1807,201 +1807,206 @@ const ManageUnit = () => {
               </>
             )}
             {tabPage === 2 && (
-              <div>
-                {unit.template_id && (
-                  <div>
-                    <Stack direction="row" justifyContent="flex-end">
-                      <DeleteButton
-                        btnText="Delete Template Document"
-                        onClick={() => {
-                          setShowDeleteTemplateConfirmModal(true);
-                        }}
-                        style={{
-                          marginBottom: "15px",
-                        }}
-                      />
-                    </Stack>
-                    <div className="card" style={{ overflow: "hidden" }}>
-                      <iframe
-                        src={editLink}
-                        height={isMobile ? "500px" : "1200px"}
-                        width="100%"
-                      />
-                    </div>
-                  </div>
-                )}
-                {unit.signed_lease_document_file && (
-                  <div>
-                    <UIPrompt
-                      icon={<TaskIcon style={iconStyles} />}
-                      title="Manage Signed Lease Agreement"
-                      message="Use the buttons below to view, download or delete the signed lease agreement."
-                      body={
-                        <Stack
-                          direction={"row"}
-                          justifyContent={"space-between"}
-                          alignItems={"center"}
-                          spacing={2}
-                          sx={{ margin: "10px 0" }}
-                        >
-                          <UIButton
-                            onClick={() => {
-                              window.open(signedLeaseViewLink, "_blank");
-                            }}
-                            btnText="View/Download Document"
-                            style={{ marginTop: "20px", width: "320px" }}
-                          />
-                          <DeleteButton
-                            style={{
-                              width: "320px",
-                            }}
-                            btnText="Delete Document"
-                            onClick={() => {
-                              setShowDeleteSignedDocumentConfirmModal(true);
-                            }}
-                          />
-                        </Stack>
-                      }
-                    />
-                  </div>
-                )}
-                {!unit.template_id && !unit.signed_lease_document_file && (
-                  <div>
-                    <AlertModal
-                      open={alertOpen}
-                      title={alertTitle}
-                      message={alertMessage}
-                      btnText="Okay"
-                      onClick={() => {
-                        setAlertOpen(false);
-                      }}
-                    />
-                    {createLink ? (
-                      <div className="card">
-                        <iframe
-                          src={createLink}
-                          height={isMobile ? "500px" : "1200px"}
-                          width="100%"
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <UIRadioGroup
-                          style={{
-                            marginBottom: "20px",
-                          }}
-                          radioOptions={[
-                            {
-                              value: "existing_lease",
-                              label: "Upload Signed Lease Agreement",
-                            },
-                            {
-                              value: "blank_lease",
-                              label: "Upload Unsigned Lease Agreement",
-                            },
-                          ]}
-                          value={leaseDocumentMode}
-                          onChange={handleChangeLeaseDocumentMode}
-                          direction="row"
-                        />
-                        {leaseDocumentMode === "blank_lease" ? (
-                          <div className="card">
-                            <div className="card-body">
-                              <UIDropzone
-                                onDrop={onDropBlankLeaseDocument}
-                                acceptedFileTypes={[".pdf,.docx"]}
-                                files={blankLeaseDocumentFile}
-                                setFiles={setBlankLeaseDocumentFile}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="card">
-                            <div className="card-body">
-                              <form
-                                onSubmit={handleUploadSignedLeaseDocumentSubmit}
-                                encType="multipart/form-data"
-                              >
-                                <div className="row">
-                                  <div className="col-md-12">
-                                    {" "}
-                                    <label className="text-black mb-2">
-                                      <strong>
-                                        Upload Signed Lease Agreement
-                                      </strong>
-                                    </label>
-                                    <UIDropzone
-                                      dropzoneStyles={{ height: "190px" }}
-                                      onDrop={onDropSignedLeaseDocument}
-                                      acceptedFileTypes={[".pdf,.docx"]}
-                                      files={signedLeaseDocumentFile}
-                                      setFiles={setSignedLeaseDocumentFile}
-                                    />
-                                  </div>
-                                  <div className="col-md-6">
-                                    <div
-                                      className="form-group"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <label className="text-black mb-2">
-                                        <strong>Lease Start Date</strong>
-                                      </label>
-                                      <input
-                                        type="date"
-                                        className="form-control"
-                                        name="lease_start_date"
-                                        required
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="col-md-6">
-                                    <div
-                                      className="form-group"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <label className="text-black mb-2">
-                                        <strong>Lease End Date</strong>
-                                      </label>
-                                      <input
-                                        type="date"
-                                        className="form-control"
-                                        name="lease_end_date"
-                                        required
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12">
-                                    <div
-                                      className="form-group"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <label className="text-black my-2">
-                                        <strong>Date Signed </strong>
-                                      </label>
-                                      <input
-                                        type="date"
-                                        className="form-control"
-                                        name="date_signed"
-                                        required
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
+              // <div>
+              //   {unit.template_id && (
+              //     <div>
+              //       <Stack direction="row" justifyContent="flex-end">
+              //         <DeleteButton
+              //           btnText="Delete Template Document"
+              //           onClick={() => {
+              //             setShowDeleteTemplateConfirmModal(true);
+              //           }}
+              //           style={{
+              //             marginBottom: "15px",
+              //           }}
+              //         />
+              //       </Stack>
+              //       <div className="card" style={{ overflow: "hidden" }}>
+              //         <iframe
+              //           src={editLink}
+              //           height={isMobile ? "500px" : "1200px"}
+              //           width="100%"
+              //         />
+              //       </div>
+              //     </div>
+              //   )}
+              //   {unit.signed_lease_document_file && (
+              //     <div>
+              //       <UIPrompt
+              //         icon={<TaskIcon style={iconStyles} />}
+              //         title="Manage Signed Lease Agreement"
+              //         message="Use the buttons below to view, download or delete the signed lease agreement."
+              //         body={
+              //           <Stack
+              //             direction={"row"}
+              //             justifyContent={"space-between"}
+              //             alignItems={"center"}
+              //             spacing={2}
+              //             sx={{ margin: "10px 0" }}
+              //           >
+              //             <UIButton
+              //               onClick={() => {
+              //                 window.open(signedLeaseViewLink, "_blank");
+              //               }}
+              //               btnText="View/Download Document"
+              //               style={{ marginTop: "20px", width: "320px" }}
+              //             />
+              //             <DeleteButton
+              //               style={{
+              //                 width: "320px",
+              //               }}
+              //               btnText="Delete Document"
+              //               onClick={() => {
+              //                 setShowDeleteSignedDocumentConfirmModal(true);
+              //               }}
+              //             />
+              //           </Stack>
+              //         }
+              //       />
+              //     </div>
+              //   )}
+              //   {!unit.template_id && !unit.signed_lease_document_file && (
+              //     <div>
+              //       <AlertModal
+              //         open={alertOpen}
+              //         title={alertTitle}
+              //         message={alertMessage}
+              //         btnText="Okay"
+              //         onClick={() => {
+              //           setAlertOpen(false);
+              //         }}
+              //       />
+              //       {createLink ? (
+              //         <div className="card">
+              //           <iframe
+              //             src={createLink}
+              //             height={isMobile ? "500px" : "1200px"}
+              //             width="100%"
+              //           />
+              //         </div>
+              //       ) : (
+              //         <>
+              //           <UIRadioGroup
+              //             style={{
+              //               marginBottom: "20px",
+              //             }}
+              //             radioOptions={[
+              //               {
+              //                 value: "existing_lease",
+              //                 label: "Upload Signed Lease Agreement",
+              //               },
+              //               {
+              //                 value: "blank_lease",
+              //                 label: "Upload Unsigned Lease Agreement",
+              //               },
+              //             ]}
+              //             value={leaseDocumentMode}
+              //             onChange={handleChangeLeaseDocumentMode}
+              //             direction="row"
+              //           />
+              //           {leaseDocumentMode === "blank_lease" ? (
+              //             <div className="card">
+              //               <div className="card-body">
+              //                 <UIDropzone
+              //                   onDrop={onDropBlankLeaseDocument}
+              //                   acceptedFileTypes={[".pdf,.docx"]}
+              //                   files={blankLeaseDocumentFile}
+              //                   setFiles={setBlankLeaseDocumentFile}
+              //                 />
+              //               </div>
+              //             </div>
+              //           ) : (
+              //             <div className="card">
+              //               <div className="card-body">
+              //                 <form
+              //                   onSubmit={handleUploadSignedLeaseDocumentSubmit}
+              //                   encType="multipart/form-data"
+              //                 >
+              //                   <div className="row">
+              //                     <div className="col-md-12">
+              //                       {" "}
+              //                       <label className="text-black mb-2">
+              //                         <strong>
+              //                           Upload Signed Lease Agreement
+              //                         </strong>
+              //                       </label>
+              //                       <UIDropzone
+              //                         dropzoneStyles={{ height: "190px" }}
+              //                         onDrop={onDropSignedLeaseDocument}
+              //                         acceptedFileTypes={[".pdf,.docx"]}
+              //                         files={signedLeaseDocumentFile}
+              //                         setFiles={setSignedLeaseDocumentFile}
+              //                       />
+              //                     </div>
+              //                     <div className="col-md-6">
+              //                       <div
+              //                         className="form-group"
+              //                         style={{ width: "100%" }}
+              //                       >
+              //                         <label className="text-black mb-2">
+              //                           <strong>Lease Start Date</strong>
+              //                         </label>
+              //                         <input
+              //                           type="date"
+              //                           className="form-control"
+              //                           name="lease_start_date"
+              //                           required
+              //                         />
+              //                       </div>
+              //                     </div>
+              //                     <div className="col-md-6">
+              //                       <div
+              //                         className="form-group"
+              //                         style={{ width: "100%" }}
+              //                       >
+              //                         <label className="text-black mb-2">
+              //                           <strong>Lease End Date</strong>
+              //                         </label>
+              //                         <input
+              //                           type="date"
+              //                           className="form-control"
+              //                           name="lease_end_date"
+              //                           required
+              //                         />
+              //                       </div>
+              //                     </div>
+              //                     <div className="col-md-12">
+              //                       <div
+              //                         className="form-group"
+              //                         style={{ width: "100%" }}
+              //                       >
+              //                         <label className="text-black my-2">
+              //                           <strong>Date Signed </strong>
+              //                         </label>
+              //                         <input
+              //                           type="date"
+              //                           className="form-control"
+              //                           name="date_signed"
+              //                           required
+              //                         />
+              //                       </div>
+              //                     </div>
+              //                   </div>
 
-                                <UIButton
-                                  btnText="Submit File"
-                                  type="submit"
-                                  style={{ marginTop: "20px", width: "100%" }}
-                                />
-                              </form>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+              //                   <UIButton
+              //                     btnText="Submit File"
+              //                     type="submit"
+              //                     style={{ marginTop: "20px", width: "100%" }}
+              //                   />
+              //                 </form>
+              //               </div>
+              //             </div>
+              //           )}
+              //         </>
+              //       )}
+              //     </div>
+              //   )}
+              // </div>
+              <>
+              {unit &&
+               <UnitDocumentManager unit={unit}  />
+              }
+              </>
             )}
             {tabPage === 3 && (
               <>

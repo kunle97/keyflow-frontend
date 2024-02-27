@@ -8,7 +8,7 @@ import UIButton from "../../UIComponents/UIButton";
 import { authUser, uiGreen, uiRed } from "../../../../constants";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import { Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { getLeaseTemplatesByUser } from "../../../../api/lease_templates";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
@@ -21,8 +21,8 @@ import {
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { updateLeaseRenewalRequest } from "../../../../api/lease_renewal_requests";
 import CreateLeaseTemplate from "../LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
-import { set } from "react-hook-form";
 import { updateUnit } from "../../../../api/units";
+import UnitDocumentManager from "../Units/UnitDocumentManager";
 
 const LeaseRenewalAcceptForm = () => {
   const { id } = useParams();
@@ -30,11 +30,18 @@ const LeaseRenewalAcceptForm = () => {
   const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [currentLeaseAgreement, setCurrentLeaseAgreement] = useState(null);
   const [currentLeaseTemplate, setCurrentLeaseTemplate] = useState(null); // Used to check if the current lease template term is different from the lease renewal request term [Optional
+  const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
   const [currentTemplateId, setCurrentTemplateId] = useState(null); //
   const [selectedLeaseTemplate, setSelectedLeaseTemplate] = useState(null);
+  const [unit, setUnit] = useState(null); // Used to check if the current lease template term is different from the lease renewal request term [Optional
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalTitle, setConfirmModalTitle] = useState("");
+  const [confirmModalMessage, setConfirmModalMessage] = useState("");
+
   const [alertModalLink, setAlertModalLink] = useState(""); // Used to show a link in the alert modal [Optional]
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false); // Used to show the progress modal when the user clicks the submit button
@@ -44,7 +51,7 @@ const LeaseRenewalAcceptForm = () => {
   const [documentMode, setDocumentMode] = useState("existing"); // Values: new, existing
   const navigate = useNavigate();
 
-  const handleAccept = async (e) => {
+  const handleAccept = async () => {
     setIsSubmitting(true);
     setOpenAcceptModal(false);
 
@@ -58,7 +65,6 @@ const LeaseRenewalAcceptForm = () => {
 
     try {
       const renewalPayload = {
-        lease_template_id: currentLeaseTemplate.id,
         lease_renewal_request_id: leaseRenewalRequest.id,
         current_lease_agreement_id: currentLeaseAgreement.id,
       };
@@ -102,7 +108,7 @@ const LeaseRenewalAcceptForm = () => {
         tenant: leaseRenewalRequest.tenant.id,
         user: authUser.id,
         approval_hash: makeId(64),
-        lease_template: currentLeaseTemplate.id,
+        // lease_template: currentLeaseTemplate.id,
         document_id: sendDocResponse.documentId,
         start_date: formattedStartDate,
         end_date: formattedEndDate,
@@ -120,7 +126,7 @@ const LeaseRenewalAcceptForm = () => {
       //If the lease_renewal_request's rental unit does not equal the lease agreeement's update the unit's is_occupied status to true. Also set the unit's lease_template to current leaseTemplate
       const updateRentalUnitPayload = {
         is_occupied: true,
-        lease_template: currentLeaseTemplate.id,
+        // lease_template: currentLeaseTemplate.id,
         tenant: leaseRenewalRequest.tenant.id,
       };
       await updateUnit(
@@ -159,18 +165,81 @@ const LeaseRenewalAcceptForm = () => {
     }
   };
 
+  //Updates the lease terms on the rental unit to the new lease term from the lease renewal request
+  const handleUpdateUnitLeaseTerms = async (leaseRenewal) => {
+    //REtrieve unit lease terms
+    let updatedUnitLeaseTerms = JSON.parse(
+      currentLeaseAgreement.rental_unit.lease_terms
+    );
+    //UPdate the term to the new term from the lease renewal request
+    updatedUnitLeaseTerms.find((term) => term.name === "term").value =
+      leaseRenewal.request_term;
+    //UPdate the rent_frequency to the new rent frequency from the lease renewal request
+    updatedUnitLeaseTerms.find((term) => term.name === "rent_frequency").value =
+      leaseRenewal.rent_frequency;
+    //Update the lease terms on the unit
+    const updateRentalUnitPayload = {
+      lease_terms: JSON.stringify(updatedUnitLeaseTerms),
+    };
+    await updateUnit(leaseRenewal.rental_unit.id, updateRentalUnitPayload)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          console.log("Successfully updated rental unit lease terms");
+          setAlertModalTitle("Success");
+          setAlertModalMessage(
+            "The unit's lease terms were successfully updated. You can now proceed to accept the lease renewal request."
+          );
+          setShowConfirmModal(false);
+          setShowAlertModal(true);
+        } else {
+          console.log("Failed to update rental unit lease terms");
+          setAlertModalTitle("Error");
+          setAlertModalMessage("Something went wrong!");
+          setShowConfirmModal(false);
+          setShowAlertModal(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setAlertModalTitle("Error");
+        setAlertModalMessage("Something went wrong!");
+        setShowAlertModal(true);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
+  };
+
   //Create a fucntion to check if the current lease template term is different from the lease renewal request term
   const isCurrentLeaseTemplateTermDifferent = (
-    currentLeaseTemplate,
+    currentLeaseTerms,
     leaseRenewal
   ) => {
-    if (currentLeaseTemplate) {
-      if (currentLeaseTemplate.term !== leaseRenewal.request_term) {
-        setAlertModalTitle("Lease Template Term Mismatch");
-        setAlertModalMessage(
-          "The Tenant chose a different lease term than the current lease template. You will need to create a new lease template to accept this lease renewal request."
+    let currentTermDuration = currentLeaseTerms.find(
+      (term) => term.name === "term"
+    ).value;
+    if (currentLeaseTerms) {
+      if (parseInt(currentTermDuration) !== leaseRenewal.request_term) {
+        console.log(
+          "CUrrent term on unit: ",
+          currentTermDuration,
+          " Requested Term:",
+          leaseRenewal.request_term
         );
-        setShowAlertModal(true);
+        setConfirmModalTitle("Lease Term Mismatch");
+        setConfirmModalMessage(
+          "The Tenant chose a different lease term than the current lease template. " +
+            `Unit ${
+              leaseRenewal.rental_unit.name
+            } will have the lease term automatically updated from ${currentTermDuration} ${
+              currentLeaseTerms.find((term) => term.name === "rent_frequency")
+                .value
+            }(s) to ${leaseRenewal.request_term} ${
+              leaseRenewal.rent_frequency
+            }(s).`
+        );
+        setShowConfirmModal(true);
         return true; //Trigger an alert to navigate user to create the new lease template
       }
     }
@@ -178,7 +247,7 @@ const LeaseRenewalAcceptForm = () => {
   };
 
   useEffect(() => {
-    if (!currentLeaseAgreement || !currentLeaseTemplate) {
+    if (!currentLeaseAgreement || !currentLeaseTerms) {
       setIsLoading(true);
       getLeaseRenewalRequestById(id)
         .then((lease_renewal_res) => {
@@ -195,11 +264,13 @@ const LeaseRenewalAcceptForm = () => {
                       (lease_agreement) => lease_agreement.is_active === true
                     );
                     setCurrentLeaseAgreement(current_lease_agreement);
-                    setCurrentLeaseTemplate(
-                      current_lease_agreement.lease_template
-                    );
                     setCurrentTemplateId(
-                      current_lease_agreement.lease_template.template_id
+                      lease_renewal_res.data.rental_unit.template_id
+                    );
+                    setCurrentLeaseTerms(
+                      JSON.parse(
+                        current_lease_agreement.rental_unit.lease_terms
+                      )
                     );
                   } else {
                     navigate("/dashboard/landlord/lease-renewal-requests/");
@@ -234,11 +305,11 @@ const LeaseRenewalAcceptForm = () => {
     } else {
       // Call isCurrentLeaseTemplateTermDifferent here, after setting the states
       isCurrentLeaseTemplateTermDifferent(
-        currentLeaseTemplate,
+        currentLeaseTerms,
         leaseRenewalRequest
       );
     }
-  }, [currentLeaseAgreement, currentLeaseTemplate]);
+  }, [currentLeaseAgreement, viewMode]);
 
   return (
     <>
@@ -261,11 +332,10 @@ const LeaseRenewalAcceptForm = () => {
             onClick={() => {
               if (
                 isCurrentLeaseTemplateTermDifferent(
-                  currentLeaseTemplate,
+                  currentLeaseTerms,
                   leaseRenewalRequest
                 )
               ) {
-                setViewMode("change_terms");
                 setShowAlertModal(false);
               } else {
                 setShowAlertModal(false);
@@ -273,6 +343,19 @@ const LeaseRenewalAcceptForm = () => {
               }
             }}
           />
+          <ConfirmModal
+            open={showConfirmModal}
+            title={confirmModalTitle}
+            message={confirmModalMessage}
+            confirmBtnText="Yes"
+            cancelBtnText="No"
+            handleConfirm={() => {
+              handleUpdateUnitLeaseTerms(leaseRenewalRequest);
+            }}
+            handleCancel={() => setShowConfirmModal(false)}
+            onClick={() => setShowConfirmModal(false)}
+          />
+
           <ConfirmModal
             open={openAcceptModal}
             onClick={() => setOpenAcceptModal(false)}
@@ -288,8 +371,8 @@ const LeaseRenewalAcceptForm = () => {
             <div>
               <h5 className="my-2">
                 {leaseRenewalRequest.tenant.user.first_name}{" "}
-                {leaseRenewalRequest.tenant.user.last_name} - Review Lease Renewal
-                Request
+                {leaseRenewalRequest.tenant.user.last_name} - Review Lease
+                Renewal Request
               </h5>
               {currentLeaseAgreement && (
                 <div className="card">
@@ -305,30 +388,55 @@ const LeaseRenewalAcceptForm = () => {
                           {leaseRenewalRequest.rental_unit.name}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
-                          <h6>Rent</h6>${currentLeaseTemplate.rent}
+                          <h6>Rent</h6>$
+                          {
+                            currentLeaseTerms.find(
+                              (term) => term.name === "rent"
+                            ).value
+                          }
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>New Term Requested</h6>
-                          {leaseRenewalRequest.request_term} Months
+                          {leaseRenewalRequest.request_term}{" "}
+                          {
+                            currentLeaseTerms.find(
+                              (term) => term.name === "rent_frequency"
+                            ).value
+                          }
+                          s
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Late Fee</h6>
-                          {`$${currentLeaseTemplate.late_fee}`}
+                          {`$${
+                            currentLeaseTerms.find(
+                              (term) => term.name === "late_fee"
+                            ).value
+                          }`}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Security Deposit</h6>
-                          {`$${currentLeaseTemplate.security_deposit}`}
+                          {`$${
+                            currentLeaseTerms.find(
+                              (term) => term.name === "security_deposit"
+                            ).value
+                          }`}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Gas Included?</h6>
                           {`${
-                            currentLeaseTemplate.gas_included ? "Yes" : "No"
+                            currentLeaseTerms.find(
+                              (term) => term.name === "gas_included"
+                            ).value
+                              ? "Yes"
+                              : "No"
                           }`}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Electric Included?</h6>
                           {`${
-                            currentLeaseTemplate.electric_included
+                            currentLeaseTerms.find(
+                              (term) => term.name === "electricity_included"
+                            ).value
                               ? "Yes"
                               : "No"
                           }`}
@@ -336,23 +444,51 @@ const LeaseRenewalAcceptForm = () => {
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Water Included?</h6>
                           {`${
-                            currentLeaseTemplate.water_included ? "Yes" : "No"
+                            currentLeaseTerms.find(
+                              (term) => term.name === "water_included"
+                            ).value
+                              ? "Yes"
+                              : "No"
                           }`}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Lease Cancellation Fee</h6>
-                          {`$${currentLeaseTemplate.lease_cancellation_fee}`}
+                          {`$${
+                            currentLeaseTerms.find(
+                              (term) => term.name === "lease_cancellation_fee"
+                            ).value
+                          }`}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Lease Cancellation Notice period</h6>
-                          {`${currentLeaseTemplate.lease_cancellation_notice_period} Month(s)`}
+                          {`${
+                            currentLeaseTerms.find(
+                              (term) =>
+                                term.name === "lease_cancellation_notice_period"
+                            ).value
+                          } ${
+                            currentLeaseTerms.find(
+                              (term) => term.name === "rent_frequency"
+                            ).value
+                          }
+                          (s)`}
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Grace period</h6>
-                          {currentLeaseTemplate.grace_period === 0 ? (
+                          {currentLeaseTerms.find(
+                            (term) => term.name === "grace_period"
+                          ).value === 0 ? (
                             "None"
                           ) : (
-                            <>{`${currentLeaseTemplate.grace_period} Month(s)`}</>
+                            <>{`${
+                              currentLeaseTerms.find(
+                                (term) => term.name === "grace_period"
+                              ).value
+                            } ${
+                              currentLeaseTerms.find(
+                                (term) => term.name === "rent_frequency"
+                              ).value
+                            }(s)`}</>
                           )}
                         </div>
                       </>
@@ -367,6 +503,10 @@ const LeaseRenewalAcceptForm = () => {
                 alignContent={"center"}
                 justifyContent={"space-between"}
               >
+                <UIButton
+                  btnText="Update Lease Document"
+                  onClick={() => setViewMode("change_terms")}
+                />
                 <Stack direction="row" spacing={2}>
                   <UIButton
                     style={{
@@ -394,8 +534,8 @@ const LeaseRenewalAcceptForm = () => {
           )}
           {viewMode === "change_terms" && (
             <div>
-              <h5 className="my-2"></h5>
-              <CreateLeaseTemplate
+              {/* <h5 className="my-2">Update Lease Document</h5> */}
+              {/* <CreateLeaseTemplate
                 isLeaseRenewal={true}
                 setSelectedLeaseTemplate={setSelectedLeaseTemplate}
                 hideBackButton={true}
@@ -411,6 +551,21 @@ const LeaseRenewalAcceptForm = () => {
                 setViewMode={setViewMode}
                 currentLeaseTemplate={currentLeaseTemplate}
                 setCurrentLeaseTemplate={setCurrentLeaseTemplate}
+              /> */}
+              <Button
+                sx={{
+                  textTransform: "none",
+                  color: uiGreen,
+                }}
+                onClick={() => setViewMode("review")}
+              >
+                Back
+              </Button>
+              <UnitDocumentManager
+                unit={leaseRenewalRequest.rental_unit}
+                onCompleted={() => {
+                  setViewMode("review");
+                }}
               />
             </div>
           )}

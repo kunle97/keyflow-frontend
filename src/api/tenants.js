@@ -50,10 +50,14 @@ export async function getTenantInvoice(invoiceId) {
 }
 
 //Create a function to retrieve all of the tenants invoices using the endpoint api/tenants/{tenant_id}/invoices
-export async function getTenantInvoices() {
+export async function getTenantInvoices(tenant_id) {
+  if (!tenant_id) {
+    tenant_id = authUser.tenant_id;
+  }
+  let endpoint = `/tenants/${tenant_id}/invoices/`;
   try {
     const res = await authenticatedInstance
-      .post(`/tenants/${authUser.tenant_id}/invoices/`)
+      .post(endpoint)
       .then((res) => {
         console.log(res);
         return res.data;
