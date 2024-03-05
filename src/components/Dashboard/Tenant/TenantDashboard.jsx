@@ -33,6 +33,7 @@ import { getTenantLeaseRenewalRequests } from "../../../api/lease_renewal_reques
 import UICard from "../UIComponents/UICards/UICard";
 import UICardList from "../UIComponents/UICards/UICardList";
 import UItableMiniCard from "../UIComponents/UICards/UITableMiniCard";
+import { getTenantInvoices } from "../../../api/tenants";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -55,7 +56,8 @@ const TenantDashboard = () => {
   const [confirmButtonText, setConfirmButtonText] = useState("");
   const [confirmAction, setConfirmAction] = useState(null);
   const [cancelButtonText, setCancelButtonText] = useState("");
-
+  const [invoices, setInvoices] = useState([]);
+  const [totalAmountDue, setTotalAmountDue] = useState(0);
   const columns = [
     { name: "amount", label: "Amount" },
     {
@@ -112,15 +114,6 @@ const TenantDashboard = () => {
     const navlink = `/dashboard/tenant/`;
     navigate(navlink);
   };
-  const options = {
-    filter: true,
-    sort: true,
-    onRowClick: handleRowClick,
-    sortOrder: {
-      name: "created_at",
-      direction: "desc",
-    },
-  };
 
   const handleAutoPayChange = () => {
     setAutoPayIsLoading(true);
@@ -141,6 +134,30 @@ const TenantDashboard = () => {
         }
       });
     }
+  };
+  const options = {
+    filter: true,
+    sort: true,
+    onRowClick: handleRowClick,
+    sortOrder: {
+      name: "created_at",
+      direction: "desc",
+    },
+  };
+  //Create a function to retrieve the invoices that are past due or are within 31 days of the due date
+  const getDueInvoices = (invoices) => {
+    return invoices.filter((invoice) => {
+      //Check if invoiuce is paid
+      if (!invoice.paid) {
+        const dueDate = new Date(invoice.due_date * 1000);
+        const today = new Date();
+        const diffTime = Math.abs(dueDate - today);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 31;
+      } else {
+        return false;
+      }
+    });
   };
 
   useEffect(() => {
@@ -219,6 +236,17 @@ const TenantDashboard = () => {
         });
       }
     });
+    //Retrieve invoices
+    getTenantInvoices().then((res) => {
+      let invoicesDue = getDueInvoices(res.invoices.data.reverse());
+      console.log("Invoices Due", invoicesDue);
+      setInvoices(invoicesDue);
+      let amount_due =
+        invoicesDue.reduce((acc, invoice) => {
+          return acc + invoice.amount_due;
+        }, 0) / 100;
+      setTotalAmountDue(amount_due);
+    });
   }, []);
 
   return (
@@ -227,8 +255,9 @@ const TenantDashboard = () => {
         !isLoadingPaymentMethods &&
         paymentMethods.length > 0 && (
           <PaymentModal
+            invoices={invoices}
             open={showPaymentModal}
-            amount={leaseTemplate.rent * 100}
+            amount={totalAmountDue}
             paymentMethods={paymentMethods}
             handleClose={() => setShowPaymentModal(false)}
           />
@@ -275,57 +304,57 @@ const TenantDashboard = () => {
               >
                 <>
                   <CardContent>
-                    <Typography sx={{ fontSize: 20 }} gutterBottom>
-                      {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
-                        <ReportIcon sx={{ color: "red" }} />
-                      )}{" "}
-                      <span>
-                        ${currentBalance + lateFees}
-                      </span>{" "}
-                      due in {dateDiffForHumans(new Date(nextPaymentDate))}
-                    </Typography>
-                    <Box
-                      sx={
-                        {
-                          // display: "flex",
-                          // justifyContent: "flex-start",
-                          // alignItems: "flex-start",
-                        }
-                      }
-                    >
-                      <div className="my-2">
-                        <FormControlLabel
-                          value="end"
-                          control={
-                            <UISwitch
-                              checked={
-                                leaseAgreement &&
-                                leaseAgreement.auto_pay_is_enabled
-                              }
-                              onChange={handleAutoPayChange}
-                              inputProps={{ "aria-label": "controlled" }}
-                            />
+                    {totalAmountDue > 0 ? (
+                      <>
+                        <Typography sx={{ fontSize: 20 }} gutterBottom>
+                          {dateDiffForHumans(new Date(nextPaymentDate)) <=
+                            5 && <ReportIcon sx={{ color: "red" }} />}{" "}
+                          <span>
+                            {/*Calculate the  total amount due by adding the sume of all amount_due properties in each invoice*/}
+                            Total Amount Due: ${totalAmountDue}
+                          </span>{" "}
+                          due in {dateDiffForHumans(new Date(nextPaymentDate))}
+                        </Typography>
+                        <Box
+                          sx={
+                            {
+                              // display: "flex",
+                              // justifyContent: "flex-start",
+                              // alignItems: "flex-start",
+                            }
                           }
-                          label={`AutoPay ${
-                            leaseAgreement && leaseAgreement.auto_pay_is_enabled
-                              ? "Enabled"
-                              : "Disabled"
-                          }`}
-                          labelPlacement="end"
-                        />{" "}
-                        {autoPayIsLoading && (
-                          <CircularProgress
-                            size="1rem"
-                            sx={{
-                              color: uiGreen,
-                              top: 5,
-                              position: "relative",
-                            }}
-                          />
-                        )}
-                      </div>
-                      {leaseAgreement &&
-                        !leaseAgreement.auto_pay_is_enabled && (
+                        >
+                          <div className="my-2">
+                            {/* <FormControlLabel
+                                              value="end"
+                                              control={
+                                                <UISwitch
+                                                  checked={
+                                                    leaseAgreement &&
+                                                    leaseAgreement.auto_pay_is_enabled
+                                                  }
+                                                  onChange={handleAutoPayChange}
+                                                  inputProps={{ "aria-label": "controlled" }}
+                                                />
+                                              }
+                                              label={`AutoPay ${
+                                                leaseAgreement && leaseAgreement.auto_pay_is_enabled
+                                                  ? "Enabled"
+                                                  : "Disabled"
+                                              }`}
+                                              labelPlacement="end"
+                                            />
+                                            {autoPayIsLoading && (
+                                              <CircularProgress
+                                                size="1rem"
+                                                sx={{
+                                                  color: uiGreen,
+                                                  top: 5,
+                                                  position: "relative",
+                                                }}
+                                              />
+                                            )} */}
+                          </div>
                           <Button
                             onClick={() => setShowPaymentModal(true)}
                             sx={{
@@ -339,8 +368,16 @@ const TenantDashboard = () => {
                           >
                             Pay Now
                           </Button>
-                        )}
-                    </Box>
+                          {/* {leaseAgreement &&
+                                            !leaseAgreement.auto_pay_is_enabled && (
+                                            )} */}
+                        </Box>
+                      </>
+                    ) : (
+                      <Typography sx={{ fontSize: 20 }} gutterBottom>
+                        <span>You have no outstanding balance</span>{" "}
+                      </Typography>
+                    )}
                   </CardContent>
                 </>
               </div>

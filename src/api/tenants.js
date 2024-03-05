@@ -31,6 +31,62 @@ export async function getTenantDashboardData() {
   }
 }
 
+//Create a function to retrieve a specific tenant invoice using the endpoint /tenants/{tenant_id}/retrieve-invoice/
+export async function getTenantInvoice(invoiceId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/tenants/${authUser.tenant_id}/retrieve-invoice/`, {
+        invoice_id: invoiceId,
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Tenant Invoice Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to retrieve all of the tenants invoices using the endpoint api/tenants/{tenant_id}/invoices
+export async function getTenantInvoices(tenant_id) {
+  if (!tenant_id) {
+    tenant_id = authUser.tenant_id;
+  }
+  let endpoint = `/tenants/${tenant_id}/invoices/`;
+  try {
+    const res = await authenticatedInstance
+      .post(endpoint)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Tenant Invoices Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to pay a tenant invoice using the endpoint /tenants/{tenant_id}/pay-invoice/
+export async function payTenantInvoice(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/tenants/${authUser.tenant_id}/pay-invoice/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Pay Tenant Invoice Error: ", error);
+    return error.response;
+  }
+}
+
+
+
 //Create a function to verify the tenant registration via the approval hash and lease agreement id
 export async function verifyTenantRegistrationCredentials(data) {
   try {
