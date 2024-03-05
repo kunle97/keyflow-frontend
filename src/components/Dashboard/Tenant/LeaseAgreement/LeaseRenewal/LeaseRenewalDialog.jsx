@@ -23,7 +23,7 @@ const LeaseRenewalDialog = (props) => {
         ) : (
           <div className="row">
             <div className="col-md-12">
-              <p className="text-black" style={{ fontSize: "15pt" }}>
+              <p className="text-black" style={{ fontSize: "12pt" }}>
                 Please note that your lease renewal may be subject to a change
                 in rent, security deposit, utility charges, and other lease
                 terms.

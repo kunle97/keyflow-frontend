@@ -9,10 +9,13 @@ import { getLeaseAgreementByLeaseRenewalRequestId } from "../../../../../api/lea
 import { generateSigningLink } from "../../../../../api/boldsign";
 import { authUser } from "../../../../../constants";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
+import UIPrompt from "../../../UIComponents/UIPrompt";
+import UIProgressPrompt from "../../../UIComponents/UIProgressPrompt";
 const TenantLeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [leaseTemplate, setLeaseTemplate] = useState(null); //
   const [showAlertModal, setShowAlertModal] = useState(false);
@@ -20,9 +23,10 @@ const TenantLeaseRenewalRequestDetail = () => {
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [signingLinkIsValid, setSigningLinkIsValid] = useState(false);
   const [signingLink, setSigningLink] = useState(null);
+  const [leaseTerms, setLeaseTerms] = useState(null);
 
   const handleSignLeaseAgreement = () => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     let payload = {
       lease_agreement_id: leaseAgreement.id,
       lease_renewal_request_id: leaseRenewalRequest.id,
@@ -51,9 +55,9 @@ const TenantLeaseRenewalRequestDetail = () => {
         setShowAlertModal(true);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsSubmitting(false);
       });
-    setIsLoading(false);
+    setIsSubmitting(false);
   };
 
   const handleDocumentSigningUpdate = (params) => {
@@ -118,7 +122,7 @@ const TenantLeaseRenewalRequestDetail = () => {
   useEffect(() => {
     setIsLoading(true);
     try {
-      if (!leaseRenewalRequest || !leaseTemplate) {
+      if (!leaseRenewalRequest || !leaseTerms) {
         getTenantLeaseRenewalRequests()
           .then((res) => {
             let lease_renewal_requests = res.data;
@@ -128,6 +132,9 @@ const TenantLeaseRenewalRequestDetail = () => {
             );
             console.log("LRR", lease_renewal_request);
             setLeaseRenewalRequest(lease_renewal_request);
+            setLeaseTerms(
+              JSON.parse(lease_renewal_request.rental_unit.lease_terms)
+            );
           })
           .catch((err) => {
             console.log(err);
@@ -151,9 +158,9 @@ const TenantLeaseRenewalRequestDetail = () => {
             };
             generateSigningLink(payload).then((res) => {
               console.log(res);
-              if (res.status === 200) {
+              if (res.data.status === 200) {
                 //Set the src of the iframe to the signing link
-                setSigningLink(res.data.signLink);
+                setSigningLink(res.data.data.signLink);
                 setSigningLinkIsValid(true);
               } else {
                 setSigningLink("invalid");
@@ -178,93 +185,151 @@ const TenantLeaseRenewalRequestDetail = () => {
     } finally {
       setIsLoading(false);
     }
-    setIsLoading(false);
     window.addEventListener("message", handleDocumentSigningUpdate);
     // Remove the event listener when the component unmounts
     return () => {
       window.removeEventListener("message", handleDocumentSigningUpdate);
     };
-  }, [signingLink, leaseTemplate]);
+  }, [signingLink, leaseTerms]);
 
   return (
     <div className="row">
-      <ProgressModal show={isLoading} title={"Please Wait..."} />
-      <div className="col-md-4">
-        <div className="card">
-          <div className="card-body">
-            <span></span>
-            <h4 className="card-title ui-card-title text-black">
-              Lease Agreement Overview
-            </h4>
-            {leaseTemplate && (
-              <div className="row">
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">Rent</h6>$
-                  {leaseTemplate.rent}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">Term</h6>
-                  {leaseRenewalRequest.request_term} Months
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">Late Fee</h6>
-                  {`$${leaseTemplate.late_fee}`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Security Deposit
-                  </h6>
-                  {`$${leaseTemplate.security_deposit}`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Gas Included?
-                  </h6>
-                  {`${leaseTemplate.gas_included ? "Yes" : "No"}`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Electric Included?
-                  </h6>
-                  {`${leaseTemplate.electric_included ? "Yes" : "No"}`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Water Included?
-                  </h6>
-                  {`${leaseTemplate.water_included ? "Yes" : "No"}`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Lease Cancellation Fee
-                  </h6>
-                  {`$${leaseTemplate.lease_cancellation_fee}`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Lease Cancellation Notice period
-                  </h6>
-                  {`${leaseTemplate.lease_cancellation_notice_period} Month(s)`}
-                </div>
-                <div className="col-sm-12 col-md-6 mb-4 text-black">
-                  <h6 className="rental-application-lease-heading">
-                    Grace period
-                  </h6>
-                  {`${leaseTemplate.grace_period} Month(s)`}
-                </div>
-              </div>
-            )}
-            {/*TODO: Add Embeded SIgning iFrame*/}
-          </div>
-        </div>
-      </div>
-      <div className="col-md-8">
-        <iframe
-          src={signingLink}
-          className="card my-3"
-          style={{ height: "1200px", padding: "0px", width: "100%" }}
+      {/* <ProgressModal open={isLoading} title={"Please Wait..."} /> */}
+      {isLoading ? (
+        <UIProgressPrompt
+          title={"Loading Lease Renewal Request"}
+          message={"Please wait while we load your lease renewal request."}
         />
-      </div>
+      ) : (
+        <>
+          <ProgressModal
+            open={isSubmitting}
+            title={"Please wait while your lease agreement is being finalized."}
+          />
+          <div className="col-md-4">
+            <div className="card">
+              <div className="card-body">
+                <span></span>
+                <h4 className="card-title ui-card-title text-black">
+                  Lease Agreement Overview
+                </h4>
+                {leaseTerms && (
+                  <div className="row">
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">Rent</h6>
+                      ${leaseTerms.find((term) => term.name === "rent").value}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">Term</h6>
+                      {leaseRenewalRequest.request_term} Months
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Late Fee
+                      </h6>
+                      {`$${
+                        leaseTerms.find((term) => term.name === "late_fee")
+                          .value
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Security Deposit
+                      </h6>
+                      {`$${
+                        leaseTerms.find(
+                          (term) => term.name === "security_deposit"
+                        ).value
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Gas Included?
+                      </h6>
+                      {`${
+                        leaseTerms.find((term) => term.name === "gas_included")
+                          .value
+                          ? "Yes"
+                          : "No"
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Electric Included?
+                      </h6>
+                      {`${
+                        leaseTerms.find(
+                          (term) => term.name === "electricity_included"
+                        ).value
+                          ? "Yes"
+                          : "No"
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Water Included?
+                      </h6>
+                      {`${
+                        leaseTerms.find(
+                          (term) => term.name === "water_included"
+                        ).value
+                          ? "Yes"
+                          : "No"
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Lease Renewal Fee
+                      </h6>
+                      {`$${
+                        leaseTerms.find(
+                          (term) => term.name === "lease_renewal_fee"
+                        ).value
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Lease REnewal Notice period
+                      </h6>
+                      {`${
+                        leaseTerms.find(
+                          (term) => term.name === "lease_renewal_notice_period"
+                        ).value
+                      } Months`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Grace period
+                      </h6>
+                      {`${
+                        leaseTerms.find((term) => term.name === "grace_period")
+                          .value
+                      } Monthes`}
+                    </div>
+                  </div>
+                )}
+                {/*TODO: Add Embeded SIgning iFrame*/}
+              </div>
+            </div>
+          </div>
+          <div className="col-md-8">
+            {signingLinkIsValid ? (
+              <iframe
+                src={signingLink}
+                className="card my-3"
+                style={{ height: "640px", padding: "0px", width: "100%" }}
+              />
+            ) : (
+              <UIPrompt
+                title={"Error"}
+                message={
+                  "There was an error loading the lease agreement. Please try again later."
+                }
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

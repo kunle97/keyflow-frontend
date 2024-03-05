@@ -19,6 +19,10 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import BackButton from "../../UIComponents/BackButton";
 import useScreen from "../../../../hooks/useScreen";
+import { getTenantInvoices } from "../../../../api/tenants";
+import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import UITable from "../../UIComponents/UITable/UITable";
 const LeaseCancellationRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -35,10 +39,70 @@ const LeaseCancellationRequestDetail = () => {
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
+  const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
+  const [invoices, setInvoices] = useState([]);
   const columns = [
     { name: "amount", label: "Amount" },
     { name: "due_date", label: "Due Date" },
     { name: "status", label: "Status" },
+  ];
+
+  const rent_payment_columns = [
+    {
+      label: "Type",
+      name: "metadata",
+      options: {
+        customBodyRender: (value) => {
+          return removeUnderscoresAndCapitalize(value.type);
+        },
+      },
+    },
+    {
+      label: "Amount Due",
+      name: "amount_remaining",
+      options: {
+        customBodyRender: (value) => {
+          const amountDue = `$${String(value / 100).toLocaleString("en-US")}`;
+
+          return (
+            <span
+              style={{
+                color: uiRed,
+              }}
+            >
+              {amountDue}
+            </span>
+          );
+        },
+      },
+    },
+    {
+      label: "Amount Paid",
+      name: "amount_paid",
+      options: {
+        customBodyRender: (value) => {
+          const amountPaid = `$${String(value / 100).toLocaleString("en-US")}`;
+          return (
+            <span
+              style={{
+                color: uiGreen,
+              }}
+            >
+              {amountPaid}
+            </span>
+          );
+        },
+      },
+    },
+    {
+      label: "Date Due",
+      name: "due_date",
+      options: {
+        customBodyRender: (value) => {
+          return new Date(value * 1000).toLocaleDateString();
+        },
+      },
+    },
   ];
 
   const handleAccept = () => {
@@ -96,24 +160,57 @@ const LeaseCancellationRequestDetail = () => {
               );
             }
           );
-          getPaymentDates(lease_cancellation_res.data.tenant.id).then((res) => {
-            if (res.status === 200) {
-              const payment_dates = res.data.payment_dates;
-              console.log("Payment dates ", payment_dates);
-              const due_dates = payment_dates.map((date) => {
-                return {
-                  amount:
-                    lease_cancellation_res.data.lease_agreement.lease_template
-                      .rent,
-                  title: "Rent Due",
-                  due_date: new Date(date.payment_date).toLocaleDateString(),
-                  status: date.transaction_paid ? "Paid" : "Unpaid",
-                };
+          setCurrentLeaseTerms(
+            JSON.parse(lease_cancellation_res.data.rental_unit.lease_terms)
+          );
+
+          getTenantInvoices(lease_cancellation_res.data.tenant.id).then(
+            (res) => {
+              setInvoices(res.invoices.data);
+              console.log(res.invoices.data);
+              const due_dates = res.invoices.data.map((invoice) => {
+                if (!invoice.paid) {
+                  let date = new Date(invoice.due_date * 1000);
+                  return {
+                    amount: invoice.amount_due,
+                    title: "Rent Due",
+                    due_date: date.toLocaleDateString(),
+                    status: "Unpaid",
+                  };
+                } else if (invoice.paid) {
+                  let date = new Date(
+                    invoice.status_transitions.paid_at * 1000
+                  );
+                  return {
+                    amount: invoice.amount_due,
+                    title: "Rent Paid",
+                    due_date: date.toLocaleDateString(),
+                    status: "Paid",
+                  };
+                }
               });
+              console.log(due_dates);
               setDueDates(due_dates);
-              console.log("Due dates ", due_dates);
             }
-          });
+          );
+          // getPaymentDates(lease_cancellation_res.data.tenant.id).then((res) => {
+          //   if (res.status === 200) {
+          //     const payment_dates = res.data.payment_dates;
+          //     console.log("Payment dates ", payment_dates);
+          //     const due_dates = payment_dates.map((date) => {
+          //       return {
+          //         amount:
+          //           lease_cancellation_res.data.lease_agreement.lease_template
+          //             .rent,
+          //         title: "Rent Due",
+          //         due_date: new Date(date.payment_date).toLocaleDateString(),
+          //         status: date.transaction_paid ? "Paid" : "Unpaid",
+          //       };
+          //     });
+          //     setDueDates(due_dates);
+          //     console.log("Due dates ", due_dates);
+          //   }
+          // });
         } else {
           navigate("/dashboard/landlord/lease-cancellation-requests/");
           setAlertModalTitle("Error");
@@ -139,9 +236,10 @@ const LeaseCancellationRequestDetail = () => {
       />
       <AlertModal
         open={showAlertModal}
-        onClick={() =>
-          navigate("/dashboard/landlord/lease-cancellation-requests/")
-        }
+        onClick={() => {
+          setShowAlertModal(false);
+          // navigate("/dashboard/landlord/lease-cancellation-requests/");
+        }}
         title={alertModalTitle}
         message={alertModalMessage}
         btnText="Okay"
@@ -180,15 +278,7 @@ const LeaseCancellationRequestDetail = () => {
             justifyContent={"space-between"}
             alignItems={"center"}
           >
-            <h4
-              className="card-title"
-              style={{ color: uiGrey2, fontSize: isMobile ? "15pt" : "24pt" }}
-            >
-              {" "}
-              {leaseCancellationRequest.tenant.user.first_name}{" "}
-              {leaseCancellationRequest.tenant.user.last_name}'s Lease
-              Cancellation Request
-            </h4>
+            <span></span>
             {!isMobile && (
               <Stack direction="row" gap={2} justifyContent={"end"}>
                 <UIButton
@@ -207,12 +297,21 @@ const LeaseCancellationRequestDetail = () => {
             )}
           </Stack>
           <div className="row">
-            <div className="col-md-12">
+            <div className="col-md-6">
+              <h5
+                className="mb-3"
+                // style={{ color: uiGrey2, fontSize: isMobile ? "15pt" : "24pt" }}
+              >
+                {" "}
+                {leaseCancellationRequest.tenant.user.first_name}{" "}
+                {leaseCancellationRequest.tenant.user.last_name}'s Lease
+                Cancellation Request
+              </h5>
               <div className="card my-3">
                 <div className="card-body">
                   <div className="row">
                     {" "}
-                    <div className="col-sm-12 col-md-3 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Reason
                       </h6>
@@ -220,7 +319,7 @@ const LeaseCancellationRequestDetail = () => {
                         {leaseCancellationRequest.reason}
                       </span>
                     </div>
-                    <div className="col-sm-12 col-md-3 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Status
                       </h6>
@@ -228,7 +327,7 @@ const LeaseCancellationRequestDetail = () => {
                         {leaseCancellationRequest.status}
                       </span>
                     </div>
-                    <div className="col-sm-12 col-md-3 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Date Requested
                       </h6>
@@ -238,7 +337,7 @@ const LeaseCancellationRequestDetail = () => {
                         ).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="col-sm-12 col-md-3 mb-4">
+                    <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Date Submitted
                       </h6>
@@ -261,10 +360,10 @@ const LeaseCancellationRequestDetail = () => {
               </div>
             </div>
             <div className="col-md-6">
+              <h5 className="mb-3">Current Lease Agreement Details</h5>
               <div className="card">
                 <div className="card-body">
                   <div className="row">
-                    <h5 className="mb-3">Current Lease Agreement Details</h5>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Property
@@ -284,8 +383,8 @@ const LeaseCancellationRequestDetail = () => {
                       <span className="text-dark">
                         $
                         {
-                          leaseCancellationRequest.lease_agreement
-                            .lease_template.rent
+                          currentLeaseTerms.find((term) => term.name === "rent")
+                            .value
                         }
                       </span>
                     </div>
@@ -293,40 +392,107 @@ const LeaseCancellationRequestDetail = () => {
                       <h6 className="rental-application-lease-heading">Term</h6>
                       <span className="text-dark">
                         {
-                          leaseCancellationRequest.lease_agreement
-                            .lease_template.term
+                          currentLeaseTerms.find((term) => term.name === "term")
+                            .value
                         }{" "}
-                        Months
+                        {
+                          currentLeaseTerms.find(
+                            (term) => term.name === "rent_frequency"
+                          ).value
+                        }
+                        (s)
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Lease Cancellation Fee
                       </h6>
-                      <span className="text-dark">{`$${leaseCancellationRequest.lease_agreement.lease_template.lease_cancellation_fee}`}</span>
+                      <span className="text-dark">{`$${
+                        currentLeaseTerms.find(
+                          (term) => term.name === "lease_cancellation_fee"
+                        ).value
+                      }`}</span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
                       <h6 className="rental-application-lease-heading">
                         Next Payment Date
                       </h6>
-                      <span className="text-dark">{nextPaymentDate}</span>
+                      {/* <span className="text-dark">{nextPaymentDate}</span> */}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className={`col-md-6 ${isMobile && "mt-3"}`}>
-              <div className="card">
-                <div className="card-body">
-                  <UITableMini
-                    title="Remaining Payments"
-                    data={dueDates}
-                    columns={columns}
-                    showViewButton={false}
-                  />
-                </div>
-              </div>
+            <div className={`col-md-12 ${isMobile && "mt-3"}`}>
+              {isMobile ? (
+                <UITableMobile
+                  showCreate={false}
+                  title="Invoices"
+                  data={invoices}
+                  createInfo={(row) =>
+                    `${removeUnderscoresAndCapitalize(row.metadata.type)}`
+                  }
+                  createSubtitle={(row) =>
+                    `$${String(row.amount_due / 100).toLocaleString("en-US")}`
+                  }
+                  createTitle={(row) => {
+                    return (
+                      <span
+                        style={{
+                          color: row.paid ? uiGreen : uiRed,
+                        }}
+                      >
+                        {row.paid
+                          ? "Paid"
+                          : "Due " +
+                            new Date(row.due_date * 1000).toLocaleDateString()}
+                      </span>
+                    );
+                  }}
+                  onRowClick={(row) => {
+                    navigate(`/dashboard/tenant/bills/${row.id}`);
+                  }}
+                  orderingFields={[
+                    {
+                      field: "created_at",
+                      label: "Date Created (Ascending)",
+                    },
+                    {
+                      field: "-created_at",
+                      label: "Date Created (Descending)",
+                    },
+                    {
+                      field: "type",
+                      label: "Transaction Type (Ascending)",
+                    },
+                    {
+                      field: "-type",
+                      label: "Transaction Type (Descending)",
+                    },
+                    { field: "amount", label: "Amount (Ascending)" },
+                    { field: "-amount", label: "Amount (Descending)" },
+                  ]}
+                />
+              ) : (
+                <UITable
+                  columns={rent_payment_columns}
+                  options={{
+                    isSelectable: false,
+                  }}
+                  title="Bills"
+                  showCreate={false}
+                  data={invoices}
+                  menuOptions={[
+                    {
+                      name: "Details",
+                      onClick: (row) => {
+                        navigate(`/dashboard/tenant/bills/${row.id}`);
+                      },
+                    },
+                  ]}
+                />
+              )}
             </div>
           </div>
           <Stack

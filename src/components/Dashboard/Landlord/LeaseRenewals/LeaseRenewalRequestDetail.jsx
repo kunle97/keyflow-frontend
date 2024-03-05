@@ -20,6 +20,9 @@ import { getLeaseAgreementsByTenant } from "../../../../api/lease_agreements";
 import UITable from "../../UIComponents/UITable/UITable";
 import BackButton from "../../UIComponents/BackButton";
 import useScreen from "../../../../hooks/useScreen";
+import { getTenantInvoices } from "../../../../api/tenants";
+import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 const LeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,12 +36,72 @@ const LeaseRenewalRequestDetail = () => {
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [currentLeaseAgreement, setCurrentLeaseAgreement] = useState(null); //TODO: get current lease agreement from db and set here
   const [currentLeaseTemplate, setCurrentLeaseTemplate] = useState(null); //TODO: get current lease template from db and set here
+  const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
+  const [invoices, setInvoices] = useState([]);
   const columns = [
     { name: "amount", label: "Amount" },
     { name: "due_date", label: "Due Date" },
     { name: "status", label: "Status" },
+  ];
+
+  const rent_payment_columns = [
+    {
+      label: "Type",
+      name: "metadata",
+      options: {
+        customBodyRender: (value) => {
+          return removeUnderscoresAndCapitalize(value.type);
+        },
+      },
+    },
+    {
+      label: "Amount Due",
+      name: "amount_remaining",
+      options: {
+        customBodyRender: (value) => {
+          const amountDue = `$${String(value / 100).toLocaleString("en-US")}`;
+
+          return (
+            <span
+              style={{
+                color: uiRed,
+              }}
+            >
+              {amountDue}
+            </span>
+          );
+        },
+      },
+    },
+    {
+      label: "Amount Paid",
+      name: "amount_paid",
+      options: {
+        customBodyRender: (value) => {
+          const amountPaid = `$${String(value / 100).toLocaleString("en-US")}`;
+          return (
+            <span
+              style={{
+                color: uiGreen,
+              }}
+            >
+              {amountPaid}
+            </span>
+          );
+        },
+      },
+    },
+    {
+      label: "Date Due",
+      name: "due_date",
+      options: {
+        customBodyRender: (value) => {
+          return new Date(value * 1000).toLocaleDateString();
+        },
+      },
+    },
   ];
 
   const { isMobile } = useScreen();
@@ -98,30 +161,38 @@ const LeaseRenewalRequestDetail = () => {
                 );
                 setCurrentLeaseAgreement(current_lease_agreement);
                 setCurrentLeaseTemplate(current_lease_agreement.lease_template);
-                console.log("Current Lease Agreement", current_lease_agreement);
-                getNextPaymentDate(lease_renewal_res.data.tenant.id).then(
-                  (res) => {
-                    setNextPaymentDate(
-                      new Date(res.data.next_payment_date).toLocaleDateString()
-                    );
-                  }
+                setCurrentLeaseTerms(
+                  JSON.parse(current_lease_agreement.rental_unit.lease_terms)
                 );
-                getPaymentDates(lease_renewal_res.data.tenant.id).then(
+
+                console.log("Current Lease Agreement", current_lease_agreement);
+                getTenantInvoices(lease_renewal_res.data.tenant.id).then(
                   (res) => {
-                    if (res.status === 200) {
-                      const payment_dates = res.data.payment_dates;
-                      const due_dates = payment_dates.map((date) => {
+                    setInvoices(res.invoices.data);
+                    console.log(res.invoices.data);
+                    const due_dates = res.invoices.data.map((invoice) => {
+                      if (!invoice.paid) {
+                        let date = new Date(invoice.due_date * 1000);
                         return {
-                          amount: current_lease_agreement.lease_template.rent,
+                          amount: invoice.amount_due,
                           title: "Rent Due",
-                          due_date: new Date(
-                            date.payment_date
-                          ).toLocaleDateString(),
-                          status: date.transaction_paid ? "Paid" : "Unpaid",
+                          due_date: date.toLocaleDateString(),
+                          status: "Unpaid",
                         };
-                      });
-                      setDueDates(due_dates);
-                    }
+                      } else if (invoice.paid) {
+                        let date = new Date(
+                          invoice.status_transitions.paid_at * 1000
+                        );
+                        return {
+                          amount: invoice.amount_due,
+                          title: "Rent Paid",
+                          due_date: date.toLocaleDateString(),
+                          status: "Paid",
+                        };
+                      }
+                    });
+                    console.log(due_dates);
+                    setDueDates(due_dates);
                   }
                 );
               }
@@ -140,7 +211,7 @@ const LeaseRenewalRequestDetail = () => {
         setShowAlertModal(true);
       })
       .finally(() => setIsLoading(false));
-  }, [currentLeaseAgreement]);
+  }, []);
 
   return (
     <div className="container-fluid">
@@ -184,7 +255,9 @@ const LeaseRenewalRequestDetail = () => {
               {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal
               Request ({leaseRenewalRequest.status})
             </h4>
-            {(leaseRenewalRequest.status !== "approved" && !isMobile) && actionStack}
+            {leaseRenewalRequest.status !== "approved" &&
+              !isMobile &&
+              actionStack}
           </Stack>
 
           <div className="row">
@@ -204,7 +277,16 @@ const LeaseRenewalRequestDetail = () => {
                         <h6 className="rental-application-lease-heading">
                           Curent Term
                         </h6>
-                        {currentLeaseTemplate.term} Months
+                        {
+                          currentLeaseTerms.find((term) => term.name === "term")
+                            .value
+                        }{" "}
+                        {
+                          currentLeaseTerms.find(
+                            (term) => term.name === "rent_frequency"
+                          ).value
+                        }
+                        (s)
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
@@ -216,7 +298,11 @@ const LeaseRenewalRequestDetail = () => {
                         <h6 className="rental-application-lease-heading">
                           Rent
                         </h6>
-                        ${currentLeaseTemplate.rent}
+                        $
+                        {
+                          currentLeaseTerms.find((term) => term.name === "rent")
+                            .value
+                        }
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
@@ -254,7 +340,7 @@ const LeaseRenewalRequestDetail = () => {
                       <h6 className="rental-application-lease-heading">
                         Requested Lease Term
                       </h6>
-                      {leaseRenewalRequest.request_term} months
+                      {leaseRenewalRequest.request_term} {leaseRenewalRequest.rent_frequency}(s)
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
@@ -282,32 +368,74 @@ const LeaseRenewalRequestDetail = () => {
                 </div>
               </div>
             </div>
-            {isMobile ? (
-              <div className={`col-md-12 ${isMobile && "mt-3"}`}>
-                <div className="card">
-                  <div className="card-body">
-                    <UITableMini
-                      title="Remaining Payments"
-                      data={dueDates}
-                      columns={columns}
-                      showViewButton={false}
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="col-md-12">
+
+            <div className="col-md-12">
+              {isMobile ? (
+                <UITableMobile
+                  showCreate={false}
+                  title="Invoices"
+                  data={invoices}
+                  createInfo={(row) =>
+                    `${removeUnderscoresAndCapitalize(row.metadata.type)}`
+                  }
+                  createSubtitle={(row) =>
+                    `$${String(row.amount_due / 100).toLocaleString("en-US")}`
+                  }
+                  createTitle={(row) => {
+                    return (
+                      <span
+                        style={{
+                          color: row.paid ? uiGreen : uiRed,
+                        }}
+                      >
+                        {row.paid
+                          ? "Paid"
+                          : "Due " +
+                            new Date(row.due_date * 1000).toLocaleDateString()}
+                      </span>
+                    );
+                  }}
+                  onRowClick={(row) => {
+                    navigate(`/dashboard/tenant/bills/${row.id}`);
+                  }}
+                  orderingFields={[
+                    {
+                      field: "created_at",
+                      label: "Date Created (Ascending)",
+                    },
+                    {
+                      field: "-created_at",
+                      label: "Date Created (Descending)",
+                    },
+                    { field: "type", label: "Transaction Type (Ascending)" },
+                    {
+                      field: "-type",
+                      label: "Transaction Type (Descending)",
+                    },
+                    { field: "amount", label: "Amount (Ascending)" },
+                    { field: "-amount", label: "Amount (Descending)" },
+                  ]}
+                />
+              ) : (
                 <UITable
-                  title="Rent Payments"
-                  data={dueDates}
-                  columns={columns}
+                  columns={rent_payment_columns}
                   options={{
                     isSelectable: false,
-                    onRowClick: null,
                   }}
+                  title="Bills"
+                  showCreate={false}
+                  data={invoices}
+                  menuOptions={[
+                    {
+                      name: "Details",
+                      onClick: (row) => {
+                        navigate(`/dashboard/tenant/bills/${row.id}`);
+                      },
+                    },
+                  ]}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
           {leaseRenewalRequest.status !== "approved" && actionStack}
         </>
