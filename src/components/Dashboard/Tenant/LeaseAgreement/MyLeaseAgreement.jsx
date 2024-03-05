@@ -38,7 +38,7 @@ const MyLeaseAgreement = () => {
   const openCancellationDialog = () => {
     let today = new Date();
     let noticePeriod = JSON.parse(
-      unit.lease_term
+      unit.lease_terms
     ).lease_cancellation_notice_period;
     let leaseStartDate = new Date(leaseAgreement.start_date);
     let leaseEndDate = new Date(leaseAgreement.end_date);
@@ -56,7 +56,9 @@ const MyLeaseAgreement = () => {
       setAlertModalTitle("Lease Cancellation Notice Period");
       setAlertModalMessage(
         `You cannot cancel your lease at this time. Please try again after ${
-          JSON.parse(unit.lease_term).lease_cancellation_notice_period
+          JSON.parse(unit.lease_terms).find(
+            (term) => term.name === "lease_cancellation_notice_period"
+          ).value
         } month(s) before the end of your lease.`
       );
       setShowAlertModal(true);
@@ -92,12 +94,16 @@ const MyLeaseAgreement = () => {
     let leaseStartDate = new Date(leaseAgreement.start_date);
     let leaseEndDate = new Date(leaseAgreement.end_date);
 
+    let renewalNoticePeriod = JSON.parse(unit.lease_terms).find(
+      (term) => term.name === "lease_renewal_notice_period"
+    ).value;
+
     // Calculate date 2 months before the lease end date
-    let twoMonthsBeforeEndDate = new Date(leaseEndDate);
-    twoMonthsBeforeEndDate.setMonth(twoMonthsBeforeEndDate.getMonth() - 2);
+    let noticePeriodBeforeEndDate = new Date(leaseEndDate);
+    noticePeriodBeforeEndDate.setMonth(new Date(leaseEndDate).getMonth() - renewalNoticePeriod);
 
     // Check if today is at most 2 months before the end of the lease
-    if (today >= twoMonthsBeforeEndDate) {
+    if (today >= noticePeriodBeforeEndDate) {
       // If yes, open the renewal dialog
       setShowLeaseRenewalDialog(true);
     } else if (hasExistingLeaseRenewalRequest) {
@@ -118,7 +124,7 @@ const MyLeaseAgreement = () => {
       // If no, show an error message
       setAlertModalTitle("Lease Renewal Notice Period");
       setAlertModalMessage(
-        `You cannot renew your lease at this time. Please try again 2 month(s) before the end of your lease.`
+        `You cannot renew your lease at this time. Please try again ${renewalNoticePeriod} month(s) before the end of your lease.`
       );
       setShowAlertModal(true);
     }

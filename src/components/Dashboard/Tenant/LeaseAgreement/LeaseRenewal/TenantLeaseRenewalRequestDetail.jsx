@@ -15,6 +15,7 @@ const TenantLeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [leaseTemplate, setLeaseTemplate] = useState(null); //
   const [showAlertModal, setShowAlertModal] = useState(false);
@@ -25,7 +26,7 @@ const TenantLeaseRenewalRequestDetail = () => {
   const [leaseTerms, setLeaseTerms] = useState(null);
 
   const handleSignLeaseAgreement = () => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     let payload = {
       lease_agreement_id: leaseAgreement.id,
       lease_renewal_request_id: leaseRenewalRequest.id,
@@ -54,9 +55,9 @@ const TenantLeaseRenewalRequestDetail = () => {
         setShowAlertModal(true);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsSubmitting(false);
       });
-    setIsLoading(false);
+    setIsSubmitting(false);
   };
 
   const handleDocumentSigningUpdate = (params) => {
@@ -201,6 +202,10 @@ const TenantLeaseRenewalRequestDetail = () => {
         />
       ) : (
         <>
+          <ProgressModal
+            open={isSubmitting}
+            title={"Please wait while your lease agreement is being finalized."}
+          />
           <div className="col-md-4">
             <div className="card">
               <div className="card-body">
@@ -288,8 +293,7 @@ const TenantLeaseRenewalRequestDetail = () => {
                       </h6>
                       {`${
                         leaseTerms.find(
-                          (term) =>
-                            term.name === "lease_renewal_notice_period"
+                          (term) => term.name === "lease_renewal_notice_period"
                         ).value
                       } Months`}
                     </div>

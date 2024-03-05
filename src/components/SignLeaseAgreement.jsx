@@ -17,7 +17,7 @@ import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
 import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
-import { get } from "react-hook-form";
+import useScreen from "../hooks/useScreen";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -35,7 +35,7 @@ const SignLeaseAgreement = () => {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]);
   const navigate = useNavigate();
-
+  const { isMobile } = useScreen();
   const getUnitPreferenceValueByName = (name, unitLeaseTerms) => {
     const preference = unitLeaseTerms.find((pref) => pref.name === name);
     return preference ? preference.value : null; // Return null or handle the case where preference is not found
@@ -229,7 +229,10 @@ const SignLeaseAgreement = () => {
     };
   }, [leaseAgreement]);
   return (
-    <div className="container" style={{ paddingTop: "105px" }}>
+    <div
+      className={!isMobile ? "container" : "container-fluid"}
+      style={{ paddingTop: !isMobile ? "105px" : "0px" }}
+    >
       <LandingPageNavbar isDarkNav={true} />
       <AlertModal
         open={showErrorMessage}
