@@ -56,7 +56,6 @@ const TenantLogin = () => {
 
   useEffect(() => {
     getTenantsEmails().then((res) => {
-      console.log("Tenant emails res: ", res);
       if (res) {
         setTenantsEmails(res);
       }

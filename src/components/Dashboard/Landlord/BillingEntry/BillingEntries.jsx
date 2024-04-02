@@ -119,6 +119,8 @@ const BillingEntries = () => {
         />
       ) : (
         <UITable
+          showCreate={true}
+          createURL="/dashboard/landlord/billing-entries/create"
           options={options}
           columns={columns}
           endpoint="/billing-entries/"

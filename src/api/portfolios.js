@@ -42,7 +42,6 @@ export async function getPortfolio(id) {
 export async function getPortfolios() {
   try {
     const res = await authenticatedInstance.get(`/portfolios/`).then((res) => {
-      console.log(res);
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
       }
