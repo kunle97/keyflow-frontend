@@ -27,14 +27,18 @@ import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UITable from "../../UIComponents/UITable/UITable";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const ManagePortfolio = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
   const navigate = useNavigate();
   const { screenWidth, breakpoints } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
-  const [portfolio, setPortfolio] = useState({});
-  const [properties, setProperties] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
+  const [properties, setProperties] = useState([]);
   const [open, setOpen] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -43,10 +47,61 @@ const ManagePortfolio = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const tabs = [{ label: "Properties " }, { label: "Preferences" }];
   const [checked, setChecked] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    // name: portfolio ? portfolio.name : "",
+    // description: portfolio ? portfolio.description : "",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const formInputs = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Portfolio Name",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid name for the portfolio",
+      },
+      dataTestId: "portfolio-name",
+      errorMessageDataTestId: "portfolio-name-error",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Portfolio Description",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid description for the portfolio",
+      },
+      dataTestId: "portfolio-description",
+      errorMessageDataTestId: "portfolio-description-error",
+    },
+  ];
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
   } = useForm();
   const columns = [
     { label: "Name", name: "name" },
@@ -65,10 +120,13 @@ const ManagePortfolio = () => {
       navigate(navlink);
     },
   };
-  const onSubmit = (data) => {
-    console.log(data);
-    data.owner = authUser.owner_id;
-    updatePortfolio(id, data).then((res) => {
+  const onSubmit = () => {
+    const payload = {
+      name: formData.name,
+      description: formData.description,
+      owner: authUser.owner_id,
+    };
+    updatePortfolio(id, payload).then((res) => {
       console.log(res);
       if (res.status === 200 || res.status === 201) {
         setAlertTitle("Success");
@@ -114,6 +172,10 @@ const ManagePortfolio = () => {
           if (res.status === 200) {
             setPortfolio(res.data);
             setProperties(res.data.rental_properties);
+            setFormData({
+              name: res.data.name,
+              description: res.data.description,
+            });
           }
         })
         .catch((err) => {
@@ -160,59 +222,76 @@ const ManagePortfolio = () => {
                       data-dataTestId="edit-portfolio-form"
                       onSubmit={handleSubmit(onSubmit)}
                     >
-                      <div className="form-group mb-4">
-                        <label
-                          className="text-black"
-                          htmlFor="name"
-                          data-testid="edit-portfolio-name-label"
-                        >
-                          Name
-                        </label>
-                        <input
-                          data-testid="edit-portfolio-name-input"
-                          style={{
-                            ...defaultWhiteInputStyle,
-                            background: uiGrey,
-                          }}
-                          type="text"
-                          id="name"
-                          defaultValue={portfolio.name}
-                          {...register("name", { required: true })}
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.name && (
-                            <span style={validationMessageStyle}>
-                              This field is required
-                            </span>
-                          )}
-                        </span>
-                      </div>
+                      {formInputs.map((input, index) => {
+                        return (
+                          <div
+                            className={`col-md-${input.colSpan} mb-3`}
+                            key={index}
+                            data-testId={`${input.dataTestId}`}
+                          >
+                            <label
+                              className="form-label text-black"
+                              htmlFor={input.name}
+                            >
+                              {input.label}
+                            </label>
+                            {input.type === "textarea" ? (
+                              <textarea
+                                style={{
+                                  ...defaultWhiteInputStyle,
+                                  background: uiGrey,
+                                }}
+                                type={input.type}
+                                name={input.name}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
 
-                      <div className="form-group mb-4">
-                        <label
-                          className="text-black"
-                          htmlFor="description"
-                          data-testid="edit-portfolio-description-label"
-                        >
-                          Description
-                        </label>
-                        <textarea
-                          data-testid="edit-portfolio-description-textarea"
-                          style={{
-                            ...defaultWhiteInputStyle,
-                            background: uiGrey,
-                          }}
-                          type="text"
-                          id="description"
-                          defaultValue={portfolio.description}
-                          {...register("description", { required: true })}
-                        ></textarea>
-                      </div>
+                                // {...register(input.name, { required: true })}
+                              >
+                                {formData[input.name]}
+                              </textarea>
+                            ) : (
+                              <input
+                                style={{
+                                  ...defaultWhiteInputStyle,
+                                  background: uiGrey,
+                                }}
+                                type={input.type}
+                                name={input.name}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
+                                defaultValue={formData[input.name]}
+                                // {...register(input.name, { required: true })}
+                              />
+                            )}
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{ ...validationMessageStyle }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+
                       <div className="text-end mb-3">
                         <UIButton
                           dataTestId="edit-portfolio-submit-button"
                           className="btn btn-primary btn-sm ui-btn"
-                          type="submit"
+                          onClick={() => {
+                            const { isValid, newErrors } = validateForm(
+                              formData,
+                              formInputs
+                            );
+                            if (isValid) {
+                              setIsLoading(true);
+                              onSubmit();
+                            } else {
+                              setErrors(newErrors);
+                            }
+                          }}
                           btnText="Save Changes"
                         />
                       </div>
@@ -230,10 +309,10 @@ const ManagePortfolio = () => {
           >
             <div>
               <h3 className="text-black" data-testid="portfolio-name">
-                {portfolio.name}
+                {portfolio ? portfolio.name : ""}
               </h3>
               <p className="text-black" data-testid="portfolio-description">
-                {portfolio.description}
+                {portfolio ? portfolio.description : ""}
               </p>
             </div>
             <IconButton
@@ -286,7 +365,6 @@ const ManagePortfolio = () => {
                 />
               ) : (
                 <UITable
-                  
                   data={properties}
                   searchFields={[
                     "name",

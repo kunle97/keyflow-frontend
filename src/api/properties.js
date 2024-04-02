@@ -121,6 +121,22 @@ export async function updateProperty(propertyId, data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+export async function updatePropertyMedia(propertyId, data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/`, data)
+      .then((res) => {
+        if (res.status !== 200) {
+          return { status: 200, message: "Property updated successfully" };
+        }
+        return { data: [] };
+      });
+    return { data: res.data, status: 200, message: "Property updated successfully" };
+  } catch (error) {
+    console.log("Get Properties Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
 
 //create function to delete a property
 export async function deleteProperty(propertyId) {

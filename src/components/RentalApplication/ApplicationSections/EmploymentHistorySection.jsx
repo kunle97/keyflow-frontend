@@ -3,6 +3,10 @@ import { faker } from "@faker-js/faker";
 import { uiGreen, validationMessageStyle } from "../../../constants";
 import { Button, Checkbox, Stack } from "@mui/material";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../helpers/formValidation";
 const EmploymentHistorySection = (props) => {
   const {
     companyName,
@@ -15,194 +19,229 @@ const EmploymentHistorySection = (props) => {
     supervisorPhone,
     supervisorEmail,
   } = props.employment;
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    companyName: companyName,
+    position: position,
+    companyAddress: companyAddress,
+    income: income,
+    employmentStartDate: employmentStartDate,
+    employmentEndDate: employmentEndDate,
+    supervisorName: supervisorName,
+    supervisorPhone: supervisorPhone,
+    supervisorEmail: supervisorEmail,
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log("Name ", name);
+    console.log("Value ", value);
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    //Find the emplayment history node that is being edited by matchinh the index of the node with the index from the props.index
+    const employmentHistoryNode = props.employmentHistory.find(
+      (employment, index) => index === props.index
+    );
+    //Update the employment history node with the new data in employmentHistoryNode
+    props.setEmploymentHistory([
+      ...props.employmentHistory.slice(0, props.index),
+      {
+        ...employmentHistoryNode,
+        [name]: value,
+      },
+      ...props.employmentHistory.slice(props.index + 1),
+    ]);
+
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const [formInputs, setFormInputs] = useState([
+    {
+      name: "companyName",
+      label: "Company Name",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "Company Name",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid company name",
+      },
+      dataTestId: "company-name",
+      errorMessageDataTestId: "company-name-error",
+    },
+    {
+      name: "position",
+      label: "Title/Position",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "Title/Position",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid position",
+      },
+      dataTestId: "position",
+      errorMessageDataTestId: "position-error",
+    },
+    {
+      name: "companyAddress",
+      label: "Company Address",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Company Address",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid company address",
+      },
+      dataTestId: "company-address",
+      errorMessageDataTestId: "company-address-error",
+    },
+    {
+      name: "employmentStartDate",
+      label: "Start Date",
+      type: "date",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "Start Date",
+      validations: {
+        required: true,
+      },
+      dataTestId: "employment-start-date",
+      errorMessageDataTestId: "employment-start-date-error",
+    },
+    {
+      name: "employmentEndDate",
+      label: "End Date",
+      type: "date",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "End Date",
+      validations: {
+        required: true,
+      },
+      dataTestId: "employment-end-date",
+      errorMessageDataTestId: "employment-end-date-error",
+    },
+    {
+      name: "income",
+      label: "Income",
+      type: "number",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Income",
+      validations: {
+        required: true,
+        regex: /^[0-9]*$/,
+        errorMessage: "Please enter a valid income",
+      },
+      dataTestId: "income",
+      errorMessageDataTestId: "income-error",
+    },
+    {
+      name: "supervisorName",
+      label: "Supervisor Name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Supervisor Name",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid supervisor name",
+      },
+      dataTestId: "supervisor-name",
+      errorMessageDataTestId: "supervisor-name-error",
+    },
+    {
+      name: "supervisorPhone",
+      label: "Supervisor Phone",
+      type: "tel",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "Supervisor Phone",
+      validations: {
+        required: true,
+        regex: /\d{3}-\d{3}-\d{4}/,
+        errorMessage: "Please enter a valid phone number",
+      },
+      dataTestId: "supervisor-phone",
+      errorMessageDataTestId: "supervisor-phone-error",
+    },
+    {
+      name: "supervisorEmail",
+      label: "Supervisor Email",
+      type: "email",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "Supervisor Email",
+      validations: {
+        required: true,
+        regex: /\S+@\S+\.\S+/,
+        errorMessage: "Please enter a valid email",
+      },
+      dataTestId: "supervisor-email",
+      errorMessageDataTestId: "supervisor-email-error",
+    },
+  ]);
 
   return (
     <div>
       <div className="card mb-3">
         <div className="row card-body">
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Company Name</label>
-            <input
-              {...props.register(`companyName_${props.id}`, {
-                required: "This is a required field",
-              })}
-              className="form-control"
-              defaultValue={companyName}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Company Name"
-            />
-            <span style={validationMessageStyle}>
-              {props.companyNameErrors && props.companyNameErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Title/Position</label>
-            <input
-              {...props.register(`position_${props.id}`, {
-                required: "This is a required field",
-              })}
-              className="form-control"
-              defaultValue={position}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Title/Position"
-            />
-            <span style={validationMessageStyle}>
-              {props.positionErrors && props.positionErrors.message}
-            </span>
-          </div>
-          <div className="col-md-12 mb-4">
-            <label className="mb-2 text-black">Company Address</label>
-            <input
-              {...props.register(`companyAddress_${props.id}`, {
-                required: "This is a required field",
-              })}
-              className="form-control"
-              defaultValue={companyAddress}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Company Address"
-            />
-            <span style={validationMessageStyle}>
-              {props.companyAddressErrors && props.companyAddressErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Start Date</label>
-            <input
-              {...props.register(`employmentStartDate_${props.id}`, {
-                required: "This is a required field",
-                pattern: {
-                  value: /\d{4}-\d{2}-\d{2}/,
-                  message: "Please enter a valid date",
-                },
-              })}
-              type="date"
-              className="form-control"
-              defaultValue={employmentStartDate}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Start Date"
-            />
-            <span style={validationMessageStyle}>
-              {props.employmentStartDateErrors &&
-                props.employmentStartDateErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">End Date</label>
-            <input
-              {...props.register(`employmentEndDate_${props.id}`, {
-                required: "This is a required field",
-                pattern: {
-                  value: /\d{4}-\d{2}-\d{2}/,
-                  message: "Please enter a valid date",
-                },
-                validate: (value) => {
-                  if (
-                    props.watch(`employmentStartDate_${props.id}`) > value ||
-                    value === "" ||
-                    value === props.watch(`employmentStartDate_${props.id}`)
-                  ) {
-                    return "End date must be after start date";
-                  }
-                },
-              })}
-              type="date"
-              className="form-control"
-              defaultValue={employmentEndDate}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="End Date"
-            />
-            <span className="text-black" ><Checkbox /> Current Employer</span> 
-            <span style={validationMessageStyle}>
-              {props.employmentEndDateErrors &&
-                props.employmentEndDateErrors.message}
-            </span>
-          </div>
-          <div className="col-md-12 mb-4">
-            <label className="mb-2 text-black">Income</label>
-            <input
-              {...props.register(`income_${props.id}`, {
-                required: "This is a required field",
-                //Create a pattern that only allows numbers and decimals
-                pattern: {
-                  value: /^\d+(\.\d{1,2})?$/,
-                  message: "Please enter a number",
-                },
-              })}
-              className="form-control"
-              defaultValue={income}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Income"
-            />
-            <span style={validationMessageStyle}>
-              {props.incomeErrors && props.incomeErrors.message}
-            </span>
-          </div>
-
-          <div className="col-md-12 mb-4">
-            <label className="mb-2 text-black">Supervisor Name</label>
-            <input
-              {...props.register(`supervisorName_${props.id}`, {
-                required: "This is a required field",
-              })}
-              className="form-control"
-              defaultValue={supervisorName}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Supervisor Name"
-            />
-            <span style={validationMessageStyle}>
-              {props.supervisorNameErrors && props.supervisorNameErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Supervisor Phone</label>
-            <input
-              {...props.register(`supervisorPhone_${props.id}`, {
-                required: "This is a required field",
-                pattern: {
-                  value: /\d{3}-\d{3}-\d{4}/,
-                  message: "Please enter a valid phone number",
-                },
-              })}
-              className="form-control"
-              defaultValue={supervisorPhone}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Supervisor Phone"
-            />
-            <span style={validationMessageStyle}>
-              {props.supervisorPhoneErrors &&
-                props.supervisorPhoneErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Supervisor Email</label>
-            <input
-              {...props.register(`supervisorEmail_${props.id}`, {
-                required: "This is a required field",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Please enter a valid email address",
-                },
-              })}
-              className="form-control"
-              defaultValue={supervisorEmail}
-              onChange={props.onPositionChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Supervisor Email"
-            />
-            <span style={validationMessageStyle}>
-              {props.supervisorEmailErrors &&
-                props.supervisorEmailErrors.message}
-            </span>
-          </div>
-          <Stack direction="row" gap={2}>
+          {formInputs.map((input, index) => {
+            return (
+              <div
+                className={`col-md-${input.colSpan} mb-4`}
+                key={index}
+                data-testId={`${input.dataTestId}`}
+              >
+                <label
+                  className="mb-2 text-black"
+                  htmlFor={input.name}
+                  sx={{ color: "white" }}
+                >
+                  {input.label}
+                </label>
+                <input
+                  className="form-control"
+                  type={input.type}
+                  name={input.name}
+                  onChange={input.onChange}
+                  onBlur={input.onChange}
+                  placeholder={input.placeholder}
+                  value={formData[input.name]}
+                />
+                {errors[input.name] && (
+                  <span
+                    data-testId={input.errorMessageDataTestId}
+                    style={{ ...validationMessageStyle }}
+                  >
+                    {errors[input.name]}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={2}
+          >
             {props.removeBtn}{" "}
             {props.showStepButtons && (
               <Button
@@ -211,7 +250,17 @@ const EmploymentHistorySection = (props) => {
                   textTransform: "none",
                 }}
                 variant="contained"
-                onClick={props.addEmploymentInfoNode}
+                onClick={() => {
+                  const { isValid, newErrors } = validateForm(
+                    formData,
+                    formInputs
+                  );
+                  if (isValid) {
+                    props.addEmploymentInfoNode();
+                  } else {
+                    setErrors(newErrors);
+                  }
+                }}
               >
                 Add
               </Button>
@@ -219,7 +268,35 @@ const EmploymentHistorySection = (props) => {
           </Stack>
         </div>
       </div>
-      {props.showStepButtons && (
+      {props.index == props.employmentHistory.length - 1 && (
+        <Stack
+          direction="row"
+          gap={2}
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={2}
+        >
+          <UIButton
+            btnText="Back"
+            onClick={props.previousStep}
+            type="button"
+            style={{ width: "100%" }}
+          />
+          <UIButton
+            style={{ width: "100%" }}
+            btnText="Next"
+            onClick={() => {
+              const { isValid, newErrors } = validateForm(formData, formInputs);
+              if (isValid) {
+                props.nextStep();
+              } else {
+                setErrors(newErrors);
+              }
+            }}
+          />
+        </Stack>
+      )}
+      {/* {props.showStepButtons && (
         <>
           <Stack sx={{ marginTop: "20px" }} direction="row" gap={2}>
             <UIButton
@@ -266,7 +343,7 @@ const EmploymentHistorySection = (props) => {
             />
           </Stack>
         </>
-      )}
+      )} */}
     </div>
   );
 };

@@ -10,13 +10,15 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../../constants";
 import { useNavigate } from "react-router";
 import AddTerms from "./Steps/AddTerms";
-import AddAdditionalCharges from "./Steps/AddAdditionalCharges";
+import AddAdditionalCharge from "./Steps/AdditionalCharge";
 import Assign from "./Steps/Assign";
 import UploadLeaseDocument from "./Steps/UploadLeaseDocument";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../../hooks/useScreen";
+import { triggerValidation } from "../../../../../helpers/formValidation";
+import AdditionalCharge from "./Steps/AdditionalCharge";
 const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
@@ -56,12 +58,13 @@ const CreateLeaseTemplate = (props) => {
   const [templateId, setTemplateId] = useState("");
   const [skippedSteps, setSkippedSteps] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [chargesValid, setChargesValid] = useState(false);
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     trigger,
-    formState: { errors },
+    // formState: { errors },
   } = useForm({
     defaultValues: {
       rent: props.isLeaseRenewal
@@ -125,6 +128,42 @@ const CreateLeaseTemplate = (props) => {
         : "",
     },
   });
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    rent:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
+    rent_frequency: "month",
+    term: 12,
+    late_fee:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
+    security_deposit:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
+    gas_included:
+      process.env.REACT_APP_ENVIRONMENT === "development" ? false : "",
+    water_included:
+      process.env.REACT_APP_ENVIRONMENT === "development" ? false : "",
+    electric_included:
+      process.env.REACT_APP_ENVIRONMENT === "development" ? false : "",
+    repairs_included:
+      process.env.REACT_APP_ENVIRONMENT === "development" ? false : "",
+    grace_period: null,
+    lease_cancellation_notice_period: 5,
+    lease_cancellation_fee:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
+    lease_renewal_notice_period: 5,
+    lease_renewal_fee:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.finance.amount(1000, 5000, 0)
+        : "",
+  });
 
   const handleNextStep = () => {
     if (step < steps.length - 1) {
@@ -138,10 +177,26 @@ const CreateLeaseTemplate = (props) => {
     }
   };
 
-  const onSubmit = (data) => {
+  const addAdditionalCharge = () => {
+    setAdditionalCharges([
+      ...additionalCharges,
+      {
+        name: "",
+        amount: "",
+        frequency: "",
+      },
+    ]);
+  };
+
+  const removeAdditionalCharge = (index) => {
+    let newCharges = [...additionalCharges];
+    newCharges.splice(index, 1);
+    setAdditionalCharges(newCharges);
+  };
+  const onSubmit = () => {
     setIsLoading(true);
     //Get the values from the form
-    console.log("Form data", data);
+    console.log("Form data", formData);
     console.log("Additional charges array", additionalCharges);
     console.log("Selected assignments", selectedAssignments);
     console.log("Skipped", skippedSteps);
@@ -168,7 +223,7 @@ const CreateLeaseTemplate = (props) => {
       }
 
       //Check if additional charges have the same frequency as the rent frequency
-      const rentFrequency = data.rent_frequency;
+      const rentFrequency = formData.rent_frequency;
       const chargesMatchRentFrequency = additionalCharges.every(
         (charge) => charge.frequency === rentFrequency
       );
@@ -183,22 +238,24 @@ const CreateLeaseTemplate = (props) => {
         setShowResponseMessage(true);
         return; // Example: return or show an error message
       }
-      data.additional_charges = JSON.stringify(additionalCharges);
+      formData.additional_charges = JSON.stringify(additionalCharges);
     } else {
-      data.additional_charges = JSON.stringify([]);
+      formData.additional_charges = JSON.stringify([]);
     }
     if (!skippedSteps.includes(3)) {
       //REtreive all selected assignments that have the selected property set to true
       let payloadSelectedAssignments = selectedAssignments.filter(
         (assignment) => assignment.selected === true
       );
-      data.assignment_mode = assignmentMode;
-      data.selected_assignments = JSON.stringify(payloadSelectedAssignments);
+      formData.assignment_mode = assignmentMode;
+      formData.selected_assignments = JSON.stringify(
+        payloadSelectedAssignments
+      );
     } else {
-      data.assignment_mode = "";
-      data.selected_assignments = JSON.stringify([]);
+      formData.assignment_mode = "";
+      formData.selected_assignments = JSON.stringify([]);
     }
-    data.template_id = templateId;
+    formData.template_id = templateId;
     console.log("Create lease term submit tewmplate id", templateId);
     if (props.isLeaseRenewal) {
       if (props.documentMode === "new") {
@@ -207,14 +264,14 @@ const CreateLeaseTemplate = (props) => {
         props.setCurrentTemplateId(
           props.currentLeaseAgreement.lease_template.template_id
         );
-        data.template_id =
+        formData.template_id =
           props.currentLeaseAgreement.lease_template.template_id;
       }
     }
-    console.log("Full Form data", data);
+    console.log("Full Form data", formData);
 
     // Call the API to createLeaseTemplate() function to create the lease term
-    createLeaseTemplate(data)
+    createLeaseTemplate(formData)
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
@@ -281,7 +338,7 @@ const CreateLeaseTemplate = (props) => {
       <div className="card">
         <UIStepper steps={steps} step={step} style={{ margin: "30px 0" }} />
         <div className="card-body">
-          <form onSubmit={handleSubmit(onSubmit)} enctype="multipart/form-data">
+          <form enctype="multipart/form-data">
             {step === 0 && (
               <UploadLeaseDocument
                 isLeaseRenewal={props.isLeaseRenewal}
@@ -299,9 +356,12 @@ const CreateLeaseTemplate = (props) => {
             )}
             {step === 1 && (
               <AddTerms
+                formData={formData}
+                setFormData={setFormData}
+                errors={errors}
+                setErrors={setErrors}
                 isLeaseRenewal={props.isLeaseRenewal}
                 register={register}
-                errors={errors}
                 trigger={trigger}
                 validationMessageStyle={validationMessageStyle}
                 handleNextStep={handleNextStep}
@@ -315,20 +375,32 @@ const CreateLeaseTemplate = (props) => {
               />
             )}
             {step === 2 && (
-              <AddAdditionalCharges
-                register={register}
-                errors={errors}
-                trigger={trigger}
-                additionalCharges={additionalCharges}
-                setAdditionalCharges={setAdditionalCharges}
-                validationMessageStyle={validationMessageStyle}
-                handlePreviousStep={handlePreviousStep}
-                handleNextStep={handleNextStep}
-                step={step}
-                steps={steps}
-                skippedSteps={skippedSteps}
-                setSkippedSteps={setSkippedSteps}
-              />
+              <>
+                {" "}
+                {additionalCharges.map((charge, index) => (
+                  <AdditionalCharge
+                    index={index}
+                    register={register}
+                    setErrors={setErrors}
+                    errors={errors}
+                    trigger={trigger}
+                    charge={charge}
+                    addAdditionalCharge={addAdditionalCharge}
+                    removeAdditionalCharge={removeAdditionalCharge}
+                    chargesValid={chargesValid}
+                    setChargesValid={setChargesValid}
+                    additionalCharges={additionalCharges}
+                    setAdditionalCharges={setAdditionalCharges}
+                    validationMessageStyle={validationMessageStyle}
+                    handlePreviousStep={handlePreviousStep}
+                    handleNextStep={handleNextStep}
+                    step={step}
+                    steps={steps}
+                    skippedSteps={skippedSteps}
+                    setSkippedSteps={setSkippedSteps}
+                  />
+                ))}
+              </>
             )}
             {step === 3 && (
               <Assign
@@ -403,7 +475,11 @@ const CreateLeaseTemplate = (props) => {
                     btnText="Continue Editing"
                   />
                   <UIButton
-                    type="submit"
+                    type="button"
+                    onClick={() => {
+                      onSubmit();
+                      
+                    }}
                     style={{
                       margin: "1rem 0",
                       fontSize: isMobile ? "10pt" : "12pt",

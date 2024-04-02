@@ -1,32 +1,11 @@
 import React, { useState } from "react";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
-import { requestDemo } from "../../../api/mailchimp";
-import { useForm } from "react-hook-form";
 import { uiGreen, validationMessageStyle } from "../../../constants";
 import CallToActionForm from "./CallToAction/CallToActionForm";
 import { Stack } from "@mui/material";
 const Hero = () => {
   const [heroVideoURL, setHeroVideoURL] = useState("/assets/videos/keyflow-hero-video-hd.mp4");
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = async (data) => {
-    try {
-      const res = await requestDemo(data);
-      console.log(res);
-      if (res.status === 200) {
-        alert(
-          "Thank you for your interest in KeyFlow! We will be in touch shortly."
-        );
-      }
-      reset();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   return (
     <div className="hero-container">
       <section

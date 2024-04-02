@@ -5,12 +5,17 @@ import {
   authUser,
   defaultWhiteInputStyle,
   uiGrey,
+  validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { createPortfolio } from "../../../../api/portfolios";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../hooks/useScreen";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const CreatePortfolio = () => {
   const navigate = useNavigate();
   const { isMobile, screenWidth, breakpoints } = useScreen();
@@ -18,24 +23,78 @@ const CreatePortfolio = () => {
   const [open, setOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
 
+  const formInputs = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Portfolio Name",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid name for the portfolio",
+      },
+      dataTestId: "portfolio-name",
+      errorMessageDataTestId: "portfolio-name-error",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Portfolio Description",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid description for the portfolio",
+      },
+      dataTestId: "portfolio-description",
+      errorMessageDataTestId: "portfolio-description-error",
+    },
+  ];
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
   } = useForm();
-  const onSubmit = (data) => {
-    console.log(data);
-    data.owner = authUser.owner_id;
+  const onSubmit = () => {
+    const payload = {
+      name: formData.name,
+      description: formData.description,
+      owner: authUser.owner_id,
+    };
 
-    // navigate("/dashboard/landlord/portfolios");
-    createPortfolio(data)
+    console.log(payload);
+
+    createPortfolio(payload)
       .then((res) => {
         console.log(res);
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio created successfully");
           setOpen(true);
+          // navigate("/dashboard/landlord/portfolios");
         } else {
           setAlertTitle("Error");
           setAlertMessage("Error Creating Portfolio");
@@ -51,6 +110,7 @@ const CreatePortfolio = () => {
         console.log("finally");
       });
   };
+
   return (
     <div
       className={`${screenWidth > breakpoints.md && "container-fluid "} pt-4`}
@@ -71,6 +131,47 @@ const CreatePortfolio = () => {
             data-testid="create-portfolio-form"
             onSubmit={handleSubmit(onSubmit)}
           >
+            {formInputs.map((input, index) => {
+              return (
+                <div
+                  className={`col-md-${input.colSpan} mb-3`}
+                  key={index}
+                  data-testId={`${input.dataTestId}`}
+                >
+                  <label className="form-label text-black" htmlFor={input.name}>
+                    {input.label}
+                  </label>
+                  {input.type === "textarea" ? (
+                    <textarea
+                      style={{ ...defaultWhiteInputStyle, background: uiGrey }}
+                      type={input.type}
+                      name={input.name}
+                      onChange={input.onChange}
+                      onBlur={input.onChange}
+                      // {...register(input.name, { required: true })}
+                    ></textarea>
+                  ) : (
+                    <input
+                      style={{ ...defaultWhiteInputStyle, background: uiGrey }}
+                      type={input.type}
+                      name={input.name}
+                      onChange={input.onChange}
+                      onBlur={input.onChange}
+                      // {...register(input.name, { required: true })}
+                    />
+                  )}
+                  {errors[input.name] && (
+                    <span
+                      data-testId={input.errorMessageDataTestId}
+                      style={{ ...validationMessageStyle }}
+                    >
+                      {errors[input.name]}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+            {/*             
             <div className="form-group mb-4">
               <label
                 className="text-black"
@@ -104,10 +205,21 @@ const CreatePortfolio = () => {
                 id="description"
                 {...register("description", { required: true })}
               ></textarea>
-            </div>
+            </div> */}
             <UIButton
               dataTestId="create-portfolio-submit-button"
-              type="submit"
+              onClick={() => {
+                const { isValid, newErrors } = validateForm(
+                  formData,
+                  formInputs
+                );
+                if (isValid) {
+                  setIsLoading(true);
+                  onSubmit();
+                } else {
+                  setErrors(newErrors);
+                }
+              }}
               btnText="Create"
               buttonStyle="btnGreen"
               style={{ float: "right", width: isMobile ? "100%" : "auto" }}

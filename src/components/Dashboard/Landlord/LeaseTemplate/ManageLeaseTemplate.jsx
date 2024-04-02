@@ -25,6 +25,11 @@ import UIPrompt from "../../UIComponents/UIPrompt";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
+import UIInput from "../../UIComponents/UIInput";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const ManageLeaseTemplate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,6 +52,350 @@ const ManageLeaseTemplate = () => {
   const [chargesValid, setChargesValid] = useState(false);
   const [additionalCharges, setAdditionalCharges] = useState(null);
   const [editLink, setEditLink] = useState("");
+
+  const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const [detailsErrors, setDetailsErrors] = useState({});
+  const [detailsFormData, setDetailsFormData] = useState({});
+  const detailsFormInputs = [
+    {
+      name: "rent",
+      label: "Rent",
+      type: "number",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        errorMessage: "Please enter a valid number",
+      },
+      dataTestId: "rent",
+      errorMessageDataTestId: "rent-error",
+    },
+    {
+      name: "rent_frequency",
+      label: "Rent Frequency",
+      type: "select",
+      colSpan: 6,
+      options: [
+        { value: "", label: "Select One" },
+        { value: "day", label: "Daily" },
+        { value: "week", label: "Weekly" },
+        { value: "month", label: "Monthly" },
+        { value: "year", label: "Yearly" },
+      ],
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[A-Za-z]+$/i,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "rent-frequency",
+      errorMessageDataTestId: "rent-frequency-error",
+    },
+    {
+      name: "term",
+      label: "Term",
+      type: "term",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+$/i,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "term",
+      errorMessageDataTestId: "term-error",
+    },
+    {
+      name: "late_fee",
+      label: "Late Fee",
+      type: "number",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        errorMessage: "Please enter a valid number",
+      },
+      dataTestId: "late-fee",
+      errorMessageDataTestId: "late-fee-error",
+    },
+    {
+      name: "security_deposit",
+      label: "Security Deposit",
+      type: "number",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        errorMessage: "Please enter a valid number",
+      },
+      dataTestId: "security-deposit",
+      errorMessageDataTestId: "security-deposit-error",
+    },
+    {
+      name: "gas_included",
+      label: "Gas Included",
+      type: "select",
+      options: [
+        { value: "", label: "Select One" },
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No" },
+      ],
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[A-Za-z]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "gas-included",
+      errorMessageDataTestId: "gas-included-error",
+    },
+    {
+      name: "water_included",
+      label: "Water Included",
+      type: "select",
+      options: [
+        { value: "", label: "Select One" },
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No" },
+      ],
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[A-Za-z]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "water-included",
+      errorMessageDataTestId: "water-included-error",
+    },
+    {
+      name: "electric_included",
+      label: "Electric Included",
+      type: "select",
+      options: [
+        { value: "", label: "Select One" },
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No" },
+      ],
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[A-Za-z]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "electric-included",
+      errorMessageDataTestId: "electric-included-error",
+    },
+    {
+      name: "repairs_included",
+      label: "Repairs Included",
+      type: "select",
+      options: [
+        { value: "", label: "Select One" },
+        { value: "true", label: "Yes" },
+        { value: "false", label: "No" },
+      ],
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[A-Za-z]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "repairs-included",
+      errorMessageDataTestId: "repairs-included-error",
+    },
+    {
+      name: "grace_period",
+      label: "Grace Period",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "grace-period",
+      errorMessageDataTestId: "grace-period-error",
+    },
+
+    {
+      name: "lease_cancellation_notice_period",
+      label: "Lease Cancellation Notice Period",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "lease-cancellation-notice-period",
+      errorMessageDataTestId: "lease-cancellation-notice-period-error",
+    },
+    {
+      name: "lease_cancellation_fee",
+      label: "Lease Cancellation Fee",
+      type: "number",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        errorMessage: "Please enter a valid number",
+      },
+      dataTestId: "lease-cancellation-fee",
+      errorMessageDataTestId: "lease-cancellation-fee-error",
+    },
+    {
+      name: "lease_renewal_notice_period",
+      label: "Lease Renewal Notice Period",
+      type: "number",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+$/,
+        errorMessage: "This field is required",
+      },
+      dataTestId: "lease-renewal-notice-period",
+      errorMessageDataTestId: "lease-renewal-notice-period-error",
+    },
+    {
+      name: "lease_renewal_fee",
+      label: "Lease Renewal Fee",
+      type: "number",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          detailsFormData,
+          setDetailsFormData,
+          detailsFormInputs,
+          setDetailsErrors
+        ),
+      validations: {
+        required: true,
+        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        errorMessage: "Please enter a valid number",
+      },
+      dataTestId: "lease-renewal-fee",
+      errorMessageDataTestId: "lease-renewal-fee-error",
+    },
+  ];
+
   const {
     register,
     handleSubmit,
@@ -101,37 +450,10 @@ const ManageLeaseTemplate = () => {
     });
     console.log(rowData);
   };
-  const columns = [
-    { name: "name", label: "Name" },
-    { name: "beds", label: "Beds" },
-    { name: "baths", label: "Baths" },
-    {
-      name: "is_occupied",
-      label: "Occupied",
-      options: {
-        customBodyRender: (value) => {
-          if (value === true) {
-            return <span>Yes</span>;
-          } else {
-            return <span>No</span>;
-          }
-        },
-      },
-    },
-  ];
-  const options = {
-    filter: true,
-    sort: true,
-    sortOrder: {
-      name: "created_at",
-      direction: "desc",
-    },
-    onRowClick: handleRowClick,
-  };
+
   const onSubmit = async (data) => {
-    console.log("Lease Term Data", data);
     await authenticatedInstance
-      .patch(`/lease-templates/${id}/`, data)
+      .patch(`/lease-templates/${id}/`, detailsFormData)
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
@@ -153,6 +475,23 @@ const ManageLeaseTemplate = () => {
       .then((res) => {
         console.log(res.data.additional_charges);
         setLeaseTemplate(res.data);
+        setDetailsFormData({
+          rent: res.data.rent,
+          rent_frequency: res.data.rent_frequency,
+          term: res.data.term,
+          late_fee: res.data.late_fee,
+          security_deposit: res.data.security_deposit,
+          gas_included: res.data.gas_included,
+          water_included: res.data.water_included,
+          electric_included: res.data.electric_included,
+          repairs_included: res.data.repairs_included,
+          grace_period: res.data.grace_period,
+          lease_cancellation_notice_period:
+            res.data.lease_cancellation_notice_period,
+          lease_cancellation_fee: res.data.lease_cancellation_fee,
+          lease_renewal_notice_period: res.data.lease_renewal_notice_period,
+          lease_renewal_fee: res.data.lease_renewal_fee,
+        });
         setAdditionalCharges(JSON.parse(res.data.additional_charges));
         setUnits(res.data.units);
       })
@@ -352,454 +691,68 @@ const ManageLeaseTemplate = () => {
       {tabPage === 0 && (
         <div className="card">
           <div className="card-body" style={{ overflow: "auto" }}>
-            <form className="row" onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-group col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="rent"
+            <form className="row">
+              {detailsFormInputs.map((input, index) => (
+                <div
+                  className={`form-group col-md-${input.colSpan} mb-4`}
+                  key={index}
                 >
-                  Rent (Dollar Amount)
-                </Typography>
-                <input
-                  {...register("rent", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("rent");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      rent: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.rent}
-                  type="number"
-                  className="form-control"
-                  id="rent"
-                  placeholder="$"
-                  name="rent"
-                />
-                <span style={validationMessageStyle}>
-                  {errors.rent && errors.rent.message}
-                </span>
-              </div>
-              <div className="form-group col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="rent"
-                >
-                  Term Duration
-                </Typography>
-                <select
-                  {...register("term", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("term");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      term: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.term}
-                  className="form-select"
-                  sx={{ width: "100%", color: uiGrey2, background: uiGrey2 }}
-                  name="term"
-                >
-                  <option value="">Select One</option>
-                  <option value={6}>6 Months</option>
-                  <option value={12}>12 Months</option>
-                  <option value={13}>13 Months</option>
-                  <option value={24}>24 Months</option>
-                  <option value={36}>36 Months</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.term && errors.term.message}
-                </span>
-              </div>
-
-              <div className="form-group col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="lateFee"
-                >
-                  Late Fee
-                </Typography>
-                <input
-                  {...register("late_fee", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("late_fee");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      late_fee: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.late_fee}
-                  type="number"
-                  className="form-control"
-                  id="lateFee"
-                  placeholder="$"
-                  name="late_fee"
-                />
-                <span style={validationMessageStyle}>
-                  {errors.late_fee && errors.late_fee.message}
-                </span>
-              </div>
-              <div className="form-group col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="rent"
-                >
-                  Security Deposit (Dollar Amount)
-                </Typography>
-                <input
-                  {...register("security_deposit", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("security_deposit");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      security_deposit: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.security_deposit}
-                  type="number"
-                  className="form-control"
-                  id="security_deposit"
-                  placeholder="$"
-                />
-                <span style={validationMessageStyle}>
-                  {errors.security_deposit && errors.security_deposit.message}
-                </span>
-              </div>
-
-              <div className="form-group col-md-6 mb-4">
-                <label className="mb-2 text-black">Gas Included</label>
-                <select
-                  {...register("gas_included", {
-                    required: "This field is required",
-                  })}
-                  onChange={(e) => {
-                    // trigger("gas_included");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      gas_included: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.gas_included}
-                  name="gas_included"
-                  className="form-control"
-                >
-                  <option value="">Select One</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.gas_included && errors.gas_included.message}
-                </span>
-              </div>
-
-              <div className="form-group col-md-6 mb-4">
-                <label className="mb-2 text-black">Water Included</label>
-                <select
-                  {...register("water_included", {
-                    required: "This field is required",
-                  })}
-                  onChange={(e) => {
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      water_included: e.target.value,
-                    });
-                  }}
-                  className="form-control"
-                  defaultValue={leaseTemplate.water_included}
-                  value={leaseTemplate.water_included}
-                >
-                  <option value="">Select One</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.water_included && errors.water_included.message}
-                </span>
-              </div>
-              <div className="form-group col-md-6 mb-4">
-                <label className="mb-2 text-black">Electric Included</label>
-                <select
-                  {...register("electric_included", {
-                    required: "This field is required",
-                  })}
-                  onChange={(e) => {
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      electric_included: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.electric_included}
-                  className="form-control"
-                >
-                  <option value="">Select One</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.electric_included && errors.electric_included.message}
-                </span>
-              </div>
-              <div className="form-group col-md-6 mb-4">
-                <label className="mb-2 text-black">Repairs Included</label>
-                <select
-                  {...register("repairs_included", {
-                    required: "This field is required",
-                  })}
-                  onChange={(e) => {
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      repairs_included: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.repairs_included}
-                  className="form-control"
-                >
-                  <option value="">Select One</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.repairs_included && errors.repairs_included.message}
-                </span>
-              </div>
-              <div className="form-group col-md-12 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="rent"
-                >
-                  Grace Period
-                  <Tooltip title="The grace period is the amount of time you give a tenant until they must pay for thier first rent payment.">
-                    <HelpOutline
-                      sx={{
-                        marginLeft: "5px",
-                        width: "20px",
-                      }}
+                  <Typography
+                    className="mb-2"
+                    sx={{ color: uiGrey2, fontSize: "12pt" }}
+                    htmlFor={input.name}
+                  >
+                    {input.label}
+                  </Typography>
+                  {input.type === "select" ? (
+                    <select
+                      id={input.name}
+                      name={input.name}
+                      value={detailsFormData[input.name]}
+                      onChange={input.onChange}
+                      onBlur={input.onChange}
+                      className="form-control"
+                    >
+                      {input.options.map((option, i) => (
+                        <option key={i} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id={input.name}
+                      name={input.name}
+                      type={input.type}
+                      value={detailsFormData[input.name]}
+                      onChange={input.onChange}
+                      onBlur={input.onChange}
+                      className="form-control"
                     />
-                  </Tooltip>
-                </Typography>
-                <select
-                  {...register("grace_period", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("grace_period");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      grace_period: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.grace_period}
-                  className="form-select"
-                  sx={{ width: "100%", color: uiGrey2 }}
-                >
-                  <option value="">Select One</option>
-                  <option value={0} selected>
-                    None
-                  </option>
-                  <option value={1}>1 Months</option>
-                  <option value={2}>2 Months</option>
-                  <option value={3}>3 Months</option>
-                  <option value={4}>4 Months</option>
-                  <option value={5}>5 Months</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.lease_cancellation_notice_period &&
-                    errors.lease_cancellation_notice_period.message}
-                </span>
-              </div>
-              <div className="form-group col-sm-12 col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="rent"
-                >
-                  Lease Cancellation Notice Period
-                </Typography>
-                <select
-                  {...register("lease_cancellation_notice_period", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("lease_cancellation_notice_period");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      lease_cancellation_notice_period: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.lease_cancellation_notice_period}
-                  className="form-select"
-                  sx={{ width: "100%", color: uiGrey2 }}
-                >
-                  <option value="">Select One</option>
-                  <option value={6}>6 Months</option>
-                  <option value={12}>12 Months</option>
-                  <option value={13}>13 Months</option>
-                  <option value={24}>24 Months</option>
-                  <option value={36}>36 Months</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.lease_cancellation_notice_period &&
-                    errors.lease_cancellation_notice_period.message}
-                </span>
-              </div>
-              <div className="form-group col-sm-12 col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="leaseCancellationFee"
-                >
-                  Lease Cancellation Fee
-                </Typography>
-                <input
-                  {...register("lease_cancellation_fee", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("lease_cancellation_fee");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      lease_cancellation_fee: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.lease_cancellation_fee}
-                  type="number"
-                  className="form-control"
-                  id="leaseCancellationFee"
-                  placeholder="$"
-                />
-                <span style={validationMessageStyle}>
-                  {errors.lease_cancellation_fee &&
-                    errors.lease_cancellation_fee.message}
-                </span>
-              </div>
-              <div className="form-group col-sm-12 col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="rent"
-                >
-                  Lease Renewal Notice Period
-                </Typography>
-                <select
-                  {...register("lease_renewal_notice_period", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("lease_cancellation_notice_period");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      lease_renewal_notice_period: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.lease_renewal_notice_period}
-                  className="form-select"
-                  sx={{ width: "100%", color: uiGrey2 }}
-                >
-                  <option value="">Select One</option>
-                  <option value={6}>6 Months</option>
-                  <option value={12}>12 Months</option>
-                  <option value={13}>13 Months</option>
-                  <option value={24}>24 Months</option>
-                  <option value={36}>36 Months</option>
-                </select>
-                <span style={validationMessageStyle}>
-                  {errors.lease_renewal_notice_period &&
-                    errors.lease_renewal_notice_period.message}
-                </span>
-              </div>
-              <div className="form-group col-sm-12 col-md-6 mb-4">
-                <Typography
-                  className="mb-2"
-                  sx={{ color: uiGrey2, fontSize: "12pt" }}
-                  htmlFor="leaseRenewalFee"
-                >
-                  Lease Renewal Fee
-                </Typography>
-                <input
-                  {...register("lease_renewal_fee", {
-                    required: "This field is required",
-                    // pattern: {
-                    //   value: /^[0-9]+$/i,
-                    //   message: "Please enter a valid number",
-                    // },
-                  })}
-                  onChange={(e) => {
-                    // trigger("lease_cancellation_fee");
-                    setLeaseTemplate({
-                      ...leaseTemplate,
-                      lease_renewal_fee: e.target.value,
-                    });
-                  }}
-                  value={leaseTemplate.lease_renewal_fee}
-                  type="number"
-                  className="form-control"
-                  id="leaseRenewalFee"
-                  placeholder="$"
-                />
-                <span style={validationMessageStyle}>
-                  {errors.lease_renewal_fee && errors.lease_renewal_fee.message}
-                </span>
-              </div>
-
+                  )}
+                  {detailsErrors[input.name] && (
+                    <span style={validationMessageStyle}>
+                      {detailsErrors[input.name]}
+                    </span>
+                  )}
+                </div>
+              ))}
               <div className="form-group col-md-12">
-                <Button
-                  variant="contained"
-                  sx={{
-                    textTransform: "none",
-                    color: "white",
-                    background: uiGreen,
-                    float: "right",
+                <UIButton
+                  onClick={() => {
+                    const { isValid, newErrors } = validateForm(
+                      detailsFormData,
+                      detailsFormInputs
+                    );
+                    if (isValid) {
+                      onSubmit();
+                    } else {
+                      setDetailsErrors(newErrors);
+                    }
                   }}
-                  type="submit"
-                >
-                  Save
-                </Button>
+                  btnText="Update"
+                  style={{ float: "right" }}
+                />
               </div>
             </form>
           </div>

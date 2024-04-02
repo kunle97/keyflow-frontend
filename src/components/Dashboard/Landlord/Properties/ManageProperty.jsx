@@ -26,16 +26,18 @@ import {
   deleteProperty,
   updateProperty,
   getProperty,
+  updatePropertyMedia,
 } from "../../../../api/properties";
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { authUser, uiGreen, uiGrey2, uiRed } from "../../../../constants";
-import BackButton from "../../UIComponents/BackButton";
+import {
+  authUser,
+  uiGreen,
+  uiGrey2,
+  validationMessageStyle,
+} from "../../../../constants";
 import { set, useForm } from "react-hook-form";
-import { validationMessageStyle } from "../../../../constants";
-import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import DeleteButton from "../../UIComponents/DeleteButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
@@ -53,7 +55,6 @@ import BathtubIcon from "@mui/icons-material/Bathtub";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import EditIcon from "@mui/icons-material/Edit";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import { getPortfolios } from "../../../../api/portfolios";
 import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
@@ -64,6 +65,10 @@ import {
 } from "../../../../helpers/utils";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { MoreVert } from "@mui/icons-material";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -100,6 +105,177 @@ const ManageProperty = () => {
   const navigate = useNavigate();
   const anchorRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const [formData, setFormData] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
+
+    // Update the value based on input type
+    const newValue = e.target.type === "select-one" ? e.target.value : value;
+
+    setFormData((prevData) => ({ ...prevData, [name]: newValue }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const formInputs = [
+    {
+      label: "Name",
+      name: "name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Lynx Society Highrises",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]{3,}$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "update-property-name-input",
+      errorMessageDataTestId: "update-property-name-error-message",
+      step: 0,
+    },
+    {
+      label: "Street",
+      name: "street",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Sunset Blvd, 38",
+      validations: {
+        required: true,
+        regex: /^\d+\s[a-zA-Z0-9\s,'-]+$/,
+        errorMessage: "Enter a valid street address (e.g., 123 Main St)",
+      },
+      dataTestId: "update-property-street-input",
+      errorMessageDataTestId: "update-property-street-error-message",
+      step: 0,
+    },
+    {
+      label: "City",
+      name: "city",
+      type: "text",
+      colSpan: 4,
+      onChange: (e) => handleChange(e),
+      placeholder: "Los Angeles",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]*$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "update-property-city-input",
+      errorMessageDataTestId: "update-property-city-error-message",
+      step: 0,
+    },
+    {
+      label: "State",
+      name: "state",
+      type: "select",
+      colSpan: 4,
+      onChange: (e) => handleChange(e),
+      options: [
+        { value: "", label: "Select One" },
+        { value: "AL", label: "Alabama" },
+        { value: "AK", label: "Alaska" },
+        { value: "AZ", label: "Arizona" },
+        { value: "AR", label: "Arkansas" },
+        { value: "CA", label: "California" },
+        { value: "CO", label: "Colorado" },
+        { value: "CT", label: "Connecticut" },
+        { value: "DE", label: "Delaware" },
+        { value: "DC", label: "District Of Columbia" },
+        { value: "FL", label: "Florida" },
+        { value: "GA", label: "Georgia" },
+        { value: "HI", label: "Hawaii" },
+        { value: "ID", label: "Idaho" },
+        { value: "IL", label: "Illinois" },
+        { value: "IN", label: "Indiana" },
+        { value: "IA", label: "Iowa" },
+        { value: "KS", label: "Kansas" },
+        { value: "KY", label: "Kentucky" },
+        { value: "LA", label: "Louisiana" },
+        { value: "ME", label: "Maine" },
+        { value: "MD", label: "Maryland" },
+        { value: "MA", label: "Massachusetts" },
+        { value: "MI", label: "Michigan" },
+        { value: "MN", label: "Minnesota" },
+        { value: "MS", label: "Mississippi" },
+        { value: "MO", label: "Missouri" },
+        { value: "MT", label: "Montana" },
+        { value: "NE", label: "Nebraska" },
+        { value: "NV", label: "Nevada" },
+        { value: "NH", label: "New Hampshire" },
+        { value: "NJ", label: "New Jersey" },
+        { value: "NM", label: "New Mexico" },
+        { value: "NY", label: "New York" },
+        { value: "NC", label: "North Carolina" },
+        { value: "ND", label: "North Dakota" },
+        { value: "OH", label: "Ohio" },
+        { value: "OK", label: "Oklahoma" },
+        { value: "OR", label: "Oregon" },
+        { value: "PA", label: "Pennsylvania" },
+        { value: "RI", label: "Rhode Island" },
+        { value: "SC", label: "South Carolina" },
+        { value: "SD", label: "South Dakota" },
+        { value: "TN", label: "Tennessee" },
+        { value: "TX", label: "Texas" },
+        { value: "UT", label: "Utah" },
+        { value: "VT", label: "Vermont" },
+        { value: "VA", label: "Virginia" },
+        { value: "WA", label: "Washington" },
+        { value: "WV", label: "West Virginia" },
+        { value: "WI", label: "Wisconsin" },
+        { value: "WY", label: "Wyoming" },
+      ],
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]*$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "update-property-state-input",
+      errorMessageDataTestId: "update-property-state-error-message",
+      step: 0,
+    },
+    {
+      label: "Zip Code",
+      name: "zip_code",
+      type: "text",
+      colSpan: 4,
+      onChange: (e) => handleChange(e),
+      placeholder: "90210",
+      validations: {
+        required: true,
+        regex: /^\d{5}(?:[-\s]\d{4})?$/,
+        errorMessage: "Must be in zip code format",
+      },
+      dataTestId: "update-property-zip-code-input",
+      errorMessageDataTestId: "update-property-zip-code-error-message",
+      step: 0,
+    },
+    {
+      label: "Country",
+      name: "country",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "United States",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]*$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "update-property-country-input",
+      errorMessageDataTestId: "update-property-country-error-message",
+    },
+  ];
 
   // Dropdown
   const handleToggle = () => {
@@ -215,12 +391,12 @@ const ManageProperty = () => {
   const handleUpload = () => {
     setIsUploading(true); //Set isUploading to true to show the progress bar
     //Create a function to handle the file upload from the  files array
-    const formData = new FormData(); //Create a new FormData object
+    const updloadFormData = new FormData(); //Create a new FormData object
     csvFiles.forEach((file) => {
-      formData.append("file", file); //Append each file to the FormData object
+      updloadFormData.append("file", file); //Append each file to the FormData object
     });
     authenticatedMediaInstance
-      .post(`/properties/${id}/upload-csv-units/`, formData)
+      .post(`/properties/${id}/upload-csv-units/`, updloadFormData)
       .then((res) => {
         console.log("res", res);
         setResponseTitle("File Upload Success");
@@ -244,27 +420,10 @@ const ManageProperty = () => {
       });
   };
 
-  const {
-    register,
-    setValue,
-    handleSubmit,
-    formState: { errors },
-  } = useForm(
-    //Set the default values of the form inputs
-    {
-      defaultValues: {
-        name: property?.name,
-        street: property?.street,
-        city: property?.city,
-        state: property?.state,
-        zip_code: property?.zip_code,
-        country: property?.country,
-      },
-    }
-  );
+
   //Create a handle function to handle the form submission of updating property info
-  const onSubmit = async (data) => {
-    const res = await updateProperty(id, data);
+  const onSubmit = async () => {
+    const res = await updatePropertyMedia(id, formData);
     console.log("Property Details submit res ", res);
     if (res.status === 200) {
       setUpdateAlertTitle("Success");
@@ -318,20 +477,16 @@ const ManageProperty = () => {
   };
 
   useEffect(() => {
-    if (!property) {
+    if (!property || !formData) {
       getProperty(id).then((res) => {
         setProperty(res.data);
-        const preloadedData = {
-          name: res.name,
-          street: res.street,
-          city: res.city,
-          state: res.state,
-          zip_code: res.zip_code,
-          country: res.country,
-        };
-        // Set the preloaded data in the form using setValue
-        Object.keys(preloadedData).forEach((key) => {
-          setValue(key, preloadedData[key]);
+        setFormData({
+          name: res.data.name,
+          street: res.data.street,
+          city: res.data.city,
+          state: res.data.state,
+          zip_code: res.data.zip_code,
+          country: res.data.country,
         });
         setUnits(res.data.units);
         setUnitCount(res.data.units.length);
@@ -342,7 +497,6 @@ const ManageProperty = () => {
           res.data.units.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
         );
         getPortfolios().then((portfolio_res) => {
-          console.log("Portfolios ", portfolio_res);
           if (portfolio_res.status === 200) {
             setPortfolios(portfolio_res.data);
             if (res.data?.portfolio) {
@@ -370,7 +524,7 @@ const ManageProperty = () => {
           setIsLoading(false);
         });
     }
-  }, [property]);
+  }, [property, formData]);
 
   return (
     <>
@@ -403,172 +557,97 @@ const ManageProperty = () => {
               <div className="col-md-12">
                 <div className=" mb-3">
                   <div className="card-body">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                      <div className="mb-3">
-                        <label
-                          data-testid="property-edit-dialog-name-label"
-                          className="form-label text-dark"
-                          htmlFor="name"
-                        >
-                          <strong>Property Name</strong>
-                        </label>
-                        <input
-                          data-testid="property-edit-dialog-name-input"
-                          {...register("name", {
-                            required: "This is a required field",
-                          })}
-                          defaultValue={property?.name}
-                          name="name"
-                          className="form-control"
-                          type="text"
-                          id="name"
-                          placeholder="Sunset Blvd, 38"
-                          style={{ borderStyle: "none" }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.name && errors.name.message}
-                        </span>
-                      </div>
-                      <div className="mb-3">
-                        <label
-                          data-testid="property-edit-dialog-street-label"
-                          className="form-label text-dark"
-                          htmlFor="address"
-                        >
-                          <strong>Street Address</strong>
-                        </label>
-                        <input
-                          data-testid="property-edit-dialog-street-input"
-                          {...register("street", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 3,
-                              message: "Must be at least 3 characters long",
-                            },
-                            //Create pattern to only be in street address format
-                            pattern: {
-                              value: /^[a-zA-Z0-9\s,'-]*$/,
-                              message: "Must be in street address format",
-                            },
-                          })}
-                          name="street"
-                          defaultValue={property?.street}
-                          className="form-control"
-                          type="text"
-                          placeholder="Sunset Blvd, 38"
-                          style={{ borderStyle: "none" }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.street && errors.street.message}
-                        </span>
-                      </div>
+                    <form>
                       <div className="row">
-                        <div className="col-sm-12 col-md-4 col-lg-4">
-                          <div className="mb-3">
-                            <label
-                              data-testid="property-edit-dialog-city-label"
-                              className="form-label text-dark"
-                              htmlFor="city"
+                        {formInputs.map((input, index) => {
+                          return (
+                            <div
+                              className={`mb-3 col-md-${input.colSpan}`}
+                              key={index}
                             >
-                              <strong>City</strong>
-                            </label>
-                            <input
-                              data-testid="property-edit-dialog-city-input"
-                              {...register("city", {
-                                required: "This is a required field",
-                              })}
-                              defaultValue={property?.city}
-                              className="form-control"
-                              type="text"
-                              placeholder="Los Angeles"
-                              style={{ borderStyle: "none" }}
-                            />
-                            <span style={validationMessageStyle}>
-                              {errors.city && errors.city.message}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="col-sm-12 col-md-4 col-lg-4">
-                          <div className="mb-3">
-                            <label
-                              data-testid="property-edit-dialog-state-label"
-                              className="form-label text-dark"
-                              htmlFor="state"
-                            >
-                              <strong>State</strong>
-                            </label>
-                            <input
-                              data-testid="property-edit-dialog-state-input"
-                              {...register("state", {
-                                required: "This is a required field",
-                              })}
-                              defaultValue={property?.state}
-                              className="form-control"
-                              type="text"
-                              id="state"
-                              placeholder="California"
-                              style={{ borderStyle: "none" }}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-sm-12 col-md-4 col-lg-4">
-                          <div className="mb-3">
-                            <label
-                              data-testid="property-edit-dialog-zip-code-label"
-                              className="form-label text-dark"
-                              htmlFor="zipcode"
-                            >
-                              <strong>Zip Code</strong>
-                            </label>
-                            <input
-                              data-testid="property-edit-dialog-zip-code-input"
-                              {...register("zip_code", {
-                                required: "This is a required field",
-                              })}
-                              defaultValue={property?.zip_code}
-                              className="form-control"
-                              type="text"
-                              id="zip_code"
-                              placeholder="USA"
-                              style={{ borderStyle: "none" }}
-                            />
-                            <span style={validationMessageStyle}>
-                              {errors.zip_code && errors.zip_code.message}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="col-sm-12 col-md-12 col-lg-12">
-                          <div className="mb-3">
-                            <label
-                              data-testid="property-edit-dialog-country-label"
-                              className="form-label text-dark"
-                              htmlFor="country"
-                            >
-                              <strong>Country</strong>
-                            </label>
-                            <input
-                              data-testid="property-edit-dialog-country-input"
-                              {...register("country", {
-                                required: "This is a required field",
-                              })}
-                              defaultValue={property?.country}
-                              className="form-control"
-                              type="text"
-                              id="country-1"
-                              placeholder="USA"
-                              style={{ borderStyle: "none" }}
-                            />
-                            <span style={validationMessageStyle}>
-                              {errors.country && errors.country.message}
-                            </span>
-                          </div>
-                        </div>
+                              <label
+                                className="form-label text-black"
+                                htmlFor={input.name}
+                                data-testid={`update-property-${input.name}-label`}
+                              >
+                                <strong>{input.label}</strong>
+                              </label>
+                              {input.type === "text" ? (
+                                <>
+                                  {" "}
+                                  <input
+                                    data-testid={`update-property-${input.name}-input`}
+                                    onChange={handleChange}
+                                    onBlur={input.onChange}
+                                    className="form-control"
+                                    type="text"
+                                    id={input.name}
+                                    placeholder={input.placeholder}
+                                    name={input.name}
+                                    style={{
+                                      borderStyle: "none",
+                                      color: "black",
+                                    }}
+                                    value={formData[input.name]}
+                                  />
+                                  {errors[input.name] && (
+                                    <span
+                                      data-testId={input.errorMessageDataTestId}
+                                      style={{ ...validationMessageStyle }}
+                                    >
+                                      {errors[input.name]}
+                                    </span>
+                                  )}
+                                </>
+                              ) : input.type === "select" ? (
+                                <>
+                                  <select
+                                    onChange={handleChange} // Use handleChange function for select input
+                                    data-testId={`update-property-${input.name}-input`}
+                                    name={input.name}
+                                    className="form-select"
+                                    value={formData[input.name]} // Use formData to get the value for the select input
+                                  >
+                                    {input.options.map((option, index) => {
+                                      return (
+                                        <option
+                                          key={index}
+                                          value={option.value}
+                                        >
+                                          {option.label}
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                  {errors[input.name] && (
+                                    <span
+                                      data-testId={input.errorMessageDataTestId}
+                                      style={{ ...validationMessageStyle }}
+                                    >
+                                      {errors[input.name]}
+                                    </span>
+                                  )}
+                                </>
+                              ) : null}
+                            </div>
+                          );
+                        })}
                       </div>
                       <div className="text-end mb-3">
                         <UIButton
                           dataTestId="property-edit-dialog-save-button"
                           className="btn btn-primary btn-sm ui-btn"
-                          type="submit"
+                          onClick={() => {
+                            const { isValid, newErrors } = validateForm(
+                              formData,
+                              formInputs
+                            );
+                            if (isValid) {
+                              onSubmit();
+                            } else {
+                              setErrors(newErrors);
+                            }
+                          }}
                           btnText="Save Changes"
                         />
                       </div>

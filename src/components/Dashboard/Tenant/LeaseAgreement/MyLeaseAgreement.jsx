@@ -13,8 +13,10 @@ import LeaseRenewalDialog from "./LeaseRenewal/LeaseRenewalDialog";
 import { getTenantLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
 import { getTenantLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
 import { getTenantInvoices } from "../../../../api/tenants";
+import { useNavigate } from "react-router";
 const MyLeaseAgreement = () => {
   const [unit, setUnit] = useState(null);
+  const navigate = useNavigate();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [showLeaseCancellationDialog, setShowLeaseCancellationFormDialog] =
@@ -179,7 +181,10 @@ const MyLeaseAgreement = () => {
         <div className="row">
           <AlertModal
             open={showAlertModal}
-            onClick={() => setShowAlertModal(false)}
+            onClick={() =>{
+               setShowAlertModal(false)
+                navigate(0)
+              }}
             title={alertModalTitle}
             message={alertModalMessage}
             btnText="Okay"

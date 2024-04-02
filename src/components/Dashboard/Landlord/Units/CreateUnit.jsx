@@ -18,12 +18,14 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import useScreen from "../../../../hooks/useScreen";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
+import UIButton from "../../UIComponents/UIButton";
 const CreateUnit = () => {
   //Create a state for the form data
   const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState([]);
   const [unitCreateError, setUnitCreateError] = useState(false);
+  const [unitValidationErrors, setUnitValidationErrors] = useState({});
   const { property_id } = useParams();
   const [selectedPropertyId, setSelectedPropertyId] = useState(
     property_id ? property_id : null
@@ -272,6 +274,8 @@ const CreateUnit = () => {
                     {units.map((unit, index) => {
                       return (
                         <UnitRow
+                          errors={unitValidationErrors}
+                          setErrors={setUnitValidationErrors}
                           dataTestId={`unit-row-${index}`}
                           style={{ marginBottom: "20px" }}
                           key={index}
@@ -304,13 +308,23 @@ const CreateUnit = () => {
                   </div>
 
                   <div className="text-end my-3">
-                    <button
+                    <UIButton
                       data-testid="create-unit-submit-button"
                       className="btn btn-primary ui-btn"
-                      type="submit"
-                    >
-                      Create Unit
-                    </button>
+                      onClick={() => {
+                        if (
+                          Object.values(unitValidationErrors).every(
+                            (val) => val === undefined
+                          )
+                        ) {
+                          setIsLoading(true);
+                          onSubmit();
+                        } else {
+                          console.log("Errors ", unitValidationErrors);
+                        }
+                      }}
+                      btnText="Create Unit(s)"
+                    />
                   </div>
                 </form>
               </div>
