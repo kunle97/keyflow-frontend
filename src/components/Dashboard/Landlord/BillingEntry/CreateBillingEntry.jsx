@@ -34,7 +34,6 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
-import { set } from "react-hook-form";
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
@@ -55,7 +54,6 @@ const CreateBillingEntry = () => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [isExpense, setIsExpense] = useState(false);
   const [errors, setErrors] = useState({});
-  // const { errors, validateForm, triggerValidation } = useFormValidation();
   const [redirectToBillingEntries, setRedirectToBillingEntries] =
     useState(false);
 

@@ -4,13 +4,16 @@ import { getTenantDashboardData } from "../../../../api/tenants";
 import {
   authUser,
   uiGreen,
+  uiGrey,
   validationMessageStyle,
 } from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
-import { useForm } from "react-hook-form";
 import UIPrompt from "../../UIComponents/UIPrompt";
 import DescriptionIcon from "@mui/icons-material/Description";
+import { triggerValidation, validateForm } from "../../../../helpers/formValidation";
+import UIButton from "../../UIComponents/UIButton";
+import useScreen from "../../../../hooks/useScreen";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
@@ -18,6 +21,68 @@ const CreateMaintenanceRequest = () => {
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseMessage, setResponseMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const {isMobile } = useScreen();
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const formInputs = [
+    {
+      name: "type",
+      label: "Type",
+      type: "select",
+      options: [
+        { value: "", label: "Select One" },
+        { value: "plumbing", label: "Plumbing" },
+        { value: "electrical", label: "Electrical" },
+        { value: "structural", label: "Structural" },
+        { value: "appliance", label: "Appliance" },
+        { value: "other", label: "Other" },
+      ],
+
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Type",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please select a type for the maintenance request",
+      },
+      dataTestId: "maintenance-type",
+      errorMessageDataTestId: "maintenance-type-error",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Description",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage:
+          "Please enter a valid description for the maintenance request",
+      },
+      dataTestId: "maintenance-description",
+      errorMessageDataTestId: "maintenance-description-error",
+    },
+  ];
+
   useEffect(() => {
     //Retrieve the unit
     getTenantDashboardData().then((res) => {
@@ -27,23 +92,18 @@ const CreateMaintenanceRequest = () => {
     });
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+
 
   //Create a function to handle the form submission
-  const onSubmit = (data) => {
+  const onSubmit = () => {
     setIsLoading(true);
-
     //Create a data object to send to the backend
     const payload = {
       rental_unit: unit.id,
       rental_property: unit.rental_property,
-      description: data.description,
+      description: formData.description,
       tenant: authUser.tenant_id,
-      type: data.type,
+      type: formData.type,
       owner: leaseAgreement.owner.id,
     };
     console.log("Payload", payload);
@@ -89,58 +149,82 @@ const CreateMaintenanceRequest = () => {
                   <div className="row" />
                   <div className="row">
                     <div className="col-12">
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="mb-3">
-                          <label className="form-label text-black">Type</label>
-                          <div>
-                            <select
-                              className="form-control"
-                              name="type"
-                              {...register("type", {
-                                required: "This is a required field",
-                              })}
+                      <form >
+                        {formInputs.map((input, index) => {
+                          return (
+                            <div
+                              className={`col-md-${input.colSpan} mb-3`}
+                              key={index}
+                              data-testId={`${input.dataTestId}`}
                             >
-                              <option value="">Select One</option>
-                              <option value="plumbing">Plumbing</option>
-                              <option value="electrical">Electrical</option>
-                              <option value="structural">Structural</option>
-                              <option value="appliance">Appliance</option>
-                              <option value="other">Other</option>
-                            </select>
-                            <span style={validationMessageStyle}>
-                              {errors.type && errors.type.message}
-                            </span>
-                          </div>
-                        </div>
+                              <label
+                                className="form-label text-black"
+                                htmlFor={input.name}
+                              >
+                                {input.label}
+                              </label>
+                              {input.type === "select" ? (
+                                <select
+                                  className="form-control"
+                                  name={input.name}
+                                  onChange={input.onChange}
+                                  onBlur={input.onChange}
+                                >
+                                  {input.options.map((option, index) => {
+                                    return (
+                                      <option key={index} value={option.value}>
+                                        {option.label}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              ) : (
+                                <textarea
+                                  style={{
+                                    ...validationMessageStyle,
+                                    background: uiGrey,
+                                  }}
+                                  className="form-control"
+                                  type={input.type}
+                                  name={input.name}
+                                  onChange={input.onChange}
+                                  onBlur={input.onChange}
+                                  // {...register(input.name, { required: true })}
+                                ></textarea>
+                              )}
+                              {errors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{ ...validationMessageStyle }}
+                                >
+                                  {errors[input.name]}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
                         <div className="mb-3">
-                          <label
-                            className="form-label text-black "
-                            htmlFor="signature"
-                          >
-                            Please Describe Your Issue
-                          </label>
-                          <textarea
-                            {...register("description", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            id="signature-1"
-                            rows={4}
-                            name="description"
-                            style={{ borderStyle: "none" }}
-                            defaultValue={""}
+                          <UIButton
+                            dataTestId="create-portfolio-submit-button"
+                            onClick={() => {
+                              const { isValid, newErrors } = validateForm(
+                                formData,
+                                formInputs
+                              );
+                              if (isValid) {
+                                setIsLoading(true);
+                                onSubmit();
+                              } else {
+                                setErrors(newErrors);
+                              }
+                            }}
+                            btnText="Create"
+                            buttonStyle="btnGreen"
+                            style={{
+                              float: "right",
+                              width: isMobile ? "100%" : "auto",
+                            }}
                           />
-                          <span style={validationMessageStyle}>
-                            {errors.description && errors.description.message}
-                          </span>
-                        </div>
-                        <div className="mb-3">
-                          <button
-                            className="btn btn-primary btn-sm ui-btn"
-                            type="submit"
-                          >
-                            Submit
-                          </button>
                         </div>
                       </form>
                     </div>

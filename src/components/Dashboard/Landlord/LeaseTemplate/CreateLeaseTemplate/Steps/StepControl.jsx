@@ -1,6 +1,7 @@
 import { Stack } from "@mui/material";
 import React from "react";
 import UIButton from "../../../../UIComponents/UIButton";
+import { validateForm } from "../../../../../../helpers/formValidation";
 
 const StepControl = (props) => {
   return (
@@ -38,7 +39,21 @@ const StepControl = (props) => {
           )}
           {props.step < props.steps.length - 1 && (
             <div className="form-group  mb-4">
-              <UIButton onClick={props.handleNextStep} btnText="Next" />
+              <UIButton
+                onClick={() => {
+                    const { isValid, newErrors } = validateForm(
+                      props.formData,
+                      props.formInputs
+                    );
+                    if (isValid) {
+                      //Handle next button click
+                      props.handleNextStep();
+                    } else {
+                      props.setErrors(newErrors);
+                    }
+                }}
+                btnText="Next"
+              />
             </div>
           )}
           {props.step === props.steps.length - 1 && (

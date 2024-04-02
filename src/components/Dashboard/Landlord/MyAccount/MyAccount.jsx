@@ -3,6 +3,7 @@ import {
   authUser,
   token,
   uiGreen,
+  uiGrey,
   uiRed,
   validationMessageStyle,
 } from "../../../../constants";
@@ -42,6 +43,10 @@ import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UISwitch from "../../UIComponents/UISwitch";
 import useScreen from "../../../../hooks/useScreen";
 import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 
 const MyAccount = () => {
   const { isMobile } = useScreen();
@@ -69,6 +74,199 @@ const MyAccount = () => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const navigate = useNavigate();
+  const [accountFormData, setAccountFormData] = useState({
+    username: authUser.username,
+    email: authUser.email,
+    first_name: authUser.first_name,
+    last_name: authUser.last_name,
+  });
+  const [passwordFormData, setPasswordFormData] = useState({
+    old_password: "",
+    new_password: "",
+    repeat_password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const accountFormInputs = [
+    {
+      name: "first_name",
+      label: "First Name",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "First Name",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid first name",
+      },
+      dataTestId: "first-name",
+      errorMessageDataTestId: "first-name-error",
+    },
+    {
+      name: "last_name",
+      label: "Last Name",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "Last Name",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid last name",
+      },
+      dataTestId: "last-name",
+      errorMessageDataTestId: "last-name-error",
+    },
+    {
+      name: "username",
+      label: "Username",
+
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "Username",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid username",
+      },
+      dataTestId: "username",
+      errorMessageDataTestId: "username-error",
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "Email",
+      validations: {
+        required: true,
+        regex: /^[\w.!]+@[a-zA-Z_]+\.[a-zA-Z]{2,}$/,
+        errorMessage: "Please enter a valid email",
+      },
+      dataTestId: "email",
+      errorMessageDataTestId: "email-error",
+    },
+  ];
+  const passwordFormInputs = [
+    {
+      name: "old_password",
+      label: "Current Password",
+      type: "password",
+      colSpan: 12,
+      onChange: (e) =>
+        handleChange(
+          e,
+          passwordFormData,
+          setPasswordFormData,
+          passwordFormInputs,
+          setPasswordErrors
+        ),
+      placeholder: "Current Password",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s!@#$%^&*()-_=+[\]{};:'",.<>/?`~]*$/,
+        errorMessage: "Please enter your current password",
+      },
+      dataTestId: "current-password",
+      errorMessageDataTestId: "current-password-error",
+    },
+    {
+      name: "new_password",
+      label: "New Password",
+      type: "password",
+      colSpan: 12,
+      onChange: (e) =>
+        handleChange(
+          e,
+          passwordFormData,
+          setPasswordFormData,
+          passwordFormInputs,
+          setPasswordErrors
+        ),
+      placeholder: "New Password",
+      validations: {
+        required: true,
+        regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        errorMessage:
+          "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
+      },
+      dataTestId: "new-password",
+      errorMessageDataTestId: "new-password-error",
+    },
+    {
+      name: "repeat_password",
+      label: "Retype New Password",
+      type: "password",
+      colSpan: 12,
+      onChange: (e) =>
+        handleChange(
+          e,
+          passwordFormData,
+          setPasswordFormData,
+          passwordFormInputs,
+          setPasswordErrors
+        ),
+      placeholder: "Retype New Password",
+      validations: {
+        required: true,
+        errorMessage: "New passwords must match",
+        validate: (val) => {
+          if (passwordFormData.new_password != val) {
+            return "Your passwords do not match";
+          }
+        },
+      },
+      dataTestId: "repeat-password",
+      errorMessageDataTestId: "repeat-password-error",
+    },
+  ];
 
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
     getTenantDashboardData().then((res) => {
@@ -111,29 +309,10 @@ const MyAccount = () => {
       });
     });
   };
-  const {
-    register: registerAccountUpdate,
-    handleSubmit: handleSubmitAccountUpdate,
-    formState: { errors: accountUpdateErrors },
-  } = useForm({
-    defaultValues: {
-      username: authUser.username,
-      email: authUser.email,
-      first_name: authUser.first_name,
-      last_name: authUser.last_name,
-    },
-  });
 
-  const {
-    register: registerPasswordChange,
-    watch: watchPasswordChange,
-    handleSubmit: handleSubmitPasswordChange,
-    formState: { errors: passwordChangeErrors },
-  } = useForm();
-
-  const onAccountUpdateSubmit = (data) => {
+  const onAccountUpdateSubmit = () => {
     //Create a data object to send to the backend
-    updateUserData(data).then((res) => {
+    updateUserData(accountFormData).then((res) => {
       console.log(res);
       if (res.status === 200) {
         setResponseTitle("Success");
@@ -143,9 +322,8 @@ const MyAccount = () => {
     });
   };
 
-  const onSubmitChangePassword = (data) => {
-    console.log(data);
-    changePassword(data).then((res) => {
+  const onSubmitChangePassword = () => {
+    changePassword(passwordFormData).then((res) => {
       console.log(res);
       if (res.status === 200) {
         setResponseTitle("Success");
@@ -259,137 +437,61 @@ const MyAccount = () => {
             <div className="col-md-12">
               <div className="card shadow mb-3">
                 <div className="card-body">
-                  <form
-                    onSubmit={handleSubmitAccountUpdate(onAccountUpdateSubmit)}
-                  >
+                  <form>
                     <div className="row">
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="first_name"
+                      {accountFormInputs.map((input, index) => {
+                        return (
+                          <div
+                            className={`col-md-${input.colSpan} mb-3`}
+                            key={index}
+                            data-testId={`${input.dataTestId}`}
                           >
-                            <strong>First Name</strong>
-                          </label>
-                          <input
-                            {...registerAccountUpdate("first_name", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="first_name"
-                            placeholder="John"
-                            name="first_name"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {accountUpdateErrors.first_name &&
-                              accountUpdateErrors.first_name.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="last_name"
-                          >
-                            <strong>Last Name</strong>
-                          </label>
-                          <input
-                            {...registerAccountUpdate("last_name", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="last_name"
-                            placeholder="Doe"
-                            name="last_name"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {accountUpdateErrors.last_name &&
-                              accountUpdateErrors.last_name.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="username"
-                          >
-                            <strong>Username</strong>
-                          </label>
-                          <input
-                            {...registerAccountUpdate("username", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="username"
-                            placeholder="Username"
-                            name="username"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {accountUpdateErrors.username &&
-                              accountUpdateErrors.username.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="email"
-                          >
-                            <strong>Email Address</strong>
-                          </label>
-                          <input
-                            {...registerAccountUpdate("email", {
-                              required: "This is a required field",
-                              pattern: {
-                                value: /\S+@\S+\.\S+/,
-                                message: "Please enter a valid email",
-                              },
-                            })}
-                            className="form-control"
-                            type="email"
-                            id="email"
-                            placeholder="user@example.com"
-                            name="email"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {accountUpdateErrors.email &&
-                              accountUpdateErrors.email.message}
-                          </span>
-                        </div>
-                      </div>
+                            <label
+                              className="form-label text-black"
+                              htmlFor={input.name}
+                            >
+                              {input.label}
+                            </label>
+
+                            <input
+                              style={{
+                                background: uiGrey,
+                              }}
+                              className="form-control"
+                              type={input.type}
+                              name={input.name}
+                              onChange={input.onChange}
+                              onBlur={input.onChange}
+                              value={accountFormData[input.name]}
+                            />
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{ ...validationMessageStyle }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="mb-3">
-                      <button
-                        className="btn btn-primary btn-sm ui-btn"
-                        type="submit"
-                        style={{ padding: "6px 12px" }}
-                      >
-                        Save Settings
-                      </button>
+                      <UIButton
+                        style={{ float: "right" }}
+                        onClick={() => {
+                          const { isValid, newErrors } = validateForm(
+                            accountFormData,
+                            accountFormInputs
+                          );
+                          if (isValid) {
+                            onAccountUpdateSubmit();
+                          } else {
+                            setErrors(newErrors);
+                          }
+                        }}
+                        btnText="Update Account "
+                      />
                     </div>
                   </form>
                 </div>
@@ -404,99 +506,58 @@ const MyAccount = () => {
           <div className="col-md-12">
             <div className="card shadow mb-3">
               <div className="card-body">
-                <form
-                  onSubmit={handleSubmitPasswordChange(onSubmitChangePassword)}
-                >
-                  <div className="row">
-                    <div className="col-12">
-                      <div className="mb-3">
+                <form>
+                  {passwordFormInputs.map((input, index) => {
+                    return (
+                      <div
+                        className={`col-md-${input.colSpan} mb-3`}
+                        key={index}
+                        data-testId={`${input.dataTestId}`}
+                      >
                         <label
                           className="form-label text-black"
-                          htmlFor="username"
+                          htmlFor={input.name}
                         >
-                          <strong>Current Password</strong>
+                          {input.label}
                         </label>
                         <input
-                          {...registerPasswordChange("old_password", {
-                            required: "This is a required field",
-                          })}
-                          className="form-control border-0"
-                          type="password"
+                          style={{
+                            background: uiGrey,
+                          }}
+                          className="form-control"
+                          type={input.type}
+                          name={input.name}
+                          onChange={input.onChange}
+                          onBlur={input.onChange}
+                          value={passwordFormData[input.name]}
                         />
-                        <span style={validationMessageStyle}>
-                          {passwordChangeErrors.old_password &&
-                            passwordChangeErrors.old_password.message}
-                        </span>
+                        {passwordErrors[input.name] && (
+                          <span
+                            data-testId={input.errorMessageDataTestId}
+                            style={{ ...validationMessageStyle }}
+                          >
+                            {passwordErrors[input.name]}
+                          </span>
+                        )}
                       </div>
-                    </div>
-                    <div className="col-12">
-                      <div className="mb-3">
-                        <label
-                          className="form-label text-black"
-                          htmlFor="email"
-                        >
-                          <strong>Retype-Current Password</strong>
-                        </label>
-                        <input
-                          {...registerPasswordChange("repeat_password", {
-                            required: "This is a required field",
-                            validate: (val) => {
-                              if (watchPasswordChange("old_password") != val) {
-                                return "Your passwords do not match";
-                              }
-                            },
-                          })}
-                          className="form-control border-0"
-                          type="password"
-                        />
-                        <span style={validationMessageStyle}>
-                          {passwordChangeErrors.repeat_password &&
-                            passwordChangeErrors.repeat_password.message}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-12">
-                      <div className="mb-3">
-                        <label
-                          className="form-label text-black"
-                          htmlFor="first_name"
-                        >
-                          <strong>New Password</strong>
-                        </label>
-                        <input
-                          {...registerPasswordChange("new_password", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 8,
-                              message: "Password must be at least 8 characters",
-                            },
-                            pattern: {
-                              value:
-                                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                              message:
-                                "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                            },
-                          })}
-                          className="form-control border-0"
-                          type="password"
-                        />
-                        <span style={validationMessageStyle}>
-                          {passwordChangeErrors.new_password &&
-                            passwordChangeErrors.new_password.message}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                    );
+                  })}
                   <div className="mb-3">
-                    <button
-                      className="btn btn-primary btn-sm ui-btn"
-                      type="submit"
-                      style={{ padding: "6px 12px" }}
-                    >
-                      Update Password
-                    </button>
+                    <UIButton
+                      style={{ float: "right" }}
+                      onClick={() => {
+                        const { isValid, newErrors } = validateForm(
+                          passwordFormData,
+                          passwordFormInputs
+                        );
+                        if (isValid) {
+                          onSubmitChangePassword();
+                        } else {
+                          setPasswordErrors(newErrors);
+                        }
+                      }}
+                      btnText="Change Password"
+                    />
                   </div>
                 </form>
               </div>

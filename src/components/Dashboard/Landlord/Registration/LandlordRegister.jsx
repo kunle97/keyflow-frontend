@@ -16,6 +16,10 @@ import { useStripe, useElements } from "@stripe/react-stripe-js";
 import PlanSelectDialog from "./PlanSelectDialog";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import UIStepper from "../../UIComponents/UIStepper";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const LandlordRegister = () => {
   //Cards state variables
   const stripe = useStripe();
@@ -33,8 +37,7 @@ const LandlordRegister = () => {
   const [step, setStep] = useState(0);
   const [planSelectDialogIsOpen, setPlanSelectDialogIsOpen] = useState(false);
   const [tax, setTax] = useState(0.05);
-
-  //Create a state for the form data
+  const [errors, setErrors] = useState({});
   const [firstName, setFirstName] = useState(
     process.env.REACT_APP_ENVIRONMENT !== "development"
       ? ""
@@ -45,35 +48,143 @@ const LandlordRegister = () => {
       ? ""
       : faker.person.lastName()
   );
-  const {
-    register,
-    handleSubmit,
-    watch,
-    trigger,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      first_name: firstName,
-      last_name: lastName,
-      email:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.internet.email({ firstName, lastName }),
-      username:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.internet.userName({ firstName, lastName }),
-      password: "Password1",
-      password_repeat: "Password1",
-    },
+
+  const [formData, setFormData] = useState({
+    first_name: firstName,
+    last_name: lastName,
+    email:
+      process.env.REACT_APP_ENVIRONMENT !== "development"
+        ? ""
+        : faker.internet.email({ firstName, lastName }),
+    username:
+      process.env.REACT_APP_ENVIRONMENT !== "development"
+        ? ""
+        : faker.internet.userName({ firstName, lastName }),
+    password: "Password1",
+    password_repeat: "Password1",
   });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+  const formInputs = [
+    {
+      name: "first_name",
+      label: "First Name",
+      type: "text",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      validations: {
+        required: true,
+        minLength: 3,
+        errorMessage: "Minimum length should be 3 characters",
+      },
+      dataTestId: "first_name",
+      errorMessageDataTestId: "first_name_error",
+    },
+    {
+      name: "last_name",
+      label: "Last Name",
+      type: "text",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      validations: {
+        required: true,
+        minLength: 3,
+        errorMessage: "Minimum length should be 3 characters",
+      },
+      dataTestId: "last_name",
+      errorMessageDataTestId: "last_name_error",
+    },
+    {
+      name: "username",
+      label: "Username",
+      type: "text",
+      onChange: (e) => handleChange(e),
+      colSpan: 12,
+      validations: {
+        required: true,
+        minLength: 3,
+        errorMessage: "Minimum length should be 3 characters",
+      },
+      dataTestId: "username",
+      errorMessageDataTestId: "username_error",
+    },
+    {
+      name: "email",
+      label: "Email Address",
+      type: "email",
+      onChange: (e) => handleChange(e),
+      colSpan: 12,
+      validations: {
+        required: true,
+        pattern: /\S+@\S+\.\S+/,
+        errorMessage: "Please enter a valid email address",
+      },
+      dataTestId: "email",
+      errorMessageDataTestId: "email_error",
+    },
+    {
+      name: "password",
+      label: "Password",
+      type: "password",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      validations: {
+        required: true,
+        minLength: 6,
+        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        errorMessage:
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+      },
+      dataTestId: "password",
+      errorMessageDataTestId: "password_error",
+    },
+    {
+      name: "password_repeat",
+      label: "Repeat Password",
+      type: "password",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+
+      validations: {
+        required: true,
+        minLength: 6,
+        validate: (val) => {
+          if (formData.password != val) {
+            return "Your passwords do not match";
+          }
+        },
+      },
+      dataTestId: "password_repeat",
+      errorMessageDataTestId: "password_repeat_error",
+    },
+  ];
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log(data);
-    data.activation_token = makeId(32);
-    data.account_type = "owner";
+    let payload = {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      username: formData.username,
+      password: formData.password,
+      password_repeat: formData.password_repeat,
+    };
+    payload.activation_token = makeId(32);
+    payload.account_type = "owner";
     //Handle stripe elements
     if (!stripe || !elements) {
       // Stripe.js has not yet loaded.
@@ -91,10 +202,10 @@ const LandlordRegister = () => {
         setPaymentMethodId(paymentMethod.id);
         console.log(paymentMethod.id);
         console.log("PaymentMethod:", paymentMethod);
-        data.payment_method_id = paymentMethod.id;
-        data.price_id = selectedPlan.price_id;
-        data.product_id = selectedPlan.product_id;
-        console.log("COMPLETE FORM DATA", data);
+        payload.payment_method_id = paymentMethod.id;
+        payload.price_id = selectedPlan.price_id;
+        payload.product_id = selectedPlan.product_id;
+        console.log("COMPLETE FORM DATA", payload);
       } else {
       }
       //Call the API to create a new landlord user
@@ -107,17 +218,17 @@ const LandlordRegister = () => {
       return;
     }
 
-    const response = await registerLandlord(data).then((res) => {
+    const response = await registerLandlord(payload).then((res) => {
       console.log(res);
       if (res.status === 200) {
         //Send actication email
-        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${data.activation_token}`;
+        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${payload.activation_token}`;
         console.log(activation_link);
         const email_data = {
-          to_email: data.email,
+          to_email: payload.email,
           reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,
           subject: "Activate Your KeyFlow Account",
-          message: `Hi ${data.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
+          message: `Hi ${payload.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
         };
         //Send activation email using emailJS
         send(
@@ -144,7 +255,7 @@ const LandlordRegister = () => {
   };
 
   return (
-    <div className="container-fluid"  style={{ padding: 0, overflow: "hidden" }}>
+    <div className="container-fluid" style={{ padding: 0, overflow: "hidden" }}>
       <ProgressModal
         open={isLoading}
         onClose={() => setIsLoading}
@@ -209,162 +320,68 @@ const LandlordRegister = () => {
                   ]}
                 />
 
-                <form className="user mt-3" onSubmit={handleSubmit(onSubmit)}>
+                <form className="user mt-3">
+                  <div></div>
                   {step === 0 && (
-                    <>
-                      <div className="row mb-3">
-                        <div className="col-sm-6 mb-3 mb-sm-0">
-                          <input
-                            {...register("first_name", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 3,
-                                message:
-                                  "Minimum length should be 3 characters",
-                              },
-                            })}
-                            type="text"
-                            className="form-control"
-                            placeholder="First Name"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.first_name && errors.first_name.message}
-                          </span>
-                        </div>
-                        <div className="col-sm-6">
-                          <input
-                            {...register("last_name", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 3,
-                                message:
-                                  "Minimum length should be 3 characters",
-                              },
-                            })}
-                            className="form-control "
-                            type="text"
-                            placeholder="Last Name"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.last_name && errors.last_name.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mb-3">
-                        <input
-                          {...register("username", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 3,
-                              message: "Minimum length should be 3 characters",
-                            },
-                          })}
-                          className="form-control"
-                          type="text"
-                          placeholder="Username"
+                    <div className="row">
+                      {formInputs.map((input, index) => {
+                        return (
+                          <div
+                            key={index}
+                            className={` ${
+                              input.colSpan
+                                ? `mb-3 col-md-${input.colSpan}`
+                                : ""
+                            }`}
+                          >
+                            <div className="form-group  mb-2">
+                              <label
+                                htmlFor={input.name}
+                                className="text-black"
+                              >
+                                {input.label}
+                              </label>
+
+                              <input
+                                className="form-control"
+                                type={input.type}
+                                id={input.name}
+                                placeholder={input.label}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
+                                name={input.name}
+                                value={formData[input.name]}
+                              />
+                              {errors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{ ...validationMessageStyle }}
+                                >
+                                  {errors[input.name]}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="col-md-12">
+                        <UIButton
+                          onClick={() => {
+                            const { isValid, newErrors } = validateForm(
+                              formData,
+                              formInputs
+                            );
+                            if (isValid) {
+                              setStep(1);
+                            } else {
+                              setErrors(newErrors);
+                            }
+                          }}
+                          style={{ width: "100%" }}
+                          btnText="Next"
                         />
-                        <span style={validationMessageStyle}>
-                          {errors.username && errors.username.message}
-                        </span>
                       </div>
-                      <div className="mb-3">
-                        <input
-                          {...register("email", {
-                            required: "This is a required field",
-                            pattern: {
-                              value: /\S+@\S+\.\S+/,
-                              message: "Please enter a valid email address",
-                            },
-                          })}
-                          className="form-control"
-                          type="email"
-                          id="exampleInputEmail"
-                          aria-describedby="emailHelp"
-                          placeholder="Email Address"
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.email && errors.email.message}
-                        </span>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-sm-6 mb-3 mb-sm-0">
-                          <input
-                            {...register("password", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 6,
-                                message:
-                                  "Minimum length should be 6 characters",
-                              },
-                              pattern: {
-                                value:
-                                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                                message:
-                                  "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                              },
-                            })}
-                            className="form-control"
-                            type="password"
-                            id="examplePasswordInput"
-                            placeholder="Password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.password && errors.password.message}
-                          </span>
-                        </div>
-                        <div className="col-sm-6">
-                          <input
-                            {...register("password_repeat", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 6,
-                                message:
-                                  "Minimum length should be 6 characters",
-                              },
-                              validate: (val) => {
-                                if (watch("password") != val) {
-                                  return "Your passwords do not match";
-                                }
-                              },
-                            })}
-                            className="form-control"
-                            type="password"
-                            id="exampleRepeatPasswordInput"
-                            placeholder="Repeat Password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.password_repeat &&
-                              errors.password_repeat.message}
-                          </span>
-                        </div>
-                      </div>
-                      <UIButton
-                        onClick={() => {
-                          console.log(errors);
-                          trigger([
-                            "first_name",
-                            "last_name",
-                            "username",
-                            "email",
-                            "password",
-                            "password_repeat",
-                          ]);
-                          if (
-                            !errors.first_name &&
-                            !errors.last_name &&
-                            !errors.username &&
-                            !errors.email &&
-                            !errors.password &&
-                            !errors.password_repeat
-                          ) {
-                            console.log("No errors");
-                            setStep(1);
-                          }
-                        }}
-                        style={{ width: "100%" }}
-                        btnText="Next"
-                      />
-                    </>
+                    </div>
                   )}
 
                   {step === 1 && (
@@ -537,7 +554,17 @@ const LandlordRegister = () => {
                         <UIButton
                           style={{ width: "100%" }}
                           className="btn btn-primary d-block  w-100 mb-2"
-                          type="submit"
+                          onClick={() => {
+                            const { isValid, newErrors } = validateForm(
+                              formData,
+                              formInputs
+                            );
+                            if (isValid) {
+                              onSubmit();
+                            } else {
+                              setErrors(newErrors);
+                            }
+                          }}
                           btnText="Sign Up"
                         />
                       )}
