@@ -25,7 +25,7 @@ import {
   Popper,
   Stack,
 } from "@mui/material";
-import { uiGreen, uiRed } from "../../../../constants";
+import { authUser, uiGreen, uiRed } from "../../../../constants";
 import { useForm } from "react-hook-form";
 import useScreen from "../../../../hooks/useScreen";
 import Timeline from "@mui/lab/Timeline";
@@ -41,12 +41,15 @@ import HandymanIcon from "@mui/icons-material/Handyman";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import CachedIcon from "@mui/icons-material/Cached";
+import ConstructionIcon from "@mui/icons-material/Construction";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
+import UIPrompt from "../../UIComponents/UIPrompt";
 const LandlordMaintenanceRequestDetail = () => {
   const { id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState({});
+  const [events, setEvents] = useState([]);
   const [property, setProperty] = useState({});
   const [unit, setUnit] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -106,10 +109,9 @@ const LandlordMaintenanceRequestDetail = () => {
     formState: { errors },
   } = useForm();
 
-  const handleChangeStatus = (data) => {
+  const handleChangeStatus = (e) => {
+    e.preventDefault();
     setProgressModalOpen(true);
-    console.log(data.status);
-    const status = data.status;
     let is_archived = false;
     if (status === "completed") {
       is_archived = true;
@@ -192,6 +194,7 @@ const LandlordMaintenanceRequestDetail = () => {
         setMaintenanceRequest(res.data);
         setStatus(res.data.status);
         setPriority(res.data.priority);
+        setEvents(res.data.events);
         setIsLoading(false);
         //Retrieve property by id
         getProperty(res.data.rental_property.id).then((property_res) => {
@@ -263,11 +266,12 @@ const LandlordMaintenanceRequestDetail = () => {
             style={{ width: "500px" }}
           >
             <div className="mb-4">
-              <form onSubmit={handleSubmit(handleChangeStatus)}>
+              <form onSubmit={handleChangeStatus}>
                 <select
                   {...register("status", { required: true })}
                   className="form-select card"
                   style={{ background: "white" }}
+                  onChange={(e) => setStatus(e.target.value)}
                 >
                   <option value={maintenanceRequest.status}>Select One</option>
                   <option value="pending">Pending</option>
@@ -400,77 +404,80 @@ const LandlordMaintenanceRequestDetail = () => {
                 <span className="text-black"> </span>
               </Stack>
             </div>
-            <div>
-              <IconButton
-                ref={anchorRef}
-                id="composition-button"
-                aria-controls={open ? "composition-menu" : undefined}
-                aria-expanded={open ? "true" : undefined}
-                aria-haspopup="true"
-                onClick={handleToggle}
-              >
-                <MoreVertIcon />
-              </IconButton>
-              <Popper
-                open={open}
-                anchorEl={anchorRef.current}
-                role={undefined}
-                placement="bottom-start"
-                transition
-                disablePortal
-                sx={{ zIndex: 10 }}
-              >
-                {({ TransitionProps, placement }) => (
-                  <Grow
-                    {...TransitionProps}
-                    style={{
-                      transformOrigin:
-                        placement === "bottom-start"
-                          ? "right top"
-                          : "right top",
-                    }}
-                  >
-                    <Paper>
-                      <ClickAwayListener onClickAway={handleClose}>
-                        <MenuList
-                          autoFocusItem={open}
-                          id="composition-menu"
-                          aria-labelledby="composition-button"
-                          onKeyDown={handleListKeyDown}
-                        >
-                          <MenuItem
-                            onClick={() => {
-                              setChangeStatusDialogOpen(true);
-                            }}
+            {authUser.account_type === "owner" && (
+              <div>
+                <IconButton
+                  ref={anchorRef}
+                  id="composition-button"
+                  aria-controls={open ? "composition-menu" : undefined}
+                  aria-expanded={open ? "true" : undefined}
+                  aria-haspopup="true"
+                  onClick={handleToggle}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+
+                <Popper
+                  open={open}
+                  anchorEl={anchorRef.current}
+                  role={undefined}
+                  placement="bottom-start"
+                  transition
+                  disablePortal
+                  sx={{ zIndex: 10 }}
+                >
+                  {({ TransitionProps, placement }) => (
+                    <Grow
+                      {...TransitionProps}
+                      style={{
+                        transformOrigin:
+                          placement === "bottom-start"
+                            ? "right top"
+                            : "right top",
+                      }}
+                    >
+                      <Paper>
+                        <ClickAwayListener onClickAway={handleClose}>
+                          <MenuList
+                            autoFocusItem={open}
+                            id="composition-menu"
+                            aria-labelledby="composition-button"
+                            onKeyDown={handleListKeyDown}
                           >
-                            Change Status
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => {
-                              setChangePriorityDialogOpen(true);
-                            }}
-                          >
-                            Change Priority
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => setContactVendorModalOpen(true)}
-                          >
-                            Contact Vendor
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => {
-                              setShowDeleteConfirm(true);
-                            }}
-                          >
-                            Delete Maintenance Request
-                          </MenuItem>
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
-            </div>
+                            <MenuItem
+                              onClick={() => {
+                                setChangeStatusDialogOpen(true);
+                              }}
+                            >
+                              Change Status
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                setChangePriorityDialogOpen(true);
+                              }}
+                            >
+                              Change Priority
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => setContactVendorModalOpen(true)}
+                            >
+                              Contact Vendor
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                setShowDeleteConfirm(true);
+                              }}
+                            >
+                              Delete Maintenance Request
+                            </MenuItem>
+                          </MenuList>
+                        </ClickAwayListener>
+                      </Paper>
+                    </Grow>
+                  )}
+                </Popper>
+              </div>
+            )}
           </Stack>
 
           <div className="row">
@@ -491,7 +498,64 @@ const LandlordMaintenanceRequestDetail = () => {
               </div>
             </div>
             <div className="col-md-8">
-              <div className="card">
+              {events.length === 0 ? (
+                <UIPrompt
+                  icon={
+                    <ConstructionIcon
+                      sx={{ fontSize: "30pt", color: uiGreen }}
+                    />
+                  }
+                  title="No Events"
+                  message="There are no events for this maintenance request. When events occur, they will be displayed here."
+                />
+              ) : (
+                <div className="card">
+                  <div
+                    className="card-body"
+                    style={{
+                      overflowY: "auto",
+                      height: "520px",
+                    }}
+                  >
+                    <h5 className="mb-2 card-title text-black">
+                      Maintenance Request Updates
+                    </h5>
+                    <Timeline align="left">
+                      {events.map((event) => (
+                        <TimelineItem>
+                          <TimelineOppositeContent sx={{ flex: 0.1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              {new Date(event.created_at).toLocaleDateString()}
+                              <br />
+                              {new Date(event.created_at).toLocaleTimeString()}
+                            </Typography>
+                          </TimelineOppositeContent>
+                          <TimelineSeparator>
+                            <TimelineConnector />
+                            <TimelineDot sx={{ background: uiGreen }}>
+                              <ConstructionIcon />
+                            </TimelineDot>
+                            <TimelineConnector />
+                          </TimelineSeparator>
+                          <TimelineContent sx={{ py: "12px", px: 2 }}>
+                            <Typography
+                              sx={{ color: "black", fontSize: "14pt" }}
+                              variant="h6"
+                              component="span"
+                            >
+                              {event.title}
+                            </Typography>
+                            <Typography sx={{ color: "black" }}>
+                              {event.description}
+                            </Typography>
+                          </TimelineContent>
+                        </TimelineItem>
+                      ))}
+                    </Timeline>
+                  </div>
+                </div>
+              )}
+              {/* <div className="card">
                 <div className="card-body">
                   <h5 className="mb-2 card-title text-black">Event Timeline</h5>
                   <Timeline align="left">
@@ -605,7 +669,7 @@ const LandlordMaintenanceRequestDetail = () => {
                     </TimelineItem>
                   </Timeline>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
