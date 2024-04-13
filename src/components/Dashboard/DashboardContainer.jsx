@@ -13,6 +13,7 @@ import { authenticatedInstance } from "../../api/api";
 import { createThreads } from "../../helpers/messageUtils"; // src\helpers\messageUtils.js
 import { routes } from "../../routes";
 import { useLocation } from "react-router-dom";
+import { isTokenExpired } from "../../helpers/utils";
 const DashboardContainer = ({ children }) => {
   const [pageTitle, setPageTitle] = useState("");
   const [pageBreadCrumb, setPageBreadCrumb] = useState([]);
@@ -68,6 +69,7 @@ const DashboardContainer = ({ children }) => {
   };
 
   useEffect(() => {
+    console.log("TOken is expired value: ", isTokenExpired());
     // fetchNotifications(5);
     // setPageTitle(findCurrentRoute().label);
     if (screenWidth < breakpoints.lg) {

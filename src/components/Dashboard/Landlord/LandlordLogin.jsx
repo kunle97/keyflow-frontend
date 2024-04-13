@@ -40,7 +40,7 @@ const LandlordLogin = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     const response = await login(data.email, data.password);
-
+    console.log("Login Response: ",response);
     //if token is returned, set it in local storage
     if (response.token) {
       setRedirectURL("/dashboard/landlord");
@@ -60,11 +60,13 @@ const LandlordLogin = () => {
 
   useEffect(() => {
     getLandlordsEmails().then((res) => {
+      console.log(res);
       if (res) {
         setLandlordsEmails(res);
       }
     });
     getLandlordsUsernames().then((res) => {
+      console.log(res);
       if (res) {
         setLandlordUsernames(res);
       }
@@ -100,7 +102,8 @@ const LandlordLogin = () => {
       <div
         className="row"
         style={{
-          background: "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%), url('/assets/img/house6.jpg')",
+          background:
+            "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%), url('/assets/img/house6.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           // height: "100vh",

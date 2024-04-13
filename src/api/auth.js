@@ -1,6 +1,7 @@
 import axios from "axios";
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 import { authUser } from "../constants";
+import { clearLocalStorage } from "../helpers/utils";
 
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 ///-----------------AUTH API FUNCTIONS---------------------------///
@@ -32,6 +33,7 @@ export async function login(email, password) {
     if (res.statusCode === 200 && email !== "" && password !== "") {
       //Set authUser and isLoggedIn in context
       localStorage.setItem("accessToken", res.token);
+      localStorage.setItem("accessTokenExpirationDate", res.token_expiration_date);
       //Save auth user in local storage
       let userData = {
         id: res.user.id,
@@ -98,10 +100,7 @@ export async function logout() {
         console.log("axios logout response ", response);
         if (response.status === 200) {
           //redirect to login page on Login.jsx
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("authUser");
-          localStorage.removeItem("stripe_onoboarding_link");
-          localStorage.removeItem("subscriptionPlan");
+          clearLocalStorage();
           message = response.message;
           status = response.status;
         } else {

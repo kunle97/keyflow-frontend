@@ -39,9 +39,9 @@ const TenantLogin = () => {
     //if token is returned, set it in local storage
     if (response.token) {
       //Set authUser and isLoggedIn in context
-      localStorage.setItem("accessToken", response.token);
+      // localStorage.setItem("accessToken", response.token);
       //Save auth user in local storage
-      localStorage.setItem("authUser", JSON.stringify(response.userData));
+      // localStorage.setItem("authUser", JSON.stringify(response.userData));
       setRedirectURL("/dashboard/tenant");
       setAuthUser(response.userData);
       setIsLoggedIn(true);
