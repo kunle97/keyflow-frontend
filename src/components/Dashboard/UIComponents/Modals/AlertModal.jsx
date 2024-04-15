@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Modal, Backdrop, Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { uiGreen, uiGrey1 } from "../../../../constants";
 import { makeStyles } from "@mui/styles";
-
+import UICheckbox from "../UICheckbox";
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -30,12 +30,16 @@ const useStyles = makeStyles((theme) => ({
     color: "white",
     textTransform: "none",
     marginTop: "20px",
+    width: "100%",
   },
 }));
 
 const AlertModal = (props) => {
+  const [disabled, setDisabled] = useState(false);
   const classes = useStyles();
-
+  const handleDisableChange = (event) => {
+    setDisabled(event.target.checked);
+  };
   return (
     <Modal
       className={classes.modal}
@@ -69,28 +73,49 @@ const AlertModal = (props) => {
           >
             {props.message}
           </p>
+          {props.confirmCheckbox && (
+            <div style={{ margin: "5px" }}>
+              <UICheckbox
+                checked={disabled}
+                onChange={handleDisableChange}
+                label={props.checkboxLabel}
+                labelStyle={{ fontSize: "10pt" }}
+              />
+            </div>
+          )}
 
-          {props.to ? (
-            <a href={props.to}>
-              <Button
-                id="modal-modal-button"
-                className={classes.button}
-                variant="contained"
-                data-testid="alert-modal-button"
-              >
-                {props.btnText}
-              </Button>
-            </a>
-          ) : (
-            <Button
-              id="modal-modal-button"
-              onClick={props.onClick}
-              className={classes.button}
-              variant="contained"
-              data-testid="alert-modal-button"
+          {disabled || !props.confirmCheckbox && (
+            <div
+            style={{width:"100%"}}
             >
-              {props.btnText}
-            </Button>
+              {props.to ? (
+                <a href={props.to}>
+                  <Button
+                    id="modal-modal-button"
+                    className={classes.button}
+                    variant="contained"
+                    data-testid="alert-modal-button"
+                  >
+                    {props.btnText}
+                  </Button>
+                </a>
+              ) : (
+                <Button
+                  id="modal-modal-button"
+                  onClick={() => {
+                    if (!disabled) {
+                      props.onClick();
+                    } else {
+                    }
+                  }}
+                  className={classes.button}
+                  variant="contained"
+                  data-testid="alert-modal-button"
+                >
+                  {props.btnText}
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </div>
