@@ -282,6 +282,8 @@ const LandlordRegister = () => {
               onboarded to our payment processing platform. You will be asked for your industry.
               Be sure to select Property Rentals. Click the link below to continue the registration process"
               btnText="Continue"
+              confirmCheckbox={true}
+              checkboxLabel="I have read and understood the above message"
               to={stripeRedirectLink}
             />
           )}

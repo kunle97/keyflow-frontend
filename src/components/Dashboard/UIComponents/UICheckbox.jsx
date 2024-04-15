@@ -24,6 +24,7 @@ const UICheckbox = (props) => {
             className="text-black"
             style={{
               fontSize: "12pt",
+              ...props.labelStyle,
             }}
           >
             {props.label}
