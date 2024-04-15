@@ -1,4 +1,4 @@
-import { authenticatedMediaInstance } from "../api/api";
+import { authenticatedMediaInstance, unauthenticatedInstance } from "../api/api";
 import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
@@ -310,4 +310,20 @@ export const clearLocalStorage = () => {
   localStorage.removeItem("authUser");
   localStorage.removeItem("stripe_onoboarding_link");
   localStorage.removeItem("subscriptionPlan");
+};
+
+//Create a function that uses tthe unauthenticatedInstance to validate a token in local storage
+export const validateToken = async () => {
+  let isValid = false;
+  try {
+    const res = await unauthenticatedInstance.post("/auth/validate-token/",{
+      token: localStorage.getItem("accessToken"),
+    });
+    console.log(res);
+    isValid = res.data.isValid;
+    return res;
+  } catch (error) {
+    console.error("Validate Token Error: ", error);
+    return error.response;
+  }
 };

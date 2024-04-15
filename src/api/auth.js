@@ -20,20 +20,27 @@ export async function getUserStripeSubscriptions() {
     return error.response;
   }
 }
-export async function login(email, password) {
+export async function login(data) {
   try {
     const res = await unauthenticatedInstance
-      .post(`/auth/login/`, { email, password })
+      .post(`/auth/login/`, { 
+        email: data.email, 
+        password: data.password,
+        remember_me: data.remember_me
+      })
       .then((res) => {
         const response = res.data;
         console.log("axios login response ", response);
         return response;
       });
 
-    if (res.statusCode === 200 && email !== "" && password !== "") {
+    if (res.statusCode === 200 && data.email !== "" && data.password !== "") {
       //Set authUser and isLoggedIn in context
       localStorage.setItem("accessToken", res.token);
-      localStorage.setItem("accessTokenExpirationDate", res.token_expiration_date);
+      localStorage.setItem(
+        "accessTokenExpirationDate",
+        res.token_expiration_date
+      );
       //Save auth user in local storage
       let userData = {
         id: res.user.id,
