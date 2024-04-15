@@ -39,6 +39,7 @@ const AlertModal = (props) => {
   const classes = useStyles();
   const handleDisableChange = (event) => {
     setDisabled(event.target.checked);
+    console.log("Disabled: ", disabled);
   };
   return (
     <Modal
@@ -84,7 +85,7 @@ const AlertModal = (props) => {
             </div>
           )}
 
-          {disabled || !props.confirmCheckbox && (
+          {(!props.confirmCheckbox || disabled) && (
             <div
             style={{width:"100%"}}
             >
