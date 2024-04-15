@@ -1,4 +1,4 @@
-import { authenticatedMediaInstance } from "../api/api";
+import { authenticatedMediaInstance, unauthenticatedInstance } from "../api/api";
 import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
@@ -276,14 +276,54 @@ export const handleChangeLeaseTemplate = (
 //Create a function that takes in an object of strings and a regex patern and returs if each string in the object matches the regex pattern
 export const regexCheck = (strings, patterns) => {
   let matches = true;
-  let i = 0
-  let errors = []
+  let i = 0;
+  let errors = [];
   for (let key in strings) {
     if (!patterns[i].test(strings[key])) {
       matches = false;
-      errors.push(key)
+      errors.push(key);
     }
     i++;
   }
-  return { matches, errors};
+  return { matches, errors };
+};
+
+// Create a function to check if the accessToken is expired by comparing current date to the localStorage accessTokenExpirationDate value
+export const isTokenExpired = () => {
+  // Check if the accessToken localStorage value exists
+  if (!localStorage.getItem("accessTokenExpirationDate") || !localStorage.getItem("accessToken")) {
+    return true; // Token is expired if the expiration date or the token itself is missing
+  }
+
+  const expirationDate = localStorage.getItem("accessTokenExpirationDate");
+  const currentDate = new Date();
+  const expirationDateObject = new Date(expirationDate);
+
+  // Compare the expiration date with the current date
+  return currentDate > expirationDateObject; // Returns true if the token is expired, false otherwise
+};
+
+//Create a function to clear localstorage items set at login
+export const clearLocalStorage = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("accessTokenExpirationDate");
+  localStorage.removeItem("authUser");
+  localStorage.removeItem("stripe_onoboarding_link");
+  localStorage.removeItem("subscriptionPlan");
+};
+
+//Create a function that uses tthe unauthenticatedInstance to validate a token in local storage
+export const validateToken = async () => {
+  let isValid = false;
+  try {
+    const res = await unauthenticatedInstance.post("/auth/validate-token/",{
+      token: localStorage.getItem("accessToken"),
+    });
+    console.log(res);
+    isValid = res.data.isValid;
+    return res;
+  } catch (error) {
+    console.error("Validate Token Error: ", error);
+    return error.response;
+  }
 };
