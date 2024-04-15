@@ -13,6 +13,11 @@ import { authenticatedInstance } from "../../api/api";
 import { createThreads } from "../../helpers/messageUtils"; // src\helpers\messageUtils.js
 import { routes } from "../../routes";
 import { useLocation } from "react-router-dom";
+import {
+  clearLocalStorage,
+  isTokenExpired,
+  validateToken,
+} from "../../helpers/utils";
 const DashboardContainer = ({ children }) => {
   const [pageTitle, setPageTitle] = useState("");
   const [pageBreadCrumb, setPageBreadCrumb] = useState([]);
@@ -68,14 +73,31 @@ const DashboardContainer = ({ children }) => {
   };
 
   useEffect(() => {
-    // fetchNotifications(5);
-    // setPageTitle(findCurrentRoute().label);
-    if (screenWidth < breakpoints.lg) {
-      setMUIMode(true);
-    } else {
-      setMUIMode(false);
-    }
+    console.log("TOken is expired value: ", isTokenExpired());
+
+    const fetchData = async () => {
+      const tokenValidationResponse = await validateToken();
+      console.log("Token Validation response ", tokenValidationResponse);
+      if (!tokenValidationResponse.data.isValid) {
+        clearLocalStorage();
+        navigate("/");
+      }
+      // fetchNotifications(5);
+      // setPageTitle(findCurrentRoute().label);
+      if (screenWidth < breakpoints.lg) {
+        setMUIMode(true);
+      } else {
+        setMUIMode(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      // Cleanup function if needed
+    };
   }, [screenWidth, location.pathname]);
+
   return (
     <div id="wrapper pb-2">
       {showSearchDialog && (
