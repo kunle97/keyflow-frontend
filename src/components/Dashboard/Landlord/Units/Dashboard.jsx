@@ -24,10 +24,13 @@ import MapsHomeWorkOutlinedIcon from "@mui/icons-material/MapsHomeWorkOutlined";
 import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Link } from "react-router-dom";
+import UIDialog from "../../UIComponents/Modals/UIDialog";
+import ImportDataForm from "../../ImportDataForm";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
   const navigate = useNavigate();
+  const [importDataDialogOpen, setImportDataDialogOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Set loading to true on component mount
   const [units, setUnits] = useState([]);
@@ -77,7 +80,7 @@ const Dashboard = () => {
     {
       name: "Import Data",
       icon: <FileDownloadOutlinedIcon sx={startIconStyles} />,
-      url: "/dashboard/landlord/",
+      action: () => setImportDataDialogOpen(true),
       subtitle:
         "Import data from a CSV file to add properties, units, and tenants.",
     },
@@ -580,6 +583,7 @@ const Dashboard = () => {
     }
     setIsLoading(false);
   }, [screenWidth]);
+
   return isLoading ? (
     <UIProgressPrompt
       title={"Fetching your data for ya. Give us a sec..."}
@@ -589,13 +593,23 @@ const Dashboard = () => {
     <div className="container-fluid">
       {/* <h3 style={{ color: uiGrey2, fontWeight: "bold" }}>Dashboard</h3> */}
 
-      {(transactions.length === 0 &&
+      {transactions.length === 0 &&
       leaseAgreements.length === 0 &&
       maintenanceRequests.length === 0 &&
       leaseRenewalRequests.length === 0 &&
       leaseCancellationRequests.length === 0 &&
-      properties.length === 0) ? (
+      units.length === 0 ? (
         <div className="ui-start-screen" id="ui-start-screen">
+          <UIDialog
+            title="Import Data"
+            open={importDataDialogOpen}
+            onClose={() => setImportDataDialogOpen(false)}
+            style={{
+              width: "1200px",
+            }}
+          >
+            <ImportDataForm />
+          </UIDialog>
           <div
             className="row"
             style={{
@@ -626,7 +640,50 @@ const Dashboard = () => {
                   key={index}
                   style={{ cursor: "pointer" }}
                 >
-                  <Link to={item.url}>
+                  {item.url ? (
+                    <Link to={item.url}>
+                      <div
+                        className="card"
+                        style={{
+                          height: "150px",
+                          display: "flex",
+                          backgroundColor: "white",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          color: uiGrey2,
+                          padding: "130px 30px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div>{item.icon}</div>
+                          <span
+                            style={{
+                              fontSize: "14pt",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item.name}
+                          </span>
+                          <span
+                            className="text-muted"
+                            style={{
+                              fontSize: "12pt",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item.subtitle}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : item.action ? (
                     <div
                       className="card"
                       style={{
@@ -638,6 +695,7 @@ const Dashboard = () => {
                         color: uiGrey2,
                         padding: "130px 30px",
                       }}
+                      onClick={item.action}
                     >
                       <div
                         style={{
@@ -667,7 +725,7 @@ const Dashboard = () => {
                         </span>
                       </div>
                     </div>
-                  </Link>
+                  ) : null}
                 </div>
               );
             })}
