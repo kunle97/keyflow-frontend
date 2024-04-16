@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
-  deleteProperty,
   getPropertyFilters,
   getProperties,
 } from "../../../../api/properties";
-import { getUnits } from "../../../../api/units";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import useScreen from "../../../../hooks/useScreen";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
-import { authUser } from "../../../../constants";
 const Properties = () => {
   const { screenWidth, breakpoints, isMobile } = useScreen();
   const [properties, setProperties] = useState([]);
