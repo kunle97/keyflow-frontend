@@ -452,7 +452,7 @@ const ManageUnit = () => {
       };
       //Call the createBoldSignEmbeddedTemplateLink API
       await createBoldSignEmbeddedTemplateLink(payload).then((res) => {
-        console.log(res);
+        console.log("Create BoldSign SIgend EMbed Link: ",res);
         if (res.status === 201) {
           setCreateLink(res.url);
           setRenderIframe(true);

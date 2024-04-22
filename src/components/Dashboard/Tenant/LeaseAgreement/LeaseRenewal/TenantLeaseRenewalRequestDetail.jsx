@@ -34,7 +34,7 @@ const TenantLeaseRenewalRequestDetail = () => {
     signLeaseAgreementRenewal(payload)
       .then((res) => {
         console.log("Sign Lease Agreement Renewal: ", res);
-        if (res.status === 200) {
+        if (res.data.status === 200) {
           setAlertModalTitle("Success");
           setAlertModalMessage("Lease Agreement Signed Successfully");
           setShowAlertModal(true);

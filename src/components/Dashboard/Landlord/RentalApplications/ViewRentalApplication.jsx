@@ -23,7 +23,7 @@ import useScreen from "../../../../hooks/useScreen";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
-  const [unit, setUnit] = useState(null); 
+  const [unit, setUnit] = useState(null);
   const [rentalApplication, setRentalApplication] = useState({});
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
@@ -49,7 +49,7 @@ const ViewRentalApplication = () => {
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
     console.log("Accepting Application...");
-    console.log("unt", unit)
+    console.log("unt", unit);
     //Check if unit has a template
     if (!unit.template_id && !unit.signed_lease_document_file) {
       setAlertModalTitle("An error occurred");
@@ -63,96 +63,15 @@ const ViewRentalApplication = () => {
     try {
       // Approve and Archive this application
       const approvalResponse = await approveRentalApplication(id);
+      console.log(approvalResponse);
 
-      if (approvalResponse.hasOwnProperty("id")) {
-        console.log(approvalResponse);
+      if (approvalResponse.status === 200) {
         setOpenAcceptModal(false);
-        const approval_hash = approvalResponse.approval_hash;
-
-        // Retrieve Rental Unit
-        const rental_unit = await getUnit(approvalResponse.unit.id);
-       
-
-        if (unit.template_id) {
-          const doc_payload = {
-            template_id: unit.template_id,
-            tenant_first_name: rentalApplication.first_name,
-            tenant_last_name: rentalApplication.last_name,
-            tenant_email: rentalApplication.email,
-            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${unit.name}`,
-            message: "Please sign the lease agreement",
-          };
-
-          // Send lease agreement to the applicant
-          const sendDocResponse = await sendDocumentToUser(doc_payload);
-          console.log("Send document response", sendDocResponse);
-          if (sendDocResponse.status === 500) {
-            //Set application is_approved to false
-            const updateApplicationResponse = await authenticatedInstance.patch(
-              `/rental-applications/${id}/`,
-              {
-                is_approved: false,
-                approval_hash: "",
-                is_archived: false,
-              }
-            );
-            console.log(
-              "Update application response",
-              updateApplicationResponse
-            );
-            //Display error message
-            setAlertModalTitle("An error occurred");
-            setAlertModalMessage(
-              "There was an error sending the lease agreement to the applicant. Please try again later."
-            );
-            setOpenAlertModal(true);
-            return false;
-          } else {
-            //Continue as normal
-            if (sendDocResponse.documentId) {
-              const leaseAgreementData = {
-                rental_application: parseInt(id),
-                rental_unit: rental_unit.id,
-                user: authUser.id,
-                approval_hash: approval_hash,
-                document_id: sendDocResponse.documentId,
-              };
-
-              // Create a lease agreement
-              const createLeaseAgreementResponse = await createLeaseAgreement(
-                leaseAgreementData
-              );
-              console.log(
-                "Create lease agreement response",
-                createLeaseAgreementResponse
-              );
-
-              // Generate link & Send lease agreement to applicant
-              const signLink = `${process.env.REACT_APP_HOSTNAME}/sign-lease-agreement/${createLeaseAgreementResponse.response.data.id}/${createLeaseAgreementResponse.response.data.approval_hash}/`;
-              console.log("Sign Link", signLink);
-            } else {
-              console.log(sendDocResponse);
-              setAlertModalTitle("An error occurred");
-              setOpenAlertModal(true);
-              return false;
-            }
-            // Delete all other applications
-            const deleteApplicationsResponse =
-              await deleteOtherRentalApplications(id);
-
-            if (deleteApplicationsResponse.status === 200) {
-              console.log(deleteApplicationsResponse);
-            } else {
-              console.log(deleteApplicationsResponse);
-            }
-            // Display success message
-            setAlertModalTitle("Rental Application  Approved");
-            setAlertModalMessage(
-              "The Rental Application has been approved. The lease agreement has been sent to the applicant."
-            );
-            setOpenAlertModal(true);
-          }
-        }
+        setAlertModalTitle("Rental Application Approved");
+        setAlertModalMessage(
+          "The Rental Application has been approved. The lease agreement has been sent to the applicant."
+        );
+        setOpenAlertModal(true);
       } else {
         console.log(approvalResponse);
         setAlertModalTitle("An error occurred");
@@ -267,7 +186,7 @@ const ViewRentalApplication = () => {
             confirmBtnStyle={{ background: uiRed }}
           />
           <div className="mb-3" style={{ overflow: "auto" }}>
-            <h4 style={{ float: "left", fontSize: isMobile ? "14pt":"20pt" }}>
+            <h4 style={{ float: "left", fontSize: isMobile ? "14pt" : "20pt" }}>
               {" "}
               {rentalApplication.first_name} {rentalApplication.last_name}{" "}
               Rental Application (Status :{" "}

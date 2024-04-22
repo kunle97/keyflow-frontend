@@ -57,21 +57,11 @@ export async function login(data) {
       };
       if (res.user.account_type === "owner") {
         userData.owner_id = res.owner_id;
+        localStorage.setItem("ownerData", JSON.stringify(res.owner));
       } else {
         userData.tenant_id = res.tenant_id;
+        localStorage.setItem("tenantData", JSON.stringify(res.tenant));
       }
-      // getUserStripeSubscriptions(res.user.id, res.token)
-      //   .then((res) => {
-      //     console.log(res.subscriptions.plan);
-      //     userData.susbcription_plan = res.subscriptions.plan;
-      //     localStorage.setItem(
-      //       "subscriptionPlan",
-      //       JSON.stringify(res.subscriptions)
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     console.log("Error Retrieveing user subscription plan", error);
-      //   });
       localStorage.setItem("authUser", JSON.stringify(userData));
       //Check for response code before storing data in context
       const redirect_url =

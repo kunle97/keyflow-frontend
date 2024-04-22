@@ -12,6 +12,17 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
+
+export const ownerData = localStorage.getItem("ownerData")
+  ? JSON.parse(localStorage.getItem("ownerData"))
+  : {};
+export let ownerPreferences = localStorage.getItem("ownerData")
+  ? JSON.parse(localStorage.getItem("ownerData")).preferences
+  : [];
+export const tenantData = localStorage.getItem("tenantData")
+  ? JSON.parse(localStorage.getItem("tenantData"))
+  : {};
+
 export const token = localStorage.getItem("accessToken")
   ? localStorage.getItem("accessToken")
   : {};
@@ -203,7 +214,7 @@ export const landlordMenuItems = [
         dataTestId: "landlord-transactions-menu-item",
       },
       {
-        label:"Billing Entries",
+        label: "Billing Entries",
         link: "/dashboard/landlord/billing-entries",
         icon: "fas fa-tools",
         isSearchable: true,
@@ -228,12 +239,11 @@ export const tenantMenuItems = [
     muiIcon: <DashboardIcon sx={muiIconStyle} />,
   },
   {
-    label:"Bills",
+    label: "Bills",
     link: "/dashboard/tenant/bills",
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
     muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
-
   },
   {
     label: "Maintenance Requests",
