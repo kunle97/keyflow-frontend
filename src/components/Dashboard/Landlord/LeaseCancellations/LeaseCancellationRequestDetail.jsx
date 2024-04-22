@@ -238,7 +238,7 @@ const LeaseCancellationRequestDetail = () => {
         open={showAlertModal}
         onClick={() => {
           setShowAlertModal(false);
-          // navigate("/dashboard/landlord/lease-cancellation-requests/");
+          navigate("/dashboard/landlord/lease-cancellation-requests/");
         }}
         title={alertModalTitle}
         message={alertModalMessage}

@@ -16,7 +16,6 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import { validationMessageStyle } from "../../../constants";
 import { makeId } from "../../../helpers/utils";
-import { send } from "@emailjs/browser";
 import { getLeaseAgreementByIdAndApprovalHash } from "../../../api/lease_agreements";
 import {
   triggerValidation,
@@ -200,13 +199,6 @@ const TenantRegister = () => {
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const onSubmit = async () => {
     setIsLoading(true);
-    //Captuere form data
-    // data.unit_id = unit_id;
-    // data.lease_agreement_id = lease_agreement_id;
-    // data.approval_hash = approval_hash;
-    // data.activation_token = makeId(32);
-    // console.log(data);
-
     let payload = {
       unit_id: unit_id,
       lease_agreement_id: lease_agreement_id,
@@ -271,28 +263,6 @@ const TenantRegister = () => {
         setErrorMode(false);
         setOpen(true);
         setIsLoading(false);
-        //Send actication email
-        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${payload.activation_token}`;
-        console.log(activation_link);
-        const email_data = {
-          to_email: payload.email,
-          reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,
-          subject: "Activate Your KeyFlow Account",
-          html_message: `Hi ${payload.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
-        };
-        //Send activation email using emailJS
-        send(
-          process.env.REACT_APP_EMAIL_JS_SERVICE_ID,
-          process.env.REACT_APP_EMAIL_JS_TEMPLATE_ID,
-          email_data,
-          process.env.REACT_APP_EMAIL_JS_API_KEY
-        ).then((res) => {
-          console.log("Email sent successfully", res);
-        });
-
-        //TODO: On submit update lease agrrement model to attach newly created user, etc.
-        //TODO: On submit, send email to tenant to confirm email address
-        //TODO: On submit, send email to landlord to confirm new tenant
       } else {
         //TODO: Show error message moodal
         setErrorMode(true);

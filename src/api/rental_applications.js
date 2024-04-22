@@ -117,14 +117,30 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
 }
 
 //Create A function to approve a rental application
+// export async function approveRentalApplication(rentalAppId) {
+//   try {
+//     const res = await authenticatedInstance
+//       .patch(`/rental-applications/${rentalAppId}/`, {
+//         is_approved: true,
+//         approval_hash: makeId(64),
+//         is_archived: true,
+//       })
+//       .then((res) => {
+//         console.log(res);
+//         return res.data;
+//       });
+//     console.log("Rental Application Approved", res);
+//     return res;
+//   } catch (error) {
+//     console.log("Approve Rental Application Error: ", error);
+//     return error.response;
+//   }
+// }
+
 export async function approveRentalApplication(rentalAppId) {
   try {
     const res = await authenticatedInstance
-      .patch(`/rental-applications/${rentalAppId}/`, {
-        is_approved: true,
-        approval_hash: makeId(64),
-        is_archived: true,
-      })
+      .post(`/rental-applications/${rentalAppId}/approve-rental-application/`)
       .then((res) => {
         console.log(res);
         return res.data;

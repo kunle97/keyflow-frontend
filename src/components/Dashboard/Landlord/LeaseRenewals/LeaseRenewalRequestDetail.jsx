@@ -3,16 +3,11 @@ import { useNavigate, useParams } from "react-router";
 import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
-import UITableMini from "../../UIComponents/UITable/UITableMini";
 import {
   approveLeaseRenewalRequest,
   getLeaseRenewalRequestById,
   rejectLeaseRenewalRequest,
 } from "../../../../api/lease_renewal_requests";
-import {
-  getNextPaymentDate,
-  getPaymentDates,
-} from "../../../../api/manage_subscriptions";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";

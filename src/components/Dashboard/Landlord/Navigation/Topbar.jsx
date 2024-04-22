@@ -336,14 +336,13 @@ const Topbar = (props) => {
             </li>
             <li className="nav-item dropdown no-arrow mx-1">
               <div className="nav-item dropdown no-arrow">
-                <a
+                <Link
                   className="dropdown-toggle nav-link"
                   aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  href="/dashboard/messages/"
+                  to="/dashboard/messages/"
                 >
                   <EmailIcon style={{ fontSize: "15pt" }} />
-                </a>
+                </Link>
               </div>
               <div
                 className="shadow dropdown-list dropdown-menu dropdown-menu-end"
