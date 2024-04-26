@@ -767,7 +767,7 @@ const Dashboard = () => {
                   ]}
                 />
               </div>
-              <div className="col-sm-12 col-md-6 col-lg-4">
+              <div className="col-sm-12 col-md-4 col-lg-4">
                 {transactions.length === 0 ? (
                   <UICard
                     cardStyle={{ height: "478px" }}

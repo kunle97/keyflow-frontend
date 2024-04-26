@@ -17,7 +17,7 @@ const UIInput = (props) => {
     <div>
       <div className="form-group">
         <label
-          className="text-black"
+          className="text-black mb-1"
           style={{ display: "block", ...props.labelStyles }}
         >
           {props.label}
