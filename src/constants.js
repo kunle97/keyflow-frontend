@@ -8,7 +8,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-
+import CampaignIcon from "@mui/icons-material/Campaign";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -197,6 +197,15 @@ export const landlordMenuItems = [
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
     dataTestId: "landlord-rental-applications-menu-item",
+  },
+  {
+    label: "Announcements",
+    link: "/dashboard/landlord/announcements",
+    muiIcon: <CampaignIcon sx={muiIconStyle} />,
+    description: "View your Announcements",
+    icon: "fas fa-tachometer-alt",
+    isSearchable: true,
+    dataTestId: "landlord-announcements-menu-item",
   },
   {
     label: "Finances",
