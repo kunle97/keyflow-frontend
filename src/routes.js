@@ -58,6 +58,7 @@ import {
   AddHomeWorkOutlined,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
+import CampaignIcon from "@mui/icons-material/Campaign";
 import ManageLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/ManageLeaseTemplate";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
@@ -82,6 +83,9 @@ import ManageBillingEntry from "./components/Dashboard/Landlord/BillingEntry/Man
 import CreateBillingEntry from "./components/Dashboard/Landlord/BillingEntry/CreateBillingEntry";
 import Bills from "./components/Dashboard/Tenant/Bills/Bills";
 import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
+import Annoucements from "./components/Dashboard/Landlord/Annoucements/Annoucements";
+import ManageAnnouncement from "./components/Dashboard/Landlord/Annoucements/ManageAnnouncement";
+import CreateAccouncement from "./components/Dashboard/Landlord/Annoucements/CreateAnnouncement";
 
 //Prototype conponents
 import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accounts";
@@ -734,6 +738,44 @@ export const routes = [
     description: "Manage your billing entry",
     isQuickLink: true,
     muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/landlord/announcements",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Annoucements />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Announcements",
+    description: "Manage your announcements",
+    isQuickLink: true,
+    muiIcon: <CampaignIcon />,
+  },
+  {
+    path: "/dashboard/landlord/announcements/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateAccouncement />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Announcement",
+    description: "Create a new announcement",
+    isQuickLink: true,
+    muiIcon: <CampaignIcon />,
+  },
+  {
+    path: "/dashboard/landlord/announcements/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageAnnouncement />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: false,
+    label: "Announcement",
+    description: "Manage your announcement",
+    isQuickLink: false, 
   },
   //Prototype routes
   {

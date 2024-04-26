@@ -23,7 +23,13 @@ import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router";
-import { CircularProgress, FormControlLabel, Stack } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  CircularProgress,
+  FormControlLabel,
+  Stack,
+} from "@mui/material";
 import UISwitch from "../UIComponents/UISwitch";
 import UITable from "../UIComponents/UITable/UITable";
 import UIPrompt from "../UIComponents/UIPrompt";
@@ -57,6 +63,7 @@ const TenantDashboard = () => {
   const [confirmAction, setConfirmAction] = useState(null);
   const [cancelButtonText, setCancelButtonText] = useState("");
   const [invoices, setInvoices] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [totalAmountDue, setTotalAmountDue] = useState(0);
   const columns = [
     { name: "amount", label: "Amount" },
@@ -186,6 +193,7 @@ const TenantDashboard = () => {
       setLeaseAgreement(res.lease_agreement);
       setCurrentBalance(res.current_balance);
       setLateFees(res.late_fees);
+      setAnnouncements(res.announcements);
 
       //Check if lease agreement endate is in 2 months or less, if so show confirm modal
       if (res.lease_agreement) {
@@ -288,6 +296,16 @@ const TenantDashboard = () => {
         to="/dashboard/tenant/add-payment-method"
         btnText="Add Payment Method"
       />
+      {announcements && announcements.length > 0 && (
+        <>
+          {announcements.map((announcement) => (
+            <Alert severity={announcement.severity} sx={{ mb: 3 }} className="">
+              <AlertTitle>{announcement.title}</AlertTitle>
+              {announcement.body}
+            </Alert>
+          ))}
+        </>
+      )}
       <div className="d-sm-flex justify-content-between align-items-center mb-4">
         <h3 className="text-black mb-0">
           Good Afternoon, {`${authUser.first_name}!`}
