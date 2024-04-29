@@ -1,4 +1,12 @@
-import { Box, Button, List, ListItem, ListItemText, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { authUser, uiGreen, uiGrey, uiRed } from "../../../constants";
 import {
@@ -315,40 +323,40 @@ const TenantMyAccount = () => {
     });
   };
 
-    //Create a function that handle the change of the value of a preference
-    const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
-      if (inputType === "switch") {
-        console.log(e.target.checked);
-        //Update the value of the preference and use setOwnerPreferences to update the state
-        let newTenantPreferences = tenantPreferences.map((preference) => {
-          if (preference.name === preferenceName) {
-            preference.values.map((value) => {
-              if (value.name === valueName) {
-                value.value = e.target.checked;
-              }
-            });
-          }
-          return preference;
+  //Create a function that handle the change of the value of a preference
+  const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
+    if (inputType === "switch") {
+      console.log(e.target.checked);
+      //Update the value of the preference and use setOwnerPreferences to update the state
+      let newTenantPreferences = tenantPreferences.map((preference) => {
+        if (preference.name === preferenceName) {
+          preference.values.map((value) => {
+            if (value.name === valueName) {
+              value.value = e.target.checked;
+            }
+          });
         }
-        );
-        console.log("New Owner Preferences ", newTenantPreferences);
-        setTenantPreferences(newTenantPreferences);
-        let payload = {
-          preferences: newTenantPreferences
-        }
-        updateTenantPreferences(payload).then((res) => {
-          console.log(res);
-        });
-      } else {
-        console.log(e.target.value);
-      }
-    };
+        return preference;
+      });
+      console.log("New Owner Preferences ", newTenantPreferences);
+      setTenantPreferences(newTenantPreferences);
+      let payload = {
+        preferences: newTenantPreferences,
+      };
+      updateTenantPreferences(payload).then((res) => {
+        console.log(res);
+      });
+    } else {
+      console.log(e.target.value);
+    }
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabPage(newValue);
   };
 
   useEffect(() => {
+    syncPreferences();
     //Get the payment methods for the user
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
       console.log(res.data);
@@ -373,7 +381,6 @@ const TenantMyAccount = () => {
       console.log("Tenant Preferences: ", res);
       setTenantPreferences(res.preferences);
     });
-    syncPreferences();
   }, []);
 
   return (
@@ -706,7 +713,7 @@ const TenantMyAccount = () => {
           </div>
         </div>
       )}
-            {tabPage === 1 && (
+      {tabPage === 1 && (
         <div className={isMobile && "container-fluid"}>
           <div className="row">
             <div className="col-md-3">
@@ -761,7 +768,12 @@ const TenantMyAccount = () => {
                                 {value.inputType === "switch" && (
                                   <UISwitch
                                     onChange={(e) =>
-                                      handlePreferenceChange(e, value.inputType, preference.name, value.name)
+                                      handlePreferenceChange(
+                                        e,
+                                        value.inputType,
+                                        preference.name,
+                                        value.name
+                                      )
                                     }
                                     value={value.value}
                                   />
@@ -769,59 +781,6 @@ const TenantMyAccount = () => {
                               </>
                             );
                           })}
-                          {/* {defaultLandlordAccountPreferences
-                            .find((pref) => pref.name === preference.name)
-                            .inputTypes.map((inputType) => {
-                              return (
-                                <>
-                                  <span className="text-black">
-                                    {inputType.label}
-                                  </span>
-                                  {inputType.type === "switch" && (
-                                    <UISwitch
-                                      onChange={(e) => {
-                                        console.log(e.target.checked);
-                                      }}
-                                      value={false}
-                                    />
-                                  )}
-                                </>
-                              );
-                            })} */}
-                          {/* {preference.inputType === "switch" && (
-                    )}
-                    {preference.inputType === "number" && (
-                      <input
-                        className="form-control"
-                        type="number"
-                        onChange={props.onChange}
-                        style={inputStyle}
-                        defaultValue={props.value}
-                        min="0"
-                      />
-                    )}
-                    {preference.inputType === "text" && (
-                      <input
-                        className="form-control"
-                        type="text"
-                        onChange={props.onChange}
-                        style={inputStyle}
-                        defaultValue={props.value}
-                      />
-                    )}
-                    {preference.inputType === "select" && (
-                      <select
-                        className="form-select"
-                        type="select"
-                        onChange={props.onChange}
-                        style={inputStyle}
-                        defaultValue={props.value}
-                      >
-                        {props.selectOptions.map((option) => (
-                          <option value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
-                    )} */}
                         </Stack>
                       </ListItem>
                     );

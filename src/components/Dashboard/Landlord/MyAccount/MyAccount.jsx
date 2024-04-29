@@ -49,7 +49,10 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import { defaultLandlordAccountPreferences } from "../../../../constants/landlord_account_preferences";
-import { getOwnerPreferences, updateOwnerPreferences } from "../../../../api/owners";
+import {
+  getOwnerPreferences,
+  updateOwnerPreferences,
+} from "../../../../api/owners";
 import { syncPreferences } from "../../../../helpers/preferences";
 const MyAccount = () => {
   const { isMobile } = useScreen();
@@ -360,13 +363,12 @@ const MyAccount = () => {
           });
         }
         return preference;
-      }
-      );
+      });
       console.log("New Owner Preferences ", newOwnerPreferences);
       setOwnerPreferences(newOwnerPreferences);
       let payload = {
-        preferences: newOwnerPreferences
-      }
+        preferences: newOwnerPreferences,
+      };
       updateOwnerPreferences(payload).then((res) => {
         console.log(res);
       });
@@ -376,6 +378,7 @@ const MyAccount = () => {
   };
 
   useEffect(() => {
+    syncPreferences();
     //Get the payment methods for the user
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
       setPaymentMethods(res.data);
@@ -395,7 +398,6 @@ const MyAccount = () => {
       console.log("PREfffekwf", res);
       setOwnerPreferences(res.preferences);
     });
-    syncPreferences();
   }, []);
 
   return (
@@ -890,7 +892,12 @@ const MyAccount = () => {
                                 {value.inputType === "switch" && (
                                   <UISwitch
                                     onChange={(e) =>
-                                      handlePreferenceChange(e, value.inputType, preference.name, value.name)
+                                      handlePreferenceChange(
+                                        e,
+                                        value.inputType,
+                                        preference.name,
+                                        value.name
+                                      )
                                     }
                                     value={value.value}
                                   />
@@ -898,59 +905,6 @@ const MyAccount = () => {
                               </>
                             );
                           })}
-                          {/* {defaultLandlordAccountPreferences
-                            .find((pref) => pref.name === preference.name)
-                            .inputTypes.map((inputType) => {
-                              return (
-                                <>
-                                  <span className="text-black">
-                                    {inputType.label}
-                                  </span>
-                                  {inputType.type === "switch" && (
-                                    <UISwitch
-                                      onChange={(e) => {
-                                        console.log(e.target.checked);
-                                      }}
-                                      value={false}
-                                    />
-                                  )}
-                                </>
-                              );
-                            })} */}
-                          {/* {preference.inputType === "switch" && (
-                    )}
-                    {preference.inputType === "number" && (
-                      <input
-                        className="form-control"
-                        type="number"
-                        onChange={props.onChange}
-                        style={inputStyle}
-                        defaultValue={props.value}
-                        min="0"
-                      />
-                    )}
-                    {preference.inputType === "text" && (
-                      <input
-                        className="form-control"
-                        type="text"
-                        onChange={props.onChange}
-                        style={inputStyle}
-                        defaultValue={props.value}
-                      />
-                    )}
-                    {preference.inputType === "select" && (
-                      <select
-                        className="form-select"
-                        type="select"
-                        onChange={props.onChange}
-                        style={inputStyle}
-                        defaultValue={props.value}
-                      >
-                        {props.selectOptions.map((option) => (
-                          <option value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
-                    )} */}
                         </Stack>
                       </ListItem>
                     );

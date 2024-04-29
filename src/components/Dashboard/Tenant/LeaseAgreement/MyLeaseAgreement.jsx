@@ -16,6 +16,7 @@ import { getTenantInvoices } from "../../../../api/tenants";
 import { useNavigate } from "react-router";
 const MyLeaseAgreement = () => {
   const [unit, setUnit] = useState(null);
+  const [unitPreferences, setUnitPreferences] = useState(null);
   const navigate = useNavigate();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [leaseTemplate, setLeaseTemplate] = useState(null);
@@ -102,7 +103,9 @@ const MyLeaseAgreement = () => {
 
     // Calculate date 2 months before the lease end date
     let noticePeriodBeforeEndDate = new Date(leaseEndDate);
-    noticePeriodBeforeEndDate.setMonth(new Date(leaseEndDate).getMonth() - renewalNoticePeriod);
+    noticePeriodBeforeEndDate.setMonth(
+      new Date(leaseEndDate).getMonth() - renewalNoticePeriod
+    );
 
     // Check if today is at most 2 months before the end of the lease
     if (today >= noticePeriodBeforeEndDate) {
@@ -136,7 +139,8 @@ const MyLeaseAgreement = () => {
     getTenantDashboardData().then((res) => {
       console.log(res);
       setUnit(res.unit);
-      console.log("Lease Terns", JSON.parse(res.unit.lease_terms));
+      setUnitPreferences(JSON.parse(res.unit.preferences));
+      console.log("Unit Preferences", JSON.parse(res.unit.preferences));
       setLeaseAgreement(res.lease_agreement);
       setLeaseTemplate(res.lease_template);
     });
@@ -181,10 +185,10 @@ const MyLeaseAgreement = () => {
         <div className="row">
           <AlertModal
             open={showAlertModal}
-            onClick={() =>{
-               setShowAlertModal(false)
-                navigate(0)
-              }}
+            onClick={() => {
+              setShowAlertModal(false);
+              navigate(0);
+            }}
             title={alertModalTitle}
             message={alertModalMessage}
             btnText="Okay"
@@ -344,37 +348,52 @@ const MyLeaseAgreement = () => {
               {/* PDF Viewer Goes Here */}
             </div>
             <Stack direction="row" spacing={2}>
-              <UIButton
-                btnText="Request Cancellation"
-                onClick={openCancellationDialog}
-              />
-              <UIButton btnText="Request Renewal" onClick={openRenewalDialog} />
+              {unitPreferences.find(
+                (preference) => preference.name === "accept_lease_cancellations"
+              ).value && (
+                <>
+                  <LeaseCancellationDialog
+                    open={showLeaseCancellationDialog}
+                    onClose={() => setShowLeaseCancellationFormDialog(false)}
+                    leaseAgreement={leaseAgreement}
+                    setShowLeaseCancellationFormDialog={
+                      setShowLeaseCancellationFormDialog
+                    }
+                    showLeaseCancellationForm={showLeaseCancellationForm}
+                    setShowLeaseCancellationForm={setShowLeaseCancellationForm}
+                    setAlertModalTitle={setAlertModalTitle}
+                    setAlertModalMessage={setAlertModalMessage}
+                    setShowAlertModal={setShowAlertModal}
+                  />
+                  <UIButton
+                    btnText="Request Cancellation"
+                    onClick={openCancellationDialog}
+                  />
+                </>
+              )}
+              {unitPreferences.find(
+                (preference) => preference.name === "accept_lease_renewals"
+              ).value && (
+                <>
+                  <LeaseRenewalDialog
+                    open={showLeaseRenewalDialog}
+                    onClose={() => setShowLeaseRenewalDialog(false)}
+                    leaseAgreement={leaseAgreement}
+                    setShowLeaseRenewalDialog={setShowLeaseRenewalDialog}
+                    showLeaseRenewalForm={showLeaseRenewalForm}
+                    setShowLeaseRenewalForm={setShowLeaseRenewalForm}
+                    setAlertModalTitle={setAlertModalTitle}
+                    setAlertModalMessage={setAlertModalMessage}
+                    setShowAlertModal={setShowAlertModal}
+                  />
+                  <UIButton
+                    btnText="Request Renewal"
+                    onClick={openRenewalDialog}
+                  />
+                </>
+              )}
             </Stack>
           </div>
-          <LeaseCancellationDialog
-            open={showLeaseCancellationDialog}
-            onClose={() => setShowLeaseCancellationFormDialog(false)}
-            leaseAgreement={leaseAgreement}
-            setShowLeaseCancellationFormDialog={
-              setShowLeaseCancellationFormDialog
-            }
-            showLeaseCancellationForm={showLeaseCancellationForm}
-            setShowLeaseCancellationForm={setShowLeaseCancellationForm}
-            setAlertModalTitle={setAlertModalTitle}
-            setAlertModalMessage={setAlertModalMessage}
-            setShowAlertModal={setShowAlertModal}
-          />
-          <LeaseRenewalDialog
-            open={showLeaseRenewalDialog}
-            onClose={() => setShowLeaseRenewalDialog(false)}
-            leaseAgreement={leaseAgreement}
-            setShowLeaseRenewalDialog={setShowLeaseRenewalDialog}
-            showLeaseRenewalForm={showLeaseRenewalForm}
-            setShowLeaseRenewalForm={setShowLeaseRenewalForm}
-            setAlertModalTitle={setAlertModalTitle}
-            setAlertModalMessage={setAlertModalMessage}
-            setShowAlertModal={setShowAlertModal}
-          />
         </div>
       ) : (
         <UIPrompt
