@@ -5,10 +5,11 @@ import {
   getPortfolio,
   updatePortfolio,
   deletePortfolio,
+  updatePortfolioPreferences,
 } from "../../../../api/portfolios";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import EditIcon from "@mui/icons-material/Edit";
-import { IconButton, Stack } from "@mui/material";
+import { IconButton, ListItem, ListItemText, Stack, Typography } from "@mui/material";
 import {
   authUser,
   uiGreen,
@@ -31,6 +32,8 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import UISwitch from "../../UIComponents/UISwitch";
+import { syncPortfolioPreferences } from "../../../../helpers/preferences";
 const ManagePortfolio = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
@@ -38,6 +41,7 @@ const ManagePortfolio = () => {
   const { screenWidth, breakpoints } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [portfolio, setPortfolio] = useState(null);
+  const [portfolioPreferences, setPortfolioPreferences] = useState([]);
   const [properties, setProperties] = useState([]);
   const [open, setOpen] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
@@ -163,8 +167,27 @@ const ManagePortfolio = () => {
     setTabPage(newValue);
   };
 
+  //Create a function that handle the change of the value of a preference
+  const handlePreferenceChange = (e, inputType, preferenceName) => {
+    if (inputType === "switch") {
+      //Update the unit preferences state to be the opposite of the current value
+      setPortfolioPreferences((prevPreferences) => {
+        const updatedPreferences = prevPreferences.map((preference) =>
+          preference.name === preferenceName
+            ? { ...preference, value: e.target.checked }
+            : preference
+        );
+        //Update tProperty preferences with the api
+        updatePortfolioPreferences(id, { preferences: JSON.stringify(updatedPreferences) });
+        return updatedPreferences;
+      });
+    } else {
+    }
+  };
+
   useEffect(() => {
     setIsLoading(true);
+    syncPortfolioPreferences(id);
     if (!properties || !portfolio) {
       getPortfolio(id)
         .then((res) => {
@@ -172,6 +195,8 @@ const ManagePortfolio = () => {
           if (res.status === 200) {
             setPortfolio(res.data);
             setProperties(res.data.rental_properties);
+            setPortfolioPreferences(JSON.parse(res.data.preferences));
+            console.log(JSON.parse(res.data.preferences))
             setFormData({
               name: res.data.name,
               description: res.data.description,
@@ -396,39 +421,55 @@ const ManagePortfolio = () => {
           )}
 
           {tabPage === 1 && (
-            <div>
-              <ConfirmModal
-                open={showDeleteConfirmModal}
-                setOpen={setShowDeleteConfirmModal}
-                title={"Delete Portfolio"}
-                message={"Are you sure you want to delete this portfolio?"}
-                handleCancel={() => setShowDeleteConfirmModal(false)}
-                handleConfirm={handleDelete}
-                confirmBtnStyle={{
-                  backgroundColor: uiRed,
-                  color: "white",
-                }}
-                cancelBtnStyle={{
-                  backgroundColor: uiGreen,
-                  color: "white",
-                }}
-                confirmBtnText={"Delete"}
-                cancelBtnText={"Cancel"}
-              />
-              <UIPreferenceRow
-                title="Auto-Collect Rent"
-                description="Automatically collect rent from tenants on the first of the month."
-                onChange={() => {
-                  console.log("Changed Preference");
-                }}
-              />
-
-              <DeleteButton
-                onClick={() => setShowDeleteConfirmModal(true)}
-                btnText="Delete Portfolio"
-                style={{ float: "right" }}
-              />
-            </div>
+            <>
+              {portfolioPreferences &&
+                portfolioPreferences.map((preference, index) => {
+                  return (
+                    <ListItem
+                      style={{
+                        borderRadius: "10px",
+                        background: "white",
+                        margin: "10px 0",
+                        boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        sx={{ width: "100%" }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography sx={{ color: "black" }}>
+                              {preference.label}
+                            </Typography>
+                          }
+                          secondary={
+                            <React.Fragment>
+                              {preference.description}
+                            </React.Fragment>
+                          }
+                        />
+                        <>
+                          {preference.inputType === "switch" && (
+                            <UISwitch
+                              onChange={(e) => {
+                                handlePreferenceChange(
+                                  e,
+                                  preference.inputType,
+                                  preference.name
+                                );
+                              }}
+                              value={preference.value}
+                            />
+                          )}
+                        </>
+                      </Stack>
+                    </ListItem>
+                  );
+                })}
+            </>
           )}
         </div>
       )}
