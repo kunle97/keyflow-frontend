@@ -23,6 +23,7 @@ import {
   Paper,
   Popper,
   Stack,
+  Typography,
 } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { authUser, token, uiGreen, uiRed } from "../../../../constants";
@@ -85,6 +86,8 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import UISwitch from "../../UIComponents/UISwitch";
+import { syncRentalUnitPreferences } from "../../../../helpers/preferences";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -93,7 +96,7 @@ const ManageUnit = () => {
   //Create a state for the form data
   const { isMobile } = useScreen();
   const [unit, setUnit] = useState({});
-
+  const [unitPreferences, setUnitPreferences] = useState([]);
   const [tenant, setTenant] = useState({});
   const [editLink, setEditLink] = useState(null);
   const [signedLeaseViewLink, setSignedLeaseViewLink] = useState(null);
@@ -256,6 +259,11 @@ const ManageUnit = () => {
       label: "Rental Applications",
       name: "rental_applications",
       dataTestId: "unit-rental-applications-tab",
+    },
+    {
+      label: "Preferences",
+      name: "preferences",
+      dataTestId: "unit-preferences-tab",
     },
   ];
   const handleChangeTabPage = (event, newValue) => {
@@ -452,7 +460,7 @@ const ManageUnit = () => {
       };
       //Call the createBoldSignEmbeddedTemplateLink API
       await createBoldSignEmbeddedTemplateLink(payload).then((res) => {
-        console.log("Create BoldSign SIgend EMbed Link: ",res);
+        console.log("Create BoldSign SIgend EMbed Link: ", res);
         if (res.status === 201) {
           setCreateLink(res.url);
           setRenderIframe(true);
@@ -791,12 +799,35 @@ const ManageUnit = () => {
     setLeaseDocumentMode(event.target.value); // Update selected unit
   };
 
+  //Create a function that handle the change of the value of a preference
+  const handlePreferenceChange = (e, inputType, preferenceName) => {
+    if (inputType === "switch") {
+      //Update the unit preferences state to be the opposite of the current value
+      setUnitPreferences((prevPreferences) => {
+        const updatedPreferences = prevPreferences.map((preference) =>
+          preference.name === preferenceName
+            ? { ...preference, value: e.target.checked }
+            : preference
+        );
+        //Update the unit preferences with the api
+        updateUnit(unit_id, { preferences: JSON.stringify(updatedPreferences) });
+        return updatedPreferences;
+      });
+
+    } else {
+
+    }
+  };
+
   useEffect(() => {
     setIsLoadingPage(true);
+    syncRentalUnitPreferences(unit_id);
     try {
       //Retrieve Unit Information
       getUnit(unit_id).then((res) => {
         setUnit(res);
+        console.log("UNIT PREFENCESSSZZZ", JSON.parse(res.preferences));
+        setUnitPreferences(JSON.parse(res.preferences));
         setUnitLeaseTerms(JSON.parse(res.lease_terms));
         setAdditionalCharges(JSON.parse(res.additional_charges));
         if (res.signed_lease_document_file) {
@@ -2165,6 +2196,57 @@ const ManageUnit = () => {
                   </>
                 )}
               </div>
+            )}
+            {tabPage === 6 && (
+              <>
+                {unitPreferences &&
+                  unitPreferences.map((preference, index) => {
+                    return (
+                      <ListItem
+                        style={{
+                          borderRadius: "10px",
+                          background: "white",
+                          margin: "10px 0",
+                          boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          sx={{ width: "100%" }}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography sx={{ color: "black" }}>
+                                {preference.label}
+                              </Typography>
+                            }
+                            secondary={
+                              <React.Fragment>
+                                {preference.description}
+                              </React.Fragment>
+                            }
+                          />
+                          <>
+                            {preference.inputType === "switch" && (
+                              <UISwitch
+                                onChange={(e) => {
+                                  handlePreferenceChange(
+                                    e,
+                                    preference.inputType,
+                                    preference.name,
+                                  );
+                                }}
+                                value={preference.value}
+                              />
+                            )}
+                          </>
+                        </Stack>
+                      </ListItem>
+                    );
+                  })}
+              </>
             )}
           </div>
         </div>

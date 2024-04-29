@@ -33,6 +33,7 @@ const CreateRentalApplication = () => {
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
   const [unit, setUnit] = useState({}); // unit data
+  const [unitPreferences, setUnitPreferences] = useState([]); // unit preferences data
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]); // unit preferences data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
@@ -40,7 +41,10 @@ const CreateRentalApplication = () => {
   const [showSubmissionMessage, setShowSubmissionMessage] = useState(false); // show submission message state
   const [submissionMessageLink, setSubmissionMessageLink] = useState(""); // submission message link state
   const [alertButtonText, setAlertButtonText] = useState(""); // alert button text state
+  const [showAlert, setShowAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalRedirect, setAlertModalRedirect] = useState(""); // alert modal redirect state
   const [leaseTemplate, setLeaseTemplate] = useState({}); // lease terms
   const navigate = useNavigate();
   const [unitImages, setUnitImages] = useState([]); // unit images state
@@ -435,6 +439,7 @@ const CreateRentalApplication = () => {
       setIsLoading(true);
       if (unit_res.data) {
         setUnit(unit_res.data);
+
         setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
         //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
         retrieveUnauthenticatedFilesBySubfolder(
@@ -450,7 +455,18 @@ const CreateRentalApplication = () => {
             ]);
           });
         });
-
+        if (
+          JSON.parse(unit_res.data.preferences).find(
+            (preference) => preference.name === "accept_rental_applications"
+          )?.value === false
+        ) {
+          setAlertTitle("Applications Closed");
+          setAlertMessage(
+            "This unit is not accepting rental applications at the moment."
+          );
+          setAlertModalRedirect("/");
+          setShowAlert(true);
+        }
         if (unit_res.data.is_occupied) {
           //Redirect to 404 screen if unit is occupied
           navigate("/*");
@@ -479,6 +495,16 @@ const CreateRentalApplication = () => {
 
   return (
     <>
+      <AlertModal
+        open={showAlert}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+        onClick={() => {
+          setShowAlert(false);
+          navigate(alertModalRedirect);
+        }}
+      />
       <LandingPageNavbar isDarkNav={true} />
       {isLoading ? (
         <ProgressModal open={isLoading} title="Loading Application" />
@@ -644,7 +670,9 @@ const CreateRentalApplication = () => {
                                           register={register}
                                           index={index}
                                           residenceHistory={residenceHistory}
-                                          setResidenceHistory={setResidenceHistory}
+                                          setResidenceHistory={
+                                            setResidenceHistory
+                                          }
                                           addressErrors={
                                             errors[`address_${index}`]
                                           }

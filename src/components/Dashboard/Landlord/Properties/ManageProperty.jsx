@@ -27,6 +27,8 @@ import {
   updateProperty,
   getProperty,
   updatePropertyMedia,
+  updatePropertyPreferences,
+  updatePropertyPortfolio,
 } from "../../../../api/properties";
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
@@ -69,9 +71,12 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import UISwitch from "../../UIComponents/UISwitch";
+import { syncPortfolioPreferences, syncPropertyPreferences } from "../../../../helpers/preferences";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
+  const [propertyPreferences, setPropertyPreferences] = useState([]);
   const [portfolios, setPortfolios] = useState([]); //Create a state to hold the portfolios
   const [currentPortfolio, setCurrentPortfolio] = useState(null); //Create a state to hold the current portfolio
   const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
@@ -420,7 +425,6 @@ const ManageProperty = () => {
       });
   };
 
-
   //Create a handle function to handle the form submission of updating property info
   const onSubmit = async () => {
     const res = await updatePropertyMedia(id, formData);
@@ -442,21 +446,19 @@ const ManageProperty = () => {
     setCurrentPortfolio(
       portfolios.find((portfolio) => portfolio.id === selected_portfolio_id)
     );
-    updateProperty(property.id, { portfolio: selected_portfolio_id }).then(
-      (res) => {
-        console.log("Portfolio Change Res", res);
-        if (res.status === 200) {
-          setUpdateAlertTitle("Portfolio Updated");
-          setUpdateAlertMessage("The property's portfolio has been updated");
-          setUpdateAlertIsOpen(true);
-        } else {
-          setShowUpdateSuccess(true);
-          setUpdateAlertTitle("Error");
-          setUpdateAlertMessage("Something went wrong");
-          setUpdateAlertIsOpen(true);
-        }
+    updatePropertyPortfolio(property.id, selected_portfolio_id).then((res) => {
+      console.log("Portfolio Change Res", res);
+      if (res.status === 200) {
+        setUpdateAlertTitle("Portfolio Updated");
+        setUpdateAlertMessage("The property's portfolio has been updated");
+        setUpdateAlertIsOpen(true);
+      } else {
+        setShowUpdateSuccess(true);
+        setUpdateAlertTitle("Error");
+        setUpdateAlertMessage("Something went wrong");
+        setUpdateAlertIsOpen(true);
       }
-    );
+    });
     setSelectPortfolioDialogOpen(false);
   };
 
@@ -476,10 +478,33 @@ const ManageProperty = () => {
     }
   };
 
+  //Create a function that handle the change of the value of a preference
+  const handlePreferenceChange = (e, inputType, preferenceName) => {
+    if (inputType === "switch") {
+      //Update the unit preferences state to be the opposite of the current value
+      setPropertyPreferences((prevPreferences) => {
+        const updatedPreferences = prevPreferences.map((preference) =>
+          preference.name === preferenceName
+            ? { ...preference, value: e.target.checked }
+            : preference
+        );
+        //Update tProperty preferences with the api
+        updatePropertyPreferences(id, {
+          preferences: JSON.stringify(updatedPreferences),
+        });
+        return updatedPreferences;
+      });
+    } else {
+    }
+  };
+
   useEffect(() => {
+    syncPropertyPreferences(id);
     if (!property || !formData) {
       getProperty(id).then((res) => {
         setProperty(res.data);
+        console.log("Property", res.data);
+        setPropertyPreferences(JSON.parse(res.data.preferences));
         setFormData({
           name: res.data.name,
           street: res.data.street,
@@ -1111,26 +1136,55 @@ const ManageProperty = () => {
                 </div>
               )}
               {tabPage === 2 && (
-                <div className={isMobile && "container-fluid"}>
-                  <List
-                    sx={{
-                      width: "100%",
-                      // maxWidth: 360,
-                    }}
-                  >
-                    {[0, 1, 2, 3].map((value) => {
+                <>
+                  {propertyPreferences &&
+                    propertyPreferences.map((preference, index) => {
                       return (
-                        <UIPreferenceRow
-                          title="Open Applications"
-                          description="Rental applications that are allowed to be created for units in this property."
-                          onChange={() => {
-                            console.log("Changed Preference");
+                        <ListItem
+                          style={{
+                            borderRadius: "10px",
+                            background: "white",
+                            margin: "10px 0",
+                            boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
                           }}
-                        />
+                        >
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            sx={{ width: "100%" }}
+                          >
+                            <ListItemText
+                              primary={
+                                <Typography sx={{ color: "black" }}>
+                                  {preference.label}
+                                </Typography>
+                              }
+                              secondary={
+                                <React.Fragment>
+                                  {preference.description}
+                                </React.Fragment>
+                              }
+                            />
+                            <>
+                              {preference.inputType === "switch" && (
+                                <UISwitch
+                                  onChange={(e) => {
+                                    handlePreferenceChange(
+                                      e,
+                                      preference.inputType,
+                                      preference.name
+                                    );
+                                  }}
+                                  value={preference.value}
+                                />
+                              )}
+                            </>
+                          </Stack>
+                        </ListItem>
                       );
                     })}
-                  </List>
-                </div>
+                </>
               )}
             </div>
           </div>
