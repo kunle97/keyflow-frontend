@@ -13,6 +13,7 @@ const UIButton = (props) => {
   };
   return (
     <Button
+      id={props.id}
       data-testid={props.dataTestId}
       disabled={props.disabled}
       onClick={props.onClick}

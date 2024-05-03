@@ -10,6 +10,15 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { uiGreen } from "../../../../constants";
 const LeaseTemplates = () => {
   const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [units, setUnits] = useState([]);
@@ -18,6 +27,57 @@ const LeaseTemplates = () => {
   const [showDeleteError, setShowDeleteError] = useState(false);
   const { isMobile } = useScreen();
   const navigate = useNavigate();
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-agreements-page",
+      content:
+        "This is the lease template page where you can view all your lease templates. A lease template is a pre-made lease agreement document and set of terms that you can use to apply to multiple units.",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".lease-template-table-container",
+      content: "This is where you can view all of your lease templates.",
+    },
+    {
+      target: ".ui-table-create-button",
+      content: "Click here to create a new lease template.",
+    },
+    {
+      target: ".ui-table-search-input",
+      content: "Use the search bar to search for a specific lease template.",
+    },
+    {
+      target: ".ui-table-result-limit-select",
+      content: "Use this to change the number of results per page.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view lease template details.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
+
   const columns = [
     { name: "rent", label: "Rent" },
     {
@@ -137,7 +197,28 @@ const LeaseTemplates = () => {
     });
   }, []);
   return (
-    <div className="container-fluid">
+    <div className="container-fluid lease-template-page">
+      <Joyride
+        run={runTour}
+        stepIndex={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <div className="card" style={{ overflow: "hidden" }}>
         <AlertModal
           open={showDeleteError}
@@ -149,71 +230,68 @@ const LeaseTemplates = () => {
             setShowDeleteError(false);
           }}
         />
-        {/* <MUIDataTable
-          title={"Lease Terms"}
-          data={leaseTemplates}
-          columns={columns}
-          options={options}
-        /> */}
       </div>
-      {isMobile ? (
-        <UITableMobile
-          tableTitle="Lease Templates"
-          endpoint="/lease-templates/"
-          createInfo={(row) => {
-            let frequency_unit = "";
-            let frequency = "";
-            if (row.rent_frequency === "month") {
-              frequency_unit = "mo";
-              frequency = "month(s)";
-            } else if (row.rent_frequency === "week") {
-              frequency_unit = "wk";
-              frequency = "week(s)";
-            } else if (row.rent_frequency === "day") {
-              frequency_unit = "day";
-              frequency = "day(s)";
-            } else if (row.rent_frequency === "year") {
-              frequency_unit = "yr";
-              frequency = "year(s)";
-            } else {
-              frequency_unit = "mo";
-              frequency = "month(s)";
-            }
-            return `$${row.rent}/${frequency_unit} | ${row.term} ${frequency} `;
-          }}
-          createSubtitle={(row) => `Late Fee:  $${row.late_fee}`}
-          createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
-          onRowClick={handleRowClick}
-          orderingFields={[
-            { field: "created_at", label: "Date Created (Ascending)" },
-            { field: "-created_at", label: "Date Created (Descending)" },
-            { field: "rent", label: "Rent (Ascending)" },
-            { field: "-rent", label: "Rent (Descending)" },
-            { field: "term", label: "Term (Ascending)" },
-            { field: "-term", label: "Term (Descending)" },
-          ]}
-          showCreate={true}
-          createURL="/dashboard/landlord/lease-templates/create"
-        />
-      ) : (
-        <UITable
-          columns={columns}
-          options={options}
-          endpoint="/lease-templates/"
-          title="Lease Templates"
-          showCreate={true}
-          createURL="/dashboard/landlord/lease-templates/create"
-          menuOptions={[
-            {
-              name: "Manage",
-              onClick: (row) => {
-                const navlink = `/dashboard/landlord/lease-templates/${row.id}`;
-                navigate(navlink);
+      <div className="lease-template-table-container">
+        {isMobile ? (
+          <UITableMobile
+            tableTitle="Lease Templates"
+            endpoint="/lease-templates/"
+            createInfo={(row) => {
+              let frequency_unit = "";
+              let frequency = "";
+              if (row.rent_frequency === "month") {
+                frequency_unit = "mo";
+                frequency = "month(s)";
+              } else if (row.rent_frequency === "week") {
+                frequency_unit = "wk";
+                frequency = "week(s)";
+              } else if (row.rent_frequency === "day") {
+                frequency_unit = "day";
+                frequency = "day(s)";
+              } else if (row.rent_frequency === "year") {
+                frequency_unit = "yr";
+                frequency = "year(s)";
+              } else {
+                frequency_unit = "mo";
+                frequency = "month(s)";
+              }
+              return `$${row.rent}/${frequency_unit} | ${row.term} ${frequency} `;
+            }}
+            createSubtitle={(row) => `Late Fee:  $${row.late_fee}`}
+            createTitle={(row) => `Security Deposit: $${row.security_deposit}`}
+            onRowClick={handleRowClick}
+            orderingFields={[
+              { field: "created_at", label: "Date Created (Ascending)" },
+              { field: "-created_at", label: "Date Created (Descending)" },
+              { field: "rent", label: "Rent (Ascending)" },
+              { field: "-rent", label: "Rent (Descending)" },
+              { field: "term", label: "Term (Ascending)" },
+              { field: "-term", label: "Term (Descending)" },
+            ]}
+            showCreate={true}
+            createURL="/dashboard/landlord/lease-templates/create"
+          />
+        ) : (
+          <UITable
+            columns={columns}
+            options={options}
+            endpoint="/lease-templates/"
+            title="Lease Templates"
+            showCreate={true}
+            createURL="/dashboard/landlord/lease-templates/create"
+            menuOptions={[
+              {
+                name: "Manage",
+                onClick: (row) => {
+                  const navlink = `/dashboard/landlord/lease-templates/${row.id}`;
+                  navigate(navlink);
+                },
               },
-            },
-          ]}
-        />
-      )}
+            ]}
+          />
+        )}
+      </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

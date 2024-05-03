@@ -255,7 +255,9 @@ const AddTerms = (props) => {
     },
   ];
   return (
-    <div>
+    <div
+      className="add-terms-container"
+    >
       {" "}
       <div className="row step-0">
         {formInputs.map((input, index) => {

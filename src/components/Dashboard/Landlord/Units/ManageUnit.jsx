@@ -88,6 +88,15 @@ import {
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
 import { syncRentalUnitPreferences } from "../../../../helpers/preferences";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";  
+
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -155,6 +164,117 @@ const ManageUnit = () => {
 
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({});
+  const [tourIndex, setTourIndex] = useState(0);
+  const [runTour, setRunTour] = useState(false);
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (tabPage === 0) {
+      setTourIndex(0);
+    } else if (tabPage === 1) {
+      //Addtional Charges Tab
+      setTourIndex(5);
+    } else if (tabPage === 2) {
+      // Lease document tab
+      setTourIndex(6);
+    } else if (tabPage === 3) {
+      // Lease Template tab
+      setTourIndex(7);
+    } else if (tabPage === 4) {
+      // Files tab
+      setTourIndex(9);
+    } else if (tabPage === 5) {
+      // Rental Applications tab
+      setTourIndex(10);
+    } else if (tabPage === 6) {
+      // Preferences tab
+      setTourIndex(11);
+    }
+    setRunTour(true); // Start the tour
+  };
+
+  const tourSteps = [
+    {
+      target: ".mange-unit-section",
+      content: "Here is where you will manage all the details of this unit.",
+      disableBeacon: true,
+    },
+    {
+      target: ".manage-unit-header",
+      content:
+        "This is the header section of the unit. Here you can view the unit details at a glance.",
+    },
+    {
+      target: ".invite-tenant-button-wrapper",
+      content:
+        "Click here to invite a tenant to this unit. You can invite a tenant by email.",
+    },
+    {
+      target: "#composition-button",
+      content:
+        "Click here to reveal a list that allows you to edit the unit details, view the auto-generated rental application, or delete the unit.",
+    },
+    {
+      target: ".unit-lease-terms-section",
+      content:
+        "This is the lease terms section. Here you can edit the lease terms for this unit such as rent amount, duration of the lease, rent charge frequency, and more. If not added already you can also add a lease agreement document (signed or unsigned) to be associated with this unit.",
+    },
+    //Start Additional Charges Section
+    {
+      target: ".unit-additional-charges-section",
+      content:
+        "This is the additional charges section. Here you can add additional charges to be associated with this unit. Additional charges can be things like parking fees, pet fees, or any other additional charges that are not included in the rent.",
+    },
+    //Start Lease Document Section
+    {
+      target: ".unit-lease-document-section",
+      content:
+        "This is the lease document section. Here you can add or edit a lease agreement document to be associated with this unit. You can either upload a blank lease agreement document or a signed lease agreement document.",
+    },
+    //Lease Template Section
+    {
+      target: ".create-lease-template-button",
+      content:
+        "Click here to create a new lease agreement template that can be used for this unit.",
+    },
+    {
+      target: ".lease-template-section",
+      content:
+        "This is the lease template section. Here you can view all the lease templates that are available to be used for this unit. You can also change the lease template that is currently associated with this unit.",
+    },
+    //Files Section
+    {
+      target: ".unit-files-section",
+      content:
+        "This is the files section. Here you can view all the files that are associated with this unit. You can also upload new files here.",
+    },
+    //Rental Applications Section
+    {
+      target: ".unit-rental-applications-section",
+      content:
+        "This is the rental applications section. Here you can view all the rental applications that have been submitted for this unit.",
+    },
+    //Preferences Section
+    {
+      target: ".unit-preferences-section",
+      content:
+        "This is the preferences section. Here you can view all the preferences that have been set for this unit.",
+    },
+  ];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log("Name ", name);
@@ -810,12 +930,12 @@ const ManageUnit = () => {
             : preference
         );
         //Update the unit preferences with the api
-        updateUnit(unit_id, { preferences: JSON.stringify(updatedPreferences) });
+        updateUnit(unit_id, {
+          preferences: JSON.stringify(updatedPreferences),
+        });
         return updatedPreferences;
       });
-
     } else {
-
     }
   };
 
@@ -900,7 +1020,29 @@ const ManageUnit = () => {
           message="Please wait while we load the unit information for you."
         />
       ) : (
-        <div className="container">
+        <div className="container mange-unit-section">
+          <Joyride
+            // key={runTour ? "run" : "stop"}
+            run={runTour}
+            stepIndex={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
           <ProgressModal
             title={progressModalTitle ? progressModalTitle : "Loading..."}
             open={isLoading}
@@ -1230,7 +1372,7 @@ const ManageUnit = () => {
             alignItems="center"
             alignContent={{ xs: "center", sm: "flex-start" }}
           >
-            <div>
+            <div className="manage-unit-header">
               <h4
                 data-testId="unit-name"
                 style={{ marginBottom: "0px", fontSize: "17pt" }}
@@ -1267,29 +1409,31 @@ const ManageUnit = () => {
                       />
                     </UIDialog>
                     <span className="text-black">Vacant</span>
-                    <Button
-                      style={{
-                        marginLeft: "10px",
-                        color: uiGreen,
-                        textTransform: "none",
-                      }}
-                      onClick={() => {
-                        if (
-                          unit.template_id ||
-                          unit.signed_lease_document_file
-                        ) {
-                          setTenantInviteDialogOpen(true);
-                        } else {
-                          setAlertMessage(
-                            "Please upload a lease document or set a lease template for this unit before inviting a tenant"
-                          );
-                          setAlertTitle("Add Lease Document");
-                          setAlertOpen(true);
-                        }
-                      }}
-                    >
-                      Invite Tenant
-                    </Button>
+                    <span className="invite-tenant-button-wrapper">
+                      <Button
+                        style={{
+                          marginLeft: "10px",
+                          color: uiGreen,
+                          textTransform: "none",
+                        }}
+                        onClick={() => {
+                          if (
+                            unit.template_id ||
+                            unit.signed_lease_document_file
+                          ) {
+                            setTenantInviteDialogOpen(true);
+                          } else {
+                            setAlertMessage(
+                              "Please upload a lease document or set a lease template for this unit before inviting a tenant"
+                            );
+                            setAlertTitle("Add Lease Document");
+                            setAlertOpen(true);
+                          }
+                        }}
+                      >
+                        Invite Tenant
+                      </Button>
+                    </span>
                   </>
                 )}
               </span>
@@ -1433,7 +1577,7 @@ const ManageUnit = () => {
           <div className="row mb-3">
             {tabPage === 0 && (
               <>
-                <div>
+                <div className="unit-lease-terms-section">
                   <UIDialog
                     title="Upload A Lease Agreement"
                     open={addLeaseAgreementDialogIsOpen}
@@ -1448,7 +1592,7 @@ const ManageUnit = () => {
                         <div className="">
                           <iframe
                             src={createLink}
-                            height={isMobile ? "500px" : "1200px"}
+                            height={isMobile ? "500px" : "900px"}
                             width="100%"
                           />
                         </div>
@@ -1571,13 +1715,17 @@ const ManageUnit = () => {
                     </>
                   </UIDialog>
                   <Stack direction="row" justifyContent="flex-end">
-                    {!unit.signed_lease_document_file && !unit.template_id && (
-                      <UIButton
-                        btnText="Add Lease Agreement Document"
-                        onClick={() => {
-                          setAddLeaseAgreementDialogIsOpen(true);
-                        }}
-                      />
+                    {!unit.signed_lease_document_file && !unit.template_id ? (
+                      <span className="add-lease-agreement-document-button">
+                        <UIButton
+                          btnText="Add Lease Agreement Document"
+                          onClick={() => {
+                            setAddLeaseAgreementDialogIsOpen(true);
+                          }}
+                        />
+                      </span>
+                    ) : (
+                      <></>
                     )}
                     {/* {unit.signed_lease_document_file && (
                       <div>
@@ -1658,7 +1806,7 @@ const ManageUnit = () => {
               </>
             )}
             {tabPage === 1 && (
-              <>
+              <div className="unit-additional-charges-section">
                 <AlertModal
                   dataTestId={"additional-charges-alert-modal"}
                   open={alertOpen}
@@ -1849,20 +1997,25 @@ const ManageUnit = () => {
                     />
                   </>
                 )}
-              </>
+              </div>
             )}
             {tabPage === 2 && (
-              <>{unit && <UnitDocumentManager unit={unit} />}</>
+              <div className="unit-lease-document-section">
+                {unit && <UnitDocumentManager unit={unit} />}
+              </div>
             )}
             {tabPage === 3 && (
               <>
-                <div className="py-3" style={{ overflow: "auto" }}>
-                  <div style={{ float: "right" }}>
+                <div className="py-3 " style={{ overflow: "auto" }}>
+                  <div
+                    className="create-lease-template-button"
+                    style={{ float: "right" }}
+                  >
                     {createLeaseTemplateButton}
                   </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 lease-template-section">
                   <div className="card-body">
                     <div className="mb-3">
                       <div>
@@ -2139,7 +2292,7 @@ const ManageUnit = () => {
             )}
             {tabPage === 4 && (
               <>
-                <div className="col-md-12">
+                <div className="col-md-12 unit-files-section">
                   <FileManagerView
                     files={unitMedia}
                     subfolder={`properties/${property_id}/units/${unit_id}`}
@@ -2149,7 +2302,7 @@ const ManageUnit = () => {
               </>
             )}
             {tabPage === 5 && (
-              <div>
+              <div className="unit-rental-applications-section">
                 {isOccupied ? (
                   <UIPrompt
                     icon={<DescriptionIcon style={iconStyles} />}
@@ -2198,7 +2351,7 @@ const ManageUnit = () => {
               </div>
             )}
             {tabPage === 6 && (
-              <>
+              <div className="unit-preferences-section">
                 {unitPreferences &&
                   unitPreferences.map((preference, index) => {
                     return (
@@ -2235,7 +2388,7 @@ const ManageUnit = () => {
                                   handlePreferenceChange(
                                     e,
                                     preference.inputType,
-                                    preference.name,
+                                    preference.name
                                   );
                                 }}
                                 value={preference.value}
@@ -2246,11 +2399,12 @@ const ManageUnit = () => {
                       </ListItem>
                     );
                   })}
-              </>
+              </div>
             )}
           </div>
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </>
   );
 };

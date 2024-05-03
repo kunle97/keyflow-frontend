@@ -6,17 +6,67 @@ import { useNavigate } from "react-router";
 import { uiGreen, uiRed } from "../../../../constants";
 import { getTenantInvoices } from "../../../../api/tenants";
 import UIButton from "../../UIComponents/UIButton";
-import  useScreen  from "../../../../hooks/useScreen";
+import useScreen from "../../../../hooks/useScreen";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const Bills = () => {
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const { isMobile } = useScreen();
   const navigate = useNavigate();
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".tenant-bills-page",
+      content:
+        "This is a list of all your bills. Any time you have a new bill, it will show up here. All of your rent payments in your lease will be listed here.",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".tenant-bills-table-container",
+      content: "Click on a bill to view more details about it.",
+    },
+    {
+      target: ".ui-table-search-input",
+      content:
+        "Use the search bar to search for a  bill",
+    },
+    {
+      target: ".ui-table-result-limit-select",
+      content: "Use this to change the number of results per page.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content:
+        "Click here to view more options for this bill like details or payment options",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const handleRowClick = (row) => {
     navigate(`/dashboard/tenant/bills/${row.id}`);
   };
-
   const columns = [
     {
       label: "Type",
@@ -97,7 +147,28 @@ const Bills = () => {
       message="Please wait while we load your bills"
     />
   ) : (
-    <div className="container-fluid">
+    <div className="container-fluid tenant-bills-page">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {isMobile ? (
         <UITableMobile
           showCreate={false}
@@ -107,7 +178,7 @@ const Bills = () => {
             `${removeUnderscoresAndCapitalize(row.metadata.type)}`
           }
           createSubtitle={(row) =>
-            `$${String(row.amount_due/100).toLocaleString("en-US")}`
+            `$${String(row.amount_due / 100).toLocaleString("en-US")}`
           }
           createTitle={(row) => {
             return (
@@ -116,7 +187,9 @@ const Bills = () => {
                   color: row.paid ? uiGreen : uiRed,
                 }}
               >
-                {row.paid ? "Paid" : "Due " + new Date(row.due_date * 1000).toLocaleDateString()}
+                {row.paid
+                  ? "Paid"
+                  : "Due " + new Date(row.due_date * 1000).toLocaleDateString()}
               </span>
             );
           }}
@@ -131,22 +204,25 @@ const Bills = () => {
           ]}
         />
       ) : (
-        <UITable
-          columns={columns}
-          options={options}
-          title="Bills"
-          showCreate={false}
-          data={invoices}
-          menuOptions={[
-            {
-              name: "Details",
-              onClick: (row) => {
-                navigate(`/dashboard/tenant/bills/${row.id}`);
+        <div className="tenant-bills-table-container">
+          <UITable
+            columns={columns}
+            options={options}
+            title="Bills"
+            showCreate={false}
+            data={invoices}
+            menuOptions={[
+              {
+                name: "Details",
+                onClick: (row) => {
+                  navigate(`/dashboard/tenant/bills/${row.id}`);
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

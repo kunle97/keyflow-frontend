@@ -109,7 +109,7 @@ const UploadLeaseDocument = (props) => {
     };
   }, []);
   return (
-    <div>
+    <div className="lease-document-upload-container">
       <AlertModal
         open={alertOpen}
         title={alertTitle}

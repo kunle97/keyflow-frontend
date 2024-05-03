@@ -32,6 +32,14 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import UICheckbox from "../../UIComponents/UICheckbox";
 import { error } from "pdf-lib";
 import BackButton from "../../UIComponents/BackButton";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 
 const CreateAnnouncement = () => {
   const navigate = useNavigate();
@@ -86,6 +94,68 @@ const CreateAnnouncement = () => {
   //Error Messages
   const [startDateErrorMessage, setStartDateErrorMessage] = useState("");
   const [endDateErrorMessage, setEndDateErrorMessage] = useState("");
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: `.create-announcement-form`,
+      content: "Here is the form to create an announcement. An announcement is a message that can be sent to tenants to notify them of important information. They will see the message as soon as they log in to the tenant portal.",
+      disableBeacon: true,
+    },
+    {
+      target: `[data-testid="target"]`,
+      content: "Select the target for the announcement. This could be a rental unit, rental property or portfolio.",
+    },
+    {
+      target: `[data-testid="rental-unit"]`,
+      content: "Select the rental unit for the announcement here.",
+    },
+    {
+      target: `[data-testid="rental-property"]`,
+      content: "Select the rental property for the announcement here.",
+    },
+    {
+      target: `[data-testid="portfolio"]`,
+      content: "Select the portfolio for the announcement here.",
+    },
+    {
+      target: `[data-testid="severity"]`,
+      content: "Select the severity for the announcement here.",
+    },
+    {
+      target: `[data-testid="start-date"]`,
+      content: "Select the start date for the announcement here.",
+    },
+    {
+      target: `[data-testid="end-date"]`,
+      content: "Select the end date for the announcement here.",
+    },
+    {
+      target: `[data-testid="title"]`,
+      content: "Enter the title for the announcement here.",
+    },
+    {
+      target: `[data-testid="body"]`,
+      content: "Enter the the message for the announcement here.",
+    },
+    {
+      target: `[data-testid="create-announcement-submit-button"]`,
+      content: "Click here to create the announcement.",
+    }
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -455,7 +525,7 @@ const CreateAnnouncement = () => {
       start_date: new Date(formData.start_date).toISOString(), // Convert to UTC format
       end_date: new Date(formData.end_date).toISOString(), // Convert to UTC format
     };
-    
+
     const response = await createAnnouncement(announcementData).then((res) => {
       if (res.status === 200) {
         setLoading(false);
@@ -479,6 +549,27 @@ const CreateAnnouncement = () => {
 
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <ProgressModal open={loading} message={progressModalMessage} />
       <AlertModal
         open={alertModalOpen}
@@ -891,7 +982,7 @@ const CreateAnnouncement = () => {
         </Stack>
       </UIDialog>
       <BackButton />
-      <div className="card">
+      <div className="card create-announcement-form">
         <div className="card-body">
           <h4 className="card-title text-black">Create Announcement</h4>
           <form>
@@ -1039,7 +1130,7 @@ const CreateAnnouncement = () => {
                           onChange={input.onChange}
                           value={formData[input.name]}
                           error={errors[input.name]}
-                          dataTestId={input.dataTestId}
+                          data-testId={input.dataTestId}
                           errorMessageDataTestid={input.errorMessageDataTestId}
                         />
                         {/* )} */}
@@ -1089,6 +1180,7 @@ const CreateAnnouncement = () => {
                           onChange={input.onChange}
                           className="form-control"
                           style={{ height: "100px" }}
+                          data-testId={input.dataTestId}
                         />
                         {errors[input.name] && (
                           <span
@@ -1105,7 +1197,7 @@ const CreateAnnouncement = () => {
               })}
             </div>
             <UIButton
-              dataTestId="create-announcement"
+              dataTestId="create-announcement-submit-button"
               onClick={() => {
                 const { isValid, newErrors } = validateForm(
                   formData,
@@ -1126,6 +1218,7 @@ const CreateAnnouncement = () => {
           </form>
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

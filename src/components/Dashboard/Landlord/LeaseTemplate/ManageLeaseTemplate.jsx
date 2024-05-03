@@ -30,6 +30,14 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ManageLeaseTemplate = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -52,6 +60,66 @@ const ManageLeaseTemplate = () => {
   const [chargesValid, setChargesValid] = useState(false);
   const [additionalCharges, setAdditionalCharges] = useState(null);
   const [editLink, setEditLink] = useState("");
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-template-management-page",
+      content:
+        "This is the lease template management page where you can make changes to your lease agreement template by updating the lease term, adding additional charges, assigning the lease agreement to units, properties, or portfolios, and editing the lease agreement document.",
+      placement: "center",
+      disableBeacon: true,
+    },
+    {
+      target: ".add-terms-container",
+      content:
+        "Here you can add terms to your lease agreement template. You can set the rent amount, rent frequency, term, late fee, security deposit, and other terms.",
+    },
+    {
+      target: ".additional-charges-section",
+      content:
+        "Here you can add additional charges to your lease agreement template. You can set the name, amount, and frequency of the additional charges. An example of an additional charge is monthly pet rent.",
+    },
+    {
+      target: ".assign-to-units-section",
+      content:
+        "Here you can assign the lease agreement template to units, properties, or portfolios. You can assign the lease agreement to multiple units, properties, or portfolios.",
+    },
+    {
+      target: ".edit-lease-template-document",
+      content:
+        "Here you can edit the lease agreement document. You can update the lease agreement terms, add signature fields, and send the lease agreement for signature.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (tabPage === 0) {
+      setTourIndex(0);
+    } else if (tabPage === 1) {
+      setTourIndex(2);
+    } else if (tabPage === 2) {
+      setTourIndex(3);
+    } else if (tabPage === 3) {
+      setTourIndex(4);
+    } else if (tabPage === 4) {
+      setTourIndex(5);
+    }
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
     const { name, value } = e.target;
@@ -671,7 +739,28 @@ const ManageLeaseTemplate = () => {
     retrieveLeaseTemplateData();
   }, []);
   return (
-    <div className="container">
+    <div className="container lease-template-management-page">
+      <Joyride
+        run={runTour}
+        stepIndex={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <ProgressModal open={isLoading} title={progressModalTitle} />
       <AlertModal
         open={alertModalIsOpen}
@@ -689,7 +778,7 @@ const ManageLeaseTemplate = () => {
         scrollable={true}
       />
       {tabPage === 0 && (
-        <div className="card">
+        <div className="card add-terms-container">
           <div className="card-body" style={{ overflow: "auto" }}>
             <form className="row">
               {detailsFormInputs.map((input, index) => (
@@ -761,13 +850,13 @@ const ManageLeaseTemplate = () => {
       {/* Additional Charges */}
       {tabPage === 1 && (
         <>
-          <div className="card">
+          <div className="card additional-charges-section">
             <div className="card-body">{additionalChargesForm()}</div>
           </div>
         </>
       )}
       {tabPage === 2 && (
-        <>
+        <div className="assign-to-units-section">
           <UITableMobile
             data={units}
             infoProperty="name"
@@ -775,8 +864,8 @@ const ManageLeaseTemplate = () => {
               `Occupied: ${row.is_occupied ? `Yes` : "No"} `
             }
             createSubtitle={(row) => `Beds: ${row.beds} | Baths: ${row.baths}`}
-            createURL={`/dashboard/landlord/units/create/${id}`}
-            showCreate={true}
+            // createURL={`/dashboard/landlord/lease-templates/units/create/${id}`}
+            // showCreate={true}
             // getImage={(row) => {
             //   retrieveFilesBySubfolder(
             //     `properties/${property.id}/units/${row.id}`,
@@ -794,11 +883,11 @@ const ManageLeaseTemplate = () => {
               navigate(navlink);
             }}
           />
-        </>
+        </div>
       )}
       {tabPage === 3 && (
         <>
-          <div className="card">
+          <div className="card edit-lease-template-document">
             <iframe
               src={editLink}
               height={isMobile ? "500px" : "1200px"}
@@ -807,6 +896,7 @@ const ManageLeaseTemplate = () => {
           </div>
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

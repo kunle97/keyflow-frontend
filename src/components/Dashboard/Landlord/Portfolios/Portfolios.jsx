@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { uiGreen } from "../../../../constants";
 const Portfolios = () => {
   const navigate = useNavigate();
   const { screenWidth, breakpoints, isMobile } = useScreen();
@@ -40,8 +49,59 @@ const Portfolios = () => {
       { field: "-created_at", label: "Date Created (Descending)" },
     ],
   };
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".portfolio-list-section",
+      content: "This is the list of all your portfolios. A portfolio is a collection of properties.",
+      disableBeacon: true,
+    },
+    {
+      target:".ui-table-more-button:first-of-type",
+      content: "Click here to view more options for this portfolio",
+    },
+    {
+      target: ".ui-table-create-button",
+      content: "Click here to create a new portfolio",
+    }
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   return (
-    <div className={`${screenWidth > breakpoints.md && "container-fluid"}`}>
+    <div className={`${screenWidth > breakpoints.md && "container-fluid"} portfolio-list-section`}>
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {isMobile ? (
         <UITableMobile
           testRowIdentifier="portfolio"
@@ -89,6 +149,7 @@ const Portfolios = () => {
           ]}
         />
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

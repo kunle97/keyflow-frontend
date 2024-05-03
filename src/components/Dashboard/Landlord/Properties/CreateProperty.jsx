@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import {
   authUser,
   token,
+  uiGreen,
   uiRed,
   validationMessageStyle,
 } from "../../../../constants";
@@ -24,6 +25,15 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+
 const CreateProperty = () => {
   const navigate = useNavigate();
   const [unitCreateError, setUnitCreateError] = useState(false);
@@ -44,6 +54,86 @@ const CreateProperty = () => {
     zipcode: faker.location.zipCode(),
     country: "United States",
   });
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".property-info-section",
+      content: "Here is where you enter address information for your property",
+      disableBeacon: true,
+    },
+    {
+      target: "button[data-testid='create-property-next-button']",
+      content: "Click this button to continue tothe next step",
+      spotlightClicks: true,
+    },
+    {
+      target: ".units-section",
+      content:
+        "Here is where you add units to your property. Click the add unit button to add a new unit and the remove button to remove a unit",
+    },
+    {
+      target: 'input[name="name"]:first-of-type',
+      content: "In this textbox, enter the name of the unit you want to add.",
+      placement: "bottom",
+    },
+    {
+      target: 'input[name="beds"]:first-of-type',
+      content: "In this textbox, enter the number of bedrooms in the unit.",
+      placement: "bottom",
+    },
+    {
+      target: 'input[name="baths"]:first-of-type',
+      content: "In this textbox, enter the number of bathrooms in the unit.",
+      placement: "bottom",
+    },
+    {
+      target: 'input[name="size"]:first-of-type',
+      content: "In this textbox, enter the size of the unit in square feet.",
+      placement: "bottom",
+    },
+    {
+      target: ".add-unit-button:first-of-type",
+      content:
+        "Use this button to add another unit if you have more than one unit to add to this property.",
+      placement: "bottom",
+    },
+    {
+      target: "button[data-testid='create-property-back-button']",
+      content:
+        "Click this button to go back to the previous step to edit your property information",
+      placement: "bottom",
+    },
+    {
+      target: "button[data-testid='create-property-submit-button']",
+      content:
+        "Click this button to create your property and units. You can always come back and edit the property later.",
+      placement: "bottom",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (step === 0) {
+      setTourIndex(0);
+    } else if (step === 1) {
+      setTourIndex(1);
+    }
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -311,8 +401,8 @@ const CreateProperty = () => {
   };
   //Create a handle function to handle the form submission of creating a property
   const onSubmit = async (data) => {
-    console.log("DAta: ",data);
-    console.log("Form Data: ",formData);
+    console.log("DAta: ", data);
+    console.log("Form Data: ", formData);
     setIsLoading(true);
     const res = await createProperty(
       formData.name,
@@ -363,6 +453,27 @@ const CreateProperty = () => {
 
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        stepIndex={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <ProgressModal open={isLoading} title="Creating your property..." />
       <AlertModal
         open={unitCreateError}
@@ -385,7 +496,7 @@ const CreateProperty = () => {
             <div className="card-body">
               <form onSubmit={handleSubmit(onSubmit)}>
                 {step === 0 && (
-                  <div className="row">
+                  <div className="row property-info-section">
                     {formInputs.map((input, index) => {
                       return (
                         <div
@@ -544,7 +655,7 @@ const CreateProperty = () => {
                             ) {
                               console.log("Can subm,it");
                               handleSubmit(onSubmit)();
-                            }else{
+                            } else {
                               console.log("Cannot submit");
                             }
                           }}
@@ -559,6 +670,7 @@ const CreateProperty = () => {
           </div>
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

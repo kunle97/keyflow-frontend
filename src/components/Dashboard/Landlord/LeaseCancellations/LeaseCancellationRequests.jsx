@@ -3,6 +3,15 @@ import UITable from "../../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router-dom";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { uiGreen } from "../../../../constants";
 const LeaseCancellationRequests = () => {
   const navigate = useNavigate();
   const { isMobile } = useScreen();
@@ -11,6 +20,43 @@ const LeaseCancellationRequests = () => {
     navigate(navlink);
   };
 
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-cancellation-request-page",
+      content:
+        "This is the lease cancellation requests page. Here you can view all your lease cancellation requests.",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".lease-cancellation-requests-table-container",
+      content: "This is the list of all your lease cancellation requests.",
+    },
+    {
+      target: ".ui-table-search-input",
+      content:
+        "Use the search bar to search for a specific lease cancellation request.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view lease cancellation request details.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const columns = [
     {
       name: "tenant",
@@ -59,7 +105,28 @@ const LeaseCancellationRequests = () => {
   };
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid lease-cancellation-request-page">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {isMobile ? (
         <UITableMobile
           endpoint={"/lease-cancellation-requests/"}
@@ -82,22 +149,25 @@ const LeaseCancellationRequests = () => {
           loadingMessage="Please wait while we fetch your lease cancellation requests."
         />
       ) : (
-        <UITable
-          columns={columns}
-          options={options}
-          endpoint={"/lease-cancellation-requests/"}
-          title={"Lease Cancellation Requests"}
-          menuOptions={[
-            {
-              name: "View",
-              onClick: (row) => {
-                const navlink = `/dashboard/landlord/lease-cancellation-requests/${row.id}`;
-                navigate(navlink);
+        <div className="lease-cancellation-requests-table-container">
+          <UITable
+            columns={columns}
+            options={options}
+            endpoint={"/lease-cancellation-requests/"}
+            title={"Lease Cancellation Requests"}
+            menuOptions={[
+              {
+                name: "View",
+                onClick: (row) => {
+                  const navlink = `/dashboard/landlord/lease-cancellation-requests/${row.id}`;
+                  navigate(navlink);
+                },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

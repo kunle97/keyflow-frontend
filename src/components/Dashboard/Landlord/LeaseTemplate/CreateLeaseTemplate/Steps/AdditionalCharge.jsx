@@ -91,7 +91,7 @@ const AdditionalCharge = (props) => {
     },
   ];
   return (
-    <div style={{ ...props.style }}>
+    <div className="additional-charges-section" style={{ ...props.style }}>
       <div className="row mt-3">
         {formInputs.map((input, i) => (
           <div key={i} className={`col-md-${input.colSpan}`}>

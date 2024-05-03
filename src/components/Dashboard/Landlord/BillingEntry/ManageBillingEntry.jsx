@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { validationMessageStyle } from "../../../../constants";
+import { uiGreen, validationMessageStyle } from "../../../../constants";
 import {
   getBillingEntry,
   updateBillingEntry,
@@ -17,7 +17,14 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
-
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ManageBillingEntry = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -36,6 +43,38 @@ const ManageBillingEntry = () => {
   const [cancelAction, setCancelAction] = useState(() => () => {});
   const [isExpense, setIsExpense] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+
+  const tourSteps = [
+    {
+      target: ".manage-billing-entry-form",
+      content: "This page is used to manage and update billing entries.",
+      disableBeacon: true,
+    },
+    {
+      target: ".update-billing-entry-wrapper",
+      content: "Click this button to update the billing entry.",
+    },
+    {
+      target: ".delete-billing-entry-wrapper",
+      content: "Click this button to delete the billing entry.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const formInputs = [
     {
@@ -321,6 +360,27 @@ const ManageBillingEntry = () => {
   }, []);
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <ProgressModal open={isLoading} title={loadingText} />
       <AlertModal
         open={alertOpen}
@@ -350,7 +410,7 @@ const ManageBillingEntry = () => {
 
       <h4 className="">Manage Billing Entry</h4>
       {formData && (
-        <div className="card">
+        <div className="card manage-billing-entry-form">
           <div className="card-body">
             <form onSubmit={handleSubmit}>
               <div className="row">
@@ -456,30 +516,35 @@ const ManageBillingEntry = () => {
                 alignItems="center"
                 style={{ margin: "20px 0" }}
               >
-                <DeleteButton
-                  style={{ float: "left" }}
-                  onClick={() => {
-                    setConfirmTitle("Delete Billing Entry");
-                    setConfirmMessage(
-                      "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
-                    );
-                    setConfirmAction(() => handleDelete);
-                    setConfirmModelOpen(true);
-                  }}
-                  btnText="Delete Billing Entry"
-                />
-                <UIButton
-                  type="submit"
-                  className="btn btn-primary"
-                  btnText="Update Billing Entry"
-                  style={{ float: "right" }}
-                  dataTestId="update-billing-entry-button"
-                />
+                <span className="delete-billing-entry-wrapper">
+                  <DeleteButton
+                    style={{ float: "left" }}
+                    onClick={() => {
+                      setConfirmTitle("Delete Billing Entry");
+                      setConfirmMessage(
+                        "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
+                      );
+                      setConfirmAction(() => handleDelete);
+                      setConfirmModelOpen(true);
+                    }}
+                    btnText="Delete Billing Entry"
+                  />
+                </span>
+                <span className="update-billing-entry-wrapper">
+                  <UIButton
+                    type="submit"
+                    className="btn btn-primary"
+                    btnText="Update Billing Entry"
+                    style={{ float: "right" }}
+                    dataTestId="update-billing-entry-button"
+                  />
+                </span>
               </Stack>
             </form>
           </div>
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

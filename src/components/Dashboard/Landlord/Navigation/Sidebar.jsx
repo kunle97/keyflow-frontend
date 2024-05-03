@@ -30,7 +30,7 @@ const Sidebar = (props) => {
       ></div> */}
       <nav
         data-testid="sidebar-desktop"
-        className={`navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark ${
+        className={`navbar align-items-start sidebar-desktop sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark ${
           props.showNavMenu ? "" : "dashboard-navbar-hidden"
         }`}
         style={{
@@ -40,9 +40,17 @@ const Sidebar = (props) => {
           position: "fixed",
           top: "0",
           zIndex: "100000000",
+          padding: "10px",
         }}
       >
-        <div className="container-fluid d-flex flex-column p-0">
+        <div
+          className="p-0"
+          style={{
+            overflowY: "auto",
+            height: "100%",
+            width: "100%",
+          }}
+        >
           <a
             className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
             href="#"
