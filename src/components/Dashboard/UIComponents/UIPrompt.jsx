@@ -10,7 +10,7 @@ const UIPrompt = (props) => {
         justifyContent={"center"}
         alignItems={"center"}
         spacing={2}
-        sx={{ padding: "5rem 0", ...props.style }}
+        sx={{ padding: "5rem 1rem", ...props.style }}
       >
         <span>{props.icon}</span>
         <h4>{props.title}</h4>

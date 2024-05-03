@@ -23,6 +23,14 @@ import { getTenantInvoices } from "../../../../api/tenants";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import UITable from "../../UIComponents/UITable/UITable";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LeaseCancellationRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -41,6 +49,46 @@ const LeaseCancellationRequestDetail = () => {
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
   const [invoices, setInvoices] = useState([]);
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-cancellation-request-details-card",
+      content:
+        "This is the lease cancellation request details card. Here you can view the details of the lease cancellation request.",
+      disableBeacon: true,
+    },
+    {
+      target: ".current-lease-agreement-details-card",
+      content:
+        "This is the current lease agreement details card. Here you can view the details of the current lease agreement.",
+    },
+    {
+      target: ".tenant-bills-list",
+      content: "This is the list of all the tenant's bills.",
+    },
+    {
+      target: "#reject-lease-cancellation-button",
+      content: "Click here to reject the lease cancellation request.",
+    },
+    {
+      target: "#accept-lease-cancellation-button",
+      content: "Click here to accept the lease cancellation request.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const columns = [
     { name: "amount", label: "Amount" },
     { name: "due_date", label: "Due Date" },
@@ -152,14 +200,14 @@ const LeaseCancellationRequestDetail = () => {
         console.log(lease_cancellation_res.status);
         if (lease_cancellation_res.status === 200) {
           setLeaseCancellationRequest(lease_cancellation_res.data);
-          getNextPaymentDate(lease_cancellation_res.data.tenant.id).then(
-            (res) => {
-              console.log("nExt pay date data", res);
-              setNextPaymentDate(
-                new Date(res.data.next_payment_date).toLocaleDateString()
-              );
-            }
-          );
+          // getNextPaymentDate(lease_cancellation_res.data.tenant.id).then(
+          //   (res) => {
+          //     console.log("nExt pay date data", res);
+          //     setNextPaymentDate(
+          //       new Date(res.data.next_payment_date).toLocaleDateString()
+          //     );
+          //   }
+          // );
           setCurrentLeaseTerms(
             JSON.parse(lease_cancellation_res.data.rental_unit.lease_terms)
           );
@@ -229,6 +277,27 @@ const LeaseCancellationRequestDetail = () => {
 
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <BackButton to={`/dashboard/landlord/lease-cancellation-requests/`} />
       <ProgressModal
         open={isLoadingAccept}
@@ -273,31 +342,8 @@ const LeaseCancellationRequestDetail = () => {
         />
       ) : (
         <>
-          <Stack
-            direction={"row"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
-          >
-            <span></span>
-            {!isMobile && (
-              <Stack direction="row" gap={2} justifyContent={"end"}>
-                <UIButton
-                  onClick={setOpenRejectModal}
-                  variant="contained"
-                  style={{ backgroundColor: uiRed }}
-                  btnText="Reject"
-                />
-                <UIButton
-                  onClick={setOpenAcceptModal}
-                  variant="contained"
-                  style={{ background: uiGreen }}
-                  btnText="Accept"
-                />
-              </Stack>
-            )}
-          </Stack>
           <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-6 lease-cancellation-request-details-card">
               <h5
                 className="mb-3"
                 // style={{ color: uiGrey2, fontSize: isMobile ? "15pt" : "24pt" }}
@@ -359,7 +405,7 @@ const LeaseCancellationRequestDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 current-lease-agreement-details-card">
               <h5 className="mb-3">Current Lease Agreement Details</h5>
               <div className="card">
                 <div className="card-body">
@@ -424,7 +470,9 @@ const LeaseCancellationRequestDetail = () => {
               </div>
             </div>
 
-            <div className={`col-md-12 ${isMobile && "mt-3"}`}>
+            <div
+              className={`col-md-12 ${isMobile && "mt-3"} tenant-bills-list`}
+            >
               {isMobile ? (
                 <UITableMobile
                   showCreate={false}
@@ -498,16 +546,18 @@ const LeaseCancellationRequestDetail = () => {
           <Stack
             direction="row"
             gap={2}
-            justifyContent={"end"}
+            justifyContent={"flex-end"}
             sx={{ margin: "30px 0" }}
-          >
+          > 
             <UIButton
+              id="reject-lease-cancellation-button"
               onClick={setOpenRejectModal}
               variant="contained"
               style={{ backgroundColor: uiRed }}
               btnText="Reject"
             />
             <UIButton
+              id="accept-lease-cancellation-button"
               onClick={setOpenAcceptModal}
               variant="contained"
               style={{ background: uiGreen }}
@@ -516,6 +566,7 @@ const LeaseCancellationRequestDetail = () => {
           </Stack>
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

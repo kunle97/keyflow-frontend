@@ -7,10 +7,18 @@ import {
 import { useParams } from "react-router";
 import { getLeaseAgreementByLeaseRenewalRequestId } from "../../../../../api/lease_agreements";
 import { generateSigningLink } from "../../../../../api/boldsign";
-import { authUser } from "../../../../../constants";
+import { authUser, uiGreen } from "../../../../../constants";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import UIPrompt from "../../../UIComponents/UIPrompt";
 import UIProgressPrompt from "../../../UIComponents/UIProgressPrompt";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../../UIComponents/UIHelpButton";
 const TenantLeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState({});
@@ -24,7 +32,33 @@ const TenantLeaseRenewalRequestDetail = () => {
   const [signingLinkIsValid, setSigningLinkIsValid] = useState(false);
   const [signingLink, setSigningLink] = useState(null);
   const [leaseTerms, setLeaseTerms] = useState(null);
-
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-agreement-overview",
+      content: "Here you can review the terms of the new lease agreement.",
+      disableBeacon: true,
+    },
+    {
+      target: ".lease-agreement-iframe",
+      content:
+        "This is the lease agreement signing area. Here you will be able to review and sign your new lease agreement once the lease renewal request has been approved.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const handleSignLeaseAgreement = () => {
     setIsSubmitting(true);
     let payload = {
@@ -202,12 +236,33 @@ const TenantLeaseRenewalRequestDetail = () => {
         />
       ) : (
         <>
+          <Joyride
+            run={runTour}
+            index={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
           <ProgressModal
             open={isSubmitting}
             title={"Please wait while your lease agreement is being finalized."}
           />
           <div className="col-md-4">
-            <div className="card">
+            <div className="card lease-agreement-overview">
               <div className="card-body">
                 <span></span>
                 <h4 className="card-title ui-card-title text-black">
@@ -312,24 +367,25 @@ const TenantLeaseRenewalRequestDetail = () => {
               </div>
             </div>
           </div>
-          <div className="col-md-8">
+          <div className="col-md-8 lease-agreement-iframe">
             {signingLinkIsValid ? (
               <iframe
                 src={signingLink}
-                className="card my-3"
-                style={{ height: "640px", padding: "0px", width: "100%" }}
+                className="card my-3 "
+                style={{ height: "800px", padding: "0px", width: "100%" }}
               />
             ) : (
               <UIPrompt
-                title={"Error"}
+                title={"Lease Agreement Unavailable"}
                 message={
-                  "There was an error loading the lease agreement. Please try again later."
+                  "Your new lease agreement will become available once your lease renewal request has been approved by your landlord. Please check back later."
                 }
               />
             )}
           </div>
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -19,7 +19,14 @@ import UITabs from "../../UIComponents/UITabs";
 import UIButton from "../../UIComponents/UIButton";
 import BackButton from "../../UIComponents/BackButton";
 import useScreen from "../../../../hooks/useScreen";
-
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
@@ -41,7 +48,71 @@ const ViewRentalApplication = () => {
     { label: "Employment History", name: "employment_history" },
     { label: "Residential History", name: "residential_history" },
   ];
+  const [tourIndex, setTourIndex] = useState(0);
+  const [runTour, setRunTour] = useState(false);
 
+  const tourSteps = [
+    {
+      target: ".rental-application-detail-view",
+      content:
+        "This is the rental application details page. Here you can view the details of the rental application and approve or reject it.",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".accept-button-wrapper",
+      content:
+        "Click the accept button to approve this rental application and send a lease agreement to the applicant.",
+    },
+    {
+      target: ".reject-button-wrapper",
+      content:
+        "Click the reject button to reject this rental application and delete it from your records.",
+    },
+    {
+      target: ".rental-application-archive-button",
+      content:
+        "Click the archive/unarchive button to archive this rental application. Archived applications will be hidden from the list of rental applications. You can unarchive them later.",
+    },
+    //Employment History Tab
+    {
+      target: ".employment-history-tab",
+      content:
+        "This tab shows the employment history of the applicant. You can view the applicant's employment history here.",
+    },
+    //Residential History Tab
+    {
+      target: ".residential-history-tab",
+      content:
+        "This tab shows the residential history of the applicant. You can view the applicant's residential history here.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (tabPage === 0) {
+      setTourIndex(0);
+    } else if (tabPage === 1) {
+      //Addtional Charges Tab
+      setTourIndex(4);
+    } else if (tabPage === 2) {
+      // Lease document tab
+      setTourIndex(5);
+    }
+    setRunTour(true); // Start the tour
+  };
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
   };
@@ -141,7 +212,28 @@ const ViewRentalApplication = () => {
     });
   }, []);
   return (
-    <div className="container-fluid">
+    <div className="container-fluid rental-application-detail-view">
+      <Joyride
+        run={runTour}
+        stepIndex={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <BackButton to={`/dashboard/landlord/rental-applications`} />
       <ProgressModal
         title="Processing Application..."
@@ -319,8 +411,8 @@ const ViewRentalApplication = () => {
           )}
 
           {tabPage === 1 && (
-            <div className="mb-4">
-              <div className="card">
+            <div className="mb-4 employment-history-tab">
+              <div className="card ">
                 <div className="card-body">
                   {employmentHistory.map((item, index) => {
                     return (
@@ -385,7 +477,7 @@ const ViewRentalApplication = () => {
           )}
 
           {tabPage === 2 && (
-            <div className="mb-4">
+            <div className="mb-4 residential-history-tab">
               <div className="card">
                 <div className="card-body">
                   {residentialHistory.map((item, index) => {
@@ -434,32 +526,37 @@ const ViewRentalApplication = () => {
 
           {!rentalApplication.is_approved ? (
             <Stack direction="row" gap={2}>
-              <Button
-                onClick={setOpenRejectModal}
-                variant="contained"
-                sx={{ background: "red" }}
-              >
-                Reject
-              </Button>
-              <Button
-                onClick={setOpenAcceptModal}
-                variant="contained"
-                sx={{ background: uiGreen }}
-              >
-                Accept
-              </Button>
+              <span className="reject-button-wrapper">
+                <Button
+                  onClick={setOpenRejectModal}
+                  variant="contained"
+                  sx={{ background: "red" }}
+                >
+                  Reject
+                </Button>
+              </span>
+              <span className="accept-button-wrapper">
+                <Button
+                  onClick={setOpenAcceptModal}
+                  variant="contained"
+                  sx={{ background: uiGreen }}
+                >
+                  Accept
+                </Button>
+              </span>
             </Stack>
           ) : (
-            <>
+            <span className="rental-application-archive-button">
               <UIButton
                 btnText={
                   rentalApplication.is_archived ? "Unarchive" : "Archive"
                 }
               />
-            </>
+            </span>
           )}
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

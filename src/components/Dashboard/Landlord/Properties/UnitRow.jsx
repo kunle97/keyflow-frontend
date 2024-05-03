@@ -134,6 +134,7 @@ const UnitRow = (props) => {
       <Stack direction="row" gap={2}>
         {props.removeBtn}
         <Button
+          className="add-unit-button"
           data-testId={`${props.dataTestId}-add-unit-button`}
           sx={{
             color: uiGreen,

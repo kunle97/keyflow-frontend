@@ -11,6 +11,7 @@ import {
   uiRed,
   validationMessageStyle,
   token,
+  uiGreen,
 } from "../../../../constants";
 import UnitRow from "../Properties/UnitRow";
 import { Button, Stack } from "@mui/material";
@@ -19,6 +20,14 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import useScreen from "../../../../hooks/useScreen";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 import UIButton from "../../UIComponents/UIButton";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
 const CreateUnit = () => {
   //Create a state for the form data
   const { isMobile } = useScreen();
@@ -36,7 +45,55 @@ const CreateUnit = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [progressModalTitle, setProgressModalTitle] = useState("");
   const navigate = useNavigate();
-
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: '[data-testid="create-unit-form"]',
+      content:
+        "This is the form you will use this form to add a unit to your property.",
+      disableBeacon: true,
+    },
+    {
+      target: 'input[name="name"]:first-of-type',
+      content: "In this textbox, enter the name of the unit you want to add.",
+    },
+    {
+      target: 'input[name="beds"]:first-of-type',
+      content: "In this textbox, enter the number of bedrooms in the unit.",
+    },
+    {
+      target: 'input[name="baths"]:first-of-type',
+      content: "In this textbox, enter the number of bathrooms in the unit.",
+    },
+    {
+      target: 'input[name="size"]:first-of-type',
+      content: "In this textbox, enter the size of the unit in square feet.",
+    },
+    {
+      target: ".add-unit-button:first-of-type",
+      content:
+        "Use this button to add another unit if you have more than one unit to add to this property.",
+    },
+    {
+      target: ".submit-create-unit-button",
+      content:
+        "Once you are finished adding units, click this button to create the units.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const [units, setUnits] = useState([
     {
       name: `${
@@ -194,6 +251,27 @@ const CreateUnit = () => {
 
   return (
     <>
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <ProgressModal open={isLoading} title={progressModalTitle} />
       <AlertModal
         open={unitCreateError}
@@ -307,24 +385,26 @@ const CreateUnit = () => {
                     })}
                   </div>
 
-                  <div className="text-end my-3">
-                    <UIButton
-                      data-testid="create-unit-submit-button"
-                      className="btn btn-primary ui-btn"
-                      onClick={() => {
-                        if (
-                          Object.values(unitValidationErrors).every(
-                            (val) => val === undefined
-                          )
-                        ) {
-                          setIsLoading(true);
-                          onSubmit();
-                        } else {
-                          console.log("Errors ", unitValidationErrors);
-                        }
-                      }}
-                      btnText="Create Unit(s)"
-                    />
+                  <div className="text-end my-3 ">
+                    <span className="submit-create-unit-button">
+                      <UIButton
+                        data-testid="create-unit-submit-button"
+                        className="btn btn-primary ui-btn "
+                        onClick={() => {
+                          if (
+                            Object.values(unitValidationErrors).every(
+                              (val) => val === undefined
+                            )
+                          ) {
+                            setIsLoading(true);
+                            onSubmit();
+                          } else {
+                            console.log("Errors ", unitValidationErrors);
+                          }
+                        }}
+                        btnText="Create Unit(s)"
+                      />
+                    </span>
                   </div>
                 </form>
               </div>
@@ -332,6 +412,7 @@ const CreateUnit = () => {
           </div>
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </>
   );
 };

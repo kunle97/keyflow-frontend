@@ -27,6 +27,14 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import useScreen from "../../../../hooks/useScreen";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState({});
@@ -38,6 +46,42 @@ const LeaseAgreementDetail = () => {
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   const [nextPaymentDate, setNextPaymentDate] = useState(null);
   const { isMobile } = useScreen();
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-agreement-details",
+      content:
+        "This is the lease agreement details section. It contains all the details of the lease agreement.",
+      disableBeacon: true,
+      placement: "right",
+    },
+    {
+      target: ".lease-agreement-calendar",
+      content:
+        "This is the lease agreement calendar section. It shows the rent due dates for the tenant.",
+      placement: "left",
+    },
+    {
+      target: ".download-document-button",
+      content:
+        "You can download the lease agreement document by clicking the download button.",
+      placement: "top",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const iconStyles = { color: uiGreen, fontSize: "24pt", marginBottom: "5px" };
 
@@ -77,10 +121,10 @@ const LeaseAgreementDetail = () => {
       setTenant(res.data.tenant);
       //Retrieve next payment date
       if (res.data.tenant) {
-        getNextPaymentDate(res.data.tenant.id).then((res) => {
-          console.log("nExt pay date data", res);
-          setNextPaymentDate(res.data.next_payment_date);
-        });
+        // getNextPaymentDate(res.data.tenant.id).then((res) => {
+        //   console.log("nExt pay date data", res);
+        //   setNextPaymentDate(res.data.next_payment_date);
+        // });
         getPaymentDates(res.data.tenant.id).then((res) => {
           if (res.status === 200) {
             const payment_dates = res.data.payment_dates;
@@ -96,9 +140,30 @@ const LeaseAgreementDetail = () => {
   }, []);
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <BackButton />
       <div className="row">
-        <div className="col-md-4">
+        <div className="col-md-4 lease-agreement-details">
           <div className="row">
             <div className="col-6 col-md-6">
               <div className="card mb-3">
@@ -138,7 +203,7 @@ const LeaseAgreementDetail = () => {
                 <div className="card-body">
                   <PaymentsIcon sx={iconStyles} />
                   <h5>Rent</h5>
-                  <p className="text-black">${leaseTemplate.rent}</p>
+                  {/* <p className="text-black">${leaseTemplate.rent}</p> */}
                 </div>
               </div>
             </div>
@@ -194,7 +259,7 @@ const LeaseAgreementDetail = () => {
                 <div className="card-body">
                   <AccessTimeIcon sx={iconStyles} />
                   <h5>Term</h5>
-                  <p className="text-black">{leaseTemplate.term} months</p>
+                  {/* <p className="text-black">{leaseTemplate.term} months</p> */}
                 </div>
               </div>
             </div>
@@ -218,14 +283,16 @@ const LeaseAgreementDetail = () => {
               : "N/A"}
           </p>
           {leaseAgreement.document_id !== "" && (
-            <UIButton
-              btnText="Download Document"
-              style={{ width: "100%", marginBottom: "25px" }}
-              onClick={handleDownloadDocument}
-            />
+            <div className="download-document-button">
+              <UIButton
+                btnText="Download Document"
+                style={{ width: "100%", marginBottom: "25px" }}
+                onClick={handleDownloadDocument}
+              />
+            </div>
           )}
         </div>
-        <div className="col-md-8">
+        <div className="col-md-8 lease-agreement-calendar">
           <div className="card">
             <div className="card-body">
               <FullCalendar
@@ -240,6 +307,7 @@ const LeaseAgreementDetail = () => {
           </div>
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -14,6 +14,14 @@ import { getTenantLeaseCancellationRequests } from "../../../../api/lease_cancel
 import { getTenantLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
 import { getTenantInvoices } from "../../../../api/tenants";
 import { useNavigate } from "react-router";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const MyLeaseAgreement = () => {
   const [unit, setUnit] = useState(null);
   const [unitPreferences, setUnitPreferences] = useState(null);
@@ -38,6 +46,49 @@ const MyLeaseAgreement = () => {
   const [invoices, setInvoices] = useState([]);
   const [totalAmountDue, setTotalAmountDue] = useState(0);
   const [totalAmountPaid, setTotalAmountPaid] = useState(0);
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  // Create tour steps array tha inclued the classnames lease-agreement-page,lease-agreement-overview-section, and lease-agreement-document
+  const tourSteps = [
+    {
+      target: ".lease-agreement-page",
+      content:
+        "This is the lease agreement page. Here you can view all the details of your lease agreement.",
+      disableBeacon: true,
+    },
+    {
+      target: ".lease-agreement-overview-section",
+      content:
+        "This is the lease agreement overview section. Here you can view all the details of your lease agreement.",
+    },
+    {
+      target: ".lease-agreement-document",
+      content: "This is the lease agreement document.",
+    },
+    {
+      target: ".lease-cancellation-button",
+      content:
+        "Click here to request a lease cancellation. You can only request a lease cancellation if your lease agreement or landlord allows it.",
+    },
+    {
+      target: ".lease-renewal-button",
+      content:
+        "Click here to request a lease renewal. You can only request a lease renewal if your lease agreement or landlord allows it.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const openCancellationDialog = () => {
     let today = new Date();
     let noticePeriod = JSON.parse(
@@ -181,8 +232,29 @@ const MyLeaseAgreement = () => {
 
   return (
     <>
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {leaseAgreement ? (
-        <div className="row">
+        <div className="row lease-agreement-page">
           <AlertModal
             open={showAlertModal}
             onClick={() => {
@@ -195,7 +267,7 @@ const MyLeaseAgreement = () => {
           />
           <h4 className="my-3 ">My Lease Agreement</h4>
           <div className="col-md-4">
-            <div className="card my-3">
+            <div className="card my-3 lease-agreement-overview-section">
               <div className="card-body">
                 <h4 className="card-title text-black mb-4">
                   Lease Agreement Overview
@@ -344,14 +416,17 @@ const MyLeaseAgreement = () => {
             </div>
           </div>
           <div className="col-md-8">
-            <div className="card my-3" style={{ height: "850px" }}>
+            <div
+              className="card my-3 lease-agreement-document"
+              style={{ height: "850px" }}
+            >
               {/* PDF Viewer Goes Here */}
             </div>
             <Stack direction="row" spacing={2}>
               {unitPreferences.find(
                 (preference) => preference.name === "accept_lease_cancellations"
               ).value && (
-                <>
+                <div className="lease-cancellation-button">
                   <LeaseCancellationDialog
                     open={showLeaseCancellationDialog}
                     onClose={() => setShowLeaseCancellationFormDialog(false)}
@@ -369,12 +444,12 @@ const MyLeaseAgreement = () => {
                     btnText="Request Cancellation"
                     onClick={openCancellationDialog}
                   />
-                </>
+                </div>
               )}
               {unitPreferences.find(
                 (preference) => preference.name === "accept_lease_renewals"
               ).value && (
-                <>
+                <div className="lease-renewal-button">
                   <LeaseRenewalDialog
                     open={showLeaseRenewalDialog}
                     onClose={() => setShowLeaseRenewalDialog(false)}
@@ -390,10 +465,11 @@ const MyLeaseAgreement = () => {
                     btnText="Request Renewal"
                     onClick={openRenewalDialog}
                   />
-                </>
+                </div>
               )}
             </Stack>
           </div>
+          <UIHelpButton onClick={handleClickStart} />
         </div>
       ) : (
         <UIPrompt

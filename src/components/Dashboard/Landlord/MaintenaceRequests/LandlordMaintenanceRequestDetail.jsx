@@ -46,6 +46,14 @@ import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UIPrompt from "../../UIComponents/UIPrompt";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LandlordMaintenanceRequestDetail = () => {
   const { id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState({});
@@ -67,6 +75,50 @@ const LandlordMaintenanceRequestDetail = () => {
     useState(false);
   const [progressModalOpen, setProgressModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".maintenance-request-detail-page",
+      content: "This is the maintenance request detail page",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".maintenace-request-detail-header",
+      content:
+        "This is the maintenance request detail page header. Here you will find the tenant's name, the status of the maintenance request, and the priority of the maintenance request.",
+    },
+    {
+      target: ".more-button-wrapper",
+      content:
+        "This button reveals the menu that allows you to change the status, priority, contact the vendor, or delete the maintenance request.",
+    },
+    {
+      target: ".tenant-message-section",
+      content:
+        "Here you will find the tenant's message about the maintenance request.",
+    },
+    {
+      target: ".maintenance-request-event-section",
+      content:
+        "Here you will find the maintenance request events. Anytime there is an update with a maintenance request, it will be displayed here.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const anchorRef = useRef(null);
 
@@ -221,7 +273,28 @@ const LandlordMaintenanceRequestDetail = () => {
           message="Please wait while we load the maintenance request"
         />
       ) : (
-        <div>
+        <div className="maintenance-request-detail-page">
+          <Joyride
+            run={runTour}
+            index={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
           <ProgressModal open={progressModalOpen} title={"Loading..."} />
           <AlertModal
             open={showAlertModal}
@@ -330,159 +403,161 @@ const LandlordMaintenanceRequestDetail = () => {
             </div>
           </UIDialog>
           <BackButton to={`/dashboard/landlord/maintenance-requests`} />
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={2}
-            sx={{ mb: 2 }}
-          >
-            <div className="">
-              <Stack
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                alignContent={"center"}
-                spacing={1}
-                sx={{ mt: 1 }}
-              >
-                <h4 style={{ marginRight: "0px" }}>
-                  {maintenanceRequest?.tenant.user.first_name +
-                    " " +
-                    maintenanceRequest?.tenant.user.last_name}
-                </h4>{" "}
-                <p style={{ marginRight: "0px" }}>
-                  {/* <span className="text-black">Status: </span> */}
-                  {status === "pending" && (
-                    // <span className="text-warning">Pending</span>
-                    <Chip label="Pending" color="warning" />
-                  )}
-                  {status === "in_progress" && (
-                    // <span className="text-info">In Progress</span>
-                    <Chip label="In Progress" color="info" />
-                  )}
-                  {status === "completed" && (
-                    // <span className="text-success">Completed</span>
-                    <Chip label="Completed" color="success" />
-                  )}
-                </p>
-                <p style={{ marginRight: "0px" }}>
-                  {/* <span className="text-black">Priority: </span> */}
-                  {maintenanceRequest.priority === 1 && (
-                    // <span className="text-success">Low</span>
-                    <Chip label="Low Priority" color="success" />
-                  )}
-                  {maintenanceRequest.priority === 2 && (
-                    // <span className="text-warning">Medium</span>
-                    <Chip label="Moderate Priority" color="warning" />
-                  )}
-                  {maintenanceRequest.priority === 3 && (
-                    // <span className="text-danger">High</span>
-                    <Chip label="High Priority" color="error" />
-                  )}
-                  {maintenanceRequest.priority === 4 && (
-                    // <span className="text-danger">Urgent</span>
-                    <Chip label="Urgent Priority" color="error" />
-                  )}
-                  {maintenanceRequest.priority === 5 && (
-                    // <span className="text-danger">Emergency</span>
-                    <Chip label="Emergency Priority" color="error" />
-                  )}
-                </p>
-              </Stack>
-              <span className="text-black">
-                Unit {unit?.name} @ {property?.name}
-              </span>
-              <Stack
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                alignContent={"center"}
-                spacing={3}
-                sx={{ mt: 1 }}
-              >
-                <span className="text-black"> </span>
-              </Stack>
-            </div>
-            {authUser.account_type === "owner" && (
-              <div>
-                <IconButton
-                  ref={anchorRef}
-                  id="composition-button"
-                  aria-controls={open ? "composition-menu" : undefined}
-                  aria-expanded={open ? "true" : undefined}
-                  aria-haspopup="true"
-                  onClick={handleToggle}
+          <div className="maintenace-request-detail-header">
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={2}
+              sx={{ mb: 2 }}
+            >
+              <div className="">
+                <Stack
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  alignContent={"center"}
+                  spacing={1}
+                  sx={{ mt: 1 }}
                 >
-                  <MoreVertIcon />
-                </IconButton>
-
-                <Popper
-                  open={open}
-                  anchorEl={anchorRef.current}
-                  role={undefined}
-                  placement="bottom-start"
-                  transition
-                  disablePortal
-                  sx={{ zIndex: 10 }}
+                  <h4 style={{ marginRight: "0px" }}>
+                    {maintenanceRequest?.tenant.user.first_name +
+                      " " +
+                      maintenanceRequest?.tenant.user.last_name}
+                  </h4>{" "}
+                  <p style={{ marginRight: "0px" }}>
+                    {/* <span className="text-black">Status: </span> */}
+                    {status === "pending" && (
+                      // <span className="text-warning">Pending</span>
+                      <Chip label="Pending" color="warning" />
+                    )}
+                    {status === "in_progress" && (
+                      // <span className="text-info">In Progress</span>
+                      <Chip label="In Progress" color="info" />
+                    )}
+                    {status === "completed" && (
+                      // <span className="text-success">Completed</span>
+                      <Chip label="Completed" color="success" />
+                    )}
+                  </p>
+                  <p style={{ marginRight: "0px" }}>
+                    {/* <span className="text-black">Priority: </span> */}
+                    {maintenanceRequest.priority === 1 && (
+                      // <span className="text-success">Low</span>
+                      <Chip label="Low Priority" color="success" />
+                    )}
+                    {maintenanceRequest.priority === 2 && (
+                      // <span className="text-warning">Medium</span>
+                      <Chip label="Moderate Priority" color="warning" />
+                    )}
+                    {maintenanceRequest.priority === 3 && (
+                      // <span className="text-danger">High</span>
+                      <Chip label="High Priority" color="error" />
+                    )}
+                    {maintenanceRequest.priority === 4 && (
+                      // <span className="text-danger">Urgent</span>
+                      <Chip label="Urgent Priority" color="error" />
+                    )}
+                    {maintenanceRequest.priority === 5 && (
+                      // <span className="text-danger">Emergency</span>
+                      <Chip label="Emergency Priority" color="error" />
+                    )}
+                  </p>
+                </Stack>
+                <span className="text-black">
+                  Unit {unit?.name} @ {property?.name}
+                </span>
+                <Stack
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  alignContent={"center"}
+                  spacing={3}
+                  sx={{ mt: 1 }}
                 >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === "bottom-start"
-                            ? "right top"
-                            : "right top",
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener onClickAway={handleClose}>
-                          <MenuList
-                            autoFocusItem={open}
-                            id="composition-menu"
-                            aria-labelledby="composition-button"
-                            onKeyDown={handleListKeyDown}
-                          >
-                            <MenuItem
-                              onClick={() => {
-                                setChangeStatusDialogOpen(true);
-                              }}
-                            >
-                              Change Status
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => {
-                                setChangePriorityDialogOpen(true);
-                              }}
-                            >
-                              Change Priority
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => setContactVendorModalOpen(true)}
-                            >
-                              Contact Vendor
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => {
-                                setShowDeleteConfirm(true);
-                              }}
-                            >
-                              Delete Maintenance Request
-                            </MenuItem>
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
+                  <span className="text-black"> </span>
+                </Stack>
               </div>
-            )}
-          </Stack>
-
+              {authUser.account_type === "owner" && (
+                <div>
+                  <span className="more-button-wrapper">
+                    <IconButton
+                      ref={anchorRef}
+                      id="composition-button"
+                      aria-controls={open ? "composition-menu" : undefined}
+                      aria-expanded={open ? "true" : undefined}
+                      aria-haspopup="true"
+                      onClick={handleToggle}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </span>
+                  <Popper
+                    open={open}
+                    anchorEl={anchorRef.current}
+                    role={undefined}
+                    placement="bottom-start"
+                    transition
+                    disablePortal
+                    sx={{ zIndex: 10 }}
+                  >
+                    {({ TransitionProps, placement }) => (
+                      <Grow
+                        {...TransitionProps}
+                        style={{
+                          transformOrigin:
+                            placement === "bottom-start"
+                              ? "right top"
+                              : "right top",
+                        }}
+                      >
+                        <Paper>
+                          <ClickAwayListener onClickAway={handleClose}>
+                            <MenuList
+                              autoFocusItem={open}
+                              id="composition-menu"
+                              aria-labelledby="composition-button"
+                              onKeyDown={handleListKeyDown}
+                            >
+                              <MenuItem
+                                onClick={() => {
+                                  setChangeStatusDialogOpen(true);
+                                }}
+                              >
+                                Change Status
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => {
+                                  setChangePriorityDialogOpen(true);
+                                }}
+                              >
+                                Change Priority
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => setContactVendorModalOpen(true)}
+                              >
+                                Contact Vendor
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => {
+                                  setShowDeleteConfirm(true);
+                                }}
+                              >
+                                Delete Maintenance Request
+                              </MenuItem>
+                            </MenuList>
+                          </ClickAwayListener>
+                        </Paper>
+                      </Grow>
+                    )}
+                  </Popper>
+                </div>
+              )}
+            </Stack>
+          </div>
           <div className="row">
             <div className="col-md-4">
-              <div className="card mb-3">
+              <div className="card mb-3  tenant-message-section">
                 <div className="card-body">
                   <h5 className="mb-2 card-title text-black">
                     Message from tenant
@@ -509,12 +584,12 @@ const LandlordMaintenanceRequestDetail = () => {
                   message="There are no events for this maintenance request. When events occur, they will be displayed here."
                 />
               ) : (
-                <div className="card">
+                <div className="card maintenance-request-event-section">
                   <div
                     className="card-body"
                     style={{
                       overflowY: "auto",
-                      height: "520px",
+                      maxHeight: "520px",
                     }}
                   >
                     <h5 className="mb-2 card-title text-black">
@@ -555,125 +630,11 @@ const LandlordMaintenanceRequestDetail = () => {
                   </div>
                 </div>
               )}
-              {/* <div className="card">
-                <div className="card-body">
-                  <h5 className="mb-2 card-title text-black">Event Timeline</h5>
-                  <Timeline align="left">
-                    <TimelineItem>
-                      <TimelineOppositeContent sx={{ flex: 0.1 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          9:30 am
-                        </Typography>
-                      </TimelineOppositeContent>
-                      <TimelineSeparator>
-                        <TimelineConnector />
-                        <TimelineDot sx={{ background: uiGreen }}>
-                          <PostAddIcon />
-                        </TimelineDot>
-                        <TimelineConnector />
-                      </TimelineSeparator>
-                      <TimelineContent sx={{ py: "12px", px: 2 }}>
-                        <Typography
-                          sx={{ color: "black", fontSize: "14pt" }}
-                          variant="h6"
-                          component="span"
-                        >
-                          Maintenance Request Created
-                        </Typography>
-                        <Typography sx={{ color: "black" }}>
-                          Your tenant has submitted a maintenance request
-                        </Typography>
-                      </TimelineContent>
-                    </TimelineItem>
-                    <TimelineItem>
-                      <TimelineOppositeContent sx={{ flex: 0.1 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          10:30 am
-                        </Typography>
-                      </TimelineOppositeContent>
-                      <TimelineSeparator>
-                        <TimelineConnector />
-                        <TimelineDot sx={{ background: uiGreen }}>
-                          <ReceiptIcon />
-                        </TimelineDot>
-                        <TimelineConnector />
-                      </TimelineSeparator>
-                      <TimelineContent sx={{ py: "12px", px: 2 }}>
-                        <Typography
-                          sx={{ color: "black", fontSize: "14pt" }}
-                          variant="h6"
-                          component="span"
-                        >
-                          Work Order Created
-                        </Typography>
-                        <Typography sx={{ color: "black" }}>
-                          A work order has been created for your maintenance
-                          request
-                        </Typography>
-                      </TimelineContent>
-                    </TimelineItem>
-                    <TimelineItem>
-                      <TimelineOppositeContent sx={{ flex: 0.1 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          11:30 am
-                        </Typography>
-                      </TimelineOppositeContent>
-                      <TimelineSeparator>
-                        <TimelineConnector />
-                        <TimelineDot
-                          sx={{ background: uiGreen }}
-                          variant="outlined"
-                        >
-                          <HandymanIcon />
-                        </TimelineDot>
-                        <TimelineConnector />
-                      </TimelineSeparator>
-                      <TimelineContent sx={{ py: "12px", px: 2 }}>
-                        <Typography
-                          sx={{ color: "black", fontSize: "14pt" }}
-                          variant="h6"
-                          component="span"
-                        >
-                          Vendor Assigned
-                        </Typography>
-                        <Typography sx={{ color: "black" }}>
-                          A vendor has been assigned to your work order
-                        </Typography>
-                      </TimelineContent>
-                    </TimelineItem>
-                    <TimelineItem>
-                      <TimelineOppositeContent sx={{ flex: 0.1 }}>
-                        <Typography variant="body2" color="text.secondary">
-                          2:00 pm
-                        </Typography>
-                      </TimelineOppositeContent>
-                      <TimelineSeparator>
-                        <TimelineConnector />
-                        <TimelineDot sx={{ background: uiGreen }}>
-                          <CachedIcon />
-                        </TimelineDot>
-                        <TimelineConnector />
-                      </TimelineSeparator>
-                      <TimelineContent sx={{ py: "12px", px: 2 }}>
-                        <Typography
-                          sx={{ color: "black", fontSize: "14pt" }}
-                          variant="h6"
-                          component="span"
-                        >
-                          Work Order In Progress
-                        </Typography>
-                        <Typography sx={{ color: "black" }}>
-                          The vendor is working on your work order
-                        </Typography>
-                      </TimelineContent>
-                    </TimelineItem>
-                  </Timeline>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

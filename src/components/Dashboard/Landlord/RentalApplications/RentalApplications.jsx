@@ -4,12 +4,55 @@ import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { uiGreen } from "../../../../constants";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
-
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".rental-application-list",
+      content: "This is the list of all your rental applications.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-search-input",
+      content:
+        "Use the search bar to search for a specific rental application.",
+    },
+    {
+      target: ".ui-table-result-limit-select",
+      content: "Use this to change the number of results per page.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view rental application details.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const columns = [
     {
       name: "first_name",
@@ -93,7 +136,28 @@ const RentalApplications = () => {
     });
   }, []);
   return (
-    <div className="container-fluid">
+    <div className="container-fluid rental-application-list">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {isMobile ? (
         <UITableMobile
           tableTitle={"Rental Applications"}
@@ -149,6 +213,7 @@ const RentalApplications = () => {
           ]}
         />
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -138,6 +138,7 @@ const Topbar = (props) => {
             }`}
           >
             <img
+              className="topbar-brand"
               src="/assets/img/key-flow-logo-black-transparent.png"
               style={{ height: "40px", width: "auto" }}
             />
@@ -154,6 +155,7 @@ const Topbar = (props) => {
           </form>
           {authUser.account_type === "owner" && (
             <Stack
+              className="topbar-search-stack"
               direction="row"
               alignItems="center"
               spacing={1}
@@ -214,7 +216,7 @@ const Topbar = (props) => {
                 </form>
               </div>
             </li>
-            <li className="nav-item dropdown no-arrow mx-1">
+            <li className="nav-item dropdown no-arrow mx-1 notification-topbar-icon">
               <div className="nav-item dropdown no-arrow">
                 <a
                   className="dropdown-toggle nav-link"
@@ -334,7 +336,7 @@ const Topbar = (props) => {
                 </div>
               </div>
             </li>
-            <li className="nav-item dropdown no-arrow mx-1">
+            <li className="nav-item dropdown no-arrow mx-1 messages-topbar-icon">
               <div className="nav-item dropdown no-arrow">
                 <Link
                   className="dropdown-toggle nav-link"
@@ -350,7 +352,7 @@ const Topbar = (props) => {
               />
             </li>
             <div className="d-none d-sm-block topbar-divider" />
-            <li className="nav-item dropdown no-arrow">
+            <li className="nav-item dropdown no-arrow my-account-topbar-dropdown">
               <div className="nav-item dropdown no-arrow">
                 <a
                   className="dropdown-toggle nav-link"
