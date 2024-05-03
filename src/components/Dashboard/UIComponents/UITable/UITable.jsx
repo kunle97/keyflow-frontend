@@ -359,19 +359,22 @@ const UITable = (props) => {
           >
             {" "}
             {props.showCreate && (
-              <ButtonBase
-                style={{ color: uiGreen }}
-                onClick={() => {
-                  navigate(props.createURL);
-                }}
-              >
-                New
-                <IconButton style={{ color: uiGreen }}>
-                  <AddIcon />
-                </IconButton>
-              </ButtonBase>
+              <span className="ui-table-create-button">
+                <ButtonBase
+                  style={{ color: uiGreen }}
+                  onClick={() => {
+                    navigate(props.createURL);
+                  }}
+                >
+                  New
+                  <IconButton style={{ color: uiGreen }}>
+                    <AddIcon />
+                  </IconButton>
+                </ButtonBase>
+              </span>
             )}
             <input
+              className="ui-table-search-input"
               style={{
                 background: "white",
                 color: "black",
@@ -388,7 +391,7 @@ const UITable = (props) => {
               Show
             </span>
             <select
-              className="form-select "
+              className="form-select ui-table-result-limit-select"
               value={limit}
               onChange={(e) => {
                 changeSearchLimit(e.target.value);
@@ -525,13 +528,16 @@ const UITable = (props) => {
                               return <td>{row[column.name]}</td>;
                             })}
                             <td>
-                              <IconButton
-                                onClick={(event) =>
-                                  handleMenuClick(event, index)
-                                }
-                              >
-                                <MoreVert />
-                              </IconButton>
+                              <div className="ui-table-more-button">
+                                <IconButton
+                                  id="ui-table-more-button"
+                                  onClick={(event) =>
+                                    handleMenuClick(event, index)
+                                  }
+                                >
+                                  <MoreVert />
+                                </IconButton>
+                              </div>
                               <Popper
                                 open={selectedIndex === index}
                                 anchorEl={anchorEl}

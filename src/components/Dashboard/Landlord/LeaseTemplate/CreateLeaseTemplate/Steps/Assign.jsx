@@ -108,7 +108,7 @@ const Assign = (props) => {
   };
 
   return (
-    <div>
+    <div className="assign-to-units-section" >
       <AlertModal
         open={showAssignError}
         handleClose={() => setShowAssignError(false)}

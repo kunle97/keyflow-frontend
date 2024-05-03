@@ -9,7 +9,13 @@ import {
 } from "../../../../api/portfolios";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import EditIcon from "@mui/icons-material/Edit";
-import { IconButton, ListItem, ListItemText, Stack, Typography } from "@mui/material";
+import {
+  IconButton,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import {
   authUser,
   uiGreen,
@@ -19,14 +25,11 @@ import {
   uiRed,
 } from "../../../../constants";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import useScreen from "../../../../hooks/useScreen";
-import DeleteButton from "../../UIComponents/DeleteButton";
-import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UITable from "../../UIComponents/UITable/UITable";
 import {
   triggerValidation,
@@ -34,6 +37,14 @@ import {
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
 import { syncPortfolioPreferences } from "../../../../helpers/preferences";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ManagePortfolio = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
@@ -56,6 +67,58 @@ const ManagePortfolio = () => {
     // name: portfolio ? portfolio.name : "",
     // description: portfolio ? portfolio.description : "",
   });
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".manage-portfolio-page",
+      content: "This is the portfolio management page",
+      disableBeacon: true,
+    },
+    {
+      target: ".portfolio-info",
+      content: "Here you can see the name and description of the portfolio",
+    },
+    {
+      target: ".edit-portfolio-button-wrapper",
+      content:
+        "You can edit the name and description of the portfolio by clicking here",
+    },
+    {
+      target: ".properties-list-container",
+      content: "Here you can see all the properties in this portfolio",
+    },
+    {
+      target: ".portfolio-preferences-container",
+      content:
+        "Here you can see the preferences for this portfolio. You can change the preferences by toggling the switches. if the preference matches a property, the property will be updated with the new preference as well as its units",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (tabPage === 0) {
+      setTourIndex(0);
+    } else if (tabPage === 1) {
+      setTourIndex(4);
+    }
+    setRunTour(true);
+    console.log(runTour);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newErrors = triggerValidation(
@@ -178,7 +241,9 @@ const ManagePortfolio = () => {
             : preference
         );
         //Update tProperty preferences with the api
-        updatePortfolioPreferences(id, { preferences: JSON.stringify(updatedPreferences) });
+        updatePortfolioPreferences(id, {
+          preferences: JSON.stringify(updatedPreferences),
+        });
         return updatedPreferences;
       });
     } else {
@@ -196,7 +261,7 @@ const ManagePortfolio = () => {
             setPortfolio(res.data);
             setProperties(res.data.rental_properties);
             setPortfolioPreferences(JSON.parse(res.data.preferences));
-            console.log(JSON.parse(res.data.preferences))
+            console.log(JSON.parse(res.data.preferences));
             setFormData({
               name: res.data.name,
               description: res.data.description,
@@ -222,7 +287,28 @@ const ManagePortfolio = () => {
           />
         </>
       ) : (
-        <div>
+        <div className="manage-portfolio-page">
+          <Joyride
+            run={runTour}
+            stepIndex={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
           <AlertModal
             open={open}
             setOpen={setOpen}
@@ -332,7 +418,7 @@ const ManagePortfolio = () => {
             alignItems="center"
             sx={{ marginBottom: "25px" }}
           >
-            <div>
+            <div className="portfolio-info">
               <h3 className="text-black" data-testid="portfolio-name">
                 {portfolio ? portfolio.name : ""}
               </h3>
@@ -340,14 +426,16 @@ const ManagePortfolio = () => {
                 {portfolio ? portfolio.description : ""}
               </p>
             </div>
-            <IconButton
-              data-testid="edit-portfolio-button"
-              onClick={() => {
-                setEditDialogOpen(true);
-              }}
-            >
-              <EditIcon sx={{ color: uiGreen }} />
-            </IconButton>
+            <span className="edit-portfolio-button-wrapper">
+              <IconButton
+                data-testid="edit-portfolio-button"
+                onClick={() => {
+                  setEditDialogOpen(true);
+                }}
+              >
+                <EditIcon sx={{ color: uiGreen }} />
+              </IconButton>
+            </span>
           </Stack>
           <UITabs
             value={tabPage}
@@ -357,7 +445,7 @@ const ManagePortfolio = () => {
             style={{ marginBottom: "25px" }}
           />
           {tabPage === 0 && (
-            <div>
+            <div className="properties-list-container">
               {isMobile ? (
                 <UITableMobile
                   testRowIdentifier="portfolio-property"
@@ -421,7 +509,7 @@ const ManagePortfolio = () => {
           )}
 
           {tabPage === 1 && (
-            <>
+            <div className="portfolio-preferences-container">
               {portfolioPreferences &&
                 portfolioPreferences.map((preference, index) => {
                   return (
@@ -469,10 +557,11 @@ const ManagePortfolio = () => {
                     </ListItem>
                   );
                 })}
-            </>
+            </div>
           )}
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -11,7 +11,11 @@ import {
   deleteAnnouncement,
 } from "../../../../api/announcements";
 import { authenticatedInstance } from "../../../../api/api";
-import { authUser, validationMessageStyle } from "../../../../constants";
+import {
+  authUser,
+  uiGreen,
+  validationMessageStyle,
+} from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UIInput from "../../UIComponents/UIInput";
@@ -21,6 +25,14 @@ import { useParams } from "react-router";
 import BackButton from "../../UIComponents/BackButton";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -45,6 +57,39 @@ const ManageAnnouncement = () => {
   //Error Messages
   const [startDateErrorMessage, setStartDateErrorMessage] = useState("");
   const [endDateErrorMessage, setEndDateErrorMessage] = useState("");
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+
+  const tourSteps = [
+    {
+      target: ".manage-announcement-form",
+      content: "You can update the announcement details here",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-testId="create-announcement"]',
+      content:
+        "Once you are finished updating the announcement, click here to save the changes",
+    },
+    {
+      target: '[data-testId="delete-announcement"]',
+      content: "If you want to delete the announcement, click here",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -254,6 +299,27 @@ const ManageAnnouncement = () => {
 
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <BackButton />
       <ProgressModal open={loading} message={progressModalMessage} />
       <AlertModal
@@ -284,11 +350,12 @@ const ManageAnnouncement = () => {
           });
         }}
       />
-      <div className="card">
+      <div className="card manage-announcement-form">
         <div className="card-body">
           <h4 className="card-title text-black">
-            Manage Announcement for
-            {targetObject && `${targetObject.type + " " + targetObject.name}`}
+            Manage Announcement
+            {targetObject &&
+              ` for ${targetObject.type + " " + targetObject.name}`}
           </h4>
           <form>
             <div className="row">
@@ -470,18 +537,23 @@ const ManageAnnouncement = () => {
         </div>
       </div>
       <div style={{ width: "100%" }}>
-        <DeleteButton
+        <span
+          data-testid="delete-announcement"
           style={{ margin: "10px 0", float: "right" }}
-          btnText="Delete Announcement"
-          onClick={() => {
-            setConfirmModalTitle("Delete Announcement");
-            setConfirmModalMessage(
-              "Are you sure you want to delete this announcement?"
-            );
-            setConfirmModalOpen(true);
-          }}
-        />
+        >
+          <DeleteButton
+            btnText="Delete Announcement"
+            onClick={() => {
+              setConfirmModalTitle("Delete Announcement");
+              setConfirmModalMessage(
+                "Are you sure you want to delete this announcement?"
+              );
+              setConfirmModalOpen(true);
+            }}
+          />
+        </span>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

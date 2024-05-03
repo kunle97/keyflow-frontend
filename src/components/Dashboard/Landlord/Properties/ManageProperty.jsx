@@ -72,7 +72,18 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
-import { syncPortfolioPreferences, syncPropertyPreferences } from "../../../../helpers/preferences";
+import {
+  syncPortfolioPreferences,
+  syncPropertyPreferences,
+} from "../../../../helpers/preferences";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -80,7 +91,6 @@ const ManageProperty = () => {
   const [portfolios, setPortfolios] = useState([]); //Create a state to hold the portfolios
   const [currentPortfolio, setCurrentPortfolio] = useState(null); //Create a state to hold the current portfolio
   const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
-
   const [selectPortfolioDialogOpen, setSelectPortfolioDialogOpen] =
     useState(false); //Create a state to hold the select portfolio dialog open state
   const [units, setUnits] = useState([]);
@@ -111,8 +121,73 @@ const ManageProperty = () => {
   const anchorRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(false);
   const [errors, setErrors] = useState({});
-
   const [formData, setFormData] = useState({});
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const [isOnStep2, setIsOnStep2] = useState(false); // Add this line
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status,type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if(tabPage === 0){
+      setTourIndex(0);
+    }else if(tabPage === 1){
+      setTourIndex(4);
+    }else if(tabPage === 2){
+      setTourIndex(5);
+    }
+    setRunTour(true); // Start the tour
+  };
+
+  const tourSteps = [
+    {
+      target: ".manage-property-container",
+      content:
+        "This is the property management page. Here you can edit your property details, create units, upload media, and change preferences",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".property-info-header",
+      content:
+        "This is the property information section. Here you can view and edit the property details",
+    },
+    {
+      target: "button[data-testid='property-edit-button']",
+      content:
+        "Click the 'Edit' button to edit the property details. You can change the name, address, and other details",
+    },
+    //Start Unit List Tour
+    {
+      target: ".units-list",
+      content:
+        "This is the list of units in the property. When you add a new unit click the button on the right of each unit to view or edit the unit",
+      placement: "bottom",
+    },
+    //Start Media Manager Tour
+    {
+      target: ".property-media-file-manager",
+      content:
+        "Here is where you can upload media files for the property. Click the 'Upload Media' button to upload images for the property",
+    },
+    //Start Preferences Tour
+    {
+      target: ".property-preferences",
+      content: "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
+    },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -549,7 +624,7 @@ const ManageProperty = () => {
           setIsLoading(false);
         });
     }
-  }, [property, formData]);
+  }, [property, formData])
 
   return (
     <>
@@ -560,7 +635,33 @@ const ManageProperty = () => {
           message="Please wait while we load the property information for you."
         />
       ) : (
-        <div className={`${screenWidth > breakpoints.md && "container-fluid"}`}>
+        <div
+          className={`${
+            screenWidth > breakpoints.md && "container-fluid"
+          } manage-property-container`}
+        >
+          <Joyride
+            // key={runTour ? "run" : "stop"}
+            run={runTour}
+            stepIndex={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
           {/* <BackButton  /> */}
           <AlertModal
             dataTestId="property-update-alert-modal"
@@ -746,7 +847,7 @@ const ManageProperty = () => {
               )}
             </List>
           </UIDialog>
-          <div>
+          <div className="property-info-header">
             {propertyMedia && propertyMedia.length > 0 && (
               <div
                 style={{
@@ -772,7 +873,6 @@ const ManageProperty = () => {
                 />
               </div>
             )}
-
             <Stack
               direction="row"
               justifyContent="space-between"
@@ -882,13 +982,8 @@ const ManageProperty = () => {
                 <Popper
                   open={openDropdown}
                   anchorEl={anchorRef.current}
-                  role={undefined}
                   placement="bottom-start"
                   transition
-                  disablePortal
-                  sx={{
-                    zIndex: "1",
-                  }}
                 >
                   {({ TransitionProps, placement }) => (
                     <Grow
@@ -1051,7 +1146,7 @@ const ManageProperty = () => {
                             />
                           </>
                         ) : (
-                          <div>
+                          <div className="units-list">
                             {" "}
                             {isMobile ? (
                               <UITableMobile
@@ -1126,7 +1221,7 @@ const ManageProperty = () => {
                 </>
               )}
               {tabPage === 1 && (
-                <div>
+                <div className="property-media-file-manager">
                   <FileManagerView
                     dataTestIdentifier="property-media"
                     files={propertyMedia}
@@ -1136,7 +1231,7 @@ const ManageProperty = () => {
                 </div>
               )}
               {tabPage === 2 && (
-                <>
+                <div className="property-preferences">
                   {propertyPreferences &&
                     propertyPreferences.map((preference, index) => {
                       return (
@@ -1184,12 +1279,13 @@ const ManageProperty = () => {
                         </ListItem>
                       );
                     })}
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </>
   );
 };

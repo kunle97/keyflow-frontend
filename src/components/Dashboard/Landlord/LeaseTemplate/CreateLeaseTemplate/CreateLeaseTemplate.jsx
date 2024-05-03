@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography, Box, Stack } from "@mui/material";
 import { uiGreen } from "../../../../../constants";
 import { createLeaseTemplate } from "../../../../../api/lease_templates";
-import { faker } from "@faker-js/faker";
+import { el, faker } from "@faker-js/faker";
 import BackButton from "../../../UIComponents/BackButton";
 import UIStepper from "../../../UIComponents/UIStepper";
 import UIButton from "../../../UIComponents/UIButton";
@@ -19,6 +19,14 @@ import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../../hooks/useScreen";
 import { triggerValidation } from "../../../../../helpers/formValidation";
 import AdditionalCharge from "./Steps/AdditionalCharge";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../../UIComponents/UIHelpButton";
 const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
@@ -60,6 +68,67 @@ const CreateLeaseTemplate = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [chargesValid, setChargesValid] = useState(false);
   const navigate = useNavigate();
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".lease-template-creation-page",
+      content:
+        "This is the lease template creation page. Here you can create a lease template for any of your units.",
+      placement: "center",
+      disableBeacon: true,
+    },
+    {
+      target: ".lease-document-upload-container",
+      content:
+        "Here you can upload a lease agreement document to create a lease agreement template. Once uploaded you can edit the document and add signature fields.",
+    },
+    {
+      target: ".add-terms-container",
+      content:
+        "Here you can add terms to your lease agreement template. You can set the rent amount, rent frequency, term, late fee, security deposit, and other terms.",
+    },
+    {
+      target: ".additional-charges-section",
+      content:
+        "Here you can add additional charges to your lease agreement template. You can set the name, amount, and frequency of the additional charges. An example of an additional charge is monthly pet rent.",
+    },
+    {
+      target: ".assign-to-units-section",
+      content:
+        "Here you can assign the lease agreement template to units, properties, or portfolios. You can assign the lease agreement to multiple units, properties, or portfolios.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (step === 0) {
+      setTourIndex(0);
+    } else if (step === 1) {
+      setTourIndex(2);
+    } else if (step === 2) {
+      setTourIndex(3);
+    } else if (step === 3) {
+      setTourIndex(4);
+    } else if (step === 4) {
+      setTourIndex(5);
+    }
+    setRunTour(true);
+    console.log(runTour);
+  };
+
   const {
     register,
     handleSubmit,
@@ -301,7 +370,28 @@ const CreateLeaseTemplate = (props) => {
   };
 
   return (
-    <div className="container">
+    <div className="container lease-template-creation-page">
+      <Joyride
+        run={runTour}
+        stepIndex={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <AlertModal
         open={showResponseMessage}
         handleClose={() => setShowResponseMessage(false)}
@@ -478,7 +568,6 @@ const CreateLeaseTemplate = (props) => {
                     type="button"
                     onClick={() => {
                       onSubmit();
-                      
                     }}
                     style={{
                       margin: "1rem 0",
@@ -492,6 +581,7 @@ const CreateLeaseTemplate = (props) => {
           </form>
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -34,6 +34,14 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
@@ -56,8 +64,67 @@ const CreateBillingEntry = () => {
   const [errors, setErrors] = useState({});
   const [redirectToBillingEntries, setRedirectToBillingEntries] =
     useState(false);
-
   const navigate = useNavigate();
+
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: '.create-billing-entry-form',
+      content: "This is the create billing entry page. Here you can create a new bill to send to your tenants or record a general revenue or expense that may not have been tracked automatically by the system.",
+      disableBeacon: true,
+    },
+    {
+      target: '[data-testId="amount-input"]',
+      content: "Enter the amount for the billing entry",
+    },
+    {
+      target: '[data-testId="tenant-select"]',
+      content: "Select the tenant for the billing entry",
+    },
+    {
+      target: '[data-testId="rental-unit-select"]',
+      content: "Select the rental unit for the billing entry",
+    },
+    {
+      target: '[data-testId="type-select"]',
+      content: "Select the type of billing entry",
+    },
+    {
+      target: '[data-testId="status-select"]',
+      content: "Select the status of the billing entry",
+    },
+    {
+      target: '[data-testId="collection-method-select"]',
+      content: "Select the collection method for the billing entry",
+    },
+    {
+      target: '[data-testId="due-date-input"]',
+      content: "Enter the due date for the billing entry",
+    },
+    {
+      target: '[data-testId="description-input"]',
+      content: "Enter a description for the billing entry",
+    },
+
+    {
+      target: '[data-testId="create-billing-entry-submit-button"]',
+      content: "When finished click here to create the billing entry",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   const [formData, setFormData] = useState({
     amount: "",
@@ -396,6 +463,27 @@ const CreateBillingEntry = () => {
   };
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <ProgressModal open={isLoading} title="Creating Billing Entry..." />
       <AlertModal
         dataTestId="create-billing-entry-alert-modal"
@@ -669,7 +757,7 @@ const CreateBillingEntry = () => {
       <h4 className="" data-testId="create-billing-entry-page-title">
         Create Billing Entry
       </h4>
-      <div className="card">
+      <div className="card  create-billing-entry-form">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             <div className="row">
@@ -846,6 +934,7 @@ const CreateBillingEntry = () => {
           </form>
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };
