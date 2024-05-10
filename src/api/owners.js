@@ -31,3 +31,21 @@ export async function updateOwnerPreferences(data) {
     return error.response;
   }
 }
+
+
+//Retrieve the owner's stripe account link by sending a GET request to the endpoint api/owners/{id}/stripe-account-link
+export async function getStripeAccountLink() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/stripe-account-link/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Stripe Account Link Error: ", error);
+    return error.response;
+  }
+}
+
