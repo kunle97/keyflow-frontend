@@ -24,7 +24,6 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CancelIcon from "@mui/icons-material/Cancel";
 import useScreen from "../../../hooks/useScreen";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { set } from "react-hook-form";
 const Messages = () => {
   const { thread_id } = useParams();
   const { isMobile } = useScreen();
@@ -47,7 +46,6 @@ const Messages = () => {
 
   const handleFileInputChange = (event) => {
     const selectedFile = event.target.files[0];
-
     if (selectedFile) {
       const reader = new FileReader();
 
@@ -472,6 +470,7 @@ const Messages = () => {
                           required
                           name="body"
                         />
+
                         <div className="input-group-append"></div>
                         <div className="">
                           <ButtonBase>

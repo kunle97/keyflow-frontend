@@ -24,6 +24,24 @@ const RentalApplications = () => {
       sortable: true,
     },
     {
+      label: "Unit",
+      name: "unit",
+      options: {
+        customBodyRender: (value) => {
+          return value.name;
+        },
+      },
+    },
+    {
+      label: "Property",
+      name: "unit",
+      options: {
+        customBodyRender: (value) => {
+          return value.rental_property_name;
+        },
+      },
+    },
+    {
       label: "Approved",
       name: "is_approved",
       selector: (row) => row.unit,
@@ -32,18 +50,6 @@ const RentalApplications = () => {
           return value ? "Yes" : "No";
         },
       },
-      sortable: true,
-    },
-
-    {
-      label: "Desired Move In Date",
-      name: "desired_move_in_date",
-      options: {
-        customBodyRender: (value) => {
-          return new Date(value).toLocaleDateString();
-        },
-      },
-      selector: (row) => row.desired_move_in_date,
       sortable: true,
     },
     {

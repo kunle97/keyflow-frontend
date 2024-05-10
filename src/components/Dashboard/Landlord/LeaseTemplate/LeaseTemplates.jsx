@@ -201,6 +201,8 @@ const LeaseTemplates = () => {
           options={options}
           endpoint="/lease-templates/"
           title="Lease Templates"
+          showCreate={true}
+          createURL="/dashboard/landlord/lease-templates/create"
           menuOptions={[
             {
               name: "Manage",

@@ -113,7 +113,7 @@ export async function generateSigningLink(data) {
         console.log(res);
         return res.data;
       });
-    return { data: response, status: 200 };
+    return { data: response };
   } catch (error) {
     console.error("Generate Signing Link Error: ", error);
     return error.response;

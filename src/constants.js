@@ -159,7 +159,7 @@ export const landlordMenuItems = [
         dataTestId: "landlord-lease-templates-menu-item",
       },
       {
-        label: "Lease Cancellation Requests",
+        label: "Cancellation Requests",
         link: "/dashboard/landlord/lease-cancellation-requests",
         muiIcon: <DescriptionIcon />,
         description: "View your lease cancellation requests",
@@ -168,7 +168,7 @@ export const landlordMenuItems = [
         dataTestId: "landlord-lease-cancellation-requests-menu-item",
       },
       {
-        label: "Lease Renewal Requests",
+        label: "Renewal Requests",
         link: "/dashboard/landlord/lease-renewal-requests",
         muiIcon: <DescriptionIcon />,
         description: "View your lease renewal requests",

@@ -20,6 +20,10 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const CreateProperty = () => {
   const navigate = useNavigate();
   const [unitCreateError, setUnitCreateError] = useState(false);
@@ -30,10 +34,185 @@ const CreateProperty = () => {
   const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState({
     items: { data: [{ plan: { product: "" } }] },
   });
+  const [errors, setErrors] = useState({});
+  const [unitValidationErrors, setUnitValidationErrors] = useState({});
+  const [formData, setFormData] = useState({
+    name: faker.company.name(),
+    street: faker.location.streetAddress(),
+    city: faker.location.city(),
+    state: faker.location.state(),
+    zipcode: faker.location.zipCode(),
+    country: "United States",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const formInputs = [
+    {
+      label: "Name",
+      name: "name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Lynx Society Highrises",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]{3,}$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "create-property-name-input",
+      errorMessageDataTestId: "create-property-name-error-message",
+      step: 0,
+    },
+    {
+      label: "Street",
+      name: "street",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "Sunset Blvd, 38",
+      validations: {
+        required: true,
+        regex: /^\d+\s[a-zA-Z0-9\s,'-]+$/,
+        errorMessage: "Enter a valid street address (e.g., 123 Main St)",
+      },
+      dataTestId: "create-property-street-input",
+      errorMessageDataTestId: "create-property-street-error-message",
+      step: 0,
+    },
+    {
+      label: "City",
+      name: "city",
+      type: "text",
+      colSpan: 4,
+      onChange: (e) => handleChange(e),
+      placeholder: "Los Angeles",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]*$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "create-property-city-input",
+      errorMessageDataTestId: "create-property-city-error-message",
+      step: 0,
+    },
+    {
+      label: "State",
+      name: "state",
+      type: "select",
+      colSpan: 4,
+      onChange: (e) => handleChange(e),
+      options: [
+        { value: "", label: "Select One" },
+        { value: "AL", label: "Alabama" },
+        { value: "AK", label: "Alaska" },
+        { value: "AZ", label: "Arizona" },
+        { value: "AR", label: "Arkansas" },
+        { value: "CA", label: "California" },
+        { value: "CO", label: "Colorado" },
+        { value: "CT", label: "Connecticut" },
+        { value: "DE", label: "Delaware" },
+        { value: "DC", label: "District Of Columbia" },
+        { value: "FL", label: "Florida" },
+        { value: "GA", label: "Georgia" },
+        { value: "HI", label: "Hawaii" },
+        { value: "ID", label: "Idaho" },
+        { value: "IL", label: "Illinois" },
+        { value: "IN", label: "Indiana" },
+        { value: "IA", label: "Iowa" },
+        { value: "KS", label: "Kansas" },
+        { value: "KY", label: "Kentucky" },
+        { value: "LA", label: "Louisiana" },
+        { value: "ME", label: "Maine" },
+        { value: "MD", label: "Maryland" },
+        { value: "MA", label: "Massachusetts" },
+        { value: "MI", label: "Michigan" },
+        { value: "MN", label: "Minnesota" },
+        { value: "MS", label: "Mississippi" },
+        { value: "MO", label: "Missouri" },
+        { value: "MT", label: "Montana" },
+        { value: "NE", label: "Nebraska" },
+        { value: "NV", label: "Nevada" },
+        { value: "NH", label: "New Hampshire" },
+        { value: "NJ", label: "New Jersey" },
+        { value: "NM", label: "New Mexico" },
+        { value: "NY", label: "New York" },
+        { value: "NC", label: "North Carolina" },
+        { value: "ND", label: "North Dakota" },
+        { value: "OH", label: "Ohio" },
+        { value: "OK", label: "Oklahoma" },
+        { value: "OR", label: "Oregon" },
+        { value: "PA", label: "Pennsylvania" },
+        { value: "RI", label: "Rhode Island" },
+        { value: "SC", label: "South Carolina" },
+        { value: "SD", label: "South Dakota" },
+        { value: "TN", label: "Tennessee" },
+        { value: "TX", label: "Texas" },
+        { value: "UT", label: "Utah" },
+        { value: "VT", label: "Vermont" },
+        { value: "VA", label: "Virginia" },
+        { value: "WA", label: "Washington" },
+        { value: "WV", label: "West Virginia" },
+        { value: "WI", label: "Wisconsin" },
+        { value: "WY", label: "Wyoming" },
+      ],
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]*$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "create-property-state-input",
+      errorMessageDataTestId: "create-property-state-error-message",
+      step: 0,
+    },
+    {
+      label: "Zip Code",
+      name: "zipcode",
+      type: "text",
+      colSpan: 4,
+      onChange: (e) => handleChange(e),
+      placeholder: "90210",
+      validations: {
+        required: true,
+        regex: /^\d{5}(?:[-\s]\d{4})?$/,
+        errorMessage: "Must be in zip code format",
+      },
+      dataTestId: "create-property-zip-code-input",
+      errorMessageDataTestId: "create-property-zip-code-error-message",
+      step: 0,
+    },
+    {
+      label: "Country",
+      name: "country",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "United States",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s,'-]*$/,
+        errorMessage: "Must be at least 3 characters long",
+      },
+      dataTestId: "create-property-country-input",
+      errorMessageDataTestId: "create-property-country-error-message",
+    },
+  ];
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
   } = useForm({
     defaultValues: {
       name:
@@ -132,14 +311,16 @@ const CreateProperty = () => {
   };
   //Create a handle function to handle the form submission of creating a property
   const onSubmit = async (data) => {
+    console.log("DAta: ",data);
+    console.log("Form Data: ",formData);
     setIsLoading(true);
     const res = await createProperty(
-      data.name,
-      data.street,
-      data.city,
-      data.state,
-      data.zipcode,
-      data.country
+      formData.name,
+      formData.street,
+      formData.city,
+      formData.state,
+      formData.zipcode,
+      formData.country
     );
     console.log(res);
     const newPropertyId = res.res.id;
@@ -150,7 +331,7 @@ const CreateProperty = () => {
       payload.subscription_id = currentSubscriptionPlan.id;
       payload.product_id = currentSubscriptionPlan.plan.product;
       payload.user = authUser.id;
-      payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms)
+      payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
 
       const res = await createUnit(payload);
       console.log(res);
@@ -204,256 +385,100 @@ const CreateProperty = () => {
             <div className="card-body">
               <form onSubmit={handleSubmit(onSubmit)}>
                 {step === 0 && (
-                  <div className="property-info-section">
-                    <div className="mb-3">
-                      <label
-                        className="form-label text-black"
-                        htmlFor="street"
-                        data-testid="create-property-name-label"
-                      >
-                        <strong>Name</strong>
-                      </label>
-                      <input
-                        data-testid="create-property-name-input"
-                        {...register("name", {
-                          required: "This is a required field",
-                          minLength: {
-                            value: 3,
-                            message: "Must be at least 3 characters long",
-                          },
-                        })}
-                        className="form-control"
-                        type="text"
-                        id="street"
-                        placeholder="Lynx Society Highrises"
-                        name="name"
-                        style={{ borderStyle: "none" }}
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.name && errors.name.message}
-                      </span>
-                    </div>
-                    <div className="mb-3">
-                      <label
-                        className="form-label text-black"
-                        htmlFor="street"
-                        data-testid="create-property-street-label"
-                      >
-                        <strong>Street Address</strong>
-                      </label>
-                      <input
-                        data-testid="create-property-street-input"
-                        {...register("street", {
-                          required: "This is a required field",
-                          minLength: {
-                            value: 3,
-                            message: "Must be at least 3 characters long",
-                          },
-                          //Create pattern to only be in street address format
-                          pattern: {
-                            value: /^[a-zA-Z0-9\s,'-]*$/,
-                            message: "Must be in street address format",
-                          },
-                        })}
-                        className="form-control"
-                        type="text"
-                        id="street-1"
-                        placeholder="Sunset Blvd, 38"
-                        name="street"
-                        style={{ borderStyle: "none" }}
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.street && errors.street.message}
-                      </span>
-                    </div>
-                    <div className="row">
-                      <div className="col-12 col-md-4">
-                        <div className="mb-3">
+                  <div className="row">
+                    {formInputs.map((input, index) => {
+                      return (
+                        <div
+                          className={`mb-3 col-md-${input.colSpan}`}
+                          key={index}
+                        >
                           <label
                             className="form-label text-black"
-                            htmlFor="city"
-                            data-testid="create-property-city-label"
+                            htmlFor={input.name}
+                            data-testid={`create-property-${input.name}-label`}
                           >
-                            <strong>City</strong>
+                            <strong>{input.label}</strong>
                           </label>
-                          <input
-                            data-testid="create-property-city-input"
-                            {...register("city", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 3,
-                                message: "Must be at least 3 characters long",
-                              },
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="city"
-                            placeholder="Los Angeles"
-                            name="city"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.city && errors.city.message}
-                          </span>
+                          {input.type === "text" ? (
+                            <>
+                              {" "}
+                              <input
+                                data-testid={`create-property-${input.name}-input`}
+                                onChange={handleChange}
+                                onBlur={input.onChange}
+                                className="form-control"
+                                type="text"
+                                id={input.name}
+                                placeholder={input.placeholder}
+                                name={input.name}
+                                style={{ borderStyle: "none", color: "black" }}
+                                value={formData[input.name]}
+                              />
+                              {errors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{ ...validationMessageStyle }}
+                                >
+                                  {errors[input.name]}
+                                </span>
+                              )}
+                            </>
+                          ) : input.type === "select" ? (
+                            <>
+                              <select
+                                onChange={input.onChange}
+                                data-testId={`create-property-${input.name}-input`}
+                                name={input.name}
+                                className="form-select"
+                              >
+                                {input.options.map((option, index) => {
+                                  return (
+                                    <option
+                                      key={index}
+                                      value={
+                                        process.env.REACT_APP_ENVIRONMENT !==
+                                        "development"
+                                          ? ""
+                                          : option.value
+                                      }
+                                    >
+                                      {process.env.REACT_APP_ENVIRONMENT !==
+                                      "development"
+                                        ? ""
+                                        : option.label}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              {errors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{ ...validationMessageStyle }}
+                                >
+                                  {errors[input.name]}
+                                </span>
+                              )}
+                            </>
+                          ) : null}
                         </div>
-                      </div>
-                      <div className="col-12 col-md-4">
-                        <div className="mb-3">
-                          <label
-                            data-testid="create-property-state-label"
-                            className="form-label text-black"
-                            htmlFor="state"
-                          >
-                            <strong>State</strong>
-                          </label>
-                          <select
-                            data-testId="create-property-state-input"
-                            {...register("state", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 2,
-                                message: "Must be at least 2 characters long",
-                              },
-                            })}
-                            className="form-select"
-                          >
-                            <option
-                              selected
-                              value={
-                                process.env.REACT_APP_ENVIRONMENT !==
-                                "development"
-                                  ? ""
-                                  : faker.location.state()
-                              }
-                            >
-                              {process.env.REACT_APP_ENVIRONMENT !==
-                              "development"
-                                ? ""
-                                : faker.location.state()}
-                            </option>
-                            <option value="">Select One</option>
-                            <option value="AL">Alabama</option>
-                            <option value="AK">Alaska</option>
-                            <option value="AZ">Arizona</option>
-                            <option value="AR">Arkansas</option>
-                            <option value="CA">California</option>
-                            <option value="CO">Colorado</option>
-                            <option value="CT">Connecticut</option>
-                            <option value="DE">Delaware</option>
-                            <option value="DC">District Of Columbia</option>
-                            <option value="FL">Florida</option>
-                            <option value="GA">Georgia</option>
-                            <option value="HI">Hawaii</option>
-                            <option value="ID">Idaho</option>
-                            <option value="IL">Illinois</option>
-                            <option value="IN">Indiana</option>
-                            <option value="IA">Iowa</option>
-                            <option value="KS">Kansas</option>
-                            <option value="KY">Kentucky</option>
-                            <option value="LA">Louisiana</option>
-                            <option value="ME">Maine</option>
-                            <option value="MD">Maryland</option>
-                            <option value="MA">Massachusetts</option>
-                            <option value="MI">Michigan</option>
-                            <option value="MN">Minnesota</option>
-                            <option value="MS">Mississippi</option>
-                            <option value="MO">Missouri</option>
-                            <option value="MT">Montana</option>
-                            <option value="NE">Nebraska</option>
-                            <option value="NV">Nevada</option>
-                            <option value="NH">New Hampshire</option>
-                            <option value="NJ">New Jersey</option>
-                            <option value="NM">New Mexico</option>
-                            <option value="NY">New York</option>
-                            <option value="NC">North Carolina</option>
-                            <option value="ND">North Dakota</option>
-                            <option value="OH">Ohio</option>
-                            <option value="OK">Oklahoma</option>
-                            <option value="OR">Oregon</option>
-                            <option value="PA">Pennsylvania</option>
-                            <option value="RI">Rhode Island</option>
-                            <option value="SC">South Carolina</option>
-                            <option value="SD">South Dakota</option>
-                            <option value="TN">Tennessee</option>
-                            <option value="TX">Texas</option>
-                            <option value="UT">Utah</option>
-                            <option value="VT">Vermont</option>
-                            <option value="VA">Virginia</option>
-                            <option value="WA">Washington</option>
-                            <option value="WV">West Virginia</option>
-                            <option value="WI">Wisconsin</option>
-                            <option value="WY">Wyoming</option>
-                          </select>
-                          <span style={validationMessageStyle}>
-                            {errors.state && errors.state.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-12 col-md-4">
-                        <div className="mb-3">
-                          <label
-                            data-testid="create-property-zip-code-label"
-                            className="form-label text-black"
-                            htmlFor="zipcode"
-                          >
-                            <strong>Zip Code</strong>
-                          </label>
-                          <input
-                            data-testid="create-property-zip-code-input"
-                            {...register("zipcode", {
-                              required: "This is a required field",
-                              //Create pattern to only be in zip code format
-                              pattern: {
-                                value: /^\d{5}(?:[-\s]\d{4})?$/,
-                                message: "Must be in zip code format",
-                              },
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="zipcode"
-                            placeholder="90210"
-                            name="zipcode"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.zipcode && errors.zipcode.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-md-12">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="country"
-                            data-testid="create-property-country-label"
-                          >
-                            <strong>Country</strong>
-                          </label>
-                          <input
-                            data-testid="create-property-country-input"
-                            {...register("country", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="country"
-                            placeholder="United States"
-                            value={"United States"}
-                            name="country"
-                            style={{ borderStyle: "none" }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.country && errors.country.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })}
                     <UIButton
                       dataTestId="create-property-next-button"
-                      type="submit"
+                      type="button"
                       style={{ float: "right" }}
                       btnText="Next"
-                      onClick={() => setStep(1)}
+                      onClick={() => {
+                        const { isValid, newErrors } = validateForm(
+                          formData,
+                          formInputs
+                        );
+                        if (isValid) {
+                          setStep(1);
+                        } else {
+                          setErrors(newErrors);
+                        }
+                      }}
                     />
                   </div>
                 )}
@@ -462,6 +487,9 @@ const CreateProperty = () => {
                     {units.map((unit, index) => {
                       return (
                         <UnitRow
+                          units={units}
+                          errors={unitValidationErrors}
+                          setErrors={setUnitValidationErrors}
                           style={{ marginBottom: "20px" }}
                           key={index}
                           id={index}
@@ -504,7 +532,22 @@ const CreateProperty = () => {
                       <div className="text-end my-3">
                         <UIButton
                           dataTestId="create-property-submit-button"
-                          type="submit"
+                          onClick={() => {
+                            // check if errors and unitValidationErrors have values that are all undefined
+                            if (
+                              Object.values(errors).every(
+                                (val) => val === undefined
+                              ) &&
+                              Object.values(unitValidationErrors).every(
+                                (val) => val === undefined
+                              )
+                            ) {
+                              console.log("Can subm,it");
+                              handleSubmit(onSubmit)();
+                            }else{
+                              console.log("Cannot submit");
+                            }
+                          }}
                           btnText="Create Property"
                         />
                       </div>

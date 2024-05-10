@@ -92,7 +92,7 @@ export const defaultRentalUnitLeaseTerms = [
     name: "lease_cancellation_notice_period",
     label: "Lease Cancellation Notice Period",
     inputType: "number",
-    value: 0,
+    value: 14,
     description:
       "How many months a tenant must wait before the end of the lease to cancel the lease",
     type: "lease",
@@ -101,7 +101,7 @@ export const defaultRentalUnitLeaseTerms = [
     name: "lease_cancellation_fee",
     label: "Lease Cancellation Fee",
     inputType: "number",
-    value: 0,
+    value: 100,
     description:
       "How much the tenant must pay to cancel the lease before the end of the lease",
     type: "lease",
@@ -110,7 +110,7 @@ export const defaultRentalUnitLeaseTerms = [
     name: "lease_renewal_notice_period",
     label: "Lease Renewal Notice Period",
     inputType: "number",
-    value: 0,
+    value: 2,
     description:
       "How many months before the end of the lease the tenant must notify the landlord of their intent to renew the lease",
     type: "lease",
@@ -119,7 +119,7 @@ export const defaultRentalUnitLeaseTerms = [
     name: "lease_renewal_fee",
     label: "Lease Renewal Fee",
     inputType: "number",
-    value: 0,
+    value: 100,
     description: "How much the tenant must pay to renew the lease",
     type: "lease",
   },

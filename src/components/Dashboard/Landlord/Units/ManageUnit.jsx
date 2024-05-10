@@ -29,7 +29,6 @@ import { authUser, token, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
 import { CloseOutlined, Description } from "@mui/icons-material";
-import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
@@ -81,7 +80,11 @@ import RentPriceSuggestionModal from "../../UIComponents/Prototypes/Modals/RentP
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ListUnitModal from "../../UIComponents/Prototypes/Modals/ListUnitModal";
 import UITable from "../../UIComponents/UITable/UITable";
-
+import UnitDocumentManager from "./UnitDocumentManager";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -147,6 +150,86 @@ const ManageUnit = () => {
     useState(false);
   const [showListUnitModal, setShowListUnitModal] = useState(false);
 
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({});
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log("Name ", name);
+    console.log("Value ", value);
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const formInputs = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "A5",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9\s]*$/,
+        errorMessage: "Please enter a valid name for the unit",
+      },
+      dataTestId: "unit-name",
+      errorMessageDataTestId: "unit-name-error",
+    },
+    {
+      name: "beds",
+      label: "Beds",
+      type: "number",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        regex: /^[0-9]*$/,
+        errorMessage: "Please enter a valid number of beds",
+      },
+      dataTestId: "unit-beds",
+      errorMessageDataTestId: "unit-beds-error",
+    },
+    {
+      name: "baths",
+      label: "Baths",
+      type: "number",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        regex: /^[0-9]*$/,
+        errorMessage: "Please enter a valid number of baths",
+      },
+      dataTestId: "unit-baths",
+      errorMessageDataTestId: "unit-baths-error",
+    },
+    {
+      name: "size",
+      label: "Size (sqft)",
+      type: "number",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        regex: /^[0-9]*$/,
+        errorMessage: "Please enter a valid size",
+      },
+      dataTestId: "unit-size",
+      errorMessageDataTestId: "unit-size-error",
+    },
+  ];
+
   const tabs = [
     { label: "Details", name: "details", dataTestId: "unit-details-tab" },
     {
@@ -179,19 +262,6 @@ const ManageUnit = () => {
     setTabPage(newValue);
   };
   const navigate = useNavigate();
-  const {
-    register,
-    setValue,
-    handleSubmit,
-    trigger,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      name: unit.name,
-      beds: unit.beds,
-      baths: unit.baths,
-    },
-  });
 
   const rental_application_table_columns = [
     {
@@ -210,8 +280,8 @@ const ManageUnit = () => {
       label: "Status",
       name: "is_approved",
       options: {
-        customBodyrender: (value) => {
-          return value ? "Approved" : "Pending";
+        customBodyRender: (value) => {
+          return value ? <span>Approved</span> : <span>Pending</span>;
         },
       },
     },
@@ -256,17 +326,14 @@ const ManageUnit = () => {
   };
 
   //Create a function to handle the form submission to update unit information
-  const onSubmitUnitBasicInfoUpdate = async (data) => {
-    //Remove the rental_property from the data object
-    delete data.rental_property;
-    await updateUnit(unit_id, data).then((res) => {
+  const onSubmitUnitBasicInfoUpdate = async () => {
+    await updateUnit(unit_id, formData).then((res) => {
       console.log(res);
       if (res.status == 200) {
         setAlertMessage("Unit updated successfully");
         setAlertTitle("Success");
         setAlertOpen(true);
         setEditDialogOpen(false);
-        navigate(0);
       } else {
         setAlertMessage("There was an error updating the unit");
         setAlertTitle("Error");
@@ -745,15 +812,11 @@ const ManageUnit = () => {
             setTenant(tenant_res.data);
           });
         }
-        const preloadedData = {
+        setFormData({
           name: res.name,
           beds: res.beds,
           baths: res.baths,
-          rental_property: property_id,
-        };
-        // Set the preloaded data in the form using setValue
-        Object.keys(preloadedData).forEach((key) => {
-          setValue(key, preloadedData[key]);
+          size: res.size,
         });
         setIsOccupied(res.is_occupied);
 
@@ -820,101 +883,86 @@ const ManageUnit = () => {
             <div className=" ">
               <div className="mb-3">
                 <div className="card-body">
-                  <form onSubmit={handleSubmit(onSubmitUnitBasicInfoUpdate)}>
+                  <form>
                     <div className="row mb-3">
-                      <div className="col-md-12 mb-3">
-                        <label
-                          data-testid="edit-unit-name-label"
-                          className="form-label text-black"
-                          htmlFor="name"
-                        >
-                          <strong>Unit #/Name</strong>
-                        </label>
-                        <input
-                          data-testid="edit-unit-name-input"
-                          {...register("name", {
-                            required: "This is a required field",
-                          })}
-                          // defaultValue={unit.name}
-                          className="form-control text-black"
-                          type="text"
-                          id="name"
-                          placeholder="5B"
-                          style={{
-                            borderStyle: "none",
-                            color: "rgb(255,255,255)",
-                          }}
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.name && errors.name.message}
-                        </span>
-                      </div>
-                      <div className="col-md-12">
-                        <div>
-                          <label
-                            data-testid="edit-unit-beds-label"
-                            className="form-label text-black"
-                          >
-                            <strong>Beds</strong>
-                          </label>
-                          <input
-                            data-testid="edit-unit-beds-input"
-                            {...register("beds", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control text-black"
-                            type="number"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                            defaultValue={unit.beds}
-                            min="0"
-                            step="1"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.beds && errors.beds.message}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="col-md-12">
-                        <div>
-                          <label
-                            data-testid="edit-unit-baths-label"
-                            className="form-label text-black"
-                          >
-                            <strong>Baths</strong>
-                          </label>
-                          <input
-                            data-testid="edit-unit-baths-input"
-                            {...register("baths", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control text-black "
-                            type="number"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                            defaultValue={unit.baths}
-                            min="0"
-                            step="1"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errors.baths && errors.baths.message}
-                          </span>
-                        </div>
-                      </div>
+                      {formInputs.map((input, index) => {
+                        return (
+                          <div className={`col-md-${input.colSpan}`}>
+                            <div>
+                              <label
+                                data-testid={input.dataTestId}
+                                className="form-label text-black"
+                                htmlFor={input.name}
+                              >
+                                <strong>{input.label}</strong>
+                              </label>
+                              <input
+                                data-testid={input.dataTestId}
+                                className="form-control text-black"
+                                type={input.type}
+                                id={input.name}
+                                name={input.name}
+                                placeholder={input.placeholder}
+                                style={{
+                                  borderStyle: "none",
+                                  color: "rgb(255,255,255)",
+                                }}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
+                                value={formData[input.name]}
+                              />
+                              {errors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{ ...validationMessageStyle }}
+                                >
+                                  {errors[input.name]}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="text-end my-3">
-                      <button
-                        className="btn btn-primary ui-btn"
-                        type="submit"
-                        data-testid="edit-unit-submit-button"
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        justifyContent={"space-between"}
                       >
-                        Update Unit
-                      </button>
+                        <DeleteButton
+                          dataTestId={"delete-unit-button"}
+                          style={{
+                            background: uiRed,
+                            textTransform: "none",
+                            float: "right",
+                          }}
+                          variant="contained"
+                          btnText="Delete Unit"
+                          onClick={() => {
+                            setEditDialogOpen(false);
+                            setShowDeleteAlert(true);
+                          }}
+                        />
+                        <UIButton
+                          dataTestId="edit-unit-submit-button"
+                          className="btn btn-primary ui-btn"
+                          onClick={() => {
+                            console.log(formData);
+                            const { isValid, newErrors } = validateForm(
+                              formData,
+                              formInputs
+                            );
+                            if (isValid) {
+                              onSubmitUnitBasicInfoUpdate();
+                            } else {
+                              setErrors(newErrors);
+                            }
+                          }}
+                          data-testid="edit-unit-submit-button"
+                          btnText="Update Unit"
+                        />
+                      </Stack>
                     </div>
                   </form>
                 </div>
@@ -929,20 +977,7 @@ const ManageUnit = () => {
                   btnText={"Ok"}
                   onClick={() => setShowDeleteError(false)}
                 />
-                <DeleteButton
-                  dataTestId={"delete-unit-button"}
-                  style={{
-                    background: uiRed,
-                    textTransform: "none",
-                    float: "right",
-                  }}
-                  variant="contained"
-                  btnText="Delete Unit"
-                  onClick={() => {
-                    setEditDialogOpen(false);
-                    setShowDeleteAlert(true);
-                  }}
-                />
+
                 <ConfirmModal
                   open={showDeleteAlert}
                   title="Delete Unit"
@@ -1616,16 +1651,10 @@ const ManageUnit = () => {
                               <strong>Charge</strong>
                             </label>
                             <input
-                              {...register(`additionalChargeName_${index}`, {
-                                required: {
-                                  value: true,
-                                  message: "Charge name is required",
-                                },
-                              })}
                               type="text"
                               value={charge.name}
                               onChange={(e) => {
-                                trigger(`additionalChargeName_${index}`);
+                                // trigger(`additionalChargeName_${index}`);
                                 let newCharges = [...additionalCharges];
                                 newCharges[index].name = e.target.value;
                                 setAdditionalCharges(newCharges);
@@ -1646,17 +1675,11 @@ const ManageUnit = () => {
                               <strong>Amount</strong>
                             </label>
                             <input
-                              {...register(`additionalChargeAmount_${index}`, {
-                                required: {
-                                  value: true,
-                                  message: "Charge amount is required",
-                                },
-                              })}
                               type="number"
                               min="0"
                               value={charge.amount}
                               onChange={(e) => {
-                                trigger(`additionalChargeAmount_${index}`);
+                                // trigger(`additionalChargeAmount_${index}`);
                                 let newCharges = [...additionalCharges];
                                 newCharges[index].amount = e.target.value;
                                 setAdditionalCharges(newCharges);
@@ -1677,17 +1700,8 @@ const ManageUnit = () => {
                               <strong>Frequency</strong>
                             </label>
                             <select
-                              {...register(
-                                `additionalChargeFrequency_${index}`,
-                                {
-                                  required: {
-                                    value: true,
-                                    message: "Charge frequency is required",
-                                  },
-                                }
-                              )}
                               onChange={(e) => {
-                                trigger(`additionalChargeFrequency_${index}`);
+                                // trigger(`additionalChargeFrequency_${index}`);
                                 let newCharges = [...additionalCharges];
                                 newCharges[index].frequency = e.target.value;
                                 setAdditionalCharges(newCharges);
@@ -1732,40 +1746,40 @@ const ManageUnit = () => {
                         <UIButton
                           onClick={() => {
                             //TODO: Trigger validation
-                            trigger([
-                              `additionalChargeName_${
-                                additionalCharges.length - 1
-                              }`,
-                              `additionalChargeAmount_${
-                                additionalCharges.length - 1
-                              }`,
-                              `additionalChargeFrequency_${
-                                additionalCharges.length - 1
-                              }`,
-                            ]);
-                            if (
-                              (errors[
-                                `additionalChargeName_${
-                                  additionalCharges.length - 1
-                                }`
-                              ] ||
-                                errors[
-                                  `additionalChargeAmount_${
-                                    additionalCharges.length - 1
-                                  }`
-                                ] ||
-                                errors[
-                                  `additionalChargeFrequency_${
-                                    additionalCharges.length - 1
-                                  }`
-                                ]) &&
-                              !chargesValid
-                            ) {
-                              setChargesValid(false);
-                              return;
-                            } else {
-                              addCharge();
-                            }
+                            // trigger([
+                            //   `additionalChargeName_${
+                            //     additionalCharges.length - 1
+                            //   }`,
+                            //   `additionalChargeAmount_${
+                            //     additionalCharges.length - 1
+                            //   }`,
+                            //   `additionalChargeFrequency_${
+                            //     additionalCharges.length - 1
+                            //   }`,
+                            // ]);
+                            // if (
+                            //   (errors[
+                            //     `additionalChargeName_${
+                            //       additionalCharges.length - 1
+                            //     }`
+                            //   ] ||
+                            //     errors[
+                            //       `additionalChargeAmount_${
+                            //         additionalCharges.length - 1
+                            //       }`
+                            //     ] ||
+                            //     errors[
+                            //       `additionalChargeFrequency_${
+                            //         additionalCharges.length - 1
+                            //       }`
+                            //     ]) &&
+                            //   !chargesValid
+                            // ) {
+                            //   setChargesValid(false);
+                            //   return;
+                            // } else {
+                            //   addCharge();
+                            // }
                           }}
                           btnText="Add Charge"
                           style={{
@@ -1807,201 +1821,7 @@ const ManageUnit = () => {
               </>
             )}
             {tabPage === 2 && (
-              <div>
-                {unit.template_id && (
-                  <div>
-                    <Stack direction="row" justifyContent="flex-end">
-                      <DeleteButton
-                        btnText="Delete Template Document"
-                        onClick={() => {
-                          setShowDeleteTemplateConfirmModal(true);
-                        }}
-                        style={{
-                          marginBottom: "15px",
-                        }}
-                      />
-                    </Stack>
-                    <div className="card" style={{ overflow: "hidden" }}>
-                      <iframe
-                        src={editLink}
-                        height={isMobile ? "500px" : "1200px"}
-                        width="100%"
-                      />
-                    </div>
-                  </div>
-                )}
-                {unit.signed_lease_document_file && (
-                  <div>
-                    <UIPrompt
-                      icon={<TaskIcon style={iconStyles} />}
-                      title="Manage Signed Lease Agreement"
-                      message="Use the buttons below to view, download or delete the signed lease agreement."
-                      body={
-                        <Stack
-                          direction={"row"}
-                          justifyContent={"space-between"}
-                          alignItems={"center"}
-                          spacing={2}
-                          sx={{ margin: "10px 0" }}
-                        >
-                          <UIButton
-                            onClick={() => {
-                              window.open(signedLeaseViewLink, "_blank");
-                            }}
-                            btnText="View/Download Document"
-                            style={{ marginTop: "20px", width: "320px" }}
-                          />
-                          <DeleteButton
-                            style={{
-                              width: "320px",
-                            }}
-                            btnText="Delete Document"
-                            onClick={() => {
-                              setShowDeleteSignedDocumentConfirmModal(true);
-                            }}
-                          />
-                        </Stack>
-                      }
-                    />
-                  </div>
-                )}
-                {!unit.template_id && !unit.signed_lease_document_file && (
-                  <div>
-                    <AlertModal
-                      open={alertOpen}
-                      title={alertTitle}
-                      message={alertMessage}
-                      btnText="Okay"
-                      onClick={() => {
-                        setAlertOpen(false);
-                      }}
-                    />
-                    {createLink ? (
-                      <div className="card">
-                        <iframe
-                          src={createLink}
-                          height={isMobile ? "500px" : "1200px"}
-                          width="100%"
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <UIRadioGroup
-                          style={{
-                            marginBottom: "20px",
-                          }}
-                          radioOptions={[
-                            {
-                              value: "existing_lease",
-                              label: "Upload Signed Lease Agreement",
-                            },
-                            {
-                              value: "blank_lease",
-                              label: "Upload Unsigned Lease Agreement",
-                            },
-                          ]}
-                          value={leaseDocumentMode}
-                          onChange={handleChangeLeaseDocumentMode}
-                          direction="row"
-                        />
-                        {leaseDocumentMode === "blank_lease" ? (
-                          <div className="card">
-                            <div className="card-body">
-                              <UIDropzone
-                                onDrop={onDropBlankLeaseDocument}
-                                acceptedFileTypes={[".pdf,.docx"]}
-                                files={blankLeaseDocumentFile}
-                                setFiles={setBlankLeaseDocumentFile}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="card">
-                            <div className="card-body">
-                              <form
-                                onSubmit={handleUploadSignedLeaseDocumentSubmit}
-                                encType="multipart/form-data"
-                              >
-                                <div className="row">
-                                  <div className="col-md-12">
-                                    {" "}
-                                    <label className="text-black mb-2">
-                                      <strong>
-                                        Upload Signed Lease Agreement
-                                      </strong>
-                                    </label>
-                                    <UIDropzone
-                                      dropzoneStyles={{ height: "190px" }}
-                                      onDrop={onDropSignedLeaseDocument}
-                                      acceptedFileTypes={[".pdf,.docx"]}
-                                      files={signedLeaseDocumentFile}
-                                      setFiles={setSignedLeaseDocumentFile}
-                                    />
-                                  </div>
-                                  <div className="col-md-6">
-                                    <div
-                                      className="form-group"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <label className="text-black mb-2">
-                                        <strong>Lease Start Date</strong>
-                                      </label>
-                                      <input
-                                        type="date"
-                                        className="form-control"
-                                        name="lease_start_date"
-                                        required
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="col-md-6">
-                                    <div
-                                      className="form-group"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <label className="text-black mb-2">
-                                        <strong>Lease End Date</strong>
-                                      </label>
-                                      <input
-                                        type="date"
-                                        className="form-control"
-                                        name="lease_end_date"
-                                        required
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="col-md-12">
-                                    <div
-                                      className="form-group"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <label className="text-black my-2">
-                                        <strong>Date Signed </strong>
-                                      </label>
-                                      <input
-                                        type="date"
-                                        className="form-control"
-                                        name="date_signed"
-                                        required
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <UIButton
-                                  btnText="Submit File"
-                                  type="submit"
-                                  style={{ marginTop: "20px", width: "100%" }}
-                                />
-                              </form>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+              <>{unit && <UnitDocumentManager unit={unit} />}</>
             )}
             {tabPage === 3 && (
               <>
