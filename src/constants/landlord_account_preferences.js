@@ -89,5 +89,16 @@ export const defaultLandlordAccountPreferences = [
       ],
       description: "Enable or disable notifications for when a new tenant completes registration"
     },
+    {
+      type: "notifications",
+      hidden: false,
+      name: "new_staff_registration_complete",
+      label: "New Staff Registration Complete",
+      values: [
+        { name: "push", value: false, inputType: "switch", label: "Push Notifications" },
+        { name: "email", value: false, inputType: "switch", label: "Email Notifications" }
+      ],
+      description: "Enable or disable notifications for when a new staff completes registration"
+    },
   ];
   

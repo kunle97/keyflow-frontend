@@ -175,7 +175,7 @@ const UITableMobile = (props) => {
     }
   }, [orderingField, searchField, limit, endpoint, props.data]);
   return (
-    <div>
+    <div className="px-2">
       <>
         {props.showUpload && (
           <>
@@ -235,7 +235,7 @@ const UITableMobile = (props) => {
               justifyContent="flex-end"
               spacing={2}
               alignItems="center"
-              style={{ padding: "10px" }}
+              style={{ padding: "10px 0" }}
             >
               {props.showUpload && (
                 <>
@@ -289,7 +289,7 @@ const UITableMobile = (props) => {
                   <span style={{ color: "black" }}>Show</span>
                 )}
                 <select
-                 className="limit-select"
+                  className="limit-select"
                   style={{
                     maxWidth: isMobile ? "75px" : "150px",
                     borderRadius: "5px",

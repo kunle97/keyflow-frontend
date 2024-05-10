@@ -12,14 +12,22 @@ import {
   authUser,
   landlordMenuItems,
   tenantMenuItems,
+  staffMenuItems,
   uiGreen,
   uiGrey2,
 } from "../../../../constants";
 import { Link } from "react-router-dom";
 
 export default function SidebarDrawer(props) {
-  const menuItems =
-    authUser.account_type === "owner" ? landlordMenuItems : tenantMenuItems;
+  let menuItems = [];
+  // authUser.account_type === "owner" ? landlordMenuItems : tenantMenuItems;
+  if (authUser.account_type === "owner") {
+    menuItems = landlordMenuItems;
+  } else if (authUser.account_type === "staff") {
+    menuItems = staffMenuItems;
+  } else if (authUser.account_type === "tenant") {
+    menuItems = tenantMenuItems;
+  }
 
   const [openSubMenu, setOpenSubMenu] = React.useState(null);
 
@@ -81,41 +89,45 @@ export default function SidebarDrawer(props) {
       </Box>
       <List>
         {menuItems.map((item, index) => (
-          <div key={index}>
-            {item.subMenuItems ? (
-              <div>
-                <ListItem disablePadding>
-                  <ListItemButton onClick={() => handleSubMenuClick(index)}>
-                    <ListItemIcon>{item.muiIcon}</ListItemIcon>
-                    <ListItemText primary={item.label} />
-                    {openSubMenu === index ? (
-                      <ExpandMoreIcon />
-                    ) : (
-                      <ChevronRightIcon />
-                    )}
-                  </ListItemButton>
-                </ListItem>
-                {openSubMenu === index && renderSubMenu(item.subMenuItems)}
+          <>
+            {!item.hidden && (
+              <div key={index}>
+                {item.subMenuItems ? (
+                  <div>
+                    <ListItem disablePadding>
+                      <ListItemButton onClick={() => handleSubMenuClick(index)}>
+                        <ListItemIcon>{item.muiIcon}</ListItemIcon>
+                        <ListItemText primary={item.label} />
+                        {openSubMenu === index ? (
+                          <ExpandMoreIcon />
+                        ) : (
+                          <ChevronRightIcon />
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                    {openSubMenu === index && renderSubMenu(item.subMenuItems)}
+                  </div>
+                ) : (
+                  <ListItem disablePadding>
+                    <Link
+                      to={item.link}
+                      style={{ width: "100%", textDecoration: "none" }}
+                    >
+                      <ListItemButton onClick={handleMenuItemClick}>
+                        <ListItemIcon sx={{ color: uiGreen }}>
+                          {item.muiIcon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.label}
+                          sx={{ color: "black" }}
+                        />
+                      </ListItemButton>
+                    </Link>
+                  </ListItem>
+                )}
               </div>
-            ) : (
-              <ListItem disablePadding>
-                <Link
-                  to={item.link}
-                  style={{ width: "100%", textDecoration: "none" }}
-                >
-                  <ListItemButton onClick={handleMenuItemClick}>
-                    <ListItemIcon sx={{ color: uiGreen }}>
-                      {item.muiIcon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.label}
-                      sx={{ color: "black" }}
-                    />
-                  </ListItemButton>
-                </Link>
-              </ListItem>
-            )}
-          </div>
+            )}{" "}
+          </>
         ))}
       </List>
     </Box>

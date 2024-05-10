@@ -32,9 +32,9 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import useScreen from "../../../../hooks/useScreen";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 const ManageTenant = () => {
-  const { tenant_id } = useParams();
   const navigate = useNavigate();
   const { isMobile } = useScreen();
+  const { tenant_id } = useParams();
   const [tenant, setTenant] = useState(null);
   const [unit, setUnit] = useState({});
   const [property, setProperty] = useState({});

@@ -6,9 +6,12 @@ import { defaultTenantAccountPreferences } from "../constants/tenant_account_pre
 import { defaultPropertyPreferences } from "../constants/rental_property_preferences";
 import { defaultRentalUnitPreferences } from "../constants/rental_unit_preferences";
 import { defaultPortfolioPreferences } from "../constants/portfolio_preferences";
+import { defaultStaffAccountPrivileges } from "../constants/staff_privileges";
 import { getUnit, updateUnit } from "../api/units";
 import { getProperty, updatePropertyMedia } from "../api/properties";
 import { getPortfolio, updatePortfolio } from "../api/portfolios";
+import { updateStaffPrivileges } from "../api/staff";
+import { getLandlordStaffMember } from "../api/landlords";
 
 export const syncPreferences = async () => {
   let currentUserPreferences = [];
@@ -186,4 +189,41 @@ export const syncPortfolioPreferences = (portfolio_id) => {
       console.log(response);
     });
   });
-}
+};
+
+export const syncStaffAccountPrivileges = (staff_id) => {
+  let staffAccountPrivileges = [];
+
+  getLandlordStaffMember(staff_id).then((res) => {
+    staffAccountPrivileges = JSON.parse(res.data.privileges);
+    // Check if the current user preferences have the same preferences as the default preferences by matching the name key of each preference.
+    // If the key exists, do nothing. If the current user preferences do not have a preference that is in the default preferences, add the preference to the current user preferences.
+    defaultStaffAccountPrivileges.forEach((defaultPrivilege) => {
+      if (
+        !staffAccountPrivileges.some(
+          (staffPrivilege) => staffPrivilege.name === defaultPrivilege.name
+        )
+      ) {
+        staffAccountPrivileges.push(defaultPrivilege);
+      }
+    });
+  
+    // Remove the privileges from the staff account privileges that are not in the default privileges.
+    staffAccountPrivileges = staffAccountPrivileges.filter((staffPrivilege) =>
+      defaultStaffAccountPrivileges.some(
+        (defaultPrivilege) => defaultPrivilege.name === staffPrivilege.name
+      )
+    );
+  
+    console.log("Syncing Staff Account Privileges...", staffAccountPrivileges);
+  
+    // Update the staff member's account privileges in the database with the staff account privileges using the updateStaffAccountPrivileges function.
+    updateStaffPrivileges({
+      staff_id: staff_id,
+      privileges: JSON.stringify(staffAccountPrivileges),
+    }).then((response) => {
+      console.log(response);
+    });
+
+  });
+};

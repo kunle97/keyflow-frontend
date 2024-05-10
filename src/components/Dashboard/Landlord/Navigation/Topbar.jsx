@@ -15,6 +15,14 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { logout } from "../../../../api/auth";
 import EmailIcon from "@mui/icons-material/Email";
 const Topbar = (props) => {
+  let navbarBrandLink  = "";
+  if (authUser.account_type === "owner") {
+    navbarBrandLink = "/dashboard/landlord/";
+  } else if (authUser.account_type === "tenant") {
+    navbarBrandLink = "/dashboard/tenant/";
+  }else if (authUser.account_type === "staff") {
+    navbarBrandLink = "/dashboard/staff/";
+  }
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const [profilePictures, setProfilePictures] = useState(null);
@@ -131,11 +139,7 @@ const Topbar = (props) => {
           </IconButton>
           <Link
             className="navbar-brand"
-            to={`${
-              authUser.account_type === "owner"
-                ? "/dashboard/landlord/"
-                : "/dashboard/tenant/"
-            }`}
+            to={`${navbarBrandLink}`}
           >
             <img
               className="topbar-brand"

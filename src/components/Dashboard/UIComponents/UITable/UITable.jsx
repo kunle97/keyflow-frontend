@@ -96,27 +96,13 @@ const UITable = (props) => {
             setCount(res.data.count);
             setIsLoading(false);
             if (props.options.isSelectable) {
-              let newChecked = [];
-              //loop through the first set of results and set the selected property to false for each row. After
-              res.data.results.map((result) => {
-                newChecked.push({
-                  id: result.id,
-                  selected: false,
-                });
+              let newChecked = props.checked.filter((item) => item.selected); // Only include selected items
+              res.data.results.forEach((result) => {
+                const exists = newChecked.find((item) => item.id === result.id);
+                if (!exists) {
+                  newChecked.push({ id: result.id, selected: false });
+                }
               });
-              while (!nextPageEndPoint === null) {
-                const remaining_res = authenticatedInstance
-                  .get(nextPageEndPoint)
-                  .then((r_res) => {
-                    r_res.data.results.map((result) => {
-                      newChecked.push({
-                        id: result.id,
-                        selected: false,
-                      });
-                    });
-                    setNextPageEndPoint(r_res.data.next);
-                  });
-              }
               setNextPageEndPoint(res.data.next);
               props.setChecked(newChecked);
             }
@@ -131,7 +117,7 @@ const UITable = (props) => {
             setIsLoading(false);
             if (props.options.isSelectable) {
               let newChecked = [];
-              res.data.map((result) => {
+              res.data.forEach((result) => {
                 newChecked.push({
                   id: result.id,
                   selected: false,
@@ -294,6 +280,12 @@ const UITable = (props) => {
     // newChecked[index].selected = selected;
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
+    console.log(props.checked);
+    //Add support for a function that will be called when a row is selected
+    if (props.options.onRowSelect) {
+      console.log("Row selected");
+      props.options.onRowSelect();
+    }
   };
 
   //Handles the select all checkbox in table header
@@ -452,11 +444,12 @@ const UITable = (props) => {
                   <tr>
                     {props.options.isSelectable && (
                       <th>
-                        <Checkbox
+                        <></>
+                        {/* <Checkbox
                           // checked={props.checked[0] && props.checked[1]}
                           indeterminate={props.checked[0] !== props.checked[1]}
                           onChange={handleSelectAll}
-                        />
+                        /> */}
                       </th>
                     )}
                     {props.columns.map((column) => {
@@ -473,7 +466,7 @@ const UITable = (props) => {
                         </th>
                       );
                     })}
-                    <th></th>
+                    {props.menuOptions && <th></th>}
                   </tr>
                 </thead>
                 {/* TableRows */}
@@ -491,7 +484,7 @@ const UITable = (props) => {
                             }}
                           >
                             {props.options.isSelectable && (
-                              <td>
+                              <td className="ui-table-checkbox-container" >
                                 <Checkbox
                                   checked={
                                     //Retrieve the row with the same id as the row in the checked array and get the selected property
@@ -527,61 +520,65 @@ const UITable = (props) => {
                               }
                               return <td>{row[column.name]}</td>;
                             })}
-                            <td>
-                              <div className="ui-table-more-button">
-                                <IconButton
-                                  id="ui-table-more-button"
-                                  onClick={(event) =>
-                                    handleMenuClick(event, index)
-                                  }
-                                >
-                                  <MoreVert />
-                                </IconButton>
-                              </div>
-                              <Popper
-                                open={selectedIndex === index}
-                                anchorEl={anchorEl}
-                                placement="bottom-start"
-                                transition
-                              >
-                                {({ TransitionProps, placement }) => (
-                                  <Grow
-                                    {...TransitionProps}
-                                    style={{
-                                      transformOrigin:
-                                        placement === "bottom-start"
-                                          ? "right top"
-                                          : "right top",
-                                    }}
+                            {props.menuOptions && (
+                              <td>
+                                <>
+                                  <div className="ui-table-more-button">
+                                    <IconButton
+                                      id="ui-table-more-button"
+                                      onClick={(event) =>
+                                        handleMenuClick(event, index)
+                                      }
+                                    >
+                                      <MoreVert />
+                                    </IconButton>
+                                  </div>
+                                  <Popper
+                                    open={selectedIndex === index}
+                                    anchorEl={anchorEl}
+                                    placement="bottom-start"
+                                    transition
                                   >
-                                    <Paper>
-                                      <ClickAwayListener
-                                        onClickAway={handleCloseMenu}
+                                    {({ TransitionProps, placement }) => (
+                                      <Grow
+                                        {...TransitionProps}
+                                        style={{
+                                          transformOrigin:
+                                            placement === "bottom-start"
+                                              ? "right top"
+                                              : "right top",
+                                        }}
                                       >
-                                        <MenuList>
-                                          {props.menuOptions.map(
-                                            (option, index) => (
-                                              <MenuItem
-                                                key={index}
-                                                onClick={() =>
-                                                  option.onClick(row)
-                                                }
-                                                id="menu-list-grow"
-                                                onKeyDown={handleCloseMenu}
-                                              >
-                                                <Typography>
-                                                  {option.name}
-                                                </Typography>
-                                              </MenuItem>
-                                            )
-                                          )}
-                                        </MenuList>
-                                      </ClickAwayListener>
-                                    </Paper>
-                                  </Grow>
-                                )}
-                              </Popper>
-                            </td>
+                                        <Paper>
+                                          <ClickAwayListener
+                                            onClickAway={handleCloseMenu}
+                                          >
+                                            <MenuList>
+                                              {props.menuOptions.map(
+                                                (option, index) => (
+                                                  <MenuItem
+                                                    key={index}
+                                                    onClick={() =>
+                                                      option.onClick(row)
+                                                    }
+                                                    id="menu-list-grow"
+                                                    onKeyDown={handleCloseMenu}
+                                                  >
+                                                    <Typography>
+                                                      {option.name}
+                                                    </Typography>
+                                                  </MenuItem>
+                                                )
+                                              )}
+                                            </MenuList>
+                                          </ClickAwayListener>
+                                        </Paper>
+                                      </Grow>
+                                    )}
+                                  </Popper>
+                                </>
+                              </td>
+                            )}
                           </tr>
                         );
                       })}

@@ -58,9 +58,12 @@ export async function login(data) {
       if (res.user.account_type === "owner") {
         userData.owner_id = res.owner_id;
         localStorage.setItem("ownerData", JSON.stringify(res.owner));
-      } else {
+      } else if(res.user.account_type === "tenant") {
         userData.tenant_id = res.tenant_id;
         localStorage.setItem("tenantData", JSON.stringify(res.tenant));
+      }else if(res.user.account_type === "staff") {
+        userData.staff_id = res.staff_id;
+        localStorage.setItem("staffData", JSON.stringify(res.staff));
       }
       localStorage.setItem("authUser", JSON.stringify(userData));
       //Check for response code before storing data in context
@@ -140,6 +143,24 @@ export async function registerTenant(data) {
   try {
     const res = await unauthenticatedInstance
       .post(`/tenants/register/`, data)
+      .then((res) => {
+        const response = res.data;
+        console.log("axios register response ", response);
+        return response;
+      });
+
+    return { message: res.message, status: 200 };
+  } catch (error) {
+    console.log("Register Error: ", error);
+    return error;
+  }
+}
+
+//Create an api function to register a staff member
+export async function registerStaff(data) {
+  try {
+    const res = await unauthenticatedInstance
+      .post(`/staff/register/`, data)
       .then((res) => {
         const response = res.data;
         console.log("axios register response ", response);

@@ -16,6 +16,7 @@ import CreateUnit from "./components/Dashboard/Landlord/Units/CreateUnit";
 import MyAccount from "./components/Dashboard/Landlord/MyAccount/MyAccount";
 import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
 import LandlordRegister from "./components/Dashboard/Landlord/Registration/LandlordRegister";
+import StaffRegister from "./components/Dashboard/Staff/StaffRegister";
 import ForgotPassword from "./components/Dashboard/PasswordReset/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
 import LandingPage from "./components/Landing/LandingPage";
@@ -92,6 +93,15 @@ import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accou
 import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
 import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
 import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
+import StaffList from "./components/Dashboard/Landlord/Staff/StaffList";
+import ManageStaff from "./components/Dashboard/Landlord/Staff/ManageStaff";
+import CreateStaffInvite from "./components/Dashboard/Landlord/Staff/CreateStaffInvite";
+import StaffInvites from "./components/Dashboard/Landlord/Staff/StaffInvites";
+import StaffLogin from "./components/Dashboard/Staff/StaffLogin";
+import StaffDashboard from "./components/Dashboard/Staff/StaffDashboard";
+import TenantInvites         from "./components/Dashboard/Landlord/Tenants/TenantInvites";
+import StaffUnits from "./components/Dashboard/Staff/StaffUnits";
+import StaffProperties from "./components/Dashboard/Staff/StaffProperties";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -160,6 +170,22 @@ export const routes = [
     ),
   },
   {
+    path: "/dashboard/staff/register/:owner_id/:staff_invite_id/:approval_hash/",
+    element: (
+      <LoggedInRedirect token={token}>
+          <StaffRegister  />
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/staff/login",
+    element: (
+      <LoggedInRedirect token={token}>
+        <StaffLogin />
+      </LoggedInRedirect>
+    ),
+  },
+  {
     path: "/dashboard/tenant/register/:lease_agreement_id/:unit_id/:approval_hash/",
     element: (
       <LoggedInRedirect token={token}>
@@ -177,6 +203,14 @@ export const routes = [
           <TenantRegister />
         </Elements>
       </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/tenant-invites",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantInvites />
+      </DashboardProtectedRoute>
     ),
   },
   {
@@ -776,6 +810,63 @@ export const routes = [
     label: "Announcement",
     description: "Manage your announcement",
     isQuickLink: false, 
+  },
+  {
+    path: "/dashboard/landlord/staff",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <StaffList />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/staff/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageStaff />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/staff-invites/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <StaffInvites />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/landlord/staff-invites/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateStaffInvite />
+      </DashboardProtectedRoute>
+    ),
+  },
+  //Staff dasbboard routes
+  {
+    path: "/dashboard/staff",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <StaffDashboard />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/staff/units",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <StaffUnits />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/staff/properties",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Properties />
+      </DashboardProtectedRoute>
+    ),
   },
   //Prototype routes
   {

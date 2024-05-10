@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getPropertyFilters,
-  getProperties,
-} from "../../../../api/properties";
+import { getPropertyFilters, getProperties } from "../../../../api/properties";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import useScreen from "../../../../hooks/useScreen";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import { authUser } from "../../../../constants";
+import { getStaffRentalAssignments } from "../../../../api/staff";
 const Properties = () => {
   const { screenWidth, breakpoints, isMobile } = useScreen();
   const [properties, setProperties] = useState([]);
@@ -28,7 +27,7 @@ const Properties = () => {
   ];
 
   const options = {
-    isSelectable: true,
+    isSelectable: false,
     onRowClick: (row) => {
       let navlink = "/";
       navlink = `/dashboard/landlord/properties/${row}`;
@@ -38,16 +37,22 @@ const Properties = () => {
 
   //Create a useEffect that calls the get propertiees api function and sets the properties state
   useEffect(() => {
-    getProperties().then((res) => {
-      if (res) {
-        setProperties(res.data);
-      }
-    });
-    getPropertyFilters().then((res) => {
-      if (res) {
-        setFilters(res);
-      }
-    });
+    if (authUser.account_type == "owner") {
+      getProperties().then((res) => {
+        if (res) {
+          setProperties(res.data);
+        }
+      });
+      getPropertyFilters().then((res) => {
+        if (res) {
+          setFilters(res);
+        }
+      });
+    } else if (authUser.account_type == "staff") {
+      getStaffRentalAssignments().then((res) => {
+        setProperties(res);
+      });
+    }
     setIsLoading(false);
   }, []);
   return (
@@ -64,7 +69,8 @@ const Properties = () => {
         <UITableMobile
           testRowIdentifier="property"
           tableTitle="Properties"
-          endpoint={"/properties/"}
+          endpoint={authUser.account_type == "owner" ? "/properties/" : null}
+          data={authUser.account_type == "owner" ? null : properties}
           infoProperty="name"
           createTitle={(row) => `${row.street}, ${row.city}, ${row.state}`}
           subtitleProperty="somthing"
@@ -93,7 +99,8 @@ const Properties = () => {
         />
       ) : (
         <UITable
-          endpoint={"/properties/"}
+          endpoint={authUser.account_type == "owner" ? "/properties/" : null}
+          data={authUser.account_type == "owner" ? null : properties}
           searchFields={[
             "name",
             "street",

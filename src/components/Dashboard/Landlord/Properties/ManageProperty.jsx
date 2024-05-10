@@ -35,6 +35,8 @@ import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import {
   authUser,
+  staffData,
+  staffPrivileges,
   uiGreen,
   uiGrey2,
   validationMessageStyle,
@@ -84,6 +86,7 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
+import { getStaffPrivileges } from "../../../../api/staff";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -125,8 +128,9 @@ const ManageProperty = () => {
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const [isOnStep2, setIsOnStep2] = useState(false); // Add this line
+  const [staffPrivileges, setStaffPrivileges] = useState(null); // Add this line
   const handleJoyrideCallback = (data) => {
-    const { action, index, status,type } = data;
+    const { action, index, status, type } = data;
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setTourIndex(0);
@@ -141,11 +145,11 @@ const ManageProperty = () => {
 
   const handleClickStart = (event) => {
     event.preventDefault();
-    if(tabPage === 0){
+    if (tabPage === 0) {
       setTourIndex(0);
-    }else if(tabPage === 1){
+    } else if (tabPage === 1) {
       setTourIndex(4);
-    }else if(tabPage === 2){
+    } else if (tabPage === 2) {
       setTourIndex(5);
     }
     setRunTour(true); // Start the tour
@@ -185,7 +189,8 @@ const ManageProperty = () => {
     //Start Preferences Tour
     {
       target: ".property-preferences",
-      content: "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
+      content:
+        "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
     },
   ];
 
@@ -574,6 +579,12 @@ const ManageProperty = () => {
   };
 
   useEffect(() => {
+    if (authUser.account_type === "staff") {
+      getStaffPrivileges().then((res) => {
+        console.log("Fetchedd Staff privileges I think", res);
+        setStaffPrivileges(res.privileges);
+      });
+    }
     syncPropertyPreferences(id);
     if (!property || !formData) {
       getProperty(id).then((res) => {
@@ -624,7 +635,7 @@ const ManageProperty = () => {
           setIsLoading(false);
         });
     }
-  }, [property, formData])
+  }, [property, formData]);
 
   return (
     <>
@@ -1005,13 +1016,21 @@ const ManageProperty = () => {
                             aria-labelledby="composition-button"
                             onKeyDown={handleListKeyDown}
                           >
-                            <MenuItem
-                              onClick={() => {
-                                setEditDialogOpen(true);
-                              }}
-                            >
-                              Edit Property
-                            </MenuItem>
+                            {authUser.account_type === "owner" ||
+                              (authUser.account_type === "staff" &&
+                                staffPrivileges?.find(
+                                  (privilege) => privilege.name === "rental_assignments"
+                                ).values.find(
+                                  (value) => value.name === "edit"
+                                ).value == true ) && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setEditDialogOpen(true);
+                                    }}
+                                  >
+                                    Edit Property
+                                  </MenuItem>
+                                )}
                             <MenuItem
                               onClick={() => {
                                 setSelectPortfolioDialogOpen(true);
@@ -1019,6 +1038,13 @@ const ManageProperty = () => {
                             >
                               Change Portfolio
                             </MenuItem>
+                            {authUser.account_type === "owner" ||
+                              (authUser.account_type === "staff" &&
+                                staffPrivileges?.find(
+                                  (privilege) => privilege.name === "rental_assignments"
+                                ).values.find(
+                                  (value) => value.name === "delete"
+                                ).value == true ) && (
                             <MenuItem
                               onClick={() => {
                                 setShowDeleteAlert(true);
@@ -1026,6 +1052,7 @@ const ManageProperty = () => {
                             >
                               Delete Property
                             </MenuItem>
+                          )}
                           </MenuList>
                         </ClickAwayListener>
                       </Paper>

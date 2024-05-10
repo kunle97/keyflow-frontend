@@ -25,6 +25,14 @@ export default function PrimarySearchAppBar({
   notificationCount,
   messageCount,
 }) {
+  let navbarBrandLink = "";
+  if (authUser.account_type === "owner") {
+    navbarBrandLink = "/dashboard/landlord/";
+  } else if (authUser.account_type === "tenant") {
+    navbarBrandLink = "/dashboard/tenant/";
+  } else if (authUser.account_type === "staff") {
+    navbarBrandLink = "/dashboard/staff/";
+  }
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -149,13 +157,7 @@ export default function PrimarySearchAppBar({
             >
               <MenuIcon sx={{ color: uiGreen }} />
             </IconButton>
-            <Link
-              to={
-                authUser.account_type === "owner"
-                  ? "/dashboard/landlord"
-                  : "/dashboard/tenant"
-              }
-            >
+            <Link to={navbarBrandLink}>
               <img
                 src="/assets/img/key-flow-logo-black-transparent.png"
                 style={{

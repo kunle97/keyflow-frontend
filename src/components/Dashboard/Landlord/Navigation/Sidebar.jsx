@@ -4,12 +4,21 @@ import {
   authUser,
   landlordMenuItems,
   tenantMenuItems,
+  staffMenuItems,
   uiGreen,
   uiGrey2,
+  staffData,
 } from "../../../../constants";
 const Sidebar = (props) => {
-  const menuItems =
-    authUser.account_type === "owner" ? landlordMenuItems : tenantMenuItems;
+  let menuItems = [];
+  // authUser.account_type === "owner" ? landlordMenuItems : tenantMenuItems;
+  if (authUser.account_type === "owner") {
+    menuItems = landlordMenuItems;
+  } else if (authUser.account_type === "staff") {
+    menuItems = staffMenuItems;
+  } else if (authUser.account_type === "tenant") {
+    menuItems = tenantMenuItems;
+  }
 
   const toggleNavMenu = () => {
     props.setShowNavMenu(!props.showNavMenu);
@@ -67,82 +76,84 @@ const Sidebar = (props) => {
           <hr className="sidebar-divider my-0" />
           <ul className="navbar-nav text-light mt-4" id="accordionSidebar">
             {menuItems.map((item, index) => {
-              if (item.subMenuItems) {
-                return (
-                  <li
-                    class=" dropdown show dashboard-nav-item"
-                    data-testId={item.dataTestId}
-                  >
-                    <a
-                      class="dropdown-toggle nav-link"
-                      aria-expanded="true"
-                      data-bs-toggle="dropdown"
-                      href="#"
-                      style={{ color: uiGrey2, fontSize: "13pt" }}
+              if (!item.hidden) {
+                if (item.subMenuItems) {
+                  return (
+                    <li
+                      class=" dropdown show dashboard-nav-item"
+                      data-testId={item.dataTestId}
                     >
-                      {/* <i
-                        className={"${item.icon} text-gray-400"}
+                      <a
+                        class="dropdown-toggle nav-link"
+                        aria-expanded="true"
+                        data-bs-toggle="dropdown"
+                        href="#"
                         style={{ color: uiGrey2, fontSize: "13pt" }}
-                      /> */}
-                      <span style={{ marginRight: "10px" }}>
-                        {item.muiIcon}
-                      </span>
-                      {item.label}
-                    </a>
-                    <div
-                      class="dropdown-menu "
-                      data-bs-popper="none"
-                      style={{
-                        background: "white",
-                        borderRadius: "15px",
-                        boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-                        zIndex: "100000000",
-                        position: "absolute",
-                      }}
-                    >
-                      {item.subMenuItems.map((subItem, index) => {
-                        return (
-                          <li
-                            onClick={hideNavMenu} // Hides menu when clicked
-                            data-testId={subItem.dataTestId}
-                          >
-                            <Link
-                              class="dropdown-item"
-                              to={subItem.link}
-                              style={{ color: uiGrey2 }}
+                      >
+                        {/* <i
+                          className={"${item.icon} text-gray-400"}
+                          style={{ color: uiGrey2, fontSize: "13pt" }}
+                        /> */}
+                        <span style={{ marginRight: "10px" }}>
+                          {item.muiIcon}
+                        </span>
+                        {item.label}
+                      </a>
+                      <div
+                        class="dropdown-menu "
+                        data-bs-popper="none"
+                        style={{
+                          background: "white",
+                          borderRadius: "15px",
+                          boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+                          zIndex: "100000000",
+                          position: "absolute",
+                        }}
+                      >
+                        {item.subMenuItems.map((subItem, index) => {
+                          return (
+                            <li
+                              onClick={hideNavMenu} // Hides menu when clicked
+                              data-testId={subItem.dataTestId}
                             >
-                              <i
-                                className={`${subItem.icon} text-gray-400`}
-                                style={{ color: uiGrey2, fontSize: "13pt" }}
-                              />{" "}
-                              <span>{subItem.label}</span>
-                            </Link>
-                          </li>
-                        );
-                      })}
-                    </div>
-                  </li>
-                );
-              } else {
-                return (
-                  <li
-                    data-testId={item.dataTestId}
-                    className=" dashboard-nav-item"
-                    key={index}
-                    onClick={hideNavMenu} // Hides menu when clicked
-                  >
-                    <Link
-                      className="nav-link"
-                      to={item.link}
-                      style={{ color: uiGrey2, fontSize: "13pt" }}
+                              <Link
+                                class="dropdown-item"
+                                to={subItem.link}
+                                style={{ color: uiGrey2 }}
+                              >
+                                <i
+                                  className={`${subItem.icon} text-gray-400`}
+                                  style={{ color: uiGrey2, fontSize: "13pt" }}
+                                />{" "}
+                                <span>{subItem.label}</span>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </div>
+                    </li>
+                  );
+                } else {
+                  return (
+                    <li
+                      data-testId={item.dataTestId}
+                      className=" dashboard-nav-item"
+                      key={index}
+                      onClick={hideNavMenu} // Hides menu when clicked
                     >
-                      <span style={{ marginRight: "10px" }}>
-                        {item.muiIcon}
-                      </span>
-                      <span>{item.label}</span>
-                    </Link>
-                  </li>
-                );
+                      <Link
+                        className="nav-link"
+                        to={item.link}
+                        style={{ color: uiGrey2, fontSize: "13pt" }}
+                      >
+                        <span style={{ marginRight: "10px" }}>
+                          {item.muiIcon}
+                        </span>
+                        <span>{item.label}</span>
+                      </Link>
+                    </li>
+                  );
+                }
               }
             })}
           </ul>
