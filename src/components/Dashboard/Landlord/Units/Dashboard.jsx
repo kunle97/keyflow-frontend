@@ -40,6 +40,8 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIButton from "../../UIComponents/UIButton";
+import { getStripeAccountLink } from "../../../../api/owners";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
@@ -54,10 +56,10 @@ const Dashboard = () => {
     []
   );
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
-
   const [occupiedUnits, setOccupiedUnits] = useState([]);
   const [vacantUnits, setVacantUnits] = useState([]);
   const [leaseAgreements, setLeaseAgreements] = useState([]);
+  const [stripeAccountLink, setStripeAccountLink] = useState("");
 
   /*Transaction Related States*/
   const [transactionTypes, setTransactionTypes] = useState([]); // ["revenue", "expense", "rent_payment", "security_deposit"
@@ -139,6 +141,11 @@ const Dashboard = () => {
       content: "Click here to view your account settings, and to log out.",
       spotlightClicks: true,
       disableBeacon: false,
+    },
+    {
+      target: "#view-transactions-button",
+      content:
+        "Click here to view all your transactions on the Stripe express dashboard. You can also manage payouts, view your account balance, and more.",
     },
   ];
   const handleJoyrideCallback = (data) => {
@@ -635,6 +642,10 @@ const Dashboard = () => {
   };
   useEffect(() => {
     authUser.account_type === "tenant" && navigate("/dashboard/tenant");
+    getStripeAccountLink().then((res) => {
+      console.log("Stripe ACcount link res: ", res);
+      setStripeAccountLink(res.account_link);
+    });
     setIsLoading(true);
     //retrieve transactions from api
     try {
@@ -683,6 +694,25 @@ const Dashboard = () => {
     />
   ) : (
     <div className="container-fluid dashboard-container">
+      <div
+        className="w-100"
+        style={{
+          overflow: "auto",
+        }}
+      >
+        <UIButton
+          id="view-transactions-button"
+          style={{
+            float: "right",
+            width: isMobile ? "100%" : "200px",
+          }}
+          onClick={() => {
+            window.open(stripeAccountLink, "_blank");
+          }}
+          btnText="View Transactions"
+          btnIcon={<AttachMoneyIcon />}
+        />
+      </div>
       {transactions.length === 0 &&
       leaseAgreements.length === 0 &&
       maintenanceRequests.length === 0 &&
@@ -847,7 +877,7 @@ const Dashboard = () => {
           />
           <div className="data-section" id="data-section">
             {/* Line Chart Row */}
-            <div className="row">
+            {/* <div className="row">
               <div className="col-md-8 ">
                 <UILineChartCard
                   dataTestId="dashboard-line-chart-card"
@@ -935,10 +965,10 @@ const Dashboard = () => {
                   />
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Info Card Row (hidden on mobile and desktop too) */}
-            <div className="row my-2">
+            {/* <div className="row my-2">
               {multiplier.map((item, index) => {
                 return (
                   <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
@@ -961,7 +991,7 @@ const Dashboard = () => {
                   </div>
                 );
               })}
-            </div>
+            </div> */}
 
             {/* Vacancies & Transactions Row */}
             <div className="row">
@@ -1078,7 +1108,12 @@ const Dashboard = () => {
                 {screenWidth > breakpoints.md ? (
                   <UItableMiniCard
                     dataTestId="dashboard-maintenance-requests-table-card-desktop"
-                    cardStyle={{ background: "white", color: "black" }}
+                    cardStyle={{
+                      background: "white",
+                      color: "black",
+                      height: "348px",
+                      overflowY: "auto",
+                    }}
                     infoStyle={{
                       color: uiGrey2,
                       fontSize: isMobile ? "12pt" : "16pt",
@@ -1278,7 +1313,12 @@ const Dashboard = () => {
                   {screenWidth > breakpoints.md ? (
                     <UItableMiniCard
                       dataTestId="dashboard-lease-renewal-requests-table-card-desktop"
-                      cardStyle={{ background: "white", color: "black" }}
+                      cardStyle={{
+                        background: "white",
+                        color: "black",
+                        height: "530px",
+                        overflowY: "auto",
+                      }}
                       infoStyle={{
                         color: uiGrey2,
                         fontSize: isMobile ? "12pt" : "16pt",
