@@ -16,7 +16,14 @@ import VendorPaymentModel from "../../UIComponents/Prototypes/Modals/VendorPayme
 import UIButton from "../../UIComponents/UIButton";
 import { Chip, Stack } from "@mui/material";
 import useScreen from "../../../../hooks/useScreen";
-
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LandlordMaintenanceRequests = () => {
   const navigate = useNavigate();
   const { isMobile } = useScreen();
@@ -35,7 +42,43 @@ const LandlordMaintenanceRequests = () => {
   const [nextEndpoint, setNextEndpoint] = useState(null);
   const [previousEndpoint, setPreviousEndpoint] = useState(null);
   const [openVenorPayModal, setOpenVendorPayModal] = useState(false);
-
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".maintenace-requests-section",
+      content:
+        "This is the maintenance requests section. Here you can view all the maintenance requests for your properties.",
+      disableBeacon: true,
+    },
+    {
+      target: ".info-cards-row",
+      content:
+        "These are the info cards that show you the number of resolved, pending, and in progress issues.",
+    },
+    {
+      target: ".pay-vendor-button",
+      content: "You can pay your vendors here.",
+    },
+    {
+      target: ".maintenance-request-section-table",
+      content:
+        "This is the maintenance requests table. Here you can view all the maintenance requests for your properties.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const columns = [
     { name: "description", label: "Issue" },
     {
@@ -150,8 +193,29 @@ const LandlordMaintenanceRequests = () => {
   }, [orderingField, searchField, limit]);
 
   return (
-    <div className="container-fluid">
-      <div className="row">
+    <div className="container-fluid maintenace-requests-section">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
+      <div className="row info-cards-row ">
         <div className="col-md-4 mb-4">
           <UIInfoCard
             cardStyle={{ background: "white", color: uiGrey2 }}
@@ -202,7 +266,7 @@ const LandlordMaintenanceRequests = () => {
         justifyContent="flex-end"
         alignItems="center"
       >
-        <div>
+        <div className="pay-vendor-button">
           <UIButton
             btnText="Pay Vendor"
             onClick={() => setOpenVendorPayModal(true)}
@@ -241,36 +305,39 @@ const LandlordMaintenanceRequests = () => {
           loadingMessage="Loading your maintenance requests..."
         />
       ) : (
-        <UITable
-          data={maintenanceRequests}
-          columns={columns}
-          options={options}
-          title="Maintenance Requests"
-          searchFields={["description", "status"]}
-          onSearch={(value) => {
-            setSearchField(value);
-          }}
-          onOrderingChange={(value) => {
-            setOrderingField(value);
-          }}
-          onResultLimitChange={(value) => {
-            setLimit(value);
-          }}
-          showResultLimit={true}
-          loadingTitle="Maintenance Requests"
-          loadingMessage="Loading your maintenance requests..."
-          menuOptions={[
-            {
-              name: "View",
-              onClick: (row) => {
-                const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
-                navigate(navlink);
+        <div className="maintenance-request-section-table">
+          <UITable
+            data={maintenanceRequests}
+            columns={columns}
+            options={options}
+            title="Maintenance Requests"
+            searchFields={["description", "status"]}
+            onSearch={(value) => {
+              setSearchField(value);
+            }}
+            onOrderingChange={(value) => {
+              setOrderingField(value);
+            }}
+            onResultLimitChange={(value) => {
+              setLimit(value);
+            }}
+            showResultLimit={true}
+            loadingTitle="Maintenance Requests"
+            loadingMessage="Loading your maintenance requests..."
+            menuOptions={[
+              {
+                name: "View",
+                onClick: (row) => {
+                  const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+                  navigate(navlink);
+                },
               },
-            },
-            { name: "Delete", onClick: () => console.log("Delete") },
-          ]}
-        />
+              { name: "Delete", onClick: () => console.log("Delete") },
+            ]}
+          />
+        </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

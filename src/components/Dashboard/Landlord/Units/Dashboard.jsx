@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { uiGreen, uiRed, uiGrey2, authUser } from "../../../../constants";
+import {
+  uiGreen,
+  uiRed,
+  uiGrey2,
+  authUser,
+  uiGrey,
+} from "../../../../constants";
 import { useEffect } from "react";
 import { getTransactionsByUser } from "../../../../api/transactions";
 import { useNavigate } from "react-router";
@@ -16,7 +22,7 @@ import UICard from "../../UIComponents/UICards/UICard";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
 import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
-import { Stack } from "@mui/material";
+import { IconButton, Stack, Tooltip } from "@mui/material";
 import useScreen from "../../../../hooks/useScreen";
 import { authenticatedInstance } from "../../../../api/api";
 import { getAllOwnerMaintenanceRequests } from "../../../../api/maintenance_requests";
@@ -24,10 +30,23 @@ import MapsHomeWorkOutlinedIcon from "@mui/icons-material/MapsHomeWorkOutlined";
 import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Link } from "react-router-dom";
+import UIDialog from "../../UIComponents/Modals/UIDialog";
+import ImportDataForm from "../../ImportDataForm";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIButton from "../../UIComponents/UIButton";
+import { getStripeAccountLink } from "../../../../api/owners";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
   const navigate = useNavigate();
+  const [importDataDialogOpen, setImportDataDialogOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Set loading to true on component mount
   const [units, setUnits] = useState([]);
@@ -37,10 +56,10 @@ const Dashboard = () => {
     []
   );
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
-
   const [occupiedUnits, setOccupiedUnits] = useState([]);
   const [vacantUnits, setVacantUnits] = useState([]);
   const [leaseAgreements, setLeaseAgreements] = useState([]);
+  const [stripeAccountLink, setStripeAccountLink] = useState("");
 
   /*Transaction Related States*/
   const [transactionTypes, setTransactionTypes] = useState([]); // ["revenue", "expense", "rent_payment", "security_deposit"
@@ -60,6 +79,89 @@ const Dashboard = () => {
     fontSize: "55pt",
     color: uiGreen,
   };
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const ownerTourSteps = [
+    {
+      target: ".dashboard-content",
+      content: (
+        <>
+          <h4>Welcome to your dashboard</h4>
+          <p>
+            This is the the Keyflow owner dashboard. here you can view and
+            manage your properties, units, tenants and more. Let's go over the
+            basics!
+          </p>
+        </>
+      ),
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".navbar.topbar",
+      content:
+        "This is the navigation bar. You will be using this frequently to navigate to different sections of the dashboard.",
+    },
+    {
+      target: "[data-testid='nav-menu-button'] ",
+      content:
+        "Click here to access the navigation menu. You can access all the sections of the dashboard from here including properties, units, tenants, maintenance requests, lease agreements, etc. ",
+      spotlightClicks: true,
+      disableBeacon: false,
+      disableOverlayClose: true,
+      placement: "right",
+      styles: {
+        options: {
+          zIndex: 10000,
+        },
+      },
+    },
+    {
+      target: ".topbar-brand",
+      content:
+        "This is the Keyflow logo. Click here to return to the dashboard home page at any time.",
+    },
+    {
+      target: '[data-testid="search-bar-desktop"]',
+      content:
+        "Use the search bar to search for properties, units, tenants,maintenance requests and any other resources. You can simply type in the search bar or click the search icon to bring up the search dialog.",
+    },
+    {
+      target: ".notification-topbar-icon",
+      content:
+        "Click here to view your notifications. You will receive notifications for tenant activity, lease renewal requests, lease cancellation requests, maintenance requests, and more. You can turn some notifications on or off in your account settings.",
+    },
+    {
+      target: ".messages-topbar-icon",
+      content:
+        "Click here to view your messages. You can send and receive messages from your tenants.",
+    },
+    {
+      target: ".my-account-topbar-dropdown",
+      content: "Click here to view your account settings, and to log out.",
+      spotlightClicks: true,
+      disableBeacon: false,
+    },
+    {
+      target: "#view-transactions-button",
+      content:
+        "Click here to view all your transactions on the Stripe express dashboard. You can also manage payouts, view your account balance, and more.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
+
   const startScreenMenuItems = [
     {
       name: "Create A Property",
@@ -77,7 +179,7 @@ const Dashboard = () => {
     {
       name: "Import Data",
       icon: <FileDownloadOutlinedIcon sx={startIconStyles} />,
-      url: "/dashboard/landlord/",
+      action: () => setImportDataDialogOpen(true),
       subtitle:
         "Import data from a CSV file to add properties, units, and tenants.",
     },
@@ -540,6 +642,10 @@ const Dashboard = () => {
   };
   useEffect(() => {
     authUser.account_type === "tenant" && navigate("/dashboard/tenant");
+    getStripeAccountLink().then((res) => {
+      console.log("Stripe ACcount link res: ", res);
+      setStripeAccountLink(res.account_link);
+    });
     setIsLoading(true);
     //retrieve transactions from api
     try {
@@ -580,22 +686,50 @@ const Dashboard = () => {
     }
     setIsLoading(false);
   }, [screenWidth]);
+
   return isLoading ? (
     <UIProgressPrompt
       title={"Fetching your data for ya. Give us a sec..."}
       message={"Hang Tight!"}
     />
   ) : (
-    <div className="container-fluid">
-      {/* <h3 style={{ color: uiGrey2, fontWeight: "bold" }}>Dashboard</h3> */}
-
-      {(transactions.length === 0 &&
+    <div className="container-fluid dashboard-container">
+      <div
+        className="w-100"
+        style={{
+          overflow: "auto",
+        }}
+      >
+        <UIButton
+          id="view-transactions-button"
+          style={{
+            float: "right",
+            width: isMobile ? "100%" : "200px",
+          }}
+          onClick={() => {
+            window.open(stripeAccountLink, "_blank");
+          }}
+          btnText="View Transactions"
+          btnIcon={<AttachMoneyIcon />}
+        />
+      </div>
+      {transactions.length === 0 &&
       leaseAgreements.length === 0 &&
       maintenanceRequests.length === 0 &&
       leaseRenewalRequests.length === 0 &&
       leaseCancellationRequests.length === 0 &&
-      properties.length === 0) ? (
+      units.length === 0 ? (
         <div className="ui-start-screen" id="ui-start-screen">
+          <UIDialog
+            title="Import Data"
+            open={importDataDialogOpen}
+            onClose={() => setImportDataDialogOpen(false)}
+            style={{
+              width: "1200px",
+            }}
+          >
+            <ImportDataForm />
+          </UIDialog>
           <div
             className="row"
             style={{
@@ -626,7 +760,50 @@ const Dashboard = () => {
                   key={index}
                   style={{ cursor: "pointer" }}
                 >
-                  <Link to={item.url}>
+                  {item.url ? (
+                    <Link to={item.url}>
+                      <div
+                        className="card"
+                        style={{
+                          height: "150px",
+                          display: "flex",
+                          backgroundColor: "white",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          color: uiGrey2,
+                          padding: "130px 30px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div>{item.icon}</div>
+                          <span
+                            style={{
+                              fontSize: "14pt",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item.name}
+                          </span>
+                          <span
+                            className="text-muted"
+                            style={{
+                              fontSize: "12pt",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item.subtitle}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : item.action ? (
                     <div
                       className="card"
                       style={{
@@ -638,6 +815,7 @@ const Dashboard = () => {
                         color: uiGrey2,
                         padding: "130px 30px",
                       }}
+                      onClick={item.action}
                     >
                       <div
                         style={{
@@ -667,7 +845,7 @@ const Dashboard = () => {
                         </span>
                       </div>
                     </div>
-                  </Link>
+                  ) : null}
                 </div>
               );
             })}
@@ -675,9 +853,31 @@ const Dashboard = () => {
         </div>
       ) : (
         <>
+          <Joyride
+            // key={runTour ? "run" : "stop"}
+            run={runTour}
+            index={tourIndex}
+            steps={ownerTourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
           <div className="data-section" id="data-section">
             {/* Line Chart Row */}
-            <div className="row">
+            {/* <div className="row">
               <div className="col-md-8 ">
                 <UILineChartCard
                   dataTestId="dashboard-line-chart-card"
@@ -709,7 +909,7 @@ const Dashboard = () => {
                   ]}
                 />
               </div>
-              <div className="col-sm-12 col-md-6 col-lg-4">
+              <div className="col-sm-12 col-md-4 col-lg-4">
                 {transactions.length === 0 ? (
                   <UICard
                     cardStyle={{ height: "478px" }}
@@ -765,10 +965,10 @@ const Dashboard = () => {
                   />
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Info Card Row (hidden on mobile and desktop too) */}
-            <div className="row my-2">
+            {/* <div className="row my-2">
               {multiplier.map((item, index) => {
                 return (
                   <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
@@ -791,7 +991,7 @@ const Dashboard = () => {
                   </div>
                 );
               })}
-            </div>
+            </div> */}
 
             {/* Vacancies & Transactions Row */}
             <div className="row">
@@ -908,7 +1108,12 @@ const Dashboard = () => {
                 {screenWidth > breakpoints.md ? (
                   <UItableMiniCard
                     dataTestId="dashboard-maintenance-requests-table-card-desktop"
-                    cardStyle={{ background: "white", color: "black" }}
+                    cardStyle={{
+                      background: "white",
+                      color: "black",
+                      height: "348px",
+                      overflowY: "auto",
+                    }}
                     infoStyle={{
                       color: uiGrey2,
                       fontSize: isMobile ? "12pt" : "16pt",
@@ -1108,7 +1313,12 @@ const Dashboard = () => {
                   {screenWidth > breakpoints.md ? (
                     <UItableMiniCard
                       dataTestId="dashboard-lease-renewal-requests-table-card-desktop"
-                      cardStyle={{ background: "white", color: "black" }}
+                      cardStyle={{
+                        background: "white",
+                        color: "black",
+                        height: "530px",
+                        overflowY: "auto",
+                      }}
                       infoStyle={{
                         color: uiGrey2,
                         fontSize: isMobile ? "12pt" : "16pt",
@@ -1211,6 +1421,7 @@ const Dashboard = () => {
           </div>
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} tooltipTitle="Take a Tour" />
     </div>
   );
 };

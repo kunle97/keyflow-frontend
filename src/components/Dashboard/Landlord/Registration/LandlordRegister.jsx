@@ -9,7 +9,6 @@ import { Input, Button, Stack, IconButton } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
 import { makeId } from "../../../../helpers/utils";
-import { send } from "@emailjs/browser";
 import UIButton from "../../UIComponents/UIButton";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
@@ -221,25 +220,6 @@ const LandlordRegister = () => {
     const response = await registerLandlord(payload).then((res) => {
       console.log(res);
       if (res.status === 200) {
-        //Send actication email
-        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${payload.activation_token}`;
-        console.log(activation_link);
-        const email_data = {
-          to_email: payload.email,
-          reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,
-          subject: "Activate Your KeyFlow Account",
-          message: `Hi ${payload.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
-        };
-        //Send activation email using emailJS
-        send(
-          process.env.REACT_APP_EMAIL_JS_SERVICE_ID,
-          process.env.REACT_APP_EMAIL_JS_TEMPLATE_ID,
-          email_data,
-          process.env.REACT_APP_EMAIL_JS_API_KEY
-        ).then((res) => {
-          console.log("Email sent successfully", res);
-        });
-
         //Show success message
         setErrorMode(false);
         setOpen(true);
@@ -282,6 +262,8 @@ const LandlordRegister = () => {
               onboarded to our payment processing platform. You will be asked for your industry.
               Be sure to select Property Rentals. Click the link below to continue the registration process"
               btnText="Continue"
+              confirmCheckbox={true}
+              checkboxLabel="I have read and understood the above message"
               to={stripeRedirectLink}
             />
           )}

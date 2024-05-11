@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { uiGreen } from "../../../constants";
 import { Checkbox, FormControlLabel } from "@mui/material";
 
@@ -9,7 +9,8 @@ const UICheckbox = (props) => {
         value="end"
         control={
           <Checkbox
-            {...props}
+            checked={props.checked}
+            onChange={props.onChange}
             sx={{
               color: uiGreen,
               "&.Mui-checked": {
@@ -23,6 +24,7 @@ const UICheckbox = (props) => {
             className="text-black"
             style={{
               fontSize: "12pt",
+              ...props.labelStyle,
             }}
           >
             {props.label}

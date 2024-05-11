@@ -3,16 +3,11 @@ import { useNavigate, useParams } from "react-router";
 import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
-import UITableMini from "../../UIComponents/UITable/UITableMini";
 import {
   approveLeaseRenewalRequest,
   getLeaseRenewalRequestById,
   rejectLeaseRenewalRequest,
 } from "../../../../api/lease_renewal_requests";
-import {
-  getNextPaymentDate,
-  getPaymentDates,
-} from "../../../../api/manage_subscriptions";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -23,6 +18,14 @@ import useScreen from "../../../../hooks/useScreen";
 import { getTenantInvoices } from "../../../../api/tenants";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -40,6 +43,47 @@ const LeaseRenewalRequestDetail = () => {
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [invoices, setInvoices] = useState([]);
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".current-lease-agreement-details-card",
+      content:
+        "This is the current lease agreement details card. Here you can view the details of the current lease agreement.",
+      disableBeacon: true,
+    },
+    {
+      target: ".lease-renewal-request-details-card",
+      content:
+        "This is the lease renewal request details card. Here you can view the details of the lease renewal request.",
+    },
+    {
+      target: ".tenant-bills-list",
+      content: "This is the list of all the tenant's bills.",
+    },
+    {
+      target: "#reject-lease-renewal-button",
+      content: "Click here to reject the lease renewal request.",
+    },
+    {
+      target: "#accept-lease-renewal-button",
+      content: "Click here to accept the lease renewal request.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
+
   const columns = [
     { name: "amount", label: "Amount" },
     { name: "due_date", label: "Due Date" },
@@ -130,12 +174,14 @@ const LeaseRenewalRequestDetail = () => {
       sx={{ margin: "30px 0" }}
     >
       <UIButton
+        id="reject-lease-renewal-button"
         onClick={setOpenRejectModal}
         variant="contained"
         style={{ backgroundColor: uiRed }}
         btnText="Reject"
       />
       <UIButton
+        id="accept-lease-renewal-button"
         onClick={() =>
           navigate("/dashboard/landlord/lease-renewal-accept-form/" + id)
         }
@@ -215,6 +261,27 @@ const LeaseRenewalRequestDetail = () => {
 
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <BackButton to="/dashboard/landlord/lease-renewal-requests/" />
       <AlertModal
         open={showAlertModal}
@@ -255,15 +322,15 @@ const LeaseRenewalRequestDetail = () => {
               {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal
               Request ({leaseRenewalRequest.status})
             </h4>
-            {leaseRenewalRequest.status !== "approved" &&
+            {/* {leaseRenewalRequest.status !== "approved" &&
               !isMobile &&
-              actionStack}
+              actionStack} */}
           </Stack>
 
           <div className="row">
             {currentLeaseAgreement && (
               <div className="col-md-6 align-self-center">
-                <div className="card mb-3">
+                <div className="card mb-3  current-lease-agreement-details-card">
                   <div className="card-body">
                     <div className="row">
                       <h5 className="mb-3">Current Lease Agreement Details</h5>
@@ -326,7 +393,7 @@ const LeaseRenewalRequestDetail = () => {
               </div>
             )}
             <div className="col-md-6 align-self-center">
-              <div className="card mb-3">
+              <div className="card mb-3 lease-renewal-request-details-card">
                 <div className="card-body">
                   <div className="row">
                     <h5 className="mb-3">Lease Renewal Request Details</h5>{" "}
@@ -340,7 +407,8 @@ const LeaseRenewalRequestDetail = () => {
                       <h6 className="rental-application-lease-heading">
                         Requested Lease Term
                       </h6>
-                      {leaseRenewalRequest.request_term} {leaseRenewalRequest.rent_frequency}(s)
+                      {leaseRenewalRequest.request_term}{" "}
+                      {leaseRenewalRequest.rent_frequency}(s)
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
@@ -369,7 +437,7 @@ const LeaseRenewalRequestDetail = () => {
               </div>
             </div>
 
-            <div className="col-md-12">
+            <div className="col-md-12 tenant-bills-list">
               {isMobile ? (
                 <UITableMobile
                   showCreate={false}
@@ -440,6 +508,7 @@ const LeaseRenewalRequestDetail = () => {
           {leaseRenewalRequest.status !== "approved" && actionStack}
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -117,3 +117,35 @@ export async function verifyTenantInviteRegistrationCredentials(data) {
   }
 }
 
+
+//A function to get a tenant's preferences using the endpoint api/tenants/{id}/preferences
+export async function getTenantPreferences() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/tenants/${authUser.tenant_id}/preferences/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Tenant Preferences Error: ", error);
+    return error.response;
+  }
+}
+
+//A function to update a tenant's preferences using a POST request the endpoint api/tenants/{id}/update-preferences
+export async function updateTenantPreferences(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/tenants/${authUser.tenant_id}/update-preferences/`, data)
+      .then((res) => {
+        console.log(res);
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Tenant Preferences Error: ", error);
+    return error.response;
+  }
+}

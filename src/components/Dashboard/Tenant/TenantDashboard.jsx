@@ -23,7 +23,13 @@ import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router";
-import { CircularProgress, FormControlLabel, Stack } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  CircularProgress,
+  FormControlLabel,
+  Stack,
+} from "@mui/material";
 import UISwitch from "../UIComponents/UISwitch";
 import UITable from "../UIComponents/UITable/UITable";
 import UIPrompt from "../UIComponents/UIPrompt";
@@ -34,6 +40,14 @@ import UICard from "../UIComponents/UICards/UICard";
 import UICardList from "../UIComponents/UICards/UICardList";
 import UItableMiniCard from "../UIComponents/UICards/UITableMiniCard";
 import { getTenantInvoices } from "../../../api/tenants";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../UIComponents/UIHelpButton";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
@@ -57,7 +71,87 @@ const TenantDashboard = () => {
   const [confirmAction, setConfirmAction] = useState(null);
   const [cancelButtonText, setCancelButtonText] = useState("");
   const [invoices, setInvoices] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [totalAmountDue, setTotalAmountDue] = useState(0);
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".tenant-dashboard-container",
+      content:
+        "Welcome to your dashboard! Here you can view your account balance, pay your bills, and submit maintenance requests.",
+      disableBeacon: true,
+    },
+    {
+      target: ".navbar.topbar",
+      content:
+        "This is the navigation bar. You will be using this frequently to navigate to different sections of the dashboard.",
+    },
+    {
+      target: "[data-testid='nav-menu-button'] ",
+      content:
+        "Click here to access the navigation menu. You can access all the sections of the dashboard from here including properties, units, tenants, maintenance requests, lease agreements, etc. ",
+      spotlightClicks: true,
+      disableBeacon: false,
+      disableOverlayClose: true,
+      placement: "right",
+      styles: {
+        options: {
+          zIndex: 10000,
+        },
+      },
+    },
+    {
+      target: ".topbar-brand",
+      content:
+        "This is the Keyflow logo. Click here to return to the dashboard home page at any time.",
+    },
+    {
+      target: ".notification-topbar-icon",
+      content:
+        "Click here to view your notifications. You will receive notifications for new messages, maintenance requests, and other important updates",
+    },
+    {
+      target: ".messages-topbar-icon",
+      content:
+        "Click here to view your messages. You can send and receive messages from your landlord.",
+    },
+    {
+      target: ".my-account-topbar-dropdown",
+      content: "Click here to view your account settings, and to log out.",
+      spotlightClicks: true,
+      disableBeacon: false,
+    },
+    {
+      target: ".amount-due-card",
+      content:
+        "This is the total amount due on your account. Click 'View Bills' to view and pay your bills.",
+      disableBeacon: true,
+    },
+    {
+      target: ".maintenance-request-card",
+      content:
+        "This is a list of your recent maintenance requests. Click on a row to view more details.",
+    },
+    {
+      target: ".payment-calendar-card",
+      content:
+        "This is a calendar of your payments. Click on a date to view payment details.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const columns = [
     { name: "amount", label: "Amount" },
     {
@@ -186,6 +280,7 @@ const TenantDashboard = () => {
       setLeaseAgreement(res.lease_agreement);
       setCurrentBalance(res.current_balance);
       setLateFees(res.late_fees);
+      setAnnouncements(res.announcements);
 
       //Check if lease agreement endate is in 2 months or less, if so show confirm modal
       if (res.lease_agreement) {
@@ -250,7 +345,28 @@ const TenantDashboard = () => {
   }, []);
 
   return (
-    <div className="container">
+    <div className="container  tenant-dashboard-container">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {leaseAgreement &&
         !isLoadingPaymentMethods &&
         paymentMethods.length > 0 && (
@@ -288,6 +404,16 @@ const TenantDashboard = () => {
         to="/dashboard/tenant/add-payment-method"
         btnText="Add Payment Method"
       />
+      {announcements && announcements.length > 0 && (
+        <>
+          {announcements.map((announcement) => (
+            <Alert severity={announcement.severity} sx={{ mb: 3 }} className="">
+              <AlertTitle>{announcement.title}</AlertTitle>
+              {announcement.body}
+            </Alert>
+          ))}
+        </>
+      )}
       <div className="d-sm-flex justify-content-between align-items-center mb-4">
         <h3 className="text-black mb-0">
           Good Afternoon, {`${authUser.first_name}!`}
@@ -305,7 +431,7 @@ const TenantDashboard = () => {
                 <>
                   <CardContent>
                     {totalAmountDue > 0 ? (
-                      <>
+                      <div className="amount-due-card">
                         <Typography sx={{ fontSize: 20 }} gutterBottom>
                           {dateDiffForHumans(new Date(nextPaymentDate)) <=
                             5 && <ReportIcon sx={{ color: "red" }} />}{" "}
@@ -324,55 +450,21 @@ const TenantDashboard = () => {
                             }
                           }
                         >
-                          <div className="my-2">
-                            {/* <FormControlLabel
-                                              value="end"
-                                              control={
-                                                <UISwitch
-                                                  checked={
-                                                    leaseAgreement &&
-                                                    leaseAgreement.auto_pay_is_enabled
-                                                  }
-                                                  onChange={handleAutoPayChange}
-                                                  inputProps={{ "aria-label": "controlled" }}
-                                                />
-                                              }
-                                              label={`AutoPay ${
-                                                leaseAgreement && leaseAgreement.auto_pay_is_enabled
-                                                  ? "Enabled"
-                                                  : "Disabled"
-                                              }`}
-                                              labelPlacement="end"
-                                            />
-                                            {autoPayIsLoading && (
-                                              <CircularProgress
-                                                size="1rem"
-                                                sx={{
-                                                  color: uiGreen,
-                                                  top: 5,
-                                                  position: "relative",
-                                                }}
-                                              />
-                                            )} */}
-                          </div>
                           <Button
-                            onClick={() => setShowPaymentModal(true)}
+                            onClick={() => navigate("/dashboard/tenant/bills")}
                             sx={{
                               color: "white",
                               textTransform: "none",
                               backgroundColor: uiGreen,
                             }}
-                            btnText="Pay Now"
+                            btnText="View Bills"
                             to="#"
                             variant="contained"
                           >
-                            Pay Now
+                            View Bills
                           </Button>
-                          {/* {leaseAgreement &&
-                                            !leaseAgreement.auto_pay_is_enabled && (
-                                            )} */}
                         </Box>
-                      </>
+                      </div>
                     ) : (
                       <Typography sx={{ fontSize: 20 }} gutterBottom>
                         <span>You have no outstanding balance</span>{" "}
@@ -386,18 +478,20 @@ const TenantDashboard = () => {
           {/* TODO: Insert a better Maintenance Requests Component Here */}
           {/* <MaintenanceRequests /> */}
           {transactions.length === 0 ? (
-            <UICard cardStyle={{ height: "478px" }}>
-              <Stack
-                direction={"column"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                spacing={2}
-                sx={{ height: "400px", textAlign: "center", color: "black" }}
-              >
-                <h4>Seems like you're new around here...</h4>
-                <p>There are no transactions to display.</p>
-              </Stack>
-            </UICard>
+            <>
+              {/* <UICard cardStyle={{ height: "478px" }}>
+                <Stack
+                  direction={"column"}
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                  spacing={2}
+                  sx={{ height: "400px", textAlign: "center", color: "black" }}
+                >
+                  <h4>Seems like you're new around here...</h4>
+                  <p>There are no transactions to display.</p>
+                </Stack>
+              </UICard> */}
+            </>
           ) : (
             <>
               {/* <UICardList
@@ -428,21 +522,25 @@ const TenantDashboard = () => {
               /> */}
             </>
           )}
-
-          <UItableMiniCard
-            cardStyle={{ background: "white", color: "black" }}
-            infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-            titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-            title={"Recent Maintenance Requests"}
-            columns={maintenance_request_columns}
-            info={"Recent Maintenance Requests"}
-            endpoint={"/maintenance-requests/"}
-            options={maintenance_request_options}
-          />
+          <div className="maintenance-request-card">
+            <UItableMiniCard
+              cardStyle={{ background: "white", color: "black" }}
+              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+              title={"Recent Maintenance Requests"}
+              columns={maintenance_request_columns}
+              info={"Recent Maintenance Requests"}
+              endpoint={"/maintenance-requests/"}
+              options={maintenance_request_options}
+            />
+          </div>
         </div>
         <div className="col-lg-7 col-xl-8 mb-4">
           {leaseAgreement ? (
-            <div className="card" style={{ color: "white" }}>
+            <div
+              className="card payment-calendar-card"
+              style={{ color: "white" }}
+            >
               <div className="card-body">
                 <PaymentCalendar />
               </div>
@@ -458,6 +556,7 @@ const TenantDashboard = () => {
         </div>
         <div className="col-lg-12 col-xl-12 mb-4"></div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -75,6 +75,21 @@ export async function updatePortfolio(id, data) {
   }
 }
 
+//Create function to update a portfolio preferences with patch method using the api endpoint /portfolios/{id}/update-preferences
+export async function updatePortfolioPreferences(id, data) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/portfolios/${id}/update-preferences/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Portfolio Preferences Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
 //Create a function to call the API endpoint /portfolios/ to make a delete request to delete a portfolio
 export async function deletePortfolio(id) {
   try {

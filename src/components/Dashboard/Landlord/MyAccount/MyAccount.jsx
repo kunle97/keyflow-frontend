@@ -16,6 +16,7 @@ import { getTenantDashboardData } from "../../../../api/tenants";
 import { changePassword } from "../../../../api/passwords";
 import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
 import {
+  getOwnerUserData,
   getUserStripeSubscriptions,
   updateUserData,
 } from "../../../../api/auth";
@@ -47,7 +48,12 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
-
+import { defaultLandlordAccountPreferences } from "../../../../constants/landlord_account_preferences";
+import {
+  getOwnerPreferences,
+  updateOwnerPreferences,
+} from "../../../../api/owners";
+import { syncPreferences } from "../../../../helpers/preferences";
 const MyAccount = () => {
   const { isMobile } = useScreen();
   const [tabPage, setTabPage] = useState(0);
@@ -73,6 +79,7 @@ const MyAccount = () => {
   const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [ownerPreferences, setOwnerPreferences] = useState([]);
   const navigate = useNavigate();
   const [accountFormData, setAccountFormData] = useState({
     username: authUser.username,
@@ -233,7 +240,8 @@ const MyAccount = () => {
       placeholder: "New Password",
       validations: {
         required: true,
-        regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        regex:
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
         errorMessage:
           "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
       },
@@ -341,7 +349,36 @@ const MyAccount = () => {
     setTabPage(newValue);
   };
 
+  //Create a function that handle the change of the value of a preference
+  const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
+    if (inputType === "switch") {
+      console.log(e.target.checked);
+      //Update the value of the preference and use setOwnerPreferences to update the state
+      let newOwnerPreferences = ownerPreferences.map((preference) => {
+        if (preference.name === preferenceName) {
+          preference.values.map((value) => {
+            if (value.name === valueName) {
+              value.value = e.target.checked;
+            }
+          });
+        }
+        return preference;
+      });
+      console.log("New Owner Preferences ", newOwnerPreferences);
+      setOwnerPreferences(newOwnerPreferences);
+      let payload = {
+        preferences: newOwnerPreferences,
+      };
+      updateOwnerPreferences(payload).then((res) => {
+        console.log(res);
+      });
+    } else {
+      console.log(e.target.value);
+    }
+  };
+
   useEffect(() => {
+    syncPreferences();
     //Get the payment methods for the user
     listStripePaymentMethods(`${authUser.id}`).then((res) => {
       setPaymentMethods(res.data);
@@ -357,6 +394,10 @@ const MyAccount = () => {
         setProfilePictureFile(res.data[0]);
       }
     );
+    getOwnerPreferences().then((res) => {
+      console.log("PREfffekwf", res);
+      setOwnerPreferences(res.preferences);
+    });
   }, []);
 
   return (
@@ -798,23 +839,79 @@ const MyAccount = () => {
       )}
       {tabPage === 5 && (
         <div className={isMobile && "container-fluid"}>
-          <List
-            sx={{
-              width: "100%",
-              // maxWidth: 360,
-            }}
-          >
-            {[0, 1, 2, 3].map((value) => {
-              return (
-                <UIPreferenceRow
-                  key={value}
-                  title={faker.lorem.words(3)}
-                  description={faker.lorem.words(10)}
-                  value={faker.datatype.boolean()}
-                />
-              );
-            })}
-          </List>
+          <div className="row">
+            <div className="col-md-3">
+              <ul className="list-group">
+                <li className="list-group-item">
+                  <h5>Notifications</h5>
+                </li>
+              </ul>
+            </div>
+            <div className="col-md-9">
+              <List
+                sx={{
+                  width: "100%",
+                  // maxWidth: 360,
+                }}
+              >
+                {ownerPreferences &&
+                  ownerPreferences.map((preference) => {
+                    return (
+                      <ListItem
+                        style={{
+                          borderRadius: "10px",
+                          background: "white",
+                          margin: "10px 0",
+                          boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          sx={{ width: "100%" }}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography sx={{ color: "black" }}>
+                                {preference.label}
+                              </Typography>
+                            }
+                            secondary={
+                              <React.Fragment>
+                                {preference.description}
+                              </React.Fragment>
+                            }
+                          />
+                          {preference.values.map((value) => {
+                            return (
+                              <>
+                                <span className="text-black">
+                                  {value.label}
+                                </span>
+                                {value.inputType === "switch" && (
+                                  <UISwitch
+                                    onChange={(e) =>
+                                      handlePreferenceChange(
+                                        e,
+                                        value.inputType,
+                                        preference.name,
+                                        value.name
+                                      )
+                                    }
+                                    value={value.value}
+                                  />
+                                )}
+                              </>
+                            );
+                          })}
+                        </Stack>
+                      </ListItem>
+                    );
+                  })}
+              </List>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -11,9 +11,20 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import UIPrompt from "../../UIComponents/UIPrompt";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { triggerValidation, validateForm } from "../../../../helpers/formValidation";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../../helpers/formValidation";
 import UIButton from "../../UIComponents/UIButton";
 import useScreen from "../../../../hooks/useScreen";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
@@ -22,11 +33,51 @@ const CreateMaintenanceRequest = () => {
   const [responseMessage, setResponseMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const {isMobile } = useScreen();
+  const { isMobile } = useScreen();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
   });
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".create-maintenance-request-form",
+      content:
+        "This is the maintenance request form. You can create a maintenance request here.",
+      disableBeacon: true,
+    },
+    //Create target using the name as a  selector for the form inputs
+    {
+      target: "select[name='type']",
+      content:
+        "Here you can select the type of maintenance request you want to create. For example, if you are having a leaky faucet, you can select plumbing.",
+    },
+    {
+      target: "textarea[name='description']",
+      content:
+        "Enter a description for the maintenance request. Try to be as detailed as possible. For example, if you are having a leaky faucet, you can describe the location of the faucet and the severity of the leak.",
+    },
+    {
+      target: "#create-maintenance-request-submit-button",
+      content:
+        "Once you are done click here to create the maintenance request.",
+    },
+  ];
+
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newErrors = triggerValidation(
@@ -92,8 +143,6 @@ const CreateMaintenanceRequest = () => {
     });
   }, []);
 
-
-
   //Create a function to handle the form submission
   const onSubmit = () => {
     setIsLoading(true);
@@ -124,8 +173,29 @@ const CreateMaintenanceRequest = () => {
 
   return (
     <>
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       {leaseAgreement ? (
-        <div className="container-fluid">
+        <div className="container-fluid ">
           <ProgressModal
             open={isLoading}
             handleClose={() => setIsLoading(false)}
@@ -141,15 +211,15 @@ const CreateMaintenanceRequest = () => {
           />
 
           <div className="row mb-3">
-            <div className="col-sm-12 col-md-8 col-lg-8 offset-sm-0 offset-md-2 offset-lg-2">
+            <div className="col-sm-12 col-md-12 col-lg-12 ">
               <h3 className="text-black mb-4">Create A Maintenance Request</h3>
-              <div className="card shadow mb-5">
+              <div className="card shadow mb-5 create-maintenance-request-form">
                 <div className="card-body">
                   <div className="row" />
                   <div className="row" />
                   <div className="row">
                     <div className="col-12">
-                      <form >
+                      <form>
                         {formInputs.map((input, index) => {
                           return (
                             <div
@@ -189,6 +259,7 @@ const CreateMaintenanceRequest = () => {
                                   name={input.name}
                                   onChange={input.onChange}
                                   onBlur={input.onChange}
+                                  rows={"10"}
                                   // {...register(input.name, { required: true })}
                                 ></textarea>
                               )}
@@ -205,7 +276,8 @@ const CreateMaintenanceRequest = () => {
                         })}
                         <div className="mb-3">
                           <UIButton
-                            dataTestId="create-portfolio-submit-button"
+                            id="create-maintenance-request-submit-button"
+                            dataTestId="create-maintenance-request-submit-button"
                             onClick={() => {
                               const { isValid, newErrors } = validateForm(
                                 formData,
@@ -218,11 +290,10 @@ const CreateMaintenanceRequest = () => {
                                 setErrors(newErrors);
                               }
                             }}
-                            btnText="Create"
+                            btnText="Create Maintenance Request"
                             buttonStyle="btnGreen"
                             style={{
-                              float: "right",
-                              width: isMobile ? "100%" : "auto",
+                              width: "100%",
                             }}
                           />
                         </div>
@@ -242,6 +313,7 @@ const CreateMaintenanceRequest = () => {
           btnText="Okay"
         />
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </>
   );
 };

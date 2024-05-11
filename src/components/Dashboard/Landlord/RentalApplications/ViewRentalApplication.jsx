@@ -19,11 +19,18 @@ import UITabs from "../../UIComponents/UITabs";
 import UIButton from "../../UIComponents/UIButton";
 import BackButton from "../../UIComponents/BackButton";
 import useScreen from "../../../../hooks/useScreen";
-
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
-  const [unit, setUnit] = useState(null); 
+  const [unit, setUnit] = useState(null);
   const [rentalApplication, setRentalApplication] = useState({});
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
@@ -41,7 +48,71 @@ const ViewRentalApplication = () => {
     { label: "Employment History", name: "employment_history" },
     { label: "Residential History", name: "residential_history" },
   ];
+  const [tourIndex, setTourIndex] = useState(0);
+  const [runTour, setRunTour] = useState(false);
 
+  const tourSteps = [
+    {
+      target: ".rental-application-detail-view",
+      content:
+        "This is the rental application details page. Here you can view the details of the rental application and approve or reject it.",
+      disableBeacon: true,
+      placement: "center",
+    },
+    {
+      target: ".accept-button-wrapper",
+      content:
+        "Click the accept button to approve this rental application and send a lease agreement to the applicant.",
+    },
+    {
+      target: ".reject-button-wrapper",
+      content:
+        "Click the reject button to reject this rental application and delete it from your records.",
+    },
+    {
+      target: ".rental-application-archive-button",
+      content:
+        "Click the archive/unarchive button to archive this rental application. Archived applications will be hidden from the list of rental applications. You can unarchive them later.",
+    },
+    //Employment History Tab
+    {
+      target: ".employment-history-tab",
+      content:
+        "This tab shows the employment history of the applicant. You can view the applicant's employment history here.",
+    },
+    //Residential History Tab
+    {
+      target: ".residential-history-tab",
+      content:
+        "This tab shows the residential history of the applicant. You can view the applicant's residential history here.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      setTourIndex(0);
+      setRunTour(false);
+    } else if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+      const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
+      setTourIndex(nextStepIndex);
+    }
+
+    console.log("Current Joyride data", data);
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    if (tabPage === 0) {
+      setTourIndex(0);
+    } else if (tabPage === 1) {
+      //Addtional Charges Tab
+      setTourIndex(4);
+    } else if (tabPage === 2) {
+      // Lease document tab
+      setTourIndex(5);
+    }
+    setRunTour(true); // Start the tour
+  };
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
   };
@@ -49,7 +120,7 @@ const ViewRentalApplication = () => {
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
     console.log("Accepting Application...");
-    console.log("unt", unit)
+    console.log("unt", unit);
     //Check if unit has a template
     if (!unit.template_id && !unit.signed_lease_document_file) {
       setAlertModalTitle("An error occurred");
@@ -63,96 +134,15 @@ const ViewRentalApplication = () => {
     try {
       // Approve and Archive this application
       const approvalResponse = await approveRentalApplication(id);
+      console.log(approvalResponse);
 
-      if (approvalResponse.hasOwnProperty("id")) {
-        console.log(approvalResponse);
+      if (approvalResponse.status === 200) {
         setOpenAcceptModal(false);
-        const approval_hash = approvalResponse.approval_hash;
-
-        // Retrieve Rental Unit
-        const rental_unit = await getUnit(approvalResponse.unit.id);
-       
-
-        if (unit.template_id) {
-          const doc_payload = {
-            template_id: unit.template_id,
-            tenant_first_name: rentalApplication.first_name,
-            tenant_last_name: rentalApplication.last_name,
-            tenant_email: rentalApplication.email,
-            document_title: `${rentalApplication.first_name} ${rentalApplication.last_name} Lease Agreement for unit ${unit.name}`,
-            message: "Please sign the lease agreement",
-          };
-
-          // Send lease agreement to the applicant
-          const sendDocResponse = await sendDocumentToUser(doc_payload);
-          console.log("Send document response", sendDocResponse);
-          if (sendDocResponse.status === 500) {
-            //Set application is_approved to false
-            const updateApplicationResponse = await authenticatedInstance.patch(
-              `/rental-applications/${id}/`,
-              {
-                is_approved: false,
-                approval_hash: "",
-                is_archived: false,
-              }
-            );
-            console.log(
-              "Update application response",
-              updateApplicationResponse
-            );
-            //Display error message
-            setAlertModalTitle("An error occurred");
-            setAlertModalMessage(
-              "There was an error sending the lease agreement to the applicant. Please try again later."
-            );
-            setOpenAlertModal(true);
-            return false;
-          } else {
-            //Continue as normal
-            if (sendDocResponse.documentId) {
-              const leaseAgreementData = {
-                rental_application: parseInt(id),
-                rental_unit: rental_unit.id,
-                user: authUser.id,
-                approval_hash: approval_hash,
-                document_id: sendDocResponse.documentId,
-              };
-
-              // Create a lease agreement
-              const createLeaseAgreementResponse = await createLeaseAgreement(
-                leaseAgreementData
-              );
-              console.log(
-                "Create lease agreement response",
-                createLeaseAgreementResponse
-              );
-
-              // Generate link & Send lease agreement to applicant
-              const signLink = `${process.env.REACT_APP_HOSTNAME}/sign-lease-agreement/${createLeaseAgreementResponse.response.data.id}/${createLeaseAgreementResponse.response.data.approval_hash}/`;
-              console.log("Sign Link", signLink);
-            } else {
-              console.log(sendDocResponse);
-              setAlertModalTitle("An error occurred");
-              setOpenAlertModal(true);
-              return false;
-            }
-            // Delete all other applications
-            const deleteApplicationsResponse =
-              await deleteOtherRentalApplications(id);
-
-            if (deleteApplicationsResponse.status === 200) {
-              console.log(deleteApplicationsResponse);
-            } else {
-              console.log(deleteApplicationsResponse);
-            }
-            // Display success message
-            setAlertModalTitle("Rental Application  Approved");
-            setAlertModalMessage(
-              "The Rental Application has been approved. The lease agreement has been sent to the applicant."
-            );
-            setOpenAlertModal(true);
-          }
-        }
+        setAlertModalTitle("Rental Application Approved");
+        setAlertModalMessage(
+          "The Rental Application has been approved. The lease agreement has been sent to the applicant."
+        );
+        setOpenAlertModal(true);
       } else {
         console.log(approvalResponse);
         setAlertModalTitle("An error occurred");
@@ -222,7 +212,28 @@ const ViewRentalApplication = () => {
     });
   }, []);
   return (
-    <div className="container-fluid">
+    <div className="container-fluid rental-application-detail-view">
+      <Joyride
+        run={runTour}
+        stepIndex={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <BackButton to={`/dashboard/landlord/rental-applications`} />
       <ProgressModal
         title="Processing Application..."
@@ -267,7 +278,7 @@ const ViewRentalApplication = () => {
             confirmBtnStyle={{ background: uiRed }}
           />
           <div className="mb-3" style={{ overflow: "auto" }}>
-            <h4 style={{ float: "left", fontSize: isMobile ? "14pt":"20pt" }}>
+            <h4 style={{ float: "left", fontSize: isMobile ? "14pt" : "20pt" }}>
               {" "}
               {rentalApplication.first_name} {rentalApplication.last_name}{" "}
               Rental Application (Status :{" "}
@@ -400,8 +411,8 @@ const ViewRentalApplication = () => {
           )}
 
           {tabPage === 1 && (
-            <div className="mb-4">
-              <div className="card">
+            <div className="mb-4 employment-history-tab">
+              <div className="card ">
                 <div className="card-body">
                   {employmentHistory.map((item, index) => {
                     return (
@@ -466,7 +477,7 @@ const ViewRentalApplication = () => {
           )}
 
           {tabPage === 2 && (
-            <div className="mb-4">
+            <div className="mb-4 residential-history-tab">
               <div className="card">
                 <div className="card-body">
                   {residentialHistory.map((item, index) => {
@@ -515,32 +526,37 @@ const ViewRentalApplication = () => {
 
           {!rentalApplication.is_approved ? (
             <Stack direction="row" gap={2}>
-              <Button
-                onClick={setOpenRejectModal}
-                variant="contained"
-                sx={{ background: "red" }}
-              >
-                Reject
-              </Button>
-              <Button
-                onClick={setOpenAcceptModal}
-                variant="contained"
-                sx={{ background: uiGreen }}
-              >
-                Accept
-              </Button>
+              <span className="reject-button-wrapper">
+                <Button
+                  onClick={setOpenRejectModal}
+                  variant="contained"
+                  sx={{ background: "red" }}
+                >
+                  Reject
+                </Button>
+              </span>
+              <span className="accept-button-wrapper">
+                <Button
+                  onClick={setOpenAcceptModal}
+                  variant="contained"
+                  sx={{ background: uiGreen }}
+                >
+                  Accept
+                </Button>
+              </span>
             </Stack>
           ) : (
-            <>
+            <span className="rental-application-archive-button">
               <UIButton
                 btnText={
                   rentalApplication.is_archived ? "Unarchive" : "Archive"
                 }
               />
-            </>
+            </span>
           )}
         </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

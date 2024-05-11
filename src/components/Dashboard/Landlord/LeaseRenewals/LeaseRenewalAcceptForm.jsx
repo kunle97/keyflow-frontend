@@ -49,7 +49,7 @@ const LeaseRenewalAcceptForm = () => {
   const [changeLeaseTermMode, setChangeLeaseTermMode] = useState("new"); // Values: new, existing
   const [viewMode, setViewMode] = useState("review"); //Values: Review,  change_terms, submit_confirmation
   const [documentMode, setDocumentMode] = useState("existing"); // Values: new, existing
-  const[alertModalAction, setAlertModalAction] = useState(null); // Used to show a button in the alert modal [Optional]
+  const [alertModalAction, setAlertModalAction] = useState(null); // Used to show a button in the alert modal [Optional]
   const navigate = useNavigate();
 
   const handleAccept = async () => {
@@ -60,7 +60,9 @@ const LeaseRenewalAcceptForm = () => {
       setAlertModalTitle("Lease Renewal Request Already Accepted");
       setAlertModalMessage("This lease renewal request was already accepted.");
       setShowAlertModal(true);
-      setAlertModalAction(() => navigate("/dashboard/landlord/lease-renewal-requests/"));
+      setAlertModalAction(() =>
+        navigate("/dashboard/landlord/lease-renewal-requests/")
+      );
       setIsSubmitting(false);
       return;
     }
@@ -80,6 +82,7 @@ const LeaseRenewalAcceptForm = () => {
       }
 
       const docPayload = {
+        owner_id: authUser.owner_id,
         template_id: currentTemplateId,
         tenant_first_name: leaseRenewalRequest.tenant.user.first_name,
         tenant_last_name: leaseRenewalRequest.tenant.user.last_name,
@@ -148,7 +151,9 @@ const LeaseRenewalAcceptForm = () => {
         "The lease renewal request was accepted, and the tenant was notified."
       );
       setShowAlertModal(true);
-      setAlertModalAction(() => navigate("/dashboard/landlord/lease-renewal-requests/"));
+      setAlertModalAction(() =>
+        navigate("/dashboard/landlord/lease-renewal-requests/")
+      );
     } catch (error) {
       setAlertModalTitle("Error");
       setAlertModalMessage(
@@ -188,7 +193,7 @@ const LeaseRenewalAcceptForm = () => {
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
-          setCurrentLeaseTerms(updatedUnitLeaseTerms);  
+          setCurrentLeaseTerms(updatedUnitLeaseTerms);
           console.log("Successfully updated rental unit lease terms");
           setAlertModalTitle("Success");
           setAlertModalMessage(
@@ -246,7 +251,7 @@ const LeaseRenewalAcceptForm = () => {
             }(s).`
         );
         setShowConfirmModal(true);
-        
+
         return true; //Trigger an alert to navigate user to create the new lease template
       }
     }
@@ -337,9 +342,9 @@ const LeaseRenewalAcceptForm = () => {
             open={showAlertModal}
             btnText="Okay"
             onClick={() => {
-              if(alertModalAction){
+              if (alertModalAction) {
                 alertModalAction();
-              }else{
+              } else {
                 setShowAlertModal(false);
               }
             }}
