@@ -1,4 +1,4 @@
-import Dashboard from "./components/Dashboard/Landlord/Units/Dashboard";
+import Dashboard from "./components/Dashboard/Dashboard";
 import MaintenanceRequests from "./components/Dashboard/Tenant/MaintenanceRequests/MaintenanceRequests";
 import CreateMaintenanceRequest from "./components/Dashboard/Tenant/MaintenanceRequests/CreateMaintenanceRequest";
 import { createBrowserRouter } from "react-router-dom";
