@@ -948,7 +948,7 @@ const Dashboard = () => {
                       onClick={() => {
                         window.open(stripeAccountLink, "_blank");
                       }}
-                      btnText="View Transactions"
+                      btnText="View All Transactions"
                       btnIcon={<AttachMoneyIcon />}
                     />
                   </div>
