@@ -51,7 +51,6 @@ const LandlordLogin = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
     console.log("Errors ", errors);
   };
 

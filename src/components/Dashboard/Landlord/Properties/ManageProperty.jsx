@@ -84,6 +84,7 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
+import { PaymentElement } from "@stripe/react-stripe-js";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -126,7 +127,7 @@ const ManageProperty = () => {
   const [tourIndex, setTourIndex] = useState(0);
   const [isOnStep2, setIsOnStep2] = useState(false); // Add this line
   const handleJoyrideCallback = (data) => {
-    const { action, index, status,type } = data;
+    const { action, index, status, type } = data;
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setTourIndex(0);
@@ -141,11 +142,11 @@ const ManageProperty = () => {
 
   const handleClickStart = (event) => {
     event.preventDefault();
-    if(tabPage === 0){
+    if (tabPage === 0) {
       setTourIndex(0);
-    }else if(tabPage === 1){
+    } else if (tabPage === 1) {
       setTourIndex(4);
-    }else if(tabPage === 2){
+    } else if (tabPage === 2) {
       setTourIndex(5);
     }
     setRunTour(true); // Start the tour
@@ -185,7 +186,8 @@ const ManageProperty = () => {
     //Start Preferences Tour
     {
       target: ".property-preferences",
-      content: "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
+      content:
+        "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
     },
   ];
 
@@ -421,6 +423,10 @@ const ManageProperty = () => {
       label: "Preferences",
       dataTestId: "property-preference-tab",
     },
+    {
+      name: "banking",
+      label: "Banking",
+    },
   ];
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
@@ -573,6 +579,10 @@ const ManageProperty = () => {
     }
   };
 
+  const addPayoutAccountOnSubmit = () => {
+    console.log("Add Bank Account");
+  };
+
   useEffect(() => {
     syncPropertyPreferences(id);
     if (!property || !formData) {
@@ -624,7 +634,7 @@ const ManageProperty = () => {
           setIsLoading(false);
         });
     }
-  }, [property, formData])
+  }, [property, formData]);
 
   return (
     <>
@@ -1279,6 +1289,19 @@ const ManageProperty = () => {
                         </ListItem>
                       );
                     })}
+                </div>
+              )}
+              {tabPage === 3 && (
+                <div className="card">
+                  <div className="card-body">
+                    <h4>Add Payout Account</h4>
+                    <PaymentElement />
+                    <UIButton
+                      btnText="Add Payout Account"
+                      onClick={addPayoutAccountOnSubmit}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
                 </div>
               )}
             </div>

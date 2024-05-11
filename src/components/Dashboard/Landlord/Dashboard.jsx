@@ -5,33 +5,33 @@ import {
   uiGrey2,
   authUser,
   uiGrey,
-} from "../../../../constants";
+} from "../../../constants";
 import { useEffect } from "react";
-import { getTransactionsByUser } from "../../../../api/transactions";
+import { getTransactionsByUser } from "../../../api/transactions";
 import { useNavigate } from "react-router";
-import UILineChartCard from "../../UIComponents/UICards/UILineChartCard";
-import UItableMiniCard from "../../UIComponents/UICards/UITableMiniCard";
-import UIPieChartCard from "../../UIComponents/UICards/UIPieChartCard";
-import { getLandlordUnits } from "../../../../api/units";
-import { getProperties } from "../../../../api/properties";
-import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
+import UILineChartCard from "../UIComponents/UICards/UILineChartCard";
+import UItableMiniCard from "../UIComponents/UICards/UITableMiniCard";
+import UIPieChartCard from "../UIComponents/UICards/UIPieChartCard";
+import { getLandlordUnits } from "../../../api/units";
+import { getProperties } from "../../../api/properties";
+import UIInfoCard from "../UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import UICardList from "../../UIComponents/UICards/UICardList";
-import UIChartCard from "../../UIComponents/UICards/UICard";
-import UICard from "../../UIComponents/UICards/UICard";
-import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
-import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
+import UICardList from "../UIComponents/UICards/UICardList";
+import UIChartCard from "../UIComponents/UICards/UICard";
+import UICard from "../UIComponents/UICards/UICard";
+import UIProgressPrompt from "../UIComponents/UIProgressPrompt";
+import { getAllLeaseRenewalRequests } from "../../../api/lease_renewal_requests";
+import { getAllLeaseCancellationRequests } from "../../../api/lease_cancellation_requests";
 import { IconButton, Stack, Tooltip } from "@mui/material";
-import useScreen from "../../../../hooks/useScreen";
-import { authenticatedInstance } from "../../../../api/api";
-import { getAllOwnerMaintenanceRequests } from "../../../../api/maintenance_requests";
+import useScreen from "../../../hooks/useScreen";
+import { authenticatedInstance } from "../../../api/api";
+import { getAllOwnerMaintenanceRequests } from "../../../api/maintenance_requests";
 import MapsHomeWorkOutlinedIcon from "@mui/icons-material/MapsHomeWorkOutlined";
 import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Link } from "react-router-dom";
-import UIDialog from "../../UIComponents/Modals/UIDialog";
-import ImportDataForm from "../../ImportDataForm";
+import UIDialog from "../UIComponents/Modals/UIDialog";
+import ImportDataForm from "../ImportDataForm";
 import Joyride, {
   ACTIONS,
   CallBackProps,
@@ -39,9 +39,9 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
-import UIHelpButton from "../../UIComponents/UIHelpButton";
-import UIButton from "../../UIComponents/UIButton";
-import { getStripeAccountLink } from "../../../../api/owners";
+import UIHelpButton from "../UIComponents/UIHelpButton";
+import UIButton from "../UIComponents/UIButton";
+import { getStripeAccountLink } from "../../../api/owners";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();

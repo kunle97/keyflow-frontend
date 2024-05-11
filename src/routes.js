@@ -1,4 +1,4 @@
-import Dashboard from "./components/Dashboard/Landlord/Units/Dashboard";
+import Dashboard from "./components/Dashboard/Landlord/Dashboard";
 import MaintenanceRequests from "./components/Dashboard/Tenant/MaintenanceRequests/MaintenanceRequests";
 import CreateMaintenanceRequest from "./components/Dashboard/Tenant/MaintenanceRequests/CreateMaintenanceRequest";
 import { createBrowserRouter } from "react-router-dom";
@@ -98,12 +98,14 @@ const token = localStorage.getItem("accessToken");
 //StripeELements Options
 const options = {
   // clientSecret: clientSecret,
-  mode: 'setup',
-  paymentMethodTypes: [/*Insert Payment Method types found in stripe dashboard here*/],
+  mode: "setup",
+  paymentMethodTypes: [
+    /*Insert Payment Method types found in stripe dashboard here*/
+  ],
   layout: {
-    type: 'tabs',
+    type: "tabs",
     defaultCollapsed: false,
-  }
+  },
 };
 
 export const routes = [
@@ -310,7 +312,9 @@ export const routes = [
     path: "/dashboard/landlord/properties/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <ManageProperty />
+        <Elements stripe={stripePromise} options={options}>
+          <ManageProperty />
+        </Elements>
       </DashboardProtectedRoute>
     ),
     breadcrumbs: ["Properties", "Manage Property", "[:id]_name"],
@@ -785,7 +789,7 @@ export const routes = [
     isSearchable: false,
     label: "Announcement",
     description: "Manage your announcement",
-    isQuickLink: false, 
+    isQuickLink: false,
   },
   //Prototype routes
   {
