@@ -1,37 +1,31 @@
 import React, { useState } from "react";
-import {
-  uiGreen,
-  uiRed,
-  uiGrey2,
-  authUser,
-  uiGrey,
-} from "../../../../constants";
+import { uiGreen, uiRed, uiGrey2, authUser, uiGrey } from "../../constants";
 import { useEffect } from "react";
-import { getTransactionsByUser } from "../../../../api/transactions";
+import { getTransactionsByUser } from "../../api/transactions";
 import { useNavigate } from "react-router";
-import UILineChartCard from "../../UIComponents/UICards/UILineChartCard";
-import UItableMiniCard from "../../UIComponents/UICards/UITableMiniCard";
-import UIPieChartCard from "../../UIComponents/UICards/UIPieChartCard";
-import { getLandlordUnits } from "../../../../api/units";
-import { getProperties } from "../../../../api/properties";
-import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
+import UILineChartCard from "./UIComponents/UICards/UILineChartCard";
+import UItableMiniCard from "./UIComponents/UICards/UITableMiniCard";
+import UIPieChartCard from "./UIComponents/UICards/UIPieChartCard";
+import { getLandlordUnits } from "../../api/units";
+import { getProperties } from "../../api/properties";
+import UIInfoCard from "./UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import UICardList from "../../UIComponents/UICards/UICardList";
-import UIChartCard from "../../UIComponents/UICards/UICard";
-import UICard from "../../UIComponents/UICards/UICard";
-import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
-import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
+import UICardList from "./UIComponents/UICards/UICardList";
+import UIChartCard from "./UIComponents/UICards/UICard";
+import UICard from "./UIComponents/UICards/UICard";
+import UIProgressPrompt from "./UIComponents/UIProgressPrompt";
+import { getAllLeaseRenewalRequests } from "../../api/lease_renewal_requests";
+import { getAllLeaseCancellationRequests } from "../../api/lease_cancellation_requests";
 import { IconButton, Stack, Tooltip } from "@mui/material";
-import useScreen from "../../../../hooks/useScreen";
-import { authenticatedInstance } from "../../../../api/api";
-import { getAllOwnerMaintenanceRequests } from "../../../../api/maintenance_requests";
+import useScreen from "../../hooks/useScreen";
+import { authenticatedInstance } from "../../api/api";
+import { getAllOwnerMaintenanceRequests } from "../../api/maintenance_requests";
 import MapsHomeWorkOutlinedIcon from "@mui/icons-material/MapsHomeWorkOutlined";
 import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Link } from "react-router-dom";
-import UIDialog from "../../UIComponents/Modals/UIDialog";
-import ImportDataForm from "../../ImportDataForm";
+import UIDialog from "./UIComponents/Modals/UIDialog";
+import ImportDataForm from "./ImportDataForm";
 import Joyride, {
   ACTIONS,
   CallBackProps,
@@ -39,9 +33,9 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
-import UIHelpButton from "../../UIComponents/UIHelpButton";
-import UIButton from "../../UIComponents/UIButton";
-import { getStripeAccountLink } from "../../../../api/owners";
+import UIHelpButton from "./UIComponents/UIHelpButton";
+import UIButton from "./UIComponents/UIButton";
+import { getStripeAccountLink } from "../../api/owners";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
@@ -694,25 +688,6 @@ const Dashboard = () => {
     />
   ) : (
     <div className="container-fluid dashboard-container">
-      <div
-        className="w-100"
-        style={{
-          overflow: "auto",
-        }}
-      >
-        <UIButton
-          id="view-transactions-button"
-          style={{
-            float: "right",
-            width: isMobile ? "100%" : "200px",
-          }}
-          onClick={() => {
-            window.open(stripeAccountLink, "_blank");
-          }}
-          btnText="View Transactions"
-          btnIcon={<AttachMoneyIcon />}
-        />
-      </div>
       {transactions.length === 0 &&
       leaseAgreements.length === 0 &&
       maintenanceRequests.length === 0 &&
@@ -877,12 +852,12 @@ const Dashboard = () => {
           />
           <div className="data-section" id="data-section">
             {/* Line Chart Row */}
-            {/* <div className="row">
+            <div className="row">
               <div className="col-md-8 ">
                 <UILineChartCard
                   dataTestId="dashboard-line-chart-card"
                   isLoading={isLoading}
-                  height={isMobile ? "270px" : "365px"}
+                  height={isMobile ? "270px" : "410px"}
                   title="Total Revenue and Expenses"
                   info={`$${transactionDataValues
                     .reduce((a, b) => a + b.totalRevenue, 0)
@@ -931,44 +906,58 @@ const Dashboard = () => {
                     </Stack>
                   </UICard>
                 ) : (
-                  <UICardList
-                    dataTestId="dashboard-transactions-card"
-                    cardStyle={{ background: "white", color: "black" }}
-                    infoStyle={{
-                      color: uiGrey2,
-                      fontSize: isMobile ? "12pt" : "16pt",
-                    }}
-                    titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-                    title={"Recent Transactions"}
-                    info={"Recent Transactions"}
-                    onInfoClick={() =>
-                      navigate("/dashboard/landlord/transactions")
-                    }
-                    //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
-                    items={transactions
-                      .map((transaction) => ({
-                        primary: transaction.description,
-                        secondary: new Date(
-                          transaction.timestamp
-                        ).toLocaleDateString(),
-                        tertiary: `${
-                          transaction.type === "revenue" ||
-                          transaction.type === "rent_payment" ||
-                          transaction.type === "security_deposit"
-                            ? "+"
-                            : "-"
-                        }$${transaction.amount}`,
-                        icon: <AttachMoneyIcon />,
-                      }))
-                      .slice(0, 4)}
-                    tertiaryStyles={{ color: uiGreen }}
-                  />
+                  <div>
+                    <UICardList
+                      dataTestId="dashboard-transactions-card"
+                      cardStyle={{ background: "white", color: "black" }}
+                      infoStyle={{
+                        color: uiGrey2,
+                        fontSize: isMobile ? "12pt" : "16pt",
+                      }}
+                      titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                      title={"Recent Transactions"}
+                      info={"Recent Transactions"}
+                      onInfoClick={() =>
+                        navigate("/dashboard/landlord/transactions")
+                      }
+                      //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
+                      items={transactions
+                        .map((transaction) => ({
+                          primary: transaction.description,
+                          secondary: new Date(
+                            transaction.timestamp
+                          ).toLocaleDateString(),
+                          tertiary: `${
+                            transaction.type === "revenue" ||
+                            transaction.type === "rent_payment" ||
+                            transaction.type === "security_deposit"
+                              ? "+"
+                              : "-"
+                          }$${transaction.amount}`,
+                          icon: <AttachMoneyIcon />,
+                        }))
+                        .slice(0, 4)}
+                      tertiaryStyles={{ color: uiGreen }}
+                    />
+                    <UIButton
+                      id="view-transactions-button"
+                      style={{
+                        float: "right",
+                        width: "100%",
+                      }}
+                      onClick={() => {
+                        window.open(stripeAccountLink, "_blank");
+                      }}
+                      btnText="View All Transactions"
+                      btnIcon={<AttachMoneyIcon />}
+                    />
+                  </div>
                 )}
               </div>
-            </div> */}
+            </div>
 
             {/* Info Card Row (hidden on mobile and desktop too) */}
-            {/* <div className="row my-2">
+            <div className="row my-2">
               {multiplier.map((item, index) => {
                 return (
                   <div className="d-none d-sm-none d-md-block col-md-6 col-lg-3">
@@ -991,7 +980,7 @@ const Dashboard = () => {
                   </div>
                 );
               })}
-            </div> */}
+            </div>
 
             {/* Vacancies & Transactions Row */}
             <div className="row">
