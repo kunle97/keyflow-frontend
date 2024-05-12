@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  authUser,
   defaultWhiteInputStyle,
   uiGreen,
   validationMessageStyle,
@@ -26,6 +27,7 @@ const TenantInviteForm = (props) => {
     setIsLoading(true);
     if (props.templateId) {
       const doc_payload = {
+        owner_id: authUser.owner_id,
         template_id: props.templateId,
         tenant_first_name: data.first_name,
         tenant_last_name: data.last_name,
