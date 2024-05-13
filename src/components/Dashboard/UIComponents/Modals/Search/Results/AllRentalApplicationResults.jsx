@@ -72,6 +72,9 @@ const AllRentalApplicationResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       <div id="rental-applications" style={{ overflow: "hidden" }}>
         <div className="row">

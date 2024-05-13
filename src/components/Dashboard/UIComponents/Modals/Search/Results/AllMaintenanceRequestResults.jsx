@@ -74,6 +74,9 @@ const AllMaintenanceRequestResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
 
       <div id="maintenance-requests" style={{ overflow: "hidden" }}>

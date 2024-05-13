@@ -118,6 +118,9 @@ const UploadLeaseDocument = (props) => {
         handleClose={() => {
           setAlertOpen(false);
         }}
+        onClick={() => {
+          setAlertOpen(false);
+        }}
       />
       <ProgressModal open={isLoading} title="Processing your document..." />
       {renderIframe && iframeUrl ? (

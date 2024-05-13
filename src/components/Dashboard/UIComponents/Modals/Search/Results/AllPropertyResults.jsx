@@ -71,6 +71,9 @@ const AllPropertyResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       <div id="properties" style={{ overflow: "hidden" }}>
         <div className="row">
