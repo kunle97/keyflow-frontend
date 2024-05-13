@@ -72,6 +72,9 @@ const AllUnitResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       <div id="units" style={{ overflow: "hidden" }}>
         <div className="row">

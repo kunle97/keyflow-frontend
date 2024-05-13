@@ -519,6 +519,7 @@ const CreateRentalApplication = () => {
               title="Application Error"
               message="Error loading application"
               btnText="Okay"
+              onClick={() => navigate("/")}
             />
           ) : (
             <div className="row">
