@@ -33,7 +33,7 @@ import RentalApplications from "./components/Dashboard/Landlord/RentalApplicatio
 import SignLeaseAgreement from "./components/SignLeaseAgreement";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "./constants";
-import AddPaymentMethod from "./components/Dashboard/Tenant/AddPaymentMethod";
+import AddPaymentMethod from "./components/Dashboard/AddPaymentMethod";
 import PageNotFound from "./components/Errors/PageNotFound";
 import MyLeaseAgreement from "./components/Dashboard/Tenant/LeaseAgreement/MyLeaseAgreement";
 import LandlordTransactions from "./components/Dashboard/Landlord/Transactions/LandlordTransactions";
@@ -220,7 +220,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/tenant/add-payment-method",
+    path: "/dashboard/add-payment-method",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Elements stripe={stripePromise}>
