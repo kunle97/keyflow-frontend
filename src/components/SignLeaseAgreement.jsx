@@ -242,6 +242,9 @@ const SignLeaseAgreement = () => {
         handleClose={() => {
           navigate(0);
         }}
+        onClick={() => {
+          navigate(0);
+        }}
       />
       <ProgressModal open={isLoading} title="Loading your lease agreement..." />
       {!displayError ? (

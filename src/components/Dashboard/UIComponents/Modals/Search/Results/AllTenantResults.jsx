@@ -72,6 +72,9 @@ const AllTenantResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       {isLoading ? (
         <UIProgressPrompt

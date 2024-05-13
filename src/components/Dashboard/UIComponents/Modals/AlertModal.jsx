@@ -45,7 +45,7 @@ const AlertModal = (props) => {
     <Modal
       className={classes.modal}
       open={props.open}
-      onClose={props.handleClose}
+      // onClose={props.handleClose}
       closeAfterTransition={false} // Prevent modal from closing on backdrop click
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"

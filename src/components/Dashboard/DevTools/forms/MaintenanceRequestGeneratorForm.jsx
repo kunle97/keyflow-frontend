@@ -67,6 +67,7 @@ const MaintenanceRequestGeneratorForm = (props) => {
         onClose={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
+        onClick={() => setAlertModalOpen(false)}
       />
       <UIDialog
         open={props.open}
