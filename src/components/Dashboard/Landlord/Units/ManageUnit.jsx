@@ -588,9 +588,14 @@ const ManageUnit = () => {
           updateUnit(unit_id, { template_id: res.template_id }).then((res) => {
             console.log(res);
           });
-          console.log(iframeUrl);
-          setIsLoadingIframe(false);
         }
+      }).catch((err) => {
+        console.log(err);
+        setAlertTitle("Error");
+        setAlertMessage("Something went wrong");
+        setAlertOpen(true);
+      }).finally(() => {
+        setIsLoadingIframe(false);
       });
     }
   };
@@ -1047,6 +1052,7 @@ const ManageUnit = () => {
             title={progressModalTitle ? progressModalTitle : "Loading..."}
             open={isLoading}
           />
+          <ProgressModal title="Uploading Lease Document..." open={isLoadingIframe} />
           <UIDialog
             dataTestId="edit-unit-dialog"
             open={editDialogOpen}
