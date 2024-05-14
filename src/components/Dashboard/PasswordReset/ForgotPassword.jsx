@@ -81,7 +81,7 @@ const ForgotPassword = () => {
         btnText="Okay"
         onClick={() => {
           if (alertTitle === "Password Reset Link Sent") {
-            navigate("/dashboard/landlord/login/");
+            navigate("/dashboard/owner/login/");
           } else {
             setShowAlertModal(false);
           }

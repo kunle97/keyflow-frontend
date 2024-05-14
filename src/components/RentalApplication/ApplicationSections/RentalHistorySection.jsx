@@ -13,18 +13,18 @@ const RentalHistorySection = (props) => {
     address,
     residenceStartDate,
     residenceEndDate,
-    landlordName,
-    landlordPhone,
-    landlordEmail,
+    ownerName,
+    ownerPhone,
+    ownerEmail,
   } = props.residence;
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     address: address,
     residenceStartDate: residenceStartDate,
     residenceEndDate: residenceEndDate,
-    landlordName: landlordName,
-    landlordPhone: landlordPhone,
-    landlordEmail: landlordEmail,
+    ownerName: ownerName,
+    ownerPhone: ownerPhone,
+    ownerEmail: ownerEmail,
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -97,8 +97,8 @@ const RentalHistorySection = (props) => {
       errorMessageDataTestId: "residenceEndDate-error",
     },
     {
-      name: "landlordName",
-      label: "Landlord Name",
+      name: "ownerName",
+      label: "Owner Name",
       type: "text",
       colSpan: 12,
       onChange: (e) => handleChange(e),
@@ -108,12 +108,12 @@ const RentalHistorySection = (props) => {
         errorMessage: "This is a required field",
         regex: /^[a-zA-Z\s]*$/,
       },
-      dataTestId: "landlordName",
-      errorMessageDataTestId: "landlordName-error",
+      dataTestId: "ownerName",
+      errorMessageDataTestId: "ownerName-error",
     },
     {
-      name: "landlordPhone",
-      label: "Landlord Phone",
+      name: "ownerPhone",
+      label: "Owner Phone",
       type: "text",
       colSpan: 6,
       onChange: (e) => handleChange(e),
@@ -123,12 +123,12 @@ const RentalHistorySection = (props) => {
         errorMessage: "This is a required field",
         regex: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
       },
-      dataTestId: "landlordPhone",
-      errorMessageDataTestId: "landlordPhone-error",
+      dataTestId: "ownerPhone",
+      errorMessageDataTestId: "ownerPhone-error",
     },
     {
-      name: "landlordEmail",
-      label: "Landlord Email",
+      name: "ownerEmail",
+      label: "Owner Email",
       type: "email",
       colSpan: 6,
       onChange: (e) => handleChange(e),
@@ -138,8 +138,8 @@ const RentalHistorySection = (props) => {
         errorMessage: "This is a required field",
         regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       },
-      dataTestId: "landlordEmail",
-      errorMessageDataTestId: "landlordEmail-error",
+      dataTestId: "ownerEmail",
+      errorMessageDataTestId: "ownerEmail-error",
     },
   ];
   return (

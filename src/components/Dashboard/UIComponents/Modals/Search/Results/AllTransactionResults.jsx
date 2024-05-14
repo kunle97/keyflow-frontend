@@ -114,7 +114,7 @@ const AllTransactionResults = (props) => {
                     return (
                       <SearchResultCard
                         dataTestId={`transaction-search-result-${index}`}
-                        to={`/dashboard/landlord/transactions/${transaction.id}`}
+                        to={`/dashboard/owner/transactions/${transaction.id}`}
                         key={transaction.id}
                         handleClose={props.handleClose}
                         gridSize={12}

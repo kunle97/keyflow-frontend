@@ -115,7 +115,7 @@ const AllRentalApplicationResults = (props) => {
                       return (
                         <SearchResultCard
                           dataTestId={`rental-application-search-result-${index}`}
-                          to={`/dashboard/landlord/rental-applications/${rental_application.id}`}
+                          to={`/dashboard/owner/rental-applications/${rental_application.id}`}
                           key={rental_application.id}
                           handleClose={props.handleClose}
                           title={`${rental_application.first_name} ${rental_application.last_name}`}

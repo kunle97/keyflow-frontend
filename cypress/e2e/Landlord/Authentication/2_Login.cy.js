@@ -2,7 +2,7 @@ const hostname = "http://localhost:3000";
 describe("Test all functions on the login page", () => {
   it("Check if login function works when entering incorrect password", () => {
     // Log user out visit this /dashboard/logout
-    cy.visit(hostname + "/dashboard/landlord/login");
+    cy.visit(hostname + "/dashboard/owner/login");
     cy.get('[data-testid="keyflow-black-logo"]').should("be.visible");
     //Get login button with data test id og login-button
     cy.get('[data-testid="login-button"]').should("be.visible");
@@ -29,7 +29,7 @@ describe("Test all functions on the login page", () => {
   it("check if login function works when entering correct password", () => {
     // Log user out visit this /dashboard/logout
     cy.visit(hostname + "/dashboard/logout");
-    cy.visit(hostname + "/dashboard/landlord/login");
+    cy.visit(hostname + "/dashboard/owner/login");
     cy.get('[data-testid="keyflow-black-logo"]').should("be.visible");
     //Get login button with data test id og login-button
     cy.get('[data-testid="login-button"]').should("be.visible");

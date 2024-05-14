@@ -86,8 +86,8 @@ const getCredentials = async (endpoint) => {
   }
 };
 
-export const getLandlordsEmails = () => getCredentials("/landlords-emails/");
-export const getLandlordsUsernames = () =>
-  getCredentials("/landlords-usernames/");
+export const getOwnersEmails = () => getCredentials("/owners-emails/");
+export const getOwnersUsernames = () =>
+  getCredentials("/owners-usernames/");
 export const getTenantsEmails = () => getCredentials("/tenants-emails/");
 export const getTenantsUsernames = () => getCredentials("/tenants-usernames/");

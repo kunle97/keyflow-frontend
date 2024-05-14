@@ -59,7 +59,7 @@ export async function getMaintenanceRequestsByUser() {
   }
 }
 
-//Create a function to list all maintenance requests for a specific landlord user
+//Create a function to list all maintenance requests for a specific owner user
 export async function getAllOwnerMaintenanceRequests(ordering = "-created_at", query = "", limit = 10) {
   try {
     const res = await authenticatedInstance

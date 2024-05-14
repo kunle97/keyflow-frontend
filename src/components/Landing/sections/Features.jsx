@@ -41,9 +41,9 @@ const Features = () => {
       title2: "Artificial Intelligence",
       //Create a description that mentions the AI features: Automated vendor contacting via email, text and phone, Automated tenant communication, Automated accounting tasks, Tenant screening suggestions, Automated background checks, Finding the right properties to build your portfolio, lease creation, and more.
       description:
-        "From automated vendor contacting and tenant communication to accounting tasks and tenant screening suggestions, KeyFlow's AI capabilities optimize property performance, enabling landlords to focus on growing their real estate portfolio with confidence.",
+        "From automated vendor contacting and tenant communication to accounting tasks and tenant screening suggestions, KeyFlow's AI capabilities optimize property performance, enabling owners to focus on growing their real estate portfolio with confidence.",
       long_description:
-        "Leverage artificial intelligence to streamline property management. Our platform automates repetitive tasks, enhances communication, and simplifies complex processes, allowing landlords to manage their properties with ease. From automated vendor contacting and tenant communication to accounting tasks and tenant screening suggestions, KeyFlow's AI capabilities optimize property performance, enabling landlords to focus on growing their real estate portfolio with confidence.",
+        "Leverage artificial intelligence to streamline property management. Our platform automates repetitive tasks, enhances communication, and simplifies complex processes, allowing owners to manage their properties with ease. From automated vendor contacting and tenant communication to accounting tasks and tenant screening suggestions, KeyFlow's AI capabilities optimize property performance, enabling owners to focus on growing their real estate portfolio with confidence.",
       align: "right",
       icon: <PsychologyIcon sx={{ ...iconStyles }} />,
     },
@@ -57,7 +57,7 @@ const Features = () => {
       icon: <AccountBalanceIcon sx={{ ...iconStyles }} />,
     },
     {
-      title: "Streamlined e-signing for landlords",
+      title: "Streamlined e-signing for owners",
       title2: "E-Signature",
       description:
         "Simplify your leasing process with KeyFlow's E-Sign Lease feature. Upload and customize lease agreements effortlessly, enabling prospective tenants to sign electronically from anywhere. Configure terms, clauses, and addenda to suit your needs.",
@@ -78,7 +78,7 @@ const Features = () => {
       title: "Mobile App ",
       title2: "Mobile App",
       description:
-        "Our iOS and Android mobile app keeps your properties at your fingertips. Access your properties, tenants, and tasks from anywhere, at any time. Our user-friendly app empowers landlords to manage their properties on the go, ensuring seamless operations and tenant communication. ",
+        "Our iOS and Android mobile app keeps your properties at your fingertips. Access your properties, tenants, and tasks from anywhere, at any time. Our user-friendly app empowers owners to manage their properties on the go, ensuring seamless operations and tenant communication. ",
       align: "left",
       image: "/assets/img/landing-page/features/mobile-app-feature.jpg",
       icon: <SmartphoneIcon sx={{ ...iconStyles }} />,
@@ -87,7 +87,7 @@ const Features = () => {
       title: "Beginner Friendly",
       title2: "Useability",
       description:
-        "KeyFlow's intuitive platform is designed for real estate professionals of all levels. Our user-friendly tools simplify property management, ensuring that landlords can effortlessly navigate every aspect of their workflow.",
+        "KeyFlow's intuitive platform is designed for real estate professionals of all levels. Our user-friendly tools simplify property management, ensuring that owners can effortlessly navigate every aspect of their workflow.",
       align: "right",
       image: "/assets/img/landing-page/features/useability-feature.jpg",
       icon: <PersonIcon sx={{ ...iconStyles }} />,
@@ -105,7 +105,7 @@ const Features = () => {
       title: "List your properties",
       title2: "Listings",
       description:
-        "KeyFlow's marketing tools helps you market your properties, ensuring that your listings reach the right audience. Our platform simplifies the process of creating and distributing listings, enabling landlords to effortlessly market their properties on Zillow, Trulia, Realtor and much more.",
+        "KeyFlow's marketing tools helps you market your properties, ensuring that your listings reach the right audience. Our platform simplifies the process of creating and distributing listings, enabling owners to effortlessly market their properties on Zillow, Trulia, Realtor and much more.",
       align: "right",
       image: "/assets/img/landing-page/features/marketing-feature.jpg",
       icon: <VillaIcon sx={{ ...iconStyles }} />,

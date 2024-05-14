@@ -112,7 +112,7 @@ const AllPropertyResults = (props) => {
                   {searchResults.map((property, index) => (
                     <SearchResultCard
                       dataTestId={`property-search-result-${index}`}
-                      to={`/dashboard/landlord/properties/${property.id}`}
+                      to={`/dashboard/owner/properties/${property.id}`}
                       handleClose={props.handleClose}
                       gridSize={6}
                       key={property.id}

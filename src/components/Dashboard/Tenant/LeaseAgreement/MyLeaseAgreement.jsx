@@ -68,12 +68,12 @@ const MyLeaseAgreement = () => {
     {
       target: ".lease-cancellation-button",
       content:
-        "Click here to request a lease cancellation. You can only request a lease cancellation if your lease agreement or landlord allows it.",
+        "Click here to request a lease cancellation. You can only request a lease cancellation if your lease agreement or owner allows it.",
     },
     {
       target: ".lease-renewal-button",
       content:
-        "Click here to request a lease renewal. You can only request a lease renewal if your lease agreement or landlord allows it.",
+        "Click here to request a lease renewal. You can only request a lease renewal if your lease agreement or owner allows it.",
     },
   ];
   const handleJoyrideCallback = (data) => {
@@ -475,7 +475,7 @@ const MyLeaseAgreement = () => {
         <UIPrompt
           icon={<DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />}
           title="No Active Lease"
-          message="You do not have an active lease. Please contact your landlord to get started."
+          message="You do not have an active lease. Please contact your owner to get started."
           body={<UIButton btnText="Apply for Lease" />}
         />
       )}

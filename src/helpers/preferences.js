@@ -1,7 +1,7 @@
 import { getOwnerPreferences, updateOwnerPreferences } from "../api/owners";
 import { getTenantPreferences, updateTenantPreferences } from "../api/tenants";
 import { authUser } from "../constants";
-import { defaultLandlordAccountPreferences } from "../constants/landlord_account_preferences";
+import { defaultOwnerAccountPreferences } from "../constants/owner_account_preferences";
 import { defaultTenantAccountPreferences } from "../constants/tenant_account_preferences";
 import { defaultPropertyPreferences } from "../constants/rental_property_preferences";
 import { defaultRentalUnitPreferences } from "../constants/rental_unit_preferences";
@@ -19,7 +19,7 @@ export const syncPreferences = async () => {
 
       // Check if the current user preferences have the same preferences as the default preferences by matching the name key of each preference.
       // If the key exists, do nothing. If the current user preferences do not have a preference that is in the default preferences, add the preference to the current user preferences.
-      defaultLandlordAccountPreferences.forEach((defaultPreference) => {
+      defaultOwnerAccountPreferences.forEach((defaultPreference) => {
         if (
           !currentUserPreferences.some(
             (userPreference) => userPreference.name === defaultPreference.name
@@ -31,7 +31,7 @@ export const syncPreferences = async () => {
 
       // Remove the preferences from the current user preferences that are not in the default preferences.
       currentUserPreferences = currentUserPreferences.filter((userPreference) =>
-        defaultLandlordAccountPreferences.some(
+        defaultOwnerAccountPreferences.some(
           (defaultPreference) => defaultPreference.name === userPreference.name
         )
       );

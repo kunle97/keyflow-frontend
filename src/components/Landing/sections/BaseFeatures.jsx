@@ -19,7 +19,7 @@ const BaseFeatures = () => {
         "Screen potential tenants when they apply via the built in TransUnion service",
       title2: "Rental Applications",
       description:
-        "KeyFlow's comprehensive background checks provide landlords with the tools to make informed tenant screening decisions. Our platform offers credit, criminal, and eviction reports, enabling landlords to assess prospective tenants with confidence. Say goodbye to guesswork and hello to thorough, reliable background checks with KeyFlow.",
+        "KeyFlow's comprehensive background checks provide owners with the tools to make informed tenant screening decisions. Our platform offers credit, criminal, and eviction reports, enabling owners to assess prospective tenants with confidence. Say goodbye to guesswork and hello to thorough, reliable background checks with KeyFlow.",
       align: "right",
       image: "/assets/img/landing-page/features/background-checks-feature.jpg",
     },
@@ -27,7 +27,7 @@ const BaseFeatures = () => {
       title2: "Rental Applications",
       title: "Auto generated renal applications for each unit",
       description:
-        "KeyFlow's rental application feature streamlines the tenant screening process, enabling landlords to manage applications and screen prospective tenants with ease. Our platform integrates with TransUnion's comprehensive background check service, providing landlords with the tools to make informed decisions. Say goodbye to manual applications and hello to streamlined, reliable tenant screening with KeyFlow.",
+        "KeyFlow's rental application feature streamlines the tenant screening process, enabling owners to manage applications and screen prospective tenants with ease. Our platform integrates with TransUnion's comprehensive background check service, providing owners with the tools to make informed decisions. Say goodbye to manual applications and hello to streamlined, reliable tenant screening with KeyFlow.",
       align: "left",
       image:
         "/assets/img/landing-page/features/rental-applications-feature.jpg",
@@ -37,7 +37,7 @@ const BaseFeatures = () => {
       title:
         "Communicate with your tenants through the built in messaging system.",
       description:
-        "KeyFlow's tenant communication feature streamlines communication between landlords and tenants. Our built-in messaging system enables landlords to effortlessly manage tenant communication, ensuring that important messages are delivered and received. Say goodbye to missed calls and hello to seamless tenant communication with KeyFlow.",
+        "KeyFlow's tenant communication feature streamlines communication between owners and tenants. Our built-in messaging system enables owners to effortlessly manage tenant communication, ensuring that important messages are delivered and received. Say goodbye to missed calls and hello to seamless tenant communication with KeyFlow.",
       align: "right",
       image:
         "/assets/img/landing-page/features/tenant-communication-feature.jpg",
@@ -47,7 +47,7 @@ const BaseFeatures = () => {
         "Handle maintenance request workflows automatically from creating work orders to paying vendors directly in app.",
       title2: "Maintenance",
       description:
-        "KeyFlow revolutionizes maintenance management for landlords. Our automated workflow system efficiently handles maintenance requests from start to finish. Tenants can easily submit requests through our platform, which seamlessly notifies property managers and vendors. Track progress, prioritize tasks, and ensure timely resolution, all within one centralized system. Say goodbye to paperwork and hello to streamlined, efficient maintenance management with KeyFlow's automated workflows.",
+        "KeyFlow revolutionizes maintenance management for owners. Our automated workflow system efficiently handles maintenance requests from start to finish. Tenants can easily submit requests through our platform, which seamlessly notifies property managers and vendors. Track progress, prioritize tasks, and ensure timely resolution, all within one centralized system. Say goodbye to paperwork and hello to streamlined, efficient maintenance management with KeyFlow's automated workflows.",
       align: "right",
       image: "/assets/img/landing-page/features/maintenance-feature.jpg",
     },

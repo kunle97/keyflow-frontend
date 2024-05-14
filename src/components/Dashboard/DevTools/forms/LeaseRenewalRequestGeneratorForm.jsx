@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import {
   authUser,
   defaultWhiteInputStyle,

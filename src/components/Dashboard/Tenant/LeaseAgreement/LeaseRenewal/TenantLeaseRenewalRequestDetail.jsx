@@ -132,7 +132,7 @@ const TenantLeaseRenewalRequestDetail = () => {
         // handle document declining success
         setAlertModalTitle("Document Declined");
         setAlertModalMessage(
-          "Your lease agreement has been declined. Please contact your landlord for more information."
+          "Your lease agreement has been declined. Please contact your owner for more information."
         );
         setShowAlertModal(true);
         break;
@@ -378,7 +378,7 @@ const TenantLeaseRenewalRequestDetail = () => {
               <UIPrompt
                 title={"Lease Agreement Unavailable"}
                 message={
-                  "Your new lease agreement will become available once your lease renewal request has been approved by your landlord. Please check back later."
+                  "Your new lease agreement will become available once your lease renewal request has been approved by your owner. Please check back later."
                 }
               />
             )}

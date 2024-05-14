@@ -231,7 +231,7 @@ const LeaseRenewalForm = (props) => {
         props.setShowLeaseRenewalDialog(false);
         props.setAlertModalTitle("Lease Renewal Request Submitted");
         props.setAlertModalMessage(
-          "Your lease renewal request has been submitted successfully. You will be notified once your landlord has responded to your request."
+          "Your lease renewal request has been submitted successfully. You will be notified once your owner has responded to your request."
         );
         props.setShowAlertModal(true);
       } else {

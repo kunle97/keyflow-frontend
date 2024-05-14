@@ -98,7 +98,7 @@ const MaintenanceRequests = () => {
   ];
 
   const handleRowClick = (rowData, rowMeta) => {
-    // const navlink = `/dashboard/landlord/`;
+    // const navlink = `/dashboard/owner/`;
     // navigate(navlink);
   };
   const options = {
@@ -161,7 +161,7 @@ const MaintenanceRequests = () => {
               createTitle={(row) => `${row.description}`}
               createSubtitle={(row) => `${row.status.replace("_", " ")}`}
               onRowClick={(row) => {
-                const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+                const navlink = `/dashboard/owner/maintenance-requests/${row.id}`;
                 navigate(navlink);
               }}
               titleStyle={{
@@ -205,7 +205,7 @@ const MaintenanceRequests = () => {
                   {
                     name: "View",
                     onClick: (row) => {
-                      const navlink = `/dashboard/landlord/maintenance-requests/${row.id}`;
+                      const navlink = `/dashboard/owner/maintenance-requests/${row.id}`;
                       navigate(navlink);
                     },
                   },

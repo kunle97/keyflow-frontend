@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "@mui/material";
-import { getLandlordTenants } from "../../../api/landlords";
+import { getOwnerTenants } from "../../../api/owners";
 import UITabs from "../UIComponents/UITabs";
 import { authUser, uiGrey, uiGrey2 } from "../../../constants";
 import UIButton from "../UIComponents/UIButton";
@@ -50,7 +50,7 @@ const NewMessageDialog = (props) => {
 
   useEffect(() => {
     if (!tenants) {
-      getLandlordTenants().then((res) => {
+      getOwnerTenants().then((res) => {
         setTenants(res.data);
       });
     }

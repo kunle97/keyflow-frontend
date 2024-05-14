@@ -114,7 +114,7 @@ const TenantDashboard = () => {
     {
       target: ".messages-topbar-icon",
       content:
-        "Click here to view your messages. You can send and receive messages from your landlord.",
+        "Click here to view your messages. You can send and receive messages from your owner.",
     },
     {
       target: ".my-account-topbar-dropdown",
@@ -500,7 +500,7 @@ const TenantDashboard = () => {
                 titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
                 title={""}
                 info={"Recent Transactions"}
-                onInfoClick={() => navigate("/dashboard/landlord/transactions")}
+                onInfoClick={() => navigate("/dashboard/owner/transactions")}
                 //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
                 items={transactions
                   .map((transaction) => ({
@@ -549,7 +549,7 @@ const TenantDashboard = () => {
             <UIPrompt
               icon={<DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />}
               title="No Active Lease"
-              message="You do not have an active lease. Please contact your landlord to get started."
+              message="You do not have an active lease. Please contact your owner to get started."
               body={<UIButton btnText="Apply for Lease" />}
             />
           )}
