@@ -10,9 +10,9 @@ img.logo {
 .content-overlay {
   background: "linear-gradient(rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.41) 99%)";
 }
-.nav-item {
+/* .nav-item {
   margin: 0 10px;
-}
+} */
 .hero-title {
   font-size: 40pt;
   max-width: 950px;
