@@ -4,7 +4,7 @@ import { authUser } from "../constants";
 import { clearLocalStorage, isTokenExpired, validateToken } from "../helpers/utils";
 const LoggedInRedirect = ({ token, children }) => {
   if (validateToken() && !isTokenExpired() && token && authUser.account_type === "owner") {
-    return <Navigate to="/dashboard/landlord" replace />;
+    return <Navigate to="/dashboard/owner" replace />;
   } else if (validateToken() && !isTokenExpired() && token && authUser.account_type === "tenant") {
     return <Navigate to="/dashboard/tenant" replace />;
   }else{

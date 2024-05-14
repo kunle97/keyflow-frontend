@@ -112,7 +112,7 @@ export const defaultRentalUnitLeaseTerms = [
     inputType: "number",
     value: 2,
     description:
-      "How many months before the end of the lease the tenant must notify the landlord of their intent to renew the lease",
+      "How many months before the end of the lease the tenant must notify the owner of their intent to renew the lease",
     type: "lease",
   },
   {

@@ -12,13 +12,13 @@ describe("Test all the portfolios feature", () => {
     cy.login("Sandra83@hotmail.com", "Password1");
   });
   it("should navigate to the portfolios page", () => {
-    cy.visit(hostname + "/dashboard/landlord/portfolios/");
+    cy.visit(hostname + "/dashboard/owner/portfolios/");
     cy.get('[data-testid="nav-menu-button"]').should("be.visible").click();
     cy.get('[data-testid="sidebar-desktop"]').should("be.visible");
-    cy.get('[data-testid="landlord-properties-dropdown-menu-item"]')
+    cy.get('[data-testid="owner-properties-dropdown-menu-item"]')
       .should("be.visible")
       .click();
-    cy.get('[data-testid="landlord-portfolios-menu-item"]')
+    cy.get('[data-testid="owner-portfolios-menu-item"]')
       .should("be.visible")
       .click();
     

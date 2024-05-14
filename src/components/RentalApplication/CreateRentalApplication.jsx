@@ -25,7 +25,7 @@ import LandingPageNavbar from "../Landing/LandingPageNavbar";
 import useScreen from "../../hooks/useScreen";
 import { triggerValidation } from "../../helpers/formValidation";
 const CreateRentalApplication = () => {
-  const { unit_id, landlord_id } = useParams();
+  const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
   const [step, setStep] = useState(0); // step state
   const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
@@ -219,7 +219,7 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.future().toISOString().split("T")[0],
-      landlordName: `${
+      ownerName: `${
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.person.firstName()
@@ -228,11 +228,11 @@ const CreateRentalApplication = () => {
           ? ""
           : faker.person.lastName()
       }`,
-      landlordPhone:
+      ownerPhone:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.phone.number("###-###-####"),
-      landlordEmail:
+      ownerEmail:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.internet.email(),
@@ -326,7 +326,7 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
-      landlordName: `${
+      ownerName: `${
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.person.firstName()
@@ -335,11 +335,11 @@ const CreateRentalApplication = () => {
           ? ""
           : faker.person.lastName()
       }`,
-      landlordPhone:
+      ownerPhone:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.phone.number("###-###-####"),
-      landlordEmail:
+      ownerEmail:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.internet.email(),
@@ -360,7 +360,7 @@ const CreateRentalApplication = () => {
     payload.employment_history = employmentHistory;
     payload.residential_history = residenceHistory;
     payload.unit_id = unit_id;
-    payload.landlord_id = landlord_id;
+    payload.owner_id = owner_id;
     payload.comments = data.comments ? data.comments : "";
 
     console.log(payload);
@@ -384,7 +384,7 @@ const CreateRentalApplication = () => {
       setSubmissionMessage("Error Submitting Application");
       setShowSubmissionMessage(true);
       setSubmissionMessageLink(
-        `/rental-application/${unit_id}/${landlord_id}/`
+        `/rental-application/${unit_id}/${owner_id}/`
       );
       setAlertButtonText("Try Again");
       setAlertTitle("Error Submitting Application");
@@ -685,14 +685,14 @@ const CreateRentalApplication = () => {
                                           residenceEndDateErrors={
                                             errors[`residenceEndDate_${index}`]
                                           }
-                                          landlordNameErrors={
-                                            errors[`landlordName_${index}`]
+                                          ownerNameErrors={
+                                            errors[`ownerName_${index}`]
                                           }
-                                          landlordPhoneErrors={
-                                            errors[`landlordPhone_${index}`]
+                                          ownerPhoneErrors={
+                                            errors[`ownerPhone_${index}`]
                                           }
-                                          landlordEmailErrors={
-                                            errors[`landlordEmail_${index}`]
+                                          ownerEmailErrors={
+                                            errors[`ownerEmail_${index}`]
                                           }
                                           residence={residence}
                                           onResidenceChange={(e) =>

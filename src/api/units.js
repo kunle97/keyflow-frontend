@@ -139,8 +139,8 @@ export async function deleteUnit(data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-//Create a funtion to get all units for a specific landlord using the endpoint /users/{landlord_id}/units/
-export async function getLandlordUnits() {
+//Create a funtion to get all units for a specific owner using the endpoint /users/{owner_id}/units/
+export async function getOwnerUnits() {
   try {
     const res = await authenticatedInstance.get(`/units/`).then((res) => {
       console.log(res);
@@ -153,7 +153,7 @@ export async function getLandlordUnits() {
 
     return res;
   } catch (error) {
-    console.log("Get Landlord Units Error: ", error);
+    console.log("Get Owner Units Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

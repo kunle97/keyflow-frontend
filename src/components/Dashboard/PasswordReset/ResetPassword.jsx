@@ -127,7 +127,7 @@ const ResetPassword = () => {
         btnText={alertTitle === "Password Reset Successful" ? "Login" : "Okay"}
         onClick={() => {
           if (alertTitle === "Password Reset Successful") {
-            navigate("/dashboard/landlord/login/");
+            navigate("/dashboard/owner/login/");
           } else {
             setShowAlertModal(false);
           }

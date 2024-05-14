@@ -172,20 +172,20 @@ const LandingPageNavbar = (props) => {
               {isMobile ? (
                 <a
                   className="nav-link landing-nav-link"
-                  href="/dashboard/landlord/login"
+                  href="/dashboard/owner/login"
                   style={mobileLinkStyle}
                 >
-                  Landlord
+                  Owner
                 </a>
               ) : (
                 <a
                   className="nav-link landing-nav-link"
-                  href="/dashboard/landlord/login"
+                  href="/dashboard/owner/login"
                   style={{
                     color: scrollPosition > 250 ? "black" : "white",
                   }}
                 >
-                  Landlord
+                  Owner
                 </a>
               )}
             </li>

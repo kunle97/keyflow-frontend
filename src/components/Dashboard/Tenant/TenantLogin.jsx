@@ -398,10 +398,10 @@ const TenantLogin = () => {
               <div className="mb-2">
                 <Link
                   className="small"
-                  to="/dashboard/landlord/login"
+                  to="/dashboard/owner/login"
                   style={{ color: uiGreen }}
                 >
-                  Landlord Login
+                  Owner Login
                 </Link>
               </div>
             </div>

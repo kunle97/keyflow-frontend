@@ -8,14 +8,14 @@ describe("CreateUnit Component", () => {
 
     // Log in using the loaded credentials
     cy.login("Sandra83@hotmail.com", "Password1");
-    cy.visit("/dashboard/landlord/properties"); // Replace with the actual route where your component is rendered
-    cy.visit(hostname + "/dashboard/landlord/properties/");
+    cy.visit("/dashboard/owner/properties"); // Replace with the actual route where your component is rendered
+    cy.visit(hostname + "/dashboard/owner/properties/");
     cy.get('[data-testid="nav-menu-button"]').should("be.visible").click();
     cy.get('[data-testid="sidebar-desktop"]').should("be.visible");
-    cy.get('[data-testid="landlord-properties-dropdown-menu-item"]')
+    cy.get('[data-testid="owner-properties-dropdown-menu-item"]')
       .should("be.visible")
       .click();
-    cy.get('[data-testid="landlord-properties-menu-item"]')
+    cy.get('[data-testid="owner-properties-menu-item"]')
       .should("be.visible")
       .click();
     cy.get('[data-testid^="property-"]').first().click();

@@ -7,8 +7,8 @@ const DashboardProtectedRoute = ({ token, children }) => {
   const navigate = useNavigate();
   if (!authUser || !token || isTokenExpired() || !validateToken()) {
     clearLocalStorage();
-    navigate("/dashboard/landlord/login");
-    return <Navigate to="/dashboard/landlord/login" replace />;
+    navigate("/dashboard/owner/login");
+    return <Navigate to="/dashboard/owner/login" replace />;
   }
   return children;
 };

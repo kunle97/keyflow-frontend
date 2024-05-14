@@ -13,7 +13,7 @@ describe("CreateBillingEntry Component", () => {
 
     // Log in using the loaded credentials
     cy.login("Sandra83@hotmail.com", "Password1");
-    cy.visit(hostname + "/dashboard/landlord/billing-entries/create");
+    cy.visit(hostname + "/dashboard/owner/billing-entries/create");
     cy.get('[data-testid="create-billing-entry-page-title"]').should("be.visible").contains("Create Billing Entry");
 });
 it("should render the CreateBillingEntry component", () => {
