@@ -5,7 +5,7 @@ const Testimonials = () => {
     <div className="container py-4 py-xl-5">
       <div className="row mb-5">
         <div className="col-md-8 col-xl-6 text-center mx-auto section-header">
-          <h2>Endless satisfied landlords and tenants worldwide</h2>
+          <h2>Endless satisfied owners and tenants worldwide</h2>
         </div>
       </div>
       <div className="row gy-4 row-cols-1 row-cols-sm-2 row-cols-lg-3">

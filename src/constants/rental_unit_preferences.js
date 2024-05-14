@@ -6,7 +6,7 @@ export const defaultRentalUnitPreferences  = [
         name: "accept_rental_applications",
         inputType: "switch",
         value: true,
-        description: "Indicates if the landlord is accepting rental applications for this unit",
+        description: "Indicates if the owner is accepting rental applications for this unit",
     },
     {
         type: "unit_preferences",
@@ -15,7 +15,7 @@ export const defaultRentalUnitPreferences  = [
         name: "accept_lease_renewals",
         inputType: "switch",
         value: true,
-        description: "Indicates if the landlord is accepting lease renewals for this unit",
+        description: "Indicates if the owner is accepting lease renewals for this unit",
     },
     {
         type: "unit_preferences",
@@ -24,7 +24,7 @@ export const defaultRentalUnitPreferences  = [
         name: "accept_lease_cancellations",
         inputType: "switch",
         value: true,
-        description: "Indicates if the landlord is accepting lease cancellations for this unit",
+        description: "Indicates if the owner is accepting lease cancellations for this unit",
     },
 
 ];

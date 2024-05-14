@@ -280,7 +280,7 @@ const TenantRegister = () => {
       approval_hash,
     }).then((res) => {
       if (res.status !== 200) {
-        //TODO: Show error message modal to make the tenant contact thier landlord
+        //TODO: Show error message modal to make the tenant contact thier owner
       }
     });
     //TODO: Populate the form with rental application or tenant invite data

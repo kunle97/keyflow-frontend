@@ -16,7 +16,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import SearchResultCard from "./SearchResultCard";
 import { useCallback } from "react";
 import { authenticatedInstance } from "../../../../../api/api";
-import { getLandlordUnits } from "../../../../../api/units";
+import { getOwnerUnits } from "../../../../../api/units";
 
 import { getProperties } from "../../../../../api/properties";
 import { useNavigate } from "react-router-dom";
@@ -138,7 +138,7 @@ const SearchDialog = (props) => {
         setTenants(res.data);
       });
     console.log("SEARCH DIOALOIEHG Tenants:", tenants);
-    getLandlordUnits().then((res) => {
+    getOwnerUnits().then((res) => {
       setAllUnits(res.data);
     });
     getProperties().then((res) => {
@@ -400,7 +400,7 @@ const SearchDialog = (props) => {
                   <div className="row">
                     {properties.map((property) => (
                       <SearchResultCard
-                        to={`/dashboard/landlord/properties/${property.id}`}
+                        to={`/dashboard/owner/properties/${property.id}`}
                         handleClose={props.handleClose}
                         gridSize={4}
                         key={property.id}
@@ -436,7 +436,7 @@ const SearchDialog = (props) => {
                   <div className="row">
                     {units.map((unit) => (
                       <SearchResultCard
-                        to={`/dashboard/landlord/units/${unit.id}/${unit.rental_property}`}
+                        to={`/dashboard/owner/units/${unit.id}/${unit.rental_property}`}
                         gridSize={4}
                         key={unit.id}
                         handleClose={props.handleClose}
@@ -490,7 +490,7 @@ const SearchDialog = (props) => {
                         )[0];
                       return (
                         <SearchResultCard
-                          to={`/dashboard/landlord/maintenance-requests/${maintenance_request.id}`}
+                          to={`/dashboard/owner/maintenance-requests/${maintenance_request.id}`}
                           key={maintenance_request.id}
                           gridSize={6}
                           handleClose={props.handleClose}
@@ -538,7 +538,7 @@ const SearchDialog = (props) => {
 
                       return (
                         <SearchResultCard
-                          to={`/dashboard/landlord/rental-applications/${rental_application.id}`}
+                          to={`/dashboard/owner/rental-applications/${rental_application.id}`}
                           key={rental_application.id}
                           handleClose={props.handleClose}
                           title={`${rental_application.first_name} ${rental_application.last_name}`}
@@ -586,7 +586,7 @@ const SearchDialog = (props) => {
                   <div className="row">
                     {transactions.map((transaction) => (
                       <SearchResultCard
-                        to={`/dashboard/landlord/transactions/${transaction.id}`}
+                        to={`/dashboard/owner/transactions/${transaction.id}`}
                         key={transaction.id}
                         handleClose={props.handleClose}
                         gridSize={12}
@@ -637,7 +637,7 @@ const SearchDialog = (props) => {
                         .splice(0, searchResultLimit)
                         .map((tenant) => (
                           <SearchResultCard
-                            to={`/dashboard/landlord/tenants/${tenant.id}`}
+                            to={`/dashboard/owner/tenants/${tenant.id}`}
                             key={tenant.id}
                             gridSize={4}
                             handleClose={props.handleClose}

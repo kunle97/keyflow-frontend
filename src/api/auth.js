@@ -66,7 +66,7 @@ export async function login(data) {
       //Check for response code before storing data in context
       const redirect_url =
         res.user.account_type === "owner"
-          ? "/dashboard/landlord"
+          ? "/dashboard/owner"
           : "/dashboard/tenant";
 
       console.log(userData);
@@ -110,8 +110,8 @@ export async function logout() {
     return error;
   }
 }
-// create an api function to register a landlord
-export async function registerLandlord(data) {
+// create an api function to register a owner
+export async function registerOwner(data) {
   try {
     const res = await unauthenticatedInstance
       .post(`/owners/register/`, data)
@@ -207,12 +207,12 @@ export async function getStripeSubscription(subscription_id) {
 }
 //Create a function to retrieve a users data
 export async function getUserData(user_id) {
-  //TODO: Delete this functiuon. To be replaced with the getLandlordTenant function in landlords.js
+  //TODO: Delete this functiuon. To be replaced with the getOwnerTenant function in owners.js
   try {
     const res = await authenticatedInstance
       .post(`/users/${authUser.id}/tenant/`, {
         tenant_id: user_id,
-        landlord_id: authUser.id,
+        owner_id: authUser.id,
       })
       .then((res) => {
         console.log(res);

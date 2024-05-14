@@ -136,7 +136,7 @@ const SignLeaseAgreement = () => {
         // handle document declining success
         setErrorTitle("Document Declined");
         setErrorMessage(
-          "Your lease agreement has been declined. Please contact your landlord for more information."
+          "Your lease agreement has been declined. Please contact your owner for more information."
         );
         setShowErrorMessage(true);
         break;
@@ -443,7 +443,7 @@ const SignLeaseAgreement = () => {
                     />
                   }
                   title="Invalid Lease Agreement Link"
-                  message="This lease agreement is either invalid has either already been signed or is not ready to be signed yet. Please contact your landlord for more information."
+                  message="This lease agreement is either invalid has either already been signed or is not ready to be signed yet. Please contact your owner for more information."
                 />
                 <p></p>
               </Stack>

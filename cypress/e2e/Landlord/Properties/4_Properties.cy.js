@@ -12,14 +12,14 @@ describe("Test all basic functions of the property", () => {
     // Log in using the loaded credentials
     cy.login("Sandra83@hotmail.com", "Password1");
   });
-  it("Should navigate to landlord properties", () => {
-    cy.visit(hostname + "/dashboard/landlord/properties/"); 
+  it("Should navigate to owner properties", () => {
+    cy.visit(hostname + "/dashboard/owner/properties/"); 
     cy.get('[data-testid="nav-menu-button"]').should("be.visible").click();
     cy.get('[data-testid="sidebar-desktop"]').should("be.visible");
-    cy.get('[data-testid="landlord-properties-dropdown-menu-item"]')
+    cy.get('[data-testid="owner-properties-dropdown-menu-item"]')
     .should("be.visible")
     .click();
-    cy.get('[data-testid="landlord-properties-menu-item"]')
+    cy.get('[data-testid="owner-properties-menu-item"]')
     .should("be.visible")
     .click();
     
@@ -44,7 +44,7 @@ describe("Test all basic functions of the property", () => {
 
 
     //Click on a property that has a data-testid that starts with property-
-    cy.visit(hostname + "/dashboard/landlord/properties/");
+    cy.visit(hostname + "/dashboard/owner/properties/");
     cy.get('[data-testid^="property-"]').first().click();
     
     //Verify Visibilty of the property details

@@ -128,7 +128,7 @@ const AllMaintenanceRequestResults = (props) => {
                     return (
                       <SearchResultCard
                         dataTestId={`maintenance-request-search-result-${index}`}
-                        to={`/dashboard/landlord/maintenance-requests/${maintenance_request.id}/`}
+                        to={`/dashboard/owner/maintenance-requests/${maintenance_request.id}/`}
                         gridSize={12}
                         key={maintenance_request.id}
                         handleClose={props.handleClose}

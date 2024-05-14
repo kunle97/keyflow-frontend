@@ -37,8 +37,8 @@ const Footer = () => {
             {/* <ul className="list-unstyled">
               {process.env.REACT_APP_ENVIRONMENT === "production" && (
                 <li>
-                  <Link className="link-light" to="/dashboard/landlord/login">
-                    Landlord Login
+                  <Link className="link-light" to="/dashboard/owner/login">
+                    Owner Login
                   </Link>
                 </li>
               )}

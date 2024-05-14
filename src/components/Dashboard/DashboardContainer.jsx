@@ -1,8 +1,8 @@
 import React, { Children, Fragment, useEffect, useState } from "react";
-import Sidebar from "./Landlord/Navigation/Sidebar";
-import Topbar from "./Landlord/Navigation/Topbar";
-import SidebarDrawer from "./Landlord/Navigation/SidebarDrawer";
-import TopBarMUI from "../Dashboard/Landlord/Navigation/TopBarMUI";
+import Sidebar from "./Owner/Navigation/Sidebar";
+import Topbar from "./Owner/Navigation/Topbar";
+import SidebarDrawer from "./Owner/Navigation/SidebarDrawer";
+import TopBarMUI from "../Dashboard/Owner/Navigation/TopBarMUI";
 import { authUser, uiGreen, uiGrey, uiGrey2 } from "../../constants";
 import { Navigate, useNavigate } from "react-router-dom";
 import DeveloperToolsMenu from "./DevTools/DeveloperToolsMenu";
@@ -141,7 +141,7 @@ const DashboardContainer = ({ children }) => {
     {
       target: ".messages-topbar-icon",
       content:
-        "Click here to view your messages. You can send and receive messages from your landlord.",
+        "Click here to view your messages. You can send and receive messages from your owner.",
     },
     {
       target: ".my-account-topbar-dropdown",

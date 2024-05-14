@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import UILineChartCard from "./UIComponents/UICards/UILineChartCard";
 import UItableMiniCard from "./UIComponents/UICards/UITableMiniCard";
 import UIPieChartCard from "./UIComponents/UICards/UIPieChartCard";
-import { getLandlordUnits } from "../../api/units";
+import { getOwnerUnits } from "../../api/units";
 import { getProperties } from "../../api/properties";
 import UIInfoCard from "./UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -160,13 +160,13 @@ const Dashboard = () => {
     {
       name: "Create A Property",
       icon: <MapsHomeWorkOutlinedIcon sx={startIconStyles} />,
-      url: "/dashboard/landlord/properties/create",
+      url: "/dashboard/owner/properties/create",
       subtitle: "Create a new property and add units to it.",
     },
     {
       name: "Create a Lease Template",
       icon: <StickyNote2OutlinedIcon sx={startIconStyles} />,
-      url: "/dashboard/landlord/lease-templates/create",
+      url: "/dashboard/owner/lease-templates/create",
       subtitle:
         "Create a lease template to set the terms and conditions for multiple units.",
     },
@@ -381,7 +381,7 @@ const Dashboard = () => {
   ];
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/landlord/transactions/${rowData}`;
+    const navlink = `/dashboard/owner/transactions/${rowData}`;
     navigate(navlink);
   };
 
@@ -644,7 +644,7 @@ const Dashboard = () => {
     //retrieve transactions from api
     try {
       fetchTransactionData();
-      getLandlordUnits().then((res) => {
+      getOwnerUnits().then((res) => {
         setUnits(res.data);
         setOccupiedUnits(
           res.data.filter((unit) => unit.is_occupied === true).length
@@ -918,7 +918,7 @@ const Dashboard = () => {
                       title={"Recent Transactions"}
                       info={"Recent Transactions"}
                       onInfoClick={() =>
-                        navigate("/dashboard/landlord/transactions")
+                        navigate("/dashboard/owner/transactions")
                       }
                       //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
                       items={transactions
@@ -1077,7 +1077,7 @@ const Dashboard = () => {
                     title={"Upcoming Lease Endings"}
                     info={"Lease Agreements"}
                     onInfoClick={() =>
-                      navigate("/dashboard/landlord/lease-agreements")
+                      navigate("/dashboard/owner/lease-agreements")
                     }
                     items={leaseAgreements
                       .map((leaseAgreement) => ({
@@ -1126,7 +1126,7 @@ const Dashboard = () => {
                     title={"Recent Maintenance Requests"}
                     info={"Maintenance Requests"}
                     onInfoClick={() =>
-                      navigate("/dashboard/landlord/maintenance-requests")
+                      navigate("/dashboard/owner/maintenance-requests")
                     }
                     items={maintenanceRequests
                       .map((maintenanceRequest) => {
@@ -1214,7 +1214,7 @@ const Dashboard = () => {
                       info={"Lease Cancellation Requests"}
                       onInfoClick={() =>
                         navigate(
-                          "/dashboard/landlord/lease-cancellation-requests"
+                          "/dashboard/owner/lease-cancellation-requests"
                         )
                       }
                       items={leaseCancellationRequests
@@ -1331,7 +1331,7 @@ const Dashboard = () => {
                       title={"Recent Lease Renewal Requests"}
                       info={"Lease Renewal Requests"}
                       onInfoClick={() =>
-                        navigate("/dashboard/landlord/lease-renewal-requests")
+                        navigate("/dashboard/owner/lease-renewal-requests")
                       }
                       items={leaseRenewalRequests
                         .map((leaseRenewalRequest) => {

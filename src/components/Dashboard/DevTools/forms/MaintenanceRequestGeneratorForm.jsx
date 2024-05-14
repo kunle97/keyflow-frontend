@@ -3,7 +3,7 @@ import {
   devToolInputStyle,
   validationMessageStyle,
 } from "../../../../constants";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import { authUser, uiGreen, uiGrey } from "../../../../constants";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -56,7 +56,7 @@ const MaintenanceRequestGeneratorForm = (props) => {
       });
   };
   useEffect(() => {
-    getLandlordTenants().then((res) => {
+    getOwnerTenants().then((res) => {
       setTenants(res.data);
     });
   }, []);

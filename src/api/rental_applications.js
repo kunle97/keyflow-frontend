@@ -22,7 +22,7 @@ export async function createRentalApplication(data) {
         evicted: data.evicted,
         employment_history: JSON.stringify(data.employment_history),
         residential_history: JSON.stringify(data.residential_history),
-        landlord_id: data.landlord_id,
+        owner_id: data.owner_id,
         comments: data.comments,
       })
       .then((res) => {

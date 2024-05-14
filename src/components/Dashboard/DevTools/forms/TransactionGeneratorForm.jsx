@@ -18,7 +18,7 @@ import UIDialog from "../../UIComponents/Modals/UIDialog";
 import CloseIcon from "@mui/icons-material/Close";
 import UIButton from "../../UIComponents/UIButton";
 import { faker } from "@faker-js/faker";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import { getProperties } from "../../../../api/properties";
 import { getUnits } from "../../../../api/units";
 import { authenticatedInstance } from "../../../../api/api";
@@ -89,7 +89,7 @@ const TransactionGeneratorForm = (props) => {
    * */
   useEffect(() => {
     // Fetch data from API
-    getLandlordTenants().then((res) => {
+    getOwnerTenants().then((res) => {
       setTenants(res.data);
     });
     getProperties().then((res) => {

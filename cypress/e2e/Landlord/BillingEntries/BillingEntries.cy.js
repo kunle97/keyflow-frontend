@@ -11,7 +11,7 @@ describe("ManageBillingEntry Component", () => {
     }
     );
     it("should render the ManageBillingEntry component", () => {
-        cy.visit(hostname + "/dashboard/landlord/billing-entries/");
+        cy.visit(hostname + "/dashboard/owner/billing-entries/");
         cy.get('[data-testid="ui-table-mobile-title"]').should("be.visible").contains("Billing Entries");
     }
     );

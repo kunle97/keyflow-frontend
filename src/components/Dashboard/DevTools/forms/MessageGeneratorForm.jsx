@@ -3,7 +3,7 @@ import {
   devToolInputStyle,
   validationMessageStyle,
 } from "../../../../constants";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import { useState } from "react";
 import { useEffect } from "react";
 import { authUser, uiGreen, uiGrey } from "../../../../constants";
@@ -55,7 +55,7 @@ const MessageGeneratorForm = (props) => {
       });
   };
   useEffect(() => {
-    getLandlordTenants().then((res) => {
+    getOwnerTenants().then((res) => {
       setTenants(res.data);
     });
   }, []);
