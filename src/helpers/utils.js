@@ -310,7 +310,9 @@ export const clearLocalStorage = () => {
   localStorage.removeItem("authUser");
   localStorage.removeItem("stripe_onoboarding_link");
   localStorage.removeItem("subscriptionPlan");
-};
+  localStorage.removeItem("ownerData");
+  localStorage.removeItem("tenantData");
+  };
 
 //Create a function that uses tthe unauthenticatedInstance to validate a token in local storage
 export const validateToken = async () => {

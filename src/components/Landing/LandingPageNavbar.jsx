@@ -148,22 +148,46 @@ const LandingPageNavbar = (props) => {
               )}
             </li>
             <li className="nav-item">
-              <Link
-                className="nav-link landing-nav-link"
-                to="/dashboard/tenant/login"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Tenants
-              </Link>
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="/dashboard/tenant/login"
+                  style={mobileLinkStyle}
+                >
+                  Tenants
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="/dashboard/tenant/login"
+                  style={{
+                    color: scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Tenants
+                </a>
+              )}
             </li>
             <li className="nav-item">
-              <Link
-                className="nav-link landing-nav-link"
-                to="/dashboard/landlord/login"
-                style={{ color: scrollPosition > 250 ? "black" : "white" }}
-              >
-                Landlords
-              </Link>{" "}
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="/dashboard/landlord/login"
+                  style={mobileLinkStyle}
+                >
+                  Landlord
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="/dashboard/landlord/login"
+                  style={{
+                    color: scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Landlord
+                </a>
+              )}
             </li>
             <li className="nav-item">
               <a

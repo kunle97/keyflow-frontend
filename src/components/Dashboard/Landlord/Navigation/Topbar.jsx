@@ -98,16 +98,14 @@ const Topbar = (props) => {
   }, [profilePictures]);
   return (
     <div className="container">
-      {open && (
-        <AlertModal
-          open={true}
-          onClose={() => setOpen(false)}
-          title={"Logout Successful!"}
-          message="You have been logged Out Successfully! Click the link below to  return to the home page"
-          btnText="Return Home"
-          to={"/"}
-        />
-      )}
+      <AlertModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={"Logout Successful!"}
+        message="You have been logged Out Successfully! Click the link below to  return to the home page"
+        btnText="Return Home"
+        to={"/"}
+      />
       <nav
         className="navbar navbar-expand shadow mb-4 topbar static-top navbar-light"
         style={{

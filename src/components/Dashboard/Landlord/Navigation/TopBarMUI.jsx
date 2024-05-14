@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useRef } from "react";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -18,6 +18,15 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
 import { Link, useNavigate } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
+import {
+  ClickAwayListener,
+  Grow,
+  MenuList,
+  Paper,
+  Popper,
+} from "@mui/material";
+import { logout } from "../../../../api/auth";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 
 export default function PrimarySearchAppBar({
   openMenu,
@@ -27,112 +36,70 @@ export default function PrimarySearchAppBar({
 }) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+  const anchorRef = useRef(null);
+  const [open, setOpen] = useState(false); // Manage the open state of the Popper
+  const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const menuId = "primary-search-account-menu";
+  const handleClose = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  function handleListKeyDown(event) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpen(false);
+    } else if (event.key === "Escape") {
+      setOpen(false);
+    }
+  }
+
+  const handleToggle = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
+    handleToggle(); // Open the Popper when the profile menu is clicked
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
+    setOpen(false); // Close the Popper when the menu is closed
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    let returnURL = "/";
+    //call logout api
+    if (authUser && authUser.account_type === "owner") {
+      returnURL = "/dashboard/landlord/login";
+    } else if (authUser && authUser.account_type === "tenant") {
+      returnURL = "/dashboard/tenant/login";
+    }
+    let response = await logout();
+    if (response.status === 200) {
+      console.log("User was logged out successfully");
+      setOpenLogoutModal(true);
+    } else {
+      console.error("Error logging user out");
+      navigate("/");
+    }
   };
-
-  const menuId = "primary-search-account-menu";
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem onClick={() => navigate("/dashboard/messages")}>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon sx={{ color: uiGreen }} />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem
-        onClick={() =>
-          navigate(
-            authUser.account_type === "owner"
-              ? "/dashboard/notifications"
-              : "/dashboard/tenant/notifications"
-          )
-        }
-      >
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-    </Menu>
-  );
-
   return (
     <Box sx={{ flexGrow: 1 }}>
+      <AlertModal
+        open={openLogoutModal}
+        onClose={() => setOpen(false)}
+        title={"Logout Successful!"}
+        message="You have been logged Out Successfully! Click the link below to  return to the home page"
+        btnText="Return Home"
+        to={"/"}
+      />
       <AppBar
         position="fixed"
         sx={{ backgroundColor: "white", color: uiGrey2, marginBottom: "20px" }}
@@ -207,34 +174,74 @@ export default function PrimarySearchAppBar({
                 aria-label="account of current user"
                 aria-controls={menuId}
                 aria-haspopup="true"
-                onClick={() => {
-                  navigate(
-                    authUser.account_type === "owner"
-                      ? "/dashboard/landlord/my-account"
-                      : "/dashboard/tenant/my-account"
-                  );
+                onClick={(event) => {
+                  setAnchorEl(event.currentTarget); // Update the anchorEl when the button is clicked
+                  handleToggle();
+                }}
+                ref={anchorRef} // Assign the ref to the IconButton
+              >
+                <PersonIcon sx={{ color: uiGreen }} />
+              </IconButton>
+
+              <Popper
+                open={open && isMenuOpen}
+                anchorEl={anchorRef.current}
+                role={undefined}
+                // placement="bottom-start"
+                transition
+                disablePortal
+                sx={{
+                  zIndex: "1",
                 }}
               >
-                <PersonIcon sx={{ color: uiGreen }} />
-              </IconButton>
+                {({ TransitionProps, placement }) => (
+                  <Grow
+                    {...TransitionProps}
+                    style={{
+                      transformOrigin:
+                        placement === "bottom-start"
+                          ? "right top"
+                          : "right top",
+                    }}
+                  >
+                    <Paper>
+                      <ClickAwayListener onClickAway={handleClose}>
+                        <MenuList
+                          autoFocusItem={open}
+                          id="composition-menu"
+                          aria-labelledby="composition-button"
+                          onKeyDown={handleListKeyDown}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              navigate(
+                                authUser.account_type === "owner"
+                                  ? "/dashboard/landlord/my-account"
+                                  : "/dashboard/tenant/my-account"
+                              );
+                              handleMenuClose(); // Close the Popper after clicking a menu item
+                            }}
+                          >
+                            My Account
+                          </MenuItem>
+                          <MenuItem
+                            onClick={(e) => {
+                              handleLogout(e);
+                              handleMenuClose(); // Close the Popper after clicking a menu item
+                            }}
+                          >
+                            Logout
+                          </MenuItem>
+                        </MenuList>
+                      </ClickAwayListener>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
             </Box>
-
-            {/* <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="show more"
-                aria-controls={mobileMenuId}
-                aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
-              >
-                <PersonIcon sx={{ color: uiGreen }} />
-              </IconButton>
-            </Box> */}
           </Toolbar>
         </div>
       </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
     </Box>
   );
 }
