@@ -33,9 +33,10 @@ export default function PrimarySearchAppBar({
   setShowSearchDialog,
   notificationCount,
   messageCount,
+  unreadMessagesCount
 }) {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false); // Manage the open state of the Popper
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
@@ -153,7 +154,7 @@ export default function PrimarySearchAppBar({
                   navigate("/dashboard/messages/");
                 }}
               >
-                <Badge badgeContent={messageCount} color="error">
+                <Badge badgeContent={unreadMessagesCount} color="error">
                   <MailIcon sx={{ color: uiGreen }} />
                 </Badge>
               </IconButton>

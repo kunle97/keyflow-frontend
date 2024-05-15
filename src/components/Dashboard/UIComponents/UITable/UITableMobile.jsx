@@ -42,7 +42,7 @@ const UITableMobile = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
   const [results, setResults] = useState([]);
-  const [orderingField, setOrderingField] = useState("created_at");
+  const [orderingField, setOrderingField] = useState(props.orderingField ? props.orderingField:"created_at");
   const [searchField, setSearchField] = useState("");
   const [limit, setLimit] = useState(10);
   const [endpoint, setEndpoint] = useState(props.endpoint);

@@ -69,4 +69,15 @@ export const defaultTenantAccountPreferences = [
       ],
       description: "Enable or disable notifications for when a bill is created"
     },
+    {
+      type: "notifications",
+      hidden: false,
+      name: "message_received",
+      label: "Messages Received",
+      values: [
+        { name: "push", value: false, inputType: "switch", label: "Push Notifications" },
+        { name: "email", value: false, inputType: "switch", label: "Email Notifications" }
+      ],
+      description: "Enable or disable notifications for when a new message is recieved"
+    },
   ];
