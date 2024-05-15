@@ -8,7 +8,7 @@ import {
   uiGreen,
   uiRed,
 } from "../../../../constants";
-import { IconButton, Stack } from "@mui/material";
+import { Badge, IconButton, Stack } from "@mui/material";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -232,10 +232,19 @@ const Topbar = (props) => {
                       </span> */}
                     </>
                   )}
-                  <i
-                    className="fas fa-bell fa-fw"
-                    style={{ fontSize: "15pt" }}
-                  />
+                  <Badge
+                    badgeContent={
+                      props.notifications.filter(
+                        (notification) => !notification.is_read
+                      ).length
+                    }
+                    color="error"
+                  >
+                    <i
+                      className="fas fa-bell fa-fw"
+                      style={{ fontSize: "15pt" }}
+                    />
+                  </Badge>
                 </a>
                 <div
                   className="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in"
@@ -341,7 +350,9 @@ const Topbar = (props) => {
                   aria-expanded="false"
                   to="/dashboard/messages/"
                 >
-                  <EmailIcon style={{ fontSize: "15pt" }} />
+                  <Badge badgeContent={props.unreadMessagesCount} color="error">
+                    <EmailIcon style={{ fontSize: "15pt" }} />
+                  </Badge>
                 </Link>
               </div>
               <div

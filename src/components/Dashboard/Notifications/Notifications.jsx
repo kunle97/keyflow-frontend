@@ -1,5 +1,4 @@
 import React from "react";
-import UITable from "../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router";
 import UITableMobile from "../UIComponents/UITable/UITableMobile";
 const Notifications = () => {
@@ -49,6 +48,7 @@ const Notifications = () => {
       <UITableMobile
         endpoint="/notifications/"
         tableTitle="Notification Center"
+        orderingField="-timestamp"
         createInfo={(row) => {
           return row.title;
         }}
