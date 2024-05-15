@@ -35,8 +35,6 @@ const NewMessageDialog = (props) => {
     );
     console.log("Message sent to: ",tenant.user.first_name, tenant.user.last_name);
     sendMessage(payload).then((res) => {
-      console.log("Tenant", tenant);
-      console.log(res);
       if (res.status === 200) {
         setAlertTitle("Message Sent!");
         setAlertMessage(
@@ -45,6 +43,10 @@ const NewMessageDialog = (props) => {
         setShowAlert(true);
         props.handleClose();
       }
+    }).catch((error) => {
+      setAlertTitle("Error!");
+      setAlertMessage("There was an error sending your message. Please try again.");
+      setShowAlert(true);
     });
   };
 
