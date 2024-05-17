@@ -412,7 +412,13 @@ const MyAccount = () => {
       });
     getSubscriptionPlanPrices().then((res) => {
       setPlans(res.products);
-    });
+    }).catch((error) => {
+      console.log("Error getting subscription plans: ", error);
+      setResponseTitle("Error");
+      setResponseMessage("Error getting subscription plans");
+      setShowResponseModal(true);
+    }
+    );
     getUserStripeSubscriptions(authUser.id, token).then((res) => {
       setCurrentSubscriptionPlan(res.subscriptions);
     });
@@ -734,7 +740,7 @@ const MyAccount = () => {
           </div>
         </div>
       )}
-      {tabPage === 2 && (
+      {/* {tabPage === 2 && (
         <>
           <div className="mb-3" style={{ overflow: "auto" }}>
             <UIButton
@@ -918,7 +924,7 @@ const MyAccount = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

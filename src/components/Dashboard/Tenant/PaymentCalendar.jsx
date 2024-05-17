@@ -5,11 +5,15 @@ import { getPaymentDates } from "../../../api/manage_subscriptions";
 import { authUser } from "../../../constants";
 import { getTenantInvoices } from "../../../api/tenants";
 import { removeUnderscoresAndCapitalize } from "../../../helpers/utils";
+import AlertModal from "../UIComponents/Modals/AlertModal";
 const PaymentCalendar = () => {
   const events = [{ title: "Meeting", start: new Date() }];
   const [dates, setDates] = useState([]);
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   const [invoices, setInvoices] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   //TODO Retriueve pay dates from backend
   useEffect(() => {
     // getPaymentDates(authUser.id).then((res) => {
@@ -45,6 +49,13 @@ const PaymentCalendar = () => {
       });
       console.log(due_dates);
       setDueDates(due_dates);
+    }).catch((error) => {
+      console.error("Error fetching invoices", error);
+      setAlertTitle("Error!");  
+      setAlertMessage(
+        "There was an error fetching invoices. Please try again."
+      );
+      setShowAlert(true);
     });
   }, []);
   const renderEventContent = (eventInfo) => {
@@ -60,6 +71,13 @@ const PaymentCalendar = () => {
   };
   return (
     <div>
+      <AlertModal 
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+      />
       <FullCalendar
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"

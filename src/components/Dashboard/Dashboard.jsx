@@ -36,6 +36,7 @@ import Joyride, {
 import UIHelpButton from "./UIComponents/UIHelpButton";
 import UIButton from "./UIComponents/UIButton";
 import { getStripeAccountLink } from "../../api/owners";
+import AlertModal from "./UIComponents/Modals/AlertModal";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
@@ -54,7 +55,9 @@ const Dashboard = () => {
   const [vacantUnits, setVacantUnits] = useState([]);
   const [leaseAgreements, setLeaseAgreements] = useState([]);
   const [stripeAccountLink, setStripeAccountLink] = useState("");
-
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [alertModalTitle, setAlertModalTitle] = useState("");
   /*Transaction Related States*/
   const [transactionTypes, setTransactionTypes] = useState([]); // ["revenue", "expense", "rent_payment", "security_deposit"
   const [groupedTransactionData, setGroupedTransactionData] = useState([]);
@@ -636,13 +639,13 @@ const Dashboard = () => {
   };
   useEffect(() => {
     authUser.account_type === "tenant" && navigate("/dashboard/tenant");
-    getStripeAccountLink().then((res) => {
-      console.log("Stripe ACcount link res: ", res);
-      setStripeAccountLink(res.account_link);
-    });
     setIsLoading(true);
     //retrieve transactions from api
     try {
+      getStripeAccountLink().then((res) => {
+        console.log("Stripe ACcount link res: ", res);
+        setStripeAccountLink(res.account_link);
+      });
       fetchTransactionData();
       getOwnerUnits().then((res) => {
         setUnits(res.data);
@@ -676,9 +679,12 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error(error);
+      setAlertModalTitle("Error");
+      setAlertModalMessage("An error occurred while fetching your data.");
+      setAlertModalOpen(true);
     } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [screenWidth]);
 
   return isLoading ? (
@@ -688,6 +694,12 @@ const Dashboard = () => {
     />
   ) : (
     <div className="container-fluid dashboard-container">
+      <AlertModal
+        open={alertModalOpen}
+        onClose={() => setAlertModalOpen(false)}
+        title={alertModalTitle}
+        message={alertModalMessage}
+      />
       {transactions.length === 0 &&
       leaseAgreements.length === 0 &&
       maintenanceRequests.length === 0 &&
@@ -1213,9 +1225,7 @@ const Dashboard = () => {
                       title={"Recent Lease Cancellation Requests"}
                       info={"Lease Cancellation Requests"}
                       onInfoClick={() =>
-                        navigate(
-                          "/dashboard/owner/lease-cancellation-requests"
-                        )
+                        navigate("/dashboard/owner/lease-cancellation-requests")
                       }
                       items={leaseCancellationRequests
                         .map((leaseCancellationRequest) => {

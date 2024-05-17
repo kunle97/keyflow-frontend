@@ -109,13 +109,18 @@ const ResetPassword = () => {
   //TODO:Verify token. If token is valid, show reset password form. If token is invalid, show error message
   useEffect(() => {
     // retrievePasswordResetToken
-    validatePasswordResetToken(token).then((res) => {
-      console.log(res);
-      if (res.status !== 200) {
-        //if Reset token validation fails navigate to 404
+    validatePasswordResetToken(token)
+      .then((res) => {
+        console.log(res);
+        if (res.status !== 200) {
+          //if Reset token validation fails navigate to 404
+          navigate("/*");
+        }
+      })
+      .catch((error) => {
+        console.error("Error validating password reset token", error);
         navigate("/*");
-      }
-    });
+      });
   }, []);
   return (
     <div className="container">

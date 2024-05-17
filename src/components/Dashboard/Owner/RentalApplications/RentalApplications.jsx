@@ -13,8 +13,12 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
@@ -122,21 +126,37 @@ const RentalApplications = () => {
   };
 
   useEffect(() => {
-    getRentalApplicationsByUser().then((res) => {
-      console.log(res);
-      if (res) {
-        //Create a new array that only holds data with the is_arhived property set to false
-        // const filteredData = res.data.filter((data) => {
-        //   return data.is_archived === false;
-        // });
-        setRentalApplications(res.data);
-        setIsLoading(false);
-      }
-      console.log("Rental Applications: ", rentalApplications);
-    });
+    getRentalApplicationsByUser()
+      .then((res) => {
+        console.log(res);
+        if (res) {
+          //Create a new array that only holds data with the is_arhived property set to false
+          // const filteredData = res.data.filter((data) => {
+          //   return data.is_archived === false;
+          // });
+          setRentalApplications(res.data);
+          setIsLoading(false);
+        }
+        console.log("Rental Applications: ", rentalApplications);
+      })
+      .catch((error) => {
+        console.error("Error getting rental applications:", error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while fetching rental applications. Please try again."
+        );
+        setShowAlert(true);
+      });
   }, []);
   return (
     <div className="container-fluid rental-application-list">
+      <AlertModal
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+      />
       <Joyride
         run={runTour}
         index={tourIndex}

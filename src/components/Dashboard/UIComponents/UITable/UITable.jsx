@@ -27,7 +27,7 @@ import { MultiSelectDropdown } from "../MultiSelectDropdown";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
-
+import AlertModal from "../Modals/AlertModal";
 const UITable = (props) => {
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
@@ -39,7 +39,9 @@ const UITable = (props) => {
   const [filteredData, setFilteredData] = useState([]);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
-
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
@@ -140,6 +142,11 @@ const UITable = (props) => {
               props.setChecked(newChecked);
             }
           }
+        }).catch((error) => {
+          console.error("Error fetching data:", error);
+          setAlertTitle("Error");
+          setAlertMessage("An error occurred while fetching the data");
+          setShowAlert(true);
         });
     }
   };
@@ -313,6 +320,14 @@ const UITable = (props) => {
 
   return (
     <div style={{ width: "100%", overflowX: "auto", padding: "0 15px" }}>
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       <Stack
         direction="row"
         justifyContent="flex-end"

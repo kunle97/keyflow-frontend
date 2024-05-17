@@ -25,7 +25,7 @@ import { getStripeSubscription, updateUserData } from "../../../api/auth";
 import { ListDivider } from "@mui/joy";
 import UIButton from "../UIComponents/UIButton";
 import { useNavigate } from "react-router";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
@@ -374,31 +374,38 @@ const TenantMyAccount = () => {
   };
 
   useEffect(() => {
-    syncPreferences();
-    //Get the payment methods for the user
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
-      console.log(res.data);
-      setPaymentMethods(res.data);
-    });
-    //Retrieve the users lease agreemetn
-    getTenantDashboardData().then((res) => {
-      console.log("Dashboard datrat ", res);
-      setLeaseAgreement(res.lease_agreement);
-      const subscription_id = res.lease_agreement.stripe_subscription_id;
-      // getStripeSubscription(subscription_id).then((res) => {
-      //   console.log("Subscription", res);
-      //   setPrimaryPaymentMethod(res.default_payment_method);
-      // });
-    });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
-      (res) => {
-        setProfilePictureFile(res.data[0]);
-      }
-    );
-    getTenantPreferences().then((res) => {
-      console.log("Tenant Preferences: ", res);
-      setTenantPreferences(res.preferences);
-    });
+    try{
+      syncPreferences();
+      //Get the payment methods for the user
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        console.log(res.data);
+        setPaymentMethods(res.data);
+      });
+      //Retrieve the users lease agreemetn
+      getTenantDashboardData().then((res) => {
+        console.log("Dashboard datrat ", res);
+        setLeaseAgreement(res.lease_agreement);
+        const subscription_id = res.lease_agreement.stripe_subscription_id;
+        // getStripeSubscription(subscription_id).then((res) => {
+        //   console.log("Subscription", res);
+        //   setPrimaryPaymentMethod(res.default_payment_method);
+        // });
+      });
+      retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
+        (res) => {
+          setProfilePictureFile(res.data[0]);
+        }
+      );
+      getTenantPreferences().then((res) => {
+        console.log("Tenant Preferences: ", res);
+        setTenantPreferences(res.preferences);
+      });
+    }catch(e){
+      console.log(e);
+      setResponseTitle("Error");
+      setResponseMessage("Error loading data");
+      setShowResponseModal(true);
+    }
   }, []);
 
   return (

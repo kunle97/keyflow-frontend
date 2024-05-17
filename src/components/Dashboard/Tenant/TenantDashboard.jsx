@@ -50,6 +50,9 @@ import Joyride, {
 import UIHelpButton from "../UIComponents/UIHelpButton";
 const TenantDashboard = () => {
   const navigate = useNavigate();
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
   const [unit, setUnit] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [leaseTemplate, setLeaseTemplate] = useState(null);
@@ -255,97 +258,110 @@ const TenantDashboard = () => {
   };
 
   useEffect(() => {
-    //Get the payment methods for the user and check if they at least have one
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
-      setIsLoadingPaymentMethods(true);
-      if (res.data.length < 1) {
-        setShowAddPaymentMethodAlert(true);
-        setIsLoadingPaymentMethods(false);
-      } else {
-        setPaymentMethods(res.data);
-        console.log(res.data);
-        setIsLoadingPaymentMethods(false);
-      }
-    });
-    //Retrieve Tenant Transactions
-    getTransactionsByTenant(authUser.tenant_id).then((res) => {
-      setTransactions(res.data);
-    });
-
-    //Retrieve the unit
-    getTenantDashboardData().then((res) => {
-      console.log("Tenant Dashboard Data", res);
-      setTenantData(res);
-      setUnit(res.unit);
-      setLeaseAgreement(res.lease_agreement);
-      setCurrentBalance(res.current_balance);
-      setLateFees(res.late_fees);
-      setAnnouncements(res.announcements);
-
-      //Check if lease agreement endate is in 2 months or less, if so show confirm modal
-      if (res.lease_agreement) {
-        const endDate = new Date(res.lease_agreement.end_date);
-        const today = new Date();
-        const diffTime = Math.abs(endDate - today);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        getTenantLeaseRenewalRequests()
-          .then((res) => {
-            let lease_renewal_requests = res.data;
-
-            let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
-              (lease_renewal_request) => {
-                let lease_renewal_request_created_at = new Date(
-                  lease_renewal_request.move_in_date
-                );
-                return lease_renewal_request_created_at > endDate;
-              }
-            );
-
-            if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
-              setConfirmModalTitle("Lease Renewal");
-              setConfirmModalMessage(
-                "Your lease agreement is about to expire. Would you like to renew your lease?"
+    try{
+      //Get the payment methods for the user and check if they at least have one
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        setIsLoadingPaymentMethods(true);
+        if (res.data.length < 1) {
+          setShowAddPaymentMethodAlert(true);
+          setIsLoadingPaymentMethods(false);
+        } else {
+          setPaymentMethods(res.data);
+          console.log(res.data);
+          setIsLoadingPaymentMethods(false);
+        }
+      });
+      //Retrieve Tenant Transactions
+      getTransactionsByTenant(authUser.tenant_id).then((res) => {
+        setTransactions(res.data);
+      });
+  
+      //Retrieve the unit
+      getTenantDashboardData().then((res) => {
+        console.log("Tenant Dashboard Data", res);
+        setTenantData(res);
+        setUnit(res.unit);
+        setLeaseAgreement(res.lease_agreement);
+        setCurrentBalance(res.current_balance);
+        setLateFees(res.late_fees);
+        setAnnouncements(res.announcements);
+  
+        //Check if lease agreement endate is in 2 months or less, if so show confirm modal
+        if (res.lease_agreement) {
+          const endDate = new Date(res.lease_agreement.end_date);
+          const today = new Date();
+          const diffTime = Math.abs(endDate - today);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          getTenantLeaseRenewalRequests()
+            .then((res) => {
+              let lease_renewal_requests = res.data;
+  
+              let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
+                (lease_renewal_request) => {
+                  let lease_renewal_request_created_at = new Date(
+                    lease_renewal_request.move_in_date
+                  );
+                  return lease_renewal_request_created_at > endDate;
+                }
               );
-              setConfirmButtonText("Renew Lease");
-              setCancelButtonText("Not Now");
-              //Set confirm action to a function that will navigate
-              const handleConfirmAction = () => {
-                navigate("/dashboard/tenant/my-lease");
-              };
-              setConfirmAction(() => handleConfirmAction);
-              setShowConfirmModal(true);
-            }
-          })
-          .catch((error) => {
-            // Handle any errors from getTenantLeaseRenewalRequests()
-            console.error(error);
+  
+              if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
+                setConfirmModalTitle("Lease Renewal");
+                setConfirmModalMessage(
+                  "Your lease agreement is about to expire. Would you like to renew your lease?"
+                );
+                setConfirmButtonText("Renew Lease");
+                setCancelButtonText("Not Now");
+                //Set confirm action to a function that will navigate
+                const handleConfirmAction = () => {
+                  navigate("/dashboard/tenant/my-lease");
+                };
+                setConfirmAction(() => handleConfirmAction);
+                setShowConfirmModal(true);
+              }
+            })
+            .catch((error) => {
+              // Handle any errors from getTenantLeaseRenewalRequests()
+              console.error(error);
+            });
+        }
+  
+        setLeaseTemplate(res.lease_template);
+        if (res.lease_agreement) {
+          //Retrieve next payment date
+          getNextPaymentDate(authUser.id).then((res) => {
+            console.log("nExt pay date data", res);
+            setNextPaymentDate(res.data.next_payment_date);
           });
-      }
-
-      setLeaseTemplate(res.lease_template);
-      if (res.lease_agreement) {
-        //Retrieve next payment date
-        getNextPaymentDate(authUser.id).then((res) => {
-          console.log("nExt pay date data", res);
-          setNextPaymentDate(res.data.next_payment_date);
-        });
-      }
-    });
-    //Retrieve invoices
-    getTenantInvoices().then((res) => {
-      let invoicesDue = getDueInvoices(res.invoices.data.reverse());
-      console.log("Invoices Due", invoicesDue);
-      setInvoices(invoicesDue);
-      let amount_due =
-        invoicesDue.reduce((acc, invoice) => {
-          return acc + invoice.amount_due;
-        }, 0) / 100;
-      setTotalAmountDue(amount_due);
-    });
+        }
+      });
+      //Retrieve invoices
+      getTenantInvoices().then((res) => {
+        let invoicesDue = getDueInvoices(res.invoices.data.reverse());
+        console.log("Invoices Due", invoicesDue);
+        setInvoices(invoicesDue);
+        let amount_due =
+          invoicesDue.reduce((acc, invoice) => {
+            return acc + invoice.amount_due;
+          }, 0) / 100;
+        setTotalAmountDue(amount_due);
+      });
+    }catch(e){
+      console.error(e);
+      setAlertMessage("An error occurred while fetching data. Please try again.");
+      setAlertTitle("Error");
+      setShowAlert(true);
+    }
   }, []);
 
   return (
     <div className="container  tenant-dashboard-container">
+      <AlertModal
+        open={showAlert}
+        onClose={() => {}}
+        title={alertTitle}
+        message={alertMessage}
+      />
       <Joyride
         run={runTour}
         index={tourIndex}

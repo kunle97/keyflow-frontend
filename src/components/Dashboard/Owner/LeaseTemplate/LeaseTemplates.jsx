@@ -22,9 +22,9 @@ import { uiGreen } from "../../../../constants";
 const LeaseTemplates = () => {
   const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [units, setUnits] = useState([]);
-  const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
-  const [deleteErrorMessageTitle, setDeleteErrorMessageTitle] = useState("");
-  const [showDeleteError, setShowDeleteError] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [alertModalTitle, setAlertModalTitle] = useState("");
   const { isMobile } = useScreen();
   const navigate = useNavigate();
 
@@ -158,17 +158,17 @@ const LeaseTemplates = () => {
         units
       );
       if (filteredLeaseTemplates.leaseTemplatesInUse > 0) {
-        setDeleteErrorMessageTitle("Error");
-        setDeleteErrorMessage(
-          "Some of the selected lease terms are in use and have not been deleted."
+        setAlertModalTitle("Error");
+        setAlertModalMessage(
+          "Some of the selected lease terms are currently in use by units. Please remove them from the units before deleting them."
         );
-        setShowDeleteError(true);
+        setShowAlertModal(true);
       } else {
-        setDeleteErrorMessageTitle("Success");
-        setDeleteErrorMessage(
+        setAlertModalTitle("Success");
+        setAlertModalMessage(
           "The selected lease terms have been deleted successfully."
         );
-        setShowDeleteError(true);
+        setShowAlertModal(true);
       }
       filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
         deleteLeaseTemplate(id)
@@ -176,8 +176,8 @@ const LeaseTemplates = () => {
             console.log(res);
           })
           .catch((err) => {
-            setDeleteErrorMessage(err.response.data.message);
-            setShowDeleteError(true);
+            setAlertModalMessage(err.response.data.message);
+            setShowAlertModal(true);
           });
       });
     },
@@ -189,11 +189,25 @@ const LeaseTemplates = () => {
     getLeaseTemplatesByUser().then((res) => {
       setLeaseTemplates(res.data);
       console.log(res);
+    }).catch((error) => {
+      console.error("Error fetching lease templates:", error);
+      setAlertModalTitle("Error");
+      setAlertModalMessage(
+        "There was an error fetching your lease templates. Please try again."
+      );
+      setShowAlertModal(true);
     });
     //Retrieve the user's units
     getOwnerUnits().then((res) => {
       setUnits(res.data);
       console.log(res);
+    }).catch((error) => {
+      console.error("Error fetching units:", error);
+      setAlertModalTitle("Error");
+      setAlertModalMessage(
+        "There was an error fetching your units. Please try again."
+      );
+      setShowAlertModal(true);
     });
   }, []);
   return (
@@ -219,17 +233,16 @@ const LeaseTemplates = () => {
           skip: "Skip",
         }}
       />
-      <div className="card" style={{ overflow: "hidden" }}>
         <AlertModal
-          open={showDeleteError}
-          setOpen={setShowDeleteError}
-          title={deleteErrorMessageTitle}
-          message={deleteErrorMessage}
+          open={showAlertModal}
+          title={alertModalTitle}
+          message={alertModalMessage}
           btnText="Ok"
           onClick={() => {
-            setShowDeleteError(false);
+            setShowAlertModal(false);
           }}
         />
+      <div className="card" style={{ overflow: "hidden" }}>
       </div>
       <div className="lease-template-table-container">
         {isMobile ? (

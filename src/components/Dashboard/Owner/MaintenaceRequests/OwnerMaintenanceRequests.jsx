@@ -189,7 +189,11 @@ const OwnerMaintenanceRequests = () => {
           }).length
         );
       }
-    );
+    ).catch((error) => {
+      console.error("Error fetching maintenance requests:", error);
+      setDeleteErrorMessage("Error fetching maintenance requests");
+      setShowDeleteError(true);
+    });
   }, [orderingField, searchField, limit]);
 
   return (

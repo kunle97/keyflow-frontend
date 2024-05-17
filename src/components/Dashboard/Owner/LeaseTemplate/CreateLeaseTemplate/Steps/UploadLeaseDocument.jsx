@@ -99,6 +99,14 @@ const UploadLeaseDocument = (props) => {
         console.log(iframeUrl);
         setIsLoading(false);
       }
+    }).catch((error) => {
+      console.error("Error creating template link:", error);
+      setAlertTitle("Error");
+      setAlertMessage(
+        "An error occurred while creating the lease agreement template. Please try again."
+      );
+      setAlertOpen(true);
+      setIsLoading(false);
     });
   };
 

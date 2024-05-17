@@ -506,6 +506,12 @@ const ManageLeaseTemplate = () => {
           setAlertModalTitle("Error");
           setAlertModalMessage("Something went wrong. Please try again.");
         }
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertModalIsOpen(true);
+        setAlertModalTitle("Error");
+        setAlertModalMessage("Something went wrong. Please try again.");
       });
   };
 
@@ -533,6 +539,12 @@ const ManageLeaseTemplate = () => {
           setAlertModalTitle("Error");
           setAlertModalMessage("Something went wrong. Please try again.");
         }
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertModalIsOpen(true);
+        setAlertModalTitle("Error");
+        setAlertModalMessage("Something went wrong. Please try again.");
       });
   };
   const retrieveLeaseTemplateData = async () => {
@@ -562,6 +574,12 @@ const ManageLeaseTemplate = () => {
         });
         setAdditionalCharges(JSON.parse(res.data.additional_charges));
         setUnits(res.data.units);
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertModalIsOpen(true);
+        setAlertModalTitle("Error");
+        setAlertModalMessage("Something went wrong. Please try again.");
       })
       .finally(() => {
         setIsLoading(false);

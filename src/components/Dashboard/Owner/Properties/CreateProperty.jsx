@@ -404,46 +404,63 @@ const CreateProperty = () => {
     console.log("DAta: ", data);
     console.log("Form Data: ", formData);
     setIsLoading(true);
-    const res = await createProperty(
-      formData.name,
-      formData.street,
-      formData.city,
-      formData.state,
-      formData.zipcode,
-      formData.country
-    );
-    console.log(res);
-    const newPropertyId = res.res.id;
-    if (res.status === 200) {
-      let payload = {};
-      payload.units = JSON.stringify(units);
-      payload.rental_property = newPropertyId;
-      payload.subscription_id = currentSubscriptionPlan.id;
-      payload.product_id = currentSubscriptionPlan.plan.product;
-      payload.user = authUser.id;
-      payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
-
-      const res = await createUnit(payload);
+    try {
+      const res = await createProperty(
+        formData.name,
+        formData.street,
+        formData.city,
+        formData.state,
+        formData.zipcode,
+        formData.country
+      );
       console.log(res);
+      const newPropertyId = res.res.id;
       if (res.status === 200) {
-        setIsLoading(false);
-        navigate(`/dashboard/owner/properties/${newPropertyId}`);
-      } else {
+        let payload = {};
+        payload.units = JSON.stringify(units);
+        payload.rental_property = newPropertyId;
+        payload.subscription_id = currentSubscriptionPlan.id;
+        payload.product_id = currentSubscriptionPlan.plan.product;
+        payload.user = authUser.id;
+        payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
+
+        const res = await createUnit(payload);
+        console.log(res);
+        if (res.status === 200) {
+          setIsLoading(false);
+          navigate(`/dashboard/owner/properties/${newPropertyId}`);
+        } else {
+          setUnitCreateError(true);
+          setErrorMessage(
+            "There was an error creating your property" + res.message
+          );
+          setIsLoading(false);
+        }
+      }else{
         setUnitCreateError(true);
         setErrorMessage(
           "There was an error creating your property" + res.message
         );
         setIsLoading(false);
       }
+    } catch (error) {
+      console.log("Error creating property: ", error);
+      setUnitCreateError(true);
+      setErrorMessage("Error creating property");
+      setIsLoading(false);
     }
   };
 
   const retrieveSubscriptionPlan = async () => {
-    const res = await getUserStripeSubscriptions(authUser.id, token).then(
-      (res) => {
+    const res = await getUserStripeSubscriptions(authUser.id, token)
+      .then((res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
-      }
-    );
+      })
+      .catch((error) => {
+        console.log("Error retrieving subscription plan: ", error);
+        setErrorMessage("Error retrieving subscription plan");
+        setUnitCreateError(true);
+      });
     return res;
   };
 

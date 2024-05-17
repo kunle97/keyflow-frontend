@@ -28,6 +28,10 @@ import UIHelpButton from "../../UIComponents/UIHelpButton";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertTitle, setAlertTitle] = useState(null);
+
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseMessage, setResponseMessage] = useState(null);
@@ -173,6 +177,14 @@ const CreateMaintenanceRequest = () => {
 
   return (
     <>
+    <AlertModal
+      title={alertTitle}
+      message={alertMessage}
+      open={showAlert}
+      onClick={() => {
+        setShowAlert(false);
+      }}
+    />
       <Joyride
         run={runTour}
         index={tourIndex}

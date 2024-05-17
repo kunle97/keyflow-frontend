@@ -26,7 +26,7 @@ import {
   Stack,
 } from "@mui/material";
 import { authUser, uiGreen, uiRed } from "../../../../constants";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import useScreen from "../../../../hooks/useScreen";
 import Timeline from "@mui/lab/Timeline";
 import TimelineItem from "@mui/lab/TimelineItem";
@@ -65,7 +65,7 @@ const OwnerMaintenanceRequestDetail = () => {
   const [confirmMessage, setConfirmMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteError, setShowDeleteError] = useState(false);
-  const [showDeleteErrorMessage, setShowDeleteErrorMessage] = useState(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState(false);
   const [status, setStatus] = useState(null); //["pending", "in_progress", "completed"]
   const [priority, setPriority] = useState(null); //["1", "2", "3", "4", "5"]
   const { screenWidth, breakpoints, isMobile } = useScreen();
@@ -219,25 +219,31 @@ const OwnerMaintenanceRequestDetail = () => {
   const handleDeleteMaintenanceRequest = () => {
     //Check if maintenance request is in progress
     if (maintenanceRequest.status === "in_progress") {
-      setShowDeleteErrorMessage(
+      setDeleteErrorMessage(
         "Cannot delete maintenance request that is in progress"
       );
       setShowDeleteError(true);
       setShowDeleteConfirm(false);
       return;
     }
-    deleteMaintenanceRequest(id).then((res) => {
-      console.log(res);
-      if (res.status === 204) {
-        setConfirmMessage(
-          "Maintenance Request has been deleted. You will be redirected to the maintenance requests page."
-        );
-        setShowAlertModal(true);
-        navigate("/dashboard/owner/maintenance-requests");
-      } else {
+    deleteMaintenanceRequest(id)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 204) {
+          setConfirmMessage(
+            "Maintenance Request has been deleted. You will be redirected to the maintenance requests page."
+          );
+          setShowAlertModal(true);
+          navigate("/dashboard/owner/maintenance-requests");
+        } else {
+          setShowDeleteError(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setDeleteErrorMessage("Error deleting maintenance request");
         setShowDeleteError(true);
-      }
-    });
+      });
   };
 
   useEffect(() => {
@@ -249,14 +255,24 @@ const OwnerMaintenanceRequestDetail = () => {
         setEvents(res.data.events);
         setIsLoading(false);
         //Retrieve property by id
-        getProperty(res.data.rental_property.id).then((property_res) => {
-          console.log(property_res);
-          setProperty(property_res.data);
-        });
+        getProperty(res.data.rental_property.id)
+          .then((property_res) => {
+            console.log(property_res);
+            setProperty(property_res.data);
+          })
+          .catch((err) => {
+            setDeleteErrorMessage("Error retrieving property");
+            setShowDeleteError(true);
+          });
         //Retrieve unit by id
-        getUnit(res.data.rental_unit.id).then((unit_res) => {
-          setUnit(unit_res);
-        });
+        getUnit(res.data.rental_unit.id)
+          .then((unit_res) => {
+            setUnit(unit_res);
+          })
+          .catch((err) => {
+            setDeleteErrorMessage("Error retrieving unit");
+            setShowDeleteError(true);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -314,7 +330,7 @@ const OwnerMaintenanceRequestDetail = () => {
             handleClose={() => setShowDeleteError(false)}
             onClick={() => setShowDeleteError(false)}
             title="Error"
-            message={showDeleteErrorMessage}
+            message={deleteErrorMessage}
             btnText="Okay"
           />
           <ConfirmModal

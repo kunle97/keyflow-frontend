@@ -13,37 +13,57 @@ import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import useScreen from "../../../../hooks/useScreen";
 import { Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const OwnerTransactionDetail = () => {
   const { id } = useParams();
   const [transaction, setTransaction] = useState({}); //initialize transaction state
   const [tenant, setTenant] = useState({}); //initialize tenant state
   const [property, setProperty] = useState({}); //initialize property state
   const [unit, setUnit] = useState({}); //initialize unit state
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const { isMobile } = useScreen();
   useEffect(() => {
-    //retrieve transaction by id from api
-    getTransactionById(id).then((res) => {
-      console.log("Transaction Resposne ", res);
-      setTransaction(res.data);
-      //retrieve property by id from api
-      getProperty(res.data.rental_property).then((res) => {
-        console.log(res);
-        setProperty(res);
+    try {
+      //retrieve transaction by id from api
+      getTransactionById(id).then((res) => {
+        console.log("Transaction Resposne ", res);
+        setTransaction(res.data);
+        //retrieve property by id from api
+        getProperty(res.data.rental_property).then((res) => {
+          console.log(res);
+          setProperty(res);
+        });
+        //retrieve unit by id from api
+        getUnit(res.data.rental_unit).then((res) => {
+          console.log(res);
+          setUnit(res);
+        });
+        getUserData(res.data.tenant).then((res) => {
+          console.log(res);
+          setTenant(res.data);
+        });
       });
-      //retrieve unit by id from api
-      getUnit(res.data.rental_unit).then((res) => {
-        console.log(res);
-        setUnit(res);
-      });
-      getUserData(res.data.tenant).then((res) => {
-        console.log(res);
-        setTenant(res.data);
-      });
-    });
+    } catch (error) {
+      console.error("Error fetching transaction", error);
+      setAlertTitle("Error!");
+      setAlertMessage(
+        "There was an error fetching transaction. Please try again."
+      );
+      setShowAlert(true);
+    }
   }, []);
 
   return (
     <div className={isMobile ? "container" : ""}>
+      <AlertModal
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+      />
       <div className="row">
         {" "}
         <div className="col-md-5  offset-md-3 mt-3">
