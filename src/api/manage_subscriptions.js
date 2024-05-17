@@ -82,11 +82,11 @@ export async function getPaymentDates(user_id) {
   }
 }
 
-//Create a function to retrieve subscription plan prices for landlord registration
+//Create a function to retrieve subscription plan prices for owner registration
 export async function getSubscriptionPlanPrices() {
   try {
     const res = await unauthenticatedInstance
-      .post(`/retrieve-landlord-subscription-prices/`)
+      .post(`/retrieve-owner-subscription-prices/`)
       .then((res) => {
         console.log(res);
         return res.data;

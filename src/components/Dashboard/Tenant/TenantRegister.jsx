@@ -7,25 +7,19 @@ import { registerTenant } from "../../../api/auth";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
-import { Button } from "@mui/material";
 import { useEffect } from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
-import { PlaidLink } from "react-plaid-link";
-import {
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  IconButton,
-  Radio,
-  RadioGroup,
-} from "@mui/material";
+import { IconButton } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
-import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import { makeId } from "../../../helpers/utils";
-import { send } from "@emailjs/browser";
 import { getLeaseAgreementByIdAndApprovalHash } from "../../../api/lease_agreements";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../helpers/formValidation";
+import UIButton from "../UIComponents/UIButton";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -54,19 +48,140 @@ const TenantRegister = () => {
   const [password2, setPassword2] = useState("password");
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
+  const [errorModeMessage, setErrorModeMessage] = useState(null);
+  const [errorModeTitle, setErrorModeTitle] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertTitle, setAlertTitle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showStep1, setShowStep1] = useState(true);
   const [showStep2, setShowStep2] = useState(false);
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    trigger,
-    watch,
-    formState: { errors },
-  } = useForm({});
+  const [errors, setErrors] = useState({}); //Create a state to hold the form errors
+  const [formData, setFormData] = useState({
+    first_name:
+      process.env.REACT_APP_ENVIRONMENT !== "development"
+        ? ""
+        : faker.person.firstName(),
+    last_name: "",
+    email: "",
+    username: "",
+    password: "",
+    password_repeat: "",
+  }); //Create a state to hold the form data
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      step1FormInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const step1FormInputs = [
+    {
+      name: "first_name",
+      label: "First Name",
+      type: "text",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      placeholder: "John",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z\s]*$/,
+        errorMessage: "Please enter a valid first name",
+      },
+      dataTestId: "first_name",
+      errorMessageDataTestId: "first-name-error",
+    },
+    {
+      name: "last_name",
+      label: "Last Name",
+      type: "text",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      placeholder: "Doe",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z\s]*$/,
+        errorMessage: "Please enter a valid last name",
+      },
+      dataTestId: "last_name",
+      errorMessageDataTestId: "last-name-error",
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      onChange: (e) => handleChange(e),
+      colSpan: 12,
+      placeholder: "jdoe@email.com",
+      validations: {
+        required: true,
+        regex: /\S+@\S+\.\S+/,
+        errorMessage: "Please enter a valid email address",
+      },
+      dataTestId: "email",
+      errorMessageDataTestId: "email-error",
+    },
+    {
+      name: "username",
+      label: "Username",
+      type: "text",
+      onChange: (e) => handleChange(e),
+      colSpan: 12,
+      placeholder: "johndoe",
+      validations: {
+        required: true,
+        regex: /^[a-zA-Z0-9_.-]*$/,
+        errorMessage:
+          "Please enter a valid username. It can only contain letters, numbers, periods,underscores, and dashes. No spaces or special characters.",
+      },
+      dataTestId: "username",
+      errorMessageDataTestId: "username-error",
+    },
+    {
+      name: "password",
+      label: "Password",
+      type: "password",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      placeholder: "Password",
+      validations: {
+        required: true,
+        regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        errorMessage:
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+      },
+      dataTestId: "password",
+      errorMessageDataTestId: "password-error",
+    },
+    {
+      name: "password_repeat",
+      label: "Repeat Password",
+      type: "password",
+      onChange: (e) => handleChange(e),
+      colSpan: 6,
+      placeholder: "Repeat Password",
+      validations: {
+        required: true,
+        regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        errorMessage:
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+      },
+      dataTestId: "password-repeat",
+      errorMessageDataTestId: "password-repeat-error",
+    },
+  ];
+
   //Cards state variables
   const stripe = useStripe();
   const elements = useElements();
@@ -82,15 +197,21 @@ const TenantRegister = () => {
   };
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     setIsLoading(true);
-    let payload = {};
-    //Captuere form data
-    data.unit_id = unit_id;
-    data.lease_agreement_id = lease_agreement_id;
-    data.approval_hash = approval_hash;
-    data.activation_token = makeId(32);
-    console.log(data);
+    let payload = {
+      unit_id: unit_id,
+      lease_agreement_id: lease_agreement_id,
+      approval_hash: approval_hash,
+      activation_token: makeId(32),
+      account_type: "tenant",
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      username: formData.username,
+      password: formData.password,
+      password_repeat: formData.password_repeat,
+    };
 
     //Handle stripe elements
     if (!stripe || !elements) {
@@ -99,7 +220,15 @@ const TenantRegister = () => {
     }
 
     const cardElement = elements.getElement(CardElement);
-
+    if (!cardElement) {
+      console.log("Card Element not found");
+      setErrorMode(true);
+      setMessage("Please enter a valid card number");
+      setErrorModeMessage("Please enter a valid card number");
+      setErrorModeTitle("Error");
+      setIsLoading(false);
+      return;
+    }
     try {
       if (cardMode) {
         const { paymentMethod } = await stripe.createPaymentMethod({
@@ -110,9 +239,9 @@ const TenantRegister = () => {
         console.log(paymentMethod.id);
         console.log("Return Token:", returnToken);
         console.log("PaymentMethod:", paymentMethod);
-        data.payment_method_id = paymentMethod.id;
+        payload.payment_method_id = paymentMethod.id;
 
-        console.log("COMPLETE FORM DATA", data);
+        console.log("COMPLETE FORM DATA", payload);
       } else {
       }
     } catch (err) {
@@ -124,7 +253,7 @@ const TenantRegister = () => {
       return;
     }
 
-    const response = await registerTenant(data).then((res) => {
+    const response = await registerTenant(payload).then((res) => {
       console.log(res);
       if (res.status === 200) {
         setUserId(authUser.id);
@@ -134,28 +263,6 @@ const TenantRegister = () => {
         setErrorMode(false);
         setOpen(true);
         setIsLoading(false);
-        //Send actication email
-        const activation_link = `${process.env.REACT_APP_HOSTNAME}/dashboard/activate-user-account/${data.activation_token}`;
-        console.log(activation_link);
-        const email_data = {
-          to_email: data.email,
-          reply_to: `donotreply@${process.env.REACT_APP_HOSTNAME}`,
-          subject: "Activate Your KeyFlow Account",
-          html_message: `Hi ${data.first_name},<br/><br/>Thank you for registering with KeyFlow. Please click the link below to activate your account.<br/><br/><a href="${activation_link}">Activate Account</a><br/><br/>Regards,<br/>KeyFlow Team`,
-        };
-        //Send activation email using emailJS
-        send(
-          process.env.REACT_APP_EMAIL_JS_SERVICE_ID,
-          process.env.REACT_APP_EMAIL_JS_TEMPLATE_ID,
-          email_data,
-          process.env.REACT_APP_EMAIL_JS_API_KEY
-        ).then((res) => {
-          console.log("Email sent successfully", res);
-        });
-
-        //TODO: On submit update lease agrrement model to attach newly created user, etc.
-        //TODO: On submit, send email to tenant to confirm email address
-        //TODO: On submit, send email to landlord to confirm new tenant
       } else {
         //TODO: Show error message moodal
         setErrorMode(true);
@@ -168,32 +275,81 @@ const TenantRegister = () => {
 
   //Veryfy that the lease agreement id and approval hash are valid on page load
   useEffect(() => {
-    verifyTenantRegistrationCredentials({
-      lease_agreement_id,
-      approval_hash,
-    }).then((res) => {
-      if (res.status !== 200) {
-        //TODO: Show error message modal to make the tenant contact thier landlord
-      }
-    });
-    //TODO: Populate the form with rental application or tenant invite data
-    getLeaseAgreementByIdAndApprovalHash({
-      lease_agreement_id,
-      approval_hash,
-    }).then((res) => {
-      if (res.id) {
-        if (res.rental_application) {
-          //Retrieve users rental application data using the approval_hash
-          getRentalApplicationByApprovalHash(approval_hash).then((res) => {
-            console.log(res);
-            if (res.id) {
-              //Populate the form with the rental application data
-              const first_name = res.first_name;
-              const last_name = res.last_name;
+    try {
+      verifyTenantRegistrationCredentials({
+        lease_agreement_id,
+        approval_hash,
+      })
+        .then((res) => {
+          if (res.status !== 200) {
+            //TODO: Show error message modal to make the tenant contact thier owner
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setShowAlert(true);
+          setAlertTitle("Error");
+          setAlertMessage(
+            "Invalid or expired registration link. Please contact your landlord."
+          );
+        });
+      //TODO: Populate the form with rental application or tenant invite data
+      getLeaseAgreementByIdAndApprovalHash({
+        lease_agreement_id,
+        approval_hash,
+      })
+        .then((res) => {
+          if (res.id) {
+            if (res.rental_application) {
+              //Retrieve users rental application data using the approval_hash
+              getRentalApplicationByApprovalHash(approval_hash).then((res) => {
+                console.log(res);
+                if (res.id) {
+                  //Populate the form with the rental application data
+                  const first_name = res.first_name;
+                  const last_name = res.last_name;
+                  const preloadedData = {
+                    first_name: res.first_name,
+                    last_name: res.last_name,
+                    email: res.email,
+                    account_type: "tenant",
+                    //Mock Data bleow
+                    username:
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.internet.userName({ first_name, last_name }),
+                    password:
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : "Password1",
+                    password_repeat:
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : "Password1",
+                  };
+                  // Set the preloaded data in the form using setValue
+                  // Object.keys(preloadedData).forEach((key) => {
+                  //   setValue(key, preloadedData[key]);
+                  // });
+                  //Set the form data
+                  setFormData({
+                    first_name: res.first_name,
+                    last_name: res.last_name,
+                    email: res.email,
+                    username: preloadedData.username,
+                    password: preloadedData.password,
+                    password_repeat: preloadedData.password_repeat,
+                  });
+                }
+              });
+            } else if (res.tenant_invite) {
+              //Populate the form with the tenant invite data
+              const first_name = res.tenant_invite.first_name;
+              const last_name = res.tenant_invite.last_name;
               const preloadedData = {
-                first_name: res.first_name,
-                last_name: res.last_name,
-                email: res.email,
+                first_name: res.tenant_invite.first_name,
+                last_name: res.tenant_invite.last_name,
+                email: res.tenant_invite.email,
                 account_type: "tenant",
                 //Mock Data bleow
                 username:
@@ -210,48 +366,44 @@ const TenantRegister = () => {
                     : "Password1",
               };
               // Set the preloaded data in the form using setValue
-              Object.keys(preloadedData).forEach((key) => {
-                setValue(key, preloadedData[key]);
+              // Object.keys(preloadedData).forEach((key) => {
+              //   setValue(key, preloadedData[key]);
+              // });
+              //Set the form data
+              setFormData({
+                first_name: res.tenant_invite.first_name,
+                last_name: res.tenant_invite.last_name,
+                email: res.tenant_invite.email,
+                username: preloadedData.username,
+                password: preloadedData.password,
+                password_repeat: preloadedData.password_repeat,
               });
             }
-          });
-        } else if (res.tenant_invite) {
-          //Populate the form with the tenant invite data
-          const first_name = res.tenant_invite.first_name;
-          const last_name = res.tenant_invite.last_name;
-          const preloadedData = {
-            first_name: res.tenant_invite.first_name,
-            last_name: res.tenant_invite.last_name,
-            email: res.tenant_invite.email,
-            account_type: "tenant",
-            //Mock Data bleow
-            username:
-              process.env.REACT_APP_ENVIRONMENT !== "development"
-                ? ""
-                : faker.internet.userName({ first_name, last_name }),
-            password:
-              process.env.REACT_APP_ENVIRONMENT !== "development"
-                ? ""
-                : "Password1",
-            password_repeat:
-              process.env.REACT_APP_ENVIRONMENT !== "development"
-                ? ""
-                : "Password1",
-          };
-          // Set the preloaded data in the form using setValue
-          Object.keys(preloadedData).forEach((key) => {
-            setValue(key, preloadedData[key]);
-          });
-        }
-      }
-    });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setShowAlert(true);
+          setAlertTitle("Error");
+          setAlertMessage(
+            "Invalid or expired registration link. Please contact your landlord."
+          );
+        });
+    } catch (err) {
+      console.log(err);
+      setShowAlert(true);
+      setAlertTitle("Error");
+      setAlertMessage(
+        "Invalid or expired registration link. Please contact your landlord."
+      );
+    }
   }, []);
   return (
     <div className="container-fluid">
       <ProgressModal
         open={isLoading}
         onClose={() => setIsLoading}
-        title="Registering Your Account..."
+        title="Registering Your Account. Do not refresh the page..."
       />
       {open && (
         <>
@@ -259,8 +411,12 @@ const TenantRegister = () => {
             <AlertModal
               open={true}
               onClose={() => setOpen(false)}
-              title={"Registration Failed"}
-              message="Registration failed. Please try again"
+              title={errorModeTitle ? errorModeTitle : "Registration Failed"}
+              message={
+                errorModeMessage
+                  ? errorModeMessage
+                  : "Registration failed. Please try again"
+              }
               btnText="Close"
               to={`/dashboard/tenant/register/${lease_agreement_id}/${approval_hash}/`}
             />
@@ -296,183 +452,92 @@ const TenantRegister = () => {
                 style={{ maxWidth: "170px", marginBottom: "25px" }}
                 src="/assets/img/key-flow-logo-black-transparent.png"
               />
-              <form className="user" onSubmit={handleSubmit(onSubmit)}>
+              <form className="user">
                 <input type="hidden" name="account_type" value="tenant" />
                 {showStep1 && (
-                  <div className="step-1">
+                  <div className="row">
                     <h5 className="mb-3"> Create Your Account</h5>
-                    <div className="row mb-3">
-                      <div className="col-sm-6 mb-3 mb-sm-0">
-                        <label className="form-label text-black">
-                          First Name
-                        </label>
-                        <input
-                          {...register("first_name", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 3,
-                              message: "First name must be at least 3 chars",
-                            },
-                          })}
-                          className="form-control"
-                          type="text"
-                          id="exampleFirstName"
-                          placeholder="First Name"
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.first_name && errors.first_name.message}
-                        </span>
-                      </div>
-                      <div className="col-sm-6">
-                        <label className="form-label text-black">
-                          Last Name
-                        </label>
-                        <input
-                          {...register("last_name", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 3,
-                              message: "Last name must be at least 3 chars",
-                            },
-                          })}
-                          className="form-control"
-                          type="text"
-                          id="exampleLastName"
-                          placeholder="Last Name"
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.last_name && errors.last_name.message}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-black">Username</label>
-                      <input
-                        {...register("username", {
-                          required: "This is a required field",
-                          minLength: {
-                            value: 3,
-                            message: "Minimum length should be 3 characters",
-                          },
-                        })}
-                        className="form-control"
-                        type="text"
-                        placeholder="Username"
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.username && errors.username.message}
-                      </span>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-black">E-mail</label>
-                      <input
-                        {...register("email", {
-                          required: "This is a required field",
-                          pattern: {
-                            value: /\S+@\S+\.\S+/,
-                            message: "Please enter a valid email address",
-                          },
-                        })}
-                        className="form-control"
-                        type="email"
-                        id="exampleInputEmail"
-                        aria-describedby="emailHelp"
-                        placeholder="Email Address"
-                      />
-                      <span style={validationMessageStyle}>
-                        {errors.email && errors.email.message}
-                      </span>
-                    </div>
-                    <div className="row mb-3">
-                      <div className="col-sm-12 col-md-6 mb-3 mb-sm-0">
-                        <label className="form-label text-black">
-                          Password
-                        </label>
-                        <input
-                          {...register("password", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 6,
-                              message: "Minimum length should be 6 characters",
-                            },
-                            pattern: {
-                              value:
-                                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                              message:
-                                "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                            },
-                          })}
-                          className="form-control"
-                          type="password"
-                          id="examplePasswordInput"
-                          placeholder="Password"
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.password && errors.password.message}
-                        </span>
-                      </div>
-                      <div className="col-sm-12 col-md-6">
-                        <label className="form-label text-black">
-                          Retype Password
-                        </label>
-                        <input
-                          {...register("password_repeat", {
-                            required: "This is a required field",
-                            minLength: {
-                              value: 6,
-                              message: "Minimum length should be 6 characters",
-                            },
-                            validate: (val) => {
-                              if (watch("password") != val) {
-                                return "Your passwords do not match";
-                              }
-                            },
-                          })}
-                          className="form-control"
-                          type="password"
-                          id="exampleRepeatPasswordInput"
-                          placeholder="Repeat Password"
-                        />
-                        <span style={validationMessageStyle}>
-                          {errors.password_repeat &&
-                            errors.password_repeat.message}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
+                    {step1FormInputs.map((input, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className={`${
+                            input.colSpan ? `col-md-${input.colSpan}` : ""
+                          }`}
+                        >
+                          <div className="form-group  mb-2">
+                            <label htmlFor={input.name} className="text-black">
+                              {input.label}
+                            </label>
+                            {input.type === "select" ? (
+                              <select
+                                className="form-control"
+                                id={input.name}
+                                name={input.name}
+                                onChange={input.onChange}
+                                data-testid={input.dataTestId}
+                                value={formData[input.name]}
+                              >
+                                {input.options.map((option, index) => {
+                                  return (
+                                    <option key={index} value={option}>
+                                      {option}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                            ) : input.type === "textarea" ? (
+                              <textarea
+                                className="form-control"
+                                id={input.name}
+                                name={input.name}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
+                                data-testid={input.dataTestId}
+                              >
+                                {formData[input.name]}
+                              </textarea>
+                            ) : (
+                              <input
+                                type={input.type}
+                                className="form-control"
+                                id={input.name}
+                                name={input.name}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
+                                data-testid={input.dataTestId}
+                                value={formData[input.name]}
+                              />
+                            )}
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{ ...validationMessageStyle }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <UIButton
+                      type="button"
+                      btnText="Next"
                       onClick={() => {
-                        trigger([
-                          "first_name",
-                          "last_name",
-                          "username",
-                          "email",
-                          "password",
-                          "password_repeat",
-                        ]);
-                        if (
-                          !errors.firstName &&
-                          !errors.lastName &&
-                          !errors.username &&
-                          !errors.email &&
-                          !errors.password &&
-                          !errors.password_repeat
-                        ) {
+                        const { isValid, newErrors } = validateForm(
+                          formData,
+                          step1FormInputs
+                        );
+                        if (isValid) {
                           setShowStep1(false);
                           setShowStep2(true);
+                        } else {
+                          setErrors(newErrors);
                         }
                       }}
-                      className="btn btn-primary d-block  w-100 mb-2"
-                      type="button"
-                      style={{
-                        marginTop: "20px",
-                        background: uiGreen,
-                        border: "none",
-                        textTransform: "none",
-                        color: "white",
-                      }}
-                    >
-                      Next
-                    </Button>
+                    />
 
                     {/* <div className="mb-2">
                         <Link
@@ -498,8 +563,8 @@ const TenantRegister = () => {
                     </IconButton>
                     <h5 className="mb-3 text-black">Add A Payment Method</h5>
                     <p className="text-black">
-                      This will be used to pay for your rent monthly and all
-                      other expenses.
+                      This will be used to pay for your rent and all other
+                      expenses.
                     </p>
                     <AlertModal
                       open={errorMode}
@@ -519,123 +584,67 @@ const TenantRegister = () => {
                     />
 
                     <div className="">
-                      <FormControl sx={{ marginBottom: "10px" }}>
-                        <FormLabel sx={{ fontSize: "12pt" }} id="payment-type">
-                          Method Type
-                        </FormLabel>
-                        <RadioGroup
-                          row
-                          defaultValue={"card"}
-                          aria-labelledby="payment-type"
-                          name="payment_method"
-                        >
-                          <FormControlLabel
-                            value="card"
-                            control={
-                              <Radio
-                                onClick={() => setCardMode(true)}
-                                onSelect={() => setCardMode(true)}
-                                sx={{
-                                  color: "#f2f2f2",
-                                  "&.Mui-checked": {
-                                    color: uiGreen,
-                                  },
-                                }}
-                              />
-                            }
-                            label="Debit/Credit Card"
-                            sx={{ color: "black" }}
-                          />
-                          <FormControlLabel
-                            value="bank_account"
-                            control={
-                              <Radio
-                                onClick={() => setCardMode(false)}
-                                onSelect={() => setCardMode(false)}
-                                sx={{
-                                  color: "#f2f2f2",
-                                  "&.Mui-checked": {
-                                    color: uiGreen,
-                                  },
-                                }}
-                              />
-                            }
-                            label="Bank Account"
-                            sx={{ color: "black" }}
-                          />
-                        </RadioGroup>
-                      </FormControl>
                       <div className="stripeSection">
-                        {cardMode ? (
-                          <>
-                            {" "}
-                            <div className="form-row">
-                              <label
-                                className="form-label text-black"
-                                htmlFor="card-element"
-                              >
-                                Credit or Debit Card
-                              </label>
-                              <div
-                                style={{
-                                  backgroundColor: "#f2f2f2",
-                                  padding: "10px",
-                                  borderRadius: "5px",
-                                }}
-                              >
-                                <CardElement
-                                  options={{
-                                    style: {
-                                      base: {
-                                        fontSize: "16px",
-                                        color: "black",
-                                        marginBottom: "15px",
-                                      },
+                        <>
+                          {" "}
+                          <div className="form-row">
+                            <label
+                              className="form-label text-black"
+                              htmlFor="card-element"
+                            >
+                              Credit or Debit Card
+                            </label>
+                            <div
+                              style={{
+                                backgroundColor: "#f2f2f2",
+                                padding: "10px",
+                                borderRadius: "5px",
+                              }}
+                            >
+                              <CardElement
+                                options={{
+                                  style: {
+                                    base: {
+                                      fontSize: "16px",
+                                      color: "black",
+                                      marginBottom: "15px",
                                     },
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            {errorMode && message && (
-                              <div
-                                className="error-message"
-                                style={{
-                                  fontSize: "14pt",
-                                  width: "100%",
-                                  color: uiGreen,
+                                  },
                                 }}
-                              >
-                                {message}
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <PlaidLink
-                            token={`${process.env.REACT_APP_PLAID_CLIENT_ID}`}
-                            onSuccess={handlePlaidSuccess}
-                            // Additional Plaid Link configuration options
-                          >
-                            Add Bank Account
-                          </PlaidLink>
-                        )}
-                        {/* <UIButton
-                              onClick={handleSubmit}
-                              btnText="Add Payment Method"
-                              style={{ marginTop: "15px", width: "100%" }}
-                            /> */}
-                        <Button
-                          className="btn btn-primary d-block  w-100 mb-2"
-                          type="submit"
-                          style={{
-                            marginTop: "20px",
-                            background: uiGreen,
-                            border: "none",
-                            textTransform: "none",
-                            color: "white",
+                              />
+                            </div>
+                          </div>
+                          {errorMode && message && (
+                            <div
+                              className="error-message"
+                              style={{
+                                fontSize: "14pt",
+                                width: "100%",
+                                color: uiGreen,
+                              }}
+                            >
+                              {message}
+                            </div>
+                          )}
+                        </>
+                        <UIButton
+                          btnText="Sign Up"
+                          style={{ marginTop: "15px", width: "100%" }}
+                          onClick={() => {
+                            //Check if stripe elements are valid
+                            const { isValid, newErrors } = validateForm(
+                              formData,
+                              step1FormInputs
+                            );
+                            if (isValid) {
+                              //Submit the form
+                              onSubmit();
+                            } else {
+                              setErrors(newErrors);
+                              //Mqaybe show alert modal
+                            }
                           }}
-                        >
-                          Sign Up
-                        </Button>
+                        />
                       </div>
                     </div>
                   </div>

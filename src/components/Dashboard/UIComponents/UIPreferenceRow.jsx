@@ -28,7 +28,9 @@ const UIPreferenceRow = (props) => {
             }
             secondary={<React.Fragment>{props.description}</React.Fragment>}
           />
-          {props.type === "switch" && <UISwitch onChange={props.onChange} value={props.value} />}
+          {props.type === "switch" && (
+            <UISwitch onChange={props.onChange} value={props.value} />
+          )}
           {props.type === "number" && (
             <input
               className="form-control"
@@ -61,6 +63,7 @@ const UIPreferenceRow = (props) => {
               ))}
             </select>
           )}
+          
         </Stack>
       </ListItem>
     </div>

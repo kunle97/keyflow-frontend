@@ -20,7 +20,7 @@ const ActivateAccount = () => {
         }
         //navigate to login page
         if (res.account_type === "owner") {
-          navigate("/dashboard/landlord/login");
+          navigate("/dashboard/owner/login");
         } else if (res.account_type === "tenant") {
           navigate("/dashboard/tenant/login");
         }
@@ -29,6 +29,9 @@ const ActivateAccount = () => {
         console.log("Error activating account");
         setShowError(true);
       }
+    }).catch((error) => {
+      console.error("Error:", error);
+      setShowError(true);
     });
   }, []);
   return (
@@ -39,7 +42,7 @@ const ActivateAccount = () => {
         title="Error"
         message="An Error Occured. Please try again later. If this issue persists, please contact customer support."
         btnText="OK"
-        to="/dashboard/landlord/login"
+        to="/dashboard/owner/login"
       />
     </div>
   );

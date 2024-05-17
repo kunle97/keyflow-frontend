@@ -10,7 +10,7 @@ describe("CreatePortfolio Component", () => {
     cy.login("Sandra83@hotmail.com", "Password1");
   });
   it("should render the CreatePortfolio component", () => {
-    cy.visit(hostname + "/dashboard/landlord/portfolios/");
+    cy.visit(hostname + "/dashboard/owner/portfolios/");
     //Create Portfolio Page
     cy.get('[data-testid="ui-table-mobile-create-button"]').should("be.visible").click();
     cy.get('[data-testid="create-portfolio-title"]').should("be.visible");

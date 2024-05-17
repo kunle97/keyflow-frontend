@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import {
   authUser,
   defaultWhiteInputStyle,
@@ -58,6 +58,7 @@ const LeaseRenewalRequestGeneratorForm = (props) => {
         onClose={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
+        onClick={() => setAlertModalOpen(false)}
       />
       <Stack
         direction="row"

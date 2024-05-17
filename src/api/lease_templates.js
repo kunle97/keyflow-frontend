@@ -21,6 +21,8 @@ export async function createLeaseTemplate(data) {
         repairs_included: stringToBoolean(data.repairs_included),
         lease_cancellation_notice_period: data.lease_cancellation_notice_period,
         lease_cancellation_fee: parseFloat(data.lease_cancellation_fee),
+        lease_renewal_fee: parseFloat(data.lease_renewal_fee),
+        lease_renewal_notice_period: data.lease_renewal_notice_period,
         grace_period: parseInt(data.grace_period),
         is_active: true,
         additional_charges: data.additional_charges,
@@ -61,7 +63,7 @@ export async function getLeaseTemplatesByUser() {
     return res;
   } catch (error) {
     console.log("Get Lease Terms Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
+    return error;
   }
 }
 

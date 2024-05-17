@@ -23,8 +23,9 @@ import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads"
 import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
 import useScreen from "../../hooks/useScreen";
+import { triggerValidation } from "../../helpers/formValidation";
 const CreateRentalApplication = () => {
-  const { unit_id, landlord_id } = useParams();
+  const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
   const [step, setStep] = useState(0); // step state
   const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
@@ -32,6 +33,7 @@ const CreateRentalApplication = () => {
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
   const [unit, setUnit] = useState({}); // unit data
+  const [unitPreferences, setUnitPreferences] = useState([]); // unit preferences data
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]); // unit preferences data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
@@ -39,12 +41,55 @@ const CreateRentalApplication = () => {
   const [showSubmissionMessage, setShowSubmissionMessage] = useState(false); // show submission message state
   const [submissionMessageLink, setSubmissionMessageLink] = useState(""); // submission message link state
   const [alertButtonText, setAlertButtonText] = useState(""); // alert button text state
+  const [showAlert, setShowAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalRedirect, setAlertModalRedirect] = useState(""); // alert modal redirect state
   const [leaseTemplate, setLeaseTemplate] = useState({}); // lease terms
   const navigate = useNavigate();
   const [unitImages, setUnitImages] = useState([]); // unit images state
   const [errorMode, setErrorMode] = useState(false); // error mode state
-
+  const [formData, setFormData] = useState({
+    first_name:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.name.firstName()
+        : "",
+    last_name:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.name.lastName()
+        : "",
+    date_of_birth:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.date.past().toISOString().split("T")[0]
+        : "",
+    email:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.internet.email()
+        : "",
+    phone:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.phone.number("###-###-####")
+        : "",
+    ssn:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.phone.number("###-##-####")
+        : "",
+    desired_move_in_date:
+      process.env.REACT_APP_ENVIRONMENT === "development"
+        ? faker.date.future().toISOString().split("T")[0]
+        : "",
+    other_occupants: false,
+    pets: false,
+    vehicles: false,
+    crime: false,
+    bankrupcy: false,
+    evicted: false,
+    employmentHistory: [],
+    residenceHistory: [],
+  }); // form data state
+  const [basicInfoErrors, setBasicInfoErrors] = useState({});
+  const [additionalInformationErrors, setAdditionalInformationErrors] =
+    useState({});
   //Step one data
   const [firstName, setFirstName] = useState(
     process.env.REACT_APP_ENVIRONMENT !== "development"
@@ -121,15 +166,42 @@ const CreateRentalApplication = () => {
   //Step 3
   const [employmentHistory, setEmploymentHistory] = useState([
     {
-      companyName: fakeData.fakeCompanyName,
-      position: fakeData.fakePosition,
-      companyAddress: fakeData.fakeAddress,
-      income: fakeData.fakeFinanceAmount,
-      employmentStartDate: fakeData.fakePastDate,
-      employmentEndDate: fakeData.fakeFutureDate,
-      supervisorName: `${fakeData.fakeFirstName} ${fakeData.fakeLastName}`,
-      supervisorPhone: fakeData.fakePhoneNumber,
-      supervisorEmail: fakeData.fakeEmail,
+      companyName:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakeCompanyName
+          : "",
+      position:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakePosition
+          : "",
+      companyAddress:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakeAddress
+          : "",
+      income:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakeFinanceAmount
+          : "",
+      employmentStartDate:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakePastDate
+          : "",
+      employmentEndDate:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakeFutureDate
+          : "",
+      supervisorName:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? `${fakeData.fakeFirstName} ${fakeData.fakeLastName}`
+          : "",
+      supervisorPhone:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakePhoneNumber
+          : "",
+      supervisorEmail:
+        process.env.REACT_APP_ENVIRONMENT == "development"
+          ? fakeData.fakeEmail
+          : "",
       isCurrent: false,
     },
   ]);
@@ -147,7 +219,7 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.future().toISOString().split("T")[0],
-      landlordName: `${
+      ownerName: `${
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.person.firstName()
@@ -156,11 +228,11 @@ const CreateRentalApplication = () => {
           ? ""
           : faker.person.lastName()
       }`,
-      landlordPhone:
+      ownerPhone:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.phone.number("###-###-####"),
-      landlordEmail:
+      ownerEmail:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.internet.email(),
@@ -254,7 +326,7 @@ const CreateRentalApplication = () => {
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.date.past().toISOString().split("T")[0],
-      landlordName: `${
+      ownerName: `${
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.person.firstName()
@@ -263,11 +335,11 @@ const CreateRentalApplication = () => {
           ? ""
           : faker.person.lastName()
       }`,
-      landlordPhone:
+      ownerPhone:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.phone.number("###-###-####"),
-      landlordEmail:
+      ownerEmail:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
           : faker.internet.email(),
@@ -284,15 +356,16 @@ const CreateRentalApplication = () => {
   };
 
   const onSubmit = async (data) => {
-    data.employment_history = employmentHistory;
-    data.residential_history = residenceHistory;
-    data.unit_id = unit_id;
-    data.landlord_id = landlord_id;
-    data.comments = data.comments ? data.comments : "";
+    let payload = formData;
+    payload.employment_history = employmentHistory;
+    payload.residential_history = residenceHistory;
+    payload.unit_id = unit_id;
+    payload.owner_id = owner_id;
+    payload.comments = data.comments ? data.comments : "";
 
-    console.log(data);
+    console.log(payload);
 
-    const res = await createRentalApplication(data);
+    const res = await createRentalApplication(payload);
     setIsLoading(true);
     console.log(res);
     if (res.status == 200) {
@@ -311,7 +384,7 @@ const CreateRentalApplication = () => {
       setSubmissionMessage("Error Submitting Application");
       setShowSubmissionMessage(true);
       setSubmissionMessageLink(
-        `/rental-application/${unit_id}/${landlord_id}/`
+        `/rental-application/${unit_id}/${owner_id}/`
       );
       setAlertButtonText("Try Again");
       setAlertTitle("Error Submitting Application");
@@ -364,16 +437,14 @@ const CreateRentalApplication = () => {
     // get unit data
     getUnitUnauthenticated(unit_id).then((unit_res) => {
       setIsLoading(true);
-      console.log(unit_res);
       if (unit_res.data) {
         setUnit(unit_res.data);
-        console.log("unit lease terms", JSON.parse(unit_res.data.lease_terms));
+
         setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
         //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
         retrieveUnauthenticatedFilesBySubfolder(
           `properties/${unit_res.data.rental_property}/units/${unit_id}`
         ).then((res) => {
-          console.log(res.data);
           res.data.forEach((file) => {
             setUnitImages((unitImages) => [
               ...unitImages,
@@ -384,7 +455,18 @@ const CreateRentalApplication = () => {
             ]);
           });
         });
-
+        if (
+          JSON.parse(unit_res.data.preferences).find(
+            (preference) => preference.name === "accept_rental_applications"
+          )?.value === false
+        ) {
+          setAlertTitle("Applications Closed");
+          setAlertMessage(
+            "This unit is not accepting rental applications at the moment."
+          );
+          setAlertModalRedirect("/");
+          setShowAlert(true);
+        }
         if (unit_res.data.is_occupied) {
           //Redirect to 404 screen if unit is occupied
           navigate("/*");
@@ -413,6 +495,16 @@ const CreateRentalApplication = () => {
 
   return (
     <>
+      <AlertModal
+        open={showAlert}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+        onClick={() => {
+          setShowAlert(false);
+          navigate(alertModalRedirect);
+        }}
+      />
       <LandingPageNavbar isDarkNav={true} />
       {isLoading ? (
         <ProgressModal open={isLoading} title="Loading Application" />
@@ -427,6 +519,7 @@ const CreateRentalApplication = () => {
               title="Application Error"
               message="Error loading application"
               btnText="Okay"
+              onClick={() => navigate("/")}
             />
           ) : (
             <div className="row">
@@ -446,87 +539,26 @@ const CreateRentalApplication = () => {
                           {step === 0 && (
                             <>
                               <BasicInfoSection
+                                formData={formData}
+                                setFormData={setFormData}
                                 register={register}
-                                errors={errors}
-                              />
-                              <UIButton
-                                style={{ width: "100%" }}
-                                btnText="Next"
-                                type="button"
-                                onClick={() => {
-                                  trigger([
-                                    "first_name",
-                                    "last_name",
-                                    "date_of_birth",
-                                    "email",
-                                    "phone",
-                                    "ssn",
-                                    "desired_move_in_date",
-                                  ]);
-                                  if (
-                                    errors.first_name ||
-                                    errors.last_name ||
-                                    errors.date_of_birth ||
-                                    errors.email ||
-                                    errors.phone ||
-                                    errors.ssn ||
-                                    errors.desired_move_in_date
-                                  ) {
-                                    setStep0IsValid(false);
-                                  } else {
-                                    setStep0IsValid(true);
-                                  }
-                                  if (step0IsValid) {
-                                    setStep(1);
-                                  }
-                                }}
+                                errors={basicInfoErrors}
+                                setErrors={setBasicInfoErrors}
+                                nextStep={() => setStep(1)}
                               />
                             </>
                           )}
                           {step === 1 && (
                             <>
                               <AdditionalInformationSection
+                                formData={formData}
+                                setFormData={setFormData}
                                 register={register}
-                                errors={errors}
+                                errors={additionalInformationErrors}
+                                setErrors={setAdditionalInformationErrors}
+                                nextStep={() => setStep(2)}
+                                previousStep={() => setStep(0)}
                               />
-                              <Stack direction="row" spacing={2}>
-                                <UIButton
-                                  style={{ width: "100%" }}
-                                  btnText="Back"
-                                  onClick={() => setStep(0)}
-                                  type="button"
-                                />
-                                <UIButton
-                                  style={{ width: "100%" }}
-                                  btnText="Next"
-                                  onClick={() => {
-                                    trigger([
-                                      "other_occupants",
-                                      "pets",
-                                      "vehicles",
-                                      "crime",
-                                      "bankrupcy",
-                                      "evicted",
-                                    ]);
-                                    if (
-                                      errors.other_occupants &&
-                                      errors.pets &&
-                                      errors.vehicles &&
-                                      errors.crime &&
-                                      errors.bankrupcy &&
-                                      errors.evicted
-                                    ) {
-                                      setStep1IsValid(false);
-                                    } else {
-                                      setStep1IsValid(true);
-                                    }
-                                    if (step1IsValid) {
-                                      setStep(2);
-                                    }
-                                  }}
-                                  type="button"
-                                />
-                              </Stack>
                             </>
                           )}
                           {step === 2 && (
@@ -542,6 +574,13 @@ const CreateRentalApplication = () => {
                                         <>
                                           <EmploymentHistorySection
                                             id={index}
+                                            index={index}
+                                            employmentHistory={
+                                              employmentHistory
+                                            }
+                                            setEmploymentHistory={
+                                              setEmploymentHistory
+                                            }
                                             register={register}
                                             companyNameErrors={
                                               errors[`companyName_${index}`]
@@ -630,6 +669,11 @@ const CreateRentalApplication = () => {
                                         <RentalHistorySection
                                           id={index}
                                           register={register}
+                                          index={index}
+                                          residenceHistory={residenceHistory}
+                                          setResidenceHistory={
+                                            setResidenceHistory
+                                          }
                                           addressErrors={
                                             errors[`address_${index}`]
                                           }
@@ -641,14 +685,14 @@ const CreateRentalApplication = () => {
                                           residenceEndDateErrors={
                                             errors[`residenceEndDate_${index}`]
                                           }
-                                          landlordNameErrors={
-                                            errors[`landlordName_${index}`]
+                                          ownerNameErrors={
+                                            errors[`ownerName_${index}`]
                                           }
-                                          landlordPhoneErrors={
-                                            errors[`landlordPhone_${index}`]
+                                          ownerPhoneErrors={
+                                            errors[`ownerPhone_${index}`]
                                           }
-                                          landlordEmailErrors={
-                                            errors[`landlordEmail_${index}`]
+                                          ownerEmailErrors={
+                                            errors[`ownerEmail_${index}`]
                                           }
                                           residence={residence}
                                           onResidenceChange={(e) =>
@@ -734,7 +778,6 @@ const CreateRentalApplication = () => {
                           )}
                         </form>
                       </div>
-                      {console.log(errors)}
                     </div>
                   )}
                   <AlertModal
@@ -796,7 +839,8 @@ const CreateRentalApplication = () => {
                         <h6 className="rental-application-lease-heading">
                           Term
                         </h6>
-                        {getUnitLeaseTermValueByName("term")} {getUnitLeaseTermValueByName("rent_frequency")}(s)
+                        {getUnitLeaseTermValueByName("term")}{" "}
+                        {getUnitLeaseTermValueByName("rent_frequency")}(s)
                       </div>
                       <div className="col-sm-6 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">

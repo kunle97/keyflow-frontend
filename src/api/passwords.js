@@ -22,7 +22,7 @@ export async function changePassword(data) {
 //Create a function to send a password reset email using the endpoint /password-reset/
 export async function sendPasswordResetEmail(data) {
   try {
-    const res = await authenticatedInstance
+    const res = await unauthenticatedInstance
       .post(`/password-reset/create-reset-token/`, {
         email: data.email,
         token: data.token,

@@ -72,6 +72,9 @@ const AllRentalApplicationResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       <div id="rental-applications" style={{ overflow: "hidden" }}>
         <div className="row">
@@ -112,7 +115,7 @@ const AllRentalApplicationResults = (props) => {
                       return (
                         <SearchResultCard
                           dataTestId={`rental-application-search-result-${index}`}
-                          to={`/dashboard/landlord/rental-applications/${rental_application.id}`}
+                          to={`/dashboard/owner/rental-applications/${rental_application.id}`}
                           key={rental_application.id}
                           handleClose={props.handleClose}
                           title={`${rental_application.first_name} ${rental_application.last_name}`}

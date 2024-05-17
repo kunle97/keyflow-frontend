@@ -1,4 +1,4 @@
-import { IconButton, Stack } from "@mui/material";
+import { ButtonBase, IconButton, Stack } from "@mui/material";
 import React, { useState, useRef } from "react";
 import {
   authUser,
@@ -9,12 +9,17 @@ import {
   uiGrey2,
   uiRed,
 } from "../../../constants";
+import TryIcon from "@mui/icons-material/Try";
 import UIPrompt from "../UIComponents/UIPrompt";
 import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import UIButton from "../UIComponents/UIButton";
 import NewMessageDialog from "./NewMessageDialog";
 import { useEffect } from "react";
-import { retrieveUserThreads, sendMessage } from "../../../api/messages";
+import {
+  retrieveUserThreads,
+  sendMessage,
+  setMessageThreadAsRead,
+} from "../../../api/messages";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import styles from "./styles/scrollbarStyles.module.css"; // Path to your CSS module file
@@ -23,7 +28,6 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CancelIcon from "@mui/icons-material/Cancel";
 import useScreen from "../../../hooks/useScreen";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { set } from "react-hook-form";
 const Messages = () => {
   const { thread_id } = useParams();
   const { isMobile } = useScreen();
@@ -46,7 +50,6 @@ const Messages = () => {
 
   const handleFileInputChange = (event) => {
     const selectedFile = event.target.files[0];
-
     if (selectedFile) {
       const reader = new FileReader();
 
@@ -75,7 +78,7 @@ const Messages = () => {
         setFilteredThreads(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         setAlertTitle("Error");
         setAlertMessage(
           "An error occurred while fetching your messages. Please try again."
@@ -92,7 +95,16 @@ const Messages = () => {
       setShowConversationCard(true);
     }
     setCurrentName(thread.name);
+    setMessageThreadAsRead({
+      other_user_id: thread.recipient_id,
+    }).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log("Handle Thread click error: ",err);
+    });
+
     if (scrollableDivRef.current) {
+      //Trying to scroll to the bottom of the conversation (not working as expected)
       scrollableDivRef.current.scrollTop =
         scrollableDivRef.current.scrollHeight;
     }
@@ -113,7 +125,6 @@ const Messages = () => {
       recipient: selectedThread.recipient_id,
       subfolder: "messages",
     };
-    console.log(payload);
     sendMessage(payload)
       .then((res) => {
         console.log(res);
@@ -279,7 +290,7 @@ const Messages = () => {
                         onClick={() => handleThreadClick(thread)}
                       >
                         <Stack direction="row" alignItems="center" spacing={2}>
-                          <div
+                          {/* <div
                             style={{
                               borderRadius: "50%",
                               overflow: "hidden",
@@ -299,7 +310,7 @@ const Messages = () => {
                                   : defaultUserProfilePicture
                               }
                             />
-                          </div>
+                          </div> */}
                           <Stack
                             sx={{ width: "100%" }}
                             direction="column"
@@ -312,7 +323,15 @@ const Messages = () => {
                               spacing={0}
                               justifyContent="space-between"
                             >
-                              <span style={{ fontSize: "16pt" }}>
+                              <span
+                                style={{
+                                  fontSize: "15pt",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  maxWidth: "150px", // Adjust the width to accommodate the other span's width
+                                }}
+                              >
                                 {thread.name}
                               </span>{" "}
                               <span className="text-black">
@@ -322,14 +341,14 @@ const Messages = () => {
                               </span>
                             </Stack>
                             <Stack
-                              sx={{ width: "100%", marginTop: "5px" }}
+                              sx={{ width: "100%", marginTop: "0px" }}
                               direction="row"
                               alignItems="center"
                               spacing={0}
                               justifyContent="space-between"
                             >
                               <span
-                                className="tblack"
+                                className="text-muted"
                                 style={{
                                   textOverflow: "ellipsis",
                                   whiteSpace: "nowrap",
@@ -350,7 +369,17 @@ const Messages = () => {
                                   padding: "0 5px",
                                 }}
                               >
-                                {thread.messages.length}
+                                {/*Using the filter() function on messages.thread  to find the number of unread messages from the other person*/}
+                                {thread.messages.filter(
+                                  (message) =>
+                                    message.isSender === false &&
+                                    message.isRead === false
+                                ).length !== 0 &&
+                                  thread.messages.filter(
+                                    (message) =>
+                                      message.isSender === false &&
+                                      message.isRead === false
+                                  ).length}
                               </span>
                             </Stack>
                           </Stack>
@@ -471,14 +500,26 @@ const Messages = () => {
                           required
                           name="body"
                         />
+
+                        <div className="input-group-append"></div>
                         <div className="">
+                          <ButtonBase>
+                            <TryIcon
+                              style={{
+                                color: uiGreen,
+                                cursor: "pointer",
+                                padding: "10px",
+                                fontSize: "26pt",
+                              }}
+                            />
+                          </ButtonBase>
                           <UIButton
                             style={{
                               padding: "10px",
                             }}
                             btnText={
                               <>
-                                <i className="fas fa-paper-plane" />
+                                <i className="fas fa-paper-plane mr-1" />
                                 <span> Send</span>
                               </>
                             }

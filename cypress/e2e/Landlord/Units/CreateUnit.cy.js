@@ -9,7 +9,7 @@ describe("CreateUnit Component", () => {
 
     // Log in using the loaded credentials
     cy.login("Sandra83@hotmail.com", "Password1");
-    cy.visit("/dashboard/landlord/units/create"); // Replace with the actual route where your component is rendered
+    cy.visit("/dashboard/owner/units/create"); // Replace with the actual route where your component is rendered
   });
 
   it("should successfully create a unit", () => {
@@ -92,7 +92,7 @@ describe("CreateUnit Component", () => {
     cy.get('[data-testid="create-unit-property-select"]')
       .invoke("val")
       .then((val) => {
-        cy.url().should("include", "/dashboard/landlord/properties/" + val); // Replace with the expected success page route
+        cy.url().should("include", "/dashboard/owner/properties/" + val); // Replace with the expected success page route
       });
   });
 

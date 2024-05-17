@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { authenticatedInstance } from "../../../../api/api";
-import { CircularProgress, Box, ButtonBase } from "@mui/material";
+import { CircularProgress, Box, ButtonBase, Alert } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
+import AlertModal from "../Modals/AlertModal";
 
 const UITableMini = (props) => {
   const navigate = useNavigate();
@@ -19,7 +20,9 @@ const UITableMini = (props) => {
   const [count, setCount] = useState(null);
   const [limit, setLimit] = useState(10);
   const [filteredData, setFilteredData] = useState([]);
-
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [results, setResults] = useState([]);
 
   const refresh = async (endpoint) => {
@@ -93,6 +96,12 @@ const UITableMini = (props) => {
               props.setChecked(newChecked);
             }
           }
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          setAlertTitle("Error");
+          setAlertMessage("An error occurred while fetching the data");
+          setShowAlert(true);
         });
     }
   };
@@ -103,6 +112,14 @@ const UITableMini = (props) => {
 
   return (
     <>
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       {isLoading ? (
         <Box sx={{ display: "flex" }}>
           <Box m={"55px auto"}>
@@ -121,22 +138,24 @@ const UITableMini = (props) => {
               />
             </div>
           ) : (
-            <table id="ui-table-mini" data-testId={props.dataTestId} style={{ width: "100%" }}>
+            <table
+              id="ui-table-mini"
+              data-testId={props.dataTestId}
+              style={{ width: "100%" }}
+            >
               <thead>
                 <tr>
                   {props.columns.map((column) => {
                     return (
                       <th>
-                        <ButtonBase>
-                          <span
-                            style={{
-                              borderBottom: "2px solid " + uiGreen,
-                              margin: "0 5px",
-                            }}
-                          >
-                            {column.label}
-                          </span>
-                        </ButtonBase>
+                        <span
+                          style={{
+                            margin: "0 5px",
+                          }}
+                          className="text-black"
+                        >
+                          {column.label}
+                        </span>
                       </th>
                     );
                   })}
@@ -148,7 +167,7 @@ const UITableMini = (props) => {
                     {" "}
                     {results.map((row, index) => {
                       return (
-                        <tr style={{ borderBottom: "1px solid #ccc" }}>
+                        <tr>
                           {props.columns.map((column) => {
                             //Check if column has an option property with a function in it called customBodyRender
                             if (column.options) {
@@ -187,7 +206,7 @@ const UITableMini = (props) => {
                   <>
                     {results.map((row) => {
                       return (
-                        <tr style={{ borderBottom: "1px solid #ccc" }}>
+                        <tr>
                           {props.columns.map((column) => {
                             //Check if column has an o ption property with a function in it called customBodyRender
                             if (column.options) {

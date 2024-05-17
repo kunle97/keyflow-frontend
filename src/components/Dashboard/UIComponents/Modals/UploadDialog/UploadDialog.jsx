@@ -4,13 +4,12 @@ import { Stack } from "@mui/material";
 import { authUser, uiGreen } from "../../../../../constants";
 import UIButton from "../../UIButton";
 import { useState } from "react";
-import {
-  uploadFile,
-} from "../../../../../api/file_uploads";
+import { uploadFile } from "../../../../../api/file_uploads";
 import AlertModal from "../AlertModal";
 import ProgressModal from "../ProgressModal";
 import { authenticatedInstance } from "../../../../../api/api";
 import UIDropzone from "./UIDropzone";
+import { useNavigate } from "react-router";
 
 const UploadDialog = (props) => {
   const [isLoading, setIsLoading] = useState(false); //create a loading variable to display a loading message while the units are  being retrieved
@@ -19,7 +18,8 @@ const UploadDialog = (props) => {
   const [responseMessage, setResponseMessage] = useState(null);
   const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
-
+  const navigate = useNavigate();
+  
   //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
   const isValidFileName = (file_name) => {
     console.log("File Name:", file_name); // Log the file name
@@ -42,7 +42,7 @@ const UploadDialog = (props) => {
   const onDrop = (acceptedFiles) => {
     let validFiles = true;
     acceptedFiles.forEach((file) => {
-      console.log("File Data info",file)
+      console.log("File Data info", file);
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(
@@ -56,7 +56,7 @@ const UploadDialog = (props) => {
         setResponseTitle("File Upload Error");
         setResponseMessage(
           "One or more of the file types is invalid. Accepted file types: " +
-          props.acceptedFileTypes.join(", ")
+            props.acceptedFileTypes.join(", ")
         );
         setShowFileUploadAlert(true);
         props.onClose();
@@ -64,23 +64,22 @@ const UploadDialog = (props) => {
         return;
       }
     });
-  
+
     if (!validFiles) {
       return;
     }
-  
+
     // Process valid files
-    const updatedFiles = acceptedFiles.map(file =>
+    const updatedFiles = acceptedFiles.map((file) =>
       Object.assign(file, {
         preview: URL.createObjectURL(file),
       })
     );
-  
+
     setFiles(updatedFiles);
     setResponseMessage(null);
     setResponseTitle(null);
   };
-  
 
   const handleFileUploadSubmit = async (e) => {
     e.preventDefault();
@@ -111,7 +110,7 @@ const UploadDialog = (props) => {
         }
       });
     });
-    
+
     props.onClose();
     setShowFileUploadAlert(true);
   };
@@ -123,7 +122,10 @@ const UploadDialog = (props) => {
         title={responseTitle}
         message={responseMessage}
         btnText={"Okay"}
-        onClick={() => setShowFileUploadAlert(false)}
+        onClick={() => {
+          setShowFileUploadAlert(false);
+          navigate(0);
+        }}
       />
       <ProgressModal open={isLoading} title={"Uploading File..."} />
       <UIDialog

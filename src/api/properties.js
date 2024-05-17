@@ -1,4 +1,8 @@
-import { authenticatedInstance, authenticatedMediaInstance, unauthenticatedInstance } from "./api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+  unauthenticatedInstance,
+} from "./api";
 import { authUser } from "../constants";
 
 // create an api function to create a property
@@ -115,10 +119,68 @@ export async function updateProperty(propertyId, data) {
         }
         return { data: [] };
       });
-    return { data: res.data, status: 200, message: "Property updated successfully" };
+    return {
+      data: res.data,
+      status: 200,
+      message: "Property updated successfully",
+    };
   } catch (error) {
     console.log("Get Properties Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+export async function updatePropertyMedia(propertyId, data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/`, data)
+      .then((res) => {
+        if (res.status !== 200) {
+          return { status: 200, message: "Property updated successfully" };
+        }
+        return { data: [] };
+      });
+    return {
+      data: res.data,
+      status: 200,
+      message: "Property updated successfully",
+    };
+  } catch (error) {
+    console.log("Get Properties Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function that call the api/properties/{id}/update-preferences endpoint to update the preferences of a property using a patch request
+export async function updatePropertyPreferences(propertyId, data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/update-preferences/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Property Preferences Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that updates the preferences of a property with a patch request using the url_path: api/properties/{id}/update-portfolio
+export async function updatePropertyPortfolio(propertyId, portfolio) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/update-portfolio/`, {
+        portfolio:portfolio,
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Property Portfolio Error: ", error);
+    return error.response;
   }
 }
 

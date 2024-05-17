@@ -17,7 +17,7 @@ import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
 import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
-import { get } from "react-hook-form";
+import useScreen from "../hooks/useScreen";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -35,7 +35,7 @@ const SignLeaseAgreement = () => {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]);
   const navigate = useNavigate();
-
+  const { isMobile } = useScreen();
   const getUnitPreferenceValueByName = (name, unitLeaseTerms) => {
     const preference = unitLeaseTerms.find((pref) => pref.name === name);
     return preference ? preference.value : null; // Return null or handle the case where preference is not found
@@ -136,7 +136,7 @@ const SignLeaseAgreement = () => {
         // handle document declining success
         setErrorTitle("Document Declined");
         setErrorMessage(
-          "Your lease agreement has been declined. Please contact your landlord for more information."
+          "Your lease agreement has been declined. Please contact your owner for more information."
         );
         setShowErrorMessage(true);
         break;
@@ -165,56 +165,61 @@ const SignLeaseAgreement = () => {
         getLeaseAgreementByIdAndApprovalHash({
           lease_agreement_id,
           approval_hash,
-        }).then((res) => {
-          if (res.id) {
-            setLeaseAgreement(res);
-            setUnitLeaseTerms(JSON.parse(res.rental_unit.lease_terms));
-            console.log(JSON.parse(res.rental_unit.lease_terms));
-            let redirectLink =
-              process.env.REACT_APP_HOSTNAME +
-              "/dashboard/tenant/register" +
-              "/" +
-              res.id +
-              "/" +
-              res.rental_unit.id +
-              "/" +
-              res.approval_hash;
-            setRedirectLink(redirectLink);
-            let payload = {
-              document_id: res.document_id,
-              tenant_email: res.tenant_invite
-                ? res.tenant_invite.email
-                : res.rental_application.email,
-              tenant_register_redirect_url: redirectLink,
-              link_validity: "12/31/2030",
-            };
-            if (!signingLink) {
-              generateSigningLink(payload).then((res) => {
-                console.log(res);
-                if (res.status === 200) {
-                  //Set the src of the iframe to the signing link
-                  setSigningLink(res.data.signLink);
-                  setSigningLinkIsValid(true);
-                } else {
-                  setSigningLink("invalid");
-                  setSigningLinkIsValid(false);
-                }
-              });
-            }
+        })
+          .then((res) => {
+            if (res.id) {
+              setLeaseAgreement(res);
+              setUnitLeaseTerms(JSON.parse(res.rental_unit.lease_terms));
+              console.log(JSON.parse(res.rental_unit.lease_terms));
+              let redirectLink =
+                process.env.REACT_APP_HOSTNAME +
+                "/dashboard/tenant/register" +
+                "/" +
+                res.id +
+                "/" +
+                res.rental_unit.id +
+                "/" +
+                res.approval_hash;
+              setRedirectLink(redirectLink);
+              let payload = {
+                document_id: res.document_id,
+                tenant_email: res.tenant_invite
+                  ? res.tenant_invite.email
+                  : res.rental_application.email,
+                tenant_register_redirect_url: redirectLink,
+                link_validity: "12/31/2030",
+              };
+              if (!signingLink) {
+                generateSigningLink(payload).then((res) => {
+                  console.log(res);
+                  if (res.data.status === 200) {
+                    //Set the src of the iframe to the signing link
+                    setSigningLink(res.data.data.signLink);
+                    setSigningLinkIsValid(true);
+                  } else {
+                    setSigningLink("invalid");
+                    setSigningLinkIsValid(false);
+                  }
+                });
+              }
 
-            //Check that the approval_hash matches the lease agreement's approval_hash
-            if (res.approval_hash !== approval_hash) {
-              //Display an error message
+              //Check that the approval_hash matches the lease agreement's approval_hash
+              if (res.approval_hash !== approval_hash) {
+                //Display an error message
+                setDisplayError(true);
+              }
+              if (res.is_active) {
+                //Display an error message
+                navigate("/*");
+              }
+            } else {
               setDisplayError(true);
             }
-            if (res.is_active) {
-              //Display an error message
-              navigate("/*");
-            }
-          } else {
+          })
+          .catch((err) => {
+            console.log(err);
             setDisplayError(true);
-          }
-        });
+          });
         setIsLoading(false);
       } catch (err) {
         console.log(err);
@@ -229,14 +234,17 @@ const SignLeaseAgreement = () => {
     };
   }, [leaseAgreement]);
   return (
-    <div className="container" style={{ paddingTop: "105px" }}>
+    <div
+      className={!isMobile ? "container" : "container-fluid"}
+      style={{ paddingTop: !isMobile ? "105px" : "0px" }}
+    >
       <LandingPageNavbar isDarkNav={true} />
       <AlertModal
         open={showErrorMessage}
         title={errorTitle}
         message={errorMessage}
         btnText="Okay"
-        handleClose={() => {
+        onClick={() => {
           navigate(0);
         }}
       />
@@ -437,7 +445,7 @@ const SignLeaseAgreement = () => {
                     />
                   }
                   title="Invalid Lease Agreement Link"
-                  message="This lease agreement is either invalid has either already been signed or is not ready to be signed yet. Please contact your landlord for more information."
+                  message="This lease agreement is either invalid has either already been signed or is not ready to be signed yet. Please contact your owner for more information."
                 />
                 <p></p>
               </Stack>
@@ -445,7 +453,15 @@ const SignLeaseAgreement = () => {
           </div>
         </>
       ) : (
-        <h1>There was an error</h1>
+        <AlertModal
+          open={displayError}
+          title={"Error"}
+          message={"There was an error loading this lease agreement."}
+          btnText="Okay"
+          onClick={() => {
+            navigate(0);
+          }}
+        />
       )}
     </div>
   );

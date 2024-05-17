@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import { authUser, uiGreen, uiGrey, uiGrey1 } from "../../../../constants";
 import { Box, CircularProgress, IconButton, Stack } from "@mui/material";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -50,6 +50,7 @@ const LeaseCancellationRequestGeneratorForm = (props) => {
         onClose={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
+        onClick={() => setAlertModalOpen(false)}
       />
       <Stack
         direction="row"

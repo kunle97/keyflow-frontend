@@ -126,3 +126,38 @@ export async function retrieveUserThreads() {
   }
 }
 
+//Create a function that retrieve the users unread messages count using the endpoint GET: messages/retrieve-unread-messages-count/ using a get request
+export async function retrieveUnreadMessagesCount() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/retrieve-unread-messages-count/`)
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200 && res.data.length == 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Messages Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create  a function that sets a message as read using the endpoint PATCH: messages/set-message-as-read/ using a patch request
+export async function setMessageThreadAsRead(data) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/messages/set-messages-thread-as-read/`, data)
+      .then((res) => {
+        console.log(res);
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Messages Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+

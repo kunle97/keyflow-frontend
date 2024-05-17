@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getBillingEntry } from "../../../../api/billing-entries";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const PayBill = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [paymentLink, setPaymentLink] = useState(null);
-
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,6 +28,9 @@ const PayBill = () => {
         navigate("/dashboard/tenant/bills");
       } catch (error) {
         console.error("Error fetching billing entry:", error);
+        setAlertTitle("Error");
+        setAlertMessage("An error occurred while fetching the billing entry");
+        setShowAlert(true);
       }
     };
 
@@ -34,6 +39,14 @@ const PayBill = () => {
 
   return (
     <div>
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       <UIProgressPrompt
         title="Redirecting to payment page"
         message="Please wait while we redirect you to the payment page"
