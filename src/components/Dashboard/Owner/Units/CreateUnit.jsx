@@ -209,18 +209,30 @@ const CreateUnit = () => {
     console.log("Pay load ", payload);
     console.log("UNits ", units);
 
-    const res = await createUnit(payload);
-    console.log(res);
-    if (res.status === 200) {
-      setIsLoading(false);
-      navigate(`/dashboard/owner/properties/${selectedPropertyId}`);
-    } else {
-      setUnitCreateError(true);
-      setErrorMessage(
-        res.message ? res.message : "Something went wrong. Please try again."
-      );
-      setIsLoading(false);
-    }
+    const response = await createUnit(payload)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          setIsLoading(false);
+          navigate(`/dashboard/owner/properties/${selectedPropertyId}`);
+        } else {
+          setUnitCreateError(true);
+          setErrorMessage(
+            res.message
+              ? res.message
+              : "Something went wrong. Please try again."
+          );
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating unit:", error);
+        setErrorMessage(
+          "An error occurred while creating unit. Please try again later."
+        );
+        setUnitCreateError(true);
+        setIsLoading(false);
+      });
   };
 
   //Create a function to handle the property select change
@@ -235,6 +247,13 @@ const CreateUnit = () => {
       .then((res) => {
         setCurrentSubscriptionPlan(res.subscriptions);
       })
+      .catch((error) => {
+        console.error("Error getting subscription plan:", error);
+        setErrorMessage(
+          "An error occurred while retrieving subscription plan. Please try again later."
+        );
+        setUnitCreateError(true);
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -243,9 +262,17 @@ const CreateUnit = () => {
 
   useEffect(() => {
     //Retrieve all users properties
-    getProperties().then((res) => {
-      setProperties(res.data);
-    });
+    getProperties()
+      .then((res) => {
+        setProperties(res.data);
+      })
+      .catch((error) => {
+        console.error("Error getting properties:", error);
+        setErrorMessage(
+          "An error occurred while retrieving properties. Please try again later."
+        );
+        setUnitCreateError(true);
+      });
     retrieveSubscriptionPlan();
   }, []);
 

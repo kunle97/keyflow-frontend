@@ -54,6 +54,11 @@ const NewMessageDialog = (props) => {
     if (!tenants) {
       getOwnerTenants().then((res) => {
         setTenants(res.data);
+      }).catch((error) => {
+        setAlertTitle("Error!");
+        setAlertMessage("There was an error fetching tenants. Please try again.");
+        setShowAlert(true);
+        console.error("Error fetching tenants:", error);
       });
     }
   }, [tenants]);

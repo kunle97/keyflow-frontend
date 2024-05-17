@@ -10,9 +10,7 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
-import {
-  IconButton,
-} from "@mui/material";
+import { IconButton } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { validationMessageStyle } from "../../../constants";
 import { makeId } from "../../../helpers/utils";
@@ -52,6 +50,9 @@ const TenantRegister = () => {
   const [errorMode, setErrorMode] = useState(false);
   const [errorModeMessage, setErrorModeMessage] = useState(null);
   const [errorModeTitle, setErrorModeTitle] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertTitle, setAlertTitle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showStep1, setShowStep1] = useState(true);
   const [showStep2, setShowStep2] = useState(false);
@@ -181,7 +182,6 @@ const TenantRegister = () => {
     },
   ];
 
-
   //Cards state variables
   const stripe = useStripe();
   const elements = useElements();
@@ -275,32 +275,81 @@ const TenantRegister = () => {
 
   //Veryfy that the lease agreement id and approval hash are valid on page load
   useEffect(() => {
-    verifyTenantRegistrationCredentials({
-      lease_agreement_id,
-      approval_hash,
-    }).then((res) => {
-      if (res.status !== 200) {
-        //TODO: Show error message modal to make the tenant contact thier owner
-      }
-    });
-    //TODO: Populate the form with rental application or tenant invite data
-    getLeaseAgreementByIdAndApprovalHash({
-      lease_agreement_id,
-      approval_hash,
-    }).then((res) => {
-      if (res.id) {
-        if (res.rental_application) {
-          //Retrieve users rental application data using the approval_hash
-          getRentalApplicationByApprovalHash(approval_hash).then((res) => {
-            console.log(res);
-            if (res.id) {
-              //Populate the form with the rental application data
-              const first_name = res.first_name;
-              const last_name = res.last_name;
+    try {
+      verifyTenantRegistrationCredentials({
+        lease_agreement_id,
+        approval_hash,
+      })
+        .then((res) => {
+          if (res.status !== 200) {
+            //TODO: Show error message modal to make the tenant contact thier owner
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setShowAlert(true);
+          setAlertTitle("Error");
+          setAlertMessage(
+            "Invalid or expired registration link. Please contact your landlord."
+          );
+        });
+      //TODO: Populate the form with rental application or tenant invite data
+      getLeaseAgreementByIdAndApprovalHash({
+        lease_agreement_id,
+        approval_hash,
+      })
+        .then((res) => {
+          if (res.id) {
+            if (res.rental_application) {
+              //Retrieve users rental application data using the approval_hash
+              getRentalApplicationByApprovalHash(approval_hash).then((res) => {
+                console.log(res);
+                if (res.id) {
+                  //Populate the form with the rental application data
+                  const first_name = res.first_name;
+                  const last_name = res.last_name;
+                  const preloadedData = {
+                    first_name: res.first_name,
+                    last_name: res.last_name,
+                    email: res.email,
+                    account_type: "tenant",
+                    //Mock Data bleow
+                    username:
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : faker.internet.userName({ first_name, last_name }),
+                    password:
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : "Password1",
+                    password_repeat:
+                      process.env.REACT_APP_ENVIRONMENT !== "development"
+                        ? ""
+                        : "Password1",
+                  };
+                  // Set the preloaded data in the form using setValue
+                  // Object.keys(preloadedData).forEach((key) => {
+                  //   setValue(key, preloadedData[key]);
+                  // });
+                  //Set the form data
+                  setFormData({
+                    first_name: res.first_name,
+                    last_name: res.last_name,
+                    email: res.email,
+                    username: preloadedData.username,
+                    password: preloadedData.password,
+                    password_repeat: preloadedData.password_repeat,
+                  });
+                }
+              });
+            } else if (res.tenant_invite) {
+              //Populate the form with the tenant invite data
+              const first_name = res.tenant_invite.first_name;
+              const last_name = res.tenant_invite.last_name;
               const preloadedData = {
-                first_name: res.first_name,
-                last_name: res.last_name,
-                email: res.email,
+                first_name: res.tenant_invite.first_name,
+                last_name: res.tenant_invite.last_name,
+                email: res.tenant_invite.email,
                 account_type: "tenant",
                 //Mock Data bleow
                 username:
@@ -322,54 +371,32 @@ const TenantRegister = () => {
               // });
               //Set the form data
               setFormData({
-                first_name: res.first_name,
-                last_name: res.last_name,
-                email: res.email,
+                first_name: res.tenant_invite.first_name,
+                last_name: res.tenant_invite.last_name,
+                email: res.tenant_invite.email,
                 username: preloadedData.username,
                 password: preloadedData.password,
                 password_repeat: preloadedData.password_repeat,
               });
             }
-          });
-        } else if (res.tenant_invite) {
-          //Populate the form with the tenant invite data
-          const first_name = res.tenant_invite.first_name;
-          const last_name = res.tenant_invite.last_name;
-          const preloadedData = {
-            first_name: res.tenant_invite.first_name,
-            last_name: res.tenant_invite.last_name,
-            email: res.tenant_invite.email,
-            account_type: "tenant",
-            //Mock Data bleow
-            username:
-              process.env.REACT_APP_ENVIRONMENT !== "development"
-                ? ""
-                : faker.internet.userName({ first_name, last_name }),
-            password:
-              process.env.REACT_APP_ENVIRONMENT !== "development"
-                ? ""
-                : "Password1",
-            password_repeat:
-              process.env.REACT_APP_ENVIRONMENT !== "development"
-                ? ""
-                : "Password1",
-          };
-          // Set the preloaded data in the form using setValue
-          // Object.keys(preloadedData).forEach((key) => {
-          //   setValue(key, preloadedData[key]);
-          // });
-          //Set the form data
-          setFormData({
-            first_name: res.tenant_invite.first_name,
-            last_name: res.tenant_invite.last_name,
-            email: res.tenant_invite.email,
-            username: preloadedData.username,
-            password: preloadedData.password,
-            password_repeat: preloadedData.password_repeat,
-          });
-        }
-      }
-    });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setShowAlert(true);
+          setAlertTitle("Error");
+          setAlertMessage(
+            "Invalid or expired registration link. Please contact your landlord."
+          );
+        });
+    } catch (err) {
+      console.log(err);
+      setShowAlert(true);
+      setAlertTitle("Error");
+      setAlertMessage(
+        "Invalid or expired registration link. Please contact your landlord."
+      );
+    }
   }, []);
   return (
     <div className="container-fluid">
@@ -615,7 +642,7 @@ const TenantRegister = () => {
                             } else {
                               setErrors(newErrors);
                               //Mqaybe show alert modal
-                            } 
+                            }
                           }}
                         />
                       </div>

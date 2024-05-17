@@ -94,11 +94,22 @@ const ImportDataForm = () => {
 
   useEffect(() => {
     if (properties === null) {
-      getProperties().then((res) => {
-        if (res) {
-          setProperties(res.data);
-        }
-      });
+      getProperties()
+        .then((res) => {
+          if (res) {
+            setProperties(res.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          setProperties([]);
+          setAlertModalTitle("Error");
+          setAlertModalMessage(
+            "An error occurred while fetching properties. Please try again."
+          );
+          setAlertModalOpen(true);
+
+        });
     }
   }, [properties]);
 
@@ -211,8 +222,7 @@ const ImportDataForm = () => {
                       <p className="text-black text-center px-2">{file.name}</p>
                     ) : (
                       <p className="text-black text-center px-2">
-                        Only a .csv file will be accepted (Max. file
-                        size: 3MB)
+                        Only a .csv file will be accepted (Max. file size: 3MB)
                       </p>
                     )}
                   </div>

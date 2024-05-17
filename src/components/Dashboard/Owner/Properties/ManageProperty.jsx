@@ -126,7 +126,7 @@ const ManageProperty = () => {
   const [tourIndex, setTourIndex] = useState(0);
   const [isOnStep2, setIsOnStep2] = useState(false); // Add this line
   const handleJoyrideCallback = (data) => {
-    const { action, index, status,type } = data;
+    const { action, index, status, type } = data;
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setTourIndex(0);
@@ -141,11 +141,11 @@ const ManageProperty = () => {
 
   const handleClickStart = (event) => {
     event.preventDefault();
-    if(tabPage === 0){
+    if (tabPage === 0) {
       setTourIndex(0);
-    }else if(tabPage === 1){
+    } else if (tabPage === 1) {
       setTourIndex(4);
-    }else if(tabPage === 2){
+    } else if (tabPage === 2) {
       setTourIndex(5);
     }
     setRunTour(true); // Start the tour
@@ -185,7 +185,8 @@ const ManageProperty = () => {
     //Start Preferences Tour
     {
       target: ".property-preferences",
-      content: "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
+      content:
+        "This is the property preferences section. Here you can set specific preferences for the property. All units in the property will inherit these preferences.",
     },
   ];
 
@@ -502,38 +503,54 @@ const ManageProperty = () => {
 
   //Create a handle function to handle the form submission of updating property info
   const onSubmit = async () => {
-    const res = await updatePropertyMedia(id, formData);
-    console.log("Property Details submit res ", res);
-    if (res.status === 200) {
-      setUpdateAlertTitle("Success");
-      setUpdateAlertMessage("Property updated");
-      setUpdateAlertIsOpen(true);
-      setEditDialogOpen(false);
-    } else {
-      setUpdateAlertTitle("Error");
-      setUpdateAlertMessage("Something went wrong");
-      setUpdateAlertIsOpen(true);
-      setEditDialogOpen(false);
-    }
+    const response = await updatePropertyMedia(id, formData)
+      .then((res) => {
+        console.log("Property Details submit res ", res);
+        if (res.status === 200) {
+          setUpdateAlertTitle("Success");
+          setUpdateAlertMessage("Property updated");
+          setUpdateAlertIsOpen(true);
+          setEditDialogOpen(false);
+        } else {
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong");
+          setUpdateAlertIsOpen(true);
+          setEditDialogOpen(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating property", error);
+        setUpdateAlertTitle("Error");
+        setUpdateAlertMessage("Something went wrong");
+        setUpdateAlertIsOpen(true);
+        setEditDialogOpen(false);
+      });
   };
 
   const handleChangePortfolio = (selected_portfolio_id) => {
     setCurrentPortfolio(
       portfolios.find((portfolio) => portfolio.id === selected_portfolio_id)
     );
-    updatePropertyPortfolio(property.id, selected_portfolio_id).then((res) => {
-      console.log("Portfolio Change Res", res);
-      if (res.status === 200) {
-        setUpdateAlertTitle("Portfolio Updated");
-        setUpdateAlertMessage("The property's portfolio has been updated");
-        setUpdateAlertIsOpen(true);
-      } else {
-        setShowUpdateSuccess(true);
+    updatePropertyPortfolio(property.id, selected_portfolio_id)
+      .then((res) => {
+        console.log("Portfolio Change Res", res);
+        if (res.status === 200) {
+          setUpdateAlertTitle("Portfolio Updated");
+          setUpdateAlertMessage("The property's portfolio has been updated");
+          setUpdateAlertIsOpen(true);
+        } else {
+          setShowUpdateSuccess(true);
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong");
+          setUpdateAlertIsOpen(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating property portfolio", error);
         setUpdateAlertTitle("Error");
         setUpdateAlertMessage("Something went wrong");
         setUpdateAlertIsOpen(true);
-      }
-    });
+      });
     setSelectPortfolioDialogOpen(false);
   };
 
@@ -612,6 +629,11 @@ const ManageProperty = () => {
               portfolio_res
             );
           }
+        }).catch((error) => {
+          console.error("An error occured retieving portfolios", error);
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong");
+          setUpdateAlertIsOpen(true);
         });
       });
       retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
@@ -619,12 +641,17 @@ const ManageProperty = () => {
           setPropertyMedia(res.data);
           console.log(res.data);
           setPropertyMediaCount(res.data.length);
+        }).catch((error) => {
+          console.error("An error occured retieving property media", error);
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong retrieving property media");
+          setUpdateAlertIsOpen(true);
         })
         .finally(() => {
           setIsLoading(false);
         });
     }
-  }, [property, formData])
+  }, [property, formData]);
 
   return (
     <>

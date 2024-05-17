@@ -162,21 +162,30 @@ const ViewRentalApplication = () => {
   const handleReject = () => {
     setIsLoadingApplicationAction(true);
     console.log("Rejecting Application...");
-    rejectRentalApplication(id).then((res) => {
-      if (res.status === 200) {
-        console.log(res);
-        setOpenRejectModal(false);
-        //TODO: Delete this application
-        setAlertModalTitle(res.message);
+    rejectRentalApplication(id)
+      .then((res) => {
+        if (res.status === 200) {
+          console.log(res);
+          setOpenRejectModal(false);
+          //TODO: Delete this application
+          setAlertModalTitle(res.message);
+          setOpenAlertModal(true);
+          setIsLoadingApplicationAction(false);
+        } else {
+          console.log(res);
+          setAlertModalTitle("An error occured");
+          setOpenAlertModal(true);
+          setIsLoadingApplicationAction(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error rejecting rental application:", error);
+        setAlertModalTitle("An error occurred");
+        setAlertModalMessage(
+          "An error occurred while rejecting the rental application. Please try again."
+        );
         setOpenAlertModal(true);
-        setIsLoadingApplicationAction(false);
-      } else {
-        console.log(res);
-        setAlertModalTitle("An error occured");
-        setOpenAlertModal(true);
-        setIsLoadingApplicationAction(false);
-      }
-    });
+      });
   };
   function isJsonString(str) {
     try {
@@ -190,29 +199,46 @@ const ViewRentalApplication = () => {
   useEffect(() => {
     setIsLoading(true);
     //Retrieve rental application by id
-    getRentalApplicationById(id).then((res) => {
-      //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
-      if (res) {
-        setRentalApplication(res);
-        setUnit(res.unit);
-        //Check if res.employment_history is an oject if so parse it if string leave it
-        if (isJsonString(res.employment_history)) {
-          setEmploymentHistory(JSON.parse(res.employment_history));
-        } else {
-          setEmploymentHistory(res.employment_history);
+    getRentalApplicationById(id)
+      .then((res) => {
+        //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
+        if (res) {
+          setRentalApplication(res);
+          setUnit(res.unit);
+          //Check if res.employment_history is an oject if so parse it if string leave it
+          if (isJsonString(res.employment_history)) {
+            setEmploymentHistory(JSON.parse(res.employment_history));
+          } else {
+            setEmploymentHistory(res.employment_history);
+          }
+          //Check if res.residential_history is an oject if so parse it if string leave it
+          if (isJsonString(res.residential_history)) {
+            setResidentialHistory(JSON.parse(res.residential_history));
+          } else {
+            setResidentialHistory(res.residential_history);
+          }
+          setIsLoading(false);
         }
-        //Check if res.residential_history is an oject if so parse it if string leave it
-        if (isJsonString(res.residential_history)) {
-          setResidentialHistory(JSON.parse(res.residential_history));
-        } else {
-          setResidentialHistory(res.residential_history);
-        }
-        setIsLoading(false);
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("Error getting rental application:", error);
+        setAlertModalTitle("Error");
+        setAlertModalMessage(
+          "An error occurred while fetching rental application data. Please try again."
+        );
+        setOpenAlertModal(true);
+      });
   }, []);
   return (
     <div className="container-fluid rental-application-detail-view">
+      <AlertModal
+        open={openAlertModal}
+        title={aletModalTitle}
+        message={alertModalMessage}
+        btnText="Ok"
+        handleClose={() => setOpenAlertModal(false)}
+        to="/dashboard/owner/rental-applications"
+      />
       <Joyride
         run={runTour}
         stepIndex={tourIndex}
@@ -243,14 +269,6 @@ const ViewRentalApplication = () => {
         <ProgressModal title="Loading Application Data..." open={isLoading} />
       ) : (
         <div>
-          <AlertModal
-            open={openAlertModal}
-            title={aletModalTitle}
-            message={alertModalMessage}
-            btnText="Ok"
-            handleClose={() => setOpenAlertModal(false)}
-            to="/dashboard/owner/rental-applications"
-          />
           <ConfirmModal
             open={openAcceptModal}
             title={"Are you sure you want to accept this application?"}

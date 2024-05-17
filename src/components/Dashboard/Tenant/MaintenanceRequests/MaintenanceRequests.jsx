@@ -22,10 +22,14 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const MaintenanceRequests = () => {
   //Create a astate for the maintenance requests
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [orderingField, setOrderingField] = useState("created_at");
   const [searchField, setSearchField] = useState("");
   const [limit, setLimit] = useState(10);
@@ -123,11 +127,24 @@ const MaintenanceRequests = () => {
           setMaintenanceRequests(res.data);
         });
       }
+    }).catch((error) => {
+      console.log(error);
+      setShowAlert(true);
+      setAlertTitle("Error");
+      setAlertMessage("An error occurred while fetching maintenance requests");
     });
   }, []);
 
   return (
     <div className="container-fluid">
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       <Joyride
         run={runTour}
         index={tourIndex}

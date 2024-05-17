@@ -6,11 +6,12 @@ import BackButton from "../../UIComponents/BackButton";
 import { authUser, uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import PaymentModal from "../../UIComponents/Modals/PaymentModal";
 import useScreen from "../../../../hooks/useScreen";
-import { Chip, Stack } from "@mui/material";
+import { Alert, Chip, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import UIButton from "../../UIComponents/UIButton";
 import { listStripePaymentMethods } from "../../../../api/payment_methods";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const BillDetail = (props) => {
   const { invoice_id } = useParams();
   const { isMobile } = useScreen();
@@ -20,6 +21,9 @@ const BillDetail = (props) => {
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
   const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
     useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
 
   const handleClosePaymentModal = () => {
     setOpenPaymentModal(false);
@@ -37,25 +41,40 @@ const BillDetail = (props) => {
    * 8. Show a discreet link to the stripe payment page
    */
   useEffect(() => {
-    getTenantInvoice(invoice_id).then((res) => {
-      console.log(res.invoice);
-      setInvoice(res.invoice);
-    });
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
-      setIsLoadingPaymentMethods(true);
-      if (res.data.length < 1) {
-        setShowAddPaymentMethodAlert(true);
-        setIsLoadingPaymentMethods(false);
-      } else {
-        setPaymentMethods(res.data);
-        console.log("Payment Methods: ", res.data);
-        setIsLoadingPaymentMethods(false);
-      }
-    });
+    try {
+      getTenantInvoice(invoice_id).then((res) => {
+        console.log(res.invoice);
+        setInvoice(res.invoice);
+      });
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        setIsLoadingPaymentMethods(true);
+        if (res.data.length < 1) {
+          setShowAddPaymentMethodAlert(true);
+          setIsLoadingPaymentMethods(false);
+        } else {
+          setPaymentMethods(res.data);
+          console.log("Payment Methods: ", res.data);
+          setIsLoadingPaymentMethods(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      setShowAlert(true);
+      setAlertMessage("An error occurred while fetching the invoice");
+      setAlertTitle("Error");
+    }
   }, [invoice_id]);
 
   return (
     <div className={isMobile ? "container" : ""}>
+      <AlertModal
+        open={showAlert}
+        handleClose={() => {
+          setShowAlert(false);
+        }}
+        title={alertTitle}
+        message={alertMessage}
+      />
       {paymentMethods && (
         <PaymentModal
           open={openPaymentModal}

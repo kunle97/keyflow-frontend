@@ -96,16 +96,20 @@ const LeaseAgreementDetail = () => {
   };
 
   const handleDownloadDocument = () => {
-    downloadBoldSignDocument(leaseAgreement.document_id).then((res) => {
-      console.log("Download document response", res);
-      // if (res.status === 200) {
-      //   // const blob = new Blob([res.data], { type: "application/pdf" });
-      //   // const link = document.createElement("a");
-      //   // link.href = window.URL.createObjectURL(blob);
-      //   // link.download = "lease_agreement.pdf";
-      //   // link.click();
-      // }
-    });
+    downloadBoldSignDocument(leaseAgreement.document_id)
+      .then((res) => {
+        console.log("Download document response", res);
+        // if (res.status === 200) {
+        //   // const blob = new Blob([res.data], { type: "application/pdf" });
+        //   // const link = document.createElement("a");
+        //   // link.href = window.URL.createObjectURL(blob);
+        //   // link.download = "lease_agreement.pdf";
+        //   // link.click();
+        // }
+      })
+      .catch((error) => {
+        console.error("Error downloading document", error);
+      });
   };
 
   useEffect(() => {

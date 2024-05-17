@@ -294,6 +294,12 @@ const ManageAnnouncement = () => {
       setAnnouncement(res);
       setTargetObject(res.target_object);
       setFormData((prevData) => ({ ...prevData, ...res }));
+    }).catch((error) => {
+      setAlertModalTitle("Error");
+      setAlertModalMessage(
+        "An error occurred while fetching announcement details"
+      );
+      setAlertModalOpen(true);
     });
   }, []);
 

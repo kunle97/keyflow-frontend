@@ -25,7 +25,7 @@ import {
   uiRed,
 } from "../../../../constants";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -206,6 +206,12 @@ const ManagePortfolio = () => {
         setOpen(true);
         setEditDialogOpen(false);
       }
+    }).catch((error) => {
+      console.error("Error updating portfolio:", error);
+      setAlertTitle("Error");
+      setAlertMessage("An error occurred while updating the portfolio. Please try again.");
+      setOpen(true);
+      setEditDialogOpen(false);
     });
   };
 
@@ -270,6 +276,9 @@ const ManagePortfolio = () => {
         })
         .catch((err) => {
           console.log(err);
+          setPortfolio(null);
+          setProperties([]);
+          setPortfolioPreferences([]);
         })
         .finally(() => {
           setIsLoading(false);

@@ -119,19 +119,27 @@ const OwnerLogin = () => {
       remember_me: rememberMe,
     };
     console.log("Payload: ", payload);
-    const response = await login(payload);
-    console.log("Login Response: ", response);
-    //if token is returned, set it in local storage
-    if (response.token) {
-      setRedirectURL("/dashboard/owner");
-      setAuthUser(response.userData);
-      setIsLoggedIn(true);
-      setIsLoading(false);
-      //Navigate to dashboard
-      setOpenError(false);
-      setOpen(true);
-    } else {
-      setErrMsg(response.message);
+    try {
+      const response = await login(payload);
+      console.log("Login Response: ", response);
+      //if token is returned, set it in local storage
+      if (response.token) {
+        setRedirectURL("/dashboard/owner");
+        setAuthUser(response.userData);
+        setIsLoggedIn(true);
+        setIsLoading(false);
+        //Navigate to dashboard
+        setOpenError(false);
+        setOpen(true);
+      } else {
+        setErrMsg(response.message);
+        setIsLoading(false);
+        setOpen(false);
+        setOpenError(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setErrMsg("An error occured. Please try again later");
       setIsLoading(false);
       setOpen(false);
       setOpenError(true);
@@ -139,18 +147,26 @@ const OwnerLogin = () => {
   };
 
   useEffect(() => {
-    getOwnersEmails().then((res) => {
-      console.log(res);
-      if (res) {
-        setOwnersEmails(res);
-      }
-    });
-    getOwnersUsernames().then((res) => {
-      console.log(res);
-      if (res) {
-        setOwnerUsernames(res);
-      }
-    });
+    getOwnersEmails()
+      .then((res) => {
+        console.log(res);
+        if (res) {
+          setOwnersEmails(res);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching owners emails:", error);
+      });
+    getOwnersUsernames()
+      .then((res) => {
+        console.log(res);
+        if (res) {
+          setOwnerUsernames(res);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching owners usernames:", error);
+      });
   }, []);
 
   return (

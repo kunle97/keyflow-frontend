@@ -29,6 +29,9 @@ const ActivateAccount = () => {
         console.log("Error activating account");
         setShowError(true);
       }
+    }).catch((error) => {
+      console.error("Error:", error);
+      setShowError(true);
     });
   }, []);
   return (

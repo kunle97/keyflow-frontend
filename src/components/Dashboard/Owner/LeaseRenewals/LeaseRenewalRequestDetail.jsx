@@ -152,18 +152,24 @@ const LeaseRenewalRequestDetail = () => {
   const handleReject = () => {
     rejectLeaseRenewalRequest({
       lease_renewal_request_id: leaseRenewalRequest.id,
-    }).then((res) => {
-      console.log(res);
-      if (res.status === 204) {
-        setAlertModalTitle("Success");
-        setAlertModalMessage("Lease renewal request rejected!");
-        setShowAlertModal(true);
-      } else {
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 204) {
+          setAlertModalTitle("Success");
+          setAlertModalMessage("Lease renewal request rejected!");
+          setShowAlertModal(true);
+        } else {
+          setAlertModalTitle("Error");
+          setAlertModalMessage("Something went wrong!");
+          setShowAlertModal(true);
+        }
+      })
+      .catch((error) => {
         setAlertModalTitle("Error");
         setAlertModalMessage("Something went wrong!");
         setShowAlertModal(true);
-      }
-    });
+      });
   };
 
   const actionStack = (

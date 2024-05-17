@@ -13,12 +13,16 @@ import Joyride, {
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../../constants";
 import useScreen from "../../../../../hooks/useScreen";
+import AlertModal from "../../../UIComponents/Modals/AlertModal";
 const TenantLeaseCancellationRequests = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const tourSteps = [
     {
       target: ".lease-cancellation-request-page",
@@ -115,10 +119,26 @@ const TenantLeaseCancellationRequests = () => {
     getTenantLeaseCancellationRequests().then((res) => {
       console.log("TCRRR", res);
       setData(res.data);
+    }).catch((error) => {
+      console.error("Error fetching lease cancellation requests:", error);
+      setAlertTitle("Error");
+      setAlertMessage(
+        "An error occurred while fetching the lease cancellation requests"
+      );
+      setShowAlert(true);
     });
   }, []);
   return (
     <div className="container-fluid lease-cancellation-request-page">
+      <AlertModal 
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+        
+      />
       <Joyride
         run={runTour}
         index={tourIndex}

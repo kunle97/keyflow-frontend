@@ -8,8 +8,12 @@ import UITabs from "../../UIComponents/UITabs";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import useScreen from "../../../../hooks/useScreen";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const OwnerTransactions = () => {
   let revenueData = [];
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [transactions, setTransactions] = useState([]);
@@ -115,6 +119,13 @@ const OwnerTransactions = () => {
       setRevenueChartData(revenueData);
       console.log(revenueData);
       console.log(data[0].data);
+    }).catch((error) => {
+      console.error("Error fetching transactions", error);
+      setAlertTitle("Error!");
+      setAlertMessage(
+        "There was an error fetching transactions. Please try again."
+      );
+      setShowAlert(true);
     });
   }, []);
   console.log([
@@ -125,6 +136,13 @@ const OwnerTransactions = () => {
   ]);
   return (
     <div className="container-fluid">
+      <AlertModal
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+      />
       {tabPage === 0 && (
         <>
           {isMobile ? (

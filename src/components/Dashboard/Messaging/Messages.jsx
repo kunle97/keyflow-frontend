@@ -78,7 +78,7 @@ const Messages = () => {
         setFilteredThreads(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         setAlertTitle("Error");
         setAlertMessage(
           "An error occurred while fetching your messages. Please try again."
@@ -99,6 +99,8 @@ const Messages = () => {
       other_user_id: thread.recipient_id,
     }).then((res) => {
       console.log(res);
+    }).catch((err) => {
+      console.log("Handle Thread click error: ",err);
     });
 
     if (scrollableDivRef.current) {

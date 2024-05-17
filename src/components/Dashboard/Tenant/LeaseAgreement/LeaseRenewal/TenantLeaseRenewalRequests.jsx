@@ -13,12 +13,16 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../../constants";
+import AlertModal from "../../../UIComponents/Modals/AlertModal";
 const TenantLeaseRenewalRequests = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const tourSteps = [
     {
       target: ".lease-renewal-requests-table-container",
@@ -106,13 +110,30 @@ const TenantLeaseRenewalRequests = () => {
     //CREate a function to handle the row delete
   };
   useEffect(() => {
-    getTenantLeaseRenewalRequests().then((res) => {
-      setData(res.data);
-      console.log(res);
-    });
+    getTenantLeaseRenewalRequests()
+      .then((res) => {
+        setData(res.data);
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error("Error fetching lease renewal requests:", error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while fetching lease renewal requests"
+        );
+        setShowAlert(true);
+      });
   }, []);
   return (
     <div className="container-fluid lease-renewal-request-page">
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       <Joyride
         run={runTour}
         index={tourIndex}
@@ -178,7 +199,7 @@ const TenantLeaseRenewalRequests = () => {
           />
         )}
       </div>
-      <UIHelpButton onClick={handleClickStart} /> 
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

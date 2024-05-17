@@ -19,6 +19,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
+import AlertModal from "../../../UIComponents/Modals/AlertModal";
 const TenantLeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState({});
@@ -228,6 +229,14 @@ const TenantLeaseRenewalRequestDetail = () => {
 
   return (
     <div className="row">
+      <AlertModal
+        open={showAlertModal}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onClick={() => {
+          setShowAlertModal(false);
+        }}
+      />
       {/* <ProgressModal open={isLoading} title={"Please Wait..."} /> */}
       {isLoading ? (
         <UIProgressPrompt

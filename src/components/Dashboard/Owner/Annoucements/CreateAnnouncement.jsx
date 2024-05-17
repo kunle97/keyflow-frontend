@@ -542,6 +542,12 @@ const CreateAnnouncement = () => {
         setAlertModalRedirect("/dashboard/owner/announcements/create");
         setAlertModalOpen(true);
       }
+    }).catch((error) => {
+      setLoading(false);
+      setAlertModalTitle("Error");
+      setAlertModalMessage("An error occurred while creating announcement");
+      setAlertModalRedirect("/dashboard/owner/announcements/create");
+      setAlertModalOpen(true);
     });
   };
 

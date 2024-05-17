@@ -43,14 +43,21 @@ const Topbar = (props) => {
     } else if (authUser && authUser.account_type === "tenant") {
       returnURL = "/dashboard/tenant/login";
     }
-    let response = await logout();
-    if (response.status === 200) {
-      console.log("User was logged out successfully");
-      setOpen(true);
-    } else {
-      console.error("Error logging user out");
-      navigate("/");
-    }
+
+    let response = await logout()
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("User was logged out successfully");
+          setOpen(true);
+        } else {
+          console.error("Error logging user out");
+          navigate("/");
+        }
+      })
+      .catch((error) => {
+        console.error("Error logging user out", error);
+        navigate("/");
+      });
   };
 
   const getProfilePicture = async (user_id) => {

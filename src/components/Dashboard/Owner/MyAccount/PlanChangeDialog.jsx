@@ -66,6 +66,14 @@ const PlanChangeDialog = (props) => {
             : "Sorry, something went wrong. Please try again."
         );
       }
+    }).catch((error) => {
+      console.error("Error changing plan:", error);
+      setShowUpgradeResponseModal(true);
+      setUpgradeResponseModalTitle("Upgrade Failed");
+      setUpgradeResponseModalMessage(
+        "Sorry, something went wrong. Please try again."
+      );
+    }).finally(() => {
       setIsLoading(false);
     });
   };

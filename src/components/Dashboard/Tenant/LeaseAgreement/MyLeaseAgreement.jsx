@@ -186,48 +186,57 @@ const MyLeaseAgreement = () => {
     }
   };
   useEffect(() => {
-    //Retrieve the unit
-    getTenantDashboardData().then((res) => {
-      console.log(res);
-      setUnit(res.unit);
-      setUnitPreferences(JSON.parse(res.unit.preferences));
-      console.log("Unit Preferences", JSON.parse(res.unit.preferences));
-      setLeaseAgreement(res.lease_agreement);
-      setLeaseTemplate(res.lease_template);
-    });
-    //Using the getTententLeaseCancellationRequests function check if the user has any existing lease cancellation requests. If they do display an error message and do not allow them to submit a new request and return from the function.
-    getTenantLeaseCancellationRequests().then((res) => {
-      if (res.status === 200) {
-        //Check if any of the requests are pending
-        let pending_lc_requests = res.data.filter(
-          (lc_request) => lc_request.status === "Pending"
-        );
-        if (pending_lc_requests.length > 0) {
-          setHasExistingLeaseCancellationRequest(true);
-        }
-      }
-    });
-    getTenantLeaseRenewalRequests().then((res) => {
-      if (res.status === 200) {
-        if (res.data.length > 0) {
-          setHasExistingLeaseRenewalRequest(true);
-        }
-      }
-    });
-    getTenantInvoices().then((res) => {
-      //Reverse the array so the most recent invoices are shown first
-      setInvoices(res.invoices.data.reverse());
-      let amountDue = 0;
-      let amountPaid = 0;
-      res.invoices.data.forEach((invoice) => {
-        amountDue += invoice.amount_remaining;
-        amountPaid += invoice.amount_paid;
+    try {
+      //Retrieve the unit
+      getTenantDashboardData().then((res) => {
+        console.log(res);
+        setUnit(res.unit);
+        setUnitPreferences(JSON.parse(res.unit.preferences));
+        console.log("Unit Preferences", JSON.parse(res.unit.preferences));
+        setLeaseAgreement(res.lease_agreement);
+        setLeaseTemplate(res.lease_template);
       });
-      console.log("Amount Due: ", amountDue);
-      console.log("Amount Paid: ", amountPaid);
-      setTotalAmountDue(amountDue / 100);
-      setTotalAmountPaid(amountPaid / 100);
-    });
+      //Using the getTententLeaseCancellationRequests function check if the user has any existing lease cancellation requests. If they do display an error message and do not allow them to submit a new request and return from the function.
+      getTenantLeaseCancellationRequests().then((res) => {
+        if (res.status === 200) {
+          //Check if any of the requests are pending
+          let pending_lc_requests = res.data.filter(
+            (lc_request) => lc_request.status === "Pending"
+          );
+          if (pending_lc_requests.length > 0) {
+            setHasExistingLeaseCancellationRequest(true);
+          }
+        }
+      });
+      getTenantLeaseRenewalRequests().then((res) => {
+        if (res.status === 200) {
+          if (res.data.length > 0) {
+            setHasExistingLeaseRenewalRequest(true);
+          }
+        }
+      });
+      getTenantInvoices().then((res) => {
+        //Reverse the array so the most recent invoices are shown first
+        setInvoices(res.invoices.data.reverse());
+        let amountDue = 0;
+        let amountPaid = 0;
+        res.invoices.data.forEach((invoice) => {
+          amountDue += invoice.amount_remaining;
+          amountPaid += invoice.amount_paid;
+        });
+        console.log("Amount Due: ", amountDue);
+        console.log("Amount Paid: ", amountPaid);
+        setTotalAmountDue(amountDue / 100);
+        setTotalAmountPaid(amountPaid / 100);
+      });
+    } catch (error) {
+      console.error(error);
+      setAlertModalTitle("Error");
+      setAlertModalMessage(
+        "An error occurred while fetching the lease agreement"
+      );
+      setShowAlertModal(true);
+    }
   }, []);
 
   return (
@@ -253,18 +262,18 @@ const MyLeaseAgreement = () => {
           skip: "Skip",
         }}
       />
+      <AlertModal
+        open={showAlertModal}
+        onClick={() => {
+          setShowAlertModal(false);
+          navigate(0);
+        }}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        btnText="Okay"
+      />
       {leaseAgreement ? (
         <div className="row lease-agreement-page">
-          <AlertModal
-            open={showAlertModal}
-            onClick={() => {
-              setShowAlertModal(false);
-              navigate(0);
-            }}
-            title={alertModalTitle}
-            message={alertModalMessage}
-            btnText="Okay"
-          />
           <h4 className="my-3 ">My Lease Agreement</h4>
           <div className="col-md-4">
             <div className="card my-3 lease-agreement-overview-section">

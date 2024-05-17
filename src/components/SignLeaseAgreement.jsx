@@ -165,56 +165,61 @@ const SignLeaseAgreement = () => {
         getLeaseAgreementByIdAndApprovalHash({
           lease_agreement_id,
           approval_hash,
-        }).then((res) => {
-          if (res.id) {
-            setLeaseAgreement(res);
-            setUnitLeaseTerms(JSON.parse(res.rental_unit.lease_terms));
-            console.log(JSON.parse(res.rental_unit.lease_terms));
-            let redirectLink =
-              process.env.REACT_APP_HOSTNAME +
-              "/dashboard/tenant/register" +
-              "/" +
-              res.id +
-              "/" +
-              res.rental_unit.id +
-              "/" +
-              res.approval_hash;
-            setRedirectLink(redirectLink);
-            let payload = {
-              document_id: res.document_id,
-              tenant_email: res.tenant_invite
-                ? res.tenant_invite.email
-                : res.rental_application.email,
-              tenant_register_redirect_url: redirectLink,
-              link_validity: "12/31/2030",
-            };
-            if (!signingLink) {
-              generateSigningLink(payload).then((res) => {
-                console.log(res);
-                if (res.data.status === 200) {
-                  //Set the src of the iframe to the signing link
-                  setSigningLink(res.data.data.signLink);
-                  setSigningLinkIsValid(true);
-                } else {
-                  setSigningLink("invalid");
-                  setSigningLinkIsValid(false);
-                }
-              });
-            }
+        })
+          .then((res) => {
+            if (res.id) {
+              setLeaseAgreement(res);
+              setUnitLeaseTerms(JSON.parse(res.rental_unit.lease_terms));
+              console.log(JSON.parse(res.rental_unit.lease_terms));
+              let redirectLink =
+                process.env.REACT_APP_HOSTNAME +
+                "/dashboard/tenant/register" +
+                "/" +
+                res.id +
+                "/" +
+                res.rental_unit.id +
+                "/" +
+                res.approval_hash;
+              setRedirectLink(redirectLink);
+              let payload = {
+                document_id: res.document_id,
+                tenant_email: res.tenant_invite
+                  ? res.tenant_invite.email
+                  : res.rental_application.email,
+                tenant_register_redirect_url: redirectLink,
+                link_validity: "12/31/2030",
+              };
+              if (!signingLink) {
+                generateSigningLink(payload).then((res) => {
+                  console.log(res);
+                  if (res.data.status === 200) {
+                    //Set the src of the iframe to the signing link
+                    setSigningLink(res.data.data.signLink);
+                    setSigningLinkIsValid(true);
+                  } else {
+                    setSigningLink("invalid");
+                    setSigningLinkIsValid(false);
+                  }
+                });
+              }
 
-            //Check that the approval_hash matches the lease agreement's approval_hash
-            if (res.approval_hash !== approval_hash) {
-              //Display an error message
+              //Check that the approval_hash matches the lease agreement's approval_hash
+              if (res.approval_hash !== approval_hash) {
+                //Display an error message
+                setDisplayError(true);
+              }
+              if (res.is_active) {
+                //Display an error message
+                navigate("/*");
+              }
+            } else {
               setDisplayError(true);
             }
-            if (res.is_active) {
-              //Display an error message
-              navigate("/*");
-            }
-          } else {
+          })
+          .catch((err) => {
+            console.log(err);
             setDisplayError(true);
-          }
-        });
+          });
         setIsLoading(false);
       } catch (err) {
         console.log(err);
@@ -239,9 +244,6 @@ const SignLeaseAgreement = () => {
         title={errorTitle}
         message={errorMessage}
         btnText="Okay"
-        handleClose={() => {
-          navigate(0);
-        }}
         onClick={() => {
           navigate(0);
         }}
@@ -451,7 +453,15 @@ const SignLeaseAgreement = () => {
           </div>
         </>
       ) : (
-        <h1>There was an error</h1>
+        <AlertModal
+          open={displayError}
+          title={"Error"}
+          message={"There was an error loading this lease agreement."}
+          btnText="Okay"
+          onClick={() => {
+            navigate(0);
+          }}
+        />
       )}
     </div>
   );
