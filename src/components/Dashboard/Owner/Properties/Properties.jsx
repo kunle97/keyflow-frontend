@@ -42,11 +42,19 @@ const Properties = () => {
       if (res) {
         setProperties(res.data);
       }
+    }).catch((error) => {
+      console.error("Error getting properties:", error);
+      setErrorMessage("An error occurred while retrieving properties. Please try again later.");
+      setShowDeleteError(true);
     });
     getPropertyFilters().then((res) => {
       if (res) {
         setFilters(res);
       }
+    }).catch((error) => {
+      console.error("Error getting property filters:", error);
+      setErrorMessage("An error occurred while retrieving property filters. Please try again later.");
+      setShowDeleteError(true);
     });
     setIsLoading(false);
   }, []);

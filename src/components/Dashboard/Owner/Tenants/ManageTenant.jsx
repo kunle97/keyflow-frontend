@@ -31,6 +31,7 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import useScreen from "../../../../hooks/useScreen";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
@@ -45,6 +46,9 @@ const ManageTenant = () => {
   const [nextPaymentDate, setNextPaymentDate] = useState(null); //TODO: get next payment date from db and set here
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   const [tenantProfilePicture, setTenantProfilePicture] = useState(null);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
   const transaction_columns = [
     { name: "amount", label: "Amount" },
     {
@@ -145,51 +149,70 @@ const ManageTenant = () => {
 
   useEffect(() => {
     if (!tenant) {
-      getOwnerTenant(tenant_id).then((tenant_res) => {
-        console.log("tenant_res", tenant_res);
-        setTenant(tenant_res.data);
-        getNextPaymentDate(tenant_res.data.user.id).then((res) => {
-          setNextPaymentDate(res.data.next_payment_date);
-        });
-        getPaymentDates(tenant_res.data.user.id).then((res) => {
-          if (res.status === 200) {
-            const payment_dates = res.data.payment_dates;
-            const due_dates = payment_dates.map((date) => {
-              return { title: "Rent Due", start: new Date(date.payment_date) };
+      try {
+        getOwnerTenant(tenant_id).then((tenant_res) => {
+          console.log("tenant_res", tenant_res);
+          setTenant(tenant_res.data);
+          getNextPaymentDate(tenant_res.data.user.id).then((res) => {
+            setNextPaymentDate(res.data.next_payment_date);
+          });
+          getPaymentDates(tenant_res.data.user.id).then((res) => {
+            if (res.status === 200) {
+              const payment_dates = res.data.payment_dates;
+              const due_dates = payment_dates.map((date) => {
+                return {
+                  title: "Rent Due",
+                  start: new Date(date.payment_date),
+                };
+              });
+              setDueDates(due_dates);
+            }
+          });
+          getTenantUnit(tenant_res.data.id).then((unit_res) => {
+            setUnit(unit_res.data);
+            getProperty(unit_res.data.rental_property).then((property_res) => {
+              setProperty(property_res.data);
             });
-            setDueDates(due_dates);
-          }
-        });
-        getTenantUnit(tenant_res.data.id).then((unit_res) => {
-          setUnit(unit_res.data);
-          getProperty(unit_res.data.rental_property).then((property_res) => {
-            setProperty(property_res.data);
+            getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
+              setLease(res.data[0]);
+            });
+            getTransactionsByTenant(tenant_res.data.id).then((res) => {
+              setTransactions(res.data);
+            });
+            getMaintenanceRequestsByTenant(tenant_res.data.id).then((res) => {
+              setMaintenanceRequests(res.data);
+            });
           });
-          getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
-            setLease(res.data[0]);
-          });
-          getTransactionsByTenant(tenant_res.data.id).then((res) => {
-            setTransactions(res.data);
-          });
-          getMaintenanceRequestsByTenant(tenant_res.data.id).then((res) => {
-            setMaintenanceRequests(res.data);
-          });
-        });
 
-        retrieveFilesBySubfolder(
-          "user_profile_picture",
-          tenant_res.data.user.id
-        ).then((res) => {
-          if (res.data[0]) {
-            console.log("Tenant profile picture", res.data[0]);
-            setTenantProfilePicture(res.data[0]);
-          }
+          retrieveFilesBySubfolder(
+            "user_profile_picture",
+            tenant_res.data.user.id
+          ).then((res) => {
+            if (res.data[0]) {
+              console.log("Tenant profile picture", res.data[0]);
+              setTenantProfilePicture(res.data[0]);
+            }
+          });
         });
-      });
+      } catch (err) {
+        console.log(err);
+        setAlertTitle("Error!");
+        setAlertMessage(
+          "There was an error fetching tenant data. Please try again."
+        );
+        setShowAlert(true);
+      }
     }
   }, [tenant]);
   return (
     <>
+    <AlertModal
+
+      open={showAlert}
+      onClick={() => setShowAlert(false)}
+      title={alertTitle}
+      message={alertMessage}
+    />
       {tenant && (
         <div className="container">
           <div

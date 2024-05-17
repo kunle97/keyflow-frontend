@@ -16,6 +16,7 @@ const Logout = () => {
         navigate(redirect_link);
       } catch (error) {
         console.error("Error during logout:", error);
+        navigate(redirect_link);
       }
     };
     // Call the asynchronous function

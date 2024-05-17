@@ -63,7 +63,7 @@ export async function getLeaseTemplatesByUser() {
     return res;
   } catch (error) {
     console.log("Get Lease Terms Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
+    return error;
   }
 }
 

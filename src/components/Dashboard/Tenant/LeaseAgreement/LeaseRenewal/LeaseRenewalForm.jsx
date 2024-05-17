@@ -244,6 +244,14 @@ const LeaseRenewalForm = (props) => {
         );
         props.setShowAlertModal(true);
       }
+    }).catch((error) => {
+      console.error("Error creating lease renewal request:", error);
+      props.setShowLeaseRenewalDialog(false);
+      props.setAlertModalTitle("Lease Renewal Request Error");
+      props.setAlertModalMessage(
+        "Your lease renewal request has failed to submit. Please try again later."
+      );
+      props.setShowAlertModal(true);
     });
   };
 

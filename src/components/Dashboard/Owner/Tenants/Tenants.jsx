@@ -11,7 +11,11 @@ import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_reques
 import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const Tenants = () => {
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const [tenants, setTenants] = useState([]);
   const [leaseRenewals, setLeaseRenewals] = useState([]);
   const [leaseCancellations, setLeaseCancellations] = useState([]); // [
@@ -91,24 +95,38 @@ const Tenants = () => {
     },
   };
   useEffect(() => {
-    getOwnerTenants().then((res) => {
-      console.log(res);
-      setTenants(res.data);
-      console.log(tenants);
-    });
-    getAllLeaseRenewalRequests().then((res) => {
-      console.log(res);
-      setLeaseRenewals(res.data);
-      console.log(leaseRenewals);
-    });
-    getAllLeaseCancellationRequests().then((res) => {
-      console.log(res);
-      setLeaseCancellations(res.data);
-      console.log(leaseCancellations);
-    });
+    try{
+      getOwnerTenants().then((res) => {
+        console.log(res);
+        setTenants(res.data);
+        console.log(tenants);
+      });
+      getAllLeaseRenewalRequests().then((res) => {
+        console.log(res);
+        setLeaseRenewals(res.data);
+        console.log(leaseRenewals);
+      });
+      getAllLeaseCancellationRequests().then((res) => {
+        console.log(res);
+        setLeaseCancellations(res.data);
+        console.log(leaseCancellations);
+      });
+    }catch(err){
+      console.error(err);
+      setAlertMessage("An error occurred while retrieving tenants. Please try again later.");
+      setAlertTitle("Error");
+      setShowAlert(true);
+    }
   }, []);
   return (
     <div className="container">
+      <AlertModal
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+      />
       <div className="row">
         <div className="col-sm-12 col-md-12 ">
           <div className="row">

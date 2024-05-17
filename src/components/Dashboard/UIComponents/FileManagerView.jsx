@@ -92,6 +92,11 @@ const FileManagerView = (props) => {
           setShowDeleteConfirmationAlertModal(true);
         }
       })
+      .catch((error) => {
+        setResponseTitle("File Delete Error");
+        setResponseMessage("Something went wrong");
+        setShowDeleteConfirmationAlertModal(true);
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -250,7 +255,10 @@ const FileManagerView = (props) => {
                             padding: "0 10px",
                           }}
                         >
-                          <span style={{ color: "white" }} data-testId="file-name" >
+                          <span
+                            style={{ color: "white" }}
+                            data-testId="file-name"
+                          >
                             {full_file_name}
                           </span>
                           <IconButton

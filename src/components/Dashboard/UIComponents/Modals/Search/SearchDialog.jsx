@@ -37,6 +37,7 @@ import AllRentalApplicationResults from "./Results/AllRentalApplicationResults";
 import UITabs from "../../UITabs";
 import UIPrompt from "../../UIPrompt";
 import useScreen from "../../../../../hooks/useScreen";
+import AlertModal from "../AlertModal";
 const SearchDialog = (props) => {
   //Create a useCallback version of the Transition component
   const Transition = useCallback(
@@ -46,6 +47,9 @@ const SearchDialog = (props) => {
     []
   );
   const { isMobile } = useScreen();
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
   const [open, setOpen] = useState(false);
   const [dashboardPages, setDashboardPages] = useState(routes);
   const [allProperties, setAllProperties] = useState([]);
@@ -131,98 +135,113 @@ const SearchDialog = (props) => {
     if (event.target.value === "") {
       setProperties([]);
     }
-    authenticatedInstance
-      .get(`/owners/${authUser.owner_id}/tenants/`)
-      .then((res) => {
-        console.log("Tenant REsponse: ", res);
-        setTenants(res.data);
+    try {
+      authenticatedInstance
+        .get(`/owners/${authUser.owner_id}/tenants/`)
+        .then((res) => {
+          console.log("Tenant REsponse: ", res);
+          setTenants(res.data);
+        });
+      console.log("SEARCH DIOALOIEHG Tenants:", tenants);
+      getOwnerUnits().then((res) => {
+        setAllUnits(res.data);
       });
-    console.log("SEARCH DIOALOIEHG Tenants:", tenants);
-    getOwnerUnits().then((res) => {
-      setAllUnits(res.data);
-    });
-    getProperties().then((res) => {
-      setAllProperties(res.data);
-    });
-    setSearchValue(event.target.value);
-    //Search for the properties using the GEt request funtion on the authenticated instance using the endpoint /properties/?search=
-    authenticatedInstance
-      .get(
-        `/properties/?search=${event.target.value}&limit=${searchResultLimit}`
-      )
-      .then(
-        (res) => {
-          if (res.data.results) {
-            setProperties(res.data.results);
-            setPropertyResultCount(res.data.count);
-          } else {
-            setProperties(res.data);
+      getProperties().then((res) => {
+        setAllProperties(res.data);
+      });
+      setSearchValue(event.target.value);
+      //Search for the properties using the GEt request funtion on the authenticated instance using the endpoint /properties/?search=
+      authenticatedInstance
+        .get(
+          `/properties/?search=${event.target.value}&limit=${searchResultLimit}`
+        )
+        .then(
+          (res) => {
+            if (res.data.results) {
+              setProperties(res.data.results);
+              setPropertyResultCount(res.data.count);
+            } else {
+              setProperties(res.data);
+            }
+          },
+          (err) => {
+            console.error(err);
           }
-        },
-        (err) => {
-          console.error(err);
-        }
-      );
-    //Search for units using the get request function on the authenticated instance using the endpoint /units/?search=
-    authenticatedInstance
-      .get(`/units/?search=${event.target.value}&limit=${searchResultLimit}`)
-      .then(
-        (res) => {
-          if (res.data.results) {
-            setUnits(res.data.results);
-            setUnitResultCount(res.data.count);
-          } else {
-            setUnits(res.data);
+        );
+      //Search for units using the get request function on the authenticated instance using the endpoint /units/?search=
+      authenticatedInstance
+        .get(`/units/?search=${event.target.value}&limit=${searchResultLimit}`)
+        .then(
+          (res) => {
+            if (res.data.results) {
+              setUnits(res.data.results);
+              setUnitResultCount(res.data.count);
+            } else {
+              setUnits(res.data);
+            }
+          },
+          (err) => {
+            console.error(err);
           }
-        },
-        (err) => {
-          console.error(err);
-        }
-      );
-    //Search for maintenance requests using the get request function on the authenticated instance using the endpoint /maintenance/?search=
-    authenticatedInstance
-      .get(
-        `/maintenance-requests/?search=${event.target.value}&limit=${searchResultLimit}`
-      )
-      .then((res) => {
-        if (res.data.results) {
-          setMaintenanceRequests(res.data.results);
-          setMaintenanceRequestResultCount(res.data.count);
-        } else {
-          setMaintenanceRequests(res.data);
-        }
-      });
-    // //Search for rental applications using the get request function on the authenticated instance using the endpoint /rental/?search=
-    authenticatedInstance
-      .get(
-        `/rental-applications/?search=${event.target.value}&limit=${searchResultLimit}`
-      )
-      .then((res) => {
-        if (res.data.results) {
-          setRentalApplications(res.data.results);
-          setRentalApplicationResultCount(res.data.count);
-        } else {
-          setRentalApplications(res.data);
-        }
-      });
-    // //Search for transactions using the get request function on the authenticated instance using the endpoint /transactions/?search=
-    authenticatedInstance
-      .get(
-        `/transactions/?search=${event.target.value}&limit=${searchResultLimit}`
-      )
-      .then((res) => {
-        if (res.data.results) {
-          setTransactions(res.data.results);
-          setTransactionResultCount(res.data.count);
-        } else {
-          setTransactions(res.data);
-        }
-      });
+        );
+      //Search for maintenance requests using the get request function on the authenticated instance using the endpoint /maintenance/?search=
+      authenticatedInstance
+        .get(
+          `/maintenance-requests/?search=${event.target.value}&limit=${searchResultLimit}`
+        )
+        .then((res) => {
+          if (res.data.results) {
+            setMaintenanceRequests(res.data.results);
+            setMaintenanceRequestResultCount(res.data.count);
+          } else {
+            setMaintenanceRequests(res.data);
+          }
+        });
+      // //Search for rental applications using the get request function on the authenticated instance using the endpoint /rental/?search=
+      authenticatedInstance
+        .get(
+          `/rental-applications/?search=${event.target.value}&limit=${searchResultLimit}`
+        )
+        .then((res) => {
+          if (res.data.results) {
+            setRentalApplications(res.data.results);
+            setRentalApplicationResultCount(res.data.count);
+          } else {
+            setRentalApplications(res.data);
+          }
+        });
+      // //Search for transactions using the get request function on the authenticated instance using the endpoint /transactions/?search=
+      authenticatedInstance
+        .get(
+          `/transactions/?search=${event.target.value}&limit=${searchResultLimit}`
+        )
+        .then((res) => {
+          if (res.data.results) {
+            setTransactions(res.data.results);
+            setTransactionResultCount(res.data.count);
+          } else {
+            setTransactions(res.data);
+          }
+        });
+    } catch (err) {
+      console.log("Error in search dialog", err);
+      setShowAlert(true);
+      setAlertTitle("Error");
+      setAlertMessage("An error occurred while searching");
+    }
   };
 
   useEffect(() => {}, []);
   return (
     <div>
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       <Dialog
         PaperProps={{
           style: {

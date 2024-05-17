@@ -216,60 +216,67 @@ const UnitDocumentManager = (props) => {
         unit_id +
         "/signed_lease_documents/",
     };
-    uploadFile(payload).then((res) => {
-      console.log(res);
-      setIsLoading(false);
-      if (res.status === 201) {
+    uploadFile(payload)
+      .then((res) => {
         console.log(res);
-        let file_id = res.data.id;
-        let file = res.data;
-        authenticatedMediaInstance
-          .patch(`/units/${unit_id}/`, {
-            signed_lease_document_file: res.data.id,
-            signed_lease_document_metadata: JSON.stringify(
-              signed_lease_document_metadata
-            ),
-          })
-          .then((res) => {
-            if (res.status === 200) {
-              console.log("unit updated");
-            } else {
-              setAlertOpen(true);
-              setAlertTitle("Error");
-              setAlertMessage("Something went wrong");
-              return;
-            }
-          });
-        setAlertTitle("Update Lease Terms");
-        setAlertMessage(
-          <>
-            <p>
-              The current lease terms for this may not be updated to match the
-              the terms on the document. It is recommended that you update the
-              unit's lease terms now.
-            </p>
-            <div className="row">
-              {unitLeaseTerms.map((preference) => {
-                return (
-                  <div className="col-md-6">
-                    <h6>
-                      <strong>{preference.label}</strong>
-                    </h6>
-                    <p>{preference.value}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        );
-        setAlertOpen(true);
-      } else {
+        setIsLoading(false);
+        if (res.status === 201) {
+          console.log(res);
+          let file_id = res.data.id;
+          let file = res.data;
+          authenticatedMediaInstance
+            .patch(`/units/${unit_id}/`, {
+              signed_lease_document_file: res.data.id,
+              signed_lease_document_metadata: JSON.stringify(
+                signed_lease_document_metadata
+              ),
+            })
+            .then((res) => {
+              if (res.status === 200) {
+                console.log("unit updated");
+              } else {
+                setAlertOpen(true);
+                setAlertTitle("Error");
+                setAlertMessage("Something went wrong");
+                return;
+              }
+            });
+          setAlertTitle("Update Lease Terms");
+          setAlertMessage(
+            <>
+              <p>
+                The current lease terms for this may not be updated to match the
+                the terms on the document. It is recommended that you update the
+                unit's lease terms now.
+              </p>
+              <div className="row">
+                {unitLeaseTerms.map((preference) => {
+                  return (
+                    <div className="col-md-6">
+                      <h6>
+                        <strong>{preference.label}</strong>
+                      </h6>
+                      <p>{preference.value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          );
+          setAlertOpen(true);
+        } else {
+          setAlertTitle("File Upload Error");
+          setAlertMessage("Something went wrong");
+          setAlertOpen(true);
+          return;
+        }
+      })
+      .catch((error) => {
+        console.error("Error uploading file", error);
         setAlertTitle("File Upload Error");
         setAlertMessage("Something went wrong");
         setAlertOpen(true);
-        return;
-      }
-    });
+      });
   };
 
   const onDropSignedLeaseDocument = async (acceptedFiles) => {
@@ -311,7 +318,12 @@ const UnitDocumentManager = (props) => {
 
   useEffect(() => {
     if (props.unit.template_id) {
-      retrieveEditLink(props.unit.template_id);
+      retrieveEditLink(props.unit.template_id).catch((error) => {
+        console.error("Error retrieving edit link", error);
+        setAlertOpen(true);
+        setAlertTitle("Error");
+        setAlertMessage("An error occurred while retrieving the embed link.");
+      });
     }
     if (props.unit.signed_lease_document_file) {
       setSignedLeaseViewLink(props.unit.signed_lease_document_file.file);

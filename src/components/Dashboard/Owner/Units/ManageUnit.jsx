@@ -95,7 +95,7 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
-import UIHelpButton from "../../UIComponents/UIHelpButton";  
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 
 const ManageUnit = () => {
   const iconStyles = {
@@ -579,24 +579,29 @@ const ManageUnit = () => {
         owner_email: authUser.email,
       };
       //Call the createBoldSignEmbeddedTemplateLink API
-      await createBoldSignEmbeddedTemplateLink(payload).then((res) => {
-        console.log("Create BoldSign SIgend EMbed Link: ", res);
-        if (res.status === 201) {
-          setCreateLink(res.url);
-          setRenderIframe(true);
-          setTemplateId(res.template_id);
-          updateUnit(unit_id, { template_id: res.template_id }).then((res) => {
-            console.log(res);
-          });
-        }
-      }).catch((err) => {
-        console.log(err);
-        setAlertTitle("Error");
-        setAlertMessage("Something went wrong");
-        setAlertOpen(true);
-      }).finally(() => {
-        setIsLoadingIframe(false);
-      });
+      await createBoldSignEmbeddedTemplateLink(payload)
+        .then((res) => {
+          console.log("Create BoldSign SIgend EMbed Link: ", res);
+          if (res.status === 201) {
+            setCreateLink(res.url);
+            setRenderIframe(true);
+            setTemplateId(res.template_id);
+            updateUnit(unit_id, { template_id: res.template_id }).then(
+              (res) => {
+                console.log(res);
+              }
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setAlertTitle("Error");
+          setAlertMessage("Something went wrong");
+          setAlertOpen(true);
+        })
+        .finally(() => {
+          setIsLoadingIframe(false);
+        });
     }
   };
 
@@ -1007,6 +1012,9 @@ const ManageUnit = () => {
         });
     } catch (err) {
       console.log(err);
+      setAlertOpen(true);
+      setAlertTitle("Error");
+      setAlertMessage("There was an error loading the unit information");
     } finally {
       setIsLoadingPage(false);
       setIsLoading(false);
@@ -1018,6 +1026,16 @@ const ManageUnit = () => {
   }, []);
   return (
     <>
+      <AlertModal
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        btnText="Okay"
+        onClick={() => {
+          setAlertOpen(false);
+          navigate(0);
+        }}
+      />
       {isLoadingPage || isLoading ? (
         <UIProgressPrompt
           dataTestId="loading-unit-ui-progress-prompt"
@@ -1052,7 +1070,10 @@ const ManageUnit = () => {
             title={progressModalTitle ? progressModalTitle : "Loading..."}
             open={isLoading}
           />
-          <ProgressModal title="Uploading Lease Document..." open={isLoadingIframe} />
+          <ProgressModal
+            title="Uploading Lease Document..."
+            open={isLoadingIframe}
+          />
           <UIDialog
             dataTestId="edit-unit-dialog"
             open={editDialogOpen}
@@ -1179,16 +1200,7 @@ const ManageUnit = () => {
               </>
             </div>
           </UIDialog>
-          <AlertModal
-            open={alertOpen}
-            title={alertTitle}
-            message={alertMessage}
-            btnText="Okay"
-            onClick={() => {
-              setAlertOpen(false);
-              navigate(0);
-            }}
-          />
+
           <ConfirmModal
             open={showDeleteSignedDocumentConfirmModal}
             title="Delete Signed Lease"

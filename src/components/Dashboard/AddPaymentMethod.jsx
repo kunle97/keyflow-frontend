@@ -72,7 +72,6 @@ const AddPaymentMethod = (props) => {
     setIsLoading(false);
   };
 
-  useEffect(() => {}, []);
   return (
     <div className="container">
       <BackButton />
