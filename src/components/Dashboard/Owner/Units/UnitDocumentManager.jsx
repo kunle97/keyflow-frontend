@@ -24,7 +24,7 @@ import { uploadFile } from "../../../../api/file_uploads";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 const UnitDocumentManager = (props) => {
-  const { navigate } = useNavigate();
+  const navigate = useNavigate();
   const [createLink, setCreateLink] = useState(null);
   const [editLink, setEditLink] = useState(null);
   const [signedLeaseViewLink, setSignedLeaseViewLink] = useState(null);
@@ -129,6 +129,17 @@ const UnitDocumentManager = (props) => {
       .then((res) => {
         console.log(res);
         setEditLink(res.url);
+        if (res.status !== 201) {
+          setAlertOpen(true);
+          setAlertTitle("Error");
+          setAlertMessage("An error occurred while retrieving the embed link.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving edit link", error);
+        setAlertOpen(true);
+        setAlertTitle("Error");
+        setAlertMessage("An error occurred while retrieving the embed link.");
       })
       .finally(() => {
         setIsLoading(false);
@@ -180,11 +191,25 @@ const UnitDocumentManager = (props) => {
           setCreateLink(res.url);
           setRenderIframe(true);
           setTemplateId(res.template_id);
-          updateUnit(unit_id, { template_id: res.template_id }).then((res) => {
-            console.log(res);
-          });
+          updateUnit(unit_id, { template_id: res.template_id })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((error) => {
+              setAlertTitle("Error");
+              setAlertMessage(
+                "An error occurred while creating the lease agreement template."
+              );
+              setAlertOpen(true);
+            });
           console.log(iframeUrl);
           setIsLoadingIframe(false);
+        } else {
+          setAlertTitle("Error");
+          setAlertMessage(
+            "An error occurred while creating the lease agreement template."
+          );
+          setAlertOpen(true);
         }
       });
     }
@@ -318,12 +343,7 @@ const UnitDocumentManager = (props) => {
 
   useEffect(() => {
     if (props.unit.template_id) {
-      retrieveEditLink(props.unit.template_id).catch((error) => {
-        console.error("Error retrieving edit link", error);
-        setAlertOpen(true);
-        setAlertTitle("Error");
-        setAlertMessage("An error occurred while retrieving the embed link.");
-      });
+      retrieveEditLink(props.unit.template_id);
     }
     if (props.unit.signed_lease_document_file) {
       setSignedLeaseViewLink(props.unit.signed_lease_document_file.file);
@@ -333,7 +353,7 @@ const UnitDocumentManager = (props) => {
     return () => {
       window.removeEventListener("message", handleTemplateEditUpdate);
     };
-  }, [props.unit, alertOpen]);
+  }, [props.unit]);
 
   return (
     <div>
@@ -343,7 +363,6 @@ const UnitDocumentManager = (props) => {
         message={alertMessage}
         btnText="Okay"
         onClick={() => {
-          navigate(0);
           setAlertOpen(false);
         }}
       />
