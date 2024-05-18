@@ -1306,15 +1306,16 @@ const ManageUnit = () => {
               setShowLeaseTemplateChangeWarning(false);
             }}
             handleConfirm={() => {
+              console.log("signed_lease_document_file", unit);
               handleChangeLeaseTemplate(
                 leaseTemplates,
                 currentLeaseTemplate.id,
                 unitLeaseTerms,
-                unit_id,
-                unit.signed_lease_document_file.id
+                unit_id
               );
               setShowLeaseTemplateChangeWarning(false);
               setShowLeaseTemplateSelector(false);
+              navigate(0);
             }}
           />
           <RentPriceSuggestionModal
@@ -1766,6 +1767,7 @@ const ManageUnit = () => {
                         className="form-select"
                         style={{
                           width: "250px",
+                          backgroundColor: "white",
                         }}
                         onChange={(e) => {
                           let lease_template_id = parseInt(e.target.value);
@@ -1782,7 +1784,7 @@ const ManageUnit = () => {
                             );
                             setShowLeaseTemplateChangeWarning(true);
                           } else {
-                            console.log("Leasde AGreement Docuemtn not set");
+                            console.log("Leasde Agreement Docuemtn not set");
                             const res = handleChangeLeaseTemplate(
                               leaseTemplates,
                               lease_template_id,
@@ -1804,7 +1806,10 @@ const ManageUnit = () => {
                           leaseTemplates.map((template) => {
                             let option_label = `${template.term} ${template.rent_frequency} Lease @ ${template.rent}/${template.rent_frequency}`;
                             return (
-                              <option value={template.id}>
+                              <option
+                                value={template.id}
+                                selected={unit.lease_template == template.id}
+                              >
                                 {option_label}
                               </option>
                             );

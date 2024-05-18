@@ -38,6 +38,9 @@ const UnitDocumentManager = (props) => {
     setShowDeleteSignedDocumentConfirmModal,
   ] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
+  const [showLeaseTemplateAlert, setShowLeaseTemplateAlert] = useState(
+    props.unit.lease_template ? true : false
+  );
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [isLoadingIframe, setIsLoadingIframe] = useState(false);
@@ -364,6 +367,15 @@ const UnitDocumentManager = (props) => {
         btnText="Okay"
         onClick={() => {
           setAlertOpen(false);
+        }}
+      />
+      <AlertModal
+        open={showLeaseTemplateAlert}
+        title="Lease Agreement Template"
+        message="This unit already has a lease agreement template associated to it. By editing this lease agreement document the changes will affect other units with the same template."
+        btnText="Okay"
+        onClick={() => {
+          setShowLeaseTemplateAlert(false);
         }}
       />
       <ConfirmModal
