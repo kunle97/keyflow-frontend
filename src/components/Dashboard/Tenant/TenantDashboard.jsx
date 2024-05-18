@@ -358,7 +358,9 @@ const TenantDashboard = () => {
     <div className="container  tenant-dashboard-container">
       <AlertModal
         open={showAlert}
-        onClose={() => {}}
+        onClick={() => {
+          setShowAlert(false);
+        }}
         title={alertTitle}
         message={alertMessage}
       />

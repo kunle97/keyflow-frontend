@@ -69,9 +69,6 @@ const AllMaintenanceRequestResults = (props) => {
     <div>
       <AlertModal
         open={open}
-        handleClose={() => {
-          setOpen(false);
-        }}
         title={alertTitle}
         message={alertMessage}
         onClick={() => {

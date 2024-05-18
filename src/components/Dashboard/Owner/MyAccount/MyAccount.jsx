@@ -48,7 +48,8 @@ import {
 } from "../../../../api/owners";
 import { syncPreferences } from "../../../../helpers/preferences";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
-import UIPrompt from "../../UIComponents/UIPrompt";
+import { getStripeAccountLink } from "../../../../api/owners";
+
 import AddCardIcon from "@mui/icons-material/AddCard";
 const MyAccount = () => {
   const { isMobile } = useScreen();
@@ -73,6 +74,7 @@ const MyAccount = () => {
   const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [updatedDefaultPaymentMethod, setUpdatedDefaultPaymentMethod] =
     useState(null);
+  const [stripeAccountLink, setStripeAccountLink] = useState(null);
   const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
@@ -398,39 +400,51 @@ const MyAccount = () => {
   };
 
   useEffect(() => {
-    syncPreferences();
-    //Get the payment methods for the user
-    listOwnerStripePaymentMethods(`${authUser.id}`)
-      .then((res) => {
-        console.log("PAyment M3th0Ds Response: ", res);
-        setPaymentMethods(res.payment_methods.data);
-        setPaymentMethodDefaultId(res.default_payment_method);
-      })
-      .catch((error) => {
-        console.log("Error getting payment methods: ", error);
-        setPaymentMethods([]);
+    try {
+      syncPreferences();
+      getStripeAccountLink().then((res) => {
+        console.log("Stripe ACcount link res: ", res);
+        setStripeAccountLink(res.account_link);
       });
-    getSubscriptionPlanPrices().then((res) => {
-      setPlans(res.products);
-    }).catch((error) => {
-      console.log("Error getting subscription plans: ", error);
+      //Get the payment methods for the user
+      listOwnerStripePaymentMethods(`${authUser.id}`)
+        .then((res) => {
+          console.log("PAyment M3th0Ds Response: ", res);
+          setPaymentMethods(res.payment_methods.data);
+          setPaymentMethodDefaultId(res.default_payment_method);
+        })
+        .catch((error) => {
+          console.log("Error getting payment methods: ", error);
+          setPaymentMethods([]);
+        });
+      getSubscriptionPlanPrices()
+        .then((res) => {
+          setPlans(res.products);
+        })
+        .catch((error) => {
+          console.log("Error getting subscription plans: ", error);
+          setResponseTitle("Error");
+          setResponseMessage("Error getting subscription plans");
+          setShowResponseModal(true);
+        });
+      getUserStripeSubscriptions(authUser.id, token).then((res) => {
+        setCurrentSubscriptionPlan(res.subscriptions);
+      });
+      retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
+        (res) => {
+          setProfilePictureFile(res.data[0]);
+        }
+      );
+      getOwnerPreferences().then((res) => {
+        console.log("PREfffekwf", res);
+        setOwnerPreferences(res.preferences);
+      });
+    } catch (e) {
+      console.log(e);
       setResponseTitle("Error");
-      setResponseMessage("Error getting subscription plans");
+      setResponseMessage("Error getting user data");
       setShowResponseModal(true);
     }
-    );
-    getUserStripeSubscriptions(authUser.id, token).then((res) => {
-      setCurrentSubscriptionPlan(res.subscriptions);
-    });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
-      (res) => {
-        setProfilePictureFile(res.data[0]);
-      }
-    );
-    getOwnerPreferences().then((res) => {
-      console.log("PREfffekwf", res);
-      setOwnerPreferences(res.preferences);
-    });
   }, []);
 
   return (
@@ -446,61 +460,75 @@ const MyAccount = () => {
       />
       <Stack
         direction="row"
-        justifyContent="flex-start"
+        justifyContent="space-between"
         alignItems="center"
         spacing={2}
-        sx={{ marginBottom: "30px" }}
       >
         <Stack
-          direction="column"
-          justifyContent="center"
+          direction="row"
+          justifyContent="flex-start"
           alignItems="center"
-          spacing={0}
+          spacing={2}
+          sx={{ marginBottom: "30px" }}
         >
-          {" "}
-          <div
-            style={{
-              borderRadius: "50%",
-              overflow: "hidden",
-              width: "75px",
-              height: "75px",
-              margin: "15px 0",
-            }}
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            spacing={0}
           >
-            <img
-              style={{ height: "100%" }}
-              src={
-                profilePictureFile
-                  ? profilePictureFile.file
-                  : "/assets/img/avatars/default-user-profile-picture.png"
-              }
-            />
+            {" "}
+            <div
+              style={{
+                borderRadius: "50%",
+                overflow: "hidden",
+                width: "75px",
+                height: "75px",
+                margin: "15px 0",
+              }}
+            >
+              <img
+                style={{ height: "100%" }}
+                src={
+                  profilePictureFile
+                    ? profilePictureFile.file
+                    : "/assets/img/avatars/default-user-profile-picture.png"
+                }
+              />
+            </div>
+            <Button
+              btnText="Change Photo"
+              onClick={() => setUploadDialogOpen(true)}
+              variant="text"
+              sx={{
+                color: uiGreen,
+                textTransform: "none",
+                fontSize: "10pt",
+                margin: "0 10px",
+              }}
+            >
+              Change Photo
+            </Button>
+          </Stack>
+
+          <div>
+            <h5 style={{ width: "100%", textAlign: "left", margin: "0" }}>
+              {authUser.first_name} {authUser.last_name}
+            </h5>
+            <div style={{ width: "100%", textAlign: "left" }}>
+              <a href={`mailto:${authUser.email}`} className="text-muted">
+                {authUser.email}
+              </a>
+            </div>
           </div>
-          <Button
-            btnText="Change Photo"
-            onClick={() => setUploadDialogOpen(true)}
-            variant="text"
-            sx={{
-              color: uiGreen,
-              textTransform: "none",
-              fontSize: "10pt",
-              margin: "0 10px",
-            }}
-          >
-            Change Photo
-          </Button>
         </Stack>
 
-        <div>
-          <h5 style={{ width: "100%", textAlign: "left", margin: "0" }}>
-            {authUser.first_name} {authUser.last_name}
-          </h5>
-          <div style={{ width: "100%", textAlign: "left" }}>
-            <a href={`mailto:${authUser.email}`} className="text-muted">
-              {authUser.email}
-            </a>
-          </div>
-        </div>
+        <UIButton
+          btnText="Stripe Dashboard"
+          onClick={() => {
+            window.open(stripeAccountLink, "_blank");
+          }}
+        />
       </Stack>
 
       <UITabs

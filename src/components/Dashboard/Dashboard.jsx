@@ -696,7 +696,7 @@ const Dashboard = () => {
     <div className="container-fluid dashboard-container">
       <AlertModal
         open={alertModalOpen}
-        onClose={() => setAlertModalOpen(false)}
+        onClick={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
       />

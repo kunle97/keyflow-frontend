@@ -31,7 +31,7 @@ const PlanSelectDialog = (props) => {
     <>
       <AlertModal
         open={showAlert}
-        onClose={() => setShowAlert(false)}
+        onClick={() => setShowAlert(false)}
         title={alertTitle}
         message={alertMessage}
         btnText="Okay"

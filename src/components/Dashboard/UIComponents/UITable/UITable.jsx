@@ -77,77 +77,85 @@ const UITable = (props) => {
 
   const refresh = async (endpoint) => {
     setIsLoading(true);
-    if (props.data) {
-      setResults(props.data);
-      setFilteredData(props.data);
-      setIsDrfFilterBackend(false);
-      setIsLoading(false);
-    } else {
-      await authenticatedInstance
-        .get(endpoint, {
-          params: {
-            search: query,
-          },
-        })
-        .then((res) => {
-          if (res.data.results) {
-            setIsDrfFilterBackend(true);
-            setResults(res.data.results);
-            setNextPageEndPoint(res.data.next);
-            setPreviousPageEndPoint(res.data.previous);
-            setCount(res.data.count);
-            setIsLoading(false);
-            if (props.options.isSelectable) {
-              let newChecked = [];
-              //loop through the first set of results and set the selected property to false for each row. After
-              res.data.results.map((result) => {
-                newChecked.push({
-                  id: result.id,
-                  selected: false,
-                });
-              });
-              while (!nextPageEndPoint === null) {
-                const remaining_res = authenticatedInstance
-                  .get(nextPageEndPoint)
-                  .then((r_res) => {
-                    r_res.data.results.map((result) => {
-                      newChecked.push({
-                        id: result.id,
-                        selected: false,
-                      });
-                    });
-                    setNextPageEndPoint(r_res.data.next);
-                  });
-              }
+    try {
+      if (props.data) {
+        setResults(props.data);
+        setFilteredData(props.data);
+        setIsDrfFilterBackend(false);
+        setIsLoading(false);
+      } else {
+        await authenticatedInstance
+          .get(endpoint, {
+            params: {
+              search: query,
+            },
+          })
+          .then((res) => {
+            if (res.data.results) {
+              setIsDrfFilterBackend(true);
+              setResults(res.data.results);
               setNextPageEndPoint(res.data.next);
-              props.setChecked(newChecked);
-            }
-          } else {
-            setIsDrfFilterBackend(false);
-            setResults(res.data);
-            setFilteredData(res.data);
-            setNextPageEndPoint(null);
-            setPreviousPageEndPoint(null);
-            setCount(null);
-            setLimit(null);
-            setIsLoading(false);
-            if (props.options.isSelectable) {
-              let newChecked = [];
-              res.data.map((result) => {
-                newChecked.push({
-                  id: result.id,
-                  selected: false,
+              setPreviousPageEndPoint(res.data.previous);
+              setCount(res.data.count);
+              setIsLoading(false);
+              if (props.options.isSelectable) {
+                let newChecked = [];
+                //loop through the first set of results and set the selected property to false for each row. After
+                res.data.results.map((result) => {
+                  newChecked.push({
+                    id: result.id,
+                    selected: false,
+                  });
                 });
-              });
-              props.setChecked(newChecked);
+                while (!nextPageEndPoint === null) {
+                  const remaining_res = authenticatedInstance
+                    .get(nextPageEndPoint)
+                    .then((r_res) => {
+                      r_res.data.results.map((result) => {
+                        newChecked.push({
+                          id: result.id,
+                          selected: false,
+                        });
+                      });
+                      setNextPageEndPoint(r_res.data.next);
+                    });
+                }
+                setNextPageEndPoint(res.data.next);
+                props.setChecked(newChecked);
+              }
+            } else {
+              setIsDrfFilterBackend(false);
+              setResults(res.data);
+              setFilteredData(res.data);
+              setNextPageEndPoint(null);
+              setPreviousPageEndPoint(null);
+              setCount(null);
+              setLimit(null);
+              setIsLoading(false);
+              if (props.options.isSelectable) {
+                let newChecked = [];
+                res.data.map((result) => {
+                  newChecked.push({
+                    id: result.id,
+                    selected: false,
+                  });
+                });
+                props.setChecked(newChecked);
+              }
             }
-          }
-        }).catch((error) => {
-          console.error("Error fetching data:", error);
-          setAlertTitle("Error");
-          setAlertMessage("An error occurred while fetching the data");
-          setShowAlert(true);
-        });
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+            setAlertTitle("Error");
+            setAlertMessage("An error occurred while fetching the data");
+            setShowAlert(true);
+          });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setAlertTitle("Error");
+      setAlertMessage("An error occurred while fetching the data");
+      setShowAlert(true);
     }
   };
 
