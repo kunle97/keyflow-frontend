@@ -69,7 +69,7 @@ const BillDetail = (props) => {
     <div className={isMobile ? "container" : ""}>
       <AlertModal
         open={showAlert}
-        handleClose={() => {
+        onClick={() => {
           setShowAlert(false);
         }}
         title={alertTitle}

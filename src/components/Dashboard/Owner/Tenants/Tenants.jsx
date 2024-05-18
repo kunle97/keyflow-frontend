@@ -122,7 +122,7 @@ const Tenants = () => {
     <div className="container">
       <AlertModal
         open={showAlert}
-        onClose={() => setShowAlert(false)}
+        onClick={() => setShowAlert(false)}
         title={alertTitle}
         message={alertMessage}
         btnText="Okay"
