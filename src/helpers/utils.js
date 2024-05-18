@@ -1,4 +1,7 @@
-import { authenticatedMediaInstance, unauthenticatedInstance } from "../api/api";
+import {
+  authenticatedMediaInstance,
+  unauthenticatedInstance,
+} from "../api/api";
 import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
@@ -261,17 +264,19 @@ export const handleChangeLeaseTemplate = (
         console.log(res);
         if (res.status == 200) {
           changeResponse = true;
+          return changeResponse;
         }
       })
       .catch((error) => {
         console.log(error);
         changeResponse = false;
+        return changeResponse;
       });
   } catch (err) {
     console.log("An error occured trying to change the lease template", err);
     changeResponse = false;
+    return changeResponse;
   }
-  return changeResponse;
 };
 //Create a function that takes in an object of strings and a regex patern and returs if each string in the object matches the regex pattern
 export const regexCheck = (strings, patterns) => {
@@ -291,7 +296,10 @@ export const regexCheck = (strings, patterns) => {
 // Create a function to check if the accessToken is expired by comparing current date to the localStorage accessTokenExpirationDate value
 export const isTokenExpired = () => {
   // Check if the accessToken localStorage value exists
-  if (!localStorage.getItem("accessTokenExpirationDate") || !localStorage.getItem("accessToken")) {
+  if (
+    !localStorage.getItem("accessTokenExpirationDate") ||
+    !localStorage.getItem("accessToken")
+  ) {
     return true; // Token is expired if the expiration date or the token itself is missing
   }
 
@@ -312,13 +320,13 @@ export const clearLocalStorage = () => {
   localStorage.removeItem("subscriptionPlan");
   localStorage.removeItem("ownerData");
   localStorage.removeItem("tenantData");
-  };
+};
 
 //Create a function that uses tthe unauthenticatedInstance to validate a token in local storage
 export const validateToken = async () => {
   let isValid = false;
   try {
-    const res = await unauthenticatedInstance.post("/auth/validate-token/",{
+    const res = await unauthenticatedInstance.post("/auth/validate-token/", {
       token: localStorage.getItem("accessToken"),
     });
     console.log(res);
