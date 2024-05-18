@@ -383,9 +383,7 @@ const CreateRentalApplication = () => {
       setIsLoading(false);
       setSubmissionMessage("Error Submitting Application");
       setShowSubmissionMessage(true);
-      setSubmissionMessageLink(
-        `/rental-application/${unit_id}/${owner_id}/`
-      );
+      setSubmissionMessageLink(`/rental-application/${unit_id}/${owner_id}/`);
       setAlertButtonText("Try Again");
       setAlertTitle("Error Submitting Application");
     }
@@ -435,62 +433,87 @@ const CreateRentalApplication = () => {
      * */
 
     // get unit data
-    getUnitUnauthenticated(unit_id).then((unit_res) => {
-      setIsLoading(true);
-      if (unit_res.data) {
-        setUnit(unit_res.data);
+    getUnitUnauthenticated(unit_id)
+      .then((unit_res) => {
+        setIsLoading(true);
+        if (unit_res.data) {
+          setUnit(unit_res.data);
 
-        setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
-        //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
-        retrieveUnauthenticatedFilesBySubfolder(
-          `properties/${unit_res.data.rental_property}/units/${unit_id}`
-        ).then((res) => {
-          res.data.forEach((file) => {
-            setUnitImages((unitImages) => [
-              ...unitImages,
-              {
-                original: file.file,
-                thumbnail: file.file,
-              },
-            ]);
-          });
-        });
-        if (
-          JSON.parse(unit_res.data.preferences).find(
-            (preference) => preference.name === "accept_rental_applications"
-          )?.value === false
-        ) {
-          setAlertTitle("Applications Closed");
-          setAlertMessage(
-            "This unit is not accepting rental applications at the moment."
-          );
-          setAlertModalRedirect("/");
-          setShowAlert(true);
-        }
-        if (unit_res.data.is_occupied) {
-          //Redirect to 404 screen if unit is occupied
-          navigate("/*");
-        }
-        if (unit_res.data.rental_property) {
-          // get property data from unit data
-          getPropertyUnauthenticated(unit_res.data.rental_property).then(
-            (property_res) => {
-              if (property_res.data) {
-                setProperty(property_res.data);
-                setIsLoading(false);
-                setErrorMode(false);
-              } else {
+          setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
+          //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
+          retrieveUnauthenticatedFilesBySubfolder(
+            `properties/${unit_res.data.rental_property}/units/${unit_id}`
+          )
+            .then((res) => {
+              res.data.forEach((file) => {
+                setUnitImages((unitImages) => [
+                  ...unitImages,
+                  {
+                    original: file.file,
+                    thumbnail: file.file,
+                  },
+                ]);
+              });
+            })
+            .catch((err) => {
+              setIsLoading(false);
+              setErrorMode(true);
+              setAlertTitle("Error Loading Application");
+              setAlertMessage("Error loading application data");
+              setAlertModalRedirect("/");
+              setShowAlert(true);
+            });
+          if (
+            JSON.parse(unit_res.data.preferences).find(
+              (preference) => preference.name === "accept_rental_applications"
+            )?.value === false
+          ) {
+            setAlertTitle("Applications Closed");
+            setAlertMessage(
+              "This unit is not accepting rental applications at the moment."
+            );
+            setAlertModalRedirect("/");
+            setShowAlert(true);
+          }
+          if (unit_res.data.is_occupied) {
+            //Redirect to 404 screen if unit is occupied
+            navigate("/*");
+          }
+          if (unit_res.data.rental_property) {
+            // get property data from unit data
+            getPropertyUnauthenticated(unit_res.data.rental_property)
+              .then((property_res) => {
+                if (property_res.data) {
+                  setProperty(property_res.data);
+                  setIsLoading(false);
+                  setErrorMode(false);
+                } else {
+                  setIsLoading(false);
+                  setErrorMode(true);
+                  setProperty(null);
+                }
+              })
+              .catch((err) => {
                 setIsLoading(false);
                 setErrorMode(true);
-                setProperty(null);
-              }
-            }
-          );
-        } else {
-          setUnit(null);
+                setAlertTitle("Error Loading Application");
+                setAlertMessage("Error loading application data");
+                setAlertModalRedirect("/");
+                setShowAlert(true);
+              });
+          } else {
+            setUnit(null);
+          }
         }
-      }
-    });
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setErrorMode(true);
+        setAlertTitle("Error Loading Application");
+        setAlertMessage("Error loading application data");
+        setAlertModalRedirect("/");
+        setShowAlert(true);
+      });
   }, []);
 
   return (

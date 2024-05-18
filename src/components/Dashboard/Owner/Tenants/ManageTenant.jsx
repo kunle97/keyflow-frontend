@@ -207,7 +207,6 @@ const ManageTenant = () => {
   return (
     <>
     <AlertModal
-
       open={showAlert}
       onClick={() => setShowAlert(false)}
       title={alertTitle}

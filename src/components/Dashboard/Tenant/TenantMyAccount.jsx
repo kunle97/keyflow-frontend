@@ -423,7 +423,6 @@ const TenantMyAccount = () => {
         message={responseMessage}
         open={showResponseModal}
         btnText="Okay"
-        handleClose={() => setShowResponseModal(false)}
         onClick={() => setShowResponseModal(false)}
       />
       <Stack

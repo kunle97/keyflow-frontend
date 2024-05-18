@@ -236,7 +236,6 @@ const ViewRentalApplication = () => {
         title={aletModalTitle}
         message={alertModalMessage}
         btnText="Ok"
-        handleClose={() => setOpenAlertModal(false)}
         to="/dashboard/owner/rental-applications"
       />
       <Joyride
