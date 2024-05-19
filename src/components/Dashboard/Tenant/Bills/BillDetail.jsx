@@ -12,9 +12,11 @@ import UIButton from "../../UIComponents/UIButton";
 import { listStripePaymentMethods } from "../../../../api/payment_methods";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const BillDetail = (props) => {
   const { invoice_id } = useParams();
   const { isMobile } = useScreen();
+  const [isLoading, setIsLoading] = useState(true);
   const [invoice, setInvoice] = useState(null);
   const [paymentMethods, setPaymentMethods] = useState(null);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
@@ -41,6 +43,7 @@ const BillDetail = (props) => {
    * 8. Show a discreet link to the stripe payment page
    */
   useEffect(() => {
+    setIsLoading(true);
     try {
       getTenantInvoice(invoice_id).then((res) => {
         console.log(res.invoice);
@@ -62,11 +65,14 @@ const BillDetail = (props) => {
       setShowAlert(true);
       setAlertMessage("An error occurred while fetching the invoice");
       setAlertTitle("Error");
+    } finally {
+      setIsLoading(false);
     }
   }, [invoice_id]);
 
   return (
     <div className={isMobile ? "container" : ""}>
+      <ProgressModal open={isLoading} title="Loading Invoice..." />
       <AlertModal
         open={showAlert}
         onClick={() => {

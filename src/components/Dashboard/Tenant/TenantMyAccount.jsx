@@ -385,11 +385,6 @@ const TenantMyAccount = () => {
       getTenantDashboardData().then((res) => {
         console.log("Dashboard datrat ", res);
         setLeaseAgreement(res.lease_agreement);
-        const subscription_id = res.lease_agreement.stripe_subscription_id;
-        // getStripeSubscription(subscription_id).then((res) => {
-        //   console.log("Subscription", res);
-        //   setPrimaryPaymentMethod(res.default_payment_method);
-        // });
       });
       retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
         (res) => {
