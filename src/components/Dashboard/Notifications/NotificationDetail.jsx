@@ -11,7 +11,11 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import { removeUnderscoresAndCapitalize } from "../../../helpers/utils";
 export const NotificationDetail = () => {
   const { id } = useParams();
-  const [notification, setNotification] = useState({}); //initialize notification state
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "",
+    timestamp: "",
+  }); //initialize notification state
   useEffect(() => {
     //retrieve notification by id from api
     getNotification(id)
