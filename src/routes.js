@@ -421,9 +421,16 @@ export const routes = [
     isQuickLink: true,
     muiIcon: <HandymanOutlinedIcon />,
   },
-
   {
     path: "/dashboard/owner/maintenance-requests/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <OwnerMaintenanceRequestDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/maintenance-requests/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <OwnerMaintenanceRequestDetail />

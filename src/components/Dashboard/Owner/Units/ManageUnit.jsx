@@ -1386,7 +1386,7 @@ const ManageUnit = () => {
             </div>
           )}
           <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction="row"
             justifyContent="space-between"
             alignItems="center"
             alignContent={{ xs: "center", sm: "flex-start" }}

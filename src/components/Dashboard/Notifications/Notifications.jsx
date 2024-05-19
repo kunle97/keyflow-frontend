@@ -60,7 +60,8 @@ const Notifications = () => {
         }}
         onRowClick={(row) => {
           const navlink = `/dashboard/notifications/${row.id}`;
-          navigate(navlink);
+          const resource_url = row.resource_url;
+          navigate(resource_url);
         }}
       />
     </div>
