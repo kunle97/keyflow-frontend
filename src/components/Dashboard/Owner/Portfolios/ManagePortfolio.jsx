@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import UITabs from "../../UIComponents/UITabs";
+import { authenticatedInstance } from "../../../../api/api";
 import {
   getPortfolio,
   updatePortfolio,
   deletePortfolio,
   updatePortfolioPreferences,
 } from "../../../../api/portfolios";
+import {
+  updatePortfolioProperties,
+  updateProperty,
+  updatePropertyMedia,
+} from "../../../../api/properties";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import EditIcon from "@mui/icons-material/Edit";
 import {
+  ButtonBase,
+  ClickAwayListener,
+  Grow,
   IconButton,
+  List,
   ListItem,
   ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -23,9 +37,10 @@ import {
   defaultWhiteInputStyle,
   validationMessageStyle,
   uiRed,
+  uiGrey2,
 } from "../../../../constants";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -39,24 +54,41 @@ import UISwitch from "../../UIComponents/UISwitch";
 import { syncPortfolioPreferences } from "../../../../helpers/preferences";
 import Joyride, {
   ACTIONS,
-  CallBackProps,
   EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import UIInput from "../../UIComponents/UIInput";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
+import UICheckbox from "../../UIComponents/UICheckbox";
 const ManagePortfolio = () => {
   const { id } = useParams();
-  const { isMobile } = useScreen();
   const navigate = useNavigate();
-  const { screenWidth, breakpoints } = useScreen();
+  const { screenWidth, breakpoints, isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [portfolio, setPortfolio] = useState(null);
   const [portfolioPreferences, setPortfolioPreferences] = useState([]);
   const [properties, setProperties] = useState([]);
+  const [allUserProperties, setAllUserProperties] = useState([]);
   const [open, setOpen] = useState(false);
+  const anchorRef = React.useRef(null);
+  const [openPopper, setOpenPopper] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [propertySelectModalOpen, setPropertySelectModalOpen] = useState(false);
+  const [rentalUnitModalOpen, setRentalPropertyModalOpen] = useState(false);
+  const [selectedRentalProperties, setSelectedRentalProperties] = useState([]);
+  const [rentalPropertyEndpoint, setRentalPropertyEndpoint] =
+    useState("/properties/");
+  const [allUserRentalProperties, setAllUserRentalProperties] = useState([]);
+  const [rentalPropertyNextPage, setRentalPropertyNextPage] = useState(null);
+  const [rentalPropertyPreviousPage, setRentalPropertyPreviousPage] =
+    useState(null);
+  const [rentalPropertySearchQuery, setRentalUnitSearchQuery] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertRedirectURL, setAlertRedirectURL] = useState(null);
   const [alertTitle, setAlertTitle] = useState("");
   const [tabPage, setTabPage] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -83,7 +115,7 @@ const ManagePortfolio = () => {
     {
       target: ".edit-portfolio-button-wrapper",
       content:
-        "You can edit the name and description of the portfolio by clicking here",
+        "This is the portfolio management icon. Click this to edit, delete or add properties to the portfolio",
     },
     {
       target: ".properties-list-container",
@@ -193,26 +225,30 @@ const ManagePortfolio = () => {
       description: formData.description,
       owner: authUser.owner_id,
     };
-    updatePortfolio(id, payload).then((res) => {
-      console.log(res);
-      if (res.status === 200 || res.status === 201) {
-        setAlertTitle("Success");
-        setAlertMessage("Portfolio updated successfully");
-        setOpen(true);
-        setEditDialogOpen(false);
-      } else {
+    updatePortfolio(id, payload)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200 || res.status === 201) {
+          setAlertTitle("Success");
+          setAlertMessage("Portfolio updated successfully");
+          setOpen(true);
+          setEditDialogOpen(false);
+        } else {
+          setAlertTitle("Error");
+          setAlertMessage("Error updating portfolio");
+          setOpen(true);
+          setEditDialogOpen(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating portfolio:", error);
         setAlertTitle("Error");
-        setAlertMessage("Error updating portfolio");
+        setAlertMessage(
+          "An error occurred while updating the portfolio. Please try again."
+        );
         setOpen(true);
         setEditDialogOpen(false);
-      }
-    }).catch((error) => {
-      console.error("Error updating portfolio:", error);
-      setAlertTitle("Error");
-      setAlertMessage("An error occurred while updating the portfolio. Please try again.");
-      setOpen(true);
-      setEditDialogOpen(false);
-    });
+      });
   };
 
   const handleDelete = () => {
@@ -221,8 +257,9 @@ const ManagePortfolio = () => {
       if (res.status === 200 || res.status === 201) {
         setAlertTitle("Portfolio Deleted");
         setAlertMessage("");
-        setOpen(true);
         setEditDialogOpen(false);
+        setAlertRedirectURL("/dashboard/owner/portfolios");
+        setOpen(true);
       } else {
         setAlertTitle("Error");
         setAlertMessage("Error Deleting Portfolio");
@@ -235,6 +272,28 @@ const ManagePortfolio = () => {
   const handleTabChange = (event, newValue) => {
     setTabPage(newValue);
   };
+
+  // Dropdown
+  const handleToggle = () => {
+    setOpenPopper((prevOpen) => !prevOpen);
+  };
+
+  const handleClose = (event) => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
+    setOpenPopper(false);
+  };
+
+  function handleListKeyDown(event) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      setOpenPopper(false);
+    } else if (event.key === "Escape") {
+      setOpenPopper(false);
+    }
+  }
 
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName) => {
@@ -256,6 +315,58 @@ const ManagePortfolio = () => {
     }
   };
 
+  const handleSearchRentalProperties = async () => {
+    const res = await authenticatedInstance.get(rentalPropertyEndpoint, {
+      params: {
+        search: rentalPropertySearchQuery,
+        limit: 10,
+      },
+    });
+    setAllUserRentalProperties(res.data.results);
+    setRentalPropertyNextPage(res.data.next);
+    setRentalPropertyPreviousPage(res.data.previous);
+  };
+
+  const handleOpenRentalPropertySelectModal = async () => {
+    setRentalPropertyModalOpen(true);
+    //Fetch rental units from api
+    if (allUserRentalProperties.length === 0) {
+      await handleSearchRentalProperties();
+    } else {
+      setRentalPropertyModalOpen(true);
+    }
+  };
+
+  //Create a function called handleNextPageRentalUnitClick to handle the next page click of the rental unit modal by fetching the next page of rental units from the api
+  const handleNextPageRentalUnitClick = async () => {
+    setRentalPropertyEndpoint(rentalPropertyNextPage);
+    handleSearchRentalProperties();
+  };
+
+  //Create function for previous page
+  const handlePreviousPageRentalUnitClick = async () => {
+    setRentalPropertyEndpoint(rentalPropertyPreviousPage);
+    handleSearchRentalProperties();
+  };
+
+  //Create a function that handles the selection of a rental property using the checkbox
+  const handleSelectRentalProperty = (property, checked) => {
+    if (checked) {
+      setSelectedRentalProperties((prevProperties) => {
+        if (prevProperties.find((prop) => prop.id === property.id)) {
+          return prevProperties;
+        } else {
+          return [...prevProperties, property];
+        }
+      });
+    } else {
+      //Remove the property from the selected properties
+      setSelectedRentalProperties((prevProperties) => {
+        return prevProperties.filter((prop) => prop.id !== property.id);
+      });
+    }
+  };
+
   useEffect(() => {
     setIsLoading(true);
     syncPortfolioPreferences(id);
@@ -266,6 +377,7 @@ const ManagePortfolio = () => {
           if (res.status === 200) {
             setPortfolio(res.data);
             setProperties(res.data.rental_properties);
+            setSelectedRentalProperties(res.data.rental_properties);
             setPortfolioPreferences(JSON.parse(res.data.preferences));
             console.log(JSON.parse(res.data.preferences));
             setFormData({
@@ -296,7 +408,9 @@ const ManagePortfolio = () => {
           />
         </>
       ) : (
-        <div className="manage-portfolio-page">
+        <div
+          className={`conatainer manage-portfolio-page ${isMobile && "px-2"}`}
+        >
           <Joyride
             run={runTour}
             stepIndex={tourIndex}
@@ -324,7 +438,21 @@ const ManagePortfolio = () => {
             title={alertTitle}
             message={alertMessage}
             btnText={"Ok"}
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              if (alertRedirectURL) {
+                navigate(alertRedirectURL);
+              }
+              setOpen(false);
+            }}
+          />
+          <ConfirmModal
+            open={showDeleteConfirmModal}
+            title={"Delete Portfolio"}
+            message={"Are you sure you want to delete this portfolio?"}
+            confirmBtnText={"Delete"}
+            cancelBtnText={"Cancel"}
+            handleConfirm={handleDelete}
+            handleCancel={() => setShowDeleteConfirmModal(false)}
           />
           {/* Property Detail Edit Dialog  */}
           <UIDialog
@@ -421,6 +549,157 @@ const ManagePortfolio = () => {
               </div>
             </div>
           </UIDialog>
+          {/* Add Properties Dialog */}
+          <UIDialog
+            open={rentalUnitModalOpen}
+            title="Select Rental Properties"
+            onClose={() => setRentalPropertyModalOpen(false)}
+            style={{ width: "500px" }}
+          >
+            {/* Create a search input using ui input */}
+            <UIInput
+              onChange={(e) => {
+                setRentalUnitSearchQuery(e.target.value);
+                handleSearchRentalProperties();
+              }}
+              type="text"
+              placeholder="Search rental properties"
+              inputStyle={{ margin: "10px 0" }}
+              name="rental_property_search"
+            />
+            {/* Create a list of rental properties */}
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: "100%",
+                maxHeight: 500,
+                overflow: "auto",
+                color: uiGrey2,
+                bgcolor: "white",
+              }}
+            >
+              {allUserRentalProperties.map((property, index) => {
+                return (
+                  <ListItem
+                    key={index}
+                    alignItems="flex-start"
+                    onClick={() => {}}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      justifyContent={"space-between"}
+                      alignContent={"center"}
+                      alignItems={"center"}
+                      sx={{ width: "100%" }}
+                    >
+                      <UICheckbox
+                        onChange={(e) => {
+                          let checked = e.target.checked;
+                          handleSelectRentalProperty(property, checked);
+                        }}
+                        checked={selectedRentalProperties.find(
+                          (prop) => prop.id === property.id
+                        )}
+                      />
+                      <ListItemText primary={property.name} />
+                    </Stack>
+                  </ListItem>
+                );
+              })}
+            </List>
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent={"space-between"}
+              alignContent={"center"}
+              alignItems={"center"}
+              sx={{ width: "100%" }}
+            >
+              {rentalPropertyPreviousPage && (
+                <ButtonBase onClick={handlePreviousPageRentalUnitClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowBackOutlined />
+                    </IconButton>
+                    <span style={{ color: uiGreen }}>Prev</span>
+                  </Stack>
+                </ButtonBase>
+              )}
+              <span></span>
+              {rentalPropertyNextPage && (
+                <ButtonBase onClick={handleNextPageRentalUnitClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <span style={{ color: uiGreen }}>Next</span>
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowForwardIcon />
+                    </IconButton>
+                  </Stack>
+                </ButtonBase>
+              )}
+            </Stack>
+            <UIButton
+              btnText="Save"
+              onClick={() => {
+                console.log(selectedRentalProperties);
+                let selectedProperties = JSON.stringify(
+                  selectedRentalProperties.map((property) => property.id)
+                );
+                console.log("Selected Properties " + selectedProperties);
+
+                setIsLoading(true);
+                try {
+                  let payload = {
+                    properties: selectedProperties,
+                    portfolio: id,
+                  };
+                  console.log(payload);
+                  updatePortfolioProperties(payload)
+                    .then((res) => {
+                      console.log(res);
+                      if (res.status !== 200) {
+                        throw new Error(
+                          "Error updating properties in portfolio"
+                        );
+                      }
+                      setProperties(selectedRentalProperties);
+                      setRentalPropertyModalOpen(false);
+                      setAlertTitle("Success");
+                      setAlertMessage(
+                        "Properties updated in portfolio successfully"
+                      );
+                      setOpen(true);
+                      setIsLoading(false);
+                    })
+                    .catch((error) => {
+                      console.error("Error updating properties:", error);
+                      setAlertTitle("Error");
+                      setAlertMessage("Error updating properties in portfolio");
+                      setOpen(true);
+                      setIsLoading(false);
+                    });
+                } catch (e) {
+                  setAlertTitle("Error");
+                  setAlertMessage(
+                    "There was an error adding the properties to the portfolio. Please try again."
+                  );
+                  setOpen(true);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+            />
+          </UIDialog>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -437,13 +716,71 @@ const ManagePortfolio = () => {
             </div>
             <span className="edit-portfolio-button-wrapper">
               <IconButton
-                data-testid="edit-portfolio-button"
-                onClick={() => {
-                  setEditDialogOpen(true);
+                ref={anchorRef}
+                id="composition-button"
+                aria-controls={open ? "composition-menu" : undefined}
+                aria-expanded={open ? "true" : undefined}
+                aria-haspopup="true"
+                onClick={handleToggle}
+              >
+                <MoreVertIcon />
+              </IconButton>
+              <Popper
+                open={openPopper}
+                anchorEl={anchorRef.current}
+                role={undefined}
+                placement="bottom-start"
+                transition
+                disablePortal
+                sx={{
+                  zIndex: "1",
                 }}
               >
-                <EditIcon sx={{ color: uiGreen }} />
-              </IconButton>
+                {({ TransitionProps, placement }) => (
+                  <Grow
+                    {...TransitionProps}
+                    style={{
+                      transformOrigin:
+                        placement === "bottom-start"
+                          ? "right top"
+                          : "right top",
+                    }}
+                  >
+                    <Paper>
+                      <ClickAwayListener onClickAway={handleClose}>
+                        <MenuList
+                          autoFocusItem={openPopper}
+                          id="composition-menu"
+                          aria-labelledby="composition-button"
+                          onKeyDown={handleListKeyDown}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              setEditDialogOpen(true);
+                            }}
+                          >
+                            Edit Portfolio Details
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              handleOpenRentalPropertySelectModal(true);
+                            }}
+                          >
+                            Add/Remove Properties
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              setShowDeleteConfirmModal(true);
+                            }}
+                          >
+                            Delete Portfolio
+                          </MenuItem>
+                        </MenuList>
+                      </ClickAwayListener>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
             </span>
           </Stack>
           <UITabs
@@ -466,18 +803,6 @@ const ManagePortfolio = () => {
                   }
                   subtitleProperty="something"
                   acceptedFileTypes={[".csv"]}
-                  // getImage={(row) => {
-                  //   retrieveFilesBySubfolder(
-                  //     `properties/${row.id}`,
-                  //     authUser.id
-                  //   ).then((res) => {
-                  //     if (res.data.length > 0) {
-                  //       return res.data[0].file;
-                  //     } else {
-                  //       return "https://picsum.photos/200";
-                  //     }
-                  //   });
-                  // }}
                   onRowClick={(row) => {
                     const navlink = `/dashboard/owner/properties/${row.id}`;
                     navigate(navlink);
@@ -506,8 +831,6 @@ const ManagePortfolio = () => {
                     },
                   ]}
                   title="Properties"
-                  showCreate={true}
-                  createURL="/dashboard/owner/properties/create"
                   options={options}
                   checked={checked}
                   columns={columns}
