@@ -33,6 +33,8 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import { getStripeAccountRequirements,getStripeOnboardingAccountLink } from "../../../../api/owners";
 
 const CreateProperty = () => {
   const navigate = useNavigate();
@@ -46,6 +48,12 @@ const CreateProperty = () => {
   });
   const [errors, setErrors] = useState({});
   const [unitValidationErrors, setUnitValidationErrors] = useState({});
+  const [stripeAccountRequirements, setStripeAccountRequirements] = useState(
+    []
+  );
+  const [stripeAccountLink, setStripeAccountLink] = useState("");
+  const [stripeOnboardingPromptOpen, setStripeOnboardingPromptOpen] =
+    useState(false);
   const [formData, setFormData] = useState({
     name: faker.company.name(),
     street: faker.location.streetAddress(),
@@ -436,7 +444,7 @@ const CreateProperty = () => {
           );
           setIsLoading(false);
         }
-      }else{
+      } else {
         setUnitCreateError(true);
         setErrorMessage(
           "There was an error creating your property" + res.message
@@ -465,7 +473,22 @@ const CreateProperty = () => {
   };
 
   useEffect(() => {
-    retrieveSubscriptionPlan();
+    try {
+      retrieveSubscriptionPlan();
+      getStripeOnboardingAccountLink().then((res) => {
+        console.log("Stripe ACcount link res: ", res);
+        setStripeAccountLink(res.account_link);
+      });
+      getStripeAccountRequirements().then((res) => {
+        console.log("Stripe Account Requirements: ", res);
+        setStripeAccountRequirements(res.requirements);
+        setStripeOnboardingPromptOpen(
+          res.requirements.currently_due.length > 0
+        );
+      });
+    } catch (error) {
+      console.log("Error getting stripe account link: ", error);
+    }
   }, []);
 
   return (
@@ -489,6 +512,22 @@ const CreateProperty = () => {
           last: "Finish",
           next: "Next",
           skip: "Skip",
+        }}
+      />
+      <ConfirmModal
+        open={stripeOnboardingPromptOpen}
+        title={"Complete Your Stripe Account Onboarding"}
+        message={
+          "In order to create properties and recieve payments, you need to complete your Stripe account onboarding. Click the button below to complete your account setup."
+        }
+        confirmBtnText={"Complete Account Setup"}
+        handleConfirm={() => {
+          window.open(stripeAccountLink, "_blank");
+        }}
+        cancelBtnText={"Not Now"}
+        handleCancel={() => {
+          //Navigate to the properties page
+          navigate(`/dashboard/owner/properties/`);
         }}
       />
       <ProgressModal open={isLoading} title="Creating your property..." />

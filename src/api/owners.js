@@ -49,6 +49,37 @@ export async function getStripeAccountLink() {
   }
 }
 
+//Retrieve the owner's stripe account link by sending a GET request to the endpoint api/owners/{id}/stripe-account-link
+export async function getStripeOnboardingAccountLink() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/stripe-onboarding-account-link/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Stripe Account Link Error: ", error);
+    return error.response;
+  }
+}
+
+//Retrieve the owner's stripe account requirements by sending a GET request to the endpoint api/owners/{id}/stripe-account-requirements
+export async function getStripeAccountRequirements() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/stripe-account-requirements/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Stripe Account Requirements Error: ", error);
+    return error.response;
+  }
+}
 
 
 //-----------------LANDLORD API FUNCTIONS---------------------------///

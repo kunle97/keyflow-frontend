@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { uiGreen, uiGrey1, uiGrey2 } from "../../../../constants";
 import { fa, faker } from "@faker-js/faker";
 import { registerOwner } from "../../../../api/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { Input, Button, Stack, IconButton } from "@mui/material";
@@ -19,10 +19,12 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 const OwnerRegister = () => {
   //Cards state variables
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [stripeRedirectLink, setStripeRedirectLink] = useState("");
@@ -253,19 +255,28 @@ const OwnerRegister = () => {
               to="/dashboard/owner/register"
             />
           ) : (
-            <AlertModal
-              open={true}
-              onClose={() => setOpen(false)}
-              title={"Registration Successful!"}
-              message="You have been registered Successfully! Be sure to check your email
-              for confirmation to activate your account. On the next screen you will be
-              onboarded to our payment processing platform. You will be asked for your industry.
-              Be sure to select Property Rentals. Click the link below to continue the registration process"
-              btnText="Continue"
-              confirmCheckbox={true}
-              checkboxLabel="I have read and understood the above message"
-              to={stripeRedirectLink}
-            />
+            <>
+              <ConfirmModal
+                title="Registration Successful!"
+                message="You have been registered Successfully! You will now be redirected to the payment 
+                processing platform to complete your registration. You may skip this and complete it later, 
+                however you will not be able to receive payments until you complete this step. Click the button
+                below to continue."
+                open={true}
+                handleCancel={() => {
+                  //Redirect to the account activation message page
+                  navigate("/dashboard/activate-account/");
+                }}
+                cancelBtnStyle={{ background: uiGreen, color: "white" }}
+                cancelBtnText="Skip"
+                handleConfirm={() => {
+                  //Redirect to the stripe onboarding link
+                  window.location.href = stripeRedirectLink;
+                }}
+                confirmBtnStyle={{ background: uiGreen, color: "white" }}
+                confirmBtnText="Continue"
+              />
+            </>
           )}
         </>
       )}
