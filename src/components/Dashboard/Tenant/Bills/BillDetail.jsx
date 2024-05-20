@@ -234,15 +234,32 @@ const BillDetail = (props) => {
                       width: "100%",
                     }}
                   >
-                    <UIButton
-                      onClick={() => {
-                        setOpenPaymentModal(true);
-                      }}
-                      style={{
-                        width: "100%",
-                      }}
-                      btnText="Pay Now"
-                    />
+                    <Stack
+                      spacing={2}
+                      direction="row"
+                      alignContent={"center"}
+                      justifyContent={"center"}
+                    >
+                      <UIButton
+                        onClick={() => {
+                          window.open(invoice.hosted_invoice_url, "_blank");
+                        }}
+                        style={{
+                          width: "100%",
+                          backgroundColor: uiGrey2,
+                        }}
+                        btnText="View Details"
+                      />
+                      <UIButton
+                        onClick={() => {
+                          setOpenPaymentModal(true);
+                        }}
+                        style={{
+                          width: "100%",
+                        }}
+                        btnText="Pay Now"
+                      />
+                    </Stack>
                   </div>
                 ) : (
                   <div
