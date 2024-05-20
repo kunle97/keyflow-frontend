@@ -184,6 +184,22 @@ export async function updatePropertyPortfolio(propertyId, portfolio) {
   }
 }
 
+//#Create a function that expects to receive an array and updates portfolio for multiple properties. url_path: api/properties/update-portfolios
+export async function updatePortfolioProperties(data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/update-portfolios/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Properties Portfolio Error: ", error);
+    return error.response;
+  }
+}
+
 //create function to delete a property
 export async function deleteProperty(propertyId) {
   try {
