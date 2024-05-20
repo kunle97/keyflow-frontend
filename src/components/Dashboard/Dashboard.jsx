@@ -16,7 +16,7 @@ import UICard from "./UIComponents/UICards/UICard";
 import UIProgressPrompt from "./UIComponents/UIProgressPrompt";
 import { getAllLeaseRenewalRequests } from "../../api/lease_renewal_requests";
 import { getAllLeaseCancellationRequests } from "../../api/lease_cancellation_requests";
-import { IconButton, Stack, Tooltip } from "@mui/material";
+import { Alert, IconButton, Stack, Tooltip } from "@mui/material";
 import useScreen from "../../hooks/useScreen";
 import { authenticatedInstance } from "../../api/api";
 import { getAllOwnerMaintenanceRequests } from "../../api/maintenance_requests";
@@ -35,8 +35,12 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "./UIComponents/UIHelpButton";
 import UIButton from "./UIComponents/UIButton";
-import { getStripeAccountLink } from "../../api/owners";
+import {
+  getStripeOnboardingAccountLink,
+  getStripeAccountRequirements,
+} from "../../api/owners";
 import AlertModal from "./UIComponents/Modals/AlertModal";
+import ConfirmModal from "./UIComponents/Modals/ConfirmModal";
 const Dashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
@@ -50,6 +54,12 @@ const Dashboard = () => {
   const [leaseCancellationRequests, setLeaseCancellationRequests] = useState(
     []
   );
+  const [stripeAccountRequirements, setStripeAccountRequirements] = useState(
+    []
+  );
+  const [displayOnboardingAlert, setDisplayOnboardingAlert] = useState(false);
+  const [stripeOnboardingPromptOpen, setStripeOnboardingPromptOpen] =
+    useState(false);
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [occupiedUnits, setOccupiedUnits] = useState([]);
   const [vacantUnits, setVacantUnits] = useState([]);
@@ -159,11 +169,29 @@ const Dashboard = () => {
     console.log(runTour);
   };
 
+  const handleOpenImportDataDialog = () => {
+    const requirements_length = stripeAccountRequirements.currently_due.length;
+    if (requirements_length > 0) {
+      setStripeOnboardingPromptOpen(true);
+    } else {
+      setImportDataDialogOpen(true);
+    }
+  };
+
+  const handleClickCreatePropertyCard = () => {
+    const requirements_length = stripeAccountRequirements.currently_due.length;
+    if (requirements_length > 0) {
+      setStripeOnboardingPromptOpen(true);
+    } else {
+      navigate("/dashboard/owner/properties/create");
+    }
+  };
+
   const startScreenMenuItems = [
     {
       name: "Create A Property",
       icon: <MapsHomeWorkOutlinedIcon sx={startIconStyles} />,
-      url: "/dashboard/owner/properties/create",
+      action: () => handleClickCreatePropertyCard(),
       subtitle: "Create a new property and add units to it.",
     },
     {
@@ -176,7 +204,7 @@ const Dashboard = () => {
     {
       name: "Import Data",
       icon: <FileDownloadOutlinedIcon sx={startIconStyles} />,
-      action: () => setImportDataDialogOpen(true),
+      action: () => handleOpenImportDataDialog(),
       subtitle:
         "Import data from a CSV file to add properties, units, and tenants.",
     },
@@ -642,9 +670,17 @@ const Dashboard = () => {
     setIsLoading(true);
     //retrieve transactions from api
     try {
-      getStripeAccountLink().then((res) => {
+      getStripeOnboardingAccountLink().then((res) => {
         console.log("Stripe ACcount link res: ", res);
         setStripeAccountLink(res.account_link);
+      });
+      getStripeAccountRequirements().then((res) => {
+        console.log("Stripe Account Requirements: ", res);
+        setStripeAccountRequirements(res.requirements);
+        setStripeOnboardingPromptOpen(
+          res.requirements.currently_due.length > 0
+        );
+        setDisplayOnboardingAlert(res.requirements.currently_due.length > 0);
       });
       fetchTransactionData();
       getOwnerUnits().then((res) => {
@@ -694,11 +730,65 @@ const Dashboard = () => {
     />
   ) : (
     <div className="container-fluid dashboard-container">
+      {displayOnboardingAlert && (
+        <Alert
+          severity="warning"
+          style={{
+            marginBottom: "1rem",
+          }}
+        >
+          <div>
+            <h6 className="mb-1">
+              <strong>Complete Stripe Account Onboarding</strong>
+            </h6>
+            <span>
+              Certain account features such as property/unit creation and rent
+              collection will be disabled until you complete your Stripe account
+              onboarding.
+            </span>
+
+            <div className="my-2">
+              <a
+                href={stripeAccountLink}
+                style={{
+                  color: "inherit",
+                  textDecoration: "underline",
+                }}
+              >
+                <strong>Complete Account Setup</strong>
+              </a>
+            </div>
+          </div>
+        </Alert>
+      )}
       <AlertModal
         open={alertModalOpen}
         onClick={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
+      />
+      <ConfirmModal
+        open={stripeOnboardingPromptOpen}
+        title={"Complete Stripe Account Onboarding"}
+        message={
+          "In order to receive payments, add properties, and units you need to complete your Stripe account onboarding. Click the button below to complete your account setup."
+        }
+        confirmBtnText={"Complete Account Setup"}
+        handleConfirm={() => {
+          window.open(stripeAccountLink, "_blank");
+        }}
+        confirmBtnStyle={{
+          color: "white",
+          background: uiGreen,
+        }}
+        cancelBtnStyle={{
+          color: "white",
+          background: uiGrey2,
+        }}
+        cancelBtnText={"Not Now"}
+        handleCancel={() => {
+          setStripeOnboardingPromptOpen(false);
+        }}
       />
       {transactions.length === 0 &&
       leaseAgreements.length === 0 &&

@@ -376,7 +376,16 @@ const Topbar = (props) => {
                   data-bs-toggle="dropdown"
                   href="#"
                 >
-                  <span className="d-none d-lg-inline me-2 text-gray-600 small">
+                  <span
+                    className="d-none d-lg-inline me-2 text-gray-600 small"
+                    style={{
+                      maxWidth: "120px",
+                      // maxHeight: "60px",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
                     {authUser.first_name} {authUser.last_name}
                   </span>
                   <img
