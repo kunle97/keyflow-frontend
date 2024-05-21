@@ -7,7 +7,7 @@ import UIButton from "../UIComponents/UIButton";
 import UIDialog from "../UIComponents/Modals/UIDialog";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { sendMessage } from "../../../api/messages";
-
+import { tenantData } from "../../../constants";
 const NewMessageDialog = (props) => {
   const [tenants, setTenants] = useState(null);
   const [selectedRecipient, setSelectedRecipient] = useState(null); // [id, name
@@ -16,12 +16,6 @@ const NewMessageDialog = (props) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
-  const tabs = [
-    { name: "Tenants", label: "Tenants" },
-    { name: "Vendors", label: "Vendors" },
-    { name: "Owners", label: "Owners" },
-    { name: "PropertyManagers", label: "Property Managers" },
-  ];
   const handleSend = (e) => {
     e.preventDefault();
     const payload = {
@@ -30,36 +24,55 @@ const NewMessageDialog = (props) => {
       sender: authUser.id,
     };
     //Retrieve tenant
-    const tenant = tenants.find(
-      (tenant) => tenant.user.id === parseInt(payload.recipient)
-    );
-    console.log("Message sent to: ",tenant.user.first_name, tenant.user.last_name);
-    sendMessage(payload).then((res) => {
-      if (res.status === 200) {
-        setAlertTitle("Message Sent!");
+    sendMessage(payload)
+      .then((res) => {
+        if (res.status === 200) {
+          setAlertTitle("Message Sent!");
+          if (authUser.account_type === "owner") {
+            const tenant = tenants.find(
+              (tenant) => tenant.user.id === parseInt(payload.recipient)
+            );
+            setAlertMessage(
+              `Your message to  ${tenant.user.first_name} ${tenant.user.last_name} was sent successfully.`
+            );
+          }
+          if (authUser.account_type === "tenant") {
+            setAlertMessage(
+              `Your message to  your landlord was sent successfully.`
+            );
+          }
+          setShowAlert(true);
+          props.handleClose();
+        }
+      })
+      .catch((error) => {
+        setAlertTitle("Error!");
         setAlertMessage(
-          `Your message to  ${tenant.user.first_name} ${tenant.user.last_name} was sent successfully.`
+          "There was an error sending your message. Please try again."
         );
         setShowAlert(true);
-        props.handleClose();
-      }
-    }).catch((error) => {
-      setAlertTitle("Error!");
-      setAlertMessage("There was an error sending your message. Please try again.");
-      setShowAlert(true);
-    });
+      });
   };
 
   useEffect(() => {
-    if (!tenants) {
-      getOwnerTenants().then((res) => {
-        setTenants(res.data);
-      }).catch((error) => {
-        setAlertTitle("Error!");
-        setAlertMessage("There was an error fetching tenants. Please try again.");
-        setShowAlert(true);
-        console.error("Error fetching tenants:", error);
-      });
+    if (authUser.account_type == "owner" && !tenants) {
+      getOwnerTenants()
+        .then((res) => {
+          setTenants(res.data);
+        })
+        .catch((error) => {
+          setAlertTitle("Error!");
+          setAlertMessage(
+            "There was an error fetching tenants. Please try again."
+          );
+          setShowAlert(true);
+          console.error("Error fetching tenants:", error);
+        });
+    }
+    if (authUser.account_type === "tenant") {
+      setTenants([]);
+      setSelectedRecipient(authUser.owner_id);
+      console.log(authUser, "tenantData.owner_id");
     }
   }, [tenants]);
   return (
@@ -72,50 +85,40 @@ const NewMessageDialog = (props) => {
         btnText="Okay"
       />
       <UIDialog
-        style={{ padding: "15px" }}
+        style={{ padding: "15px", width: "500px" }}
         open={props.open}
         onClose={props.handleClose}
+        title={
+          authUser.account_type === "tenant"
+            ? "Message to Landlord"
+            : "Create New Message"
+        }
       >
-        <h4>Send a new message</h4>
         <form onSubmit={handleSend}>
           {authUser.account_type === "owner" && (
-            <UITabs
-              tabs={tabs}
-              value={tabPage}
-              handleChange={(e, newValue) => setTabPage(newValue)}
-              ariaLabel="Tabs"
-              variant="scrollable"
-              scrollButtons="auto"
-              style={{ marginBottom: "2rem" }}
-            />
-          )}
-
-          {authUser.account_type === "owner" && (
-            <div className="form-group mb-2">
-              {tabPage === 0 && (
-                <select
-                  className="form-select"
-                  style={{
-                    width: "100%",
-                    color: "black",
-                    background: uiGrey,
-                    outline: "none",
-                    boxShadow:
-                      "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
-                  }}
-                  onChange={(e) => setSelectedRecipient(e.target.value)}
-                  required
-                  name="recipient_id"
-                >
-                  <option value="">Select a Tenant</option>
-                  {tenants &&
-                    tenants.map((tenant) => (
-                      <option key={tenant.user.id} value={tenant.user.id}>
-                        {tenant.user.first_name} {tenant.user.last_name}
-                      </option>
-                    ))}
-                </select>
-              )}
+            <div className="form-group mb-2" style={{ width: "500px" }}>
+              <select
+                className="form-select"
+                style={{
+                  width: "100%",
+                  color: "black",
+                  background: uiGrey,
+                  outline: "none",
+                  boxShadow:
+                    "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+                }}
+                onChange={(e) => setSelectedRecipient(e.target.value)}
+                required
+                name="recipient_id"
+              >
+                <option value="">Select a Tenant</option>
+                {tenants &&
+                  tenants.map((tenant) => (
+                    <option key={tenant.user.id} value={tenant.user.id}>
+                      {tenant.user.first_name} {tenant.user.last_name}
+                    </option>
+                  ))}
+              </select>
             </div>
           )}
           <div className="form-group mb-2">
