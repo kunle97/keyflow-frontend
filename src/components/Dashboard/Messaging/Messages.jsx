@@ -97,11 +97,13 @@ const Messages = () => {
     setCurrentName(thread.name);
     setMessageThreadAsRead({
       other_user_id: thread.recipient_id,
-    }).then((res) => {
-      console.log(res);
-    }).catch((err) => {
-      console.log("Handle Thread click error: ",err);
-    });
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log("Handle Thread click error: ", err);
+      });
 
     if (scrollableDivRef.current) {
       //Trying to scroll to the bottom of the conversation (not working as expected)
@@ -233,37 +235,35 @@ const Messages = () => {
         <div className="row">
           {(!isMobile || !showConversationCard) && (
             <div className="col-md-4">
-              {authUser.account_type === "owner" && (
-                <>
-                  <NewMessageDialog
-                    open={showNewMessageDialog}
-                    handleClose={() => setShowNewMessageDialog(false)}
-                  />{" "}
-                  <UIButton
-                    btnText="New Message"
-                    style={{ width: "100%", marginBottom: "15px" }}
-                    onClick={() => setShowNewMessageDialog(true)}
-                  />{" "}
-                  <input
-                    type="text"
-                    ref={searchBarRef}
-                    className="card"
-                    placeholder="Search"
-                    value={searchQuery}
-                    onChange={handleSearchThread}
-                    style={{
-                      color: "black",
-                      border: "none",
-                      width: "100%",
-                      borderRadius: "5px",
-                      padding: "10px",
-                      outline: "none",
-                      marginBottom: "15px",
-                    }}
-                    required
-                  />
-                </>
-              )}
+              <>
+                <NewMessageDialog
+                  open={showNewMessageDialog}
+                  handleClose={() => setShowNewMessageDialog(false)}
+                />{" "}
+                <UIButton
+                  btnText="New Message"
+                  style={{ width: "100%", marginBottom: "15px" }}
+                  onClick={() => setShowNewMessageDialog(true)}
+                />{" "}
+                <input
+                  type="text"
+                  ref={searchBarRef}
+                  className="card"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={handleSearchThread}
+                  style={{
+                    color: "black",
+                    border: "none",
+                    width: "100%",
+                    borderRadius: "5px",
+                    padding: "10px",
+                    outline: "none",
+                    marginBottom: "15px",
+                  }}
+                  required
+                />
+              </>
               {messageThreads && messageThreads.length > 0 && (
                 <ul
                   className={`card list-group ${styles.customScrollbar}`}

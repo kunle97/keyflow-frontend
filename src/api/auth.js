@@ -53,6 +53,7 @@ export async function login(data) {
         isAuthenticated: res.isAuthenticated,
         is_active: res.user.is_active,
         accessToken: res.token,
+        owner_id: res.owner_id,
         susbcription_plan: {},
       };
       if (res.user.account_type === "owner") {
