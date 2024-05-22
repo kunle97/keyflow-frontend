@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import UIInput from "../../UIComponents/UIInput";
 import { createBillingEntry } from "../../../../api/billing-entries";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -23,7 +23,11 @@ import {
   ListItemText,
   Stack,
 } from "@mui/material";
-import { getOwnerTenants } from "../../../../api/owners";
+import {
+  getOwnerTenants,
+  getStripeAccountRequirements,
+  getStripeOnboardingAccountLink,
+} from "../../../../api/owners";
 import { authenticatedInstance } from "../../../../api/api";
 import { useNavigate } from "react-router";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -42,6 +46,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
@@ -64,14 +69,22 @@ const CreateBillingEntry = () => {
   const [errors, setErrors] = useState({});
   const [redirectToBillingEntries, setRedirectToBillingEntries] =
     useState(false);
+  const [stripeAccountRequirements, setStripeAccountRequirements] = useState(
+    []
+  );
+  const [displayOnboardingAlert, setDisplayOnboardingAlert] = useState(false);
+  const [stripeOnboardingPromptOpen, setStripeOnboardingPromptOpen] =
+    useState(false);
+  const [stripeAccountLink, setStripeAccountLink] = useState("");
   const navigate = useNavigate();
 
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
     {
-      target: '.create-billing-entry-form',
-      content: "This is the create billing entry page. Here you can create a new bill to send to your tenants or record a general revenue or expense that may not have been tracked automatically by the system.",
+      target: ".create-billing-entry-form",
+      content:
+        "This is the create billing entry page. Here you can create a new bill to send to your tenants or record a general revenue or expense that may not have been tracked automatically by the system.",
       disableBeacon: true,
     },
     {
@@ -171,42 +184,6 @@ const CreateBillingEntry = () => {
       errorMessageDataTestId: "amount-error-message",
     },
     {
-      id: 2,
-      label: "Tenant",
-      type: "button_select",
-      selectTarget: selectedTenant,
-      selectTargetLabel: selectedTenant
-        ? selectedTenant.user?.first_name + " " + selectedTenant.user?.last_name
-        : "",
-      name: "tenant",
-      dialogAction: () => handleOpenTenantSelectModal(),
-      hide: isExpense,
-      validations: {
-        required: false,
-        errorMessage: "Tenant cannot be blank",
-        regex: /^\d+$/,
-      },
-      dataTestId: "tenant-select",
-      errorMessageDataTestId: "tenant-error-message",
-    },
-    {
-      id: 3,
-      label: "Rental Unit",
-      type: "button_select",
-      selectTarget: selectedRentalUnit,
-      selectTargetLabel: selectedRentalUnit?.name,
-      name: "rental_unit",
-      dialogAction: () => handleOpenRentalUnitSelectModal(),
-      hide: !isExpense,
-      validations: {
-        required: false,
-        errorMessage: "Rental Unit cannot be blank",
-        regex: /^\d+$/,
-      },
-      dataTestId: "rental-unit-select",
-      errorMessageDataTestId: "rental-unit-error-message",
-    },
-    {
       id: 4,
       label: "Type",
       type: "select",
@@ -283,6 +260,43 @@ const CreateBillingEntry = () => {
       errorMessageDataTestId: "type-error-message",
     },
     {
+      id: 2,
+      label: "Tenant",
+      type: "button_select",
+      selectTarget: selectedTenant,
+      selectTargetLabel: selectedTenant
+        ? selectedTenant.user?.first_name + " " + selectedTenant.user?.last_name
+        : "",
+      name: "tenant",
+      dialogAction: () => handleOpenTenantSelectModal(),
+      hide: isExpense,
+      validations: {
+        required: false,
+        errorMessage: "Tenant cannot be blank",
+        regex: /^\d+$/,
+      },
+      dataTestId: "tenant-select",
+      errorMessageDataTestId: "tenant-error-message",
+    },
+    {
+      id: 3,
+      label: "Rental Unit",
+      type: "button_select",
+      selectTarget: selectedRentalUnit,
+      selectTargetLabel: selectedRentalUnit?.name,
+      name: "rental_unit",
+      dialogAction: () => handleOpenRentalUnitSelectModal(),
+      hide: !isExpense,
+      validations: {
+        required: false,
+        errorMessage: "Rental Unit cannot be blank",
+        regex: /^\d+$/,
+      },
+      dataTestId: "rental-unit-select",
+      errorMessageDataTestId: "rental-unit-error-message",
+    },
+
+    {
       id: 5,
       label: "Status",
       type: "select",
@@ -301,26 +315,7 @@ const CreateBillingEntry = () => {
       dataTestId: "status-select",
       errorMessageDataTestId: "status-error-message",
     },
-    {
-      id: 6,
-      label: "Collection Method",
-      type: "select",
-      name: "collection_method",
-      options: [
-        { value: "charge_automatically", text: "Charge Immediately" },
-        { value: "send_invoice", text: "Send Invoice" },
-      ],
-      hide: isExpense,
-      onChange: (e) => handleChange(e),
-      validations: {
-        required: true,
-        errorMessage:
-          "Please specify the collection method for the invoice of this billing entry.",
-        regex: null,
-      },
-      dataTestId: "collection-method-select",
-      errorMessageDataTestId: "collection-method-error-message",
-    },
+
     {
       id: 7,
       label: isExpense ? "Transaction Date" : "Due Date",
@@ -422,9 +417,7 @@ const CreateBillingEntry = () => {
       // if (errorCount.length === 0 || Object.keys(errors).length === 0) {
       setIsLoading(true);
       const data = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        data.append(key, value);
-      });
+      formData.collection_method = "send_invoice"
       createBillingEntry(formData)
         .then((res) => {
           if (res.status === 200) {
@@ -461,8 +454,43 @@ const CreateBillingEntry = () => {
       setRedirectToBillingEntries(false);
     }
   };
+  useEffect(() => {
+    getStripeOnboardingAccountLink().then((res) => {
+      console.log("Stripe ACcount link res: ", res);
+      setStripeAccountLink(res.account_link);
+    });
+    getStripeAccountRequirements().then((res) => {
+      console.log("Stripe Account Requirements: ", res);
+      setStripeAccountRequirements(res.requirements);
+      setStripeOnboardingPromptOpen(res.requirements.currently_due.length > 0);
+      setDisplayOnboardingAlert(res.requirements.currently_due.length > 0);
+    });
+  }, []);
   return (
     <div className="container-fluid">
+      <ConfirmModal
+        open={stripeOnboardingPromptOpen}
+        title={"Complete Stripe Account Onboarding"}
+        message={
+          "In order to create billing entries and invoices you need to complete your Stripe account onboarding. Click the button below to complete your account setup."
+        }
+        confirmBtnText={"Complete Account Setup"}
+        handleConfirm={() => {
+          window.open(stripeAccountLink, "_blank");
+        }}
+        confirmBtnStyle={{
+          color: "white",
+          background: uiGreen,
+        }}
+        cancelBtnStyle={{
+          color: "white",
+          background: uiGrey2,
+        }}
+        cancelBtnText={"Not Now"}
+        handleCancel={() => {
+          navigate("/dashboard/owner/billing-entries/");
+        }}
+      />
       <Joyride
         run={runTour}
         index={tourIndex}
