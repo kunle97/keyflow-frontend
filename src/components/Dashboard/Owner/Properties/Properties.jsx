@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getPropertyFilters,
-  getProperties,
-} from "../../../../api/properties";
+import { getPropertyFilters, getProperties } from "../../../../api/properties";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import useScreen from "../../../../hooks/useScreen";
@@ -38,24 +35,32 @@ const Properties = () => {
 
   //Create a useEffect that calls the get propertiees api function and sets the properties state
   useEffect(() => {
-    getProperties().then((res) => {
-      if (res) {
-        setProperties(res.data);
-      }
-    }).catch((error) => {
-      console.error("Error getting properties:", error);
-      setErrorMessage("An error occurred while retrieving properties. Please try again later.");
-      setShowDeleteError(true);
-    });
-    getPropertyFilters().then((res) => {
-      if (res) {
-        setFilters(res);
-      }
-    }).catch((error) => {
-      console.error("Error getting property filters:", error);
-      setErrorMessage("An error occurred while retrieving property filters. Please try again later.");
-      setShowDeleteError(true);
-    });
+    getProperties()
+      .then((res) => {
+        if (res) {
+          setProperties(res.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting properties:", error);
+        setErrorMessage(
+          "An error occurred while retrieving properties. Please try again later."
+        );
+        setShowDeleteError(true);
+      });
+    getPropertyFilters()
+      .then((res) => {
+        if (res) {
+          setFilters(res);
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting property filters:", error);
+        setErrorMessage(
+          "An error occurred while retrieving property filters. Please try again later."
+        );
+        setShowDeleteError(true);
+      });
     setIsLoading(false);
   }, []);
   return (
@@ -78,6 +83,7 @@ const Properties = () => {
           subtitleProperty="somthing"
           acceptedFileTypes={[".csv"]}
           showUpload={true}
+          uploadButtonText="Upload CSV"
           uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
           fileUploadEndpoint={`/properties/upload-csv-properties/`}
           // getImage={(row) => {
@@ -101,6 +107,10 @@ const Properties = () => {
         />
       ) : (
         <UITable
+          options={options}
+          checked={checked}
+          columns={columns}
+          setChecked={setChecked}
           endpoint={"/properties/"}
           searchFields={[
             "name",
@@ -122,10 +132,11 @@ const Properties = () => {
           title="Properties"
           showCreate={true}
           createURL="/dashboard/owner/properties/create"
-          options={options}
-          checked={checked}
-          columns={columns}
-          setChecked={setChecked}
+          acceptedFileTypes={[".csv"]}
+          showUpload={true}
+          uploadButtonText="Upload CSV"
+          uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
+          fileUploadEndpoint={`/properties/upload-csv-properties/`}
         />
       )}
     </div>

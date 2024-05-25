@@ -34,6 +34,7 @@ import {
   isValidFileExtension,
   isValidFileName,
 } from "../../../../helpers/utils";
+import ProgressModal from "../Modals/ProgressModal";
 const UITableMobile = (props) => {
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
 
@@ -42,7 +43,9 @@ const UITableMobile = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
   const [results, setResults] = useState([]);
-  const [orderingField, setOrderingField] = useState(props.orderingField ? props.orderingField:"created_at");
+  const [orderingField, setOrderingField] = useState(
+    props.orderingField ? props.orderingField : "created_at"
+  );
   const [searchField, setSearchField] = useState("");
   const [limit, setLimit] = useState(10);
   const [endpoint, setEndpoint] = useState(props.endpoint);
@@ -179,6 +182,7 @@ const UITableMobile = (props) => {
       <>
         {props.showUpload && (
           <>
+            <ProgressModal open={isUploading} title="Uploading Files" />
             <AlertModal
               title={responseTitle}
               message={responseMessage}
@@ -246,7 +250,7 @@ const UITableMobile = (props) => {
                       setShowUploadDialog(true);
                     }}
                   >
-                    Upload CSV
+                    {props.uploadButtonText ? props.uploadButtonText : "Upload"}
                     <IconButton style={{ color: uiGreen }}>
                       <FileUploadIcon />
                     </IconButton>
@@ -289,7 +293,7 @@ const UITableMobile = (props) => {
                   <span style={{ color: "black" }}>Show</span>
                 )}
                 <select
-                 className="limit-select"
+                  className="limit-select"
                   style={{
                     maxWidth: isMobile ? "75px" : "150px",
                     borderRadius: "5px",

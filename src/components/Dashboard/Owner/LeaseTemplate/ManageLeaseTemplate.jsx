@@ -1122,22 +1122,7 @@ const ManageLeaseTemplate = () => {
                     `${row.street}, ${row.city}, ${row.state}`
                   }
                   subtitleProperty="somthing"
-                  acceptedFileTypes={[".csv"]}
-                  showUpload={true}
-                  uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
-                  fileUploadEndpoint={`/properties/upload-csv-properties/`}
-                  // getImage={(row) => {
-                  //   retrieveFilesBySubfolder(
-                  //     `properties/${row.id}`,
-                  //     authUser.id
-                  //   ).then((res) => {
-                  //     if (res.data.length > 0) {
-                  //       return res.data[0].file;
-                  //     } else {
-                  //       return "https://picsum.photos/200";
-                  //     }
-                  //   });
-                  // }}
+
                   onRowClick={(row) => {
                     const navlink = `/dashboard/owner/properties/${row.id}`;
                     navigate(navlink);
