@@ -793,22 +793,22 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
-  {
-    path: "/dashboard/owner/website-builder",
-    element: withDashboardContainer(
-      <DashboardProtectedRoute token={token}>
-        <WebsiteBuilder />
-      </DashboardProtectedRoute>
-    ),
-  },
-  {
-    path: "/dashboard/owner/occupancy-progress",
-    element: withDashboardContainer(
-      <DashboardProtectedRoute token={token}>
-        <OccupancyProgress />
-      </DashboardProtectedRoute>
-    ),
-  },
+  // {
+  //   path: "/dashboard/owner/website-builder",
+  //   element: withDashboardContainer(
+  //     <DashboardProtectedRoute token={token}>
+  //       <WebsiteBuilder />
+  //     </DashboardProtectedRoute>
+  //   ),
+  // },
+  // {
+  //   path: "/dashboard/owner/occupancy-progress",
+  //   element: withDashboardContainer(
+  //     <DashboardProtectedRoute token={token}>
+  //       <OccupancyProgress />
+  //     </DashboardProtectedRoute>
+  //   ),
+  // },
 ];
 
 export const router = createBrowserRouter(routes);
