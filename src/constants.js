@@ -9,6 +9,7 @@ import HandymanIcon from "@mui/icons-material/Handyman";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import CampaignIcon from "@mui/icons-material/Campaign";
+import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -92,27 +93,16 @@ export const ownerMenuItems = [
     description: "View your properties",
     icon: "fa fa-home",
     isSearchable: true,
-    dataTestId: "owner-properties-dropdown-menu-item",
-    subMenuItems: [
-      {
-        label: "Properties",
-        link: "/dashboard/owner/properties",
-        muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
-        description: "View your properties",
-        icon: "fa fa-home",
-        isSearchable: true,
-        dataTestId: "owner-properties-menu-item",
-      },
-      {
-        label: "Portfolios ",
-        link: "/dashboard/owner/portfolios",
-        muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
-        description: "Create a new portfolio",
-        icon: "fa fa-home",
-        isSearchable: true,
-        dataTestId: "owner-portfolios-menu-item",
-      },
-    ],
+    dataTestId: "owner-properties-menu-item",
+  },
+  {
+    label: "Portfolios ",
+    link: "/dashboard/owner/portfolios",
+    muiIcon: <HomeWorkIcon sx={muiIconStyle} />,
+    description: "Create a new portfolio",
+    icon: "fa fa-home",
+    isSearchable: true,
+    dataTestId: "owner-portfolios-menu-item",
   },
   {
     label: "Tenants",
@@ -161,15 +151,6 @@ export const ownerMenuItems = [
         dataTestId: "owner-new-lease-template-menu-item",
       },
       {
-        label: "Lease Templates",
-        link: "/dashboard/owner/lease-templates",
-        muiIcon: <DescriptionIcon />,
-        description: "View your lease terms",
-        icon: "fas fa-user-circle",
-        isSearchable: true,
-        dataTestId: "owner-lease-templates-menu-item",
-      },
-      {
         label: "Cancellation Requests",
         link: "/dashboard/owner/lease-cancellation-requests",
         muiIcon: <DescriptionIcon />,
@@ -186,6 +167,35 @@ export const ownerMenuItems = [
         icon: "fas fa-user-circle",
         isSearchable: true,
         dataTestId: "owner-lease-renewal-requests-menu-item",
+      },
+    ],
+  },
+  {
+    label: "Lease Templates",
+    link: "#",
+    muiIcon: <DocumentScannerIcon sx={muiIconStyle} />,
+    description: "View your lease terms",
+    icon: "fas fa-user-circle",
+    isSearchable: true,
+    dataTestId: "owner-lease-templates-menu-item",
+    subMenuItems: [
+      {
+        label: "View Lease Templates",
+        link: "/dashboard/owner/lease-templates",
+        muiIcon: <DocumentScannerIcon />,
+        description: "View your lease templates",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-lease-templates-menu-item",
+      },
+      {
+        label: "New Lease Template",
+        link: "/dashboard/owner/lease-templates/create",
+        muiIcon: <DocumentScannerIcon />,
+        description: "Create a new lease template",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-new-lease-template-menu-item",
       },
     ],
   },

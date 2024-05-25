@@ -125,16 +125,53 @@ export async function updateLeaseTemplate(leaseTemplateId, data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-//Create a function tpo delete a lease term using the delete method to call the endpoint /lease-templates/. THere should be the following params: lease_template_id and user_id
-export async function deleteLeaseTemplate(data) {
+
+//Create a function that assigs a lease template to a select property, unit or portfolio using the end point /lease-templates/{id}/assign-lease-template/. The function should have the parameter: data:
+export async function assignLeaseTemplate(data) {
   try {
     const res = await authenticatedInstance
-      .delete(`/lease-templates/`, {
+      .post(`/lease-templates/assign-lease-template/`, {
+        user_id: authUser.id,
+        assignment_mode: data.assignment_mode,
+        selected_assignments: data.selected_assignments,
+        lease_template_id: data.lease_template_id,
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Assign Lease Template Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that removes a lease template from a property, unit or portfolio using the endpoint /lease-templates/remove-lease-template-from-assigned-resources/. 
+export async function removeLeaseTemplateFromAssignedResources(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/lease-templates/remove-lease-template-from-assigned-resources/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Remove Lease Template Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function tpo delete a lease term using the delete method to call the endpoint /lease-templates/. THere should be the following params: lease_template_id and user_id
+export async function deleteLeaseTemplate(leaseTemplateId) {
+  try {
+    const res = await authenticatedInstance
+      .delete(`/lease-templates/${leaseTemplateId}/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
         },
-        data: data,
       })
       .then((res) => {
         console.log(res);

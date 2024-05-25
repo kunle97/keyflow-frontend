@@ -218,3 +218,18 @@ export async function deleteProperty(propertyId) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+//Create a function that removes the lease template from a property using a patch request to the api/properties/{id}/remove-lease-template endpoint
+export async function removePropertyLeaseTemplate(propertyId) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/remove-lease-template/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Remove Lease Template Error: ", error);
+    return error.response;
+  }
+}

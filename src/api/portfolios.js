@@ -106,3 +106,18 @@ export async function deletePortfolio(id) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+//Create a function that removes a lease template from a portfolio using the api endpoint /portfolios/{id}/remove-lease-template
+export async function removePortfolioLeaseTemplate(id) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/portfolios/${id}/remove-lease-template/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Remove Portfolio Lease Template Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}

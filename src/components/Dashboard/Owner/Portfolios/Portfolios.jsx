@@ -15,7 +15,7 @@ import { uiGreen } from "../../../../constants";
 const Portfolios = () => {
   const navigate = useNavigate();
   const { screenWidth, breakpoints, isMobile } = useScreen();
-  const columns = [
+  const portfolio_columns = [
     {
       name: "name",
       label: "Name",
@@ -36,7 +36,7 @@ const Portfolios = () => {
       },
     },
   ];
-  const options = {
+  const portfolio_options = {
     onRowClick: (row) => {
       navigate(`/dashboard/owner/portfolios/${row.id}`);
     },
@@ -135,8 +135,8 @@ const Portfolios = () => {
           testRowIdentifier="portfolio"
           title="Portfolios"
           endpoint="/portfolios/"
-          columns={columns}
-          options={options}
+          columns={portfolio_columns}
+          options={portfolio_options}
           showCreate={true}
           createURL="/dashboard/owner/portfolios/create"
           menuOptions={[

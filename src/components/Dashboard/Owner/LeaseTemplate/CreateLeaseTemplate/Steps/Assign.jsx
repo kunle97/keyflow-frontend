@@ -90,8 +90,16 @@ const Assign = (props) => {
       props.navigate(navlink);
     },
   };
-  
+
   const handleTabChange = (event, newValue) => {
+    props.setSelectedAssignments([]);
+    if (newValue === 0) {
+      props.setAssignmentMode("unit");
+    } else if (newValue === 1) {
+      props.setAssignmentMode("property");
+    } else if (newValue === 2) {
+      props.setAssignmentMode("portfolio");
+    }
     setTabPage(newValue);
   };
 
@@ -108,7 +116,7 @@ const Assign = (props) => {
   };
 
   return (
-    <div className="assign-to-units-section" >
+    <div className="assign-to-units-section">
       <AlertModal
         open={showAssignError}
         handleClose={() => setShowAssignError(false)}
@@ -138,6 +146,7 @@ const Assign = (props) => {
           showCreate={false}
           checked={props.selectedAssignments}
           setChecked={props.setSelectedAssignments}
+          hideShadow={props.hideShadow ? true : false}
         />
       )}
       {tabPage === 1 && (
@@ -151,6 +160,7 @@ const Assign = (props) => {
           showCreate={false}
           checked={props.selectedAssignments}
           setChecked={props.setSelectedAssignments}
+          hideShadow={props.hideShadow ? true : false}
         />
       )}
       {tabPage === 2 && (
@@ -164,33 +174,39 @@ const Assign = (props) => {
           showCreate={false}
           checked={props.selectedAssignments}
           setChecked={props.setSelectedAssignments}
+          hideShadow={props.hideShadow ? true : false}
         />
       )}
-
-      <StepControl
-        skipAllowed={true}
-        step={props.step}
-        steps={props.steps}
-        handlePreviousStep={props.handlePreviousStep}
-        handleNextStep={() => {
-          if (isAnySelected()) {
-            //Remove this step from skipped steps
-            let newSkippedSteps = [...props.skippedSteps];
-            newSkippedSteps.splice(newSkippedSteps.indexOf(props.step), 1);
-            props.setSkippedSteps(newSkippedSteps);
-            props.handleNextStep();
-          }
-        }}
-        handleSkipStep={() => {
-          props.setSkippedSteps([...props.skippedSteps, props.step]);
-          props.handleNextStep();
-        }}
-        handleSubmit={() => {
-          if (isAnySelected()) {
-            props.handleSubmit();
-          }
-        }}
-      />
+      {!props.hideStepControl && (
+        <StepControl
+          skipAllowed={true}
+          skipValidation={true}
+          step={props.step}
+          steps={props.steps}
+          handlePreviousStep={props.handlePreviousStep}
+          handleNextStep={() => {
+            //Set the skip assign step
+            props.setSkipAssignStep(false);
+            if (isAnySelected()) {
+              props.handleNextStep();
+            }
+          }}
+          handleSubmit={() => {
+            if (isAnySelected()) {
+              props.handleSubmit();
+            }
+          }}
+          handleSkipStep={() => {
+            props.setSkipAssignStep(true);
+            if (props.skipAssignStep === false) {
+              props.setSkipAssignStep(true);
+              console.log("Skip assign", props.skipAssignStep);
+            } else {
+              props.handleNextStep();
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

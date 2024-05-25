@@ -475,11 +475,11 @@ const UITable = (props) => {
                   <tr>
                     {props.options.isSelectable && (
                       <th>
-                        <Checkbox
+                        {/* <Checkbox
                           // checked={props.checked[0] && props.checked[1]}
                           indeterminate={props.checked[0] !== props.checked[1]}
                           onChange={handleSelectAll}
-                        />
+                        /> */}
                       </th>
                     )}
                     {props.columns.map((column) => {
@@ -509,8 +509,7 @@ const UITable = (props) => {
                           <tr
                             style={{
                               backgroundColor: "white",
-                              boxShadow:
-                                "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
+                              boxShadow: !props.hideShadow? "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important": "none",
                             }}
                           >
                             {props.options.isSelectable && (
