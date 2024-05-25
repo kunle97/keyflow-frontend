@@ -5,30 +5,30 @@ import {
   uiGrey2,
   uiRed,
   validationMessageStyle,
-} from "../../../../../constants";
+} from "../../../../constants";
 import { useParams } from "react-router";
 import { useEffect } from "react";
-import { authenticatedInstance } from "../../../../../api/api";
+import { authenticatedInstance } from "../../../../api/api";
 import { useState } from "react";
 import { Delete, HelpOutline } from "@mui/icons-material";
-import UITabs from "../../../UIComponents/UITabs";
-import BackButton from "../../../UIComponents/BackButton";
-import UIButton from "../../../UIComponents/UIButton";
-import UITable from "../../../UIComponents/UITable/UITable";
-import { getUnit } from "../../../../../api/units";
+import UITabs from "../../UIComponents/UITabs";
+import BackButton from "../../UIComponents/BackButton";
+import UIButton from "../../UIComponents/UIButton";
+import UITable from "../../UIComponents/UITable/UITable";
+import { getUnit } from "../../../../api/units";
 import { useNavigate } from "react-router";
-import { createBoldSignEmbeddedTemplateEditLink } from "../../../../../api/boldsign";
-import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
-import AlertModal from "../../../UIComponents/Modals/AlertModal";
-import UIPrompt from "../../../UIComponents/UIPrompt";
+import { createBoldSignEmbeddedTemplateEditLink } from "../../../../api/boldsign";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
+import UIPrompt from "../../UIComponents/UIPrompt";
 import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
-import UITableMobile from "../../../UIComponents/UITable/UITableMobile";
-import useScreen from "../../../../../hooks/useScreen";
-import UIInput from "../../../UIComponents/UIInput";
+import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import useScreen from "../../../../hooks/useScreen";
+import UIInput from "../../UIComponents/UIInput";
 import {
   triggerValidation,
   validateForm,
-} from "../../../../../helpers/formValidation";
+} from "../../../../helpers/formValidation";
 import Joyride, {
   ACTIONS,
   CallBackProps,
@@ -37,18 +37,18 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import UIHelpButton from "../../../UIComponents/UIHelpButton";
-import AdditionalChargeRow from "../AdditionalChargeRow";
-import UIDialog from "../../../UIComponents/Modals/UIDialog";
-import Assign from "../CreateLeaseTemplate/Steps/Assign";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import AdditionalChargeRow from "./AdditionalChargeRow";
+import UIDialog from "../../UIComponents/Modals/UIDialog";
+import Assign from "./CreateLeaseTemplate/Steps/Assign";
 import {
   assignLeaseTemplate,
   deleteLeaseTemplate,
   removeLeaseTemplateFromAssignedResources,
-} from "../../../../../api/lease_templates";
-import ConfirmModal from "../../../UIComponents/Modals/ConfirmModal";
-import DeleteButton from "../../../UIComponents/DeleteButton";
-import UIPageHeader from "../../../UIComponents/UIPageHeader";
+} from "../../../../api/lease_templates";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import DeleteButton from "../../UIComponents/DeleteButton";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManageLeaseTemplate = () => {
   const iconStyles = {
     color: uiGreen,
