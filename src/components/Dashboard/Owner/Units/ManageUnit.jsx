@@ -1364,10 +1364,10 @@ const ManageUnit = () => {
                 });
             }}
           />
-          <RentPriceSuggestionModal
+          {/* <RentPriceSuggestionModal
             open={openRentalUnitSuggestionModal}
             onClose={() => setOpenRentalUnitSuggestionModal(false)}
-          />
+          /> */}
           <UIDialog
             open={viewRentalApplicationModalOpen}
             onClose={() => setViewRentalApplicationModalOpen(false)}
@@ -1402,10 +1402,10 @@ const ManageUnit = () => {
               </div>
             </div>
           </UIDialog>
-          <ListUnitModal
+          {/* <ListUnitModal
             open={showListUnitModal}
             onClose={() => setShowListUnitModal(false)}
-          />
+          /> */}
           <UIPageHeader
             headerImageSrc={
               unitMedia && unitMedia.length > 0 ? unitMedia[0].file : null
@@ -1523,12 +1523,12 @@ const ManageUnit = () => {
                   setEditDialogOpen(true);
                 },
               },
-              {
-                label: "Optimize Rental Unit",
-                action: () => {
-                  setOpenRentalUnitSuggestionModal(true);
-                },
-              },
+              // {
+              //   label: "Optimize Rental Unit",
+              //   action: () => {
+              //     setOpenRentalUnitSuggestionModal(true);
+              //   },
+              // },
               {
                 label: "Reset Lease Template",
                 action: () => {

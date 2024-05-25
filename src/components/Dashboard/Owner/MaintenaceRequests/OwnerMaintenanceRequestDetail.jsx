@@ -37,10 +37,6 @@ import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import TimelineDot from "@mui/lab/TimelineDot";
 import Typography from "@mui/material/Typography";
 import ContactVendorModal from "../../UIComponents/Prototypes/Modals/ContactVendorModal";
-import HandymanIcon from "@mui/icons-material/Handyman";
-import PostAddIcon from "@mui/icons-material/PostAdd";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import CachedIcon from "@mui/icons-material/Cached";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -320,11 +316,11 @@ const OwnerMaintenanceRequestDetail = () => {
             message={confirmMessage}
             btnText="Okay"
           />
-          <ContactVendorModal
+          {/* <ContactVendorModal
             open={contantVendorModalOpen}
             onClose={() => setContactVendorModalOpen(false)}
             issue={maintenanceRequest.description}
-          />
+          /> */}
           <AlertModal
             open={showDeleteError}
             handleClose={() => setShowDeleteError(false)}

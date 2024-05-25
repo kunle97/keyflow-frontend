@@ -251,12 +251,12 @@ const OwnerMaintenanceRequests = () => {
           />
         </div>
       </div>
-      <VendorPaymentModel
+      {/* <VendorPaymentModel
         open={openVenorPayModal}
         onClose={() => {
           setOpenVendorPayModal(false);
         }}
-      />
+      /> */}
       <AlertModal
         open={showDeleteError}
         onClick={() => setShowDeleteError(false)}
@@ -264,7 +264,7 @@ const OwnerMaintenanceRequests = () => {
         message={deleteErrorMessage}
         btnText="Close"
       />
-      <Stack
+      {/* <Stack
         direction="row"
         spacing={2}
         justifyContent="flex-end"
@@ -277,7 +277,7 @@ const OwnerMaintenanceRequests = () => {
             style={{ width: "100%", marginBottom: "15px" }}
           />
         </div>
-      </Stack>
+      </Stack> */}
       {isMobile ? (
         <UITableMobile
           data={maintenanceRequests}
