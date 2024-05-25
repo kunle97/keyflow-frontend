@@ -1251,20 +1251,9 @@ const ManageProperty = () => {
                                 showCreate={true}
                                 acceptedFileTypes={[".csv"]}
                                 showUpload={true}
+                                uploadButtonText="Upload CSV"
                                 uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
                                 fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                                // getImage={(row) => {
-                                //   retrieveFilesBySubfolder(
-                                //     `properties/${property.id}/units/${row.id}`,
-                                //     authUser.id
-                                //   ).then((res) => {
-                                //     if (res.data.length > 0) {
-                                //       return res.data[0].file;
-                                //     } else {
-                                //       return "https://picsum.photos/200";
-                                //     }
-                                //   });
-                                // }}
                                 onRowClick={(row) => {
                                   const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
                                   navigate(navlink);
@@ -1279,6 +1268,11 @@ const ManageProperty = () => {
                                 options={unit_options}
                                 showCreate={true}
                                 createURL={`/dashboard/owner/units/create/${id}`}
+                                acceptedFileTypes={[".csv"]}
+                                showUpload={true}
+                                uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                                uploadButtonText="Upload CSV"
+                                fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
                                 menuOptions={[
                                   {
                                     name: "Manage",

@@ -21,16 +21,29 @@ import { uiGreen, uiGrey2 } from "../../../../constants";
 import { useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import AddIcon from "@mui/icons-material/Add";
-import { authenticatedInstance } from "../../../../api/api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+} from "../../../../api/api";
 import { useNavigate } from "react-router";
 import { MultiSelectDropdown } from "../MultiSelectDropdown";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import AlertModal from "../Modals/AlertModal";
+import UIDialog from "../Modals/UIDialog";
+import UIDropzone from "../Modals/UploadDialog/UIDropzone";
+import {
+  isValidFileExtension,
+  isValidFileName,
+} from "../../../../helpers/utils";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import ProgressModal from "../Modals/ProgressModal";
 const UITable = (props) => {
   const navigate = useNavigate();
   const [results, setResults] = useState([]);
+  const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false); //THis will be used to tell if the DRFfilterbackend is being used
   //Pagination Variables for when  no DRF Filter Backend is available
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,8 +55,13 @@ const UITable = (props) => {
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
+  const [responseTitle, setResponseTitle] = useState(null);
+  const [responseMessage, setResponseMessage] = useState(null);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
 
   //DRF Filter Backend Variables
   const [limit, setLimit] = useState(10);
@@ -322,12 +340,129 @@ const UITable = (props) => {
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
   };
+
+  const onDrop = (acceptedFiles) => {
+    let validFiles = true;
+
+    acceptedFiles.forEach((file) => {
+      if (!isValidFileName(file.name)) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file names is invalid. File name can only contain numbers, letters, underscores, and dashes. No special characters or spaces."
+        );
+        setShowFileUploadAlert(true);
+        validFiles = false;
+        setShowUploadDialog(false);
+        return;
+      } else if (!isValidFileExtension(file.name, props.acceptedFileTypes)) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file types is invalid. Accepted file types: " +
+            props.acceptedFileTypes.join(", ")
+        );
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        validFiles = false;
+        return;
+      }
+    });
+
+    if (!validFiles) {
+      return;
+    }
+
+    // Process valid files
+    const updatedFiles = acceptedFiles.map((file) =>
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      })
+    );
+    console.log("updatedFiles", updatedFiles);
+    setFiles(updatedFiles);
+    setResponseMessage(null);
+    setResponseTitle(null);
+  };
+
+  const handleUpload = () => {
+    setIsUploading(true); //Set isUploading to true to show the progress bar
+    //Create a function to handle the file upload from the  files array
+    const formData = new FormData(); //Create a new FormData object
+    files.forEach((file) => {
+      formData.append("file", file); //Append each file to the FormData object
+    });
+    authenticatedMediaInstance
+      .post(props.fileUploadEndpoint, formData)
+      .then((res) => {
+        console.log("res", res);
+        setResponseTitle("File Upload Success");
+        setResponseMessage("File(s) uploaded successfully");
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        setFiles([]); //Clear the files array
+      })
+      .catch((err) => {
+        console.log("err", err);
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
+        );
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        setFiles([]); //Clear the files array
+      })
+      .finally(() => {
+        setIsUploading(false); //Set isUploading to false to hide the progress bar
+      });
+  };
+
   useEffect(() => {
     refresh(currentPageEndPoint);
   }, [props.data]);
 
   return (
     <div style={{ width: "100%", overflowX: "auto", padding: "0 15px" }}>
+      {props.showUpload && (
+        <>
+          <ProgressModal open={isUploading} title="Uploading Files" />
+          <AlertModal
+            title={responseTitle}
+            message={responseMessage}
+            open={showFileUploadAlert}
+            onClick={() => setShowFileUploadAlert(false)}
+            btnText="OK"
+          />
+          <UIDialog
+            open={showUploadDialog}
+            onClose={() => setShowUploadDialog(false)}
+            maxWidth="lg"
+            style={{ width: "700px", zIndex: 991 }}
+          >
+            <UIDropzone
+              onDrop={onDrop}
+              acceptedFileTypes={props.acceptedFileTypes}
+              files={files}
+              setFiles={setFiles}
+            />
+            {props.uploadHelpText && (
+              <div style={{ margin: "10px" }}>
+                <HelpOutlineIcon
+                  style={{ color: uiGreen, marginRight: "5px" }}
+                />
+                <span style={{ color: uiGrey2, fontSize: "10pt" }}>
+                  {props.uploadHelpText}
+                </span>
+              </div>
+            )}
+            {files.length > 0 && (
+              <UIButton
+                onClick={handleUpload}
+                btnText="Upload File"
+                style={{ width: "100%" }}
+              />
+            )}
+          </UIDialog>
+        </>
+      )}
       <AlertModal
         title={alertTitle}
         message={alertMessage}
@@ -374,13 +509,29 @@ const UITable = (props) => {
               {props.title} ({isDrfFilterBackend ? count : results.length})
             </h3>
           </Stack>
+
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
             spacing={2}
           >
-            {" "}
+            {props.showUpload && (
+              <>
+                <ButtonBase
+                  data-testid="ui-table-mobile-create-button"
+                  style={{ color: uiGreen, float: "right" }}
+                  onClick={() => {
+                    setShowUploadDialog(true);
+                  }}
+                >
+                  {props.uploadButtonText ? props.uploadButtonText : "Upload"}
+                  <IconButton style={{ color: uiGreen }}>
+                    <FileUploadIcon />
+                  </IconButton>
+                </ButtonBase>
+              </>
+            )}{" "}
             {props.showCreate && (
               <span className="ui-table-create-button">
                 <ButtonBase
@@ -509,7 +660,9 @@ const UITable = (props) => {
                           <tr
                             style={{
                               backgroundColor: "white",
-                              boxShadow: !props.hideShadow? "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important": "none",
+                              boxShadow: !props.hideShadow
+                                ? "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important"
+                                : "none",
                             }}
                           >
                             {props.options.isSelectable && (
