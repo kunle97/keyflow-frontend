@@ -10,6 +10,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -218,35 +219,20 @@ export const ownerMenuItems = [
     dataTestId: "owner-announcements-menu-item",
   },
   {
-    label: "Finances",
-    link: "#",
-    icon: "fas fa-tachometer-alt",
-    isSearchable: false,
+    label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
+    link: "/dashboard/owner/transactions",
+    icon: "fas fa-tools",
+    muiIcon: <CurrencyExchangeIcon sx={muiIconStyle} />,
+    isSearchable: true,
+    dataTestId: "owner-transactions-menu-item",
+  },
+  {
+    label: "Billing Entries",
+    link: "/dashboard/owner/billing-entries",
+    icon: "fas fa-tools",
     muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
-    dataTestId: "owner-finances-dropdown-menu-item",
-    subMenuItems: [
-      {
-        label: "Transactions", //TODO: page for finances: income, expenses, transaction breakdowns, etc
-        link: "/dashboard/owner/transactions",
-        icon: "fas fa-tools",
-        isSearchable: true,
-        dataTestId: "owner-transactions-menu-item",
-      },
-      {
-        label: "Billing Entries",
-        link: "/dashboard/owner/billing-entries",
-        icon: "fas fa-tools",
-        isSearchable: true,
-        dataTestId: "owner-billing-entries-menu-item",
-      },
-      {
-        label: "Accounting", //TODO: page for accounting: taxes, etc
-        link: "/dashboard/owner/accounts",
-        icon: "fas fa-tools",
-        isSearchable: false,
-        dataTestId: "owner-accounting-menu-item",
-      },
-    ],
+    isSearchable: true,
+    dataTestId: "owner-billing-entries-menu-item",
   },
 ];
 export const tenantMenuItems = [
