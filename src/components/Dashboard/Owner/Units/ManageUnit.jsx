@@ -3,7 +3,12 @@ import {
   getLeaseTemplatesByUser,
   getLeaseTemplateById,
 } from "../../../../api/lease_templates";
-import { deleteUnit, getUnit, updateUnit } from "../../../../api/units";
+import {
+  deleteUnit,
+  getUnit,
+  removeUnitLeaseTemplate,
+  updateUnit,
+} from "../../../../api/units";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { Link, useParams } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
@@ -96,7 +101,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
-
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -161,7 +166,8 @@ const ManageUnit = () => {
   const [viewRentalApplicationModalOpen, setViewRentalApplicationModalOpen] =
     useState(false);
   const [showListUnitModal, setShowListUnitModal] = useState(false);
-
+  const [showResetLeaseTermsConfirmModal, setShowResetLeaseTermsConfirmModal] =
+    useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({});
   const [tourIndex, setTourIndex] = useState(0);
@@ -1315,7 +1321,47 @@ const ManageUnit = () => {
               );
               setShowLeaseTemplateChangeWarning(false);
               setShowLeaseTemplateSelector(false);
-              navigate(0);
+              // navigate(0);
+            }}
+          />
+          <ConfirmModal
+            open={showResetLeaseTermsConfirmModal}
+            title="Remove Lease Template"
+            message="Are you sure you want to remove the lease template for this unit? All the lease terms, and  additional charges will be reset to default and lease document will no longer be associated with this unit."
+            confirmBtnText="Remove"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{
+              backgroundColor: uiGrey2,
+              color: "white",
+            }}
+            cancelBtnStyle={{
+              backgroundColor: uiGreen,
+              color: "white",
+            }}
+            handleCancel={() => {
+              setShowResetLeaseTermsConfirmModal(false);
+            }}
+            handleConfirm={() => {
+              removeUnitLeaseTemplate(unit_id)
+                .then((res) => {
+                  if (res.status === 200) {
+                    setAlertOpen(true);
+                    setAlertTitle("Success");
+                    setAlertMessage("Lease template removed successfully");
+                  } else {
+                    setAlertOpen(true);
+                    setAlertTitle("Error");
+                    setAlertMessage("Something went wrong");
+                  }
+                })
+                .catch((err) => {
+                  setAlertOpen(true);
+                  setAlertTitle("Error");
+                  setAlertMessage("Something went wrong");
+                })
+                .finally(() => {
+                  setShowResetLeaseTermsConfirmModal(false);
+                });
             }}
           />
           <RentPriceSuggestionModal
@@ -1360,102 +1406,70 @@ const ManageUnit = () => {
             open={showListUnitModal}
             onClose={() => setShowListUnitModal(false)}
           />
-          {unitMedia && unitMedia.length > 0 && (
-            <div
-              data-testid="unit-media-header-container"
-              style={{
-                width: "100%",
-                height: isMobile ? "200px" : "320px",
-                //Vertical center the image
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden",
-                marginBottom: "10px",
-              }}
-              className="card"
-            >
-              <img
-                data-testid="unit-media-header-image"
-                src={unitMedia[0].file}
-                style={{
-                  width: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            </div>
-          )}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            alignContent={{ xs: "center", sm: "flex-start" }}
-          >
-            <div className="manage-unit-header">
-              <h4
-                data-testId="unit-name"
-                style={{ marginBottom: "0px", fontSize: "17pt" }}
-              >
-                Unit {unit?.name}
-              </h4>
-              <span className="text-black" data-testId="unit-tenant">
-                {isOccupied ? (
-                  <>
-                    <Link to={`/dashboard/owner/tenants/${tenant?.id}`}>
-                      {"Tenant: " +
-                        tenant?.user?.first_name +
-                        " " +
-                        tenant?.user?.last_name}
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <UIDialog
-                      dataTestId="invite-tenant-dialog"
-                      open={tenantInviteDialogOpen}
-                      onClose={() => setTenantInviteDialogOpen(false)}
-                      title="Invite Tenant"
-                    >
-                      <TenantInviteForm
-                        rental_unit_id={unit_id}
-                        templateId={unit.template_id ? unit.template_id : null}
-                        signedLeaseDocumentFileId={
+          <UIPageHeader
+            headerImageSrc={
+              unitMedia && unitMedia.length > 0 ? unitMedia[0].file : null
+            }
+            title={`Unit ${unit?.name}`}
+            subtitle={
+              isOccupied ? (
+                <>
+                  <Link to={`/dashboard/owner/tenants/${tenant?.id}`}>
+                    {"Tenant: " +
+                      tenant?.user?.first_name +
+                      " " +
+                      tenant?.user?.last_name}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <UIDialog
+                    dataTestId="invite-tenant-dialog"
+                    open={tenantInviteDialogOpen}
+                    onClose={() => setTenantInviteDialogOpen(false)}
+                    title="Invite Tenant"
+                  >
+                    <TenantInviteForm
+                      rental_unit_id={unit_id}
+                      templateId={unit.template_id ? unit.template_id : null}
+                      signedLeaseDocumentFileId={
+                        unit.signed_lease_document_file
+                          ? unit.signed_lease_document_file.id
+                          : null
+                      }
+                      setTenantInviteDialogOpen={setTenantInviteDialogOpen}
+                    />
+                  </UIDialog>
+                  <span className="text-black">Vacant</span>
+                  <span className="invite-tenant-button-wrapper">
+                    <Button
+                      style={{
+                        marginLeft: "10px",
+                        color: uiGreen,
+                        textTransform: "none",
+                      }}
+                      onClick={() => {
+                        if (
+                          unit.template_id ||
                           unit.signed_lease_document_file
-                            ? unit.signed_lease_document_file.id
-                            : null
+                        ) {
+                          setTenantInviteDialogOpen(true);
+                        } else {
+                          setAlertMessage(
+                            "Please upload a lease document or set a lease template for this unit before inviting a tenant"
+                          );
+                          setAlertTitle("Add Lease Document");
+                          setAlertOpen(true);
                         }
-                        setTenantInviteDialogOpen={setTenantInviteDialogOpen}
-                      />
-                    </UIDialog>
-                    <span className="text-black">Vacant</span>
-                    <span className="invite-tenant-button-wrapper">
-                      <Button
-                        style={{
-                          marginLeft: "10px",
-                          color: uiGreen,
-                          textTransform: "none",
-                        }}
-                        onClick={() => {
-                          if (
-                            unit.template_id ||
-                            unit.signed_lease_document_file
-                          ) {
-                            setTenantInviteDialogOpen(true);
-                          } else {
-                            setAlertMessage(
-                              "Please upload a lease document or set a lease template for this unit before inviting a tenant"
-                            );
-                            setAlertTitle("Add Lease Document");
-                            setAlertOpen(true);
-                          }
-                        }}
-                      >
-                        Invite Tenant
-                      </Button>
-                    </span>
-                  </>
-                )}
-              </span>
+                      }}
+                    >
+                      Invite Tenant
+                    </Button>
+                  </span>
+                </>
+              )
+            }
+            subtitle2={
               <Stack
                 direction="row"
                 justifyContent="flex-start"
@@ -1501,90 +1515,42 @@ const ManageUnit = () => {
                   </span>
                 </div>
               </Stack>
-            </div>
-            <IconButton
-              ref={anchorRef}
-              id="composition-button"
-              aria-controls={open ? "composition-menu" : undefined}
-              aria-expanded={open ? "true" : undefined}
-              aria-haspopup="true"
-              onClick={handleToggle}
-            >
-              <MoreVertIcon />
-            </IconButton>
-            <Popper
-              open={open}
-              anchorEl={anchorRef.current}
-              role={undefined}
-              placement="bottom-start"
-              transition
-              disablePortal
-              sx={{
-                zIndex: "1",
-              }}
-            >
-              {({ TransitionProps, placement }) => (
-                <Grow
-                  {...TransitionProps}
-                  style={{
-                    transformOrigin:
-                      placement === "bottom-start" ? "right top" : "right top",
-                  }}
-                >
-                  <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
-                      <MenuList
-                        autoFocusItem={open}
-                        id="composition-menu"
-                        aria-labelledby="composition-button"
-                        onKeyDown={handleListKeyDown}
-                      >
-                        <MenuItem
-                          onClick={() => {
-                            setEditDialogOpen(true);
-                          }}
-                        >
-                          Edit Rental Unit
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            setOpenRentalUnitSuggestionModal(true);
-                          }}
-                        >
-                          Optimize Rental Unit
-                        </MenuItem>
-                        {!isOccupied && (
-                          <MenuItem
-                            onClick={() => {
-                              setShowListUnitModal(true);
-                            }}
-                          >
-                            List Unit...
-                          </MenuItem>
-                        )}
-                        {!isOccupied && (
-                          <MenuItem
-                            onClick={() => {
-                              setViewRentalApplicationModalOpen(true);
-                            }}
-                          >
-                            View Rental Application
-                          </MenuItem>
-                        )}
-                        <MenuItem
-                          onClick={() => {
-                            setShowDeleteAlert(true);
-                          }}
-                        >
-                          Delete Rental Unit
-                        </MenuItem>
-                      </MenuList>
-                    </ClickAwayListener>
-                  </Paper>
-                </Grow>
-              )}
-            </Popper>
-          </Stack>
+            }
+            menuItems={[
+              {
+                label: "Edit Rental Unit",
+                action: () => {
+                  setEditDialogOpen(true);
+                },
+              },
+              {
+                label: "Optimize Rental Unit",
+                action: () => {
+                  setOpenRentalUnitSuggestionModal(true);
+                },
+              },
+              {
+                label: "Reset Lease Template",
+                action: () => {
+                  setShowResetLeaseTermsConfirmModal(true);
+                },
+                hidden: !unit.template_id,
+              },
+              {
+                label: "View Rental Applications",
+                action: () => {
+                  setViewRentalApplicationModalOpen(true);
+                },
+                hidden: isOccupied,
+              },
+              {
+                label: "Delete Unit",
+                action: () => {
+                  setShowDeleteAlert(true);
+                },
+              },
+            ]}
+          />
 
           <UITabs
             tabs={tabs}

@@ -59,7 +59,7 @@ import {
   HolidayVillageOutlined,
 } from "@mui/icons-material";
 import CampaignIcon from "@mui/icons-material/Campaign";
-import ManageLeaseTemplate from "./components/Dashboard/Owner/LeaseTemplate/ManageLeaseTemplate";
+import ManageLeaseTemplate from "./components/Dashboard/Owner/LeaseTemplate/ManageLeaseTemplate/ManageLeaseTemplate";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 import Logout from "./components/Dashboard/Logout";

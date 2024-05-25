@@ -157,3 +157,43 @@ export async function getOwnerUnits() {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+
+//Create a function that applies a lease template to a unit using the endpoint /units/{unit_id}/assign-lease-template/. The function should have the parameter: data:
+export async function assignLeaseTemplateToUnit(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/units/${data.unit_id}/assign-lease-template/`, {
+        lease_template_id: data.lease_template_id,
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Assign Lease Template to Unit Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//CReate a function that removes a lease template from a unit using the endpoint /units/{unit_id}/remove-lease-template/. The function should have the parameter: data:
+export async function removeUnitLeaseTemplate(unit_id) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/units/${unit_id}/remove-lease-template/`, {
+        unit_id: unit_id,
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Remove Lease Template from Unit Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}

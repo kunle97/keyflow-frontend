@@ -7,6 +7,7 @@ import {
   updatePortfolio,
   deletePortfolio,
   updatePortfolioPreferences,
+  removePortfolioLeaseTemplate,
 } from "../../../../api/portfolios";
 import {
   updatePortfolioProperties,
@@ -52,11 +53,7 @@ import {
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
 import { syncPortfolioPreferences } from "../../../../helpers/preferences";
-import Joyride, {
-  ACTIONS,
-  EVENTS,
-  STATUS,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
@@ -73,7 +70,7 @@ const ManagePortfolio = () => {
   const [portfolioPreferences, setPortfolioPreferences] = useState([]);
   const [properties, setProperties] = useState([]);
   const [allUserProperties, setAllUserProperties] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [open, setAlertOpen] = useState(false);
   const anchorRef = React.useRef(null);
   const [openPopper, setOpenPopper] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
@@ -86,6 +83,7 @@ const ManagePortfolio = () => {
   const [rentalPropertyNextPage, setRentalPropertyNextPage] = useState(null);
   const [rentalPropertyPreviousPage, setRentalPropertyPreviousPage] =
     useState(null);
+
   const [rentalPropertySearchQuery, setRentalUnitSearchQuery] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertRedirectURL, setAlertRedirectURL] = useState(null);
@@ -99,6 +97,10 @@ const ManagePortfolio = () => {
     // name: portfolio ? portfolio.name : "",
     // description: portfolio ? portfolio.description : "",
   });
+  const [
+    showResetLeaseTemplateConfirmModal,
+    setShowResetLeaseTemplateConfirmModal,
+  ] = useState(false);
 
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
@@ -231,12 +233,12 @@ const ManagePortfolio = () => {
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio updated successfully");
-          setOpen(true);
+          setAlertOpen(true);
           setEditDialogOpen(false);
         } else {
           setAlertTitle("Error");
           setAlertMessage("Error updating portfolio");
-          setOpen(true);
+          setAlertOpen(true);
           setEditDialogOpen(false);
         }
       })
@@ -246,7 +248,7 @@ const ManagePortfolio = () => {
         setAlertMessage(
           "An error occurred while updating the portfolio. Please try again."
         );
-        setOpen(true);
+        setAlertOpen(true);
         setEditDialogOpen(false);
       });
   };
@@ -259,11 +261,11 @@ const ManagePortfolio = () => {
         setAlertMessage("");
         setEditDialogOpen(false);
         setAlertRedirectURL("/dashboard/owner/portfolios");
-        setOpen(true);
+        setAlertOpen(true);
       } else {
         setAlertTitle("Error");
         setAlertMessage("Error Deleting Portfolio");
-        setOpen(true);
+        setAlertOpen(true);
         setEditDialogOpen(false);
       }
     });
@@ -434,15 +436,60 @@ const ManagePortfolio = () => {
           />
           <AlertModal
             open={open}
-            setOpen={setOpen}
+            setOpen={setAlertOpen}
             title={alertTitle}
             message={alertMessage}
             btnText={"Ok"}
             onClick={() => {
               if (alertRedirectURL) {
                 navigate(alertRedirectURL);
+              } else {
+                navigate(0);
               }
-              setOpen(false);
+              setAlertOpen(false);
+            }}
+          />
+          <ConfirmModal
+            open={showResetLeaseTemplateConfirmModal}
+            title="Remove Lease Template"
+            message="Are you sure you want to remove the lease template for this portfolio? All the lease terms of its associated units, and  additional charges will be reset to default and lease document will no longer be associated with this unit."
+            confirmBtnText="Remove"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{
+              backgroundColor: uiGrey2,
+              color: "white",
+            }}
+            cancelBtnStyle={{
+              backgroundColor: uiGreen,
+              color: "white",
+            }}
+            handleCancel={() => {
+              setShowResetLeaseTemplateConfirmModal(false);
+            }}
+            handleConfirm={() => {
+              removePortfolioLeaseTemplate(id)
+                .then((res) => {
+                  console.log("Remove Lease Template Res", res);
+                  if (res.status === 200) {
+                    setAlertTitle("Success");
+                    setAlertMessage(
+                      "Lease template removed from portfolio successfully"
+                    );
+                    setAlertOpen(true);
+                  } else {
+                    setAlertTitle("Error");
+                    setAlertMessage("Something went wrong");
+                    setAlertOpen(true);
+                  }
+                })
+                .catch((err) => {
+                  setAlertTitle("Error");
+                  setAlertMessage("Something went wrong");
+                  setAlertOpen(true);
+                })
+                .finally(() => {
+                  setShowResetLeaseTemplateConfirmModal(false);
+                });
             }}
           />
           <ConfirmModal
@@ -678,14 +725,14 @@ const ManagePortfolio = () => {
                       setAlertMessage(
                         "Properties updated in portfolio successfully"
                       );
-                      setOpen(true);
+                      setAlertOpen(true);
                       setIsLoading(false);
                     })
                     .catch((error) => {
                       console.error("Error updating properties:", error);
                       setAlertTitle("Error");
                       setAlertMessage("Error updating properties in portfolio");
-                      setOpen(true);
+                      setAlertOpen(true);
                       setIsLoading(false);
                     });
                 } catch (e) {
@@ -693,7 +740,7 @@ const ManagePortfolio = () => {
                   setAlertMessage(
                     "There was an error adding the properties to the portfolio. Please try again."
                   );
-                  setOpen(true);
+                  setAlertOpen(true);
                 } finally {
                   setIsLoading(false);
                 }
@@ -718,8 +765,8 @@ const ManagePortfolio = () => {
               <IconButton
                 ref={anchorRef}
                 id="composition-button"
-                aria-controls={open ? "composition-menu" : undefined}
-                aria-expanded={open ? "true" : undefined}
+                aria-controls={openPopper ? "composition-menu" : undefined}
+                aria-expanded={openPopper ? "true" : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
               >
@@ -761,6 +808,15 @@ const ManagePortfolio = () => {
                           >
                             Edit Portfolio Details
                           </MenuItem>
+                          {portfolio.lease_template && (
+                            <MenuItem
+                              onClick={() => {
+                                setShowResetLeaseTemplateConfirmModal(true);
+                              }}
+                            >
+                              Reset Lease Template
+                            </MenuItem>
+                          )}
                           <MenuItem
                             onClick={() => {
                               handleOpenRentalPropertySelectModal(true);

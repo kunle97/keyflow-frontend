@@ -47,7 +47,7 @@ const AdditionalCharge = (props) => {
       type: "text",
       colSpan: 3,
       onChange: (e) => handleChange(e),
-      placeholder: "A5",
+      placeholder: "Pet Rent",
       validations: {
         required: true,
         regex: /^[a-zA-Z0-9\s]*$/,
@@ -190,79 +190,28 @@ const AdditionalCharge = (props) => {
           </Stack>
         </div>
       </div>
-
-      <br />
-
-      {props.index == props.additionalCharges.length - 1 && (
-        <>
-          {/* INSERT STEP CONTROLS HERE */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={2}
-            sx={{ padding: "1rem 0" }}
-          >
-            <UIButton btnText="Back" onClick={props.handlePreviousStep} />
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={2}
-            >
-              <UIButton
-                btnText="Skip"
-                onClick={() => {
-                  props.setSkippedSteps([...props.skippedSteps, props.step]);
-                  props.handleNextStep();
-                }}
-              />
-              <UIButton
-                btnText="Next"
-                onClick={() => {
-                  const { isValid, newErrors } = validateForm(
-                    formData,
-                    formInputs
-                  );
-                  if (isValid) {
-                    props.handleNextStep();
-                  } else {
-                    props.setErrors(newErrors);
-                  }
-                }}
-              />
-            </Stack>
-          </Stack>
-        </>
-      )}
-      {/* <UIButton
-        onClick={() => {
-          const { isValid, newErrors } = validateForm(formData, formInputs);
-          if (isValid) {
-            console.log("Additional charges ", props.additionalCharges);
-            // props.handleNextStep();
-          } else {
-            props.setErrors(newErrors);
-          }
-        }}
-        btnText="Next"
-        color="primary"
-        style={{ marginTop: "20px" }}
-      /> */}
-      {/* <StepControl
+      <StepControl
         skipAllowed={true}
         style={{ marginTop: "30px" }}
         step={props.step}
         steps={props.steps}
         handlePreviousStep={props.handlePreviousStep}
-        handleNextStep={props.handleNextStep}
-        formData={props.formData}
-        formInputs={formInputs}
-        handleSkipStep={() => {
-          props.setSkippedSteps((prevSteps) => [...prevSteps, props.step]);
-          props.handleNextStep();
+        handleNextStep={()=>{
+          props.setSkipAdditionalChargesStep(false);
+          props.handleNextStep()
         }}
-      /> */}
+        formData={formData}
+        formInputs={formInputs}
+        handleSkipStep={()=>{
+          props.setSkipAdditionalChargesStep(true);
+          if(props.skipAdditionalChargesStep === false){
+            props.setSkipAdditionalChargesStep(true);
+            console.log("Skip additional charges", props.skipAdditionalChargesStep);
+          }else{
+            props.handleNextStep();
+          }
+        }}
+      />
     </div>
   );
 };
