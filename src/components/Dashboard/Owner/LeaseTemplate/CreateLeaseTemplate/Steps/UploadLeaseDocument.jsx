@@ -137,7 +137,7 @@ const UploadLeaseDocument = (props) => {
             id="prepare_page"
             src={iframeUrl}
             width="100%"
-            height={isMobile ? "500px" : "1200px"}
+            height={isMobile ? "500px" : "900px"}
           />
           {/* <StepControl
             step={props.step}

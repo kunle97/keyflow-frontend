@@ -31,7 +31,9 @@ const StepControl = (props) => {
           {props.skipAllowed && (
             <div className="form-group  mb-4">
               <UIButton
-                onClick={props.handleSkipStep}
+                onClick={() => {
+                  props.handleSkipStep();
+                }}
                 btnText="Skip"
                 color="secondary"
               />
@@ -41,6 +43,7 @@ const StepControl = (props) => {
             <div className="form-group  mb-4">
               <UIButton
                 onClick={() => {
+                  if (!props.skipValidation) {
                     const { isValid, newErrors } = validateForm(
                       props.formData,
                       props.formInputs
@@ -51,6 +54,9 @@ const StepControl = (props) => {
                     } else {
                       props.setErrors(newErrors);
                     }
+                  } else {
+                    props.handleNextStep();
+                  }
                 }}
                 btnText="Next"
               />

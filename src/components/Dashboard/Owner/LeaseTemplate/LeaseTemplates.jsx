@@ -186,29 +186,33 @@ const LeaseTemplates = () => {
   //Retrieve user's lease terms
   useEffect(() => {
     //retrieve lease terms that the user has created
-    getLeaseTemplatesByUser().then((res) => {
-      setLeaseTemplates(res.data);
-      console.log(res);
-    }).catch((error) => {
-      console.error("Error fetching lease templates:", error);
-      setAlertModalTitle("Error");
-      setAlertModalMessage(
-        "There was an error fetching your lease templates. Please try again."
-      );
-      setShowAlertModal(true);
-    });
+    getLeaseTemplatesByUser()
+      .then((res) => {
+        setLeaseTemplates(res.data);
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error("Error fetching lease templates:", error);
+        setAlertModalTitle("Error");
+        setAlertModalMessage(
+          "There was an error fetching your lease templates. Please try again."
+        );
+        setShowAlertModal(true);
+      });
     //Retrieve the user's units
-    getOwnerUnits().then((res) => {
-      setUnits(res.data);
-      console.log(res);
-    }).catch((error) => {
-      console.error("Error fetching units:", error);
-      setAlertModalTitle("Error");
-      setAlertModalMessage(
-        "There was an error fetching your units. Please try again."
-      );
-      setShowAlertModal(true);
-    });
+    getOwnerUnits()
+      .then((res) => {
+        setUnits(res.data);
+        console.log(res);
+      })
+      .catch((error) => {
+        console.error("Error fetching units:", error);
+        setAlertModalTitle("Error");
+        setAlertModalMessage(
+          "There was an error fetching your units. Please try again."
+        );
+        setShowAlertModal(true);
+      });
   }, []);
   return (
     <div className="container-fluid lease-template-page">
@@ -233,17 +237,16 @@ const LeaseTemplates = () => {
           skip: "Skip",
         }}
       />
-        <AlertModal
-          open={showAlertModal}
-          title={alertModalTitle}
-          message={alertModalMessage}
-          btnText="Ok"
-          onClick={() => {
-            setShowAlertModal(false);
-          }}
-        />
-      <div className="card" style={{ overflow: "hidden" }}>
-      </div>
+      <AlertModal
+        open={showAlertModal}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        btnText="Ok"
+        onClick={() => {
+          setShowAlertModal(false);
+        }}
+      />
+      <div className="card" style={{ overflow: "hidden" }}></div>
       <div className="lease-template-table-container">
         {isMobile ? (
           <UITableMobile

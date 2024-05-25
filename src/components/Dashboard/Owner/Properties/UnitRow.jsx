@@ -107,7 +107,7 @@ const UnitRow = (props) => {
             </label>
             <input
               name={input.name}
-              data-testId={`${input.dataTestId}-input`}
+              data-testId={`${input.dataTestId}`}
               className="form-control"
               type={input.type}
               defaultValue={formData[input.name]}

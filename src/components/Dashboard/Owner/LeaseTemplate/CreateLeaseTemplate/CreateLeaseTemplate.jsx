@@ -64,7 +64,9 @@ const CreateLeaseTemplate = (props) => {
   ]); //Array holding ids and boolean values of the selected properties or units
   const [assignmentMode, setAssignmentMode] = useState("unit"); //portfolio, property or unit
   const [templateId, setTemplateId] = useState("");
-  const [skippedSteps, setSkippedSteps] = useState([]);
+  const [skipAdditionalChargesStep, setSkipAdditionalChargesStep] =
+    useState(false);
+  const [skipAssignStep, setSkipAssignStep] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [chargesValid, setChargesValid] = useState(false);
   const navigate = useNavigate();
@@ -268,9 +270,8 @@ const CreateLeaseTemplate = (props) => {
     console.log("Form data", formData);
     console.log("Additional charges array", additionalCharges);
     console.log("Selected assignments", selectedAssignments);
-    console.log("Skipped", skippedSteps);
 
-    if (!skippedSteps.includes(2)) {
+    if (!skipAdditionalChargesStep) {
       //Check if additional charges all have the same frequency
       const frequencies = additionalCharges.map((charge) => charge.frequency);
       const allFrequenciesEqual = frequencies.every(
@@ -311,7 +312,7 @@ const CreateLeaseTemplate = (props) => {
     } else {
       formData.additional_charges = JSON.stringify([]);
     }
-    if (!skippedSteps.includes(3)) {
+    if (!skipAssignStep) {
       //REtreive all selected assignments that have the selected property set to true
       let payloadSelectedAssignments = selectedAssignments.filter(
         (assignment) => assignment.selected === true
@@ -368,7 +369,7 @@ const CreateLeaseTemplate = (props) => {
         setShowResponseMessage(true);
       });
   };
-
+  useEffect(() => {}, [step, skipAdditionalChargesStep, skipAssignStep]);
   return (
     <div className="container lease-template-creation-page">
       <Joyride
@@ -484,10 +485,10 @@ const CreateLeaseTemplate = (props) => {
                     validationMessageStyle={validationMessageStyle}
                     handlePreviousStep={handlePreviousStep}
                     handleNextStep={handleNextStep}
+                    skipAdditionalChargesStep={skipAdditionalChargesStep}
+                    setSkipAdditionalChargesStep={setSkipAdditionalChargesStep}
                     step={step}
                     steps={steps}
-                    skippedSteps={skippedSteps}
-                    setSkippedSteps={setSkippedSteps}
                   />
                 ))}
               </>
@@ -498,8 +499,8 @@ const CreateLeaseTemplate = (props) => {
                 handleNextStep={handleNextStep}
                 step={step}
                 steps={steps}
-                skippedSteps={skippedSteps}
-                setSkippedSteps={setSkippedSteps}
+                skipAssignStep={skipAssignStep}
+                setSkipAssignStep={setSkipAssignStep}
                 selectedAssignments={selectedAssignments}
                 setSelectedAssignments={setSelectedAssignments}
                 assignmentMode={assignmentMode}

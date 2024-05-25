@@ -29,6 +29,7 @@ import {
   updatePropertyMedia,
   updatePropertyPreferences,
   updatePropertyPortfolio,
+  removePropertyLeaseTemplate,
 } from "../../../../api/properties";
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
@@ -84,6 +85,7 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
+import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -117,6 +119,7 @@ const ManageProperty = () => {
   const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
+  const [showResetLeaseTemplateConfirmModal, setShowResetLeaseTemplateConfirmModal] = useState(false);
   const navigate = useNavigate();
   const anchorRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -613,38 +616,43 @@ const ManageProperty = () => {
         setBathsCount(
           res.data.units.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
         );
-        getPortfolios().then((portfolio_res) => {
-          if (portfolio_res.status === 200) {
-            setPortfolios(portfolio_res.data);
-            if (res.data?.portfolio) {
-              setCurrentPortfolio(
-                portfolio_res.data.find(
-                  (portfolio) => portfolio.id === res.data?.portfolio
-                )
+        getPortfolios()
+          .then((portfolio_res) => {
+            if (portfolio_res.status === 200) {
+              setPortfolios(portfolio_res.data);
+              if (res.data?.portfolio) {
+                setCurrentPortfolio(
+                  portfolio_res.data.find(
+                    (portfolio) => portfolio.id === res.data?.portfolio
+                  )
+                );
+              }
+            } else {
+              console.error(
+                "An error occured retieving portfolios",
+                portfolio_res
               );
             }
-          } else {
-            console.error(
-              "An error occured retieving portfolios",
-              portfolio_res
-            );
-          }
-        }).catch((error) => {
-          console.error("An error occured retieving portfolios", error);
-          setUpdateAlertTitle("Error");
-          setUpdateAlertMessage("Something went wrong");
-          setUpdateAlertIsOpen(true);
-        });
+          })
+          .catch((error) => {
+            console.error("An error occured retieving portfolios", error);
+            setUpdateAlertTitle("Error");
+            setUpdateAlertMessage("Something went wrong");
+            setUpdateAlertIsOpen(true);
+          });
       });
       retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
         .then((res) => {
           setPropertyMedia(res.data);
           console.log(res.data);
           setPropertyMediaCount(res.data.length);
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.error("An error occured retieving property media", error);
           setUpdateAlertTitle("Error");
-          setUpdateAlertMessage("Something went wrong retrieving property media");
+          setUpdateAlertMessage(
+            "Something went wrong retrieving property media"
+          );
           setUpdateAlertIsOpen(true);
         })
         .finally(() => {
@@ -690,6 +698,49 @@ const ManageProperty = () => {
             }}
           />
           {/* <BackButton  /> */}
+          <ConfirmModal
+            open={showResetLeaseTemplateConfirmModal}
+            title="Remove Lease Template"
+            message="Are you sure you want to remove the lease template for this property? All the lease terms of its units, and  additional charges will be reset to default and lease document will no longer be associated with this unit."
+            confirmBtnText="Remove"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{
+              backgroundColor: uiGrey2,
+              color: "white",
+            }}
+            cancelBtnStyle={{
+              backgroundColor: uiGreen,
+              color: "white",
+            }}
+            handleCancel={() => {
+              setShowResetLeaseTemplateConfirmModal(false);
+            }}
+            handleConfirm={() => {
+              removePropertyLeaseTemplate(id)
+                .then((res) => {
+                  console.log("Remove Lease Template Res", res);
+                  if (res.status === 200) {
+                    setUpdateAlertTitle("Success");
+                    setUpdateAlertMessage(
+                      "Lease template removed from property"
+                    );
+                    setUpdateAlertIsOpen(true);
+                  } else {
+                    setUpdateAlertTitle("Error");
+                    setUpdateAlertMessage("Something went wrong");
+                    setUpdateAlertIsOpen(true);
+                  }
+                })
+                .catch((err) => {
+                  setUpdateAlertTitle("Error");
+                  setUpdateAlertMessage("Something went wrong");
+                  setUpdateAlertIsOpen(true);
+                })
+                .finally(() => {
+                  setShowResetLeaseTemplateConfirmModal(false);
+                });
+            }}
+          />
           <AlertModal
             dataTestId="property-update-alert-modal"
             open={updateAlertIsOpen}
@@ -1039,6 +1090,15 @@ const ManageProperty = () => {
                             >
                               Edit Property
                             </MenuItem>
+                            {property.lease_template && (
+                              <MenuItem
+                                onClick={() => {
+                                  setShowResetLeaseTemplateConfirmModal(true);
+                                }}
+                              >
+                                Reset Lease Template
+                              </MenuItem>
+                            )}
                             <MenuItem
                               onClick={() => {
                                 setSelectPortfolioDialogOpen(true);
