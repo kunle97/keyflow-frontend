@@ -146,6 +146,7 @@ const ManageUnit = () => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertRefresh, setAlertRefresh] = useState(true);
   const [templateId, setTemplateId] = useState(null);
   const [progressModalTitle, setProgressModalTitle] = useState("");
   const [chargesValid, setChargesValid] = useState(true);
@@ -607,6 +608,12 @@ const ManageUnit = () => {
         })
         .finally(() => {
           setIsLoadingIframe(false);
+          setAlertTitle("Signature Field Notice");
+          setAlertMessage(
+            "When editing the document, please ensure that you add a signature for both yourself (the owner) and the tenant. Failing to do so will result in an unuseable lease agreement document."
+          );
+          setAlertOpen(true);
+          setAlertRefresh(false);
         });
     }
   };
@@ -1039,7 +1046,9 @@ const ManageUnit = () => {
         btnText="Okay"
         onClick={() => {
           setAlertOpen(false);
-          navigate(0);
+          if (alertRefresh) {
+            navigate(0);
+          }
         }}
       />
       {isLoadingPage || isLoading ? (
