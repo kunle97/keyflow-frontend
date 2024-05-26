@@ -98,6 +98,11 @@ const UploadLeaseDocument = (props) => {
         setRenderIframe(true);
         console.log(iframeUrl);
         setIsLoading(false);
+        setAlertTitle("Signature Field Notice");
+        setAlertMessage(
+          "When editing the document, please ensure that you add a signature for both yourself (the owner) and the tenant. Failing to do so will result in an unuseable lease agreement document"
+        );
+        setAlertOpen(true);
       }
     }).catch((error) => {
       console.error("Error creating template link:", error);
