@@ -3,7 +3,9 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
   border: none;
 }
-
+.MuiPopper-root {
+  z-index: 1300 !important; /* Ensure this value is higher than other components */
+}
 .card-header {
   background: #364658;
   color: white !important;

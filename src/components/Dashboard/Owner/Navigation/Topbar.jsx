@@ -13,10 +13,12 @@ import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuIcon from "@mui/icons-material/Menu";
 import { logout } from "../../../../api/auth";
+import useScreen from "../../../../hooks/useScreen";
 import EmailIcon from "@mui/icons-material/Email";
 const Topbar = (props) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { screenWidth } = useScreen();
   const [profilePictures, setProfilePictures] = useState(null);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const searchBarStyle = {
@@ -102,7 +104,7 @@ const Topbar = (props) => {
     } finally {
       console.log("Done");
     }
-  }, [profilePictures]);
+  }, [profilePictures, screenWidth]);
   return (
     <div className="container">
       <AlertModal
@@ -167,17 +169,19 @@ const Topbar = (props) => {
               justifyContent="space-between"
               sx={{ marginRight: "-50px" }}
             >
-              <input
-                data-testid="search-bar-desktop"
-                type="search"
-                placeholder="Search"
-                style={searchBarStyle}
-                value={props.searchQuery}
-                onChange={(e) => {
-                  props.setShowSearchDialog(true);
-                  props.setSearchQuery(e.target.value);
-                }}
-              />
+              {screenWidth > 1100 && (
+                <input
+                  data-testid="search-bar-desktop"
+                  type="search"
+                  placeholder="Search"
+                  style={searchBarStyle}
+                  value={props.searchQuery}
+                  onChange={(e) => {
+                    props.setShowSearchDialog(true);
+                    props.setSearchQuery(e.target.value);
+                  }}
+                />
+              )}
               <IconButton
                 data-testid="search-bar-submit-button"
                 style={{

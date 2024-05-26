@@ -86,6 +86,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -119,7 +120,10 @@ const ManageProperty = () => {
   const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
-  const [showResetLeaseTemplateConfirmModal, setShowResetLeaseTemplateConfirmModal] = useState(false);
+  const [
+    showResetLeaseTemplateConfirmModal,
+    setShowResetLeaseTemplateConfirmModal,
+  ] = useState(false);
   const navigate = useNavigate();
   const anchorRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -925,203 +929,121 @@ const ManageProperty = () => {
               )}
             </List>
           </UIDialog>
-          <div className="property-info-header">
-            {propertyMedia && propertyMedia.length > 0 && (
-              <div
-                style={{
-                  width: "100%",
-                  height: isMobile ? "200px" : "320px",
-                  //Vertical center the image
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                  marginBottom: "10px",
-                  overflow: "hidden",
-                  borderRadius: "5px",
-                }}
-                className="card"
-              >
-                <img
-                  src={propertyMedia[0].file}
-                  style={{
-                    width: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
-            )}
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mt: 4 }}
-            >
-              <Stack
-                direction="column"
-                justifyContent="flex-start"
-                alignItems="flex-start"
-                spacing={0.5}
-              >
-                <h4 style={{ margin: "0" }}>{property?.name}</h4>{" "}
+          <UIPageHeader
+            headerImageSrc={
+              propertyMedia && propertyMedia.length > 0 && propertyMedia[0].file
+            }
+            title={property?.name}
+            subtitle={
+              <>
                 <span className="text-black">{currentPortfolio?.name}</span>
                 <span className="text-black">
                   {property?.street} {property?.city}, {property?.state}{" "}
                   {property?.zip_code}
                 </span>
-                <Stack
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  alignContent={"center"}
-                  spacing={2}
-                >
-                  <div>
-                    <MeetingRoomIcon
-                      sx={{
-                        fontSize: "15pt",
-                        color: uiGreen,
-                        marginRight: "5px",
-                      }}
-                    />
-                    <span
-                      data-testId="property-unit-count"
-                      className="text-black"
-                      style={{
-                        fontSize: "12pt",
-                      }}
-                    >
-                      {unitCount}
-                    </span>
-                  </div>
-                  <div>
-                    <HotelIcon
-                      sx={{
-                        fontSize: "15pt",
-                        color: uiGreen,
-                        marginRight: "5px",
-                      }}
-                    />
-                    <span
-                      data-testId="property-bed-count"
-                      className="text-black"
-                      style={{
-                        fontSize: "12pt",
-                      }}
-                    >
-                      {bedsCount}
-                    </span>
-                  </div>
-                  <div>
-                    <BathtubIcon
-                      sx={{
-                        fontSize: "15pt",
-                        color: uiGreen,
-                        marginRight: "5px",
-                      }}
-                    />
-                    <span
-                      className="text-black"
-                      style={{
-                        fontSize: "12pt",
-                      }}
-                      data-testId="property-bath-count"
-                    >
-                      {bathsCount}
-                    </span>
-                  </div>
-                  <div>
-                    <ZoomOutMapIcon
-                      sx={{
-                        fontSize: "15pt",
-                        color: uiGreen,
-                        marginRight: "5px",
-                      }}
-                    />
-                    <span
-                      data-testId="property-size"
-                      className="text-black"
-                      style={{
-                        fontSize: "12pt",
-                      }}
-                    >
-                      1234 Sq. Ft.
-                    </span>
-                  </div>
-                </Stack>
+              </>
+            }
+            subtitle2={
+              <Stack
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                alignContent={"center"}
+                spacing={2}
+              >
+                <div>
+                  <MeetingRoomIcon
+                    sx={{
+                      fontSize: "15pt",
+                      color: uiGreen,
+                      marginRight: "5px",
+                    }}
+                  />
+                  <span
+                    data-testId="property-unit-count"
+                    className="text-black"
+                    style={{
+                      fontSize: "12pt",
+                    }}
+                  >
+                    {unitCount}
+                  </span>
+                </div>
+                <div>
+                  <HotelIcon
+                    sx={{
+                      fontSize: "15pt",
+                      color: uiGreen,
+                      marginRight: "5px",
+                    }}
+                  />
+                  <span
+                    data-testId="property-bed-count"
+                    className="text-black"
+                    style={{
+                      fontSize: "12pt",
+                    }}
+                  >
+                    {bedsCount}
+                  </span>
+                </div>
+                <div>
+                  <BathtubIcon
+                    sx={{
+                      fontSize: "15pt",
+                      color: uiGreen,
+                      marginRight: "5px",
+                    }}
+                  />
+                  <span
+                    className="text-black"
+                    style={{
+                      fontSize: "12pt",
+                    }}
+                    data-testId="property-bath-count"
+                  >
+                    {bathsCount}
+                  </span>
+                </div>
+                <div>
+                  <ZoomOutMapIcon
+                    sx={{
+                      fontSize: "15pt",
+                      color: uiGreen,
+                      marginRight: "5px",
+                    }}
+                  />
+                  <span
+                    data-testId="property-size"
+                    className="text-black"
+                    style={{
+                      fontSize: "12pt",
+                    }}
+                  >
+                    1234 Sq. Ft.
+                  </span>
+                </div>
               </Stack>
-              <div>
-                <IconButton
-                  data-testid="property-edit-button"
-                  onClick={handleToggle}
-                >
-                  <MoreVert />
-                </IconButton>
-                <Popper
-                  open={openDropdown}
-                  anchorEl={anchorRef.current}
-                  placement="bottom-start"
-                  transition
-                >
-                  {({ TransitionProps, placement }) => (
-                    <Grow
-                      {...TransitionProps}
-                      style={{
-                        transformOrigin:
-                          placement === "bottom-start"
-                            ? "right top"
-                            : "right top",
-                      }}
-                    >
-                      <Paper>
-                        <ClickAwayListener
-                          onClickAway={handleCloseDropdownMenu}
-                        >
-                          <MenuList
-                            autoFocusItem={openDropdown}
-                            id="composition-menu"
-                            aria-labelledby="composition-button"
-                            onKeyDown={handleListKeyDown}
-                          >
-                            <MenuItem
-                              onClick={() => {
-                                setEditDialogOpen(true);
-                              }}
-                            >
-                              Edit Property
-                            </MenuItem>
-                            {property.lease_template && (
-                              <MenuItem
-                                onClick={() => {
-                                  setShowResetLeaseTemplateConfirmModal(true);
-                                }}
-                              >
-                                Reset Lease Template
-                              </MenuItem>
-                            )}
-                            <MenuItem
-                              onClick={() => {
-                                setSelectPortfolioDialogOpen(true);
-                              }}
-                            >
-                              Change Portfolio
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => {
-                                setShowDeleteAlert(true);
-                              }}
-                            >
-                              Delete Property
-                            </MenuItem>
-                          </MenuList>
-                        </ClickAwayListener>
-                      </Paper>
-                    </Grow>
-                  )}
-                </Popper>
-              </div>
-            </Stack>
-          </div>
+            }
+            menuItems={[
+              {
+                label: "Edit Property",
+                action: () => setEditDialogOpen(true),
+              },
+              {
+                label: "Reset Lease Template",
+                action: () => setShowResetLeaseTemplateConfirmModal(true),
+              },
+              {
+                label: "Change Portfolio",
+                action: () => setSelectPortfolioDialogOpen(true),
+              },
+              {
+                label: "Delete Property",
+                action: () => setShowDeleteAlert(true),
+              },
+            ]}
+          />
           <div className="row mb-3">
             <div className="col-lg-12">
               <UITabs

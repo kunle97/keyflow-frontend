@@ -25,6 +25,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManageBillingEntry = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -407,8 +408,32 @@ const ManageBillingEntry = () => {
           setConfirmModelOpen(false);
         }}
       />
+      <UIPageHeader
+        style={{ marginBottom: "20px" }}
+        backButtonURL="/dashboard/owner/billing-entries"
+        backButtonPosition="top"
+        title={
+          <span>
+            Manage Billing Entry
+          </span>
+        }
+        subtitle="Update billing entry details below"
+        menuItems={[
+          {
+            label: "Delete Billing Entry",
+            action: () => {
+              setConfirmTitle("Delete Billing Entry");
+              setConfirmMessage(
+                "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
+              );
+              setConfirmAction(() => handleDelete);
+              setConfirmModelOpen(true);
+              
+            },
+          },
+        ]}
+      />
 
-      <h4 className="">Manage Billing Entry</h4>
       {formData && (
         <div className="card manage-billing-entry-form">
           <div className="card-body">
@@ -517,18 +542,7 @@ const ManageBillingEntry = () => {
                 style={{ margin: "20px 0" }}
               >
                 <span className="delete-billing-entry-wrapper">
-                  <DeleteButton
-                    style={{ float: "left" }}
-                    onClick={() => {
-                      setConfirmTitle("Delete Billing Entry");
-                      setConfirmMessage(
-                        "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
-                      );
-                      setConfirmAction(() => handleDelete);
-                      setConfirmModelOpen(true);
-                    }}
-                    btnText="Delete Billing Entry"
-                  />
+                 
                 </span>
                 <span className="update-billing-entry-wrapper">
                   <UIButton

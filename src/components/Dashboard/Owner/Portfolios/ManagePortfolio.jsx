@@ -61,6 +61,7 @@ import UIInput from "../../UIComponents/UIInput";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 import UICheckbox from "../../UIComponents/UICheckbox";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManagePortfolio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -499,6 +500,10 @@ const ManagePortfolio = () => {
             confirmBtnText={"Delete"}
             cancelBtnText={"Cancel"}
             handleConfirm={handleDelete}
+            confirmBtnStyle={{
+              backgroundColor: uiRed,
+              color: "white",
+            }}
             handleCancel={() => setShowDeleteConfirmModal(false)}
           />
           {/* Property Detail Edit Dialog  */}
@@ -747,98 +752,28 @@ const ManagePortfolio = () => {
               }}
             />
           </UIDialog>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ marginBottom: "25px" }}
-          >
-            <div className="portfolio-info">
-              <h3 className="text-black" data-testid="portfolio-name">
-                {portfolio ? portfolio.name : ""}
-              </h3>
-              <p className="text-black" data-testid="portfolio-description">
-                {portfolio ? portfolio.description : ""}
-              </p>
-            </div>
-            <span className="edit-portfolio-button-wrapper">
-              <IconButton
-                ref={anchorRef}
-                id="composition-button"
-                aria-controls={openPopper ? "composition-menu" : undefined}
-                aria-expanded={openPopper ? "true" : undefined}
-                aria-haspopup="true"
-                onClick={handleToggle}
-              >
-                <MoreVertIcon />
-              </IconButton>
-              <Popper
-                open={openPopper}
-                anchorEl={anchorRef.current}
-                role={undefined}
-                placement="bottom-start"
-                transition
-                disablePortal
-                sx={{
-                  zIndex: "1",
-                }}
-              >
-                {({ TransitionProps, placement }) => (
-                  <Grow
-                    {...TransitionProps}
-                    style={{
-                      transformOrigin:
-                        placement === "bottom-start"
-                          ? "right top"
-                          : "right top",
-                    }}
-                  >
-                    <Paper>
-                      <ClickAwayListener onClickAway={handleClose}>
-                        <MenuList
-                          autoFocusItem={openPopper}
-                          id="composition-menu"
-                          aria-labelledby="composition-button"
-                          onKeyDown={handleListKeyDown}
-                        >
-                          <MenuItem
-                            onClick={() => {
-                              setEditDialogOpen(true);
-                            }}
-                          >
-                            Edit Portfolio Details
-                          </MenuItem>
-                          {portfolio.lease_template && (
-                            <MenuItem
-                              onClick={() => {
-                                setShowResetLeaseTemplateConfirmModal(true);
-                              }}
-                            >
-                              Reset Lease Template
-                            </MenuItem>
-                          )}
-                          <MenuItem
-                            onClick={() => {
-                              handleOpenRentalPropertySelectModal(true);
-                            }}
-                          >
-                            Add/Remove Properties
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => {
-                              setShowDeleteConfirmModal(true);
-                            }}
-                          >
-                            Delete Portfolio
-                          </MenuItem>
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
-            </span>
-          </Stack>
+          <UIPageHeader
+            title={portfolio ? portfolio.name : ""}
+            subtitle={portfolio ? portfolio.description : ""}
+            menuItems={[
+              {
+                label: "Edit Portfolio Details",
+                action: () => setEditDialogOpen(true),
+              },
+              {
+                label: "Reset Lease Template",
+                action: () => setShowResetLeaseTemplateConfirmModal(true),
+              },
+              {
+                label: "Add/Remove Properties",
+                action: () => handleOpenRentalPropertySelectModal(true),
+              },
+              {
+                label: "Delete Portfolio",
+                action: () => setShowDeleteConfirmModal(true),
+              },
+            ]}
+          />
           <UITabs
             value={tabPage}
             handleChange={handleTabChange}

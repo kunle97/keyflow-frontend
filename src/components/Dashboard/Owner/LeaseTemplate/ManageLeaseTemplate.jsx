@@ -61,7 +61,7 @@ const ManageLeaseTemplate = () => {
   const [properties, setProperties] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
   //TODO: Tabs for lease terms: Details, Additional Charges, Units Assigned, View (BoldSign) Document,
-  const [tabPage, setTabPage] = useState(2);
+  const [tabPage, setTabPage] = useState(0);
   const tabs = [
     { name: "details", label: "Details" },
     { name: "additionalCharges", label: "Additional Charges" },

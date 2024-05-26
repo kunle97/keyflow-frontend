@@ -35,12 +35,18 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
+import { abbreviateRentFrequency } from "../../../../helpers/utils";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState({});
   const [leaseTemplate, setLeaseTemplate] = useState({});
   const [rentalApplication, setRentalApplication] = useState({});
   const [rentalUnit, setRentalUnit] = useState({});
+  const [leaseTerms, setLeaseTerms] = useState({});
+  const [rent, setRent] = useState(0);
+  const [rentFrequency, setRentFrequency] = useState("");
+  const [term, setTerm] = useState("");
   const [rentalProperty, setRentalProperty] = useState({});
   const [tenant, setTenant] = useState({});
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
@@ -119,6 +125,21 @@ const LeaseAgreementDetail = () => {
       setLeaseTemplate(res.data.lease_template);
       setRentalApplication(res.data.rental_application);
       setRentalUnit(res.data.rental_unit);
+      setRent(
+        JSON.parse(res.data.rental_unit.lease_terms).find(
+          (term) => term.name === "rent"
+        ).value
+      );
+      setRentFrequency(
+        JSON.parse(res.data.rental_unit.lease_terms).find(
+          (term) => term.name === "rent_frequency"
+        ).value
+      );
+      setTerm(
+        JSON.parse(res.data.rental_unit.lease_terms).find(
+          (term) => term.name === "term"
+        ).value
+      );
       getProperty(res.data.rental_unit.rental_property).then((res) => {
         setRentalProperty(res);
       });
@@ -165,6 +186,14 @@ const LeaseAgreementDetail = () => {
           skip: "Skip",
         }}
       />
+      <UIPageHeader
+        title={getTenantName() + "'s Lease Agreement"}
+        subtitle={`Started: ${new Date(
+          leaseAgreement.start_date
+        ).toLocaleDateString()} Ends: ${new Date(
+          leaseAgreement.end_date
+        ).toLocaleDateString()}`}
+      />
       <BackButton />
       <div className="row">
         <div className="col-md-4 lease-agreement-details">
@@ -207,7 +236,9 @@ const LeaseAgreementDetail = () => {
                 <div className="card-body">
                   <PaymentsIcon sx={iconStyles} />
                   <h5>Rent</h5>
-                  {/* <p className="text-black">${leaseTemplate.rent}</p> */}
+                  <p className="text-black">
+                    ${rent}/{abbreviateRentFrequency(rentFrequency)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -263,7 +294,10 @@ const LeaseAgreementDetail = () => {
                 <div className="card-body">
                   <AccessTimeIcon sx={iconStyles} />
                   <h5>Term</h5>
-                  {/* <p className="text-black">{leaseTemplate.term} months</p> */}
+                  <span className="text-black">
+                    {" "}
+                    {term + " " + rentFrequency}(s)
+                  </span>
                 </div>
               </div>
             </div>

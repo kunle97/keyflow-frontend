@@ -32,6 +32,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import useScreen from "../../../../hooks/useScreen";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
@@ -206,15 +207,15 @@ const ManageTenant = () => {
   }, [tenant]);
   return (
     <>
-    <AlertModal
-      open={showAlert}
-      onClick={() => setShowAlert(false)}
-      title={alertTitle}
-      message={alertMessage}
-    />
+      <AlertModal
+        open={showAlert}
+        onClick={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
       {tenant && (
         <div className="container">
-          <div
+          {/* <div
             style={{
               borderRadius: "50%",
               overflow: "hidden",
@@ -239,8 +240,18 @@ const ManageTenant = () => {
             <a href={`mailto:${tenant.user.email}`} className="text-muted">
               {tenant.user.email}
             </a>
-          </div>
-          <BackButton to="/dashboard/owner/tenants" />
+          </div> */}
+          <UIPageHeader
+            backButtonURL="/dashboard/owner/tenants"
+            backButtonPosition="top"
+            title={`${tenant.user.first_name} ${tenant.user.last_name}`}
+            subtitle={
+              <a href={`mailto:${tenant.user.email}`} className="text-muted">
+                {tenant.user.email}
+              </a>
+            }
+            style={{ marginTop: "20px" }}
+          />
           <UITabs
             value={tabPage}
             handleChange={handleChangeTabPage}
@@ -419,39 +430,43 @@ const ManageTenant = () => {
           )}
           {tabPage === 2 && (
             <div className="mb-3" style={{ overflow: "hidden" }}>
-              {/* <UITable
-                title="Transactions"
-                data={transactions}
-                searchFields={["first_name", "last_name", "email"]}
-                columns={transaction_columns}
-                options={transaction_options}
-              /> */}
-              <UITableMobile
-                title="Transactions"
-                data={transactions}
-                createInfo={(row) =>
-                  `${
-                    row.type === "vendor_payment" || row.type === "expense"
-                      ? "-$"
-                      : "+$"
-                  }${String(row.amount).toLocaleString("en-US")}`
-                }
-                createSubtitle={(row) =>
-                  `${removeUnderscoresAndCapitalize(row.type)}`
-                }
-                createTitle={(row) =>
-                  `${new Date(row.timestamp).toLocaleDateString()}`
-                }
-                onRowClick={handleTransactionRowClick}
-                orderingFields={[
-                  { field: "timestamp", label: "Date Created (Ascending)" },
-                  { field: "-timestamp", label: "Date Created (Descending)" },
-                  { field: "type", label: "Transaction Type (Ascending)" },
-                  { field: "-type", label: "Transaction Type (Descending)" },
-                  { field: "amount", label: "Amount (Ascending)" },
-                  { field: "-amount", label: "Amount (Descending)" },
-                ]}
-              />
+              {isMobile ? (
+                <UITable
+                  title="Transactions"
+                  data={transactions}
+                  searchFields={["first_name", "last_name", "email"]}
+                  columns={transaction_columns}
+                  options={transaction_options}
+                />
+              ) : (
+                <UITableMobile
+                  tableTitle="Transactions"
+                  title="Transactions"
+                  data={transactions}
+                  createInfo={(row) =>
+                    `${
+                      row.type === "vendor_payment" || row.type === "expense"
+                        ? "-$"
+                        : "+$"
+                    }${String(row.amount).toLocaleString("en-US")}`
+                  }
+                  createSubtitle={(row) =>
+                    `${removeUnderscoresAndCapitalize(row.type)}`
+                  }
+                  createTitle={(row) =>
+                    `${new Date(row.timestamp).toLocaleDateString()}`
+                  }
+                  onRowClick={handleTransactionRowClick}
+                  orderingFields={[
+                    { field: "timestamp", label: "Date Created (Ascending)" },
+                    { field: "-timestamp", label: "Date Created (Descending)" },
+                    { field: "type", label: "Transaction Type (Ascending)" },
+                    { field: "-type", label: "Transaction Type (Descending)" },
+                    { field: "amount", label: "Amount (Ascending)" },
+                    { field: "-amount", label: "Amount (Descending)" },
+                  ]}
+                />
+              )}
             </div>
           )}
           {tabPage === 3 && (
