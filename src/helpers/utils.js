@@ -337,3 +337,23 @@ export const validateToken = async () => {
     return error.response;
   }
 };
+
+//Create a function taht abbrieveiates rent frequescies for example "monthly" to "mo" and "yearly" to "yr" etc
+export const abbreviateRentFrequency = (frequency) => {
+  switch (frequency) {
+    case "monthly":
+    case "month":
+      return "mo";
+    case "yearly":
+    case "year":
+      return "yr";
+    case "weekly":
+    case "week":
+      return "wk";
+    case "daily":
+    case "day":
+      return "dy"; // Adjusted for abbreviation consistency
+    default:
+      return frequency;
+  }
+};

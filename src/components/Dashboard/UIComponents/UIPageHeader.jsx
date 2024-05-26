@@ -11,6 +11,8 @@ import {
 } from "@material-ui/core";
 import useScreen from "../../../hooks/useScreen";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import BackButton from "./BackButton";
+import zIndex from "@mui/material/styles/zIndex";
 
 const UIPageHeader = (props) => {
   const [open, setOpen] = useState(false);
@@ -39,121 +41,136 @@ const UIPageHeader = (props) => {
   }
 
   return (
-    <div
-      style={{
-        zIndex: "1000000000000000000",
-      }}
-    >
+    <>
       {" "}
-      {props.headerImageSrc && (
-        <div
-          data-testid="media-header-container"
-          style={{
-            width: "100%",
-            height: isMobile ? "200px" : "320px",
-            //Vertical center the image
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            marginBottom: "10px",
-          }}
-          className="card"
-        >
-          <img
-            data-testid="media-header-image"
-            src={props.headerImageSrc}
+      {props.backButtonURL && props.backButtonPosition === "top" && (
+        <BackButton to={props.backButtonURL} />
+      )}
+      <div
+        style={{
+          zIndex: "1300000 !important",
+          ...props.style,
+        }}
+      >
+        {props.headerImageSrc && (
+          <div
+            data-testid="media-header-container"
             style={{
               width: "100%",
-              objectFit: "cover",
+              height: isMobile ? "200px" : "320px",
+              //Vertical center the image
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+              marginBottom: "10px",
             }}
-          />
-        </div>
-      )}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        alignContent={{ xs: "center", sm: "flex-start" }}
-      >
-        <div className="header">
-          <h4
-            data-testId="header-title"
-            style={{ marginBottom: "0px", fontSize: "17pt" }}
+            className="card"
           >
-            {props.title}
-          </h4>
-          <span className="text-black" data-testId="unit-tenant">
-            {props.subtitle}
-          </span>
-          <span>{props.subtitle2}</span>
-        </div>
-        {props.menuItems && (
-          <>
-            <IconButton
-              ref={anchorRef}
-              id="composition-button"
-              aria-controls={open ? "composition-menu" : undefined}
-              aria-expanded={open ? "true" : undefined}
-              aria-haspopup="true"
-              onClick={handleToggle}
-            >
-              <MoreVertIcon />
-            </IconButton>
-            <Popper
-              open={open}
-              anchorEl={anchorRef.current}
-              role={undefined}
-              placement="bottom-start"
-              transition
-              disablePortal
-              sx={{
-                zIndex: "1000000000000000000",
+            <img
+              data-testid="media-header-image"
+              src={props.headerImageSrc}
+              style={{
+                width: "100%",
+                objectFit: "cover",
               }}
-            >
-              {({ TransitionProps, placement }) => (
-                <Grow
-                  {...TransitionProps}
-                  style={{
-                    transformOrigin:
-                      placement === "bottom-start" ? "right top" : "right top",
-                  }}
-                >
-                  <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
-                      <MenuList
-                        autoFocusItem={open}
-                        id="composition-menu"
-                        aria-labelledby="composition-button"
-                        onKeyDown={handleListKeyDown}
-                      >
-                        {" "}
-                        {props.menuItems.map((item, index) => {
-                          return (
-                            <>
-                              {!item.hidden && (
-                                <MenuItem
-                                  key={index}
-                                  onClick={() => {
-                                    item.action();
-                                  }}
-                                >
-                                  {item.label}
-                                </MenuItem>
-                              )}
-                            </>
-                          );
-                        })}
-                      </MenuList>
-                    </ClickAwayListener>
-                  </Paper>
-                </Grow>
-              )}
-            </Popper>
-          </>
+            />
+          </div>
         )}
-      </Stack>
-    </div>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          alignContent={{ xs: "center", sm: "flex-start" }}
+        >
+          <div className="header">
+            <h4
+              data-testId="header-title"
+              style={{ marginBottom: "0px", fontSize: "17pt" }}
+            >
+              {props.title}
+            </h4>
+            <span className="text-black" data-testId="page-header-subtitle">
+              {props.subtitle}
+            </span>
+            <span>{props.subtitle2}</span>
+          </div>
+          {props.menuItems && (
+            <>
+              <IconButton
+                ref={anchorRef}
+                id="composition-button"
+                aria-controls={open ? "composition-menu" : undefined}
+                aria-expanded={open ? "true" : undefined}
+                aria-haspopup="true"
+                onClick={handleToggle}
+              >
+                <MoreVertIcon />
+              </IconButton>
+              <Popper
+                open={open}
+                anchorEl={anchorRef.current}
+                role={undefined}
+                placement="bottom-start"
+                transition
+                sx={{ zIndex: 1300 }} // Ensure Popper is on top
+              >
+                {({ TransitionProps, placement }) => (
+                  <Grow
+                    {...TransitionProps}
+                    style={{
+                      transformOrigin:
+                        placement === "bottom-start"
+                          ? "right top"
+                          : "right top",
+                    }}
+                  >
+                    <Paper
+                      sx={{
+                        borderRadius: "0px",
+                        boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.1)",
+                        zIndex: "1300000 !important"
+                      }}
+                    >
+                      <ClickAwayListener onClickAway={handleClose}>
+                        <MenuList
+                          autoFocusItem={open}
+                          id="composition-menu"
+                          aria-labelledby="composition-button"
+                          onKeyDown={handleListKeyDown}
+                          sx={{ zIndex: "1300000 !important" }}
+                        >
+                          {" "}
+                          {props.menuItems.map((item, index) => {
+                            return (
+                              <>
+                                {!item.hidden && (
+                                  <MenuItem
+                                    key={index}
+                                    onClick={() => {
+                                      item.action();
+                                    }}
+                                  >
+                                    {item.label}
+                                  </MenuItem>
+                                )}
+                              </>
+                            );
+                          })}
+                        </MenuList>
+                      </ClickAwayListener>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
+            </>
+          )}
+        </Stack>
+      </div>
+      {props.backButtonURL && props.backButtonPosition === "bottom" && (
+        <BackButton to={props.backButtonURL} />
+      )}
+    </>
   );
 };
 

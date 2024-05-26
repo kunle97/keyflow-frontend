@@ -9,9 +9,13 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import useScreen from "../../../../hooks/useScreen";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import { Stack } from "@mui/material";
+import UIButton from "../../UIComponents/UIButton";
+import { getStripeAccountLink } from "../../../../api/owners";
 const OwnerTransactions = () => {
   let revenueData = [];
   const [showAlert, setShowAlert] = useState(false);
+  const [stripeAccountLink, setStripeAccountLink] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const navigate = useNavigate();
@@ -106,26 +110,32 @@ const OwnerTransactions = () => {
 
   useEffect(() => {
     //retrieve transactions from api
-    getTransactionsByUser().then((res) => {
-      setTransactions(res.data);
-      res.data.forEach((transaction) => {
-        if (transaction.type === "revenue") {
-          revenueData.push({
-            x: new Date(transaction.timestamp).toISOString().split("T")[0],
-            y: parseFloat(transaction.amount),
-          });
-        }
+    getTransactionsByUser()
+      .then((res) => {
+        setTransactions(res.data);
+        res.data.forEach((transaction) => {
+          if (transaction.type === "revenue") {
+            revenueData.push({
+              x: new Date(transaction.timestamp).toISOString().split("T")[0],
+              y: parseFloat(transaction.amount),
+            });
+          }
+        });
+        setRevenueChartData(revenueData);
+        console.log(revenueData);
+        console.log(data[0].data);
+      })
+      .catch((error) => {
+        console.error("Error fetching transactions", error);
+        setAlertTitle("Error!");
+        setAlertMessage(
+          "There was an error fetching transactions. Please try again."
+        );
+        setShowAlert(true);
       });
-      setRevenueChartData(revenueData);
-      console.log(revenueData);
-      console.log(data[0].data);
-    }).catch((error) => {
-      console.error("Error fetching transactions", error);
-      setAlertTitle("Error!");
-      setAlertMessage(
-        "There was an error fetching transactions. Please try again."
-      );
-      setShowAlert(true);
+    getStripeAccountLink().then((res) => {
+      console.log("Stripe ACcount link res: ", res);
+      setStripeAccountLink(res.account_link);
     });
   }, []);
   console.log([
@@ -143,6 +153,19 @@ const OwnerTransactions = () => {
         message={alertMessage}
         btnText="Okay"
       />
+      <Stack
+        direction="row"
+        justifyContent="flex-end"
+        alignItems="center"
+        spacing={2}
+      >
+        <UIButton
+          btnText="Stripe Dashboard"
+          onClick={() => {
+            window.open(stripeAccountLink, "_blank");
+          }}
+        />
+      </Stack>
       {tabPage === 0 && (
         <>
           {isMobile ? (

@@ -41,7 +41,7 @@ import {
 } from "../../api/owners";
 import AlertModal from "./UIComponents/Modals/AlertModal";
 import ConfirmModal from "./UIComponents/Modals/ConfirmModal";
-const Dashboard = () => {
+const OwnerDashboard = () => {
   const multiplier = [1, 2, 3, 5];
   const { isMobile, breakpoints, screenWidth } = useScreen();
   const navigate = useNavigate();
@@ -1515,4 +1515,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default OwnerDashboard;

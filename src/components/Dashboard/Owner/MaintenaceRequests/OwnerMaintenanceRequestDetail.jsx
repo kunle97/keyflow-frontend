@@ -50,6 +50,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const OwnerMaintenanceRequestDetail = () => {
   const { id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState({});
@@ -414,159 +415,83 @@ const OwnerMaintenanceRequestDetail = () => {
               </form>
             </div>
           </UIDialog>
-          <BackButton to={`/dashboard/owner/maintenance-requests`} />
-          <div className="maintenace-request-detail-header">
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={2}
-              sx={{ mb: 2 }}
-            >
-              <div className="">
-                <Stack
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  alignContent={"center"}
-                  spacing={1}
-                  sx={{ mt: 1 }}
-                >
-                  <h4 style={{ marginRight: "0px" }}>
-                    {maintenanceRequest?.tenant.user.first_name +
-                      " " +
-                      maintenanceRequest?.tenant.user.last_name}
-                  </h4>{" "}
-                  <p style={{ marginRight: "0px" }}>
-                    {/* <span className="text-black">Status: </span> */}
-                    {status === "pending" && (
-                      // <span className="text-warning">Pending</span>
-                      <Chip label="Pending" color="warning" />
-                    )}
-                    {status === "in_progress" && (
-                      // <span className="text-info">In Progress</span>
-                      <Chip label="In Progress" color="info" />
-                    )}
-                    {status === "completed" && (
-                      // <span className="text-success">Completed</span>
-                      <Chip label="Completed" color="success" />
-                    )}
-                  </p>
-                  <p style={{ marginRight: "0px" }}>
-                    {/* <span className="text-black">Priority: </span> */}
-                    {maintenanceRequest.priority === 1 && (
-                      // <span className="text-success">Low</span>
-                      <Chip label="Low Priority" color="success" />
-                    )}
-                    {maintenanceRequest.priority === 2 && (
-                      // <span className="text-warning">Medium</span>
-                      <Chip label="Moderate Priority" color="warning" />
-                    )}
-                    {maintenanceRequest.priority === 3 && (
-                      // <span className="text-danger">High</span>
-                      <Chip label="High Priority" color="error" />
-                    )}
-                    {maintenanceRequest.priority === 4 && (
-                      // <span className="text-danger">Urgent</span>
-                      <Chip label="Urgent Priority" color="error" />
-                    )}
-                    {maintenanceRequest.priority === 5 && (
-                      // <span className="text-danger">Emergency</span>
-                      <Chip label="Emergency Priority" color="error" />
-                    )}
-                  </p>
-                </Stack>
-                <span className="text-black">
-                  Unit {unit?.name} @ {property?.name}
-                </span>
-                <Stack
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  alignContent={"center"}
-                  spacing={3}
-                  sx={{ mt: 1 }}
-                >
-                  <span className="text-black"> </span>
-                </Stack>
-              </div>
-              {authUser.account_type === "owner" && (
-                <div>
-                  <span className="more-button-wrapper">
-                    <IconButton
-                      ref={anchorRef}
-                      id="composition-button"
-                      aria-controls={open ? "composition-menu" : undefined}
-                      aria-expanded={open ? "true" : undefined}
-                      aria-haspopup="true"
-                      onClick={handleToggle}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  </span>
-                  <Popper
-                    open={open}
-                    anchorEl={anchorRef.current}
-                    role={undefined}
-                    placement="bottom-start"
-                    transition
-                    disablePortal
-                    sx={{ zIndex: 10 }}
-                  >
-                    {({ TransitionProps, placement }) => (
-                      <Grow
-                        {...TransitionProps}
-                        style={{
-                          transformOrigin:
-                            placement === "bottom-start"
-                              ? "right top"
-                              : "right top",
-                        }}
-                      >
-                        <Paper>
-                          <ClickAwayListener onClickAway={handleClose}>
-                            <MenuList
-                              autoFocusItem={open}
-                              id="composition-menu"
-                              aria-labelledby="composition-button"
-                              onKeyDown={handleListKeyDown}
-                            >
-                              <MenuItem
-                                onClick={() => {
-                                  setChangeStatusDialogOpen(true);
-                                }}
-                              >
-                                Change Status
-                              </MenuItem>
-                              <MenuItem
-                                onClick={() => {
-                                  setChangePriorityDialogOpen(true);
-                                }}
-                              >
-                                Change Priority
-                              </MenuItem>
-                              <MenuItem
-                                onClick={() => setContactVendorModalOpen(true)}
-                              >
-                                Contact Vendor
-                              </MenuItem>
-                              <MenuItem
-                                onClick={() => {
-                                  setShowDeleteConfirm(true);
-                                }}
-                              >
-                                Delete Maintenance Request
-                              </MenuItem>
-                            </MenuList>
-                          </ClickAwayListener>
-                        </Paper>
-                      </Grow>
-                    )}
-                  </Popper>
-                </div>
-              )}
-            </Stack>
-          </div>
+          <BackButton
+            to={`/dashboard/owner/maintenance-requests`}Pa
+          />
+          <UIPageHeader
+            style={{ marginBottom: "20px" }}
+            title={
+              <Stack
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                alignContent={"center"}
+                spacing={1}
+                sx={{ mt: 1 }}
+              >
+                <h4 style={{ marginRight: "0px" }}>
+                  {maintenanceRequest?.tenant.user.first_name +
+                    " " +
+                    maintenanceRequest?.tenant.user.last_name}
+                </h4>{" "}
+                <p style={{ marginRight: "0px" }}>
+                  {/* <span className="text-black">Status: </span> */}
+                  {status === "pending" && (
+                    // <span className="text-warning">Pending</span>
+                    <Chip label="Pending" color="warning" />
+                  )}
+                  {status === "in_progress" && (
+                    // <span className="text-info">In Progress</span>
+                    <Chip label="In Progress" color="info" />
+                  )}
+                  {status === "completed" && (
+                    // <span className="text-success">Completed</span>
+                    <Chip label="Completed" color="success" />
+                  )}
+                </p>
+                <p style={{ marginRight: "0px" }}>
+                  {/* <span className="text-black">Priority: </span> */}
+                  {maintenanceRequest.priority === 1 && (
+                    // <span className="text-success">Low</span>
+                    <Chip label="Low Priority" color="success" />
+                  )}
+                  {maintenanceRequest.priority === 2 && (
+                    // <span className="text-warning">Medium</span>
+                    <Chip label="Moderate Priority" color="warning" />
+                  )}
+                  {maintenanceRequest.priority === 3 && (
+                    // <span className="text-danger">High</span>
+                    <Chip label="High Priority" color="error" />
+                  )}
+                  {maintenanceRequest.priority === 4 && (
+                    // <span className="text-danger">Urgent</span>
+                    <Chip label="Urgent Priority" color="error" />
+                  )}
+                  {maintenanceRequest.priority === 5 && (
+                    // <span className="text-danger">Emergency</span>
+                    <Chip label="Emergency Priority" color="error" />
+                  )}
+                </p>
+              </Stack>
+            }
+            subtitle={`Unit ${unit?.name} @ ${property?.name}`}
+            menuItems={
+              authUser.account_type === "owner" && [
+                {
+                  label: "Change Status",
+                  action: () => setChangeStatusDialogOpen(true),
+                },
+                {
+                  label: "Change Priority",
+                  action: () => setChangePriorityDialogOpen(true),
+                },
+                {
+                  label: "Delete Maintenance Request",
+                  action: () => setShowDeleteConfirm(true),
+                },
+              ]
+            }
+          />
           <div className="row">
             <div className="col-md-4">
               <div className="card mb-3  tenant-message-section">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Stack } from "@mui/material";
+import { Button, Chip, Stack } from "@mui/material";
 import { authUser, uiGreen, uiRed } from "../../../../constants";
 import { useParams } from "react-router";
 import { createLeaseAgreement } from "../../../../api/lease_agreements";
@@ -27,6 +27,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ViewRentalApplication = () => {
   const { id } = useParams();
   const { isMobile } = useScreen();
@@ -259,7 +260,6 @@ const ViewRentalApplication = () => {
           skip: "Skip",
         }}
       />
-      <BackButton to={`/dashboard/owner/rental-applications`} />
       <ProgressModal
         title="Processing Application..."
         open={isLoadingApplicationAction}
@@ -294,21 +294,70 @@ const ViewRentalApplication = () => {
             cancelBtnStyle={{ background: uiGreen }}
             confirmBtnStyle={{ background: uiRed }}
           />
-          <div className="mb-3" style={{ overflow: "auto" }}>
-            <h4 style={{ float: "left", fontSize: isMobile ? "14pt" : "20pt" }}>
-              {" "}
-              {rentalApplication.first_name} {rentalApplication.last_name}{" "}
-              Rental Application (Status :{" "}
-              {rentalApplication.is_approved ? "Approved" : "Pending"}){" "}
-              {rentalApplication.is_archived ? "(Archived)" : ""}
-            </h4>
-            <Button
-              variant="contained"
-              sx={{ background: uiGreen, float: "right" }}
-            >
-              View Full Report
-            </Button>
-          </div>
+
+          <UIPageHeader
+            backButtonURL="/dashboard/owner/rental-applications"
+            backButtonPosition="top" //top or bottom
+            title={
+              <>
+                <span
+                  style={{ marginRight: "15px" }}
+                >{`${rentalApplication.first_name} ${rentalApplication.last_name}'s Application`}</span>
+                <span>
+                  {rentalApplication.is_approved ? (
+                    <Chip label="Approved" color="success" />
+                  ) : (
+                    <Chip label="Pending" color="warning" />
+                  )}
+                </span>
+              </>
+            }
+            subtitle={
+              <div className="text-black">
+                {" "}
+                <span>
+                  Unit {unit.name} @ {unit.rental_property_name}
+                </span>
+              </div>
+            }
+            subtitle2={
+              <span className="text-black">
+                Submited:{" "}
+                {new Date(rentalApplication.created_at).toLocaleDateString()}
+              </span>
+            }
+            menuItems={[
+              // {
+              //   label: "View Full Report",
+              //   action: () => {
+              //     console.log("View Full Report");
+              //   },
+              // },
+              {
+                label: "Accept Rental Application",
+                action: () => {
+                  setOpenAcceptModal(true);
+                },
+                hidden: rentalApplication.is_approved,
+              },
+              {
+                label: "Reject Rental Application",
+                action: () => {
+                  setOpenRejectModal(true);
+                },
+                hidden: rentalApplication.is_approved,
+              },
+              {
+                label: `${
+                  rentalApplication.is_archived ? "Unarchive" : "Archive"
+                }  Rental Application`,
+                action: () => {
+                  console.log("Archive Rental Application");
+                },
+              },
+            ]}
+            style={{ marginBottom: "20px" }}
+          />
           <UITabs
             value={tabPage}
             handleChange={handleChangeTabPage}
@@ -417,13 +466,15 @@ const ViewRentalApplication = () => {
                   </div>
                 </div>
               </div>
-              <div className="mb-4">
-                <div className="card">
-                  <div className="card-body text-black">
-                    {rentalApplication.comments}
+              {rentalApplication.comments && (
+                <div className="mb-4">
+                  <div className="card">
+                    <div className="card-body text-black">
+                      {rentalApplication.comments}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </>
           )}
 
@@ -539,37 +590,6 @@ const ViewRentalApplication = () => {
                 </div>
               </div>
             </div>
-          )}
-
-          {!rentalApplication.is_approved ? (
-            <Stack direction="row" gap={2}>
-              <span className="reject-button-wrapper">
-                <Button
-                  onClick={setOpenRejectModal}
-                  variant="contained"
-                  sx={{ background: "red" }}
-                >
-                  Reject
-                </Button>
-              </span>
-              <span className="accept-button-wrapper">
-                <Button
-                  onClick={setOpenAcceptModal}
-                  variant="contained"
-                  sx={{ background: uiGreen }}
-                >
-                  Accept
-                </Button>
-              </span>
-            </Stack>
-          ) : (
-            <span className="rental-application-archive-button">
-              <UIButton
-                btnText={
-                  rentalApplication.is_archived ? "Unarchive" : "Archive"
-                }
-              />
-            </span>
           )}
         </div>
       )}

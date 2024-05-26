@@ -1,4 +1,4 @@
-import Dashboard from "./components/Dashboard/Dashboard";
+import OwnerDashboard from "./components/Dashboard/OwnerDashboard";
 import MaintenanceRequests from "./components/Dashboard/Tenant/MaintenanceRequests/MaintenanceRequests";
 import CreateMaintenanceRequest from "./components/Dashboard/Tenant/MaintenanceRequests/CreateMaintenanceRequest";
 import { createBrowserRouter } from "react-router-dom";
@@ -233,7 +233,7 @@ export const routes = [
     path: "/dashboard/owner/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <Dashboard />
+        <OwnerDashboard />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,

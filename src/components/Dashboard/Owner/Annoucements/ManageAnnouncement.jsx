@@ -33,6 +33,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import UIPageHeader from "../../UIComponents/UIPageHeader";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -286,21 +287,23 @@ const ManageAnnouncement = () => {
   };
 
   useEffect(() => {
-    getAnnouncement(id).then((res) => {
-      // Convert date strings to Date objects for date inputs
-      res.start_date = new Date(res.start_date);
-      res.end_date = new Date(res.end_date);
+    getAnnouncement(id)
+      .then((res) => {
+        // Convert date strings to Date objects for date inputs
+        res.start_date = new Date(res.start_date);
+        res.end_date = new Date(res.end_date);
 
-      setAnnouncement(res);
-      setTargetObject(res.target_object);
-      setFormData((prevData) => ({ ...prevData, ...res }));
-    }).catch((error) => {
-      setAlertModalTitle("Error");
-      setAlertModalMessage(
-        "An error occurred while fetching announcement details"
-      );
-      setAlertModalOpen(true);
-    });
+        setAnnouncement(res);
+        setTargetObject(res.target_object);
+        setFormData((prevData) => ({ ...prevData, ...res }));
+      })
+      .catch((error) => {
+        setAlertModalTitle("Error");
+        setAlertModalMessage(
+          "An error occurred while fetching announcement details"
+        );
+        setAlertModalOpen(true);
+      });
   }, []);
 
   return (
@@ -326,7 +329,32 @@ const ManageAnnouncement = () => {
           skip: "Skip",
         }}
       />
-      <BackButton />
+      <UIPageHeader
+        style={{ marginBottom: "20px" }}
+        backButtonURL="/dashboard/owner/announcements"
+        backButtonPosition="top"
+        title={
+          <span>
+            Manage Announcement
+            {targetObject &&
+              ` for ${targetObject.type + " " + targetObject.name}`}
+          </span>
+        }
+        subtitle="Update announcement details below"
+        menuItems={[
+          {
+            label: "Delete Announcement",
+            action: () => {
+              setConfirmModalTitle("Delete Announcement");
+              setConfirmModalMessage(
+                "Are you sure you want to delete this announcement?"
+              );
+              setConfirmModalOpen(true);
+            },
+          },
+        ]}
+      />
+
       <ProgressModal open={loading} message={progressModalMessage} />
       <AlertModal
         open={alertModalOpen}
@@ -358,11 +386,6 @@ const ManageAnnouncement = () => {
       />
       <div className="card manage-announcement-form">
         <div className="card-body">
-          <h4 className="card-title text-black">
-            Manage Announcement
-            {targetObject &&
-              ` for ${targetObject.type + " " + targetObject.name}`}
-          </h4>
           <form>
             <div className="row">
               <div className="col-md-12">
@@ -541,23 +564,6 @@ const ManageAnnouncement = () => {
             />
           </form>
         </div>
-      </div>
-      <div style={{ width: "100%" }}>
-        <span
-          data-testid="delete-announcement"
-          style={{ margin: "10px 0", float: "right" }}
-        >
-          <DeleteButton
-            btnText="Delete Announcement"
-            onClick={() => {
-              setConfirmModalTitle("Delete Announcement");
-              setConfirmModalMessage(
-                "Are you sure you want to delete this announcement?"
-              );
-              setConfirmModalOpen(true);
-            }}
-          />
-        </span>
       </div>
       <UIHelpButton onClick={handleClickStart} />
     </div>
