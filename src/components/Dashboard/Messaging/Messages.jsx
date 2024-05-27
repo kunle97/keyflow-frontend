@@ -104,12 +104,6 @@ const Messages = () => {
       .catch((err) => {
         console.log("Handle Thread click error: ", err);
       });
-
-    if (scrollableDivRef.current) {
-      //Trying to scroll to the bottom of the conversation (not working as expected)
-      scrollableDivRef.current.scrollTop =
-        scrollableDivRef.current.scrollHeight;
-    }
   };
   const handleSendMessage = (e) => {
     setIsLoading(true);
@@ -199,6 +193,12 @@ const Messages = () => {
       setFilteredThreads(messageThreads);
     }
   };
+  useEffect(() => {
+    if (selectedThread && scrollableDivRef.current) {
+      scrollableDivRef.current.scrollTop =
+        scrollableDivRef.current.scrollHeight;
+    }
+  }, [selectedThread]);
   useEffect(() => {
     try {
       if (!messageThreads) {
