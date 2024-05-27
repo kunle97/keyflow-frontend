@@ -1,13 +1,8 @@
 import React from "react";
 import UIButton from "../../../UIComponents/UIButton";
 import { useState } from "react";
-import {
-  authUser,
-  validationMessageStyle,
-} from "../../../../../constants";
-import {
-  createLeaseCancellationRequest,
-} from "../../../../../api/lease_cancellation_requests";
+import { authUser, validationMessageStyle } from "../../../../../constants";
+import { createLeaseCancellationRequest } from "../../../../../api/lease_cancellation_requests";
 import {
   triggerValidation,
   validateForm,
@@ -93,6 +88,19 @@ const LeaseCancellationForm = (props) => {
   ];
 
   const onSubmit = () => {
+    // Check that the move out date is not before the end of the lease agreement end date
+    const moveOutDate = new Date(formData.moveOutDate);
+    const leaseEndDate = new Date(props.leaseAgreement.end_date);
+    if (moveOutDate > leaseEndDate) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        moveOutDate:
+          "Move out date cannot be after the end of the lease. Please select a date before " +
+          leaseEndDate.toDateString(),
+      }));
+      return;
+    }
+
     const payload = {
       reason: formData.reason,
       request_date: formData.moveOutDate,
@@ -103,7 +111,6 @@ const LeaseCancellationForm = (props) => {
       rental_property: props.leaseAgreement.rental_unit.rental_property,
       lease_agreement: props.leaseAgreement.id,
     };
-
     try {
       createLeaseCancellationRequest(payload).then((res) => {
         console.log(res);
@@ -193,7 +200,6 @@ const LeaseCancellationForm = (props) => {
               </div>
             );
           })}
-
         </div>
         <UIButton
           btnText="Submit"
