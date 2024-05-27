@@ -137,29 +137,6 @@ const DashboardContainer = ({ children }) => {
 
   return (
     <div id="wrapper pb-2">
-      {/* <Joyride
-        run={runTour}
-        index={tourIndex}
-        steps={
-          authUser.account_type === "owner" ? ownerTourSteps : tenantTourSteps
-        }
-        callback={handleJoyrideCallback}
-        continuous={true}
-        showProgress={true}
-        showSkipButton={true}
-        styles={{
-          options: {
-            primaryColor: uiGreen,
-          },
-        }}
-        locale={{
-          back: "Back",
-          close: "Close",
-          last: "Finish",
-          next: "Next",
-          skip: "Skip",
-        }}
-      /> */}
 
       {showSearchDialog && (
         <SearchDialog
