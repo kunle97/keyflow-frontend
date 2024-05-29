@@ -59,7 +59,7 @@ export async function login(data) {
       if (res.user.account_type === "owner") {
         userData.owner_id = res.owner_id;
         localStorage.setItem("ownerData", JSON.stringify(res.owner));
-      } else {
+      } else if(res.user.account_type === "tenant") {
         userData.tenant_id = res.tenant_id;
         localStorage.setItem("tenantData", JSON.stringify(res.tenant));
       }
