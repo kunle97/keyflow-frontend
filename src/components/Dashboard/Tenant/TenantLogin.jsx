@@ -17,6 +17,7 @@ import {
 import UICheckbox from "../UIComponents/UICheckbox";
 const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
+  const [openError, setOpenError] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
@@ -128,7 +129,9 @@ const TenantLogin = () => {
       //Navigate to dashboard
       setOpen(true);
     } else {
+      console.log("Login Error: ", response);
       setErrMsg(response.message);
+      setOpenError(true);
       setIsLoading(false);
     }
   };
@@ -167,7 +170,16 @@ const TenantLogin = () => {
         btnText="Go to Dashboard"
         to={redirectURL}
       />
-
+      <AlertModal
+        dataTestId="error-modal"
+        className="error-modal"
+        open={openError && errMsg}
+        onClose={() => setErrMsg(null)}
+        title={"Login Failed"}
+        message={errMsg}
+        onClick={() => setErrMsg(null)}
+        btnText="Close"
+      />
       <div
         className="row"
         style={{
