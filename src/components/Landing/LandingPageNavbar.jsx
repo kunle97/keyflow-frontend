@@ -46,7 +46,7 @@ const LandingPageNavbar = (props) => {
             <img
               className="logo"
               src={
-                scrollPosition > 250 || isMobile
+                props.isDarkNav ||    scrollPosition > 250 || isMobile
                   ? "/assets/img/key-flow-logo-black-transparent.png"
                   : "/assets/img/key-flow-logo-white-transparent.png"
               }
@@ -77,7 +77,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Home
@@ -98,7 +98,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#base-features"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Features
@@ -119,7 +119,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#rentals"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Rentals
@@ -140,7 +140,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#pricing"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Pricing
@@ -161,7 +161,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="/dashboard/tenant/login"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Tenants
@@ -182,7 +182,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="/dashboard/owner/login"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color: props.isDarkNav ||  scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Owner

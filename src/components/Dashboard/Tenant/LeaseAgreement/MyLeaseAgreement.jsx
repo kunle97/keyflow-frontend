@@ -91,29 +91,24 @@ const MyLeaseAgreement = () => {
   };
   const openCancellationDialog = () => {
     let today = new Date();
-    let noticePeriod = JSON.parse(
-      unit.lease_terms
-    ).lease_cancellation_notice_period;
-    let leaseStartDate = new Date(leaseAgreement.start_date);
+    let leaseTerms = JSON.parse(unit.lease_terms);
+    let cancellationNoticePeriod = leaseTerms.find(
+      (term) => term.name === "lease_cancellation_notice_period"
+    ).value;
     let leaseEndDate = new Date(leaseAgreement.end_date);
-
-    // Calculate the date which falls within the notice period
-    let noticeStartDate = new Date(leaseEndDate);
-    noticeStartDate.setMonth(noticeStartDate.getMonth() - noticePeriod);
-
-    console.log(
-      "has existing cancellation",
-      hasExistingLeaseCancellationRequest
-    );
-    if (today > leaseStartDate && today < noticeStartDate) {
-      // Ensure today is after the lease start date but before the notice start date
+  
+    // Calculate date notice period before the lease end date
+    let noticePeriodBeforeEndDate = new Date(leaseEndDate);
+    noticePeriodBeforeEndDate.setMonth(noticePeriodBeforeEndDate.getMonth() - cancellationNoticePeriod);
+  
+    console.log("Today: ", today);
+    console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
+  
+    // Check if today is before the notice period starts
+    if (today < noticePeriodBeforeEndDate) {
       setAlertModalTitle("Lease Cancellation Notice Period");
       setAlertModalMessage(
-        `You cannot cancel your lease at this time. Please try again after ${
-          JSON.parse(unit.lease_terms).find(
-            (term) => term.name === "lease_cancellation_notice_period"
-          ).value
-        } month(s) before the end of your lease.`
+        `You cannot cancel your lease at this time. Please try again after ${cancellationNoticePeriod} month(s) before the end of your lease.`
       );
       setShowAlertModal(true);
       console.log("You cannot cancel your lease at this time");
@@ -123,45 +118,43 @@ const MyLeaseAgreement = () => {
       setAlertModalMessage(
         "You already have an existing lease cancellation request. You will be notified when the property manager responds."
       );
-      console.log("You cannot cancel your lease at this time");
       setShowAlertModal(true);
-      return;
+      console.log("You cannot cancel your lease at this time");
     } else if (hasExistingLeaseRenewalRequest) {
       setShowLeaseCancellationFormDialog(false);
       setAlertModalTitle("Existing Lease Renewal Request");
       setAlertModalMessage(
         "You cannot cancel your lease at this time. You already have an existing lease renewal request. You will be notified when the property manager responds."
       );
-      console.log("You cannot cancel your lease at this time");
       setShowAlertModal(true);
-      return;
+      console.log("You cannot cancel your lease at this time");
     } else {
       setShowLeaseCancellationFormDialog(true);
     }
   };
-
+  
   const openRenewalDialog = () => {
     let today = new Date();
-    let noticePeriod = JSON.parse(unit.lease_terms).find(
-      (term) => term.name === "lease_cancellation_notice_period"
-    ).value;
-    let leaseStartDate = new Date(leaseAgreement.start_date);
-    let leaseEndDate = new Date(leaseAgreement.end_date);
-
-    let renewalNoticePeriod = JSON.parse(unit.lease_terms).find(
+    let leaseTerms = JSON.parse(unit.lease_terms);
+    let renewalNoticePeriod = leaseTerms.find(
       (term) => term.name === "lease_renewal_notice_period"
     ).value;
-
-    // Calculate date 2 months before the lease end date
+    let leaseEndDate = new Date(leaseAgreement.end_date);
+  
+    // Calculate date notice period before the lease end date
     let noticePeriodBeforeEndDate = new Date(leaseEndDate);
-    noticePeriodBeforeEndDate.setMonth(
-      new Date(leaseEndDate).getMonth() - renewalNoticePeriod
-    );
-
-    // Check if today is at most 2 months before the end of the lease
-    if (today >= noticePeriodBeforeEndDate) {
-      // If yes, open the renewal dialog
-      setShowLeaseRenewalDialog(true);
+    noticePeriodBeforeEndDate.setMonth(noticePeriodBeforeEndDate.getMonth() - renewalNoticePeriod);
+  
+    console.log("Today: ", today);
+    console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
+  
+    // Check if today's date is within the notice period threshold before the end of the lease
+    if (today < noticePeriodBeforeEndDate) {
+      setAlertModalTitle("Lease Renewal Notice Period");
+      setAlertModalMessage(
+        `You cannot renew your lease at this time. Please try again ${renewalNoticePeriod} month(s) before the end of your lease.`
+      );
+      setShowAlertModal(true);
     } else if (hasExistingLeaseRenewalRequest) {
       setShowLeaseRenewalDialog(false);
       setAlertModalTitle("Existing Lease Renewal Request");
@@ -177,14 +170,10 @@ const MyLeaseAgreement = () => {
       );
       setShowAlertModal(true);
     } else {
-      // If no, show an error message
-      setAlertModalTitle("Lease Renewal Notice Period");
-      setAlertModalMessage(
-        `You cannot renew your lease at this time. Please try again ${renewalNoticePeriod} month(s) before the end of your lease.`
-      );
-      setShowAlertModal(true);
+      setShowLeaseRenewalDialog(true);
     }
   };
+  
   useEffect(() => {
     try {
       //Retrieve the unit
@@ -398,6 +387,26 @@ const MyLeaseAgreement = () => {
                         JSON.parse(unit.lease_terms).find(
                           (term) =>
                             term.name === "lease_cancellation_notice_period"
+                        ).value
+                      } months`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Lease Renewal Fee
+                      </h6>
+                      {`$${
+                        JSON.parse(unit.lease_terms).find(
+                          (term) => term.name === "lease_renewal_fee"
+                        ).value
+                      }`}
+                    </div>
+                    <div className="col-sm-12 col-md-6 mb-4 text-black">
+                      <h6 className="rental-application-lease-heading">
+                        Lease Renewal Notice period
+                      </h6>
+                      {`${
+                        JSON.parse(unit.lease_terms).find(
+                          (term) => term.name === "lease_renewal_notice_period"
                         ).value
                       } months`}
                     </div>
