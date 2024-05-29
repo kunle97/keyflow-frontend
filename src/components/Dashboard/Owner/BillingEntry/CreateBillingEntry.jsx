@@ -414,7 +414,6 @@ const CreateBillingEntry = () => {
     const { isValid, newErrors } = validateForm(formData, formInputs);
     setErrors(newErrors);
     if (isValid) {
-      // if (errorCount.length === 0 || Object.keys(errors).length === 0) {
       setIsLoading(true);
       const data = new FormData();
       formData.collection_method = "send_invoice"
