@@ -279,7 +279,7 @@ const SignLeaseAgreement = () => {
                   {leaseAgreement.rental_unit.rental_property_name}{" "}
                 </h2>
                 <div className="row">
-                  <div className="col-md-4">
+                  {/* <div className="col-md-4">
                     <div className="card my-3">
                       <div className="card-body">
                         <h6 className="card-title text-black">
@@ -409,13 +409,13 @@ const SignLeaseAgreement = () => {
                         </Link>
                       </Typography>
                     </div>
-                  </div>
-                  <div className="col-md-8">
+                  </div> */}
+                  <div className="col-md-12">
                     <iframe
                       src={signingLink}
                       className="card my-3"
                       style={{
-                        height: "1200px",
+                        height: "900px",
                         padding: "0px",
                         width: "100%",
                       }}
