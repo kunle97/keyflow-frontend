@@ -20,6 +20,7 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
+import CopyAllIcon from "@mui/icons-material/CopyAll";
 const TenantLeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState({});
@@ -385,9 +386,12 @@ const TenantLeaseRenewalRequestDetail = () => {
               />
             ) : (
               <UIPrompt
-                title={"Lease Agreement Unavailable"}
+                icon={
+                  <CopyAllIcon style={{ fontSize: "50px", color: uiGreen }} />
+                }
+                title={"Lease Renewal Request Pending"}
                 message={
-                  "Your new lease agreement will become available once your lease renewal request has been approved by your owner. Please check back later."
+                  "Your new lease agreement will become available once your lease renewal request has been approved by your landlord. Please check back later."
                 }
               />
             )}
