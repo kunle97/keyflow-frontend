@@ -53,12 +53,7 @@ const TenantMyAccount = () => {
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [paymentMethodDeleteId, setPaymentMethodDeleteId] = useState(null);
-  const [showDefaultConfirm, setShowDefaultConfirm] = useState(false);
-  const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [defaultPaymentMethod, setPrimaryPaymentMethod] = useState(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [tenantPreferences, setTenantPreferences] = useState({});
@@ -260,6 +255,7 @@ const TenantMyAccount = () => {
   ];
 
   const onSubmitUpdateAccount = () => {
+    setIsLoading(true);
     //Create a data object to send to the backend
     updateUserData(accountFormData).then((res) => {
       console.log(res);
@@ -268,10 +264,19 @@ const TenantMyAccount = () => {
         setResponseMessage("Account updated successfully");
         setShowResponseModal(true);
       }
+    }).catch((error) => {
+      console.error("Error updating account: ", error);
+      setResponseTitle("Error");
+      setResponseMessage("Error updating account");
+      setShowResponseModal(true);
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
 
   const onSubmitChangePassword = () => {
+    setIsLoading(true);
+    setProgressMessage("Changing password...");
     changePassword(passwordFormData).then((res) => {
       console.log(res);
       if (res.status === 200) {
@@ -283,6 +288,13 @@ const TenantMyAccount = () => {
         setResponseMessage("Error changeing your password");
         setShowResponseModal(true);
       }
+    }).catch((error) => {
+      console.error("Error changing password: ", error);
+      setResponseTitle("Error");
+      setResponseMessage("Error changing your password");
+      setShowResponseModal(true);
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {

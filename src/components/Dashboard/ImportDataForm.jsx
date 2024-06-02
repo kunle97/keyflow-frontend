@@ -9,6 +9,7 @@ import { uiGreen, uiGrey } from "../../constants";
 import { authenticatedMediaInstance } from "../../api/api";
 import { getProperties } from "../../api/properties";
 import AlertModal from "./UIComponents/Modals/AlertModal";
+import ProgressModal from "./UIComponents/Modals/ProgressModal";
 
 const ImportDataForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -115,6 +116,7 @@ const ImportDataForm = () => {
 
   return (
     <>
+      <ProgressModal open={isLoading} title="Uploading Data..." />
       <AlertModal
         open={alertModalOpen}
         onClick={() => setAlertModalOpen(false)}

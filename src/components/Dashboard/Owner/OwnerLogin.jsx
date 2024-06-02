@@ -143,6 +143,8 @@ const OwnerLogin = () => {
       setIsLoading(false);
       setOpen(false);
       setOpenError(true);
+    }finally{
+      setIsLoading(false);
     }
   };
 

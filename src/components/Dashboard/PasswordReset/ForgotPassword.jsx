@@ -5,8 +5,13 @@ import { sendPasswordResetEmail } from "../../../api/passwords";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { useNavigate } from "react-router-dom";
-import { triggerValidation, validateForm } from "../../../helpers/formValidation";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../helpers/formValidation";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 const ForgotPassword = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState(
     "A password reset link has been sent to your email address"
@@ -52,27 +57,33 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
 
   const onSubmit = () => {
+    setIsLoading(true);
     // data.token = makeId(100);
     let payload = {
       email: formData.email,
-    }
-    sendPasswordResetEmail(payload).then((res) => {
-      console.log(res);
-      if (res.status == 200) {
+    };
+    sendPasswordResetEmail(payload)
+      .then((res) => {
+        console.log(res);
         setAlertTitle("Password Reset Link Sent");
         setAlertMessage(
           `A password reset link has been sent to your email address. Please check your email and follow the instructions to reset your password`
         );
         setShowAlertModal(true);
-      } else {
+      })
+      .catch((error) => {
+        console.error("Error sending password reset email", error);
         setAlertTitle("Error");
-        setAlertMessage("Invalid Email. Please Try Again");
+        setAlertMessage("An error occurred. Please try again");
         setShowAlertModal(true);
-      }
-    });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
   return (
     <div className="container">
+      <ProgressModal open={isLoading} title="Sending Password Reset Link..." />
       <AlertModal
         open={showAlertModal}
         setOpen={setShowAlertModal}
@@ -136,16 +147,18 @@ const ForgotPassword = () => {
                         type="button"
                         btnText="Reset Password"
                         style={{ width: "100%" }}
-                        onClick={()=>{
-                          const {isValid, newErrors} = validateForm(formData, formInputs);
-                          if(isValid){
+                        onClick={() => {
+                          const { isValid, newErrors } = validateForm(
+                            formData,
+                            formInputs
+                          );
+                          if (isValid) {
                             onSubmit();
-                          }else{
+                          } else {
                             setErrors(newErrors);
                           }
                         }}
-                     />
-                      
+                      />
                     </form>
                   </div>
                 </div>

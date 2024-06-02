@@ -76,7 +76,7 @@ export const devToolInputStyle = {
   outline: "none",
   border: "none",
 };
-const muiIconStyle = { color: uiGreen };
+export const muiIconStyle = { color: uiGreen };
 export const ownerMenuItems = [
   {
     label: "Dashboard",

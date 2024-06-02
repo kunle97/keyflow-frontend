@@ -48,8 +48,10 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../UIComponents/UIHelpButton";
+import UIProgressPrompt from "../UIComponents/UIProgressPrompt";
 const TenantDashboard = () => {
   const navigate = useNavigate();
+  const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
@@ -258,7 +260,8 @@ const TenantDashboard = () => {
   };
 
   useEffect(() => {
-    try{
+    setIsLoadingPage(true);
+    try {
       //Get the payment methods for the user and check if they at least have one
       listStripePaymentMethods(`${authUser.id}`).then((res) => {
         setIsLoadingPaymentMethods(true);
@@ -275,7 +278,7 @@ const TenantDashboard = () => {
       getTransactionsByTenant(authUser.tenant_id).then((res) => {
         setTransactions(res.data);
       });
-  
+
       //Retrieve the unit
       getTenantDashboardData().then((res) => {
         console.log("Tenant Dashboard Data", res);
@@ -285,7 +288,7 @@ const TenantDashboard = () => {
         setCurrentBalance(res.current_balance);
         setLateFees(res.late_fees);
         setAnnouncements(res.announcements);
-  
+
         //Check if lease agreement endate is in 2 months or less, if so show confirm modal
         if (res.lease_agreement) {
           const endDate = new Date(res.lease_agreement.end_date);
@@ -295,7 +298,7 @@ const TenantDashboard = () => {
           getTenantLeaseRenewalRequests()
             .then((res) => {
               let lease_renewal_requests = res.data;
-  
+
               let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
                 (lease_renewal_request) => {
                   let lease_renewal_request_created_at = new Date(
@@ -304,7 +307,7 @@ const TenantDashboard = () => {
                   return lease_renewal_request_created_at > endDate;
                 }
               );
-  
+
               if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
                 setConfirmModalTitle("Lease Renewal");
                 setConfirmModalMessage(
@@ -325,7 +328,7 @@ const TenantDashboard = () => {
               console.error(error);
             });
         }
-  
+
         setLeaseTemplate(res.lease_template);
         if (res.lease_agreement) {
           //Retrieve next payment date
@@ -346,158 +349,176 @@ const TenantDashboard = () => {
           }, 0) / 100;
         setTotalAmountDue(amount_due);
       });
-    }catch(e){
+    } catch (e) {
       console.error(e);
-      setAlertMessage("An error occurred while fetching data. Please try again.");
+      setAlertMessage(
+        "An error occurred while fetching data. Please try again."
+      );
       setAlertTitle("Error");
       setShowAlert(true);
+    } finally {
+      setIsLoadingPage(false);
     }
   }, []);
 
   return (
-    <div className="container  tenant-dashboard-container">
-      <AlertModal
-        open={showAlert}
-        onClick={() => {
-          setShowAlert(false);
-        }}
-        title={alertTitle}
-        message={alertMessage}
-      />
-      <Joyride
-        run={runTour}
-        index={tourIndex}
-        steps={tourSteps}
-        callback={handleJoyrideCallback}
-        continuous={true}
-        showProgress={true}
-        showSkipButton={true}
-        styles={{
-          options: {
-            primaryColor: uiGreen,
-          },
-        }}
-        locale={{
-          back: "Back",
-          close: "Close",
-          last: "Finish",
-          next: "Next",
-          skip: "Skip",
-        }}
-      />
-      {leaseAgreement &&
-        !isLoadingPaymentMethods &&
-        paymentMethods.length > 0 && (
-          <PaymentModal
-            invoices={invoices}
-            open={showPaymentModal}
-            amount={totalAmountDue}
-            paymentMethods={paymentMethods}
-            handleClose={() => setShowPaymentModal(false)}
+    <>
+      {isLoadingPage ? (
+        <UIProgressPrompt 
+          title="Loading Dashboard..." 
+          message="Please wait while we load your dashboard"
+        />
+      ) : (
+        <div className="container  tenant-dashboard-container">
+          <AlertModal
+            open={showAlert}
+            onClick={() => {
+              setShowAlert(false);
+            }}
+            title={alertTitle}
+            message={alertMessage}
           />
-        )}
-      <ConfirmModal
-        open={showConfirmModal}
-        onClose={() => {}}
-        title={confirmModalTitle}
-        message={confirmModalMessage}
-        cancelBtnText={cancelButtonText}
-        confirmBtnText={confirmButtonText}
-        handleConfirm={() => {
-          setShowConfirmModal(false);
-          confirmAction();
-        }}
-        handleCancel={() => {
-          setShowConfirmModal(false);
-        }}
-      />
-      <AlertModal
-        open={showAddPaymentMethodAlert}
-        onClose={() => {}}
-        title="Add Payment Method"
-        message="Welcome to the Keyflow Dashbaord! Here you will be able to pay your rent, 
+          <Joyride
+            run={runTour}
+            index={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
+          {leaseAgreement &&
+            !isLoadingPaymentMethods &&
+            paymentMethods.length > 0 && (
+              <PaymentModal
+                invoices={invoices}
+                open={showPaymentModal}
+                amount={totalAmountDue}
+                paymentMethods={paymentMethods}
+                handleClose={() => setShowPaymentModal(false)}
+              />
+            )}
+          <ConfirmModal
+            open={showConfirmModal}
+            onClose={() => {}}
+            title={confirmModalTitle}
+            message={confirmModalMessage}
+            cancelBtnText={cancelButtonText}
+            confirmBtnText={confirmButtonText}
+            handleConfirm={() => {
+              setShowConfirmModal(false);
+              confirmAction();
+            }}
+            handleCancel={() => {
+              setShowConfirmModal(false);
+            }}
+          />
+          <AlertModal
+            open={showAddPaymentMethodAlert}
+            onClose={() => {}}
+            title="Add Payment Method"
+            message="Welcome to the Keyflow Dashbaord! Here you will be able to pay your rent, 
         manage your account, view your payment history, and submit maintenance requests. 
         In order to pay your rent, you must first add a payment method. Click the button 
         below to add a payment method."
-        to="/dashboard/tenant/add-payment-method"
-        btnText="Add Payment Method"
-      />
-      {announcements && announcements.length > 0 && (
-        <>
-          {announcements.map((announcement) => (
-            <Alert severity={announcement.severity} sx={{ mb: 3 }} className="">
-              <AlertTitle>{announcement.title}</AlertTitle>
-              {announcement.body}
-            </Alert>
-          ))}
-        </>
-      )}
-      <div className="d-sm-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-black mb-0">
-          Good Afternoon, {`${authUser.first_name}!`}
-        </h3>
-      </div>
-      <div className="row">
-        <div className="col-lg-5 col-xl-4">
-          {leaseAgreement && (
-            <Box sx={{ minWidth: 275 }}>
-              <div
-                className="card shadow mb-4"
-                variant="outlined"
-                style={{ background: "white", color: "black" }}
-              >
-                <>
-                  <CardContent>
-                    {totalAmountDue > 0 ? (
-                      <div className="amount-due-card">
-                        <Typography sx={{ fontSize: 20 }} gutterBottom>
-                          {dateDiffForHumans(new Date(nextPaymentDate)) <=
-                            5 && <ReportIcon sx={{ color: "red" }} />}{" "}
-                          <span>
-                            {/*Calculate the  total amount due by adding the sume of all amount_due properties in each invoice*/}
-                            Total Amount Due: ${totalAmountDue}
-                          </span>{" "}
-                          due in {dateDiffForHumans(new Date(nextPaymentDate))}
-                        </Typography>
-                        <Box
-                          sx={
-                            {
-                              // display: "flex",
-                              // justifyContent: "flex-start",
-                              // alignItems: "flex-start",
-                            }
-                          }
-                        >
-                          <Button
-                            onClick={() => navigate("/dashboard/tenant/bills")}
-                            sx={{
-                              color: "white",
-                              textTransform: "none",
-                              backgroundColor: uiGreen,
-                            }}
-                            btnText="View Bills"
-                            to="#"
-                            variant="contained"
-                          >
-                            View Bills
-                          </Button>
-                        </Box>
-                      </div>
-                    ) : (
-                      <Typography sx={{ fontSize: 20 }} gutterBottom>
-                        <span>You have no outstanding balance</span>{" "}
-                      </Typography>
-                    )}
-                  </CardContent>
-                </>
-              </div>
-            </Box>
-          )}
-          {/* TODO: Insert a better Maintenance Requests Component Here */}
-          {/* <MaintenanceRequests /> */}
-          {transactions.length === 0 ? (
+            to="/dashboard/tenant/add-payment-method"
+            btnText="Add Payment Method"
+          />
+          {announcements && announcements.length > 0 && (
             <>
-              {/* <UICard cardStyle={{ height: "478px" }}>
+              {announcements.map((announcement) => (
+                <Alert
+                  severity={announcement.severity}
+                  sx={{ mb: 3 }}
+                  className=""
+                >
+                  <AlertTitle>{announcement.title}</AlertTitle>
+                  {announcement.body}
+                </Alert>
+              ))}
+            </>
+          )}
+          <div className="d-sm-flex justify-content-between align-items-center mb-4">
+            <h3 className="text-black mb-0">
+              Good Afternoon, {`${authUser.first_name}!`}
+            </h3>
+          </div>
+          <div className="row">
+            <div className="col-lg-5 col-xl-4">
+              {leaseAgreement && (
+                <Box sx={{ minWidth: 275 }}>
+                  <div
+                    className="card shadow mb-4"
+                    variant="outlined"
+                    style={{ background: "white", color: "black" }}
+                  >
+                    <>
+                      <CardContent>
+                        {totalAmountDue > 0 ? (
+                          <div className="amount-due-card">
+                            <Typography sx={{ fontSize: 20 }} gutterBottom>
+                              {dateDiffForHumans(new Date(nextPaymentDate)) <=
+                                5 && <ReportIcon sx={{ color: "red" }} />}{" "}
+                              <span>
+                                {/*Calculate the  total amount due by adding the sume of all amount_due properties in each invoice*/}
+                                Total Amount Due: ${totalAmountDue}
+                              </span>{" "}
+                              due in{" "}
+                              {dateDiffForHumans(new Date(nextPaymentDate))}
+                            </Typography>
+                            <Box
+                              sx={
+                                {
+                                  // display: "flex",
+                                  // justifyContent: "flex-start",
+                                  // alignItems: "flex-start",
+                                }
+                              }
+                            >
+                              <Button
+                                onClick={() =>
+                                  navigate("/dashboard/tenant/bills")
+                                }
+                                sx={{
+                                  color: "white",
+                                  textTransform: "none",
+                                  backgroundColor: uiGreen,
+                                }}
+                                btnText="View Bills"
+                                to="#"
+                                variant="contained"
+                              >
+                                View Bills
+                              </Button>
+                            </Box>
+                          </div>
+                        ) : (
+                          <Typography sx={{ fontSize: 20 }} gutterBottom>
+                            <span>You have no outstanding balance</span>{" "}
+                          </Typography>
+                        )}
+                      </CardContent>
+                    </>
+                  </div>
+                </Box>
+              )}
+              {/* TODO: Insert a better Maintenance Requests Component Here */}
+              {/* <MaintenanceRequests /> */}
+              {transactions.length === 0 ? (
+                <>
+                  {/* <UICard cardStyle={{ height: "478px" }}>
                 <Stack
                   direction={"column"}
                   justifyContent={"center"}
@@ -509,10 +530,10 @@ const TenantDashboard = () => {
                   <p>There are no transactions to display.</p>
                 </Stack>
               </UICard> */}
-            </>
-          ) : (
-            <>
-              {/* <UICardList
+                </>
+              ) : (
+                <>
+                  {/* <UICardList
                 cardStyle={{ background: "white", color: "black" }}
                 infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
                 titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
@@ -538,44 +559,48 @@ const TenantDashboard = () => {
                   .slice(0, 4)}
                 tertiaryStyles={{ color: uiGreen }}
               /> */}
-            </>
-          )}
-          <div className="maintenance-request-card">
-            <UItableMiniCard
-              cardStyle={{ background: "white", color: "black" }}
-              infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-              titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-              title={"Recent Maintenance Requests"}
-              columns={maintenance_request_columns}
-              info={"Recent Maintenance Requests"}
-              endpoint={"/maintenance-requests/"}
-              options={maintenance_request_options}
-            />
-          </div>
-        </div>
-        <div className="col-lg-7 col-xl-8 mb-4">
-          {leaseAgreement ? (
-            <div
-              className="card payment-calendar-card"
-              style={{ color: "white" }}
-            >
-              <div className="card-body">
-                <PaymentCalendar />
+                </>
+              )}
+              <div className="maintenance-request-card">
+                <UItableMiniCard
+                  cardStyle={{ background: "white", color: "black" }}
+                  infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
+                  titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
+                  title={"Recent Maintenance Requests"}
+                  columns={maintenance_request_columns}
+                  info={"Recent Maintenance Requests"}
+                  endpoint={"/maintenance-requests/"}
+                  options={maintenance_request_options}
+                />
               </div>
             </div>
-          ) : (
-            <UIPrompt
-              icon={<DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />}
-              title="No Active Lease"
-              message="You do not have an active lease. Please contact your owner to get started."
-              body={<UIButton btnText="Apply for Lease" />}
-            />
-          )}
+            <div className="col-lg-7 col-xl-8 mb-4">
+              {leaseAgreement ? (
+                <div
+                  className="card payment-calendar-card"
+                  style={{ color: "white" }}
+                >
+                  <div className="card-body">
+                    <PaymentCalendar />
+                  </div>
+                </div>
+              ) : (
+                <UIPrompt
+                  icon={
+                    <DescriptionIcon sx={{ fontSize: 45, color: uiGreen }} />
+                  }
+                  title="No Active Lease"
+                  message="You do not have an active lease. Please contact your owner to get started."
+                  body={<UIButton btnText="Apply for Lease" />}
+                />
+              )}
+            </div>
+            <div className="col-lg-12 col-xl-12 mb-4"></div>
+          </div>
+          <UIHelpButton onClick={handleClickStart} />
         </div>
-        <div className="col-lg-12 col-xl-12 mb-4"></div>
-      </div>
-      <UIHelpButton onClick={handleClickStart} />
-    </div>
+      )}
+    </>
   );
 };
 

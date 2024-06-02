@@ -137,7 +137,7 @@ const UploadLeaseDocument = (props) => {
       />
       <ProgressModal open={isLoading} title="Processing your document..." />
       {renderIframe && iframeUrl ? (
-        <>
+        <div>
           <iframe
             id="prepare_page"
             src={iframeUrl}
@@ -150,7 +150,7 @@ const UploadLeaseDocument = (props) => {
             handlePreviousStep={props.handlePreviousStep}
             handleNextStep={props.handleNextStep}
           /> */}
-        </>
+        </div>
       ) : (
         <div>
           {props.isLeaseRenewal && (
