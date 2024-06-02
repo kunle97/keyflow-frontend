@@ -26,11 +26,13 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 const ManageBillingEntry = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
+  const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingText, setLoadingText] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
@@ -337,8 +339,6 @@ const ManageBillingEntry = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    setLoadingText("Fetching billing entry...");
     getBillingEntry(id)
       .then((res) => {
         if (res) {
@@ -356,210 +356,223 @@ const ManageBillingEntry = () => {
         setAlertOpen(true);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLoadingPage(false);
       });
   }, []);
   return (
-    <div className="container-fluid">
-      <Joyride
-        run={runTour}
-        index={tourIndex}
-        steps={tourSteps}
-        callback={handleJoyrideCallback}
-        continuous={true}
-        showProgress={true}
-        showSkipButton={true}
-        styles={{
-          options: {
-            primaryColor: uiGreen,
-          },
-        }}
-        locale={{
-          back: "Back",
-          close: "Close",
-          last: "Finish",
-          next: "Next",
-          skip: "Skip",
-        }}
-      />
-      <ProgressModal open={isLoading} title={loadingText} />
-      <AlertModal
-        open={alertOpen}
-        title={alertTitle}
-        message={alertMessage}
-        btnText={"Ok"}
-        onClick={() => {
-          setAlertOpen(false);
-        }}
-      />
-      <ConfirmModal
-        open={confirmModelOpen}
-        title={confirmTitle}
-        message={confirmMessage}
-        cancelBtnText="Cancel"
-        confirmBtnText="Confirm"
-        handleConfirm={(e) => {
-          confirmAction(e);
-          setConfirmAction(null);
-          setConfirmModelOpen(false);
-        }}
-        handleCancel={() => {
-          cancelAction();
-          setConfirmModelOpen(false);
-        }}
-      />
-      <UIPageHeader
-        style={{ marginBottom: "20px" }}
-        backButtonURL="/dashboard/owner/billing-entries"
-        backButtonPosition="top"
-        title={
-          <span>
-            Manage Billing Entry
-          </span>
-        }
-        subtitle="Update billing entry details below"
-        menuItems={[
-          {
-            label: "Delete Billing Entry",
-            action: () => {
-              setConfirmTitle("Delete Billing Entry");
-              setConfirmMessage(
-                "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
-              );
-              setConfirmAction(() => handleDelete);
-              setConfirmModelOpen(true);
-              
-            },
-          },
-        ]}
-      />
+    <>
+      {isLoadingPage ? (
+        <UIProgressPrompt
+          title="Loading billing entry..."
+          message="Please wait while we load the billing entry details."
+        />
+      ) : (
+        <div className="container-fluid">
+          <Joyride
+            run={runTour}
+            index={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
+          <ProgressModal open={isLoading} title={loadingText} />
+          <AlertModal
+            open={alertOpen}
+            title={alertTitle}
+            message={alertMessage}
+            btnText={"Ok"}
+            onClick={() => {
+              setAlertOpen(false);
+            }}
+          />
+          <ConfirmModal
+            open={confirmModelOpen}
+            title={confirmTitle}
+            message={confirmMessage}
+            cancelBtnText="Cancel"
+            confirmBtnText="Confirm"
+            handleConfirm={(e) => {
+              confirmAction(e);
+              setConfirmAction(null);
+              setConfirmModelOpen(false);
+            }}
+            handleCancel={() => {
+              cancelAction();
+              setConfirmModelOpen(false);
+            }}
+          />
+          <UIPageHeader
+            style={{ marginBottom: "20px" }}
+            backButtonURL="/dashboard/owner/billing-entries"
+            backButtonPosition="top"
+            title={<span>Manage Billing Entry</span>}
+            subtitle="Update billing entry details below"
+            menuItems={[
+              {
+                label: "Delete Billing Entry",
+                action: () => {
+                  setConfirmTitle("Delete Billing Entry");
+                  setConfirmMessage(
+                    "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
+                  );
+                  setConfirmAction(() => handleDelete);
+                  setConfirmModelOpen(true);
+                },
+              },
+            ]}
+          />
 
-      {formData && (
-        <div className="card manage-billing-entry-form">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <div className="row">
-                {formInputs.map((input) => {
-                  if (input.hide) {
-                    return null;
-                  }
-                  if (
-                    input.type === "text_display" &&
-                    formData[input.name] !== null
-                  ) {
-                    return (
-                      <div className="col-md-6 mb-3" key={input.id}>
-                        <label style={{ ...labelStyles }}>{input.label}</label>
-                        <span
-                          className="text-black"
-                          data-testid={input.dataTestId}
-                        >
-                          {input.customRender
-                            ? input.customRender(formData[input.name])
-                            : formData[input.name]}
-                        </span>
-                      </div>
-                    );
-                  }
-                  if (
-                    input.type === "select" &&
-                    formData[input.name] !== null
-                  ) {
-                    return (
-                      <div className="col-md-6 mb-3" key={input.id}>
-                        <label style={{ ...labelStyles }}>{input.label}</label>
-                        <select
-                          onChange={input.onChange}
-                          className="form-select"
-                          name={input.name}
-                          style={{ margin: "10px 0" }}
-                          value={formData ? formData[input.name] : ""}
-                          data-testid={input.dataTestId}
-                        >
-                          <option value={""} selected disabled>
-                            Select One
-                          </option>
-                          {input.options.map((option) => {
-                            return (
-                              <option key={option.value} value={option.value}>
-                                {option.text}
+          {formData && (
+            <div className="card manage-billing-entry-form">
+              <div className="card-body">
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    {formInputs.map((input) => {
+                      if (input.hide) {
+                        return null;
+                      }
+                      if (
+                        input.type === "text_display" &&
+                        formData[input.name] !== null
+                      ) {
+                        return (
+                          <div className="col-md-6 mb-3" key={input.id}>
+                            <label style={{ ...labelStyles }}>
+                              {input.label}
+                            </label>
+                            <span
+                              className="text-black"
+                              data-testid={input.dataTestId}
+                            >
+                              {input.customRender
+                                ? input.customRender(formData[input.name])
+                                : formData[input.name]}
+                            </span>
+                          </div>
+                        );
+                      }
+                      if (
+                        input.type === "select" &&
+                        formData[input.name] !== null
+                      ) {
+                        return (
+                          <div className="col-md-6 mb-3" key={input.id}>
+                            <label style={{ ...labelStyles }}>
+                              {input.label}
+                            </label>
+                            <select
+                              onChange={input.onChange}
+                              className="form-select"
+                              name={input.name}
+                              style={{ margin: "10px 0" }}
+                              value={formData ? formData[input.name] : ""}
+                              data-testid={input.dataTestId}
+                            >
+                              <option value={""} selected disabled>
+                                Select One
                               </option>
-                            );
-                          })}
-                        </select>
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={{
-                              ...validationMessageStyle,
-                              display: "block",
-                            }}
-                          >
-                            {errors[input.name]}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  }
-                  if (
-                    input.type === "textarea" &&
-                    formData[input.name] !== null
-                  ) {
-                    return (
-                      <div className="col-md-12" key={input.id}>
-                        <label style={{ ...labelStyles }}>{input.label}</label>
-                        <textarea
-                          onChange={input.onChange}
-                          className="form-control"
-                          placeholder={input.placeholder}
-                          style={{ margin: "10px 0" }}
-                          name={input.name}
-                          rows={5}
-                          defaultValue={formData ? formData[input.name] : ""}
-                          data-testid={input.dataTestId}
-                        ></textarea>
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={{
-                              ...validationMessageStyle,
-                              display: "block",
-                            }}
-                          >
-                            {errors[input.name]}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  }
-                })}
+                              {input.options.map((option) => {
+                                return (
+                                  <option
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.text}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                  display: "block",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }
+                      if (
+                        input.type === "textarea" &&
+                        formData[input.name] !== null
+                      ) {
+                        return (
+                          <div className="col-md-12" key={input.id}>
+                            <label style={{ ...labelStyles }}>
+                              {input.label}
+                            </label>
+                            <textarea
+                              onChange={input.onChange}
+                              className="form-control"
+                              placeholder={input.placeholder}
+                              style={{ margin: "10px 0" }}
+                              name={input.name}
+                              rows={5}
+                              defaultValue={
+                                formData ? formData[input.name] : ""
+                              }
+                              data-testid={input.dataTestId}
+                            ></textarea>
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                  display: "block",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    justifyContent="space-between"
+                    alignItems="center"
+                    style={{ margin: "20px 0" }}
+                  >
+                    <span className="delete-billing-entry-wrapper"></span>
+                    <span className="update-billing-entry-wrapper">
+                      <UIButton
+                        type="submit"
+                        className="btn btn-primary"
+                        btnText="Update Billing Entry"
+                        style={{ float: "right" }}
+                        dataTestId="update-billing-entry-button"
+                      />
+                    </span>
+                  </Stack>
+                </form>
               </div>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={2}
-                justifyContent="space-between"
-                alignItems="center"
-                style={{ margin: "20px 0" }}
-              >
-                <span className="delete-billing-entry-wrapper">
-                 
-                </span>
-                <span className="update-billing-entry-wrapper">
-                  <UIButton
-                    type="submit"
-                    className="btn btn-primary"
-                    btnText="Update Billing Entry"
-                    style={{ float: "right" }}
-                    dataTestId="update-billing-entry-button"
-                  />
-                </span>
-              </Stack>
-            </form>
-          </div>
+            </div>
+          )}
+          <UIHelpButton onClick={handleClickStart} />
         </div>
       )}
-      <UIHelpButton onClick={handleClickStart} />
-    </div>
+    </>
   );
 };
 

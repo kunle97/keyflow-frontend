@@ -29,8 +29,10 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../../helpers/formValidation";
+import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 
 const LeaseRenewalForm = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
     "Desired Move In Date",
@@ -187,6 +189,7 @@ const LeaseRenewalForm = (props) => {
   };
 
   const onSubmit = () => {
+    setIsLoading(true);
     const payload = {
       move_in_date: step0FormData.moveInDate,
       lease_term:
@@ -223,10 +226,7 @@ const LeaseRenewalForm = (props) => {
       props.setShowAlertModal(true);
       return;
     }
-
     createLeaseRenewalRequest(payload).then((res) => {
-      console.log(res);
-
       if (res.status === 201) {
         props.setShowLeaseRenewalDialog(false);
         props.setAlertModalTitle("Lease Renewal Request Submitted");
@@ -252,6 +252,8 @@ const LeaseRenewalForm = (props) => {
         "Your lease renewal request has failed to submit. Please try again later."
       );
       props.setShowAlertModal(true);
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
 
@@ -269,6 +271,7 @@ const LeaseRenewalForm = (props) => {
 
   return (
     <div>
+      <ProgressModal open={isLoading} title="Submitting Lease Renewal Request..." />
       <UIStepper steps={steps} step={step} />
       <form style={{ margin: "20px 0", width: "100%" }}>
         <div style={{ margin: "15px 0" }}>

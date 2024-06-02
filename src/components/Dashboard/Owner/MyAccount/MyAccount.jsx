@@ -436,7 +436,6 @@ const MyAccount = () => {
         }
       );
       getOwnerPreferences().then((res) => {
-        console.log("PREfffekwf", res);
         setOwnerPreferences(res.preferences);
       });
     } catch (e) {

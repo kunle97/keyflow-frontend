@@ -8,7 +8,9 @@ import UIDialog from "../UIComponents/Modals/UIDialog";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { sendMessage } from "../../../api/messages";
 import { tenantData } from "../../../constants";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 const NewMessageDialog = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [tenants, setTenants] = useState(null);
   const [selectedRecipient, setSelectedRecipient] = useState(null); // [id, name
   const [body, setBody] = useState(""); // [id, name
@@ -17,6 +19,7 @@ const NewMessageDialog = (props) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const handleSend = (e) => {
+    setIsLoading(true);
     e.preventDefault();
     const payload = {
       recipient: selectedRecipient,
@@ -51,6 +54,8 @@ const NewMessageDialog = (props) => {
           "There was an error sending your message. Please try again."
         );
         setShowAlert(true);
+      }).finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -77,6 +82,7 @@ const NewMessageDialog = (props) => {
   }, [tenants]);
   return (
     <div>
+      <ProgressModal open={isLoading} />
       <AlertModal
         open={showAlert}
         onClick={() => setShowAlert(false)}

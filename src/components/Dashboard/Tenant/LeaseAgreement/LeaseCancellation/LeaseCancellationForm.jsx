@@ -7,7 +7,9 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../../helpers/formValidation";
+import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 const LeaseCancellationForm = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [steps, setSteps] = useState([
@@ -88,6 +90,7 @@ const LeaseCancellationForm = (props) => {
   ];
 
   const onSubmit = () => {
+    setIsLoading(true);
     // Check that the move out date is not before the end of the lease agreement end date
     const moveOutDate = new Date(formData.moveOutDate);
     const leaseEndDate = new Date(props.leaseAgreement.end_date);
@@ -132,12 +135,19 @@ const LeaseCancellationForm = (props) => {
         }
       });
     } catch (err) {
-      console.log(err);
+      props.setShowLeaseCancellationFormDialog(false);
+      props.setAlertModalTitle("Error");
+      props.setAlertModalMessage(
+        `Error creating lease cancellation request. Please try again.`
+      );
+      props.setShowAlertModal(true);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
     <div>
-      {" "}
+      <ProgressModal open={isLoading} title="Creating Lease Cancellation Request..." />
       <form style={{ margin: "20px 0", width: "100%" }}>
         <div style={{ margin: "15px 0" }}>
           {formInputs.map((input, index) => {

@@ -34,9 +34,11 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loadingPage, setLoadingPage] = useState(true);
   const [announcement, setAnnouncement] = useState({});
   const [targetObject, setTargetObject] = useState({});
   const [alertModalTitle, setAlertModalTitle] = useState("");
@@ -287,6 +289,7 @@ const ManageAnnouncement = () => {
   };
 
   useEffect(() => {
+    setLoadingPage(true);
     getAnnouncement(id)
       .then((res) => {
         // Convert date strings to Date objects for date inputs
@@ -303,270 +306,292 @@ const ManageAnnouncement = () => {
           "An error occurred while fetching announcement details"
         );
         setAlertModalOpen(true);
+      })
+      .finally(() => {
+        setLoadingPage(false);
       });
   }, []);
 
   return (
-    <div className="container-fluid">
-      <Joyride
-        run={runTour}
-        index={tourIndex}
-        steps={tourSteps}
-        callback={handleJoyrideCallback}
-        continuous={true}
-        showProgress={true}
-        showSkipButton={true}
-        styles={{
-          options: {
-            primaryColor: uiGreen,
-          },
-        }}
-        locale={{
-          back: "Back",
-          close: "Close",
-          last: "Finish",
-          next: "Next",
-          skip: "Skip",
-        }}
-      />
-      <UIPageHeader
-        style={{ marginBottom: "20px" }}
-        backButtonURL="/dashboard/owner/announcements"
-        backButtonPosition="top"
-        title={
-          <span>
-            Manage Announcement
-            {targetObject &&
-              ` for ${targetObject.type + " " + targetObject.name}`}
-          </span>
-        }
-        subtitle="Update announcement details below"
-        menuItems={[
-          {
-            label: "Delete Announcement",
-            action: () => {
-              setConfirmModalTitle("Delete Announcement");
-              setConfirmModalMessage(
-                "Are you sure you want to delete this announcement?"
-              );
-              setConfirmModalOpen(true);
-            },
-          },
-        ]}
-      />
+    <>
+      {loadingPage ? (
+        <>
+          <UIProgressPrompt 
+            title="Loading Announcement details..."
+            message="Please wait while we load the announcement details."
+          />
+        </>
+      ) : (
+        <div className="container-fluid">
+          <Joyride
+            run={runTour}
+            index={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
+            }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
+          <UIPageHeader
+            style={{ marginBottom: "20px" }}
+            backButtonURL="/dashboard/owner/announcements"
+            backButtonPosition="top"
+            title={
+              <span>
+                Manage Announcement
+                {targetObject &&
+                  ` for ${targetObject.type + " " + targetObject.name}`}
+              </span>
+            }
+            subtitle="Update announcement details below"
+            menuItems={[
+              {
+                label: "Delete Announcement",
+                action: () => {
+                  setConfirmModalTitle("Delete Announcement");
+                  setConfirmModalMessage(
+                    "Are you sure you want to delete this announcement?"
+                  );
+                  setConfirmModalOpen(true);
+                },
+              },
+            ]}
+          />
 
-      <ProgressModal open={loading} message={progressModalMessage} />
-      <AlertModal
-        open={alertModalOpen}
-        title={alertModalTitle}
-        message={alertModalMessage}
-        onClose={() => setAlertModalOpen(false)}
-        onClick={() => {
-          navigate(alertModalRedirect);
-          setAlertModalOpen(false);
-        }}
-        btnText="Okay"
-      />
-      <ConfirmModal
-        open={confirmModalOpen}
-        title={confirmModalTitle}
-        message={confirmModalMessage}
-        handleClose={() => setConfirmModalOpen(false)}
-        cancelBtnText="Cancel"
-        handleCancel={() => setConfirmModalOpen(false)}
-        confirmBtnText="Yes"
-        handleConfirm={() => {
-          setConfirmModalOpen(false);
-          // Call the delete function here
-          deleteAnnouncement(id).then((res) => {
-            console.log("Delete response ", res);
-            navigate("/dashboard/owner/announcements");
-          });
-        }}
-      />
-      <div className="card manage-announcement-form">
-        <div className="card-body">
-          <form>
-            <div className="row">
-              <div className="col-md-12">
-                <label className="text-black" style={{ display: "block" }}>
-                  {announcement.rental_property && "Renting Property: "}
-                  {announcement.rental_unit && "Rental Unit"}
-                  {announcement.portfolio && "Portfolio"}
-                </label>
-                <p className="text-black">
-                  {announcement.rental_property &&
-                    announcement.rental_property.name}
-                  {announcement.rental_unit && announcement.rental_unit.name}
-                  {announcement.portfolio && announcement.portfolio.name}
-                </p>
-              </div>
-              {formInputs.map((input, index) => {
-                return (
-                  <>
-                    {input.type === "select" && (
-                      <div
-                        className={`col-md-${input.colSpan} mb-2`}
-                        key={index}
-                      >
-                        <label
-                          className="text-black mb-1"
-                          style={{ display: "block" }}
-                        >
-                          {input.label}
-                        </label>
-                        <select
-                          name={input.name}
-                          className="form-control"
-                          onChange={input.onChange}
-                          value={formData[input.name]}
-                          data-testId={input.dataTestId}
-                        >
-                          <option value="">Select One</option>
-                          {input.options.map((option, index) => {
-                            return (
-                              <option key={index} value={option.value}>
-                                {option.label}
-                              </option>
-                            );
-                          })}
-                        </select>
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={{
-                              ...validationMessageStyle,
-                              display: "block",
-                            }}
+          <ProgressModal open={loading} message={progressModalMessage} />
+          <AlertModal
+            open={alertModalOpen}
+            title={alertModalTitle}
+            message={alertModalMessage}
+            onClose={() => setAlertModalOpen(false)}
+            onClick={() => {
+              navigate(alertModalRedirect);
+              setAlertModalOpen(false);
+            }}
+            btnText="Okay"
+          />
+          <ConfirmModal
+            open={confirmModalOpen}
+            title={confirmModalTitle}
+            message={confirmModalMessage}
+            handleClose={() => setConfirmModalOpen(false)}
+            cancelBtnText="Cancel"
+            handleCancel={() => setConfirmModalOpen(false)}
+            confirmBtnText="Yes"
+            handleConfirm={() => {
+              setConfirmModalOpen(false);
+              // Call the delete function here
+              deleteAnnouncement(id).then((res) => {
+                console.log("Delete response ", res);
+                navigate("/dashboard/owner/announcements");
+              });
+            }}
+          />
+          <div className="card manage-announcement-form">
+            <div className="card-body">
+              <form>
+                <div className="row">
+                  <div className="col-md-12">
+                    <label className="text-black" style={{ display: "block" }}>
+                      {announcement.rental_property && "Renting Property: "}
+                      {announcement.rental_unit && "Rental Unit"}
+                      {announcement.portfolio && "Portfolio"}
+                    </label>
+                    <p className="text-black">
+                      {announcement.rental_property &&
+                        announcement.rental_property.name}
+                      {announcement.rental_unit &&
+                        announcement.rental_unit.name}
+                      {announcement.portfolio && announcement.portfolio.name}
+                    </p>
+                  </div>
+                  {formInputs.map((input, index) => {
+                    return (
+                      <>
+                        {input.type === "select" && (
+                          <div
+                            className={`col-md-${input.colSpan} mb-2`}
+                            key={index}
                           >
-                            {errors[input.name]}
-                          </span>
+                            <label
+                              className="text-black mb-1"
+                              style={{ display: "block" }}
+                            >
+                              {input.label}
+                            </label>
+                            <select
+                              name={input.name}
+                              className="form-control"
+                              onChange={input.onChange}
+                              value={formData[input.name]}
+                              data-testId={input.dataTestId}
+                            >
+                              <option value="">Select One</option>
+                              {input.options.map((option, index) => {
+                                return (
+                                  <option key={index} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                  display: "block",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
-                    {input.type === "text" && (
-                      <div
-                        className={`col-md-${input.colSpan} mb-2`}
-                        key={index}
-                      >
-                        <UIInput
-                          name={input.name}
-                          label={input.label}
-                          type={input.type}
-                          placeholder={input.placeholder}
-                          onChange={input.onChange}
-                          defaultValue={formData[input.name]}
-                          error={errors[input.name]}
-                          dataTestId={input.dataTestId}
-                          errorMessageDataTestid={input.errorMessageDataTestid}
-                        />
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={{
-                              ...validationMessageStyle,
-                              display: "block",
-                            }}
+                        {input.type === "text" && (
+                          <div
+                            className={`col-md-${input.colSpan} mb-2`}
+                            key={index}
                           >
-                            {errors[input.name]}
-                          </span>
+                            <UIInput
+                              name={input.name}
+                              label={input.label}
+                              type={input.type}
+                              placeholder={input.placeholder}
+                              onChange={input.onChange}
+                              defaultValue={formData[input.name]}
+                              error={errors[input.name]}
+                              dataTestId={input.dataTestId}
+                              errorMessageDataTestid={
+                                input.errorMessageDataTestid
+                              }
+                            />
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                  display: "block",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
-                    {input.type === "date" && (
-                      <div
-                        className={`col-md-${input.colSpan} mb-2`}
-                        key={index}
-                      >
-                        <label
-                          className="text-black mb-1"
-                          style={{ display: "block" }}
-                        >
-                          {input.label}
-                        </label>
-                        <input
-                          className="form-control"
-                          name={input.name}
-                          label={input.label}
-                          type={input.type}
-                          placeholder={input.placeholder}
-                          onChange={input.onChange}
-                          value={formatDate(new Date(formData[input.name]))}
-                          error={errors[input.name]}
-                          dataTestId={input.dataTestId}
-                          errorMessageDataTestid={input.errorMessageDataTestId}
-                        />
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={{
-                              ...validationMessageStyle,
-                              display: "block",
-                            }}
+                        {input.type === "date" && (
+                          <div
+                            className={`col-md-${input.colSpan} mb-2`}
+                            key={index}
                           >
-                            {errors[input.name]}
-                          </span>
+                            <label
+                              className="text-black mb-1"
+                              style={{ display: "block" }}
+                            >
+                              {input.label}
+                            </label>
+                            <input
+                              className="form-control"
+                              name={input.name}
+                              label={input.label}
+                              type={input.type}
+                              placeholder={input.placeholder}
+                              onChange={input.onChange}
+                              value={formatDate(new Date(formData[input.name]))}
+                              error={errors[input.name]}
+                              dataTestId={input.dataTestId}
+                              errorMessageDataTestid={
+                                input.errorMessageDataTestId
+                              }
+                            />
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={{
+                                  ...validationMessageStyle,
+                                  display: "block",
+                                }}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
 
-                    {input.type === "textarea" && (
-                      <div className={`col-md-${input.colSpan}`} key={index}>
-                        <div>
-                          <label
-                            className="text-black mb-1"
-                            style={{ display: "block" }}
+                        {input.type === "textarea" && (
+                          <div
+                            className={`col-md-${input.colSpan}`}
+                            key={index}
                           >
-                            {input.label}
-                          </label>
-                        </div>
-                        <textarea
-                          name={input.name}
-                          placeholder={input.placeholder}
-                          value={formData[input.name]}
-                          onChange={input.onChange}
-                          className="form-control"
-                          style={{ height: "100px" }}
-                        />
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={validationMessageStyle}
-                          >
-                            {errors[input.name]}
-                          </span>
+                            <div>
+                              <label
+                                className="text-black mb-1"
+                                style={{ display: "block" }}
+                              >
+                                {input.label}
+                              </label>
+                            </div>
+                            <textarea
+                              name={input.name}
+                              placeholder={input.placeholder}
+                              value={formData[input.name]}
+                              onChange={input.onChange}
+                              className="form-control"
+                              style={{ height: "100px" }}
+                            />
+                            {errors[input.name] && (
+                              <span
+                                data-testId={input.errorMessageDataTestId}
+                                style={validationMessageStyle}
+                              >
+                                {errors[input.name]}
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
-                  </>
-                );
-              })}
+                      </>
+                    );
+                  })}
+                </div>
+                <UIButton
+                  dataTestId="create-announcement"
+                  onClick={() => {
+                    console.log("Form data ", formData);
+                    const { isValid, newErrors } = validateForm(
+                      formData,
+                      formInputs
+                    );
+                    console.log("isValid ", isValid);
+                    console.log("newErrors ", newErrors);
+                    if (!isValid) {
+                      setErrors(newErrors);
+                      return;
+                    } else {
+                      handleSubmit();
+                    }
+                  }}
+                  btnText="Update Announcement"
+                  style={{ margin: "10px 0", width: "100%" }}
+                />
+              </form>
             </div>
-            <UIButton
-              dataTestId="create-announcement"
-              onClick={() => {
-                console.log("Form data ", formData);
-                const { isValid, newErrors } = validateForm(
-                  formData,
-                  formInputs
-                );
-                console.log("isValid ", isValid);
-                console.log("newErrors ", newErrors);
-                if (!isValid) {
-                  setErrors(newErrors);
-                  return;
-                } else {
-                  handleSubmit();
-                }
-              }}
-              btnText="Update Announcement"
-              style={{ margin: "10px 0", width: "100%" }}
-            />
-          </form>
+          </div>
+          <UIHelpButton onClick={handleClickStart} />
         </div>
-      </div>
-      <UIHelpButton onClick={handleClickStart} />
-    </div>
+      )}
+    </>
   );
 };
 
