@@ -1,6 +1,7 @@
 import { Button, Input, Stack, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import {
+  muiIconStyle,
   uiGreen,
   uiGrey2,
   uiRed,
@@ -49,6 +50,9 @@ import {
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import DeleteButton from "../../UIComponents/DeleteButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+
 const ManageLeaseTemplate = () => {
   const iconStyles = {
     color: uiGreen,
@@ -74,6 +78,7 @@ const ManageLeaseTemplate = () => {
   const [assignmentMode, setAssignmentMode] = useState("unit"); //portfolio, property or unit
   const [selectedAssignments, setSelectedAssignments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
   const [progressModalTitle, setProgressModalTitle] = useState("");
   const [alertModalIsOpen, setAlertModalIsOpen] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
@@ -632,7 +637,7 @@ const ManageLeaseTemplate = () => {
       });
   };
   const retrieveLeaseTemplateData = async () => {
-    setIsLoading(true);
+    setIsLoadingPage(true);
     setProgressModalTitle("Retrieving Lease Template Information...");
     authenticatedInstance
       .get(`/lease-templates/${id}/`)
@@ -670,7 +675,7 @@ const ManageLeaseTemplate = () => {
         setAlertRedirectURL(`/dashboard/owner/lease-templates/${id}`);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLoadingPage(false);
       });
   };
   const retrieveEditLink = async () => {
@@ -752,482 +757,500 @@ const ManageLeaseTemplate = () => {
     retrieveLeaseTemplateData();
   }, []);
   return (
-    <div className="container lease-template-management-page">
-      <Joyride
-        run={runTour}
-        stepIndex={tourIndex}
-        steps={tourSteps}
-        callback={handleJoyrideCallback}
-        continuous={true}
-        showProgress={true}
-        showSkipButton={true}
-        styles={{
-          options: {
-            primaryColor: uiGreen,
-          },
-        }}
-        locale={{
-          back: "Back",
-          close: "Close",
-          last: "Finish",
-          next: "Next",
-          skip: "Skip",
-        }}
-      />
-      <ConfirmModal
-        open={openLeaseTemplateRemovePrompt}
-        title="Remove Lease Template"
-        message="Are you sure you want to remove this lease template from all assigned resources (i.e. units, properties, portfolios, etc.)?"
-        handleConfirm={() => {
-          // Remove lease template
-          removeLeaseTemplateFromAssignedResources({
-            lease_template_id: id,
-          }).then((res) => {
-            console.log(res);
-            if (res.status === 200) {
-              setAlertModalIsOpen(true);
-              setAlertModalTitle("Success");
-              setAlertModalMessage("Lease template removed successfully.");
-            } else {
-              setAlertModalIsOpen(true);
-              setAlertModalTitle("Error");
-              setAlertModalMessage("Something went wrong. Please try again.");
-            }
-          });
-        }}
-        handleCancel={() => {
-          setOpenLeaseTemplateRemovePrompt(false);
-        }}
-        confirmBtnText="Remove"
-        cancelBtnText="Cancel"
-        confirmBtnStyle={{ backgroundColor: uiGrey2 }}
-        cancelBtnStyle={{ backgroundColor: uiGreen }}
-      />
-      <ConfirmModal
-        open={showDeleteConfirmModal}
-        title="Delete Lease Template"
-        message="Are you sure you want to delete this lease template?"
-        handleConfirm={() => {
-          deleteLeaseTemplate(id)
-            .then((res) => {
-              console.log(res);
-              setAlertModalIsOpen(true);
-              setAlertModalTitle("Lease Template Deleted");
-              setAlertModalMessage("");
-              setAlertRedirectURL("/dashboard/owner/lease-templates");
-            })
-            .catch((error) => {
-              console.error(error);
-              setAlertModalIsOpen(true);
-              setAlertModalTitle("Error");
-              setAlertModalMessage("Something went wrong. Please try again.");
-            });
-        }}
-        confirmBtnText="Delete"
-        confirmBtnStyle={{ backgroundColor: uiGrey2 }}
-        cancelBtnText="Cancel"
-        handleCancel={() => {
-          setShowDeleteConfirmModal(false);
-        }}
-        cancelBtnStyle={{ backgroundColor: uiGreen }}
-      />
-      <ProgressModal open={isLoading} title={progressModalTitle} />
-      <AlertModal
-        open={alertModalIsOpen}
-        title={alertModalTitle}
-        message={alertModalMessage}
-        onClick={() => {
-          setAlertModalIsOpen(false);
-          if (alertRedirectURL) {
-            navigate(alertRedirectURL);
-          }
-          navigate(0);
-        }}
-        btnText="Okay"
-      />
-      <UIDialog
-        open={showAssignModal}
-        title="Select Assignments"
-        onClose={() => setShowAssignModal(false)}
-        style={{ width: "800px" }}
-      >
-        <Assign
-          hideShadow={true}
-          hideStepControl={true}
-          selectedAssignments={selectedAssignments}
-          setSelectedAssignments={setSelectedAssignments}
-          assignmentMode={assignmentMode}
-          setAssignmentMode={setAssignmentMode}
+    <>
+      {isLoadingPage ? (
+        <UIProgressPrompt 
+          title="Loading Lease Template Information"
+          message="Please wait while we retrieve data for your lease template."
         />
-        <UIButton
-          btnText="Assign Lease Template"
-          onClick={handleApplyAssignments}
-        />
-      </UIDialog>
-
-      <UIPageHeader
-        title="Manage Lease Template"
-        subtitle={`$${leaseTemplate.rent}/${leaseTemplate.rent_frequency} | ${leaseTemplate.term} months`}
-        menuItems={[
-          {
-            label: "Assign Lease Template",
-            action: () => setShowAssignModal(true),
-          },
-          {
-            label: "Reset Lease Template",
-            action: () => setOpenLeaseTemplateRemovePrompt(true),
-          },
-          {
-            label: "Delete Lease Template",
-            action: () => setShowDeleteConfirmModal(true),
-          },
-        ]}
-      />
-
-      <BackButton />
-      <UITabs
-        style={{ marginBottom: "2rem" }}
-        tabs={tabs}
-        value={tabPage}
-        handleChange={handleChangeTabPage}
-        scrollable={true}
-      />
-      {tabPage === 0 && (
-        <div className="card add-terms-container">
-          <div className="card-body" style={{ overflow: "auto" }}>
-            <form className="row">
-              {detailsFormInputs.map((input, index) => (
-                <div
-                  className={`form-group col-md-${input.colSpan} mb-4`}
-                  key={index}
-                >
-                  <Typography
-                    className="mb-2"
-                    sx={{ color: uiGrey2, fontSize: "12pt" }}
-                    htmlFor={input.name}
-                  >
-                    {input.label}
-                  </Typography>
-                  {input.type === "select" ? (
-                    <select
-                      id={input.name}
-                      name={input.name}
-                      value={detailsFormData[input.name]}
-                      onChange={input.onChange}
-                      onBlur={input.onChange}
-                      className="form-control"
-                    >
-                      {input.options.map((option, i) => (
-                        <option key={i} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      id={input.name}
-                      name={input.name}
-                      type={input.type}
-                      value={detailsFormData[input.name]}
-                      onChange={input.onChange}
-                      onBlur={input.onChange}
-                      className="form-control"
-                    />
-                  )}
-                  {detailsErrors[input.name] && (
-                    <span style={validationMessageStyle}>
-                      {detailsErrors[input.name]}
-                    </span>
-                  )}
-                </div>
-              ))}
-              <div className="form-group col-md-12">
-                <UIButton
-                  onClick={() => {
-                    const { isValid, newErrors } = validateForm(
-                      detailsFormData,
-                      detailsFormInputs
-                    );
-                    if (isValid) {
-                      onSubmit();
-                    } else {
-                      setDetailsErrors(newErrors);
-                    }
-                  }}
-                  btnText="Update"
-                  style={{ float: "right" }}
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Additional Charges */}
-      {tabPage === 1 && (
-        <>
-          {additionalCharges.length > 0 ? (
-            <div className="card additional-charges-section">
-              <div className="card-body">
-                <>
-                  {additionalCharges.map((charge, index) => (
-                    <AdditionalChargeRow
-                      key={index}
-                      index={index}
-                      charge={charge}
-                      addCharge={addCharge}
-                      removeCharge={removeCharge}
-                      setCharges={setAdditionalCharges}
-                      charges={additionalCharges}
-                      errors={chargeErrors}
-                      setErrors={setChargeErrors}
-                    />
-                  ))}
-
-                  <UIButton
-                    btnText="Update Charges"
-                    onClick={() => {
-                      if (
-                        Object.values(chargeErrors).every(
-                          (val) => val === undefined
-                        )
-                      ) {
-                        saveAdditionalCharges();
-                      } else {
-                        setAlertModalIsOpen(true);
-                        setAlertModalTitle("Additional Charges Errors");
-                        setAlertModalMessage(
-                          "Please fix the errors before updating the additional charges."
-                        );
-                      }
-                    }}
-                    style={{ marginTop: "20px", float: "right" }}
-                  />
-                </>
-              </div>
-            </div>
-          ) : (
-            <>
-              <UIPrompt
-                icon={<AttachMoneyIcon style={iconStyles} />}
-                title="No Additional Charges"
-                message="You have not added any additional charges to this unit. Click the button below to add additional charges."
-                body={
-                  <UIButton
-                    onClick={addCharge}
-                    btnText="Add Additional Charges"
-                    variant="text"
-                    style={{
-                      marginTop: "30px",
-                      color: uiGreen,
-                      backgroundColor: "transparent",
-                      display: "block",
-                    }}
-                  />
-                }
-              />
-            </>
-          )}
-        </>
-      )}
-      {tabPage === 2 && (
-        <div className="assign-to-units-section">
-          <select
-            value={assignmentView}
-            onChange={(e) => setAssignmentView(e.target.value)}
-            style={{
-              background: "white !important",
-              marginBottom: "1rem",
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "5px",
-              border: "none",
+      ) : (
+        <div className="container lease-template-management-page">
+          <Joyride
+            run={runTour}
+            stepIndex={tourIndex}
+            steps={tourSteps}
+            callback={handleJoyrideCallback}
+            continuous={true}
+            showProgress={true}
+            showSkipButton={true}
+            styles={{
+              options: {
+                primaryColor: uiGreen,
+              },
             }}
+            locale={{
+              back: "Back",
+              close: "Close",
+              last: "Finish",
+              next: "Next",
+              skip: "Skip",
+            }}
+          />
+          <ConfirmModal
+            open={openLeaseTemplateRemovePrompt}
+            title="Remove Lease Template"
+            message="Are you sure you want to remove this lease template from all assigned resources (i.e. units, properties, portfolios, etc.)?"
+            handleConfirm={() => {
+              // Remove lease template
+              removeLeaseTemplateFromAssignedResources({
+                lease_template_id: id,
+              }).then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                  setAlertModalIsOpen(true);
+                  setAlertModalTitle("Success");
+                  setAlertModalMessage("Lease template removed successfully.");
+                } else {
+                  setAlertModalIsOpen(true);
+                  setAlertModalTitle("Error");
+                  setAlertModalMessage(
+                    "Something went wrong. Please try again."
+                  );
+                }
+              });
+            }}
+            handleCancel={() => {
+              setOpenLeaseTemplateRemovePrompt(false);
+            }}
+            confirmBtnText="Remove"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{ backgroundColor: uiGrey2 }}
+            cancelBtnStyle={{ backgroundColor: uiGreen }}
+          />
+          <ConfirmModal
+            open={showDeleteConfirmModal}
+            title="Delete Lease Template"
+            message="Are you sure you want to delete this lease template?"
+            handleConfirm={() => {
+              deleteLeaseTemplate(id)
+                .then((res) => {
+                  console.log(res);
+                  setAlertModalIsOpen(true);
+                  setAlertModalTitle("Lease Template Deleted");
+                  setAlertModalMessage("");
+                  setAlertRedirectURL("/dashboard/owner/lease-templates");
+                })
+                .catch((error) => {
+                  console.error(error);
+                  setAlertModalIsOpen(true);
+                  setAlertModalTitle("Error");
+                  setAlertModalMessage(
+                    "Something went wrong. Please try again."
+                  );
+                });
+            }}
+            confirmBtnText="Delete"
+            confirmBtnStyle={{ backgroundColor: uiGrey2 }}
+            cancelBtnText="Cancel"
+            handleCancel={() => {
+              setShowDeleteConfirmModal(false);
+            }}
+            cancelBtnStyle={{ backgroundColor: uiGreen }}
+          />
+          <ProgressModal open={isLoading} title={progressModalTitle} />
+          <AlertModal
+            open={alertModalIsOpen}
+            title={alertModalTitle}
+            message={alertModalMessage}
+            onClick={() => {
+              setAlertModalIsOpen(false);
+              if (alertRedirectURL) {
+                navigate(alertRedirectURL);
+              }
+              navigate(0);
+            }}
+            btnText="Okay"
+          />
+          <UIDialog
+            open={showAssignModal}
+            title="Select Assignments"
+            onClose={() => setShowAssignModal(false)}
+            style={{ width: "800px" }}
           >
-            <option value="unit">Units</option>
-            <option value="property">Properties</option>
-            <option value="portfolio">Portfolios</option>
-          </select>
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-            spacing={1}
-          >
+            <Assign
+              hideShadow={true}
+              hideStepControl={true}
+              selectedAssignments={selectedAssignments}
+              setSelectedAssignments={setSelectedAssignments}
+              assignmentMode={assignmentMode}
+              setAssignmentMode={setAssignmentMode}
+            />
             <UIButton
               btnText="Assign Lease Template"
-              style={{
-                marginBottom: "1rem",
-              }}
-              onClick={() => {
-                setShowAssignModal(true);
-              }}
+              onClick={handleApplyAssignments}
             />
-          </Stack>
-          {assignmentView === "unit" && (
+          </UIDialog>
+
+          <UIPageHeader
+            title="Manage Lease Template"
+            subtitle={`$${leaseTemplate.rent}/${leaseTemplate.rent_frequency} | ${leaseTemplate.term} months`}
+            menuItems={[
+              {
+                label: "Assign Lease Template",
+                action: () => setShowAssignModal(true),
+              },
+              {
+                label: "Reset Lease Template",
+                action: () => setOpenLeaseTemplateRemovePrompt(true),
+              },
+              {
+                label: "Delete Lease Template",
+                action: () => setShowDeleteConfirmModal(true),
+              },
+            ]}
+          />
+
+          <BackButton />
+          <UITabs
+            style={{ marginBottom: "2rem" }}
+            tabs={tabs}
+            value={tabPage}
+            handleChange={handleChangeTabPage}
+            scrollable={true}
+          />
+          {tabPage === 0 && (
+            <div className="card add-terms-container">
+              <div className="card-body" style={{ overflow: "auto" }}>
+                <form className="row">
+                  {detailsFormInputs.map((input, index) => (
+                    <div
+                      className={`form-group col-md-${input.colSpan} mb-4`}
+                      key={index}
+                    >
+                      <Typography
+                        className="mb-2"
+                        sx={{ color: uiGrey2, fontSize: "12pt" }}
+                        htmlFor={input.name}
+                      >
+                        {input.label}
+                      </Typography>
+                      {input.type === "select" ? (
+                        <select
+                          id={input.name}
+                          name={input.name}
+                          value={detailsFormData[input.name]}
+                          onChange={input.onChange}
+                          onBlur={input.onChange}
+                          className="form-control"
+                        >
+                          {input.options.map((option, i) => (
+                            <option key={i} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          id={input.name}
+                          name={input.name}
+                          type={input.type}
+                          value={detailsFormData[input.name]}
+                          onChange={input.onChange}
+                          onBlur={input.onChange}
+                          className="form-control"
+                        />
+                      )}
+                      {detailsErrors[input.name] && (
+                        <span style={validationMessageStyle}>
+                          {detailsErrors[input.name]}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  <div className="form-group col-md-12">
+                    <UIButton
+                      onClick={() => {
+                        const { isValid, newErrors } = validateForm(
+                          detailsFormData,
+                          detailsFormInputs
+                        );
+                        if (isValid) {
+                          onSubmit();
+                        } else {
+                          setDetailsErrors(newErrors);
+                        }
+                      }}
+                      btnText="Update"
+                      style={{ float: "right" }}
+                    />
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+          {/* Additional Charges */}
+          {tabPage === 1 && (
             <>
-              {isMobile ? (
-                <UITableMobile
-                  tableTitle="Units"
-                  data={units}
-                  infoProperty="name"
-                  createTitle={(row) =>
-                    `Occupied: ${row.is_occupied ? `Yes` : "No"} `
-                  }
-                  createSubtitle={(row) =>
-                    `Beds: ${row.beds} | Baths: ${row.baths}`
-                  }
-                  // createURL={`/dashboard/owner/lease-templates/units/create/${id}`}
-                  // showCreate={true}
-                  // getImage={(row) => {
-                  //   retrieveFilesBySubfolder(
-                  //     `properties/${property.id}/units/${row.id}`,
-                  //     authUser.id
-                  //   ).then((res) => {
-                  //     if (res.data.length > 0) {
-                  //       return res.data[0].file;
-                  //     } else {
-                  //       return "https://picsum.photos/200";
-                  //     }
-                  //   });
-                  // }}
-                  onRowClick={(row) => {
-                    const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                    navigate(navlink);
-                  }}
-                />
+              {additionalCharges.length > 0 ? (
+                <div className="card additional-charges-section">
+                  <div className="card-body">
+                    <>
+                      {additionalCharges.map((charge, index) => (
+                        <AdditionalChargeRow
+                          key={index}
+                          index={index}
+                          charge={charge}
+                          addCharge={addCharge}
+                          removeCharge={removeCharge}
+                          setCharges={setAdditionalCharges}
+                          charges={additionalCharges}
+                          errors={chargeErrors}
+                          setErrors={setChargeErrors}
+                        />
+                      ))}
+
+                      <UIButton
+                        btnText="Update Charges"
+                        onClick={() => {
+                          if (
+                            Object.values(chargeErrors).every(
+                              (val) => val === undefined
+                            )
+                          ) {
+                            saveAdditionalCharges();
+                          } else {
+                            setAlertModalIsOpen(true);
+                            setAlertModalTitle("Additional Charges Errors");
+                            setAlertModalMessage(
+                              "Please fix the errors before updating the additional charges."
+                            );
+                          }
+                        }}
+                        style={{ marginTop: "20px", float: "right" }}
+                      />
+                    </>
+                  </div>
+                </div>
               ) : (
                 <>
-                  <UITable
-                    title="Units"
-                    data={units}
-                    columns={unit_columns}
-                    options={unit_options}
-                    onRowClick={(row) => {
-                      const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                      navigate(navlink);
-                    }}
+                  <UIPrompt
+                    icon={<AttachMoneyIcon style={iconStyles} />}
+                    title="No Additional Charges"
+                    message="You have not added any additional charges to this unit. Click the button below to add additional charges."
+                    body={
+                      <UIButton
+                        onClick={addCharge}
+                        btnText="Add Additional Charges"
+                        variant="text"
+                        style={{
+                          marginTop: "30px",
+                          color: uiGreen,
+                          backgroundColor: "transparent",
+                          display: "block",
+                        }}
+                      />
+                    }
                   />
                 </>
               )}
             </>
           )}
-          {assignmentView === "property" && (
-            <>
-              {isMobile ? (
-                <UITableMobile
-                  tableTitle="Properties"
-                  data={properties}
-                  infoProperty="name"
-                  createTitle={(row) =>
-                    `${row.street}, ${row.city}, ${row.state}`
-                  }
-                  subtitleProperty="somthing"
-
-                  onRowClick={(row) => {
-                    const navlink = `/dashboard/owner/properties/${row.id}`;
-                    navigate(navlink);
+          {tabPage === 2 && (
+            <div className="assign-to-units-section">
+              <select
+                value={assignmentView}
+                onChange={(e) => setAssignmentView(e.target.value)}
+                style={{
+                  background: "white !important",
+                  marginBottom: "1rem",
+                  width: "100%",
+                  padding: "0.5rem",
+                  borderRadius: "5px",
+                  border: "none",
+                }}
+              >
+                <option value="unit">Units</option>
+                <option value="property">Properties</option>
+                <option value="portfolio">Portfolios</option>
+              </select>
+              <Stack
+                direction="row"
+                justifyContent="flex-end"
+                alignItems="center"
+                spacing={1}
+              >
+                <UIButton
+                  btnText="Assign Lease Template"
+                  style={{
+                    marginBottom: "1rem",
                   }}
-                  createURL="/dashboard/owner/properties/create"
-                  showCreate={true}
-                />
-              ) : (
-                <UITable
-                  title="Properties"
-                  data={properties}
-                  columns={[
-                    { label: "Name", name: "name" },
-                    { label: "Address", name: "address" },
-                    {
-                      label: "Units",
-                      name: "units",
-                      options: {
-                        customBodyRender: (value) => value.length,
-                      },
-                    },
-                  ]}
-                  options={{
-                    isSelectable: false,
-                    onRowClick: (row) => {
-                      const navlink = `/dashboard/owner/properties/${row.id}`;
-                      navigate(navlink);
-                    },
+                  onClick={() => {
+                    setShowAssignModal(true);
                   }}
                 />
+              </Stack>
+              {assignmentView === "unit" && (
+                <>
+                  {isMobile ? (
+                    <UITableMobile
+                      tableTitle="Units"
+                      data={units}
+                      infoProperty="name"
+                      createTitle={(row) =>
+                        `Occupied: ${row.is_occupied ? `Yes` : "No"} `
+                      }
+                      createSubtitle={(row) =>
+                        `Beds: ${row.beds} | Baths: ${row.baths}`
+                      }
+                      // createURL={`/dashboard/owner/lease-templates/units/create/${id}`}
+                      // showCreate={true}
+                      // getImage={(row) => {
+                      //   retrieveFilesBySubfolder(
+                      //     `properties/${property.id}/units/${row.id}`,
+                      //     authUser.id
+                      //   ).then((res) => {
+                      //     if (res.data.length > 0) {
+                      //       return res.data[0].file;
+                      //     } else {
+                      //       return "https://picsum.photos/200";
+                      //     }
+                      //   });
+                      // }}
+                      onRowClick={(row) => {
+                        const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                        navigate(navlink);
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <UITable
+                        title="Units"
+                        data={units}
+                        columns={unit_columns}
+                        options={unit_options}
+                        onRowClick={(row) => {
+                          const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                          navigate(navlink);
+                        }}
+                      />
+                    </>
+                  )}
+                </>
               )}
-            </>
-          )}
-          {assignmentView === "portfolio" && (
-            <>
-              {isMobile ? (
-                <UITableMobile
-                  testRowIdentifier="portfolio"
-                  tableTitle="Portfolios"
-                  data={portfolios}
-                  createInfo={(row) => {
-                    return `${row.name}`;
-                  }}
-                  createTitle={(row) => {
-                    return `${row.description}`;
-                  }}
-                  createSubtitle={(row) => {
-                    return ``;
-                  }}
-                  showCreate={true}
-                  createURL="/dashboard/owner/portfolios/create"
-                  onRowClick={(row) => {
-                    navigate(`/dashboard/owner/portfolios/${row.id}`);
-                  }}
-                  orderingFields={[
-                    { field: "name", label: "Name (Ascending)" },
-                    { field: "-name", label: "Name (Descending)" },
-                    { field: "description", label: "Description (Ascending)" },
-                    {
-                      field: "-description",
-                      label: "Description (Descending)",
-                    },
-                    { field: "created_at", label: "Date Created (Ascending)" },
-                    {
-                      field: "-created_at",
-                      label: "Date Created (Descending)",
-                    },
-                  ]}
-                />
-              ) : (
-                <UITable
-                  testRowIdentifier="portfolio"
-                  title="Portfolios"
-                  data={portfolios}
-                  columns={portfolio_columns}
-                  options={portfolio_options}
-                  showCreate={true}
-                  createURL="/dashboard/owner/portfolios/create"
-                  menuOptions={[
-                    {
-                      name: "View",
-                      onClick: (row) => {
+              {assignmentView === "property" && (
+                <>
+                  {isMobile ? (
+                    <UITableMobile
+                      tableTitle="Properties"
+                      data={properties}
+                      infoProperty="name"
+                      createTitle={(row) =>
+                        `${row.street}, ${row.city}, ${row.state}`
+                      }
+                      subtitleProperty="somthing"
+                      onRowClick={(row) => {
+                        const navlink = `/dashboard/owner/properties/${row.id}`;
+                        navigate(navlink);
+                      }}
+                      createURL="/dashboard/owner/properties/create"
+                      showCreate={true}
+                    />
+                  ) : (
+                    <UITable
+                      title="Properties"
+                      data={properties}
+                      columns={[
+                        { label: "Name", name: "name" },
+                        { label: "Address", name: "address" },
+                        {
+                          label: "Units",
+                          name: "units",
+                          options: {
+                            customBodyRender: (value) => value.length,
+                          },
+                        },
+                      ]}
+                      options={{
+                        isSelectable: false,
+                        onRowClick: (row) => {
+                          const navlink = `/dashboard/owner/properties/${row.id}`;
+                          navigate(navlink);
+                        },
+                      }}
+                    />
+                  )}
+                </>
+              )}
+              {assignmentView === "portfolio" && (
+                <>
+                  {isMobile ? (
+                    <UITableMobile
+                      testRowIdentifier="portfolio"
+                      tableTitle="Portfolios"
+                      data={portfolios}
+                      createInfo={(row) => {
+                        return `${row.name}`;
+                      }}
+                      createTitle={(row) => {
+                        return `${row.description}`;
+                      }}
+                      createSubtitle={(row) => {
+                        return ``;
+                      }}
+                      showCreate={true}
+                      createURL="/dashboard/owner/portfolios/create"
+                      onRowClick={(row) => {
                         navigate(`/dashboard/owner/portfolios/${row.id}`);
-                      },
-                    },
-                  ]}
-                />
+                      }}
+                      orderingFields={[
+                        { field: "name", label: "Name (Ascending)" },
+                        { field: "-name", label: "Name (Descending)" },
+                        {
+                          field: "description",
+                          label: "Description (Ascending)",
+                        },
+                        {
+                          field: "-description",
+                          label: "Description (Descending)",
+                        },
+                        {
+                          field: "created_at",
+                          label: "Date Created (Ascending)",
+                        },
+                        {
+                          field: "-created_at",
+                          label: "Date Created (Descending)",
+                        },
+                      ]}
+                    />
+                  ) : (
+                    <UITable
+                      testRowIdentifier="portfolio"
+                      title="Portfolios"
+                      data={portfolios}
+                      columns={portfolio_columns}
+                      options={portfolio_options}
+                      showCreate={true}
+                      createURL="/dashboard/owner/portfolios/create"
+                      menuOptions={[
+                        {
+                          name: "View",
+                          onClick: (row) => {
+                            navigate(`/dashboard/owner/portfolios/${row.id}`);
+                          },
+                        },
+                      ]}
+                    />
+                  )}
+                </>
               )}
+            </div>
+          )}
+          {tabPage === 3 && (
+            <>
+              <div className="card edit-lease-template-document">
+                <iframe
+                  src={editLink}
+                  height={isMobile ? "500px" : "1200px"}
+                  width="100%"
+                />
+              </div>
             </>
           )}
+          <UIHelpButton onClick={handleClickStart} />
         </div>
       )}
-      {tabPage === 3 && (
-        <>
-          <div className="card edit-lease-template-document">
-            <iframe
-              src={editLink}
-              height={isMobile ? "500px" : "1200px"}
-              width="100%"
-            />
-          </div>
-        </>
-      )}
-      <UIHelpButton onClick={handleClickStart} />
-    </div>
+    </>
   );
 };
 

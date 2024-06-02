@@ -421,14 +421,6 @@ const TenantRegister = () => {
               to={`/dashboard/tenant/register/${lease_agreement_id}/${approval_hash}/`}
             />
           ) : (
-            // <AlertModal
-            //   open={true}
-            //   onClose={() => setOpen(false)}
-            //   title={"Registration Successful!"}
-            //   message="Your account has been created successfully! Be Sure to check for your confirmation email to activate your account. Click the link below to be redirected to your dashboard."
-            //   btnText="Go To Dashboard"
-            //   to={`/dashboard/tenant/`}
-            // />
             <Navigate to={`/dashboard/activate-account/`} replace />
           )}
         </>

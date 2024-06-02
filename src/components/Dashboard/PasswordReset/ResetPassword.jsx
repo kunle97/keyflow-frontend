@@ -11,8 +11,10 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 const ResetPassword = () => {
   const { token } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState(
     "A password reset link has been sent to your email address"
@@ -84,6 +86,7 @@ const ResetPassword = () => {
     console.log("Errors ", errors);
   };
   const onSubmit = () => {
+    setIsLoading(true);
     let payload = {
       token: formData.token,
       new_password: formData.new_password,
@@ -103,6 +106,15 @@ const ResetPassword = () => {
         );
         setShowAlertModal(true);
       }
+    }).catch((error) => {
+      console.error("Error resetting password", error);
+      setAlertTitle("Error");
+      setAlertMessage(
+        "An error occurred while resetting your password. Please try again"
+      );
+      setShowAlertModal(true);
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
 
@@ -138,6 +150,7 @@ const ResetPassword = () => {
           }
         }}
       />
+      <ProgressModal open={isLoading} title="Resetting Password..." />
       <div className="row justify-content-center">
         <div className="col-md-9 col-lg-9 col-xl-9">
           <div className="card shadow-lg o-hidden border-0 my-5">

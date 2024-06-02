@@ -217,6 +217,8 @@ const OwnerRegister = () => {
       setSuccessMode(false);
       setIsLoading(false);
       return;
+    }finally{
+      setIsLoading(false);
     }
 
     const response = await registerOwner(payload).then((res) => {
