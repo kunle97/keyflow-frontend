@@ -92,7 +92,10 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
-import { syncRentalUnitPreferences } from "../../../../helpers/preferences";
+import {
+  syncRentalUnitLeaseTerms,
+  syncRentalUnitPreferences,
+} from "../../../../helpers/preferences";
 import Joyride, {
   ACTIONS,
   CallBackProps,
@@ -965,6 +968,7 @@ const ManageUnit = () => {
   useEffect(() => {
     setIsLoadingPage(true);
     syncRentalUnitPreferences(unit_id);
+    syncRentalUnitLeaseTerms(unit_id);
     try {
       //Retrieve Unit Information
       getUnit(unit_id).then((res) => {
@@ -1100,44 +1104,45 @@ const ManageUnit = () => {
                 <div className="card-body">
                   <form>
                     <div className="row mb-3">
-                      {formInputs.map((input, index) => {
-                        return (
-                          <div className={`col-md-${input.colSpan}`}>
-                            <div>
-                              <label
-                                data-testid={input.dataTestId}
-                                className="form-label text-black"
-                                htmlFor={input.name}
-                              >
-                                <strong>{input.label}</strong>
-                              </label>
-                              <input
-                                data-testid={input.dataTestId}
-                                className="form-control text-black"
-                                type={input.type}
-                                id={input.name}
-                                name={input.name}
-                                placeholder={input.placeholder}
-                                style={{
-                                  borderStyle: "none",
-                                  color: "rgb(255,255,255)",
-                                }}
-                                onChange={input.onChange}
-                                onBlur={input.onChange}
-                                value={formData[input.name]}
-                              />
-                              {errors[input.name] && (
-                                <span
-                                  data-testId={input.errorMessageDataTestId}
-                                  style={{ ...validationMessageStyle }}
+                      {formInputs &&
+                        formInputs?.map((input, index) => {
+                          return (
+                            <div className={`col-md-${input.colSpan}`}>
+                              <div>
+                                <label
+                                  data-testid={input.dataTestId}
+                                  className="form-label text-black"
+                                  htmlFor={input.name}
                                 >
-                                  {errors[input.name]}
-                                </span>
-                              )}
+                                  <strong>{input.label}</strong>
+                                </label>
+                                <input
+                                  data-testid={input.dataTestId}
+                                  className="form-control text-black"
+                                  type={input.type}
+                                  id={input.name}
+                                  name={input.name}
+                                  placeholder={input.placeholder}
+                                  style={{
+                                    borderStyle: "none",
+                                    color: "rgb(255,255,255)",
+                                  }}
+                                  onChange={input.onChange}
+                                  onBlur={input.onChange}
+                                  value={formData[input.name]}
+                                />
+                                {errors[input.name] && (
+                                  <span
+                                    data-testId={input.errorMessageDataTestId}
+                                    style={{ ...validationMessageStyle }}
+                                  >
+                                    {errors[input.name]}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
                     </div>
                     <div className="text-end my-3">
                       <Stack
