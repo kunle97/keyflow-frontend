@@ -721,7 +721,7 @@ const OwnerDashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [screenWidth]);
+  }, []);
 
   return isLoading ? (
     <UIProgressPrompt
