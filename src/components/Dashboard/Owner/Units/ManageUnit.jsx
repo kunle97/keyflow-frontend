@@ -14,7 +14,9 @@ import { Link, useParams } from "react-router-dom";
 import BackButton from "../../UIComponents/BackButton";
 import {
   Alert,
+  Box,
   Button,
+  CircularProgress,
   ClickAwayListener,
   Divider,
   Grow,
@@ -144,7 +146,6 @@ const ManageUnit = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [tenantInviteDialogOpen, setTenantInviteDialogOpen] = useState(false);
   const [renderIframe, setRenderIframe] = useState(false);
-  const [iframeUrl, setIframeUrl] = useState(null);
   const [isLoadingIframe, setIsLoadingIframe] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
@@ -610,7 +611,6 @@ const ManageUnit = () => {
           setAlertOpen(true);
         })
         .finally(() => {
-          setIsLoadingIframe(false);
           setAlertTitle("Signature Field Notice");
           setAlertMessage(
             "When editing the document, please ensure that you add a signature for both yourself (the owner) and the tenant. Failing to do so will result in an unuseable lease agreement document."
@@ -1593,6 +1593,7 @@ const ManageUnit = () => {
                             src={createLink}
                             height={isMobile ? "500px" : "900px"}
                             width="100%"
+                            onLoad={() => setIsLoadingIframe(false)}
                           />
                         </div>
                       ) : (
