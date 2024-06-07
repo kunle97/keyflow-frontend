@@ -4,7 +4,6 @@ import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 import {
-  approveLeaseRenewalRequest,
   getLeaseRenewalRequestById,
   rejectLeaseRenewalRequest,
 } from "../../../../api/lease_renewal_requests";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getLeaseAgreementById } from "../../../../api/lease_agreements";
+import { getLeaseAgreementById, updateLeaseAgreement } from "../../../../api/lease_agreements";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import {
@@ -39,6 +39,9 @@ import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { abbreviateRentFrequency } from "../../../../helpers/utils";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import { Stack } from "@mui/material";
+import UISwitch from "../../UIComponents/UISwitch";
+import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -47,6 +50,7 @@ const LeaseAgreementDetail = () => {
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [leaseAgreement, setLeaseAgreement] = useState({});
   const [leaseTemplate, setLeaseTemplate] = useState({});
+  const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [rentalApplication, setRentalApplication] = useState({});
   const [rentalUnit, setRentalUnit] = useState({});
   const [leaseTerms, setLeaseTerms] = useState({});
@@ -107,6 +111,35 @@ const LeaseAgreementDetail = () => {
     }
   };
 
+  const changeAutoRenewal = (event) => {
+    setAutoRenewalEnabled(event.target.checked);
+    //Use the updateLEaseAgreement function to update the lease agreement with the new auto renewal status
+    updateTenantAutoRenewStatus({
+      auto_renew_lease_is_enabled: event.target.checked,
+      tenant_id: leaseAgreement.tenant.id,
+    })
+      .then((res) => {
+        console.log(res);
+        if(res.status === 200){
+          console.log("Checked", event.target.checked)
+        }else{
+          setAlertTitle("Error");
+          setAlertMessage(
+            "An error occurred while updating the lease agreement's auto renewal status"
+          );
+          setAlertModalOpen(true);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while updating the lease agreement's auto renewal status"
+        );
+        setAlertModalOpen(true);
+      });
+  };
+
   const handleDownloadDocument = () => {
     downloadBoldSignDocument(leaseAgreement.document_id)
       .then((res) => {
@@ -154,6 +187,7 @@ const LeaseAgreementDetail = () => {
         setTenant(res.data.tenant);
         //Retrieve next payment date
         if (res.data.tenant) {
+          setAutoRenewalEnabled(res.data.tenant.auto_renew_lease_is_enabled);
           // getNextPaymentDate(res.data.tenant.id).then((res) => {
           //   console.log("nExt pay date data", res);
           //   setNextPaymentDate(res.data.next_payment_date);
@@ -196,6 +230,7 @@ const LeaseAgreementDetail = () => {
             title={alertTitle}
             message={alertMessage}
             btnText="Okay"
+            onClick={() => setAlertModalOpen(false)}
           />
           <Joyride
             run={runTour}
@@ -225,8 +260,22 @@ const LeaseAgreementDetail = () => {
             ).toLocaleDateString()} Ends: ${new Date(
               leaseAgreement.end_date
             ).toLocaleDateString()}`}
+            backButtonPosition="bottom"
+            backButtonURL="/dashboard/owner/lease-agreements"
           />
-          <BackButton />
+          {/* <Stack
+            direction="row"
+            spacing={2}
+            alignContent={"center"}
+            alignItems={"center"}
+            sx={{ marginBottom: "14px" }}
+          >
+            <span className="text-black">Enable Auto Renewal </span>
+            <UISwitch
+              value={autoRenewalEnabled}
+              onChange={changeAutoRenewal}
+            />
+          </Stack> */}
           <div className="row">
             <div className="col-md-4 lease-agreement-details">
               <div className="row">

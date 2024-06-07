@@ -1,7 +1,8 @@
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 //-------------------LEASE AGREEMENT API FUNCTIONS------------------------///
 //Create a function that retrieves all lease agreements
-export async function getAllLeaseAgreements() {//TODO: Depricate this function and replace with getLeaseAgreementsByTenant
+export async function getAllLeaseAgreements() {
+  //TODO: Depricate this function and replace with getLeaseAgreementsByTenant
   try {
     const res = await authenticatedInstance
       .get(`/lease-agreements/`)
@@ -139,7 +140,7 @@ export async function getLeaseAgreementsByTenant(tenant_id) {
 }
 
 //Create a function to retrieve a lease agreement by its lease_renewal_request_id using the endpoint /lease-agreements/get-lease-agreement-by-lease-renewal-request/
-export async function getLeaseAgreementByLeaseRenewalRequestId(//TODO: Depricate this function and replace with getLeaseAgreementsByTenant
+export async function getLeaseAgreementByLeaseRenewalRequestId( //TODO: Depricate this function and replace with getLeaseAgreementsByTenant
   lease_renewal_request_id
 ) {
   try {
@@ -161,6 +162,29 @@ export async function getLeaseAgreementByLeaseRenewalRequestId(//TODO: Depricate
       "Get Lease Agreement By Lease Renewal Request Id Error: ",
       error
     );
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}
+
+//Create a function that  cancells a lease agreement by its id
+export async function cancelLeaseAgreement(leaseAgreementId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/lease-agreements/cancel-lease-agreement/`, {
+        lease_agreement_id: leaseAgreementId,
+      })
+      .then((res) => {
+        const response = res.data;
+        console.log("axios cancel lease agreement response ", response);
+        return response;
+      });
+    return {
+      message: "Lease agreement cancelled successfully",
+      status: 200,
+      response: res,
+    };
+  } catch (error) {
+    console.log("Cancel Lease Agreement Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }

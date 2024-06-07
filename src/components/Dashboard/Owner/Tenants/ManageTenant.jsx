@@ -19,7 +19,10 @@ import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UICard from "../../UIComponents/UICards/UICard";
 import BackButton from "../../UIComponents/BackButton";
 import { getProperty } from "../../../../api/properties";
-import { getLeaseAgreementsByTenant } from "../../../../api/lease_agreements";
+import {
+  cancelLeaseAgreement,
+  getLeaseAgreementsByTenant,
+} from "../../../../api/lease_agreements";
 import { getTransactionsByTenant } from "../../../../api/transactions";
 import { getMaintenanceRequestsByTenant } from "../../../../api/maintenance_requests";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
@@ -33,10 +36,26 @@ import useScreen from "../../../../hooks/useScreen";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import LeaseRenewalDialog from "../../Tenant/LeaseAgreement/LeaseRenewal/LeaseRenewalDialog";
+import LeaseCancellationDialog from "../../Tenant/LeaseAgreement/LeaseCancellation/LeaseCancellationDialog";
+import { approveLeaseCancellationRequest } from "../../../../api/lease_cancellation_requests";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
+import { Stack } from "@mui/material";
+import UISwitch from "../../UIComponents/UISwitch";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
   const { isMobile } = useScreen();
+  const [isLoading, setIsLoading] = useState(false);
+  const [progressModalTitle, setProgressModalTitle] = useState("");
+  const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
+  const [showLeaseRenewalDialog, setShowLeaseRenewalDialog] = useState(false);
+  const [showLeaseCancellationDialog, setShowLeaseCancellationDialog] =
+    useState(false);
+  const [showLeaseRenewalForm, setShowLeaseRenewalForm] = useState(false);
+  const [showLeaseCancellationForm, setShowLeaseCancellationForm] =
+    useState(false);
   const [tenant, setTenant] = useState(null);
   const [unit, setUnit] = useState({});
   const [property, setProperty] = useState({});
@@ -148,12 +167,74 @@ const ManageTenant = () => {
   };
   const infoStyle = { fontSize: isMobile ? "12pt" : "15pt" };
 
+  const handleCancelLeaseAgreement = () => {
+    setIsLoading(true);
+    cancelLeaseAgreement(lease.id)
+      .then((res) => {
+        if (res.status === 200) {
+          setAlertTitle("Lease Agreement Cancelled");
+          setAlertMessage(
+            "The lease agreement has been cancelled successfully."
+          );
+          setShowAlert(true);
+        } else {
+          setAlertTitle("Error!");
+          setAlertMessage(
+            "There was an error cancelling the lease agreement. Please try again."
+          );
+          setShowAlert(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setAlertTitle("Error!");
+        setAlertMessage(
+          "There was an error cancelling the lease agreement. Please try again."
+        );
+        setShowAlert(true);
+      })
+      .finally(() => {
+        setShowLeaseCancellationDialog(false);
+        setIsLoading(false);
+      });
+  };
+
+  const changeAutoRenewal = (event) => {
+    setAutoRenewalEnabled(event.target.checked);
+    //Use the updateLEaseAgreement function to update the lease agreement with the new auto renewal status
+    updateTenantAutoRenewStatus({
+      auto_renew_lease_is_enabled: event.target.checked,
+      tenant_id: lease.tenant.id,
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          console.log("Checked", event.target.checked);
+        } else {
+          setAlertTitle("Error");
+          setAlertMessage(
+            "An error occurred while updating the lease agreement's auto renewal status"
+          );
+          setShowAlert(true);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while updating the lease agreement's auto renewal status"
+        );
+        setShowAlert(true);
+      });
+  };
+
   useEffect(() => {
     if (!tenant) {
       try {
         getOwnerTenant(tenant_id).then((tenant_res) => {
           console.log("tenant_res", tenant_res);
           setTenant(tenant_res.data);
+          setAutoRenewalEnabled(tenant_res.data.auto_renew_lease_is_enabled);
           getNextPaymentDate(tenant_res.data.user.id).then((res) => {
             setNextPaymentDate(res.data.next_payment_date);
           });
@@ -170,19 +251,29 @@ const ManageTenant = () => {
             }
           });
           getTenantUnit(tenant_res.data.id).then((unit_res) => {
-            setUnit(unit_res.data);
-            getProperty(unit_res.data.rental_property).then((property_res) => {
-              setProperty(property_res.data);
-            });
-            getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
-              setLease(res.data[0]);
-            });
-            getTransactionsByTenant(tenant_res.data.id).then((res) => {
-              setTransactions(res.data);
-            });
-            getMaintenanceRequestsByTenant(tenant_res.data.id).then((res) => {
-              setMaintenanceRequests(res.data);
-            });
+            if (unit_res.data) {
+              setUnit(unit_res.data);
+              getProperty(unit_res.data.rental_property).then(
+                (property_res) => {
+                  setProperty(property_res.data);
+                }
+              );
+              getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
+                setLease(res.data[0]);
+              });
+              getTransactionsByTenant(tenant_res.data.id).then((res) => {
+                setTransactions(res.data);
+              });
+              getMaintenanceRequestsByTenant(tenant_res.data.id).then((res) => {
+                setMaintenanceRequests(res.data);
+              });
+            } else {
+              setAlertTitle("Tenant Not Assigned to Unit");
+              setAlertMessage(
+                "This Tenant is not assigned to a unit. Thier lease agreement may have been cancelled. Please assign this tenant to a unit by sending them a tenant invite from an unoccupied unit."
+              );
+              setShowAlert(true);
+            }
           });
 
           retrieveFilesBySubfolder(
@@ -209,38 +300,42 @@ const ManageTenant = () => {
     <>
       <AlertModal
         open={showAlert}
-        onClick={() => setShowAlert(false)}
+        onClick={() => {
+          setShowAlert(false);
+          navigate("/dashboard/owner/tenants");
+        }}
         title={alertTitle}
         message={alertMessage}
+        btnText="Okay"
       />
+      <LeaseRenewalDialog
+        isOwnerMode={true}
+        open={showLeaseRenewalDialog}
+        onClose={() => setShowLeaseRenewalDialog(false)}
+        leaseAgreement={lease}
+        setShowLeaseRenewalDialog={setShowLeaseRenewalDialog}
+        showLeaseRenewalForm={showLeaseRenewalForm}
+        setShowLeaseRenewalForm={setShowLeaseRenewalForm}
+        setAlertModalTitle={setAlertTitle}
+        setAlertModalMessage={setAlertMessage}
+        setShowAlertModal={setShowAlert}
+      />
+      <LeaseCancellationDialog
+        isOwnerMode={true}
+        open={showLeaseCancellationDialog}
+        onClose={() => setShowLeaseCancellationDialog(false)}
+        leaseAgreement={lease}
+        setShowLeaseCancellationFormDialog={setShowLeaseCancellationDialog}
+        showLeaseCancellationForm={showLeaseCancellationForm}
+        setShowLeaseCancellationForm={setShowLeaseCancellationForm}
+        setAlertModalTitle={setAlertTitle}
+        setAlertModalMessage={setAlertMessage}
+        setShowAlertModal={setShowAlert}
+        onConfirmCancelLease={handleCancelLeaseAgreement}
+      />
+      <ProgressModal open={isLoading} title="Cancelling Lease Agreement..." />
       {tenant && (
         <div className="container">
-          {/* <div
-            style={{
-              borderRadius: "50%",
-              overflow: "hidden",
-              width: isMobile ? "100px" : "200px",
-              height: isMobile ? "100px" : "200px",
-              margin: "15px auto",
-            }}
-          >
-            <img
-              style={{ height: "100%" }}
-              src={
-                tenantProfilePicture
-                  ? tenantProfilePicture.file
-                  : "/assets/img/avatars/default-user-profile-picture.png"
-              }
-            />
-          </div>
-          <h4 style={{ width: "100%", textAlign: "center" }}>
-            {tenant.user.first_name} {tenant.user.last_name}
-          </h4>
-          <div style={{ width: "100%", textAlign: "center" }}>
-            <a href={`mailto:${tenant.user.email}`} className="text-muted">
-              {tenant.user.email}
-            </a>
-          </div> */}
           <UIPageHeader
             backButtonURL="/dashboard/owner/tenants"
             backButtonPosition="top"
@@ -251,7 +346,31 @@ const ManageTenant = () => {
               </a>
             }
             style={{ marginTop: "20px" }}
+            menuItems={[
+              {
+                label: "Renew Tenant's Lease",
+                action: () => {
+                  setShowLeaseRenewalDialog(true);
+                },
+              },
+              {
+                label: "Cancel Tenant's Lease",
+                action: () => {
+                  setShowLeaseCancellationDialog(true);
+                },
+              },
+            ]}
           />
+          {/* <Stack
+            direction="row"
+            spacing={2}
+            alignContent={"center"}
+            alignItems={"center"}
+            sx={{ marginBottom: "14px" }}
+          >
+            <span className="text-black">Enable Auto Renewal </span>
+            <UISwitch value={autoRenewalEnabled} onChange={changeAutoRenewal} />
+          </Stack> */}
           <UITabs
             value={tabPage}
             handleChange={handleChangeTabPage}

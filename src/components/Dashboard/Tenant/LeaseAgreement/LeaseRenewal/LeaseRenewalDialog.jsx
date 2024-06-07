@@ -9,7 +9,11 @@ const LeaseRenewalDialog = (props) => {
       <UIDialog
         open={props.open}
         onClose={props.onClose}
-        title="Request Lease Renewal"
+        title={
+          props.isOwnerMode
+            ? "Renew Tenant Lease Agreement"
+            : "Request Lease Renewal"
+        }
         style={{ padding: "15px" }}
       >
         {props.showLeaseRenewalForm ? (
@@ -19,15 +23,24 @@ const LeaseRenewalDialog = (props) => {
             setAlertModalTitle={props.setAlertModalTitle}
             setAlertModalMessage={props.setAlertModalMessage}
             setShowAlertModal={props.setShowAlertModal}
+            isOwnerMode={props.isOwnerMode}
           />
         ) : (
           <div className="row">
             <div className="col-md-12">
-              <p className="text-black" style={{ fontSize: "12pt" }}>
-                Please note that your lease renewal may be subject to a change
-                in rent, security deposit, utility charges, and other lease
-                terms.
-              </p>
+              {props.isOwnerMode ? (
+                <p className="text-black" style={{ fontSize: "12pt" }}>
+                  You are about to renew the lease for your tenant. Please
+                  review the lease renewal terms on the next page before
+                  sending.
+                </p>
+              ) : (
+                <p className="text-black" style={{ fontSize: "12pt" }}>
+                  You are about to request a lease renewal from your landlord.
+                  Please review the lease renewal terms below before sending the
+                  request.
+                </p>
+              )}
               <UIButton
                 btnText="Continue"
                 onClick={() => {

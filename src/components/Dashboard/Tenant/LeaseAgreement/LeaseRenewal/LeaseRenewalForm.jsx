@@ -30,9 +30,8 @@ import {
   validateForm,
 } from "../../../../../helpers/formValidation";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
-
+import { useNavigate } from "react-router";
 const LeaseRenewalForm = (props) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
     "Desired Move In Date",
@@ -41,6 +40,8 @@ const LeaseRenewalForm = (props) => {
     "Comments",
     "Submit",
   ]);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [unitMode, setUnitMode] = useState("current_unit"); //This is the unit that the tenant is currently renting
   const [selectedUnit, setSelectedUnit] = useState(null); //This is the unit that the tenant has selected to renew their lease to
   const [leaseMode, setLeaseMode] = useState("current_lease");
@@ -139,7 +140,8 @@ const LeaseRenewalForm = (props) => {
       onChange: (e) =>
         handleChange(e, step3FormData, setStep3FormData, step3FormInputs),
       validations: {
-        required: true,
+        required: props.isOwnerMode ? false : true,
+        // required: true,
         regex: /^[a-zA-Z0-9\s]*$/,
         errorMessage: "Please enter a comment",
       },
@@ -156,10 +158,20 @@ const LeaseRenewalForm = (props) => {
   ];
 
   const handleNext = () => {
-    setStep(step + 1);
+    //If props.isOwnerMode is true, then we skip the comments step
+    if (step === 2 && props.isOwnerMode) {
+      setStep(step + 2);
+    } else {
+      setStep(step + 1);
+    }
   };
   const handleBack = () => {
-    setStep(step - 1);
+    //If props.isOwnerMode is true, then we skip the comments step
+    if (step === 4 && props.isOwnerMode) {
+      setStep(step - 2);
+    } else {
+      setStep(step - 1);
+    }
   };
 
   const handleChangeLeaseMode = (event) => {
@@ -205,7 +217,7 @@ const LeaseRenewalForm = (props) => {
             ).value
           : step1FormData.rent_frequency,
       comments: step3FormData.comments,
-      tenant: authUser.id,
+      tenant: props.leaseAgreement.tenant.id,
       owner: props.leaseAgreement.owner.id,
       rental_unit:
         unitMode === "current_unit"
@@ -226,35 +238,44 @@ const LeaseRenewalForm = (props) => {
       props.setShowAlertModal(true);
       return;
     }
-    createLeaseRenewalRequest(payload).then((res) => {
-      if (res.status === 201) {
-        props.setShowLeaseRenewalDialog(false);
-        props.setAlertModalTitle("Lease Renewal Request Submitted");
-        props.setAlertModalMessage(
-          "Your lease renewal request has been submitted successfully. You will be notified once your owner has responded to your request."
-        );
-        props.setShowAlertModal(true);
-      } else {
+    createLeaseRenewalRequest(payload)
+      .then((res) => {
+        if (res.status === 201) {
+          if (props.isOwnerMode) {
+            console.log("Creaente Owner lease rebewak reqyest teres ",res);
+            //If the user is an owner, then redirect them to the lease documents page
+            navigate(`/dashboard/owner/lease-renewal-requests/${res.data.id}`);
+          } else {
+            props.setShowLeaseRenewalDialog(false);
+            props.setAlertModalTitle("Lease Renewal Request Submitted");
+            props.setAlertModalMessage(
+              "Your lease renewal request has been submitted successfully. You will be notified once your owner has responded to your request."
+            );
+            props.setShowAlertModal(true);
+          }
+        } else {
+          props.setShowLeaseRenewalDialog(false);
+          props.setAlertModalTitle("Lease Renewal Request Error");
+          props.setAlertModalMessage(
+            res.response.data?.message
+              ? res.response.data?.message
+              : "Your lease renewal request has failed to submit. Please try again later."
+          );
+          props.setShowAlertModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating lease renewal request:", error);
         props.setShowLeaseRenewalDialog(false);
         props.setAlertModalTitle("Lease Renewal Request Error");
         props.setAlertModalMessage(
-          res.response.data?.message
-            ? res.response.data?.message
-            : "Your lease renewal request has failed to submit. Please try again later."
+          "Your lease renewal request has failed to submit. Please try again later."
         );
         props.setShowAlertModal(true);
-      }
-    }).catch((error) => {
-      console.error("Error creating lease renewal request:", error);
-      props.setShowLeaseRenewalDialog(false);
-      props.setAlertModalTitle("Lease Renewal Request Error");
-      props.setAlertModalMessage(
-        "Your lease renewal request has failed to submit. Please try again later."
-      );
-      props.setShowAlertModal(true);
-    }).finally(() => {
-      setIsLoading(false);
-    });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -271,7 +292,10 @@ const LeaseRenewalForm = (props) => {
 
   return (
     <div>
-      <ProgressModal open={isLoading} title="Submitting Lease Renewal Request..." />
+      <ProgressModal
+        open={isLoading}
+        title="Submitting Lease Renewal Request..."
+      />
       <UIStepper steps={steps} step={step} />
       <form style={{ margin: "20px 0", width: "100%" }}>
         <div style={{ margin: "15px 0" }}>
@@ -641,55 +665,31 @@ const LeaseRenewalForm = (props) => {
                   color: uiGreen,
                 }}
               />
-              <h5>Submit Lease Renewal Request?</h5>
-              <p
-                className="text-black"
-                style={{ textAlign: "center", marginBottom: "30px" }}
-              >
-                Are you sure you want to submit this lease renewal request? You
-                will not be able to edit this request once it has been
-                submitted. Below is a summary of your lease renewal request.
-                Please review before submitting.
-              </p>
-              {/* <div
-                className="row"
-                style={{
-                  maxWidth: "550px",
-                }}
-              >
-                <div className="col-12 col-sm-6 col-md-4">
-                  <h5>Lease Term</h5>
-                  <p className="text-black">
-                    {leaseMode === "current_lease"
-                      ? currentLeaseTerms.find((term) => term.name === "term")
-                          .value
-                      : step1FormData.leaseTerm}
-                  </p>
-                </div>
-                <div className="col-12 col-sm-6 col-md-4">
-                  <h5>Unit</h5>
-                  <p className="text-black">
-                    {unitMode === "current_unit"
-                      ? props.leaseAgreement.rental_unit.name
-                      : units.find((unit) => unit.id === selectedUnit)?.name}
-                  </p>
-                </div>{" "}
-                <div className="col-12 col-sm-6 col-md-4">
-                  <h5>Desired Move In Date</h5>
-                  <p className="text-black">{step0FormData.moveInDate}</p>
-                </div>
-                <div className="col-12 col-sm-12 col-md-12">
-                  <h5>Comments</h5>
-                  <div style={{ width: "100%" }}>
-                    <p
-                      className="text-black"
-                      style={{ width: "524px", overflowWrap: "break-word" }}
-                    >
-                      {step3FormData.comments}
-                    </p>
-                  </div>
-                </div>
-              </div> */}
+              {props.isOwnerMode ? (
+                <h5>Renew Lease Agreement?</h5>
+              ) : (
+                <h5>Submit Lease Renewal Request?</h5>
+              )}
+              {props.isOwnerMode ? (
+                <p
+                  className="text-black"
+                  style={{ textAlign: "center", marginBottom: "30px" }}
+                >
+                  Once you aubmit this lease renewal you will be redirected to
+                  another page to manage the lease documents. Are you sure you
+                  want to continue?
+                </p>
+              ) : (
+                <p
+                  className="text-black"
+                  style={{ textAlign: "center", marginBottom: "30px" }}
+                >
+                  Are you sure you want to submit this lease renewal request?
+                  You will not be able to edit this request once it has been
+                  submitted. Below is a summary of your lease renewal request.
+                  Please review before submitting.
+                </p>
+              )}
             </Stack>
           )}
         </div>
