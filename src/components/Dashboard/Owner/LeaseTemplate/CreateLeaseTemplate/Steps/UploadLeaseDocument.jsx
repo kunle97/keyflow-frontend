@@ -93,11 +93,7 @@ const UploadLeaseDocument = (props) => {
       if (res.status === 201) {
         setIframeUrl(res.url);
         props.setTemplateId(res.template_id);
-        console.log("template id", res.template_id);
-        console.log("template id state", props.templateId);
         setRenderIframe(true);
-        console.log(iframeUrl);
-        setIsLoading(false);
         setAlertTitle("Signature Field Notice");
         setAlertMessage(
           "When editing the document, please ensure that you add a signature for both yourself (the owner) and the tenant. Failing to do so will result in an unuseable lease agreement document"
@@ -143,6 +139,7 @@ const UploadLeaseDocument = (props) => {
             src={iframeUrl}
             width="100%"
             height={isMobile ? "500px" : "900px"}
+            onLoad={() => setIsLoading(false)}
           />
           {/* <StepControl
             step={props.step}
