@@ -23,13 +23,7 @@ import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router";
-import {
-  Alert,
-  AlertTitle,
-  CircularProgress,
-  FormControlLabel,
-  Stack,
-} from "@mui/material";
+import { Alert, AlertTitle, Stack } from "@mui/material";
 import UISwitch from "../UIComponents/UISwitch";
 import UITable from "../UIComponents/UITable/UITable";
 import UIPrompt from "../UIComponents/UIPrompt";
@@ -53,6 +47,9 @@ const TenantDashboard = () => {
   const navigate = useNavigate();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+  const [autoRenewResonse, setAutoRenewResponse] = useState(null);
+  const [showSignConfirmModal, setShowSignConfirmModal] = useState(false);
+  const [signLink, setSignLink] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [unit, setUnit] = useState(null);
@@ -278,66 +275,83 @@ const TenantDashboard = () => {
       getTransactionsByTenant(authUser.tenant_id).then((res) => {
         setTransactions(res.data);
       });
-
-      //Retrieve the unit
-      getTenantDashboardData().then((res) => {
-        console.log("Tenant Dashboard Data", res);
-        setTenantData(res);
-        setUnit(res.unit);
-        setLeaseAgreement(res.lease_agreement);
-        setCurrentBalance(res.current_balance);
-        setLateFees(res.late_fees);
-        setAnnouncements(res.announcements);
-
-        //Check if lease agreement endate is in 2 months or less, if so show confirm modal
-        if (res.lease_agreement) {
-          const endDate = new Date(res.lease_agreement.end_date);
-          const today = new Date();
-          const diffTime = Math.abs(endDate - today);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          getTenantLeaseRenewalRequests()
-            .then((res) => {
-              let lease_renewal_requests = res.data;
-
-              let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
-                (lease_renewal_request) => {
-                  let lease_renewal_request_created_at = new Date(
-                    lease_renewal_request.move_in_date
-                  );
-                  return lease_renewal_request_created_at > endDate;
-                }
-              );
-
-              if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
-                setConfirmModalTitle("Lease Renewal");
-                setConfirmModalMessage(
-                  "Your lease agreement is about to expire. Would you like to renew your lease?"
-                );
-                setConfirmButtonText("Renew Lease");
-                setCancelButtonText("Not Now");
-                //Set confirm action to a function that will navigate
-                const handleConfirmAction = () => {
-                  navigate("/dashboard/tenant/my-lease");
-                };
-                setConfirmAction(() => handleConfirmAction);
-                setShowConfirmModal(true);
+        //Retrieve the unit
+        getTenantDashboardData()
+          .then((res) => {
+            console.log("Tenant Dashboard Data", res);
+            setTenantData(res);
+            setUnit(res.unit);
+            setLeaseAgreement(res.lease_agreement);
+            setCurrentBalance(res.current_balance);
+            setLateFees(res.late_fees);
+            setAnnouncements(res.announcements);
+            if (res.auto_renew_response) {
+              setAutoRenewResponse(res.auto_renew_response);
+              if (res.auto_renew_response.keyflow_sign_link) {
+                setSignLink(res.auto_renew_response.keyflow_sign_link);
+                setShowSignConfirmModal(true);
               }
-            })
-            .catch((error) => {
-              // Handle any errors from getTenantLeaseRenewalRequests()
-              console.error(error);
-            });
-        }
+            }
+            //Check if lease agreement endate is in 2 months or less, if so show confirm modal
+            if (res.lease_agreement) {
+              const endDate = new Date(res.lease_agreement.end_date);
+              const today = new Date();
+              const diffTime = Math.abs(endDate - today);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              getTenantLeaseRenewalRequests()
+                .then((res) => {
+                  let lease_renewal_requests = res.data;
 
-        setLeaseTemplate(res.lease_template);
-        if (res.lease_agreement) {
-          //Retrieve next payment date
-          getNextPaymentDate(authUser.id).then((res) => {
-            console.log("nExt pay date data", res);
-            setNextPaymentDate(res.data.next_payment_date);
+                  let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
+                    (lease_renewal_request) => {
+                      let lease_renewal_request_created_at = new Date(
+                        lease_renewal_request.move_in_date
+                      );
+                      return lease_renewal_request_created_at > endDate;
+                    }
+                  );
+
+                  if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
+                    setConfirmModalTitle("Lease Renewal");
+                    setConfirmModalMessage(
+                      "Your lease agreement is about to expire. Would you like to renew your lease?"
+                    );
+                    setConfirmButtonText("Renew Lease");
+                    setCancelButtonText("Not Now");
+                    //Set confirm action to a function that will navigate
+                    const handleConfirmAction = () => {
+                      navigate("/dashboard/tenant/my-lease");
+                    };
+                    setConfirmAction(() => handleConfirmAction);
+                    setShowConfirmModal(true);
+                  }
+                })
+                .catch((error) => {
+                  // Handle any errors from getTenantLeaseRenewalRequests()
+                  console.error(error);
+                });
+            }
+
+            setLeaseTemplate(res.lease_template);
+            if (res.lease_agreement) {
+              //Retrieve next payment date
+              getNextPaymentDate(authUser.id).then((res) => {
+                console.log("nExt pay date data", res);
+                setNextPaymentDate(res.data.next_payment_date);
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            setAlertMessage(
+              "An error occurred while fetching data. Please try again."
+            );
+            setAlertTitle("Error");
+            setShowAlert(true);
+          })
+          .finally(() => {
+            setIsLoadingPage(false);
           });
-        }
-      });
       //Retrieve invoices
       getTenantInvoices().then((res) => {
         let invoicesDue = getDueInvoices(res.invoices.data.reverse());
@@ -357,15 +371,14 @@ const TenantDashboard = () => {
       setAlertTitle("Error");
       setShowAlert(true);
     } finally {
-      setIsLoadingPage(false);
     }
   }, []);
 
   return (
     <>
       {isLoadingPage ? (
-        <UIProgressPrompt 
-          title="Loading Dashboard..." 
+        <UIProgressPrompt
+          title="Loading Dashboard..."
           message="Please wait while we load your dashboard"
         />
       ) : (
@@ -377,6 +390,7 @@ const TenantDashboard = () => {
             }}
             title={alertTitle}
             message={alertMessage}
+            btnText="Okay"
           />
           <Joyride
             run={runTour}
@@ -423,6 +437,21 @@ const TenantDashboard = () => {
             }}
             handleCancel={() => {
               setShowConfirmModal(false);
+            }}
+          />
+          <ConfirmModal
+            open={showSignConfirmModal}
+            onClose={() => {}}
+            title="Sign Lease Renewal"
+            message="Your lease agreement is ready for renewal. Click the button below to sign your lease agreement."
+            cancelBtnText="Not Now"
+            confirmBtnText="Sign Lease"
+            handleConfirm={() => {
+              navigate(signLink);
+              setShowSignConfirmModal(false);
+            }}
+            handleCancel={() => {
+              setShowSignConfirmModal(false);
             }}
           />
           <AlertModal
@@ -591,7 +620,14 @@ const TenantDashboard = () => {
                   }
                   title="No Active Lease"
                   message="You do not have an active lease. Please contact your owner to get started."
-                  body={<UIButton btnText="Apply for Lease" />}
+                  body={
+                    <UIButton
+                      btnText="Pending Lease Renewals"
+                      onClick={() => {
+                        navigate("/dashboard/tenant/lease-renewal-requests");
+                      }}
+                    />
+                  }
                 />
               )}
             </div>

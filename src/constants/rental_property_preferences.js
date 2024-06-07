@@ -26,4 +26,13 @@ export const defaultPropertyPreferences = [
         value: true,
         description: "Indicates if the owner is accepting lease cancellations for this property",
     },
+    {
+        type: "unit_preferences",
+        hidden: false,
+        label: "Allow Lease Auto Renewal",
+        name: "allow_lease_auto_renewal",
+        inputType: "switch",
+        value: true,
+        description: "Indicates if the owner is allowing tenants in subsequent units to enable auto renewal of their lease",
+    },
 ];

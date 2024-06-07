@@ -35,7 +35,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "./constants";
 import AddPaymentMethod from "./components/Dashboard/AddPaymentMethod";
 import PageNotFound from "./components/Errors/PageNotFound";
-import MyLeaseAgreement from "./components/Dashboard/Tenant/LeaseAgreement/MyLeaseAgreement";
+import MyLeaseAgreement from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreementDetail";
 import OwnerTransactions from "./components/Dashboard/Owner/Transactions/OwnerTransactions";
 import OwnerTransactionDetail from "./components/Dashboard/Owner/Transactions/OwnerTransactionDetail";
 import OwnerMaintenanceRequests from "./components/Dashboard/Owner/MaintenaceRequests/OwnerMaintenanceRequests";
@@ -92,6 +92,7 @@ import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accou
 import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
 import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
 import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
+import TenantLeaseAgreements from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreements";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -438,12 +439,25 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/tenant/my-lease",
+    path: "/dashboard/tenant/lease-agreements/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyLeaseAgreement />
       </DashboardProtectedRoute>
     ),
+  },
+  {
+    path: "/dashboard/tenant/lease-agreements/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantLeaseAgreements />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Lease Agreements",
+    description: "Manage your lease agreements",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
   },
   {
     path: "/dashboard/tenant/bills/",
@@ -509,6 +523,7 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
+
   {
     path: "/dashboard/owner/lease-agreements/",
     element: withDashboardContainer(
@@ -782,7 +797,7 @@ export const routes = [
     isSearchable: false,
     label: "Announcement",
     description: "Manage your announcement",
-    isQuickLink: false, 
+    isQuickLink: false,
   },
   //Prototype routes
   {

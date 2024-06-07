@@ -51,6 +51,7 @@ const LeaseCancellationRequestGeneratorForm = (props) => {
         title={alertModalTitle}
         message={alertModalMessage}
         onClick={() => setAlertModalOpen(false)}
+        btnText="Okay"
       />
       <Stack
         direction="row"
