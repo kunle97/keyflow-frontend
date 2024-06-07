@@ -149,3 +149,34 @@ export async function updateTenantPreferences(data) {
     return error.response;
   }
 }
+
+//Create a function that allows an owner to update a tenant's auto renew status using the endpoint /tenants/{tenant_id}/update-auto-renew-status/
+export async function updateTenantAutoRenewStatus(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/tenants/${data.tenant_id}/update-auto-renew-status/`, data)
+      .then((res) => {
+        console.log(res);
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Tenant Auto Renew Status Error: ", error);
+    return error.response;
+  }
+}
+//Create a function that creates invoices for a tenant after signing a lease agreement using the endpoint /tenants/create-invoices-for-renewal/ 
+export async function createInvoicesForRenewal(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/create-rent-invoices-for-tenant-renewal/`, data)
+      .then((res) => {
+        console.log(res);
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Create Invoices For Renewal Error: ", error);
+    return error.response;
+  }
+}

@@ -87,9 +87,7 @@ const AlertModal = (props) => {
           )}
 
           {(!props.confirmCheckbox || disabled) && (
-            <div
-            style={{width:"100%"}}
-            >
+            <div style={{ width: "100%" }}>
               {props.to ? (
                 <a href={props.to}>
                   <Button
@@ -98,7 +96,7 @@ const AlertModal = (props) => {
                     variant="contained"
                     data-testid="alert-modal-button"
                   >
-                    {props.btnText}
+                    {props.btnText ? props.btnText : "Okay"}
                   </Button>
                 </a>
               ) : (
@@ -114,7 +112,7 @@ const AlertModal = (props) => {
                   variant="contained"
                   data-testid="alert-modal-button"
                 >
-                  {props.btnText}
+                  {props.btnText ? props.btnText : "Okay"}
                 </Button>
               )}
             </div>

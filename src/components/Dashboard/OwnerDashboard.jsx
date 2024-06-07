@@ -766,6 +766,7 @@ const OwnerDashboard = () => {
         onClick={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
+        btnText="Okay"
       />
       <ConfirmModal
         open={stripeOnboardingPromptOpen}

@@ -1,18 +1,21 @@
 import React from "react";
 import { useState } from "react";
-import { getTenantDashboardData } from "../../../../api/tenants";
+import {
+  getTenantDashboardData,
+  updateTenantAutoRenewStatus,
+} from "../../../../../api/tenants";
 import { useEffect } from "react";
-import UIButton from "../../UIComponents/UIButton";
-import AlertModal from "../../UIComponents/Modals/AlertModal";
-import UIPrompt from "../../UIComponents/UIPrompt";
+import UIButton from "../../../UIComponents/UIButton";
+import AlertModal from "../../../UIComponents/Modals/AlertModal";
+import UIPrompt from "../../../UIComponents/UIPrompt";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { uiGreen } from "../../../../constants";
+import { uiGreen } from "../../../../../constants";
 import { Stack } from "@mui/material";
-import LeaseCancellationDialog from "./LeaseCancellation/LeaseCancellationDialog";
-import LeaseRenewalDialog from "./LeaseRenewal/LeaseRenewalDialog";
-import { getTenantLeaseCancellationRequests } from "../../../../api/lease_cancellation_requests";
-import { getTenantLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
-import { getTenantInvoices } from "../../../../api/tenants";
+import LeaseCancellationDialog from "../LeaseCancellation/LeaseCancellationDialog";
+import LeaseRenewalDialog from "../LeaseRenewal/LeaseRenewalDialog";
+import { getTenantLeaseCancellationRequests } from "../../../../../api/lease_cancellation_requests";
+import { getTenantLeaseRenewalRequests } from "../../../../../api/lease_renewal_requests";
+import { getTenantInvoices } from "../../../../../api/tenants";
 import { useNavigate } from "react-router";
 import Joyride, {
   ACTIONS,
@@ -21,8 +24,12 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
-import UIHelpButton from "../../UIComponents/UIHelpButton";
-const MyLeaseAgreement = () => {
+import UIHelpButton from "../../../UIComponents/UIHelpButton";
+import UISwitch from "../../../UIComponents/UISwitch";
+import { useParams } from "react-router";
+import { getLeaseAgreementById } from "../../../../../api/lease_agreements";
+const TenantLeaseAgreementDetail = () => {
+  const { id } = useParams();
   const [unit, setUnit] = useState(null);
   const [unitPreferences, setUnitPreferences] = useState(null);
   const navigate = useNavigate();
@@ -37,6 +44,7 @@ const MyLeaseAgreement = () => {
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [
     hasExistingLeaseCancellationRequest,
     setHasExistingLeaseCancellationRequest,
@@ -96,14 +104,16 @@ const MyLeaseAgreement = () => {
       (term) => term.name === "lease_cancellation_notice_period"
     ).value;
     let leaseEndDate = new Date(leaseAgreement.end_date);
-  
+
     // Calculate date notice period before the lease end date
     let noticePeriodBeforeEndDate = new Date(leaseEndDate);
-    noticePeriodBeforeEndDate.setMonth(noticePeriodBeforeEndDate.getMonth() - cancellationNoticePeriod);
-  
+    noticePeriodBeforeEndDate.setMonth(
+      noticePeriodBeforeEndDate.getMonth() - cancellationNoticePeriod
+    );
+
     console.log("Today: ", today);
     console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
-  
+
     // Check if today is before the notice period starts
     if (today < noticePeriodBeforeEndDate) {
       setAlertModalTitle("Lease Cancellation Notice Period");
@@ -132,7 +142,7 @@ const MyLeaseAgreement = () => {
       setShowLeaseCancellationFormDialog(true);
     }
   };
-  
+
   const openRenewalDialog = () => {
     let today = new Date();
     let leaseTerms = JSON.parse(unit.lease_terms);
@@ -140,14 +150,16 @@ const MyLeaseAgreement = () => {
       (term) => term.name === "lease_renewal_notice_period"
     ).value;
     let leaseEndDate = new Date(leaseAgreement.end_date);
-  
+
     // Calculate date notice period before the lease end date
     let noticePeriodBeforeEndDate = new Date(leaseEndDate);
-    noticePeriodBeforeEndDate.setMonth(noticePeriodBeforeEndDate.getMonth() - renewalNoticePeriod);
-  
+    noticePeriodBeforeEndDate.setMonth(
+      noticePeriodBeforeEndDate.getMonth() - renewalNoticePeriod
+    );
+
     console.log("Today: ", today);
     console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
-  
+
     // Check if today's date is within the notice period threshold before the end of the lease
     if (today < noticePeriodBeforeEndDate) {
       setAlertModalTitle("Lease Renewal Notice Period");
@@ -173,17 +185,42 @@ const MyLeaseAgreement = () => {
       setShowLeaseRenewalDialog(true);
     }
   };
-  
+  const changeAutoRenewal = (event) => {
+    setAutoRenewalEnabled(event.target.checked);
+    //Use the updateLEaseAgreement function to update the lease agreement with the new auto renewal status
+    updateTenantAutoRenewStatus({
+      auto_renew_lease_is_enabled: event.target.checked,
+      tenant_id: leaseAgreement.tenant.id,
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.status !== 200) {
+          setAlertModalTitle("Error");
+          setAlertModalMessage(
+            "An error occurred while updating the lease agreement's auto renewal status"
+          );
+          setShowAlertModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertModalTitle("Error");
+        setAlertModalMessage(
+          "An error occurred while updating the lease agreement's auto renewal status"
+        );
+        setShowAlertModal(true);
+      });
+  };
+
   useEffect(() => {
     try {
       //Retrieve the unit
-      getTenantDashboardData().then((res) => {
-        console.log(res);
-        setUnit(res.unit);
-        setUnitPreferences(JSON.parse(res.unit.preferences));
-        console.log("Unit Preferences", JSON.parse(res.unit.preferences));
-        setLeaseAgreement(res.lease_agreement);
-        setLeaseTemplate(res.lease_template);
+      getLeaseAgreementById(id).then((res) => {
+        setLeaseAgreement(res.data);
+        setLeaseTemplate(res.data.lease_template);
+        setUnit(res.data.rental_unit);
+        setAutoRenewalEnabled(res.data.auto_renew_lease_is_enabled);
+        setUnitPreferences(JSON.parse(res.data.rental_unit.preferences));
       });
       //Using the getTententLeaseCancellationRequests function check if the user has any existing lease cancellation requests. If they do display an error message and do not allow them to submit a new request and return from the function.
       getTenantLeaseCancellationRequests().then((res) => {
@@ -267,9 +304,26 @@ const MyLeaseAgreement = () => {
           <div className="col-md-4">
             <div className="card my-3 lease-agreement-overview-section">
               <div className="card-body">
-                <h4 className="card-title text-black mb-4">
+                <h4 className="card-title text-black ">
                   Lease Agreement Overview
                 </h4>
+                {/* {unitPreferences.find(
+                  (preference) => preference.name === "allow_lease_auto_renewal"
+                ).value && (
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignContent={"center"}
+                    alignItems={"center"}
+                    sx={{ marginBottom: "14px" }}
+                  >
+                    <span className="text-black">Enable Auto Renewal </span>
+                    <UISwitch
+                      value={autoRenewalEnabled}
+                      onChange={changeAutoRenewal}
+                    />
+                  </Stack>
+                )} */}
                 <div className="row">
                   <div className="col-sm-12 col-md-6 mb-4 text-black">
                     <h6 className="rental-application-lease-heading">
@@ -501,4 +555,4 @@ const MyLeaseAgreement = () => {
   );
 };
 
-export default MyLeaseAgreement;
+export default TenantLeaseAgreementDetail;

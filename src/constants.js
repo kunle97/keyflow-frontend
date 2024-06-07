@@ -271,14 +271,14 @@ export const tenantMenuItems = [
     icon: "fas fa-tools",
   },
   {
-    label: "My Lease Agreement",
+    label: "My Lease Agreements",
     link: "#",
     icon: "fas fa-user-circle",
     muiIcon: <DescriptionIcon sx={muiIconStyle} />,
     subMenuItems: [
       {
-        label: "View Lease Agreement",
-        link: "/dashboard/tenant/my-lease",
+        label: "View Lease Agreements",
+        link: "/dashboard/tenant/lease-agreements",
         icon: "fas fa-tools",
         isSearchable: true,
       },
