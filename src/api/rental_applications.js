@@ -192,3 +192,41 @@ export async function deleteOtherRentalApplications(rentalAppId) {
     return error.response;
   }
 }
+
+//Create a function to archive a rental application using the POST endpoint  /rental-applications/{id}/archive-rental-application/
+export async function archiveRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/rental-applications/${rentalAppId}/archive-rental-application/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application archived.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Archive Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to unarchive a rental application using the POST endpoint  /rental-applications/{id}/unarchive-rental-application/
+export async function unarchiveRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/rental-applications/${rentalAppId}/unarchive-rental-application/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application unarchived.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Unarchive Rental Application Error: ", error);
+    return error.response;
+  }
+}

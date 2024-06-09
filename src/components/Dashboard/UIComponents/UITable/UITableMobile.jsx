@@ -147,6 +147,7 @@ const UITableMobile = (props) => {
             ordering: orderingField,
             search: searchField,
             limit: limit,
+            ...props.additionalParams
           },
         })
         .then((res) => {

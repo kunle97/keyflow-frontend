@@ -93,6 +93,7 @@ import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages
 import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
 import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
 import TenantLeaseAgreements from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreements";
+import ArchivedRentalApplications from "./components/Dashboard/Owner/RentalApplications/ArchivedRentalApplications";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -651,6 +652,19 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Rental Applications",
+    description: "Manage your rental applications",
+    isQuickLink: true,
+    muiIcon: <ReceiptLongOutlined />,
+  },
+  {
+    path: "/dashboard/owner/archived-rental-applications/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ArchivedRentalApplications />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Archived Rental Applications",
     description: "Manage your rental applications",
     isQuickLink: true,
     muiIcon: <ReceiptLongOutlined />,

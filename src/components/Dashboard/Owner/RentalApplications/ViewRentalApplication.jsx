@@ -5,19 +5,17 @@ import { useParams } from "react-router";
 import { createLeaseAgreement } from "../../../../api/lease_agreements";
 import {
   approveRentalApplication,
+  archiveRentalApplication,
   deleteOtherRentalApplications,
   getRentalApplicationById,
   rejectRentalApplication,
+  unarchiveRentalApplication,
 } from "../../../../api/rental_applications";
 import { getUnit } from "../../../../api/units";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { sendDocumentToUser } from "../../../../api/boldsign";
-import { authenticatedInstance } from "../../../../api/api";
 import UITabs from "../../UIComponents/UITabs";
-import UIButton from "../../UIComponents/UIButton";
-import BackButton from "../../UIComponents/BackButton";
 import useScreen from "../../../../hooks/useScreen";
 import Joyride, {
   ACTIONS,
@@ -33,6 +31,8 @@ const ViewRentalApplication = () => {
   const { isMobile } = useScreen();
   const [unit, setUnit] = useState(null);
   const [rentalApplication, setRentalApplication] = useState({});
+  const [rentalApplicationIsArchived, setRentalApplicationIsArchived] =
+    useState(false);
   const [employmentHistory, setEmploymentHistory] = useState({});
   const [residentialHistory, setResidentialHistory] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -117,6 +117,8 @@ const ViewRentalApplication = () => {
   const handleChangeTabPage = (event, newValue) => {
     setTabPage(newValue);
   };
+
+  const handleArchiveRentalApplication = async () => {};
 
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
@@ -205,6 +207,7 @@ const ViewRentalApplication = () => {
         //WARNING THIS API CALL REQUIRES A TOKEN AND WILL NOT WORK FOR USERS NOT LOGGED IN
         if (res) {
           setRentalApplication(res);
+          setRentalApplicationIsArchived(res.is_archived);
           setUnit(res.unit);
           //Check if res.employment_history is an oject if so parse it if string leave it
           if (isJsonString(res.employment_history)) {
@@ -303,12 +306,15 @@ const ViewRentalApplication = () => {
                 <span
                   style={{ marginRight: "15px" }}
                 >{`${rentalApplication.first_name} ${rentalApplication.last_name}'s Application`}</span>
-                <span>
+                <span style={{ marginRight: "15px" }}>
                   {rentalApplication.is_approved ? (
                     <Chip label="Approved" color="success" />
                   ) : (
                     <Chip label="Pending" color="warning" />
                   )}
+                </span>
+                <span>
+                  {rentalApplicationIsArchived && <Chip label="Archived" />}
                 </span>
               </>
             }
@@ -348,12 +354,34 @@ const ViewRentalApplication = () => {
                 hidden: rentalApplication.is_approved,
               },
               {
-                label: `${
-                  rentalApplication.is_archived ? "Unarchive" : "Archive"
-                }  Rental Application`,
+                label: `Archive Rental Application`,
                 action: () => {
-                  console.log("Archive Rental Application");
+                  archiveRentalApplication(id).then((res) => {
+                    if (res.status === 200) {
+                      console.log(res);
+                      setRentalApplicationIsArchived(true);
+                    } else {
+                      setAlertModalTitle("An error occurred");
+                      setOpenAlertModal(true);
+                    }
+                  });
                 },
+                hidden: rentalApplicationIsArchived,
+              },
+              {
+                label: `Unarchive Rental Application`,
+                action: () => {
+                  unarchiveRentalApplication(id).then((res) => {
+                    if (res.status === 200) {
+                      console.log(res);
+                      setRentalApplicationIsArchived(false);
+                    } else {
+                      setAlertModalTitle("An error occurred");
+                      setOpenAlertModal(true);
+                    }
+                  });
+                },
+                hidden: !rentalApplicationIsArchived,
               },
             ]}
             style={{ marginBottom: "20px" }}
