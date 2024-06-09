@@ -106,6 +106,7 @@ const UITable = (props) => {
           .get(endpoint, {
             params: {
               search: query,
+              ...props.additonalParams,
             },
           })
           .then((res) => {

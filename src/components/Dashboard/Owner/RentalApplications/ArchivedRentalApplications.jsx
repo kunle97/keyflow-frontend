@@ -16,7 +16,7 @@ import { uiGreen } from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
-const RentalApplications = () => {
+const ArchivedRentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -183,7 +183,7 @@ const RentalApplications = () => {
       />
       {isMobile ? (
         <UITableMobile
-          tableTitle={"Rental Applications"}
+          tableTitle={"Archived Rental Applications"}
           endpoint={`/rental-applications/`}
           createInfo={(row) => `${row.first_name} ${row.last_name}`}
           createTitle={(row) => `${row.unit.name}`}
@@ -191,7 +191,7 @@ const RentalApplications = () => {
             `${row.is_approved ? "Approved" : "Pending"}`
           }
           additonalParams={{
-            is_archived: false,
+            is_archived: true,
           }}
           orderingFields={[
             { field: "created_at", label: "Date Submitted (Ascending)" },
@@ -225,10 +225,10 @@ const RentalApplications = () => {
           columns={columns}
           options={options}
           additonalParams={{
-            is_archived: false,
+            is_archived: true,
           }}
           endpoint={`/rental-applications/`}
-          title="Rental Applications"
+          title="Archived Rental Applications"
           detailURL="/dashboard/owner/rental-applications/"
           showCreate={false}
           menuOptions={[
@@ -242,17 +242,15 @@ const RentalApplications = () => {
           ]}
         />
       )}
-      <Stack 
-        direction="row" 
+      <Stack
+        direction="row"
         spacing={2}
-        sx={{ marginTop: "10px", px: "15px"}}
-        justifyContent={"flex-end"}  
+        sx={{ marginTop: "10px", px: "15px" }}
+        justifyContent={"flex-end"}
       >
         <UIButton
-          btnText="Archived Rental Applications"
-          onClick={() =>
-            navigate("/dashboard/owner/archived-rental-applications")
-          }
+          btnText="Pending Rental Applications"
+          onClick={() => navigate("/dashboard/owner/rental-applications/")}
         />
       </Stack>
       <UIHelpButton onClick={handleClickStart} />
@@ -260,4 +258,4 @@ const RentalApplications = () => {
   );
 };
 
-export default RentalApplications;
+export default ArchivedRentalApplications;
