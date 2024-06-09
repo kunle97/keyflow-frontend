@@ -7,7 +7,6 @@ import { uiGreen, uiGrey, defaultWhiteInputStyle } from "../../../constants";
 import { Input, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
-import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import { getTenantsEmails, getTenantsUsernames } from "../../../api/api";
 import {
@@ -355,7 +354,7 @@ const TenantLogin = () => {
                 <Button
                   data-testid="login-button"
                   className="d-block w-100 ui-btN"
-                  // type="submit"
+                  type="button"
                   style={{
                     backgroundColor: uiGreen,
                     textTransform: "none",
@@ -364,7 +363,8 @@ const TenantLogin = () => {
                     fontWeight: "lighter",
                     margin: "25px 0",
                   }}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     const {
                       isValid: textEmailIsValid,
                       newErrors: textNewErrors,
