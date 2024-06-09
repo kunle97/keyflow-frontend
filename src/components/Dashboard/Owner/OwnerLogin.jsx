@@ -112,6 +112,7 @@ const OwnerLogin = () => {
   ];
 
   const onSubmit = async (e) => {
+    // e.preventDefault();
     setIsLoading(true);
     let payload = {
       email: formData.email,
@@ -122,13 +123,13 @@ const OwnerLogin = () => {
     try {
       const response = await login(payload);
       console.log("Login Response: ", response);
-      //if token is returned, set it in local storage
+      // if token is returned, set it in local storage
       if (response.token) {
         setRedirectURL("/dashboard/owner");
         setAuthUser(response.userData);
         setIsLoggedIn(true);
         setIsLoading(false);
-        //Navigate to dashboard
+        // Navigate to dashboard
         setOpenError(false);
         setOpen(true);
       } else {
@@ -139,14 +140,15 @@ const OwnerLogin = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      setErrMsg("An error occured. Please try again later");
+      setErrMsg("An error occurred. Please try again later");
       setIsLoading(false);
       setOpen(false);
       setOpenError(true);
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   };
+  
 
   useEffect(() => {
     getOwnersEmails()
@@ -230,83 +232,20 @@ const OwnerLogin = () => {
                 <form className="user" onSubmit={onSubmit}>
                   {process.env.REACT_APP_ENVIRONMENT === "development" ? (
                     <div>
-                      {selectFormInputs.map((input, index) => {
-                        return (
-                          <div
-                            className={`col-md-${input.colSpan} mb-3`}
-                            key={index}
-                            data-testId={`${input.dataTestId}`}
+                      {selectFormInputs.map((input, index) => (
+                        <div
+                          className={`col-md-${input.colSpan} mb-3`}
+                          key={index}
+                          data-testId={`${input.dataTestId}`}
+                        >
+                          <label
+                            className="form-label text-black"
+                            htmlFor={input.name}
                           >
-                            <label
-                              className="form-label text-black"
-                              htmlFor={input.name}
-                            >
-                              {input.label}
-                            </label>
-                            {input.type === "select" ? (
-                              <select
-                                style={{
-                                  ...defaultWhiteInputStyle,
-                                  background: uiGrey,
-                                }}
-                                type={input.type}
-                                name={input.name}
-                                onChange={input.onChange}
-                                onBlur={input.onChange}
-                                value={formData[input.name]}
-                              >
-                                <option value="" disabled selected>
-                                  Select an Email
-                                </option>
-                                {input.options.map((option, index) => {
-                                  return (
-                                    <option key={index} value={option}>
-                                      {option}
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                            ) : (
-                              <input
-                                style={{
-                                  ...defaultWhiteInputStyle,
-                                  background: uiGrey,
-                                }}
-                                type={input.type}
-                                name={input.name}
-                                onChange={input.onChange}
-                                onBlur={input.onChange}
-                                // {...register(input.name, { required: true })}
-                              />
-                            )}
-                            {errors[input.name] && (
-                              <span
-                                data-testId={input.errorMessageDataTestId}
-                                style={{ ...validationMessageStyle }}
-                              >
-                                {errors[input.name]}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="mb-3">
-                      {textformInputs.map((input, index) => {
-                        return (
-                          <div
-                            className={`col-md-${input.colSpan} mb-3`}
-                            key={index}
-                            data-testId={`${input.dataTestId}`}
-                          >
-                            <label
-                              className="form-label text-black"
-                              htmlFor={input.name}
-                            >
-                              {input.label}
-                            </label>
-                            <input
+                            {input.label}
+                          </label>
+                          {input.type === "select" ? (
+                            <select
                               style={{
                                 ...defaultWhiteInputStyle,
                                 background: uiGrey,
@@ -316,60 +255,114 @@ const OwnerLogin = () => {
                               onChange={input.onChange}
                               onBlur={input.onChange}
                               value={formData[input.name]}
+                            >
+                              <option value="" disabled selected>
+                                Select an Email
+                              </option>
+                              {input.options.map((option, index) => (
+                                <option key={index} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              style={{
+                                ...defaultWhiteInputStyle,
+                                background: uiGrey,
+                              }}
+                              type={input.type}
+                              name={input.name}
+                              onChange={input.onChange}
+                              onBlur={input.onChange}
+                              // {...register(input.name, { required: true })}
                             />
-                            {errors[input.name] && (
-                              <span
-                                data-testId={input.errorMessageDataTestId}
-                                style={{ ...validationMessageStyle }}
-                              >
-                                {errors[input.name]}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
+                          )}
+                          {errors[input.name] && (
+                            <span
+                              data-testId={input.errorMessageDataTestId}
+                              style={{ ...validationMessageStyle }}
+                            >
+                              {errors[input.name]}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      {textformInputs.map((input, index) => (
+                        <div
+                          className={`col-md-${input.colSpan} mb-3`}
+                          key={index}
+                          data-testId={`${input.dataTestId}`}
+                        >
+                          <label
+                            className="form-label text-black"
+                            htmlFor={input.name}
+                          >
+                            {input.label}
+                          </label>
+                          <input
+                            style={{
+                              ...defaultWhiteInputStyle,
+                              background: uiGrey,
+                            }}
+                            type={input.type}
+                            name={input.name}
+                            onChange={input.onChange}
+                            onBlur={input.onChange}
+                            value={formData[input.name]}
+                          />
+                          {errors[input.name] && (
+                            <span
+                              data-testId={input.errorMessageDataTestId}
+                              style={{ ...validationMessageStyle }}
+                            >
+                              {errors[input.name]}
+                            </span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
 
-                  {passwordInput.map((input, index) => {
-                    return (
-                      <div
-                        className={`col-md-${input.colSpan} mb-3`}
-                        key={index}
-                        data-testId={`${input.dataTestId}`}
+                  {passwordInput.map((input, index) => (
+                    <div
+                      className={`col-md-${input.colSpan} mb-3`}
+                      key={index}
+                      data-testId={`${input.dataTestId}`}
+                    >
+                      <label
+                        className="form-label text-black"
+                        htmlFor={input.name}
                       >
-                        <label
-                          className="form-label text-black"
-                          htmlFor={input.name}
+                        {input.label}
+                      </label>
+                      <input
+                        style={{
+                          ...defaultWhiteInputStyle,
+                          background: uiGrey,
+                        }}
+                        type={input.type}
+                        name={input.name}
+                        onChange={input.onChange}
+                        onBlur={input.onChange}
+                        value={formData[input.name]}
+                        // {...register(input.name, { required: true })}
+                      />
+                      {errors[input.name] && (
+                        <span
+                          data-testId={input.errorMessageDataTestId}
+                          style={{ ...validationMessageStyle }}
                         >
-                          {input.label}
-                        </label>
-                        <input
-                          style={{
-                            ...defaultWhiteInputStyle,
-                            background: uiGrey,
-                          }}
-                          type={input.type}
-                          name={input.name}
-                          onChange={input.onChange}
-                          onBlur={input.onChange}
-                          value={formData[input.name]}
-                          // {...register(input.name, { required: true })}
-                        />
-                        {errors[input.name] && (
-                          <span
-                            data-testId={input.errorMessageDataTestId}
-                            style={{ ...validationMessageStyle }}
-                          >
-                            {errors[input.name]}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {errors[input.name]}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                   <div className="mb-3">
                     <span>
-                      {" "}
                       <UICheckbox
                         checked={rememberMe}
                         onChange={handleCheckboxChange}
@@ -381,7 +374,7 @@ const OwnerLogin = () => {
                   <Button
                     data-testid="login-button"
                     className="d-block w-100 ui-btN"
-                    // type="submit"
+                    type="button"
                     style={{
                       backgroundColor: uiGreen,
                       textTransform: "none",
@@ -390,7 +383,9 @@ const OwnerLogin = () => {
                       fontWeight: "lighter",
                       margin: "25px 0",
                     }}
-                    onClick={() => {
+                    variant="contained"
+                    onClick={(e) => {
+                      e.preventDefault();
                       const {
                         isValid: textEmailIsValid,
                         newErrors: textNewErrors,
@@ -424,7 +419,6 @@ const OwnerLogin = () => {
                         }
                       }
                     }}
-                    variant="contained"
                   >
                     Login
                   </Button>
