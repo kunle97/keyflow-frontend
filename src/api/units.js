@@ -197,3 +197,23 @@ export async function removeUnitLeaseTemplate(unit_id) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+
+
+
+//Create a function that checks if a unit name is valid using the endpoint /units/validate-name/. The function should have the parameter: data:
+export async function validateUnitName(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/units/validate-name/`, data)
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Validate Unit Name Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}

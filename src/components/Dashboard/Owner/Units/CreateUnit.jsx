@@ -28,6 +28,7 @@ import Joyride, {
   STATUS,
   Step,
 } from "react-joyride";
+import { hasNoErrors } from "../../../../helpers/formValidation";
 const CreateUnit = () => {
   //Create a state for the form data
   const { isMobile } = useScreen();
@@ -120,31 +121,6 @@ const CreateUnit = () => {
     },
   ]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      name: `${
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.string.alpha()
-      }${
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.accountNumber(1)
-      }`,
-      beds:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 4, max: 10 }),
-      baths:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 4, max: 6 }),
-    },
-  });
 
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
@@ -317,7 +293,6 @@ const CreateUnit = () => {
               <div className="card-body">
                 <form
                   data-testid="create-unit-form"
-                  onSubmit={handleSubmit(onSubmit)}
                 >
                   <Stack
                     direction="row"
@@ -334,9 +309,6 @@ const CreateUnit = () => {
                     <div>
                       <select
                         data-testid="create-unit-property-select"
-                        {...register("rental_property", {
-                          required: "This is a required field",
-                        })}
                         name="rental_property"
                         onChange={handlePropertySelectChange}
                         className="form-control"
@@ -347,13 +319,6 @@ const CreateUnit = () => {
                       >
                         {selectedPropertyId ? (
                           <option value={selectedPropertyId}>
-                            {/* {
-                              properties.find((property) => {
-                                return (
-                                  property.id === parseInt(selectedPropertyId)
-                                );
-                              }).name
-                            } */}
                             Current Property
                           </option>
                         ) : (
@@ -368,10 +333,6 @@ const CreateUnit = () => {
                           );
                         })}
                       </select>{" "}
-                      <span style={validationMessageStyle}>
-                        {errors.rental_property &&
-                          errors.rental_property.message}
-                      </span>
                     </div>
                   </Stack>
 
@@ -385,11 +346,7 @@ const CreateUnit = () => {
                           style={{ marginBottom: "20px" }}
                           key={index}
                           id={index}
-                          register={register}
-                          unitNameErrors={errors[`unitName_${index}`]}
-                          unitBedsErrors={errors[`unitBeds_${index}`]}
-                          unitBathsErrors={errors[`unitBaths_${index}`]}
-                          unitSizeErrors={errors[`unitSize_${index}`]}
+                          property_id={selectedPropertyId}
                           unit={unit}
                           onUnitChange={(e) => handleUnitChange(e, index)}
                           addUnit={addUnit}
@@ -418,11 +375,7 @@ const CreateUnit = () => {
                         data-testid="create-unit-submit-button"
                         className="btn btn-primary ui-btn "
                         onClick={() => {
-                          if (
-                            Object.values(unitValidationErrors).every(
-                              (val) => val === undefined
-                            )
-                          ) {
+                          if (hasNoErrors(unitValidationErrors)) {
                             setIsLoading(true);
                             onSubmit();
                           } else {

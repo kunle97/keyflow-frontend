@@ -494,11 +494,17 @@ const ManageProperty = () => {
         setCsvFiles([]); //Clear the files array
       })
       .catch((err) => {
-        console.log("err", err);
+        console.log("MANAGEPROPERTY.JSX err", err);
         setResponseTitle("File Upload Error");
-        setResponseMessage(
-          "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
-        );
+        if (err.response.data.error_type === "duplicate_name_error") {
+          setResponseMessage(
+            "There was an error uploading your file(s). One or more of the unit names already exist. Please ensure that you file has unique unit names and try again."
+          );
+        } else {
+          setResponseMessage(
+            "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
+          );
+        }
         setShowFileUploadAlert(true);
         setShowCsvFileUploadDialog(false);
         setCsvFiles([]); //Clear the files array

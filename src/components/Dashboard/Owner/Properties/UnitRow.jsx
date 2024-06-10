@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { uiGreen, validationMessageStyle } from "../../../../constants";
 import { Button, Stack } from "@mui/material";
-import { triggerValidation } from "../../../../helpers/formValidation";
+import { hasNoErrors, triggerValidation } from "../../../../helpers/formValidation";
+import { validateUnitName } from "../../../../api/units";
 
 const UnitRow = (props) => {
   const { beds, baths, size, name } = props.unit;
@@ -39,8 +40,31 @@ const UnitRow = (props) => {
       placeholder: "A5",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
-        errorMessage: "Please enter a valid name for the unit",
+        // errorMessage: "Please enter a valid name for the unit",
+        validate: async (value) => {
+          let regex = /^[\s\S]*$/;
+          if (!regex.test(value)){
+            //Check errorMessage value in this object
+            props.setErrors((prevErrors) => ({
+              ...prevErrors,
+              name: "Please enter a valid name for the unit",
+            }));
+            return false;
+          }
+          let payload = {
+            name: value,
+            rental_property: parseInt(props.property_id),
+          }
+          await validateUnitName(payload).then((res) => {
+            console.log(res)
+            if (res.status === 400) {
+              props.setErrors((prevErrors) => ({
+                ...prevErrors,
+                name: "A unit with this name already exists in this property",
+              }));
+            }
+          });
+        },
       },
       dataTestId: "unit-name",
       errorMessageDataTestId: "unit-name-error",
@@ -143,7 +167,7 @@ const UnitRow = (props) => {
           //   variant="contained"
           onClick={() => {
             //Check if all the values in the array are undefined
-            if (Object.values(props.errors).every((val) => val === undefined)) {
+            if (hasNoErrors(props.errors)) {
               props.addUnit();
             }
           }}

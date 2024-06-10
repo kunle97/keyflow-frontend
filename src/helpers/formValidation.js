@@ -37,3 +37,9 @@ export const validateForm = (formData, formInputs) => {
 export const triggerValidation = (name, value, validations) => {
   return validateInput(name, value, validations);
 };
+
+
+//Create a function to check to see if there are any errors in the errors object
+export const hasNoErrors = (errors) => {
+  return Object.values(errors).every((val) => val === undefined);
+};
