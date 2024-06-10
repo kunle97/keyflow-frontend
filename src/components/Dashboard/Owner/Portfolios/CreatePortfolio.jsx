@@ -8,11 +8,12 @@ import {
   validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
-import { createPortfolio } from "../../../../api/portfolios";
+import { createPortfolio, validatePortfolioName } from "../../../../api/portfolios";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../hooks/useScreen";
 import {
+  hasNoErrors,
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
@@ -51,8 +52,36 @@ const CreatePortfolio = () => {
       placeholder: "Portfolio Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
-        errorMessage: "Please enter a valid name for the portfolio",
+        // errorMessage: "",
+        validate: async (value) => {
+          let regex = /^[\s\S]*$/;
+          if (!regex.test(value)) {
+            //Check errorMessage value in this object
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              name: "Please enter a valid name for the portfolio. No special characters allowed.",
+            }));
+            return false;
+          }else{
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              name: "",
+            }));
+          }
+          let payload = {
+            name: value,
+          };
+          await validatePortfolioName(payload).then((res) => {
+            console.log(res);
+            if (res.status === 400) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                name: "One of your portfolios already has this name.",
+              }));
+              return false;
+            }
+          });
+        },
       },
       dataTestId: "portfolio-name",
       errorMessageDataTestId: "portfolio-name-error",
@@ -66,18 +95,13 @@ const CreatePortfolio = () => {
       placeholder: "Portfolio Description",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: /^[\s\S]*$/,
         errorMessage: "Please enter a valid description for the portfolio",
       },
       dataTestId: "portfolio-description",
       errorMessageDataTestId: "portfolio-description-error",
     },
   ];
-  const {
-    register,
-    handleSubmit,
-    // formState: { errors },
-  } = useForm();
   const onSubmit = () => {
     const payload = {
       name: formData.name,
@@ -129,7 +153,6 @@ const CreatePortfolio = () => {
         <div className="card-body">
           <form
             data-testid="create-portfolio-form"
-            onSubmit={handleSubmit(onSubmit)}
           >
             {formInputs.map((input, index) => {
               return (
@@ -171,41 +194,7 @@ const CreatePortfolio = () => {
                 </div>
               );
             })}
-            {/*             
-            <div className="form-group mb-4">
-              <label
-                className="text-black"
-                data-testid="create-portfolio-name-label"
-                htmlFor="name"
-              >
-                Name
-              </label>
-              <input
-                data-testid="create-portfolio-name-input"
-                style={{ ...defaultWhiteInputStyle, background: uiGrey }}
-                type="text"
-                id="name"
-                {...register("name", { required: true })}
-              />
-              {errors.name && <span>This field is required</span>}
-            </div>
 
-            <div className="form-group mb-4">
-              <label
-                data-testid="create-portfolio-description-label"
-                className="text-black"
-                htmlFor="description"
-              >
-                Description
-              </label>
-              <textarea
-                data-testid="create-portfolio-description-textarea"
-                style={{ ...defaultWhiteInputStyle, background: uiGrey }}
-                type="text"
-                id="description"
-                {...register("description", { required: true })}
-              ></textarea>
-            </div> */}
             <UIButton
               dataTestId="create-portfolio-submit-button"
               onClick={() => {
@@ -213,7 +202,8 @@ const CreatePortfolio = () => {
                   formData,
                   formInputs
                 );
-                if (isValid) {
+                console.log(isValid);
+                if (isValid && hasNoErrors(errors)) {
                   setIsLoading(true);
                   onSubmit();
                 } else {

@@ -1718,7 +1718,7 @@ const ManageUnit = () => {
                     {!unit.signed_lease_document_file && !unit.template_id ? (
                       <span className="add-lease-agreement-document-button">
                         <UIButton
-                          btnText="Add Lease Agreement Document"
+                          btnText={createLink ? "Continue Editing Lease Document":"Add Lease Agreement Document"}
                           onClick={() => {
                             setAddLeaseAgreementDialogIsOpen(true);
                           }}

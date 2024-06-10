@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { createProperty } from "../../../../api/properties";
+import {
+  createProperty,
+  validatePropertyName,
+} from "../../../../api/properties";
 import { createUnit } from "../../../../api/units";
 
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { faker } from "@faker-js/faker";
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import {
   authUser,
   token,
@@ -22,6 +25,7 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 import {
+  hasNoErrors,
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
@@ -34,7 +38,10 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import { getStripeAccountRequirements,getStripeOnboardingAccountLink } from "../../../../api/owners";
+import {
+  getStripeAccountRequirements,
+  getStripeOnboardingAccountLink,
+} from "../../../../api/owners";
 
 const CreateProperty = () => {
   const navigate = useNavigate();
@@ -166,8 +173,31 @@ const CreateProperty = () => {
       placeholder: "Lynx Society Highrises",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s,'-]{3,}$/,
-        errorMessage: "Must be at least 3 characters long",
+        // errorMessage: "Please enter a valid name for the unit",
+        validate: async (value) => {
+          let regex = /^[\s\S]*$/;
+          if (!regex.test(value)) {
+            //Check errorMessage value in this object
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              name: "Please enter a valid name for the property",
+            }));
+            return false;
+          }
+          let payload = {
+            name: value,
+          };
+          await validatePropertyName(payload).then((res) => {
+            console.log(res);
+            if (res.status === 400) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                name: "One of your properties already has this name.",
+              }));
+              return false;
+            }
+          });
+        },
       },
       dataTestId: "create-property-name-input",
       errorMessageDataTestId: "create-property-name-error-message",
@@ -306,36 +336,6 @@ const CreateProperty = () => {
       errorMessageDataTestId: "create-property-country-error-message",
     },
   ];
-
-  const {
-    register,
-    handleSubmit,
-    // formState: { errors },
-  } = useForm({
-    defaultValues: {
-      name:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.company.name(),
-      street:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.location.streetAddress(),
-      city:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.location.city(),
-      state:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.location.state(),
-      zipcode:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.location.zipCode(),
-      country: "United States",
-    },
-  });
   const [units, setUnits] = useState([
     {
       name: `${
@@ -407,6 +407,7 @@ const CreateProperty = () => {
     updatedUnits.splice(index, 1);
     setUnits(updatedUnits);
   };
+
   //Create a handle function to handle the form submission of creating a property
   const onSubmit = async (data) => {
     console.log("DAta: ", data);
@@ -550,7 +551,7 @@ const CreateProperty = () => {
               style={{ margin: "40px 0 20px" }}
             />
             <div className="card-body">
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form>
                 {step === 0 && (
                   <div className="row property-info-section">
                     {formInputs.map((input, index) => {
@@ -640,7 +641,8 @@ const CreateProperty = () => {
                           formData,
                           formInputs
                         );
-                        if (isValid) {
+                        setErrors(newErrors);
+                        if (isValid && hasNoErrors(errors)) {
                           setStep(1);
                         } else {
                           setErrors(newErrors);
@@ -660,7 +662,6 @@ const CreateProperty = () => {
                           style={{ marginBottom: "20px" }}
                           key={index}
                           id={index}
-                          register={register}
                           unitNameErrors={errors[`unitName_${index}`]}
                           unitBedsErrors={errors[`unitBeds_${index}`]}
                           unitBathsErrors={errors[`unitBaths_${index}`]}
@@ -702,15 +703,11 @@ const CreateProperty = () => {
                           onClick={() => {
                             // check if errors and unitValidationErrors have values that are all undefined
                             if (
-                              Object.values(errors).every(
-                                (val) => val === undefined
-                              ) &&
-                              Object.values(unitValidationErrors).every(
-                                (val) => val === undefined
-                              )
+                              hasNoErrors(errors) &&
+                              hasNoErrors(unitValidationErrors)
                             ) {
                               console.log("Can subm,it");
-                              handleSubmit(onSubmit)();
+                              onSubmit();
                             } else {
                               console.log("Cannot submit");
                             }
