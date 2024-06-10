@@ -233,3 +233,19 @@ export async function removePropertyLeaseTemplate(propertyId) {
     return error.response;
   }
 }
+
+//Create a function that validates the name of a property using the api/properties/validate-name endpoint takes the name of the property as a parameter
+export async function validatePropertyName(data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .post(`/properties/validate-name/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Validate Property Name Error: ", error);
+    return error.response;
+  }
+}

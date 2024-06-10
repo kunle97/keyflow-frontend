@@ -404,9 +404,15 @@ const UITable = (props) => {
       .catch((err) => {
         console.log("err", err);
         setResponseTitle("File Upload Error");
-        setResponseMessage(
-          "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
-        );
+        if (err.response.data.error_type === "duplicate_name_error") {
+          setResponseMessage(
+            err.response.data.message
+          );
+        } else {
+          setResponseMessage(
+            "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
+          );
+        }
         setShowFileUploadAlert(true);
         setShowUploadDialog(false);
         setFiles([]); //Clear the files array
@@ -456,7 +462,7 @@ const UITable = (props) => {
             )}
             {files.length > 0 && (
               <UIButton
-                onClick={handleUpload}
+                onClick={props.handleUpload ? props.handleUpload : handleUpload}
                 btnText="Upload File"
                 style={{ width: "100%" }}
               />

@@ -121,3 +121,19 @@ export async function removePortfolioLeaseTemplate(id) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+
+//Create a function that validates a portfolio name using the api endpoint /portfolios/validate-name
+export async function validatePortfolioName(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/portfolios/validate-name/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Validate Portfolio Name Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}

@@ -115,7 +115,7 @@ const UnitDocumentManager = (props) => {
         // Display error message
         setAlertTitle("Error");
         setAlertMessage(
-          "There was an error processing your document. Please refresh the page and try again."
+          "There was an error processing your document. Please refresh the page and try again. "
         );
         setAlertOpen(true);
         break;
@@ -135,14 +135,14 @@ const UnitDocumentManager = (props) => {
         if (res.status !== 201) {
           setAlertOpen(true);
           setAlertTitle("Error");
-          setAlertMessage("An error occurred while retrieving the embed link.");
+          setAlertMessage("An error occurred while retrieving the embed link. If this issue persists please contact support or delete the template and upload a new one.");
         }
       })
       .catch((error) => {
         console.error("Error retrieving edit link", error);
         setAlertOpen(true);
         setAlertTitle("Error");
-        setAlertMessage("An error occurred while retrieving the embed link.");
+        setAlertMessage("An error occurred while retrieving the embed link. If this issue persists please contact support or delete the template and upload a new one.");
       })
       .finally(() => {
         setIsLoading(false);
