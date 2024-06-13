@@ -27,6 +27,7 @@ import Joyride, {
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters, validHTMLDateInput } from "../../../../constants/rexgex";
 const ManageBillingEntry = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -180,7 +181,7 @@ const ManageBillingEntry = () => {
       validations: {
         required: true,
         errorMessage: "Due date cannot be blank",
-        regex: /^\d{4}-\d{2}-\d{2}$/,
+        validHTMLDateInput,
       },
       dataTestId: "due-date-text-display",
       validations: {
@@ -234,7 +235,7 @@ const ManageBillingEntry = () => {
       validations: {
         required: true,
         errorMessage: "Please specify the status of the billing entry.",
-        regex: null,
+        regex: uppercaseAndLowercaseLetters,
       },
       dataTestId: "status-select",
       errorMessageDataTestId: "status-error-message",
@@ -250,7 +251,7 @@ const ManageBillingEntry = () => {
       validations: {
         required: true,
         errorMessage: "A description is required for the billing entry.",
-        regex: null,
+        regex: lettersNumbersAndSpecialCharacters,
       },
       dataTestId: "description-textarea",
       errorMessageDataTestId: "description-error-message",

@@ -20,6 +20,7 @@ import {
   validateForm,
 } from "../../../helpers/formValidation";
 import UIButton from "../UIComponents/UIButton";
+import { validEmail, validName, validStrongPassword, validUserName } from "../../../constants/rexgex";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -96,7 +97,7 @@ const TenantRegister = () => {
       placeholder: "John",
       validations: {
         required: true,
-        regex: /^[a-zA-Z\s]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid first name",
       },
       dataTestId: "first_name",
@@ -111,7 +112,7 @@ const TenantRegister = () => {
       placeholder: "Doe",
       validations: {
         required: true,
-        regex: /^[a-zA-Z\s]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid last name",
       },
       dataTestId: "last_name",
@@ -126,7 +127,7 @@ const TenantRegister = () => {
       placeholder: "jdoe@email.com",
       validations: {
         required: true,
-        regex: /\S+@\S+\.\S+/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
       dataTestId: "email",
@@ -141,7 +142,7 @@ const TenantRegister = () => {
       placeholder: "johndoe",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9_.-]*$/,
+        regex: validUserName,
         errorMessage:
           "Please enter a valid username. It can only contain letters, numbers, periods,underscores, and dashes. No spaces or special characters.",
       },
@@ -157,7 +158,7 @@ const TenantRegister = () => {
       placeholder: "Password",
       validations: {
         required: true,
-        regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        regex: validStrongPassword,
         errorMessage:
           "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       },
@@ -173,7 +174,7 @@ const TenantRegister = () => {
       placeholder: "Repeat Password",
       validations: {
         required: true,
-        regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        regex: validStrongPassword,
         errorMessage:
           "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       },

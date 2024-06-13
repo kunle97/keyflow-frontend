@@ -25,6 +25,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters } from "../../../../constants/rexgex";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
@@ -114,7 +115,7 @@ const CreateMaintenanceRequest = () => {
       placeholder: "Type",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "Please select a type for the maintenance request",
       },
       dataTestId: "maintenance-type",
@@ -129,7 +130,7 @@ const CreateMaintenanceRequest = () => {
       placeholder: "Description",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage:
           "Please enter a valid description for the maintenance request",
       },

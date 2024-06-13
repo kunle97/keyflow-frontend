@@ -14,6 +14,7 @@ import {
   validateForm,
 } from "../../../helpers/formValidation";
 import UICheckbox from "../UIComponents/UICheckbox";
+import { validEmail } from "../../../constants/rexgex";
 const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [openError, setOpenError] = useState(false);
@@ -80,7 +81,7 @@ const TenantLogin = () => {
       placeholder: "Email",
       validations: {
         required: true,
-        regex: /\S+@\S+\.\S+/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
       dataTestId: "email",
@@ -99,7 +100,7 @@ const TenantLogin = () => {
       placeholder: "Email",
       validations: {
         required: true,
-        regex: /\S+@\S+\.\S+/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
       dataTestId: "email",
