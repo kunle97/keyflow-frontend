@@ -1,22 +1,35 @@
 import React, { useState } from "react";
 import StepControl from "./StepControl";
 import UIButton from "../../../../UIComponents/UIButton";
-import { uiRed, validationMessageStyle } from "../../../../../../constants";
 import {
+  uiGreen,
+  uiRed,
+  validationMessageStyle,
+} from "../../../../../../constants";
+import {
+  hasNoErrors,
   triggerValidation,
   validateForm,
 } from "../../../../../../helpers/formValidation";
-import { Stack } from "@mui/material";
-import { numberUpTo2DecimalPlaces, validAnyString } from "../../../../../../constants/rexgex";
+import { Button, Stack } from "@mui/material";
+import {
+  numberUpTo2DecimalPlaces,
+  validAnyString,
+} from "../../../../../../constants/rexgex";
+import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 
 const AdditionalCharge = (props) => {
   const { name, amount, frequency } = props.charge;
-
+  
   const [formData, setFormData] = useState({
     name: name,
     amount: amount,
     frequency: frequency,
   });
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +44,10 @@ const AdditionalCharge = (props) => {
       ...prevErrors,
       [name]: newErrors[name],
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     props.setAdditionalCharges((prevCharges) => {
       let newCharges = [...prevCharges];
@@ -39,6 +56,7 @@ const AdditionalCharge = (props) => {
     });
     console.log("Form data ", formData);
     console.log("Errors ", props.errors);
+    console.log("Errors ", errors);
   };
 
   const formInputs = [
@@ -93,6 +111,13 @@ const AdditionalCharge = (props) => {
   ];
   return (
     <div className="additional-charges-section" style={{ ...props.style }}>
+      <AlertModal
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        handleClose={() => setAlertOpen(false)}
+        onClick={() => setAlertOpen(false)}
+      />
       <div className="row mt-3">
         {formInputs.map((input, i) => (
           <div key={i} className={`col-md-${input.colSpan}`}>
@@ -137,15 +162,14 @@ const AdditionalCharge = (props) => {
                   ))}
                 </select>
               ) : null}
-              {props.errors[input.name] &&
-                props.index == props.additionalCharges.length - 1 && (
-                  <span
-                    data-testId={input.errorMessageDataTestId}
-                    style={{ ...validationMessageStyle }}
-                  >
-                    {props.errors[input.name]}
-                  </span>
-                )}
+              {errors[input.name] && (
+                <span
+                  data-testId={input.errorMessageDataTestId}
+                  style={{ ...validationMessageStyle }}
+                >
+                  {errors[input.name]}
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -157,62 +181,141 @@ const AdditionalCharge = (props) => {
             spacing={1}
           >
             {props.index == props.additionalCharges.length - 1 && (
-              <UIButton
+              <Button
+                className="add-unit-button"
+                data-testId={`${props.dataTestId}-add-unit-button`}
+                sx={{
+                  color: uiGreen,
+                  textTransform: "none",
+                }}
+                //   variant="contained"
                 onClick={() => {
                   const { isValid, newErrors } = validateForm(
                     formData,
                     formInputs
                   );
-                  if (isValid) {
+                  if (isValid && hasNoErrors(errors)) {
                     props.addAdditionalCharge();
                   } else {
+                    setErrors(newErrors);
                     props.setErrors(newErrors);
                   }
                 }}
-                btnText="Add Charge"
-                color="secondary"
-              />
+              >
+                + Add
+              </Button>
             )}
             <>
               {props.index !== 0 && (
                 <div className="col-md-1">
-                  <UIButton
+                  <Button
                     onClick={() => {
                       props.removeAdditionalCharge(props.index);
                       //Reset the errors:
                       props.setErrors({});
+                      setErrors({});
                     }}
-                    btnText="Remove"
-                    color="danger"
-                  />
+                    sx={{
+                      color: uiRed,
+                      textTransform: "none",
+                    }}
+                  >
+                    Remove
+                  </Button>
                 </div>
               )}
             </>
           </Stack>
         </div>
       </div>
-      <StepControl
-        skipAllowed={true}
-        style={{ marginTop: "30px" }}
-        step={props.step}
-        steps={props.steps}
-        handlePreviousStep={props.handlePreviousStep}
-        handleNextStep={()=>{
-          props.setSkipAdditionalChargesStep(false);
-          props.handleNextStep()
-        }}
-        formData={formData}
-        formInputs={formInputs}
-        handleSkipStep={()=>{
-          props.setSkipAdditionalChargesStep(true);
-          if(props.skipAdditionalChargesStep === false){
-            props.setSkipAdditionalChargesStep(true);
-            console.log("Skip additional charges", props.skipAdditionalChargesStep);
-          }else{
-            props.handleNextStep();
-          }
-        }}
-      />
+      {props.index == props.additionalCharges.length - 1 && (
+        <>
+          {!props.hideStepControl ? (
+            <StepControl
+              skipAllowed={true}
+              style={{ marginTop: "30px" }}
+              step={props.step}
+              steps={props.steps}
+              handlePreviousStep={props.handlePreviousStep}
+              handleNextStep={() => {
+                //Check all additional charges have the same frequency
+                //Check if additional charges all have the same frequency
+                const frequencies = props.additionalCharges.map((charge) => charge.frequency);
+                const allFrequenciesEqual = frequencies.every(
+                  (freq, index) => freq === frequencies[0]
+                );
+                if (!allFrequenciesEqual) {
+                  // Handle case where frequencies are not all the same
+                  console.log("Additional charges have different frequencies");
+                  // Perform actions or show an error message to the user
+                  // You can return early, show an error message, or prevent form submission
+                  setAlertMessage("All additional charges must have the same frequency");
+                  setAlertTitle("Frequency Mismatch");
+                  setAlertOpen(true);
+                  return; // Example: return or show an error message
+                }
+                //Check if additional charges have the same frequency as the rent frequency
+                // const rentFrequency = props.formData?.rent_frequency;//TODO: Fix this showing up as undefined
+                // const chargesMatchRentFrequency = props.additionalCharges.every(
+                //   (charge) => charge.frequency === rentFrequency
+                // );
+                // if (!chargesMatchRentFrequency) {
+                //   console.log("rent frequency ", rentFrequency);  
+                //   console.log("formData ", props.formData);
+                //   console.log("Additional charges ", props.additionalCharges.map((charge) => charge.frequency));
+                //   // Handle case where frequencies don't match rent frequency
+                //   setAlertMessage(
+                //     "Additional charges must have the same frequency as the rent frequency"
+                //   );
+                //   setAlertTitle("Frequency Mismatch");
+                //   setAlertOpen(true);
+                //   return; // Example: return or show an error message
+                // }
+                props.setSkipAdditionalChargesStep(false);
+                props.handleNextStep();
+              }}
+              formData={formData}
+              formInputs={formInputs}
+              handleSkipStep={() => {
+                props.setSkipAdditionalChargesStep(true);
+                if (props.skipAdditionalChargesStep === false) {
+                  props.setSkipAdditionalChargesStep(true);
+                  console.log(
+                    "Skip additional charges",
+                    props.skipAdditionalChargesStep
+                  );
+                } else {
+                  props.handleNextStep();
+                }
+              }}
+            />
+          ) : (
+            <Stack
+              direction="row"
+              justifyContent="flex-end"
+              alignItems="center"
+              spacing={2}
+            >
+              <UIButton
+                btnText="Update Charges"
+                onClick={() => {
+                  const { isValid, newErrors } = validateForm(
+                    formData,
+                    formInputs
+                  );
+                  if (isValid && hasNoErrors(props.errors)) {
+                    props.saveAdditionalCharges();
+                  } else {
+                    props.setErrors(newErrors);
+                    setErrors(newErrors);
+                  }
+                }}
+                style={{ marginTop: "20px", float: "right" }}
+              />
+            </Stack>
+          )}
+        </>
+      )}
     </div>
   );
 };

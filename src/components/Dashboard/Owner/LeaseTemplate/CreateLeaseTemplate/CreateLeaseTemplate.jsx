@@ -27,6 +27,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
+import { preventPageReload } from "../../../../../helpers/utils";
 const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
@@ -40,7 +41,7 @@ const CreateLeaseTemplate = (props) => {
    *
    */
   const { isMobile } = useScreen();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(2);
   const [steps, setSteps] = useState([
     "Upload Document",
     "Terms",
@@ -64,8 +65,7 @@ const CreateLeaseTemplate = (props) => {
   ]); //Array holding ids and boolean values of the selected properties or units
   const [assignmentMode, setAssignmentMode] = useState("unit"); //portfolio, property or unit
   const [templateId, setTemplateId] = useState("");
-  const [skipAdditionalChargesStep, setSkipAdditionalChargesStep] =
-    useState(false);
+  const [skipAdditionalChargesStep, setSkipAdditionalChargesStep] = useState(false);
   const [skipAssignStep, setSkipAssignStep] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [chargesValid, setChargesValid] = useState(false);
@@ -369,7 +369,9 @@ const CreateLeaseTemplate = (props) => {
         setShowResponseMessage(true);
       });
   };
-  useEffect(() => {}, [step, skipAdditionalChargesStep, skipAssignStep]);
+  useEffect(() => {
+    preventPageReload();
+  }, [step, skipAdditionalChargesStep, skipAssignStep]);
   return (
     <div className="container lease-template-creation-page">
       <Joyride
@@ -474,6 +476,7 @@ const CreateLeaseTemplate = (props) => {
                     register={register}
                     setErrors={setErrors}
                     errors={errors}
+                    forrmData={formData}
                     trigger={trigger}
                     charge={charge}
                     addAdditionalCharge={addAdditionalCharge}
