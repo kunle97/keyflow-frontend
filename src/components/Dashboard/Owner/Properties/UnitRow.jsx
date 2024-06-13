@@ -13,6 +13,7 @@ const UnitRow = (props) => {
     baths: baths,
     size: size,
   });
+  const [errors, setErrors] = useState({});
   const handleChange = (e) => {
     const { name, value } = e.target;
     console.log("Name ", name);
@@ -22,13 +23,17 @@ const UnitRow = (props) => {
       value,
       formInputs.find((input) => input.name === name).validations
     );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
     props.setErrors((prevErrors) => ({
       ...prevErrors,
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     console.log("Form data ", formData);
-    console.log("Errors ", props.errors);
+    console.log("Errors ", errors);
   };
 
   const formInputs = [
@@ -145,12 +150,12 @@ const UnitRow = (props) => {
               }}
               placeholder={input.placeholder}
             />
-            {props.errors[input.name] && (
+            {errors[input.name] && (
               <span
                 data-testId={input.errorMessageDataTestId}
                 style={{ ...validationMessageStyle }}
               >
-                {props.errors[input.name]}
+                {errors[input.name]}
               </span>
             )}
           </div>
@@ -167,8 +172,11 @@ const UnitRow = (props) => {
           }}
           //   variant="contained"
           onClick={() => {
-            //Check if all the values in the array are undefined
-            if (hasNoErrors(props.errors)) {
+            //Check if all the values in the array are undefined'
+
+            console.log("Erorossxzz ", errors);
+            console.log("Errors ", hasNoErrors(errors));
+            if (hasNoErrors(errors)) {
               props.addUnit();
             }
           }}

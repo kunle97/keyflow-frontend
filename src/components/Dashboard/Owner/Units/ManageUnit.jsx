@@ -108,6 +108,7 @@ import Joyride, {
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { validAnyString, validWholeNumber } from "../../../../constants/rexgex";
+import AdditionalCharge from "../LeaseTemplate/CreateLeaseTemplate/Steps/AdditionalCharge";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -1816,158 +1817,22 @@ const ManageUnit = () => {
                   <div className="card">
                     <div className="card-body">
                       {additionalCharges.map((charge, index) => (
-                        <div key={index} className="row mt-3">
-                          <div className="col-md-3">
-                            <label
-                              className="form-label text-black"
-                              htmlFor="street"
-                            >
-                              <strong>Charge</strong>
-                            </label>
-                            <input
-                              type="text"
-                              value={charge.name}
-                              onChange={(e) => {
-                                // trigger(`additionalChargeName_${index}`);
-                                let newCharges = [...additionalCharges];
-                                newCharges[index].name = e.target.value;
-                                setAdditionalCharges(newCharges);
-                              }}
-                              className="form-control"
-                            />
-                            <span style={validationMessageStyle}>
-                              {errors[`additionalChargeName_${index}`] &&
-                                errors[`additionalChargeName_${index}`]
-                                  ?.message}
-                            </span>
-                          </div>
-                          <div className="col-md-3">
-                            <label
-                              className="form-label text-black"
-                              htmlFor="street"
-                            >
-                              <strong>Amount</strong>
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              value={charge.amount}
-                              onChange={(e) => {
-                                // trigger(`additionalChargeAmount_${index}`);
-                                let newCharges = [...additionalCharges];
-                                newCharges[index].amount = e.target.value;
-                                setAdditionalCharges(newCharges);
-                              }}
-                              className="form-control"
-                            />
-                            <span style={validationMessageStyle}>
-                              {errors[`additionalChargeAmount_${index}`] &&
-                                errors[`additionalChargeAmount_${index}`]
-                                  ?.message}
-                            </span>
-                          </div>
-                          <div className="col-md-3">
-                            <label
-                              className="form-label text-black"
-                              htmlFor="street"
-                            >
-                              <strong>Frequency</strong>
-                            </label>
-                            <select
-                              onChange={(e) => {
-                                // trigger(`additionalChargeFrequency_${index}`);
-                                let newCharges = [...additionalCharges];
-                                newCharges[index].frequency = e.target.value;
-                                setAdditionalCharges(newCharges);
-                              }}
-                              value={charge.frequency}
-                              className="form-control"
-                            >
-                              <option value="">Select Frequency</option>
-                              <option value="day">Daily</option>
-                              <option value="week">Weekly</option>
-                              <option value="month">Monthly</option>
-                              <option value="year">Yearly</option>
-                            </select>
-                            <span style={validationMessageStyle}>
-                              {errors[`additionalChargeFrequency_${index}`] &&
-                                errors[`additionalChargeFrequency_${index}`]
-                                  ?.message}
-                            </span>
-                          </div>
-                          {charge.index !== 0 && (
-                            <div className="col-md-3">
-                              <UIButton
-                                onClick={() => removeCharge(index)}
-                                btnText="Remove"
-                                variant="text"
-                                style={{
-                                  marginTop: "30px",
-                                  color: uiRed,
-                                  backgroundColor: "transparent",
-                                  display: "block",
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
+                        <AdditionalCharge
+                          index={index}
+                          setErrors={setErrors}
+                          hideStepControl={true}
+                          errors={errors}
+                          charge={charge}
+                          addAdditionalCharge={addCharge}
+                          removeAdditionalCharge={removeCharge}
+                          saveAdditionalCharges={saveAdditionalCharges}
+                          chargesValid={chargesValid}
+                          setChargesValid={setChargesValid}
+                          additionalCharges={additionalCharges}
+                          setAdditionalCharges={setAdditionalCharges}
+                          validationMessageStyle={validationMessageStyle}
+                        />
                       ))}
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <UIButton
-                          onClick={() => {
-                            //TODO: Trigger validation
-                            // trigger([
-                            //   `additionalChargeName_${
-                            //     additionalCharges.length - 1
-                            //   }`,
-                            //   `additionalChargeAmount_${
-                            //     additionalCharges.length - 1
-                            //   }`,
-                            //   `additionalChargeFrequency_${
-                            //     additionalCharges.length - 1
-                            //   }`,
-                            // ]);
-                            // if (
-                            //   (errors[
-                            //     `additionalChargeName_${
-                            //       additionalCharges.length - 1
-                            //     }`
-                            //   ] ||
-                            //     errors[
-                            //       `additionalChargeAmount_${
-                            //         additionalCharges.length - 1
-                            //       }`
-                            //     ] ||
-                            //     errors[
-                            //       `additionalChargeFrequency_${
-                            //         additionalCharges.length - 1
-                            //       }`
-                            //     ]) &&
-                            //   !chargesValid
-                            // ) {
-                            //   setChargesValid(false);
-                            //   return;
-                            // } else {
-                            //   addCharge();
-                            // }
-                          }}
-                          btnText="Add Charge"
-                          style={{
-                            marginTop: "20px",
-                            display: "block",
-                            boxShadow: "none",
-                          }}
-                        />
-                        <UIButton
-                          btnText="Update Charges"
-                          onClick={saveAdditionalCharges}
-                          style={{ marginTop: "20px", float: "right" }}
-                        />
-                      </Stack>
                     </div>
                   </div>
                 ) : (
