@@ -373,3 +373,7 @@ export const preventPageReload = (e) => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
   };
 };
+
+export const formatDateToMMDDYYYY = (date) => {
+  return new Date(date).toLocaleDateString("en-US");
+}
