@@ -64,6 +64,19 @@ export const defaultRentalUnitLeaseTerms = [
     type: "lease",
   },
   {
+    name: "combine_payments",
+    label: "Combine Payments",
+    inputType: "select",
+    options: [
+      { value: "separate", label: "Separate" },
+      { value: "combined", label: "Combined" },
+    ],
+    value: "separate",
+    description:
+      "Choose if you would like to combine all payments into one invoice for the lease",
+    type: "lease",
+  },
+  {
     name: "term",
     label: "Term",
     inputType: "number",

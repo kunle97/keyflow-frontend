@@ -402,6 +402,7 @@ export const syncRentalUnitLeaseTerms = (unit_id) => {
           type: defaultLeaseTerm.type,
           inputType: defaultLeaseTerm.inputType,
           label: defaultLeaseTerm.label,
+          options: defaultLeaseTerm.options,
         };
       }
 

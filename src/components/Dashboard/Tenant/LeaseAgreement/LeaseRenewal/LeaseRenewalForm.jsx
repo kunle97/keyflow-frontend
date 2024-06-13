@@ -140,7 +140,7 @@ const LeaseRenewalForm = (props) => {
       onChange: (e) =>
         handleChange(e, step3FormData, setStep3FormData, step3FormInputs),
       validations: {
-        required: props.isOwnerMode ? false : true,
+        required: false,
         // required: true,
         regex: /^[a-zA-Z0-9\s]*$/,
         errorMessage: "Please enter a comment",
