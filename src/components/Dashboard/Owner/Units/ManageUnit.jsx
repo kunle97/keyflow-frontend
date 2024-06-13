@@ -398,6 +398,9 @@ const ManageUnit = () => {
     },
   ];
   const handleChangeTabPage = (event, newValue) => {
+    if (newValue === 2 && unit.template_id) {
+      retrieveEditLink(unit.template_id);
+    }
     setTabPage(newValue);
   };
   const navigate = useNavigate();
@@ -912,7 +915,7 @@ const ManageUnit = () => {
     if (preference.inputType === "switch") {
       console.log(event);
       // For switches, directly access event.target.checked
-      preference.value = event;
+      preference.value = event.target.checked;
     } else {
       // For other input types, use event.target.value
       preference.value = event.target.value;
@@ -976,13 +979,12 @@ const ManageUnit = () => {
         console.log("UNIT PREFENCESSSZZZ", JSON.parse(res.preferences));
         setUnitPreferences(JSON.parse(res.preferences));
         setUnitLeaseTerms(JSON.parse(res.lease_terms));
+        console.log("Additional Charges", JSON.parse(res.additional_charges));
         setAdditionalCharges(JSON.parse(res.additional_charges));
         if (res.signed_lease_document_file) {
           setSignedLeaseViewLink(res.signed_lease_document_file.file);
         }
-        if (res.template_id) {
-          retrieveEditLink(res.template_id);
-        }
+
         console.log("lease_terms", JSON.parse(res.lease_terms));
         if (res.is_occupied) {
           getOwnerTenant(res.tenant).then((tenant_res) => {
@@ -1718,7 +1720,11 @@ const ManageUnit = () => {
                     {!unit.signed_lease_document_file && !unit.template_id ? (
                       <span className="add-lease-agreement-document-button">
                         <UIButton
-                          btnText={createLink ? "Continue Editing Lease Document":"Add Lease Agreement Document"}
+                          btnText={
+                            createLink
+                              ? "Continue Editing Lease Document"
+                              : "Add Lease Agreement Document"
+                          }
                           onClick={() => {
                             setAddLeaseAgreementDialogIsOpen(true);
                           }}
@@ -1727,22 +1733,6 @@ const ManageUnit = () => {
                     ) : (
                       <></>
                     )}
-                    {/* {unit.signed_lease_document_file && (
-                      <div>
-                        <UIButton
-                          btnText="View Document"
-                          onClick={() => {
-                            window.open(signedLeaseViewLink);
-                          }}
-                        />
-                        <DeleteButton
-                          btnText="Delete Document"
-                          onClick={() => {
-                            setShowDeleteSignedDocumentConfirmModal(true);
-                          }}
-                        />
-                      </div>
-                    )} */}
                     {unit.template_id && (
                       <select
                         className="form-select"

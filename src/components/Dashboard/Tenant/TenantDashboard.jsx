@@ -320,7 +320,7 @@ const TenantDashboard = () => {
                     setCancelButtonText("Not Now");
                     //Set confirm action to a function that will navigate
                     const handleConfirmAction = () => {
-                      navigate("/dashboard/tenant/my-lease");
+                      navigate("/dashboard/tenant/lease-agreements/");
                     };
                     setConfirmAction(() => handleConfirmAction);
                     setShowConfirmModal(true);

@@ -68,6 +68,26 @@ const LeaseRenewalAcceptForm = () => {
     }
 
     try {
+
+      //If the lease_renewal_request's rental unit does not equal the lease agreeement's update the unit's is_occupied status to true. Also set the unit's lease_template to current leaseTemplate
+      const updateRentalUnitPayload = {
+        is_occupied: true,
+        // lease_template: currentLeaseTemplate.id,
+        tenant: leaseRenewalRequest.tenant.id,
+        lease_terms: JSON.stringify(currentLeaseTerms),
+      };
+      await updateUnit(
+        leaseRenewalRequest.rental_unit.id,
+        updateRentalUnitPayload
+      ).then((res) => {
+        console.log(res);
+        if (res.id) {
+          console.log("Successfully updated rental unit");
+        } else {
+          console.log("Failed to update rental unit");
+        }
+      });
+
       const renewalPayload = {
         lease_renewal_request_id: leaseRenewalRequest.id,
         current_lease_agreement_id: currentLeaseAgreement.id,
@@ -128,23 +148,6 @@ const LeaseRenewalAcceptForm = () => {
         throw new Error("Lease agreement creation failed.");
       }
 
-      //If the lease_renewal_request's rental unit does not equal the lease agreeement's update the unit's is_occupied status to true. Also set the unit's lease_template to current leaseTemplate
-      const updateRentalUnitPayload = {
-        is_occupied: true,
-        // lease_template: currentLeaseTemplate.id,
-        tenant: leaseRenewalRequest.tenant.id,
-      };
-      await updateUnit(
-        leaseRenewalRequest.rental_unit.id,
-        updateRentalUnitPayload
-      ).then((res) => {
-        console.log(res);
-        if (res.id) {
-          console.log("Successfully updated rental unit");
-        } else {
-          console.log("Failed to update rental unit");
-        }
-      });
 
       setAlertModalTitle("Success");
       setAlertModalMessage(
@@ -171,6 +174,20 @@ const LeaseRenewalAcceptForm = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleChangeCombinedPayments = (e) => {
+    const updatedLeaseTerms = currentLeaseTerms.map((term) => {
+      if (term.name === "combine_payments") {
+        return {
+          ...term,
+          value: e.target.value,
+        };
+      }
+      return term;
+    });
+    console.log(updatedLeaseTerms);
+    setCurrentLeaseTerms(updatedLeaseTerms);
   };
 
   //Updates the lease terms on the rental unit to the new lease term from the lease renewal request
@@ -410,6 +427,21 @@ const LeaseRenewalAcceptForm = () => {
                             ).value
                           }
                           s
+                        </div>
+                        <div className="col-md-4 mb-4 text-black">
+                          <h6>Combine Payments</h6>
+                          <select
+                            className="form-select"
+                            value={
+                              currentLeaseTerms.find(
+                                (term) => term.name === "combine_payments"
+                              ).value
+                            }
+                            onChange={handleChangeCombinedPayments}
+                          >
+                            <option value="separate">Separate</option>
+                            <option value="combined">Combined</option>
+                          </select>
                         </div>
                         <div className="col-md-4 mb-4 text-black">
                           <h6>Late Fee</h6>
