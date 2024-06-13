@@ -51,6 +51,13 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { getStripeAccountLink } from "../../../../api/owners";
 
 import AddCardIcon from "@mui/icons-material/AddCard";
+import {
+  lettersNumbersAndSpecialCharacters,
+  validEmail,
+  validName,
+  validStrongPassword,
+  validUserName,
+} from "../../../../constants/rexgex";
 const MyAccount = () => {
   const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
@@ -126,7 +133,7 @@ const MyAccount = () => {
       placeholder: "First Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid first name",
       },
       dataTestId: "first-name",
@@ -148,7 +155,7 @@ const MyAccount = () => {
       placeholder: "Last Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid last name",
       },
       dataTestId: "last-name",
@@ -171,7 +178,7 @@ const MyAccount = () => {
       placeholder: "Username",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validUserName,
         errorMessage: "Please enter a valid username",
       },
       dataTestId: "username",
@@ -193,7 +200,7 @@ const MyAccount = () => {
       placeholder: "Email",
       validations: {
         required: true,
-        regex: /^[\w.!]+@[a-zA-Z_]+\.[a-zA-Z]{2,}$/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email",
       },
       dataTestId: "email",
@@ -217,7 +224,7 @@ const MyAccount = () => {
       placeholder: "Current Password",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s!@#$%^&*()-_=+[\]{};:'",.<>/?`~]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter your current password",
       },
       dataTestId: "current-password",
@@ -239,8 +246,7 @@ const MyAccount = () => {
       placeholder: "New Password",
       validations: {
         required: true,
-        regex:
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        regex: validStrongPassword,
         errorMessage:
           "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
       },

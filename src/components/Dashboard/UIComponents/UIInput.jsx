@@ -31,6 +31,7 @@ const UIInput = (props) => {
           type={props.type ? props.type : "text"}
           placeholder={props.placeholder ? props.placeholder : ""}
           onChange={props.onChange ? props.onChange : () => {}}
+          onBlur={props.onBlur ? props.onBlur : () => {}}
           defaultValue={props.defaultValue ? props.defaultValue : ""}
           name={props.name ? props.name : ""}
           step={props.step ? props.step : ""}

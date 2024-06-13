@@ -17,6 +17,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
 const CreatePortfolio = () => {
   const navigate = useNavigate();
   const { isMobile, screenWidth, breakpoints } = useScreen();
@@ -95,7 +96,7 @@ const CreatePortfolio = () => {
       placeholder: "Portfolio Description",
       validations: {
         required: true,
-        regex: /^[\s\S]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid description for the portfolio",
       },
       dataTestId: "portfolio-description",

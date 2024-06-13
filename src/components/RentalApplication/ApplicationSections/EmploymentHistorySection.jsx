@@ -7,6 +7,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
+import { lettersNumbersAndSpecialCharacters, numberUpTo2DecimalPlaces, validEmail, validHTMLDateInput, validName, validPhoneNumber } from "../../../constants/rexgex";
 const EmploymentHistorySection = (props) => {
   const {
     companyName,
@@ -74,7 +75,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Company Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid company name",
       },
       dataTestId: "company-name",
@@ -89,7 +90,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Title/Position",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid position",
       },
       dataTestId: "position",
@@ -97,11 +98,11 @@ const EmploymentHistorySection = (props) => {
     },
     {
       name: "companyAddress",
-      label: "Company Address",
+      label: "Company Address (Street, City, State, Zip)",
       type: "text",
       colSpan: 12,
       onChange: (e) => handleChange(e),
-      placeholder: "Company Address",
+      placeholder: "Company Address (Street, City, State, Zip)",
       validations: {
         required: true,
         regex: /^[a-zA-Z0-9\s]*$/,
@@ -118,6 +119,7 @@ const EmploymentHistorySection = (props) => {
       onChange: (e) => handleChange(e),
       placeholder: "Start Date",
       validations: {
+        regex: validHTMLDateInput,
         required: true,
       },
       dataTestId: "employment-start-date",
@@ -131,6 +133,7 @@ const EmploymentHistorySection = (props) => {
       onChange: (e) => handleChange(e),
       placeholder: "End Date",
       validations: {
+        regex: validHTMLDateInput,
         required: true,
       },
       dataTestId: "employment-end-date",
@@ -145,7 +148,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Income",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid income",
       },
       dataTestId: "income",
@@ -160,7 +163,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Supervisor Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid supervisor name",
       },
       dataTestId: "supervisor-name",
@@ -175,7 +178,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Supervisor Phone",
       validations: {
         required: true,
-        regex: /\d{3}-\d{3}-\d{4}/,
+        regex: validPhoneNumber,
         errorMessage: "Please enter a valid phone number",
       },
       dataTestId: "supervisor-phone",
@@ -190,7 +193,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Supervisor Email",
       validations: {
         required: true,
-        regex: /\S+@\S+\.\S+/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email",
       },
       dataTestId: "supervisor-email",

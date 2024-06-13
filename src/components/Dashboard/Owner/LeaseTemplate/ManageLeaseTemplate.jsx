@@ -52,6 +52,7 @@ import DeleteButton from "../../UIComponents/DeleteButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+import { numberUpTo2DecimalPlaces, uppercaseAndLowercaseLetters, validWholeNumber } from "../../../../constants/rexgex";
 
 const ManageLeaseTemplate = () => {
   const iconStyles = {
@@ -186,7 +187,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        regex:  numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
       dataTestId: "rent",
@@ -214,7 +215,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[A-Za-z]+$/i,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
       dataTestId: "rent-frequency",
@@ -235,7 +236,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+$/i,
+        regex: validWholeNumber,
         errorMessage: "This field is required",
       },
       dataTestId: "term",
@@ -256,7 +257,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
       dataTestId: "late-fee",
@@ -277,7 +278,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
       dataTestId: "security-deposit",
@@ -303,7 +304,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[A-Za-z]+$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
       dataTestId: "gas-included",
@@ -329,7 +330,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[A-Za-z]+$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
       dataTestId: "water-included",
@@ -355,7 +356,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[A-Za-z]+$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
       dataTestId: "electric-included",
@@ -381,7 +382,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[A-Za-z]+$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
       dataTestId: "repairs-included",
@@ -402,7 +403,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+$/,
+        regex:  validWholeNumber,
         errorMessage: "This field is required",
       },
       dataTestId: "grace-period",
@@ -424,7 +425,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+$/,
+        regex: validWholeNumber,
         errorMessage: "This field is required",
       },
       dataTestId: "lease-cancellation-notice-period",
@@ -445,7 +446,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
       dataTestId: "lease-cancellation-fee",
@@ -466,7 +467,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+$/,
+        regex: validWholeNumber,
         errorMessage: "This field is required",
       },
       dataTestId: "lease-renewal-notice-period",
@@ -487,7 +488,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
       dataTestId: "lease-renewal-fee",

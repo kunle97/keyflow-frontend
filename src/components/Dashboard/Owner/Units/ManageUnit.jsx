@@ -107,6 +107,7 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import { validAnyString, validWholeNumber } from "../../../../constants/rexgex";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -314,7 +315,7 @@ const ManageUnit = () => {
       placeholder: "A5",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validAnyString,
         errorMessage: "Please enter a valid name for the unit",
       },
       dataTestId: "unit-name",
@@ -328,7 +329,7 @@ const ManageUnit = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid number of beds",
       },
       dataTestId: "unit-beds",
@@ -342,7 +343,7 @@ const ManageUnit = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid number of baths",
       },
       dataTestId: "unit-baths",
@@ -356,7 +357,7 @@ const ManageUnit = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid size",
       },
       dataTestId: "unit-size",

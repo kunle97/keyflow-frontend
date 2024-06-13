@@ -47,6 +47,7 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import { lettersNumbersAndSpecialCharacters, numberUpTo2DecimalPlaces, uppercaseAndLowercaseLetters, validAnyString, validHTMLDateInput, validWholeNumber } from "../../../../constants/rexgex";
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
@@ -176,7 +177,7 @@ const CreateBillingEntry = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^\d+\.\d{2}$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage:
           "Amount cannot be blank and must be a decimal number with two decimal places",
       },
@@ -223,7 +224,7 @@ const CreateBillingEntry = () => {
       validations: {
         required: true,
         errorMessage: "Please specify the type of billing entry.",
-        regex: null,
+        regex: validAnyString,
       },
       hide: false,
       onChange: (e) => {
@@ -273,7 +274,7 @@ const CreateBillingEntry = () => {
       validations: {
         required: false,
         errorMessage: "Tenant cannot be blank",
-        regex: /^\d+$/,
+        regex: validWholeNumber,
       },
       dataTestId: "tenant-select",
       errorMessageDataTestId: "tenant-error-message",
@@ -290,7 +291,7 @@ const CreateBillingEntry = () => {
       validations: {
         required: false,
         errorMessage: "Rental Unit cannot be blank",
-        regex: /^\d+$/,
+        regex: validWholeNumber,
       },
       dataTestId: "rental-unit-select",
       errorMessageDataTestId: "rental-unit-error-message",
@@ -310,7 +311,7 @@ const CreateBillingEntry = () => {
       validations: {
         required: true,
         errorMessage: "Please specify the status of the billing entry.",
-        regex: null,
+        regex: uppercaseAndLowercaseLetters,
       },
       dataTestId: "status-select",
       errorMessageDataTestId: "status-error-message",
@@ -328,7 +329,7 @@ const CreateBillingEntry = () => {
         errorMessage: isExpense
           ? "A transaction date is required for the billing entry."
           : "A due date is required for the billing entry.",
-        regex: /^\d{4}-\d{2}-\d{2}$/,
+        regex: validHTMLDateInput,
       },
       dataTestId: "due-date-input",
       errorMessageDataTestId: "due-date-error-message",
@@ -344,7 +345,7 @@ const CreateBillingEntry = () => {
       validations: {
         required: true,
         errorMessage: "A description is required for the billing entry.",
-        regex: null,
+        regex: validAnyString,
       },
       dataTestId: "description-input",
       errorMessageDataTestId: "description-error-message",
@@ -806,6 +807,7 @@ const CreateBillingEntry = () => {
                               name={input.name}
                               style={{ margin: "10px 0" }}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               data-testid={input.dataTestId}
                             >
                               <option value="" selected>
@@ -887,6 +889,7 @@ const CreateBillingEntry = () => {
                               dataTestId={input.dataTestId}
                               key={index}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               label={input.label}
                               type={input.type}
                               placeholder={input.placeholder}

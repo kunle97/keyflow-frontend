@@ -40,6 +40,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { uppercaseAndLowercaseLetters, validAnyString } from "../../../../constants/rexgex";
 
 const CreateAnnouncement = () => {
   const navigate = useNavigate();
@@ -313,7 +314,7 @@ const CreateAnnouncement = () => {
       },
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
+        regex: validAnyString,
         errorMessage: "Select a target",
       },
       dataTestId: "target",
@@ -383,7 +384,7 @@ const CreateAnnouncement = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "Select a severity",
       },
       dataTestId: "severity",
@@ -485,7 +486,7 @@ const CreateAnnouncement = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
+        regex: validAnyString,
         errorMessage: "Enter a valid title",
       },
       dataTestId: "title",
@@ -500,8 +501,8 @@ const CreateAnnouncement = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
-        errorMessage: "Enter a valid body",
+        regex: validAnyString,
+        errorMessage: "Enter a valid message",
       },
       dataTestId: "body",
       errorMessageDataTestid: "body-error",
@@ -1011,6 +1012,7 @@ const CreateAnnouncement = () => {
                           name={input.name}
                           className="form-control"
                           onChange={input.onChange}
+                          onBlur={input.onChange}
                           data-testId={input.dataTestId}
                         >
                           <option value="">Select One</option>
@@ -1097,6 +1099,7 @@ const CreateAnnouncement = () => {
                           type={input.type}
                           placeholder={input.placeholder}
                           onChange={input.onChange}
+                          onBlur={input.onChange}
                           value={formData[input.name]}
                           error={errors[input.name]}
                           dataTestId={input.dataTestId}

@@ -8,6 +8,7 @@ import {
   validateForm,
 } from "../../../helpers/formValidation";
 import { faker } from "@faker-js/faker";
+import { validEmail, validHTMLDateInput, validName, validPhoneNumber, validSSN } from "../../../constants/rexgex";
 const BasicInfoSection = (props) => {
   const [formData, setFormData] = useState({});
 
@@ -37,7 +38,7 @@ const BasicInfoSection = (props) => {
       placeholder: "First Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z\s'.]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid first name",
       },
       dataTestId: "first-name",
@@ -52,7 +53,7 @@ const BasicInfoSection = (props) => {
       placeholder: "Last Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z\s'.]*$/,
+        regex: validName,
         errorMessage: "Please enter a valid last name",
       },
       dataTestId: "last-name",
@@ -67,7 +68,7 @@ const BasicInfoSection = (props) => {
       placeholder: "Date of Birth",
       validations: {
         required: true,
-        regex: /^\d{4}-\d{2}-\d{2}$/,
+        regex: validHTMLDateInput,
         errorMessage: "Please enter a valid date",
       },
       dataTestId: "date-of-birth",
@@ -82,7 +83,7 @@ const BasicInfoSection = (props) => {
       placeholder: "E-mail",
       validations: {
         required: true,
-        regex: /\S+@\S+\.\S+/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
       dataTestId: "email",
@@ -97,7 +98,7 @@ const BasicInfoSection = (props) => {
       placeholder: "Phone Number",
       validations: {
         required: true,
-        regex: /\d{3}-\d{3}-\d{4}/,
+        regex: validPhoneNumber,
         errorMessage: "Please enter a valid phone number",
       },
       dataTestId: "phone",
@@ -114,7 +115,7 @@ const BasicInfoSection = (props) => {
         "Your social security number will not be stored on KeyFlow servers. It will only be used for credit reporting and background checks.",
       validations: {
         required: true,
-        regex: /\d{3}-\d{2}-\d{4}/,
+        regex: validSSN,
         errorMessage: "Please enter a valid social security number",
       },
       dataTestId: "ssn",
@@ -129,7 +130,7 @@ const BasicInfoSection = (props) => {
       placeholder: "Desired Move-in Date",
       validations: {
         required: true,
-        regex: /^\d{4}-\d{2}-\d{2}$/,
+        regex: validHTMLDateInput,
         errorMessage: "Please enter a valid date",
       },
       dataTestId: "desired-move-in-date",

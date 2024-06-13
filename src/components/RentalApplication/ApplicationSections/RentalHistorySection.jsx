@@ -7,6 +7,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
+import { uppercaseAndLowercaseLetters, validEmail, validPhoneNumber } from "../../../constants/rexgex";
 
 const RentalHistorySection = (props) => {
   const {
@@ -106,7 +107,7 @@ const RentalHistorySection = (props) => {
       validations: {
         required: true,
         errorMessage: "This is a required field",
-        regex: /^[a-zA-Z\s]*$/,
+        regex: uppercaseAndLowercaseLetters,
       },
       dataTestId: "ownerName",
       errorMessageDataTestId: "ownerName-error",
@@ -121,7 +122,7 @@ const RentalHistorySection = (props) => {
       validations: {
         required: true,
         errorMessage: "This is a required field",
-        regex: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
+        regex: validPhoneNumber,
       },
       dataTestId: "ownerPhone",
       errorMessageDataTestId: "ownerPhone-error",
@@ -136,7 +137,7 @@ const RentalHistorySection = (props) => {
       validations: {
         required: true,
         errorMessage: "This is a required field",
-        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        regex: validEmail,
       },
       dataTestId: "ownerEmail",
       errorMessageDataTestId: "ownerEmail-error",

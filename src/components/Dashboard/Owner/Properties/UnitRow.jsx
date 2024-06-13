@@ -3,6 +3,7 @@ import { uiGreen, validationMessageStyle } from "../../../../constants";
 import { Button, Stack } from "@mui/material";
 import { hasNoErrors, triggerValidation } from "../../../../helpers/formValidation";
 import { validateUnitName } from "../../../../api/units";
+import { validAnyString, validWholeNumber } from "../../../../constants/rexgex";
 
 const UnitRow = (props) => {
   const { beds, baths, size, name } = props.unit;
@@ -42,7 +43,7 @@ const UnitRow = (props) => {
         required: true,
         // errorMessage: "Please enter a valid name for the unit",
         validate: async (value) => {
-          let regex = /^[\s\S]*$/;
+          let regex = validAnyString;
           if (!regex.test(value)){
             //Check errorMessage value in this object
             props.setErrors((prevErrors) => ({
@@ -77,7 +78,7 @@ const UnitRow = (props) => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid number of beds",
       },
       dataTestId: "unit-beds",
@@ -91,7 +92,7 @@ const UnitRow = (props) => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid number of baths",
       },
       dataTestId: "unit-baths",
@@ -105,7 +106,7 @@ const UnitRow = (props) => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid size",
       },
       dataTestId: "unit-size",

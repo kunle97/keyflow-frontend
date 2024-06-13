@@ -7,6 +7,7 @@ import {
   validateForm,
 } from "../../../../../../helpers/formValidation";
 import { Stack } from "@mui/material";
+import { numberUpTo2DecimalPlaces, validAnyString } from "../../../../../../constants/rexgex";
 
 const AdditionalCharge = (props) => {
   const { name, amount, frequency } = props.charge;
@@ -50,7 +51,7 @@ const AdditionalCharge = (props) => {
       placeholder: "Pet Rent",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validAnyString,
         errorMessage: "Please enter a valid name for the unit",
       },
       dataTestId: "unit-name",
@@ -64,7 +65,7 @@ const AdditionalCharge = (props) => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]+(?:\.[0-9]{1,2})?$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid amount",
       },
       dataTestId: "unit-amount",

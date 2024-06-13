@@ -6,6 +6,7 @@ import { HelpOutline } from "@mui/icons-material";
 import StepControl from "./StepControl";
 import { faker } from "@faker-js/faker";
 import { triggerValidation } from "../../../../../../helpers/formValidation";
+import { numberUpTo2DecimalPlaces, validNoWhiteSpaceOrSpecialCharactersOrNumbers, validWholeNumber } from "../../../../../../constants/rexgex";
 
 const AddTerms = (props) => {
   const handleChange = (e) => {
@@ -34,7 +35,7 @@ const AddTerms = (props) => {
       placeholder: "Rent",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid rent amount",
       },
       dataTestId: "rent",
@@ -55,6 +56,8 @@ const AddTerms = (props) => {
         { value: "year", label: "Yearly" },
       ],
       validations: {
+        //Create REGEX for for a valid word with no special characters or spaces
+        regex: validNoWhiteSpaceOrSpecialCharactersOrNumbers,
         required: true,
         errorMessage: "Please select a rent frequency",
       },
@@ -70,7 +73,7 @@ const AddTerms = (props) => {
       placeholder: "Term",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex:  validWholeNumber,
         errorMessage: "Please enter a valid term",
       },
       dataTestId: "term",
@@ -85,7 +88,7 @@ const AddTerms = (props) => {
       placeholder: "Late Fee",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid late fee",
       },
       dataTestId: "late-fee",
@@ -100,7 +103,7 @@ const AddTerms = (props) => {
       placeholder: "Security Deposit",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex:  numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid security deposit",
       },
       dataTestId: "security-deposit",
@@ -187,7 +190,7 @@ const AddTerms = (props) => {
       placeholder: "Grace Period",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex:  validWholeNumber,
         errorMessage: "Please enter a valid grace period",
       },
       dataTestId: "grace-period",
@@ -202,7 +205,7 @@ const AddTerms = (props) => {
       placeholder: "Lease Cancellation Notice Period",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex:  validWholeNumber,
         errorMessage: "Please enter a valid lease cancellation notice period",
       },
       dataTestId: "lease-cancellation-notice-period",
@@ -217,7 +220,7 @@ const AddTerms = (props) => {
       placeholder: "Lease Cancellation Fee",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid lease cancellation fee",
       },
       dataTestId: "lease-cancellation-fee",
@@ -232,7 +235,7 @@ const AddTerms = (props) => {
       placeholder: "Lease Renewal Notice Period",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid lease renewal notice period",
       },
       dataTestId: "lease-renewal-notice-period",
@@ -247,7 +250,7 @@ const AddTerms = (props) => {
       placeholder: "Lease Renewal Fee",
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid lease renewal fee",
       },
       dataTestId: "lease-renewal-fee",

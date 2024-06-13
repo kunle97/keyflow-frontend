@@ -31,6 +31,7 @@ import {
 } from "../../../../../helpers/formValidation";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import { useNavigate } from "react-router";
+import { lettersNumbersAndSpecialCharacters, validAnyString, validHTMLDateInput, validWholeNumber } from "../../../../../constants/rexgex";
 const LeaseRenewalForm = (props) => {
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
@@ -88,7 +89,7 @@ const LeaseRenewalForm = (props) => {
         handleChange(e, step0FormData, setStep0FormData, step0FormInputs),
       validations: {
         required: true,
-        regex: /^\d{4}-\d{2}-\d{2}$/,
+        validHTMLDateInput,
         errorMessage: "Please enter a valid move in date",
       },
       dataTestId: "move-in-date",
@@ -104,7 +105,7 @@ const LeaseRenewalForm = (props) => {
         handleChange(e, step1FormData, setStep1FormData, step1FormInputs),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: validWholeNumber,
         errorMessage: "Please enter a valid lease term",
       },
       dataTestId: "lease-term",
@@ -125,7 +126,7 @@ const LeaseRenewalForm = (props) => {
         handleChange(e, step1FormData, setStep1FormData, step1FormInputs),
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validAnyString,
         errorMessage: "Please select a rent frequency",
       },
       dataTestId: "rent-frequency",
@@ -142,7 +143,7 @@ const LeaseRenewalForm = (props) => {
       validations: {
         required: false,
         // required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a comment",
       },
       dataTestId: "comments",
