@@ -176,7 +176,7 @@ const CreateRentalApplication = () => {
           : "",
       companyAddress:
         process.env.REACT_APP_ENVIRONMENT == "development"
-          ? fakeData.fakeAddress
+          ? faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode()
           : "",
       income:
         process.env.REACT_APP_ENVIRONMENT == "development"
@@ -210,7 +210,7 @@ const CreateRentalApplication = () => {
       address:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress(),
+          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
       residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -262,7 +262,7 @@ const CreateRentalApplication = () => {
       companyAddress:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress(),
+          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
       income:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -317,7 +317,7 @@ const CreateRentalApplication = () => {
       address:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress(),
+          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
       residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""

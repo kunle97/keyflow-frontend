@@ -62,6 +62,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 import UICheckbox from "../../UIComponents/UICheckbox";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
 const ManagePortfolio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -177,7 +178,7 @@ const ManagePortfolio = () => {
       placeholder: "Portfolio Name",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid name for the portfolio",
       },
       dataTestId: "portfolio-name",
@@ -192,7 +193,7 @@ const ManagePortfolio = () => {
       placeholder: "Portfolio Description",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid description for the portfolio",
       },
       dataTestId: "portfolio-description",

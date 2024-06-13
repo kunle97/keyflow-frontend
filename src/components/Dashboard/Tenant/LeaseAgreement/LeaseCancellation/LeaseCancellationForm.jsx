@@ -8,6 +8,7 @@ import {
   validateForm,
 } from "../../../../../helpers/formValidation";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
+import { validAnyString, validHTMLDateInput } from "../../../../../constants/rexgex";
 const LeaseCancellationForm = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
@@ -51,7 +52,7 @@ const LeaseCancellationForm = (props) => {
       colSpan: 12,
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validAnyString,
         errorMessage: "Please select a reason for the cancellation",
       },
       dataTestId: "reason",
@@ -68,7 +69,7 @@ const LeaseCancellationForm = (props) => {
         required: true,
         errorMessage: "Please select a move out date",
         //Create a regeext property whoes value is a regex that matches the date format
-        regex: /^(\d{4})-(\d{2})-(\d{2})$/,
+        regex: validHTMLDateInput,
       },
       dataTestId: "move-out-date",
       errorMessageDataTestId: "move-out-date-error",
@@ -82,6 +83,7 @@ const LeaseCancellationForm = (props) => {
 
       validations: {
         required: false,
+        regex:validAnyString,
         errorMessage: "Please enter comments",
       },
       dataTestId: "comments",

@@ -35,6 +35,7 @@ import Joyride, {
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters, validAnyString } from "../../../../constants/rexgex";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -119,7 +120,7 @@ const ManageAnnouncement = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
+        regex:  validAnyString,
         errorMessage: "Enter a valid title",
       },
       dataTestId: "title",
@@ -141,7 +142,7 @@ const ManageAnnouncement = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "Select a severity",
       },
       dataTestId: "severity",
@@ -241,7 +242,7 @@ const ManageAnnouncement = () => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^(?!\s*$)[\w\s\S]+$/,
+        regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Enter a valid body",
       },
       dataTestId: "body",

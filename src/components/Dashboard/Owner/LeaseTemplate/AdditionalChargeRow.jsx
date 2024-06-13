@@ -5,6 +5,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import { numberUpTo2DecimalPlaces, uppercaseAndLowercaseLetters } from "../../../../constants/rexgex";
 
 const AdditionalChargeRow = (props) => {
   const { name, amount, frequency } = props.charge;
@@ -47,7 +48,7 @@ const AdditionalChargeRow = (props) => {
       placeholder: "Pet Rent",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: uppercaseAndLowercaseLetters,
         errorMessage: "Please enter a valid name for the charge",
       },
       dataTestId: "charge-name",
@@ -61,7 +62,7 @@ const AdditionalChargeRow = (props) => {
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex: /^[0-9]*$/,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid amount for the charge",
       },
       dataTestId: "charge-amount",
@@ -82,6 +83,7 @@ const AdditionalChargeRow = (props) => {
       validations: {
         required: true,
         errorMessage: "Please select a frequency for the charge",
+        regex: uppercaseAndLowercaseLetters
       },
       dataTestId: "charge-frequency",
       errorMessageDataTestId: "charge-frequency-error",

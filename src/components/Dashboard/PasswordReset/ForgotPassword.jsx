@@ -10,6 +10,7 @@ import {
   validateForm,
 } from "../../../helpers/formValidation";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
+import { validEmail } from "../../../constants/rexgex";
 const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
@@ -42,7 +43,7 @@ const ForgotPassword = () => {
       placeholder: "Email",
       validations: {
         required: true,
-        regex: /\S+@\S+\.\S+/,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
       dataTestId: "email",
