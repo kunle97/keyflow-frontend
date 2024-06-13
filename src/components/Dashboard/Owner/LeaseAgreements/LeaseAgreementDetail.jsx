@@ -188,11 +188,11 @@ const LeaseAgreementDetail = () => {
         //Retrieve next payment date
         if (res.data.tenant) {
           setAutoRenewalEnabled(res.data.tenant.auto_renew_lease_is_enabled);
-          // getNextPaymentDate(res.data.tenant.id).then((res) => {
-          //   console.log("nExt pay date data", res);
-          //   setNextPaymentDate(res.data.next_payment_date);
-          // });
-          getPaymentDates(res.data.tenant.id).then((res) => {
+          getNextPaymentDate(res.data.tenant.user.id).then((res) => {
+            console.log("nExt pay date data", res);
+            setNextPaymentDate(res.data.next_payment_date);
+          });
+          getPaymentDates(res.data.tenant.user.id).then((res) => {
             if (res.status === 200) {
               const payment_dates = res.data.payment_dates;
               console.log("Payment dates ", payment_dates);

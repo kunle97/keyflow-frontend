@@ -338,7 +338,7 @@ const TenantLeaseAgreementDetail = () => {
                     ${totalAmountDue.toLocaleString()}
                   </div>
                 </div>
-                {leaseTemplate && (
+                {unit && (
                   <div className="row">
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">Unit</h6>
