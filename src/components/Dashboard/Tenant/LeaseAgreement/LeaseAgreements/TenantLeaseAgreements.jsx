@@ -87,7 +87,9 @@ const TenantLeaseAgreements = () => {
       label: "Start Date",
       options: {
         customBodyRender: (value) => {
-          return <span>{new Date(value).toLocaleDateString()}</span>;
+          return <span>
+            {new Date(value).toISOString().split('T')[0]}
+          </span>;
         },
       },
     },
@@ -96,7 +98,7 @@ const TenantLeaseAgreements = () => {
       label: "End Date",
       options: {
         customBodyRender: (value) => {
-          return <span>{new Date(value).toLocaleDateString()}</span>;
+          return <span>{new Date(value).toISOString().split('T')[0]}</span>;
         },
       },
     },
@@ -105,7 +107,7 @@ const TenantLeaseAgreements = () => {
       label: "Date Signed",
       options: {
         customBodyRender: (value) => {
-          return <span>{new Date(value).toLocaleDateString()}</span>;
+          return <span>{new Date(value).toISOString().split('T')[0]}</span>;
         },
       },
     },
