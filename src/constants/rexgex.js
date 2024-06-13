@@ -1,4 +1,4 @@
-export const validName =/^[a-zA-Z\s'.]*$/; //Example valid matches: "John", "John Doe", "John O'Conner", "John Doe Jr."
+export const validName = /^[a-zA-Z\s'.-]*$/; //Example valid matches: "John", "John Doe", "John O'Conner", "John Doe Jr."
 
 export const lettersNumbersAndSpecialCharacters = /^[a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/; //Example valid matches: "John", "John Doe", "John123", "John123!", "John123!@
 

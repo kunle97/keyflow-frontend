@@ -7,7 +7,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
-import { lettersNumbersAndSpecialCharacters, numberUpTo2DecimalPlaces, validEmail, validHTMLDateInput, validName, validPhoneNumber } from "../../../constants/rexgex";
+import { lettersNumbersAndSpecialCharacters, numberUpTo2DecimalPlaces, validAnyString, validEmail, validHTMLDateInput, validName, validPhoneNumber } from "../../../constants/rexgex";
 const EmploymentHistorySection = (props) => {
   const {
     companyName,
@@ -105,7 +105,7 @@ const EmploymentHistorySection = (props) => {
       placeholder: "Company Address (Street, City, State, Zip)",
       validations: {
         required: true,
-        regex: /^[a-zA-Z0-9\s]*$/,
+        regex: validAnyString,
         errorMessage: "Please enter a valid company address",
       },
       dataTestId: "company-address",
