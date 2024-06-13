@@ -13,7 +13,7 @@ import { useStripe, useElements } from "@stripe/react-stripe-js";
 import { IconButton } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { validationMessageStyle } from "../../../constants";
-import { makeId } from "../../../helpers/utils";
+import { makeId, preventPageReload } from "../../../helpers/utils";
 import { getLeaseAgreementByIdAndApprovalHash } from "../../../api/lease_agreements";
 import {
   triggerValidation,
@@ -397,6 +397,7 @@ const TenantRegister = () => {
         "Invalid or expired registration link. Please contact your landlord."
       );
     }
+    preventPageReload();//Warns user before leaving the page
   }, []);
   return (
     <div className="container-fluid">

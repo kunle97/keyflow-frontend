@@ -93,7 +93,6 @@ const TenantLeaseRenewalRequestDetail = () => {
       .finally(() => {
         setIsSubmitting(false);
       });
-    setIsSubmitting(false);
   };
 
   const handleDocumentSigningUpdate = (params) => {

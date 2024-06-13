@@ -357,3 +357,19 @@ export const abbreviateRentFrequency = (frequency) => {
       return frequency;
   }
 };
+
+//A function to warn the user before leaving/refreshing the page
+export const preventPageReload = (e) => {
+  const handleBeforeUnload = (event) => {
+    const message =
+      "Are you sure you want to leave? You may lose unsaved changes.";
+    event.returnValue = message; // Standard way of setting a warning message
+    return message; // Some browsers may use this
+  };
+
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  };
+};

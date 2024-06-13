@@ -13,6 +13,8 @@ import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
+// import styles from "../../../Dashboard/Messaging/styles.module.css";
+import scrollbarStyles from "./scrollbarStyles.module.css";
 const BillDetail = (props) => {
   const { invoice_id } = useParams();
   const { isMobile } = useScreen();
@@ -101,11 +103,6 @@ const BillDetail = (props) => {
             <div className="col-md-7  offset-md-3 mt-3">
               <BackButton />
               <div className={`card mb-4`}>
-                {/* <center className={` ${!isMobile ? "mt-3  py-4" : "mb-4"}`}>
-              <CheckCircleOutlineIcon
-                style={{ fontSize: 50, color: uiGreen, marginBottom: 12 }}
-              />
-            </center> */}
                 <div className="card-body">
                   {invoice && (
                     <div
@@ -162,43 +159,52 @@ const BillDetail = (props) => {
                       </Stack>
                     </div>
                   )}{" "}
-                  {invoice &&
-                    invoice.lines.data.map((line, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="col-md-12 mb-3"
-                          style={{
-                            fontSize: "14pt",
-                            overflow: "auto",
-                            color: uiGrey2,
-                          }}
-                        >
-                          <Stack
-                            spacing={2}
-                            direction="row"
-                            alignItems={"center"}
-                            justifyContent="space-between"
-                            sx={{ width: "100%" }}
+                  <div
+                  className={`${scrollbarStyles.customScrollbar}`}
+                    style={{
+                      maxHeight: "330px",
+                      overflow: "auto",
+                      paddiningRight: "100px",
+                    }}
+                  >
+                    {invoice &&
+                      invoice.lines.data.map((line, index) => {
+                        return (
+                          <div
+                            key={index}
+                            className="col-md-12 mb-3"
+                            style={{
+                              fontSize: "14pt",
+                              overflow: "auto",
+                              color: uiGrey2,
+                            }}
                           >
-                            <Stack>
-                              <span style={{ fontSize: "12pt" }}>
-                                <strong>{line.description}</strong>
-                              </span>
-                              <span style={{ fontSize: "10pt" }}>
-                                Qty. {line.quantity}
+                            <Stack
+                              spacing={2}
+                              direction="row"
+                              alignItems={"center"}
+                              justifyContent="space-between"
+                              sx={{ width: "100%" }}
+                            >
+                              <Stack>
+                                <span style={{ fontSize: "12pt" }}>
+                                  <strong>{line.description}</strong>
+                                </span>
+                                <span style={{ fontSize: "10pt" }}>
+                                  Qty. {line.quantity}
+                                </span>
+                              </Stack>
+                              <span>
+                                {(line.amount / 100).toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
                               </span>
                             </Stack>
-                            <span>
-                              {(line.amount / 100).toLocaleString("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                              })}
-                            </span>
-                          </Stack>
-                        </div>
-                      );
-                    })}{" "}
+                          </div>
+                        );
+                      })}
+                  </div>
                   {invoice && (
                     <div className="row">
                       <div
@@ -207,7 +213,6 @@ const BillDetail = (props) => {
                       >
                         <h5>Balance</h5>
                         <p className="text-black">
-                          {" "}
                           {(invoice.amount_remaining / 100).toLocaleString(
                             "en-US",
                             {
