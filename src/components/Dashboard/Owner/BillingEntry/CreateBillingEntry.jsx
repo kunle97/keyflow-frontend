@@ -47,9 +47,23 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import { lettersNumbersAndSpecialCharacters, numberUpTo2DecimalPlaces, uppercaseAndLowercaseLetters, validAnyString, validHTMLDateInput, validWholeNumber } from "../../../../constants/rexgex";
+import {
+  numberUpTo2DecimalPlaces,
+  uppercaseAndLowercaseLetters,
+  validAnyString,
+  validHTMLDateInput,
+  validWholeNumber,
+} from "../../../../constants/rexgex";
+import { useParams } from "react-router";
+import {
+  getMaintenanceRequestById,
+  updateMaintenanceRequest,
+} from "../../../../api/maintenance_requests";
+
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
+  const { maintenance_request_id } = useParams();
+  const [maintenanceRequest, setMaintenanceRequest] = useState(null);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
   const [filteredTenants, setFilteredTenants] = useState([]);
   const [tenantModalOpen, setTenantModalOpen] = useState(false);
@@ -190,34 +204,46 @@ const CreateBillingEntry = () => {
       type: "select",
       name: "type",
       options: [
-        { value: "revenue", text: "General Revenue", optGroup: "Revenues" },
         {
-          value: "security_deposit",
-          text: "Security Deposit",
+          value: "revenue",
+          text: "General Revenue (Revenue)",
           optGroup: "Revenues",
         },
-        { value: "rent_payment", text: "Rent Payment", optGroup: "Revenues" },
-        { value: "late_fee", text: "Late Fee", optGroup: "Revenues" },
-        { value: "pet_fee", text: "Pet Fee", optGroup: "Revenues" },
+        {
+          value: "security_deposit",
+          text: "Security Deposit (Revenue)",
+          optGroup: "Revenues",
+        },
+        {
+          value: "rent_payment",
+          text: "Rent Payment (Revenue)",
+          optGroup: "Revenues",
+        },
+        { value: "late_fee", text: "Late Fee (Revenue)", optGroup: "Revenues" },
+        { value: "pet_fee", text: "Pet Fee (Revenue)", optGroup: "Revenues" },
         {
           value: "lease_renewal_fee",
-          text: "Lease Renewal Fee",
+          text: "Lease Renewal Fee (Revenue)",
           optGroup: "Revenues",
         },
         {
           value: "lease_cancellation_fee",
-          text: "Lease Cancellation Fee",
+          text: "Lease Cancellation Fee (Revenue)",
           optGroup: "Revenues",
         },
         {
           value: "maintenance_fee",
-          text: "Maintenance Fee",
+          text: "Maintenance Fee (Revenue)",
           optGroup: "Revenues",
         },
-        { value: "expense", text: "General Expense", optGroup: "Expenses" },
+        {
+          value: "expense",
+          text: "General Expense (Expense)",
+          optGroup: "Expenses",
+        },
         {
           value: "vendor_payment",
-          text: "Vendor Payment",
+          text: "Vendor Payment (Expense)",
           optGroup: "Expenses",
         },
       ],
@@ -270,7 +296,7 @@ const CreateBillingEntry = () => {
         : "",
       name: "tenant",
       dialogAction: () => handleOpenTenantSelectModal(),
-      hide: isExpense,
+      hide: isExpense || maintenance_request_id,
       validations: {
         required: false,
         errorMessage: "Tenant cannot be blank",
@@ -287,7 +313,7 @@ const CreateBillingEntry = () => {
       selectTargetLabel: selectedRentalUnit?.name,
       name: "rental_unit",
       dialogAction: () => handleOpenRentalUnitSelectModal(),
-      hide: !isExpense,
+      hide: !isExpense  || maintenance_request_id,
       validations: {
         required: false,
         errorMessage: "Rental Unit cannot be blank",
@@ -416,11 +442,19 @@ const CreateBillingEntry = () => {
     setErrors(newErrors);
     if (isValid) {
       setIsLoading(true);
-      const data = new FormData();
-      formData.collection_method = "send_invoice"
+      if (formData.type === "expense" || formData.type === "vendor_payment") {
+        formData.collection_method = null;
+      } else {
+        formData.collection_method = "send_invoice";
+      }
+      if (maintenance_request_id) {
+        formData.maintenance_request_id = maintenance_request_id;
+        formData.rental_unit = maintenanceRequest.rental_unit.id;
+      }
       createBillingEntry(formData)
         .then((res) => {
-          if (res.status === 200) {
+          console.log("ZXZXCreate billing entry response ", res);
+          if (res.status === 201) {
             console.log("Billing entry created successfully");
             setAlertTitle("Success");
             setAlertMessage("Billing entry created successfully");
@@ -455,8 +489,14 @@ const CreateBillingEntry = () => {
     }
   };
   useEffect(() => {
+    if (maintenance_request_id) {
+      getMaintenanceRequestById(maintenance_request_id).then((res) => {
+        console.log("Maintenance Request: ", res);
+        setMaintenanceRequest(res.data);
+      });
+    }
     getStripeOnboardingAccountLink().then((res) => {
-      console.log("Stripe ACcount link res: ", res);
+      console.log("Stripe Account link res: ", res);
       setStripeAccountLink(res.account_link);
     });
     getStripeAccountRequirements().then((res) => {
@@ -541,6 +581,7 @@ const CreateBillingEntry = () => {
           placeholder="Search tenant"
           inputStyle={{ margin: "10px 0" }}
           name="tenant_search"
+          value={tenantSerchQuery}
         />
         {loadingTenants ? (
           <Stack
@@ -663,6 +704,7 @@ const CreateBillingEntry = () => {
             setRentalUnitSearchQuery(e.target.value);
             handleSearchRentalUnits();
           }}
+          value={rentalUnitSearchQuery}
           type="text"
           placeholder="Search rental unit"
           inputStyle={{ margin: "10px 0" }}
@@ -809,6 +851,7 @@ const CreateBillingEntry = () => {
                               onChange={input.onChange}
                               onBlur={input.onChange}
                               data-testid={input.dataTestId}
+                              value={formData[input.name]}
                             >
                               <option value="" selected>
                                 Select One
@@ -898,6 +941,7 @@ const CreateBillingEntry = () => {
                               step={input.step}
                               errorMessage={input.errorMessage}
                               hide={input.hide}
+                              value={formData[input.name]}
                             />
                             {errors[input.name] && (
                               <span

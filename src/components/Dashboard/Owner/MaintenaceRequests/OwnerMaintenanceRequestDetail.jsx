@@ -54,6 +54,7 @@ import UIPageHeader from "../../UIComponents/UIPageHeader";
 const OwnerMaintenanceRequestDetail = () => {
   const { id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState({});
+  const [billingEntryConfirmModalOpen, setBillingEntryConfirmModalOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [property, setProperty] = useState({});
   const [unit, setUnit] = useState({});
@@ -176,7 +177,12 @@ const OwnerMaintenanceRequestDetail = () => {
           setConfirmMessage("Maintenance Request status has been changed");
           setShowAlertModal(true);
           setStatus(status);
-          navigate(0);
+          if (status === "completed" && maintenanceRequest.billing_entry === null){
+            //Create a confirm modal messages asking the user if they want to create a billing entry
+            setBillingEntryConfirmModalOpen(true);
+          }else{
+            navigate(0);
+          }
         }
       })
       .catch((err) => {
@@ -343,7 +349,22 @@ const OwnerMaintenanceRequestDetail = () => {
             handleClose={() => setShowDeleteConfirm(false)}
             handleCancel={() => setShowDeleteConfirm(false)}
             handleConfirm={handleDeleteMaintenanceRequest}
+            
           />
+          <ConfirmModal
+            title="Create Billing Entry"
+            message="Would you like to create a billing entry for this completed maintenance request?"
+            open={billingEntryConfirmModalOpen}
+            handleClose={() => setBillingEntryConfirmModalOpen(false)}
+            handleCancel={() => setBillingEntryConfirmModalOpen(false)}
+            handleConfirm={() => {
+              setBillingEntryConfirmModalOpen(false);
+              navigate(`/dashboard/owner/billing-entries/create/maintenance-request/${id}`);
+            }}
+            cancelBtnText="Cancel"
+            confirmBtnText="Create Billing Entry"
+          />
+
           <UIDialog
             id="changeStatusDialog"
             title="Change Status"
