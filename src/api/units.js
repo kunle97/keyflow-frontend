@@ -1,4 +1,8 @@
-import { authenticatedInstance, authenticatedMediaInstance, unauthenticatedInstance } from "./api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+  unauthenticatedInstance,
+} from "./api";
 import { authUser } from "../constants";
 ///-----------------UNIT API FUNCTIONS---------------------------///
 //create a function to create a unit
@@ -18,6 +22,26 @@ export async function createUnit(data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+
+//Create a function to retrieve all units from an owner using the endpoint /units/
+export async function getAllUnits() {
+  try {
+    const res = await authenticatedInstance.get(`/units/`).then((res) => {
+      console.log(res);
+
+      if (res.status == 200 && res.data.length == 0) {
+        return { data: [] };
+      }
+      return { data: res.data };
+    });
+
+    return res;
+  } catch (error) {
+    console.log("Get Units Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
 
 //Create function to get all units for the specific property
 export async function getUnits(propertyId) {
@@ -197,8 +221,6 @@ export async function removeUnitLeaseTemplate(unit_id) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-
-
 
 //Create a function that checks if a unit name is valid using the endpoint /units/validate-name/. The function should have the parameter: data:
 export async function validateUnitName(data) {
