@@ -28,6 +28,7 @@ const UIInput = (props) => {
             ...props.inputStyle,
             ...(props.disabled ? disabledStyle : {}),
           }}
+          value={props.value ? props.value : ""}
           type={props.type ? props.type : "text"}
           placeholder={props.placeholder ? props.placeholder : ""}
           onChange={props.onChange ? props.onChange : () => {}}

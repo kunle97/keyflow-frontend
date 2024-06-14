@@ -763,6 +763,19 @@ export const routes = [
     muiIcon: <PaidOutlined />,
   },
   {
+    path: "/dashboard/owner/billing-entries/create/maintenance-request/:maintenance_request_id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Billing Entry",
+    description: "Create a new billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
     path: "/dashboard/owner/billing-entries/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>

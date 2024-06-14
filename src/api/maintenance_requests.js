@@ -204,6 +204,21 @@ export async function changeMaintenanceRequestPriority(
   }
 }
 
+//Create a function to update a maintenance request using the patch method and call it updateMaintenanceRequest
+export async function updateMaintenanceRequest(maintenanceRequestId, data) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/maintenance-requests/${maintenanceRequestId}/`, data)
+      .then((res) => {
+        return res;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Maintenance Request Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
 
 //Create a function to delete a maintenance request
 export async function deleteMaintenanceRequest(maintenanceRequestId) {
