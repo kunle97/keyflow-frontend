@@ -212,7 +212,6 @@ const ManagePortfolio = () => {
     { label: "City", name: "city" },
     { label: "State", name: "state" },
     { label: "Zip Code", name: "zip_code" },
-    { label: "Country", name: "country" },
   ];
 
   const options = {
@@ -801,6 +800,18 @@ const ManagePortfolio = () => {
                   }}
                   createURL="/dashboard/owner/properties/create"
                   showCreate={true}
+                  orderingFields={[
+                    { field: "name", label: "Name (Ascending)" },
+                    { field: "-name", label: "Name (Descending)" },
+                  ]}
+                  searchFields={[
+                    "name",
+                    "street",
+                    "city",
+                    "state",
+                    "zip_code",
+                    "country",
+                  ]}
                 />
               ) : (
                 <UITable

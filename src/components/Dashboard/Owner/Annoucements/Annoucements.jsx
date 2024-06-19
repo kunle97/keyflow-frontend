@@ -29,8 +29,7 @@ const Annoucements = () => {
     },
     {
       target: ".ui-table-search-input",
-      content:
-        "Use the search bar to search for a specific announcement.",
+      content: "Use the search bar to search for a specific announcement.",
     },
     {
       target: ".ui-table-result-limit-select",
@@ -133,10 +132,21 @@ const Annoucements = () => {
             createSubtitle={(row) => `${row.body}`}
             createTitle={(row) => {
               return (
-                <span>{new Date(row.created_at).toLocaleDateString()}</span>
+                <>  
+                  <span>{new Date(row.start_date).toLocaleDateString()}</span> -
+                  <span>{new Date(row.end_date).toLocaleDateString()}</span>
+                </>
               );
             }}
             onRowClick={handleRowClick}
+            orderingFields={[
+              { field: "title", label: "Title (Ascending)" },
+              { field: "-title", label: "Title (Descending)" },
+              { field: "start_date", label: "Start Date (Ascending)" },
+              { field: "-start_date", label: "Start Date (Descending)" },
+              { field: "end_date", label: "End Date (Ascending)" },
+              { field: "-end_date", label: "End Date (Descending)" },
+            ]}
           />
         ) : (
           <UITable

@@ -42,6 +42,7 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ProgressModal from "../Modals/ProgressModal";
 const UITable = (props) => {
   const navigate = useNavigate();
+  const [maxTableCellWidth, setMaxTableCellWidth] = useState("200px");
   const [results, setResults] = useState([]);
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false); //THis will be used to tell if the DRFfilterbackend is being used
@@ -77,6 +78,7 @@ const UITable = (props) => {
   const [selectedOptionsArray, setSelectedOptionsArray] = useState(
     initialSelectedOptions
   );
+  const [endpointParams, setEndpointParams] = useState({});
   let currentPageEndPoint = `${props.endpoint}?limit=${limit}${
     query ? `&search=${query}` : ""
   }`;
@@ -95,80 +97,46 @@ const UITable = (props) => {
 
   const refresh = async (endpoint) => {
     setIsLoading(true);
+    setEndpointParams({
+      limit: limit,
+      search: query,
+      ordering: orderby,
+      ...props.additionalParams,
+    });
     try {
-      if (props.data) {
-        setResults(props.data);
-        setFilteredData(props.data);
-        setIsDrfFilterBackend(false);
-        setIsLoading(false);
-      } else {
-        await authenticatedInstance
-          .get(endpoint, {
-            params: {
-              search: query,
-              ...props.additonalParams,
-            },
-          })
-          .then((res) => {
-            if (res.data.results) {
-              setIsDrfFilterBackend(true);
-              setResults(res.data.results);
-              setNextPageEndPoint(res.data.next);
-              setPreviousPageEndPoint(res.data.previous);
-              setCount(res.data.count);
-              setIsLoading(false);
-              if (props.options.isSelectable) {
-                let newChecked = [];
-                //loop through the first set of results and set the selected property to false for each row. After
-                res.data.results.map((result) => {
-                  newChecked.push({
-                    id: result.id,
-                    selected: false,
-                  });
-                });
-                while (!nextPageEndPoint === null) {
-                  const remaining_res = authenticatedInstance
-                    .get(nextPageEndPoint)
-                    .then((r_res) => {
-                      r_res.data.results.map((result) => {
-                        newChecked.push({
-                          id: result.id,
-                          selected: false,
-                        });
-                      });
-                      setNextPageEndPoint(r_res.data.next);
-                    });
-                }
-                setNextPageEndPoint(res.data.next);
-                props.setChecked(newChecked);
-              }
-            } else {
-              setIsDrfFilterBackend(false);
-              setResults(res.data);
-              setFilteredData(res.data);
-              setNextPageEndPoint(null);
-              setPreviousPageEndPoint(null);
-              setCount(null);
-              setLimit(null);
-              setIsLoading(false);
-              if (props.options.isSelectable) {
-                let newChecked = [];
-                res.data.map((result) => {
-                  newChecked.push({
-                    id: result.id,
-                    selected: false,
-                  });
-                });
-                props.setChecked(newChecked);
-              }
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching data:", error);
-            setAlertTitle("Error");
-            setAlertMessage("An error occurred while fetching the data");
-            setShowAlert(true);
-          });
+      const fetchData = async () => {
+        const response = await authenticatedInstance.get(endpoint, {
+          params: {
+            search: query,
+            ...props.additionalParams,
+          },
+        });
+        console.log("response", response.data)
+        console.log("additional params", props.additionalParams)
+        return response.data;
+      };
+
+      const data = props.data || (await fetchData());
+
+      setResults(data.results || data);
+      setFilteredData(data.results || data);
+      setIsDrfFilterBackend(!!data.results);
+      setNextPageEndPoint(data.next || null);
+      setPreviousPageEndPoint(data.previous || null);
+      setCount(data.count || null);
+      setIsLoading(false);
+
+      if (props.options.isSelectable) {
+        const newChecked = [...props.checked];
+        const currentIds = data.results
+          ? data.results.map((item) => item.id)
+          : data.map((item) => item.id);
+        currentIds.forEach((id) => {
+          if (!newChecked.find((item) => item.id === id)) {
+            newChecked.push({ id, selected: false });
+          }
+        });
+        props.setChecked(newChecked);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -253,7 +221,6 @@ const UITable = (props) => {
       }
     }
   };
-
   const handleSearch = async (e) => {
     e.preventDefault();
     const query = e.target.value;
@@ -267,22 +234,33 @@ const UITable = (props) => {
       }
       refresh(currentPageEndPoint);
     } else {
-      //Search threough the results and filter them based on the search term that matches the search fields
       if (query === "") {
-        setFilteredData(results);
+        setFilteredData(results); // Reset to the original results
+        setSearchTerm(""); // Clear the search term
       } else {
         setSearchTerm(query);
+        // Function to get nested property value
+        const getNestedValue = (obj, path) => {
+          return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        };
         // Filter the data based on the search term
         const filtered = results.filter((item) =>
-          props.searchFields.some((field) =>
-            item[field].toLowerCase().includes(query.toLowerCase())
-          )
+          props.searchFields.some((field) => {
+            const value = getNestedValue(item, field);
+            if (typeof value === 'string') {
+              return value.toLowerCase().includes(query.toLowerCase());
+            } else if (typeof value === 'number') {
+              return value.toString().includes(query.toLowerCase());
+            }
+            return false;
+          })
         );
         setFilteredData(filtered);
         setCurrentPage(1); // Reset to the first page when searching
       }
     }
   };
+  
 
   //Handles the selection change for the filter dropdowns
   const handleFilterSelectionChange = (newSelectedOptions, index) => {
@@ -328,6 +306,13 @@ const UITable = (props) => {
     // newChecked[index].selected = selected;
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
+    console.log(props.checked);
+    //Add support for a function that will be called when a row is selected
+    if (props.options.onRowSelect) {
+      console.log("Row selected");
+      props.options.onRowSelect();
+    }
+    console.log("Checked rows", props.checked);
   };
 
   //Handles the select all checkbox in table header
@@ -405,9 +390,7 @@ const UITable = (props) => {
         console.log("err", err);
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
-          setResponseMessage(
-            err.response.data.message
-          );
+          setResponseMessage(err.response.data.message);
         } else {
           setResponseMessage(
             "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
@@ -424,7 +407,7 @@ const UITable = (props) => {
 
   useEffect(() => {
     refresh(currentPageEndPoint);
-  }, [props.data]);
+  }, [props.data,searchTerm]);
 
   return (
     <div style={{ width: "100%", overflowX: "auto", padding: "0 15px" }}>
@@ -557,7 +540,7 @@ const UITable = (props) => {
             <input
               className="ui-table-search-input"
               style={{
-                background: "white",
+                background: "#efefef",
                 color: "black",
                 border: "none",
                 outline: "none",
@@ -632,20 +615,54 @@ const UITable = (props) => {
                   {/* Table Header  */}
                   <tr>
                     {props.options.isSelectable && (
-                      <th>
-                        {/* <Checkbox
-                          // checked={props.checked[0] && props.checked[1]}
-                          indeterminate={props.checked[0] !== props.checked[1]}
+                      <th
+                        style={{
+                          maxWidth: maxTableCellWidth,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <Checkbox
+                          checked={
+                            //Check if all the rows are selected
+                            props.checked.every((element) => element.selected)
+                          }
+                          indeterminate={
+                            //Check if some of the rows are selected
+                            props.checked.some((element) => element.selected) &&
+                            !props.checked.every((element) => element.selected)
+                          }
                           onChange={handleSelectAll}
-                        /> */}
+                          sx={{
+                            color: uiGreen,
+                            "&.Mui-checked": {
+                              color: uiGreen,
+                            },
+                            "&.MuiCheckbox-indeterminate": {
+                              color: uiGreen,
+                            },
+                          }}
+                        />
                       </th>
                     )}
                     {props.columns.map((column) => {
                       return (
-                        <th>
+                        <th
+                          style={{
+                            maxWidth:  maxTableCellWidth,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           <ButtonBase
                             onClick={() => {
-                              handleTableHeaderClick(column.name);
+                              handleTableHeaderClick(
+                                column.options?.orderingField
+                                  ? column.options.orderingField
+                                  : column.name
+                              );
                             }}
                           >
                             {column.label}{" "}
@@ -699,7 +716,14 @@ const UITable = (props) => {
                               if (column.options) {
                                 if (column.options.customBodyRender) {
                                   return (
-                                    <td>
+                                    <td
+                                      style={{
+                                        maxWidth:  maxTableCellWidth,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
                                       {column.options.customBodyRender(
                                         row[column.name]
                                       )}
@@ -707,7 +731,18 @@ const UITable = (props) => {
                                   );
                                 }
                               }
-                              return <td>{row[column.name]}</td>;
+                              return (
+                                <td
+                                  style={{
+                                    maxWidth:  maxTableCellWidth,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {row[column.name]}
+                                </td>
+                              );
                             })}
                             <td>
                               <div className="ui-table-more-button">
@@ -784,7 +819,14 @@ const UITable = (props) => {
                               if (column.options) {
                                 if (column.options.customBodyRender) {
                                   return (
-                                    <td>
+                                    <td
+                                      style={{
+                                        maxWidth:  maxTableCellWidth,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
                                       {column.options.customBodyRender(
                                         row[column.name]
                                       )}
@@ -792,7 +834,18 @@ const UITable = (props) => {
                                   );
                                 }
                               }
-                              return <td>{row[column.name]}</td>;
+                              return (
+                                <td
+                                  style={{
+                                    maxWidth:  maxTableCellWidth,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {row[column.name]}
+                                </td>
+                              );
                             })}
                             {props.menuOptions && (
                               <td>

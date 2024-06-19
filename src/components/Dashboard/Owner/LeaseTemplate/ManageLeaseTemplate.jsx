@@ -52,7 +52,11 @@ import DeleteButton from "../../UIComponents/DeleteButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-import { numberUpTo2DecimalPlaces, uppercaseAndLowercaseLetters, validWholeNumber } from "../../../../constants/rexgex";
+import {
+  numberUpTo2DecimalPlaces,
+  uppercaseAndLowercaseLetters,
+  validWholeNumber,
+} from "../../../../constants/rexgex";
 
 const ManageLeaseTemplate = () => {
   const iconStyles = {
@@ -187,7 +191,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex:  numberUpTo2DecimalPlaces,
+        regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
       dataTestId: "rent",
@@ -403,7 +407,7 @@ const ManageLeaseTemplate = () => {
         ),
       validations: {
         required: true,
-        regex:  validWholeNumber,
+        regex: validWholeNumber,
         errorMessage: "This field is required",
       },
       dataTestId: "grace-period",
@@ -760,7 +764,7 @@ const ManageLeaseTemplate = () => {
   return (
     <>
       {isLoadingPage ? (
-        <UIProgressPrompt 
+        <UIProgressPrompt
           title="Loading Lease Template Information"
           message="Please wait while we retrieve data for your lease template."
         />
@@ -866,7 +870,7 @@ const ManageLeaseTemplate = () => {
             open={showAssignModal}
             title="Select Assignments"
             onClose={() => setShowAssignModal(false)}
-            style={{ width: "800px" }}
+            maxWidth={"lg"}
           >
             <Assign
               hideShadow={true}
@@ -1111,6 +1115,15 @@ const ManageLeaseTemplate = () => {
                         const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
                         navigate(navlink);
                       }}
+                      orderingFields={[
+                        { field: "name", label: "Name (Ascending)" },
+                        { field: "-name", label: "Name (Descending)" },
+                        { field: "beds", label: "Beds (Ascending)" },
+                        { field: "-beds", label: "Beds (Descending)" },
+                        { field: "baths", label: "Baths (Ascending)" },
+                        { field: "-baths", label: "Baths (Descending)" },
+                      ]}
+                      searchFields={["name", "beds", "baths"]}
                     />
                   ) : (
                     <>
@@ -1145,6 +1158,13 @@ const ManageLeaseTemplate = () => {
                       }}
                       createURL="/dashboard/owner/properties/create"
                       showCreate={true}
+                      orderingFields={[
+                        { field: "name", label: "Name (Ascending)" },
+                        { field: "-name", label: "Name (Descending)" },
+                        {field: "created_at", label: "Date Created (Ascending)"},
+                        {field: "-created_at", label: "Date Created (Descending)"}
+                      ]}
+                      searchFields={["name", "street", "city", "state"]}
                     />
                   ) : (
                     <UITable
@@ -1152,7 +1172,6 @@ const ManageLeaseTemplate = () => {
                       data={properties}
                       columns={[
                         { label: "Name", name: "name" },
-                        { label: "Address", name: "address" },
                         {
                           label: "Units",
                           name: "units",
@@ -1213,6 +1232,7 @@ const ManageLeaseTemplate = () => {
                           label: "Date Created (Descending)",
                         },
                       ]}
+                      searchFields={["name", "description"]}
                     />
                   ) : (
                     <UITable

@@ -83,12 +83,6 @@ const LeaseRenewalRequestDetail = () => {
     console.log(runTour);
   };
 
-  const columns = [
-    { name: "amount", label: "Amount" },
-    { name: "due_date", label: "Due Date" },
-    { name: "status", label: "Status" },
-  ];
-
   const rent_payment_columns = [
     {
       label: "Type",
@@ -103,6 +97,7 @@ const LeaseRenewalRequestDetail = () => {
       label: "Amount Due",
       name: "amount_remaining",
       options: {
+        orderingField: "amount_remaining",
         customBodyRender: (value) => {
           const amountDue = `$${String(value / 100).toLocaleString("en-US")}`;
 
@@ -122,6 +117,7 @@ const LeaseRenewalRequestDetail = () => {
       label: "Amount Paid",
       name: "amount_paid",
       options: {
+        orderingField: "amount_paid",
         customBodyRender: (value) => {
           const amountPaid = `$${String(value / 100).toLocaleString("en-US")}`;
           return (
@@ -140,6 +136,7 @@ const LeaseRenewalRequestDetail = () => {
       label: "Date Due",
       name: "due_date",
       options: {
+        orderingField: "due_date",
         customBodyRender: (value) => {
           return new Date(value * 1000).toLocaleDateString();
         },
@@ -446,7 +443,7 @@ const LeaseRenewalRequestDetail = () => {
               {isMobile ? (
                 <UITableMobile
                   showCreate={false}
-                  title="Invoices"
+                  tableTitle="Invoices"
                   data={invoices}
                   createInfo={(row) =>
                     `${removeUnderscoresAndCapitalize(row.metadata.type)}`
@@ -488,6 +485,11 @@ const LeaseRenewalRequestDetail = () => {
                     { field: "amount", label: "Amount (Ascending)" },
                     { field: "-amount", label: "Amount (Descending)" },
                   ]}
+                  searchFields={[
+                    "metadata.type",
+                    "metadata.description",
+                    "amount_due",
+                  ]}
                 />
               ) : (
                 <UITable
@@ -505,6 +507,11 @@ const LeaseRenewalRequestDetail = () => {
                         navigate(`/dashboard/tenant/bills/${row.id}`);
                       },
                     },
+                  ]}
+                  searchFields={[
+                    "metadata.type",
+                    "metadata.description",
+                    "amount_due",
                   ]}
                 />
               )}

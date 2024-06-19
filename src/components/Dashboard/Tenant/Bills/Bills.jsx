@@ -83,6 +83,7 @@ const Bills = () => {
       label: "Amount Due",
       name: "amount_remaining",
       options: {
+        orderingField: "amount_remaining",
         customBodyRender: (value) => {
           const amountDue = `$${String(value / 100).toLocaleString("en-US")}`;
 
@@ -102,6 +103,7 @@ const Bills = () => {
       label: "Amount Paid",
       name: "amount_paid",
       options: {
+        orderingField: "amount_paid",
         customBodyRender: (value) => {
           const amountPaid = `$${String(value / 100).toLocaleString("en-US")}`;
           return (
@@ -120,6 +122,7 @@ const Bills = () => {
       label: "Date Due",
       name: "due_date",
       options: {
+        orderingField: "due_date",
         customBodyRender: (value) => {
           return new Date(value * 1000).toLocaleDateString();
         },
@@ -187,7 +190,7 @@ const Bills = () => {
           {isMobile ? (
             <UITableMobile
               showCreate={false}
-              title="Bills"
+              tableTitle="Bills"
               data={invoices}
               createInfo={(row) =>
                 `${removeUnderscoresAndCapitalize(row.metadata.type)}`
@@ -218,6 +221,11 @@ const Bills = () => {
                 { field: "amount", label: "Amount (Ascending)" },
                 { field: "-amount", label: "Amount (Descending)" },
               ]}
+              searchFields={[
+                "metadata.type",
+                "metadata.description",
+                "amount_due",
+              ]}
             />
           ) : (
             <div className="tenant-bills-table-container">
@@ -234,6 +242,11 @@ const Bills = () => {
                       navigate(`/dashboard/tenant/bills/${row.id}`);
                     },
                   },
+                ]}
+                searchFields={[
+                  "metadata.type",
+                  "metadata.description",
+                  "amount_due",
                 ]}
               />
             </div>

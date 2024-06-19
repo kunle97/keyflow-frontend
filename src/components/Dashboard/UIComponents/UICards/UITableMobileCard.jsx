@@ -18,14 +18,13 @@ const UICard = ({
   dropDownOptions,
   onDropdownChange,
   showChevron,
-  chartHeaderMode,
+  checkbox,
 }) => {
   const { isMobile } = useScreen();
   return (
     <div
       className="card"
       style={{ margin: "10px 0", overflow: "hidden", ...cardStyle }}
-      onClick={onClick}
       data-testId={dataTestId}
     >
       <div className="card-body">
@@ -43,26 +42,13 @@ const UICard = ({
             alignItems="center"
             sx={{}}
           >
-            {imageSrc && (
-              <>
-                {/* <div
-                  style={{
-                    width: "75px",
-                    height: "75px",
-                    borderRadius: "10px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <img src={imageSrc} alt="profile" style={{ width: "100%" }} />
-                </div>{" "}
-                 */}
-              </>
-            )}
+            {checkbox && checkbox}
             {(info || title) && (
               <div
                 style={{
                   lineHeight: "1",
                 }}
+                onClick={onClick}
               >
                 <h5
                   className="card-title ui-table-mobile-info"
@@ -124,7 +110,9 @@ const UICard = ({
               <p></p>
             </Stack>
           )}
-          {showChevron && <ChevronRightIcon sx={{ color: uiGreen }} />}
+          {showChevron && (
+            <ChevronRightIcon onClick={onClick} sx={{ color: uiGreen }} />
+          )}
         </Stack>
         <div>{children}</div>
       </div>

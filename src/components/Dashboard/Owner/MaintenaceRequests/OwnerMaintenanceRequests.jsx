@@ -80,6 +80,23 @@ const OwnerMaintenanceRequests = () => {
     console.log(runTour);
   };
   const columns = [
+    {
+      name: "tenant",
+      label: "Tenant",
+      options: {
+        orderingField: "tenant__user__last_name",
+        isObject: true,
+        customBodyRender: (value) => {
+          let output = "";
+          if (value) {
+            output = `${value.user.first_name} ${value.user.last_name}`;
+          } else {
+            output = "N/A";
+          }
+          return <span>{output}</span>;
+        },
+      },
+    },
     { name: "description", label: "Issue" },
     {
       name: "priority",
@@ -170,8 +187,8 @@ const OwnerMaintenanceRequests = () => {
 
   useEffect(() => {
     //Retrieve the maintenance requests
-    getAllOwnerMaintenanceRequests(orderingField, searchField, limit).then(
-      (res) => {
+    getAllOwnerMaintenanceRequests(orderingField, searchField, limit)
+      .then((res) => {
         setMaintenanceRequests(res.data.results);
         setResolvedIssues(
           res.data.results.filter((request) => {
@@ -188,12 +205,12 @@ const OwnerMaintenanceRequests = () => {
             return request.status === "in_progress";
           }).length
         );
-      }
-    ).catch((error) => {
-      console.error("Error fetching maintenance requests:", error);
-      setDeleteErrorMessage("Error fetching maintenance requests");
-      setShowDeleteError(true);
-    });
+      })
+      .catch((error) => {
+        console.error("Error fetching maintenance requests:", error);
+        setDeleteErrorMessage("Error fetching maintenance requests");
+        setShowDeleteError(true);
+      });
   }, [orderingField, searchField, limit]);
 
   return (
@@ -293,7 +310,7 @@ const OwnerMaintenanceRequests = () => {
           }}
           titleStyle={{
             maxHeight: "17px",
-            maxWidth: "180px",
+            maxWidth: "230px",
             overflow: "hidden",
             textOverflow: "ellipsis",
           }}
@@ -307,11 +324,13 @@ const OwnerMaintenanceRequests = () => {
           tableTitle="Maintenance Requests"
           loadingTitle="Maintenance Requests"
           loadingMessage="Loading your maintenance requests..."
+          searchFields={["description", "status"]}
         />
       ) : (
         <div className="maintenance-request-section-table">
           <UITable
-            data={maintenanceRequests}
+            // data={maintenanceRequests}
+            endpoint="/maintenance-requests/"
             columns={columns}
             options={options}
             title="Maintenance Requests"

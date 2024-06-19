@@ -60,6 +60,7 @@ const ViewLeaseAgreements = () => {
       name: "tenant",
       label: "Tenant",
       options: {
+        orderingField: "tenant__user__last_name",
         isObject: true,
         customBodyRender: (value) => {
           let output = "";
@@ -76,6 +77,7 @@ const ViewLeaseAgreements = () => {
       name: "rental_unit",
       label: "Unit",
       options: {
+        orderingField: "rental_unit__name",
         isObject: true,
         customBodyRender: (value) => {
           return <span>{value.name}</span>;
@@ -153,7 +155,7 @@ const ViewLeaseAgreements = () => {
             createInfo={(row) =>
               `${
                 row.tenant
-                  ? row.tenant.user.first_name + row.tenant.user.last_name
+                  ? row.tenant.user.first_name + " " + row.tenant.user.last_name
                   : "N/A"
               }`
             }

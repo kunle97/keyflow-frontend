@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import { useNavigate } from "react-router";

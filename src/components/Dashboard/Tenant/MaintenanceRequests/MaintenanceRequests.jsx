@@ -195,8 +195,9 @@ const MaintenanceRequests = () => {
               ]}
               showResultLimit={false}
               tableTitle="Maintenance Requests"
-              loadingTitle="Maintenance Requests"
+              loadingTitle="Maintenance Requests"              
               loadingMessage="Loading your maintenance requests..."
+              searchFields={["description", "status","tenant__user__last_name"]}
             />
           ) : (
             <div className="maintenance-request-section-table">

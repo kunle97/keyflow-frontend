@@ -20,12 +20,10 @@ const Properties = () => {
     { label: "Street", name: "street" },
     { label: "City", name: "city" },
     { label: "State", name: "state" },
-    { label: "Zip Code", name: "zip_code" },
-    { label: "Country", name: "country" },
   ];
 
   const options = {
-    isSelectable: true,
+    isSelectable: false,
     onRowClick: (row) => {
       let navlink = "/";
       navlink = `/dashboard/owner/properties/${row}`;
@@ -86,30 +84,37 @@ const Properties = () => {
           uploadButtonText="Upload CSV"
           uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
           fileUploadEndpoint={`/properties/upload-csv-properties/`}
-          // getImage={(row) => {
-          //   retrieveFilesBySubfolder(
-          //     `properties/${row.id}`,
-          //     authUser.id
-          //   ).then((res) => {
-          //     if (res.data.length > 0) {
-          //       return res.data[0].file;
-          //     } else {
-          //       return "https://picsum.photos/200";
-          //     }
-          //   });
-          // }}
           onRowClick={(row) => {
             const navlink = `/dashboard/owner/properties/${row.id}`;
             navigate(navlink);
           }}
           createURL="/dashboard/owner/properties/create"
           showCreate={true}
+          options={options}
+          checked={checked}
+          setChecked={setChecked}
+          searchFields={[
+            "name",
+            "street",
+            "city",
+            "state",
+            "zip_code",
+            "country",
+          ]}
+          orderingFields={[
+            { field: "name", label: "Name (Ascending)" },
+            { field: "-name", label: "Name (Descending)" },
+            { field: "street", label: "Street (Ascending)" },
+            { field: "-street", label: "Street (Descending)" },
+            { field: "created_at", label: "Date Created (Ascending)" },
+            { field: "-created_at", label: "Date Created (Descending)" },
+          ]}
         />
       ) : (
         <UITable
           options={options}
-          checked={checked}
           columns={columns}
+          checked={checked}
           setChecked={setChecked}
           endpoint={"/properties/"}
           searchFields={[
