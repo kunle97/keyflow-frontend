@@ -24,40 +24,13 @@ const Tenants = () => {
   const columns = [
     {
       name: "user",
-      label: "",
-      options: {
-        isObject: true,
-        customBodyRender: (value) => {
-          return (
-            <div
-              style={{
-                overflow: "hidden",
-                borderRadius: "50%",
-                width: "50px",
-                height: "50px",
-              }}
-            >
-              <img
-                src={
-                  value.user_profile_picture
-                    ? value.user_profile_picture.file
-                    : defaultUserProfilePicture
-                }
-                style={{ height: "50px", margin: "auto" }}
-              />
-            </div>
-          );
-        },
-      },
-    },
-    {
-      name: "user",
       label: "First Name",
       options: {
         isObject: true,
         customBodyRender: (value) => {
           return value.first_name;
         },
+        orderingField: "user__first_name",
       },
     },
     {
@@ -68,6 +41,7 @@ const Tenants = () => {
         customBodyRender: (value) => {
           return value.last_name;
         },
+        orderingField: "user__last_name",
       },
     },
     {
@@ -78,6 +52,7 @@ const Tenants = () => {
         customBodyRender: (value) => {
           return value.email;
         },
+        orderingField: "user__email",
       },
     },
   ];
@@ -95,7 +70,7 @@ const Tenants = () => {
     },
   };
   useEffect(() => {
-    try{
+    try {
       getOwnerTenants().then((res) => {
         console.log(res);
         setTenants(res.data);
@@ -111,9 +86,11 @@ const Tenants = () => {
         setLeaseCancellations(res.data);
         console.log(leaseCancellations);
       });
-    }catch(err){
+    } catch (err) {
       console.error(err);
-      setAlertMessage("An error occurred while retrieving tenants. Please try again later.");
+      setAlertMessage(
+        "An error occurred while retrieving tenants. Please try again later."
+      );
       setAlertTitle("Error");
       setShowAlert(true);
     }
@@ -190,6 +167,7 @@ const Tenants = () => {
               ]}
               loadingTitle="Loading Tenants..."
               loadingMessage="Please wait while we load all the tenants."
+              searchFields={["first_name", "last_name", "email"]}
             />
           ) : (
             <UITable

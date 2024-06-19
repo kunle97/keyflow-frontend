@@ -18,7 +18,6 @@ import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 const ArchivedRentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
-  const [showArchived, setShowArchived] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
@@ -150,7 +149,7 @@ const ArchivedRentalApplications = () => {
         );
         setShowAlert(true);
       });
-  }, [showArchived]);
+  }, []);
   return (
     <div className="container-fluid rental-application-list">
       <AlertModal

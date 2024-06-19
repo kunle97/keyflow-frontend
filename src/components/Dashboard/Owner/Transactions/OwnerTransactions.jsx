@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import TitleCard from "../../UIComponents/TitleCard";
 import UITable from "../../UIComponents/UITable/UITable";
-import UITabs from "../../UIComponents/UITabs";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import useScreen from "../../../../hooks/useScreen";
@@ -69,11 +68,10 @@ const OwnerTransactions = () => {
   };
 
   const columns = [
-    { name: "id", label: "ID", options: { display: false } },
     { name: "amount", label: "Amount" },
     {
       name: "type",
-      label: "Transaction",
+      label: "Transaction Type",
       options: {
         customBodyRender: (value) => {
           //remove the underscore from the value and capitalize the first letter of each word
@@ -195,6 +193,7 @@ const OwnerTransactions = () => {
                 { field: "amount", label: "Amount (Ascending)" },
                 { field: "-amount", label: "Amount (Descending)" },
               ]}
+              searchFields={["type", "amount", "timestamp"]}
             />
           ) : (
             <UITable

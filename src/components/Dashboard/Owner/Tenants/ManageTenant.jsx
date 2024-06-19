@@ -584,6 +584,7 @@ const ManageTenant = () => {
                     { field: "amount", label: "Amount (Ascending)" },
                     { field: "-amount", label: "Amount (Descending)" },
                   ]}
+                  searchFields={["first_name", "last_name", "email"]}
                 />
               )}
             </div>

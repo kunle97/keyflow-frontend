@@ -1186,6 +1186,14 @@ const ManageProperty = () => {
                                   const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
                                   navigate(navlink);
                                 }}
+                                orderingFields={[
+                                  { field: "name", label: "Name (Ascending)" },
+                                  {
+                                    field: "-name",
+                                    label: "Name (Descending)",
+                                  },
+                                ]}
+                                searchFields={["name", "beds", "baths"]}
                               />
                             ) : (
                               <UITable
