@@ -18,7 +18,6 @@ import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 const RentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
-  const [showArchived, setShowArchived] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
@@ -77,6 +76,7 @@ const RentalApplications = () => {
       label: "Unit",
       name: "unit",
       options: {
+        orderingField: "unit__name",
         customBodyRender: (value) => {
           return value.name;
         },
@@ -86,6 +86,7 @@ const RentalApplications = () => {
       label: "Property",
       name: "unit",
       options: {
+        orderingField: "unit__rental_property_name",
         customBodyRender: (value) => {
           return value.rental_property_name;
         },
@@ -150,7 +151,7 @@ const RentalApplications = () => {
         );
         setShowAlert(true);
       });
-  }, [showArchived]);
+  }, []);
   return (
     <div className="container-fluid rental-application-list">
       <AlertModal
@@ -190,7 +191,7 @@ const RentalApplications = () => {
           createSubtitle={(row) =>
             `${row.is_approved ? "Approved" : "Pending"}`
           }
-          additonalParams={{
+          additionalParams={{
             is_archived: false,
           }}
           orderingFields={[
@@ -203,18 +204,6 @@ const RentalApplications = () => {
             { field: "is_approved", label: "Approved (Ascending)" },
             { field: "-is_approved", label: "Approved (Descending)" },
           ]}
-          // getImage={(row) => {
-          //   retrieveFilesBySubfolder(
-          //     `properties/${row.id}`,
-          //     authUser.id
-          //   ).then((res) => {
-          //     if (res.data.length > 0) {
-          //       return res.data[0].file;
-          //     } else {
-          //       return "https://picsum.photos/200";
-          //     }
-          //   });
-          // }}
           onRowClick={(row) => {
             const navlink = `/dashboard/owner/rental-applications/${row.id}`;
             navigate(navlink);
@@ -224,7 +213,7 @@ const RentalApplications = () => {
         <UITable
           columns={columns}
           options={options}
-          additonalParams={{
+          additionalParams={{
             is_archived: false,
           }}
           endpoint={`/rental-applications/`}

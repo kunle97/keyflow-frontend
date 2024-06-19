@@ -41,7 +41,7 @@ const CreateLeaseTemplate = (props) => {
    *
    */
   const { isMobile } = useScreen();
-  const [step, setStep] = useState(2);
+  const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
     "Upload Document",
     "Terms",

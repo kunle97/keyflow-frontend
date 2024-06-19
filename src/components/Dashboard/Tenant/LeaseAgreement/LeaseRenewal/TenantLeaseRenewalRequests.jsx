@@ -61,6 +61,7 @@ const TenantLeaseRenewalRequests = () => {
       name: "rental_unit",
       label: "Unit",
       options: {
+        orderingField: "rental_unit__name",
         customBodyRender: (value) => {
           return <span>{value.name}</span>;
         },
@@ -180,6 +181,7 @@ const TenantLeaseRenewalRequests = () => {
             }}
             loadingTitle="Lease renewal Requests"
             loadingMessage="Please wait while we fetch your lease renewal requests."
+            searchFeilds={["status"]}
           />
         ) : (
           <UITable

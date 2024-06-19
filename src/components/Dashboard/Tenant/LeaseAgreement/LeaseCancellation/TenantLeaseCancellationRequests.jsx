@@ -67,6 +67,7 @@ const TenantLeaseCancellationRequests = () => {
       name: "rental_unit",
       label: "Unit",
       options: {
+        orderingField: "rental_unit__name",
         customBodyRender: (value) => {
           return <span>{value.name}</span>;
         },
@@ -181,6 +182,7 @@ const TenantLeaseCancellationRequests = () => {
             onRowClick={handleRowClick}
             loadingTitle="Lease Cancellation Requests"
             loadingMessage="Please wait while we fetch your lease cancellation requests."
+            searchFeilds={["status"]}
           />
         ) : (
           <UITable

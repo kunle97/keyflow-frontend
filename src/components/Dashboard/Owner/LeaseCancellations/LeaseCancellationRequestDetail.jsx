@@ -109,6 +109,7 @@ const LeaseCancellationRequestDetail = () => {
       label: "Amount Due",
       name: "amount_remaining",
       options: {
+        orderingField: "amount_remaining",
         customBodyRender: (value) => {
           const amountDue = `$${String(value / 100).toLocaleString("en-US")}`;
 
@@ -128,6 +129,7 @@ const LeaseCancellationRequestDetail = () => {
       label: "Amount Paid",
       name: "amount_paid",
       options: {
+        orderingField: "amount_paid",
         customBodyRender: (value) => {
           const amountPaid = `$${String(value / 100).toLocaleString("en-US")}`;
           return (
@@ -146,6 +148,7 @@ const LeaseCancellationRequestDetail = () => {
       label: "Date Due",
       name: "due_date",
       options: {
+        orderingField: "due_date",
         customBodyRender: (value) => {
           return new Date(value * 1000).toLocaleDateString();
         },
@@ -476,7 +479,7 @@ const LeaseCancellationRequestDetail = () => {
               {isMobile ? (
                 <UITableMobile
                   showCreate={false}
-                  title="Invoices"
+                  tableTitle="Invoices"
                   data={invoices}
                   createInfo={(row) =>
                     `${removeUnderscoresAndCapitalize(row.metadata.type)}`
@@ -521,6 +524,11 @@ const LeaseCancellationRequestDetail = () => {
                     { field: "amount", label: "Amount (Ascending)" },
                     { field: "-amount", label: "Amount (Descending)" },
                   ]}
+                  searchFields={[
+                    "metadata.type",
+                    "metadata.description",
+                    "amount_due",
+                  ]}
                 />
               ) : (
                 <UITable
@@ -539,6 +547,11 @@ const LeaseCancellationRequestDetail = () => {
                       },
                     },
                   ]}
+                  searchFields={[
+                    "metadata.type",
+                    "metadata.description",
+                    "amount_due",
+                  ]}
                 />
               )}
             </div>
@@ -548,7 +561,7 @@ const LeaseCancellationRequestDetail = () => {
             gap={2}
             justifyContent={"flex-end"}
             sx={{ margin: "30px 0" }}
-          > 
+          >
             <UIButton
               id="reject-lease-cancellation-button"
               onClick={setOpenRejectModal}

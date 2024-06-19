@@ -83,18 +83,44 @@ const UIPageHeader = (props) => {
           alignItems="center"
           alignContent={{ xs: "center", sm: "flex-start" }}
         >
-          <div className="header">
+          <Stack style={{ maxWidth: "100%" }}>
             <h4
               data-testId="header-title"
-              style={{ marginBottom: "0px", fontSize: "17pt" }}
+              style={{
+                marginBottom: "0px",
+                fontSize: "17pt",
+                maxWidth: "350px",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+              }}
             >
               {props.title}
             </h4>
-            <span className="text-black" data-testId="page-header-subtitle">
+            <span
+              className="text-black"
+              data-testId="page-header-subtitle"
+              style={{
+                maxWidth: isMobile ? "250px" : "450px",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                margin: "5px 0",
+              }}
+            >
               {props.subtitle}
             </span>
-            <span>{props.subtitle2}</span>
-          </div>
+            <span
+              style={{
+                maxWidth: isMobile ? "250px" : "450px",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+              }}
+            >
+              {props.subtitle2}
+            </span>
+          </Stack>
           {props.menuItems && (
             <>
               <IconButton
@@ -129,7 +155,7 @@ const UIPageHeader = (props) => {
                       sx={{
                         borderRadius: "0px",
                         boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.1)",
-                        zIndex: "1300000 !important"
+                        zIndex: "1300000 !important",
                       }}
                     >
                       <ClickAwayListener onClickAway={handleClose}>

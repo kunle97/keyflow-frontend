@@ -79,7 +79,15 @@ const LeaseTemplates = () => {
   };
 
   const columns = [
-    { name: "rent", label: "Rent" },
+    {
+      name: "rent",
+      label: "Rent",
+      options: {
+        customBodyRender: (value) => {
+          return "$" + value;
+        },
+      },
+    },
     {
       name: "term",
       label: "Duration",
@@ -89,8 +97,24 @@ const LeaseTemplates = () => {
         },
       },
     },
-    { name: "late_fee", label: "Late Fee" },
-    { name: "security_deposit", label: "Security Deposit" },
+    {
+      name: "late_fee",
+      label: "Late Fee",
+      options: {
+        customBodyRender: (value) => {
+          return "$" + value;
+        },
+      },
+    },
+    {
+      name: "security_deposit",
+      label: "Security Deposit",
+      options: {
+        customBodyRender: (value) => {
+          return "$" + value;
+        },
+      },
+    },
     {
       name: "created_at",
       label: "Date Created",

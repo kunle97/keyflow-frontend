@@ -63,6 +63,21 @@ const Units = () => {
           }}
           createURL="/dashboard/owner/units/create"
           showCreate={true}
+          searchFields={["name", "rental_property_name"]}
+          orderingFields={[
+            { field: "name", label: "Name (Ascending)" },
+            { field: "-name", label: "Name (Descending)" },
+            { field: "rental_property_name", label: "Property (Ascending)" },
+            { field: "-rental_property_name", label: "Property (Descending)" },
+            { field: "beds", label: "Beds (Ascending)" },
+            { field: "-beds", label: "Beds (Descending)" },
+            { field: "baths", label: "Baths (Ascending)" },
+            { field: "-baths", label: "Baths (Descending)" },
+            { field: "size", label: "Size (Ascending)" },
+            { field: "-size", label: "Size (Descending)" },
+            { field: "is_occupied", label: "Occupied (Ascending)" },
+            { field: "-is_occupied", label: "Occupied (Descending)" },
+          ]}
         />
       ) : (
         <UITable

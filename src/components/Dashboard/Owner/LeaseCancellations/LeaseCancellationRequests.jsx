@@ -62,6 +62,7 @@ const LeaseCancellationRequests = () => {
       name: "tenant",
       label: "Tenant",
       options: {
+        orderingField: "tenant__user__last_name",
         isObject: true,
         customBodyRender: (value) => {
           let output = "";
@@ -78,6 +79,7 @@ const LeaseCancellationRequests = () => {
       name: "rental_unit",
       label: "Unit",
       options: {
+        orderingField: "rental_unit__name",
         isObject: true,
         customBodyRender: (value) => {
           return <span>{value.name}</span>;
@@ -87,6 +89,15 @@ const LeaseCancellationRequests = () => {
     {
       name: "status",
       label: "Status",
+    },
+    {
+      name: "request_date",
+      label: "Date Requested",
+      options: {
+        customBodyRender: (value) => {
+          return <span>{new Date(value).toLocaleDateString()}</span>;
+        },
+      },
     },
     {
       name: "created_at",
@@ -139,10 +150,12 @@ const LeaseCancellationRequests = () => {
           }
           createSubtitle={(row) => `${row.status}`}
           orderingFields={[
-            { field: "created_at", label: "Date Created (Ascending)" },
-            { field: "-created_at", label: "Date Created (Descending)" },
+            { field: "tenant__user__last_name", label: "Tenant (Ascending)" },
+            { field: "-tenant__user__last_name", label: "Tenant (Descending)" },
             { field: "status", label: "Status (Ascending)" },
             { field: "-status", label: "Status (Descending)" },
+            { field: "created_at", label: "Date Created (Ascending)" },
+            { field: "-created_at", label: "Date Created (Descending)" },
           ]}
           onRowClick={handleRowClick}
           loadingTitle="Lease Cancellation Requests"

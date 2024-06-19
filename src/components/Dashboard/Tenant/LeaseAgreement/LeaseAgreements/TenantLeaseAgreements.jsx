@@ -57,12 +57,12 @@ const TenantLeaseAgreements = () => {
     console.log(runTour);
   };
   const columns = [
-
     {
       name: "rental_unit",
       label: "Unit",
       options: {
         isObject: true,
+        orderingField: "rental_unit__name",
         customBodyRender: (value) => {
           return <span>{value.name}</span>;
         },
@@ -87,9 +87,7 @@ const TenantLeaseAgreements = () => {
       label: "Start Date",
       options: {
         customBodyRender: (value) => {
-          return <span>
-            {new Date(value).toISOString().split('T')[0]}
-          </span>;
+          return <span>{new Date(value).toLocaleDateString()}</span>;
         },
       },
     },
@@ -98,7 +96,7 @@ const TenantLeaseAgreements = () => {
       label: "End Date",
       options: {
         customBodyRender: (value) => {
-          return <span>{new Date(value).toISOString().split('T')[0]}</span>;
+          return <span>{new Date(value).toLocaleDateString()}</span>;
         },
       },
     },
@@ -107,7 +105,7 @@ const TenantLeaseAgreements = () => {
       label: "Date Signed",
       options: {
         customBodyRender: (value) => {
-          return <span>{new Date(value).toISOString().split('T')[0]}</span>;
+          return <span>{new Date(value).toLocaleDateString()}</span>;
         },
       },
     },
