@@ -28,9 +28,14 @@ import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import UISwitch from "../../../UIComponents/UISwitch";
 import { useParams } from "react-router";
 import { getLeaseAgreementById } from "../../../../../api/lease_agreements";
+import { authenticatedInstance } from "../../../../../api/api";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+import PaymentCalendar from "../../PaymentCalendar";
+import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 const TenantLeaseAgreementDetail = () => {
   const { id } = useParams();
   const [unit, setUnit] = useState(null);
+  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
   const [unitPreferences, setUnitPreferences] = useState(null);
   const navigate = useNavigate();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -44,6 +49,7 @@ const TenantLeaseAgreementDetail = () => {
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [
     hasExistingLeaseCancellationRequest,
@@ -211,6 +217,40 @@ const TenantLeaseAgreementDetail = () => {
         setShowAlertModal(true);
       });
   };
+  const handleDownloadDocument = async () => {
+    setIsPreparingDownload(true);
+    try {
+      const response = await authenticatedInstance.post(
+        "/boldsign/download-document/",
+        { document_id: leaseAgreement.document_id },
+        { responseType: "blob" } // This is important to handle binary data
+      );
+      console.log("Response: ", response);
+      if (response.status !== 200) {
+        throw new Error("Error downloading document");
+      }
+
+      const blob = new Blob([response.data], { type: response.data.type });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      setPdfUrl(url);
+      link.setAttribute("download", "lease_agreement.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error:", error);
+      setAlertModalTitle("Error");
+      setAlertModalMessage(
+        "An error occurred while downloading the lease agreement document. Please try again."
+      );
+      setShowAlertModal(true);
+      return;
+    } finally {
+      setIsPreparingDownload(false);
+    }
+  };
 
   useEffect(() => {
     try {
@@ -266,7 +306,7 @@ const TenantLeaseAgreementDetail = () => {
   }, []);
 
   return (
-    <>
+    <div className="container">
       <Joyride
         run={runTour}
         index={tourIndex}
@@ -298,11 +338,23 @@ const TenantLeaseAgreementDetail = () => {
         message={alertModalMessage}
         btnText="Okay"
       />
+      <ProgressModal open={isPreparingDownload} title="Preparing download..." />
       {leaseAgreement ? (
         <div className="row lease-agreement-page">
-          <h4 className="my-3 ">My Lease Agreement</h4>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={2}
+          >
+            <h4 className="my-3 ">My Lease Agreement</h4>
+            <UIButton
+              btnText="Download Lease Document"
+              onClick={handleDownloadDocument}
+            />
+          </Stack>
           <div className="col-md-4">
-            <div className="card my-3 lease-agreement-overview-section">
+            <div className="card mb-3 lease-agreement-overview-section">
               <div className="card-body">
                 <h4 className="card-title text-black ">
                   Lease Agreement Overview
@@ -489,10 +541,12 @@ const TenantLeaseAgreementDetail = () => {
           </div>
           <div className="col-md-8">
             <div
-              className="card my-3 lease-agreement-document"
-              style={{ height: "850px" }}
+              className="card payment-calendar-card mb-2"
+              style={{ color: "white" }}
             >
-              {/* PDF Viewer Goes Here */}
+              <div className="card-body ">
+                <PaymentCalendar />
+              </div>
             </div>
             <Stack direction="row" spacing={2}>
               {unitPreferences.find(
@@ -551,7 +605,7 @@ const TenantLeaseAgreementDetail = () => {
           body={<UIButton btnText="Apply for Lease" />}
         />
       )}
-    </>
+    </div>
   );
 };
 

@@ -23,6 +23,11 @@ const ProgressModal = (props) => {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
+        <img
+          className="topbar-brand"
+          src="/assets/img/key-flow-logo-black-transparent.png"
+          style={{ height: "40px", width: "auto", margin: "0 auto 15px", textAlign: "center" }}
+        />
         <Typography
           id="modal-modal-title"
           variant="h6"
