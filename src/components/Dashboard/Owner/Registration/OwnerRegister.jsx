@@ -209,6 +209,20 @@ const OwnerRegister = () => {
         console.log("COMPLETE FORM DATA", payload);
       } else {
       }
+      const response = await registerOwner(payload).then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          //Show success message
+          setErrorMode(false);
+          setOpen(true);
+          setStripeRedirectLink(res.stripe_onboarding_link.url);
+        } else {
+          //TODO: Show error message moodal
+          setErrorMode(true);
+          setOpen(true);
+          setIsLoading(false);
+        }
+      });
       //Call the API to create a new owner user
     } catch (err) {
       setMessage("Error adding your payment method");
@@ -221,21 +235,6 @@ const OwnerRegister = () => {
       setIsLoading(false);
     }
 
-    const response = await registerOwner(payload).then((res) => {
-      console.log(res);
-      if (res.status === 200) {
-        //Show success message
-        setErrorMode(false);
-        setOpen(true);
-        setStripeRedirectLink(res.stripe_onboarding_link.url);
-        setIsLoading(false);
-      } else {
-        //TODO: Show error message moodal
-        setErrorMode(true);
-        setOpen(true);
-        setIsLoading(false);
-      }
-    });
   };
 
   return (
