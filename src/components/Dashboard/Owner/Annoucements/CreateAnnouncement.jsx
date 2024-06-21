@@ -40,7 +40,10 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
-import { uppercaseAndLowercaseLetters, validAnyString } from "../../../../constants/rexgex";
+import {
+  uppercaseAndLowercaseLetters,
+  validAnyString,
+} from "../../../../constants/rexgex";
 
 const CreateAnnouncement = () => {
   const navigate = useNavigate();
@@ -100,12 +103,14 @@ const CreateAnnouncement = () => {
   const tourSteps = [
     {
       target: `.create-announcement-form`,
-      content: "Here is the form to create an announcement. An announcement is a message that can be sent to tenants to notify them of important information. They will see the message as soon as they log in to the tenant portal.",
+      content:
+        "Here is the form to create an announcement. An announcement is a message that can be sent to tenants to notify them of important information. They will see the message as soon as they log in to the tenant portal.",
       disableBeacon: true,
     },
     {
       target: `[data-testid="target"]`,
-      content: "Select the target for the announcement. This could be a rental unit, rental property or portfolio.",
+      content:
+        "Select the target for the announcement. This could be a rental unit, rental property or portfolio.",
     },
     {
       target: `[data-testid="rental-unit"]`,
@@ -142,7 +147,7 @@ const CreateAnnouncement = () => {
     {
       target: `[data-testid="create-announcement-submit-button"]`,
       content: "Click here to create the announcement.",
-    }
+    },
   ];
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data;
@@ -170,30 +175,37 @@ const CreateAnnouncement = () => {
   };
 
   //RENTAL UNIT FUNCTIONS
-  const handleSearchRentalUnits = async () => {
-    const res = await authenticatedInstance.get(rentalUnitEndpoint, {
-      params: {
-        search: rentalUnitSearchQuery,
-        limit: 10,
-      },
-    });
-    console.log("Search res", res);
-    setRentalUnits(res.data.results);
-    setRentalUnitNextPage(res.data.next);
-    setRentalUnitPreviousPage(res.data.previous);
+  const handleSearchRentalUnits = async (endpoint = rentalUnitEndpoint) => {
+    try {
+      const res = await authenticatedInstance.get(endpoint, {
+        params: {
+          search: rentalUnitSearchQuery,
+          limit: 10,
+        },
+      });
+      console.log("Search res", res);
+      setRentalUnits(res.data.results);
+      setRentalUnitNextPage(res.data.next);
+      setRentalUnitPreviousPage(res.data.previous);
+    } catch (error) {
+      console.error("Failed to fetch rental units:", error);
+    }
   };
 
-  //Create a function called handleNextPageRentalUnitClick to handle the next page click of the rental unit modal by fetching the next page of rental units from the api
   const handleNextPageRentalUnitClick = async () => {
-    setRentalUnitEndpoint(rentalUnitNextPage);
-    handleSearchRentalUnits();
+    if (rentalUnitNextPage) {
+      handleSearchRentalUnits(rentalUnitNextPage);
+      setRentalUnitEndpoint(rentalUnitNextPage);
+    }
   };
 
-  //Create function for previous page
   const handlePreviousPageRentalUnitClick = async () => {
-    setRentalUnitEndpoint(rentalUnitPreviousPage);
-    handleSearchRentalUnits();
+    if (rentalUnitPreviousPage) {
+      handleSearchRentalUnits(rentalUnitPreviousPage);
+      setRentalUnitEndpoint(rentalUnitPreviousPage);
+    }
   };
+
 
   const handleOpenRentalUnitSelectModal = async () => {
     setRentalUnitModalOpen(true);
@@ -206,14 +218,11 @@ const CreateAnnouncement = () => {
   };
 
   const handleChangeShowOccupiedUnitsOnly = (e) => {
-    setShowOccupiedUnitsOnly(e.target.checked);
-    const updatedShowOccupiedUnitsOnly = !e.target.checked; // Use the updated value
-    if (updatedShowOccupiedUnitsOnly) {
-      setRentalUnitEndpoint("/units/?is_occupied=true");
-    } else {
-      setRentalUnitEndpoint("/units/");
-    }
-    handleSearchRentalUnits();
+    const isChecked = e.target.checked;
+    setShowOccupiedUnitsOnly(isChecked);
+    const updatedEndpoint = isChecked ? "/units/?is_occupied=True" : "/units/";
+    setRentalUnitEndpoint(updatedEndpoint);
+    handleSearchRentalUnits(updatedEndpoint);
   };
 
   //RENTAL PROPERTY FUNCTIONS
@@ -527,32 +536,36 @@ const CreateAnnouncement = () => {
       end_date: new Date(formData.end_date).toISOString(), // Convert to UTC format
     };
 
-    const response = await createAnnouncement(announcementData).then((res) => {
-      if (res.status === 200) {
-        setLoading(false);
-        setFormData({});
-        setErrors({});
-        setAlertModalTitle("Success");
-        setAlertModalMessage("Announcement created successfully");
-        setAlertModalRedirect("/dashboard/owner/announcements");
-        setAlertModalOpen(true);
-      } else {
+    const response = await createAnnouncement(announcementData)
+      .then((res) => {
+        if (res.status === 200) {
+          setLoading(false);
+          setFormData({});
+          setErrors({});
+          setAlertModalTitle("Success");
+          setAlertModalMessage("Announcement created successfully");
+          setAlertModalRedirect("/dashboard/owner/announcements");
+          setAlertModalOpen(true);
+        } else {
+          setLoading(false);
+          setAlertModalTitle("Error");
+          setAlertModalMessage("An error occurred while creating announcement");
+          setAlertModalRedirect("/dashboard/owner/announcements/create");
+          setAlertModalOpen(true);
+        }
+      })
+      .catch((error) => {
         setLoading(false);
         setAlertModalTitle("Error");
         setAlertModalMessage("An error occurred while creating announcement");
         setAlertModalRedirect("/dashboard/owner/announcements/create");
         setAlertModalOpen(true);
-      }
-    }).catch((error) => {
-      setLoading(false);
-      setAlertModalTitle("Error");
-      setAlertModalMessage("An error occurred while creating announcement");
-      setAlertModalRedirect("/dashboard/owner/announcements/create");
-      setAlertModalOpen(true);
-    });
+      });
   };
 
-  useEffect(() => {}, [showOccupiedUnitsOnly]);
+  useEffect(() => {
+    handleSearchRentalUnits();
+  }, [showOccupiedUnitsOnly, rentalUnitSearchQuery, rentalPropertyEndpoint]);
 
   return (
     <div className="container-fluid">
@@ -595,7 +608,6 @@ const CreateAnnouncement = () => {
         onClose={() => setRentalUnitModalOpen(false)}
         style={{ width: "500px" }}
       >
-        {/* Create a search input using ui input */}
         <UIInput
           onChange={(e) => {
             setRentalUnitSearchQuery(e.target.value);
@@ -604,6 +616,7 @@ const CreateAnnouncement = () => {
           type="text"
           placeholder="Search rental unit"
           inputStyle={{ margin: "10px 0" }}
+          value={rentalUnitSearchQuery}
           name="rental_unit_search"
         />
         <UICheckbox
@@ -613,7 +626,6 @@ const CreateAnnouncement = () => {
           style={{ margin: "10px 0" }}
         />
 
-        {/* Create a list of rental units */}
         <List
           sx={{
             width: "100%",
@@ -624,70 +636,66 @@ const CreateAnnouncement = () => {
             bgcolor: "white",
           }}
         >
-          {rentalUnits.map((unit, index) => {
-            return (
-              <ListItem
-                key={index}
-                alignItems="flex-start"
-                onClick={() => {
-                  setSelectedRentalUnit(unit);
-                  triggerValidation(
-                    "rental_unit",
-                    unit.id,
-                    formInputs.find((input) => input.name === "rental_unit")
-                      .validations
-                  );
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    rental_unit: unit.id,
-                  }));
-                  //Set the tenant to null
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    rental_property: null,
-                    portfolio: null,
-                  }));
-                  // setSelectedTenant(null);
-                  setSelectedPortfolio(null);
-                  setSelectedRentalProperty(null);
-                  setErrors((prevErrors) => ({
-                    ...prevErrors,
-                    rental_unit: "",
-                  }));
-                  setRentalUnitModalOpen(false);
-                }}
+          {rentalUnits.map((unit, index) => (
+            <ListItem
+              key={index}
+              alignItems="flex-start"
+              onClick={() => {
+                setSelectedRentalUnit(unit);
+                triggerValidation(
+                  "rental_unit",
+                  unit.id,
+                  formInputs.find((input) => input.name === "rental_unit")
+                    .validations
+                );
+                setFormData((prevData) => ({
+                  ...prevData,
+                  rental_unit: unit.id,
+                }));
+                setFormData((prevData) => ({
+                  ...prevData,
+                  rental_property: null,
+                  portfolio: null,
+                }));
+                setSelectedPortfolio(null);
+                setSelectedRentalProperty(null);
+                setErrors((prevErrors) => ({
+                  ...prevErrors,
+                  rental_unit: "",
+                }));
+                setRentalUnitModalOpen(false);
+              }}
+            >
+              <Stack
+                direction="row"
+                spacing={2}
+                justifyContent={"space-between"}
+                alignContent={"center"}
+                alignItems={"center"}
+                sx={{ width: "100%" }}
               >
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  justifyContent={"space-between"}
-                  alignContent={"center"}
-                  alignItems={"center"}
-                  sx={{ width: "100%" }}
-                >
-                  <ListItemText
-                    primary={`${unit.name} (${
-                      unit.is_occupied ? "Occupied" : "Vacant"
-                    })`}
-                    secondary={`${unit.rental_property_name}`}
-                  />
-                  <UIButton
-                    dataTestId={`select-unit-button-${index}`}
-                    onClick={() => {
-                      setSelectedRentalUnit(unit);
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        rental_unit: unit.id,
-                      }));
-                      setRentalUnitModalOpen(false);
-                    }}
-                    btnText="Select"
-                    style={{ margin: "10px 0" }}
-                  />
-                </Stack>
-              </ListItem>
-            );
-          })}
+                <ListItemText
+                  primary={`${unit.name} (${
+                    unit.is_occupied ? "Occupied" : "Vacant"
+                  })`}
+                  secondary={`${unit.rental_property_name}`}
+                />
+                <UIButton
+                  dataTestId={`select-unit-button-${index}`}
+                  onClick={() => {
+                    setSelectedRentalUnit(unit);
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      rental_unit: unit.id,
+                    }));
+                    setRentalUnitModalOpen(false);
+                  }}
+                  btnText="Select"
+                  style={{ margin: "10px 0" }}
+                />
+              </Stack>
+            </ListItem>
+          ))}
         </List>
         <Stack
           direction="row"

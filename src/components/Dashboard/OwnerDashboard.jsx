@@ -38,6 +38,7 @@ import UIButton from "./UIComponents/UIButton";
 import {
   getStripeOnboardingAccountLink,
   getStripeAccountRequirements,
+  getStripeAccountLink,
 } from "../../api/owners";
 import AlertModal from "./UIComponents/Modals/AlertModal";
 import ConfirmModal from "./UIComponents/Modals/ConfirmModal";
@@ -65,6 +66,7 @@ const OwnerDashboard = () => {
   const [vacantUnits, setVacantUnits] = useState([]);
   const [leaseAgreements, setLeaseAgreements] = useState([]);
   const [stripeAccountLink, setStripeAccountLink] = useState("");
+  const [stripeOnboardingAccountLink, setStripeOnboardingAccountLink] = useState("");
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalTitle, setAlertModalTitle] = useState("");
@@ -672,6 +674,10 @@ const OwnerDashboard = () => {
     try {
       getStripeOnboardingAccountLink().then((res) => {
         console.log("Stripe ACcount link res: ", res);
+        setStripeOnboardingAccountLink(res.account_link);
+      });
+      getStripeAccountLink().then((res) => {
+        console.log("Stripe Account Link: ", res);
         setStripeAccountLink(res.account_link);
       });
       getStripeAccountRequirements().then((res) => {
@@ -749,7 +755,7 @@ const OwnerDashboard = () => {
 
             <div className="my-2">
               <a
-                href={stripeAccountLink}
+                href={stripeOnboardingAccountLink}
                 style={{
                   color: "inherit",
                   textDecoration: "underline",
@@ -776,7 +782,7 @@ const OwnerDashboard = () => {
         }
         confirmBtnText={"Complete Account Setup"}
         handleConfirm={() => {
-          window.open(stripeAccountLink, "_blank");
+          window.open(stripeOnboardingAccountLink, "_blank");
         }}
         confirmBtnStyle={{
           color: "white",
