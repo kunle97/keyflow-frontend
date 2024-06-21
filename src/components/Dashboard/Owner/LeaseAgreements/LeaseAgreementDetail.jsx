@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getLeaseAgreementById, updateLeaseAgreement } from "../../../../api/lease_agreements";
+import {
+  getLeaseAgreementById,
+  updateLeaseAgreement,
+} from "../../../../api/lease_agreements";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import {
@@ -42,9 +45,12 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Stack } from "@mui/material";
 import UISwitch from "../../UIComponents/UISwitch";
 import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
+import { authenticatedInstance } from "../../../../api/api";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
+  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertModalOpen, setAlertModalOpen] = useState(false);
@@ -120,9 +126,9 @@ const LeaseAgreementDetail = () => {
     })
       .then((res) => {
         console.log(res);
-        if(res.status === 200){
-          console.log("Checked", event.target.checked)
-        }else{
+        if (res.status === 200) {
+          console.log("Checked", event.target.checked);
+        } else {
           setAlertTitle("Error");
           setAlertMessage(
             "An error occurred while updating the lease agreement's auto renewal status"
@@ -139,22 +145,39 @@ const LeaseAgreementDetail = () => {
         setAlertModalOpen(true);
       });
   };
+  const handleDownloadDocument = async () => {
+    setIsPreparingDownload(true);
+    try {
+      const response = await authenticatedInstance.post(
+        "/boldsign/download-document/",
+        { document_id: leaseAgreement.document_id },
+        { responseType: "blob" } // This is important to handle binary data
+      );
+      console.log("Response: ", response);
+      if (response.status !== 200) {
+        throw new Error("Error downloading document");
+      }
 
-  const handleDownloadDocument = () => {
-    downloadBoldSignDocument(leaseAgreement.document_id)
-      .then((res) => {
-        console.log("Download document response", res);
-        // if (res.status === 200) {
-        //   // const blob = new Blob([res.data], { type: "application/pdf" });
-        //   // const link = document.createElement("a");
-        //   // link.href = window.URL.createObjectURL(blob);
-        //   // link.download = "lease_agreement.pdf";
-        //   // link.click();
-        // }
-      })
-      .catch((error) => {
-        console.error("Error downloading document", error);
-      });
+      const blob = new Blob([response.data], { type: response.data.type });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      console.log("PDF DOWNLAOASSD link", link);
+      link.setAttribute("download", "lease_agreement.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error:", error);
+      setAlertTitle("Error");
+      setAlertMessage(
+        "An error occurred while downloading the lease agreement document. Please try again."
+      );
+      setAlertModalOpen(true);
+      return;
+    } finally {
+      setIsPreparingDownload(false);
+    }
   };
 
   useEffect(() => {
@@ -231,6 +254,10 @@ const LeaseAgreementDetail = () => {
             message={alertMessage}
             btnText="Okay"
             onClick={() => setAlertModalOpen(false)}
+          />
+          <ProgressModal
+            open={isPreparingDownload}
+            title="Preparing download..."
           />
           <Joyride
             run={runTour}
