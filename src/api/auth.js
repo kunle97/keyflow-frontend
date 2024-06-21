@@ -21,6 +21,7 @@ export async function getUserStripeSubscriptions() {
   }
 }
 export async function login(data) {
+  clearLocalStorage();
   try {
     const res = await unauthenticatedInstance
       .post(`/auth/login/`, { 
