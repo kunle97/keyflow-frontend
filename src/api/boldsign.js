@@ -125,7 +125,8 @@ export async function downloadBoldSignDocument(document_id) {
   try {
     const response = await authenticatedInstance.post(
       `/boldsign/download-document/`,
-      { document_id: document_id }
+      { document_id: document_id },
+      { responseType: 'blob' } // Ensure the response is handled as a blob
     );
     return { data: response, status: 200 };
   } catch (error) {
