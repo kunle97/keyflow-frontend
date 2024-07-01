@@ -14,6 +14,7 @@ import { authenticatedInstance } from "../../../../api/api";
 import {
   authUser,
   uiGreen,
+  uiGrey2,
   validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
@@ -35,13 +36,30 @@ import Joyride, {
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters, validAnyString } from "../../../../constants/rexgex";
+import {
+  lettersNumbersAndSpecialCharacters,
+  uppercaseAndLowercaseLetters,
+  validAnyString,
+} from "../../../../constants/rexgex";
+import { addUnderscoresAndLowercase } from "../../../../helpers/utils";
+import {
+  Button,
+  ButtonBase,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+} from "@mui/material";
+import UICheckbox from "../../UIComponents/UICheckbox";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loadingPage, setLoadingPage] = useState(true);
   const [announcement, setAnnouncement] = useState({});
-  const [targetObject, setTargetObject] = useState({});
+  const [targetObject, setTargetObject] = useState(null);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalOpen, setAlertModalOpen] = useState(false);
@@ -57,13 +75,166 @@ const ManageAnnouncement = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [progressModalMessage, setProgressModalMessage] = useState("");
-
+  const [selectedTarget, setSelectedTarget] = useState("rental_unit"); //values rental_unit, rental_property, portfolio
+  const [rentalUnits, setRentalUnits] = useState([]);
+  const [selectedRentalUnit, setSelectedRentalUnit] = useState();
+  const [rentalProperties, setRentalProperties] = useState([]);
+  const [selectedRentalProperty, setSelectedRentalProperty] = useState();
+  const [portfolios, setPortfolios] = useState([]);
+  const [selectedPortfolio, setSelectedPortfolio] = useState();
   //Error Messages
   const [startDateErrorMessage, setStartDateErrorMessage] = useState("");
   const [endDateErrorMessage, setEndDateErrorMessage] = useState("");
-
+  const [targetSelectModalOpen, setTargetSelectModalOpen] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+
+  //Rental unit state variables
+  const [rentalUnitModalOpen, setRentalUnitModalOpen] = useState(false);
+  const [rentalUnitSearchQuery, setRentalUnitSearchQuery] = useState("");
+  const [rentalUnitEndpoint, setRentalUnitEndpoint] = useState(
+    "/units/?is_occupied=True"
+  );
+  const [showOccupiedUnitsOnly, setShowOccupiedUnitsOnly] = useState(true);
+  const [rentalUnitNextPage, setRentalUnitNextPage] = useState("");
+  const [rentalUnitPreviousPage, setRentalUnitPreviousPage] = useState("");
+
+  //Rental property state variables
+  const [rentalPropertyModalOpen, setRentalPropertyModalOpen] = useState(false);
+  const [rentalPropertySearchQuery, setRentalPropertySearchQuery] =
+    useState("");
+  const [rentalPropertyEndpoint, setRentalPropertyEndpoint] =
+    useState("/properties/");
+  const [rentalPropertyNextPage, setRentalPropertyNextPage] = useState("");
+  const [rentalPropertyPreviousPage, setRentalPropertyPreviousPage] =
+    useState("");
+
+  ///Portfolio state variables
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+  const [portfolioSearchQuery, setPortfolioSearchQuery] = useState("");
+  const [portfolioEndpoint, setPortfolioEndpoint] = useState("/portfolios/");
+  const [portfolioNextPage, setPortfolioNextPage] = useState("");
+  const [portfolioPreviousPage, setPortfolioPreviousPage] = useState("");
+
+  //RENTAL UNIT FUNCTIONS
+  const handleSearchRentalUnits = async (endpoint = rentalUnitEndpoint) => {
+    try {
+      const res = await authenticatedInstance.get(endpoint, {
+        params: {
+          search: rentalUnitSearchQuery,
+          limit: 10,
+        },
+      });
+      console.log("Search res", res);
+      setRentalUnits(res.data.results);
+      setRentalUnitNextPage(res.data.next);
+      setRentalUnitPreviousPage(res.data.previous);
+    } catch (error) {
+      console.error("Failed to fetch rental units:", error);
+    }
+  };
+
+  const handleNextPageRentalUnitClick = async () => {
+    if (rentalUnitNextPage) {
+      handleSearchRentalUnits(rentalUnitNextPage);
+      setRentalUnitEndpoint(rentalUnitNextPage);
+    }
+  };
+
+  const handlePreviousPageRentalUnitClick = async () => {
+    if (rentalUnitPreviousPage) {
+      handleSearchRentalUnits(rentalUnitPreviousPage);
+      setRentalUnitEndpoint(rentalUnitPreviousPage);
+    }
+  };
+
+  const handleOpenRentalUnitSelectModal = async () => {
+    setRentalUnitModalOpen(true);
+    //Fetch rental units from api
+    if (rentalUnits.length === 0) {
+      await handleSearchRentalUnits();
+    } else {
+      setRentalUnitModalOpen(true);
+    }
+  };
+
+  const handleChangeShowOccupiedUnitsOnly = (e) => {
+    const isChecked = e.target.checked;
+    setShowOccupiedUnitsOnly(isChecked);
+    const updatedEndpoint = isChecked ? "/units/?is_occupied=True" : "/units/";
+    setRentalUnitEndpoint(updatedEndpoint);
+    handleSearchRentalUnits(updatedEndpoint);
+  };
+
+  //RENTAL PROPERTY FUNCTIONS
+  const handleSearchRentalProperties = async () => {
+    const res = await authenticatedInstance.get(rentalPropertyEndpoint, {
+      params: {
+        search: rentalPropertySearchQuery,
+        limit: 10,
+      },
+    });
+    setRentalProperties(res.data.results);
+    setRentalPropertyNextPage(res.data.next);
+    setRentalPropertyPreviousPage(res.data.previous);
+  };
+
+  //Create a function called handleNextPageRentalPropertyClick to handle the next page click of the rental property modal by fetching the next page of rental properties from the api
+  const handleNextPageRentalPropertyClick = async () => {
+    setRentalPropertyEndpoint(rentalPropertyNextPage);
+    handleSearchRentalProperties();
+  };
+
+  //Create function for previous page
+  const handlePreviousPageRentalPropertyClick = async () => {
+    setRentalPropertyEndpoint(rentalPropertyPreviousPage);
+    handleSearchRentalProperties();
+  };
+
+  const handleOpenRentalPropertySelectModal = async () => {
+    setRentalPropertyModalOpen(true);
+    //Fetch rental properties from api
+    if (rentalProperties.length === 0) {
+      await handleSearchRentalProperties();
+    } else {
+      setRentalPropertyModalOpen(true);
+    }
+  };
+
+  //PORTFOLIO FUNCTIONS
+  const handleSearchPortfolios = async () => {
+    const res = await authenticatedInstance.get(portfolioEndpoint, {
+      params: {
+        search: portfolioSearchQuery,
+        limit: 10,
+      },
+    });
+    setPortfolios(res.data.results);
+    setPortfolioNextPage(res.data.next);
+    setPortfolioPreviousPage(res.data.previous);
+  };
+
+  //Create a function called handleNextPagePortfolioClick to handle the next page click of the portfolio modal by fetching the next page of portfolios from the api
+  const handleNextPagePortfolioClick = async () => {
+    setPortfolioEndpoint(portfolioNextPage);
+    handleSearchPortfolios();
+  };
+
+  //Create function for previous page
+  const handlePreviousPagePortfolioClick = async () => {
+    setPortfolioEndpoint(portfolioPreviousPage);
+    handleSearchPortfolios();
+  };
+
+  const handleOpenPortfolioSelectModal = async () => {
+    setPortfolioModalOpen(true);
+    //Fetch portfolios from api
+    if (portfolios.length === 0) {
+      await handleSearchPortfolios();
+    } else {
+      setPortfolioModalOpen(true);
+    }
+  };
 
   const tourSteps = [
     {
@@ -112,15 +283,111 @@ const ManageAnnouncement = () => {
 
   const formInputs = [
     {
+      name: "target",
+      label: "Select Target",
+      type: "select",
+      colSpan: 6,
+      options: [
+        { label: "Rental Unit", value: "rental_unit" },
+        { label: "Rental Property", value: "rental_property" },
+        { label: "Portfolio", value: "portfolio" },
+      ],
+      placeholder: "Select target",
+      onChange: (e) => {
+        handleChange(e);
+        setSelectedTarget(e.target.value);
+        //Set the rental unit, rental property and portfolio to null in form data and leave the rest of the form data as is
+        setFormData((prevData) => ({
+          ...prevData,
+          rental_unit: null,
+          rental_property: null,
+          portfolio: null,
+        }));
+        setSelectedRentalUnit(null);
+        setSelectedRentalProperty(null);
+        setSelectedPortfolio(null);
+      },
+      validations: {
+        required: true,
+        regex: validAnyString,
+        errorMessage: "Select a target",
+      },
+      dataTestId: "target",
+      errorMessageDataTestid: "target-error",
+    },
+    {
+      name: "target",
+      label: "Target",
+      type: "button_select",
+      colSpan: 6,
+      placeholder: "Enter target object",
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        regex: validAnyString,
+        errorMessage: "Enter a valid target object",
+      },
+      dataTestId: "target-object",
+      errorMessageDataTestid: "target-object-error",
+    },
+    {
+      name: "rental_unit",
+      label: "Rental Unit",
+      type: "button_select",
+      colSpan: 6,
+      selectTarget: selectedRentalUnit,
+      selectTargetLabel: selectedRentalUnit?.name,
+      placeholder: "Select rental unit",
+      dialogAction: () => handleOpenRentalUnitSelectModal(),
+      validations: {
+        required: selectedTarget === "rental_unit" ? true : false,
+        errorMessage: "Select a rental unit",
+      },
+      dataTestId: "rental-unit",
+      errorMessageDataTestid: "rental-unit-error",
+    },
+    {
+      name: "rental_property",
+      label: "Rental Property",
+      type: "button_select",
+      colSpan: 6,
+      placeholder: "Select rental property",
+      selectTarget: selectedRentalProperty,
+      selectTargetLabel: selectedRentalProperty?.name,
+      dialogAction: () => handleOpenRentalPropertySelectModal(),
+      validations: {
+        required: selectedTarget === "rental_property" ? true : false,
+        errorMessage: "Select a rental property",
+      },
+      dataTestId: "rental-property",
+      errorMessageDataTestid: "rental-property-error",
+    },
+    {
+      name: "portfolio",
+      label: "Portfolio",
+      type: "button_select",
+      colSpan: 6,
+      selectTarget: selectedPortfolio,
+      selectTargetLabel: selectedPortfolio?.name,
+      dialogAction: () => handleOpenPortfolioSelectModal(),
+      placeholder: "Select portfolio",
+      validations: {
+        required: selectedTarget === "portfolio" ? true : false,
+        errorMessage: "Select a portfolio",
+      },
+      dataTestId: "portfolio",
+      errorMessageDataTestid: "portfolio-error",
+    },
+    {
       name: "title",
       label: "Title",
       type: "text",
       placeholder: "Enter title",
-      colSpan: 12,
+      colSpan: 6,
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        regex:  validAnyString,
+        regex: validAnyString,
         errorMessage: "Enter a valid title",
       },
       dataTestId: "title",
@@ -130,7 +397,7 @@ const ManageAnnouncement = () => {
       name: "severity",
       label: "Severity",
       type: "select",
-      colSpan: 12,
+      colSpan: 6,
       options: [
         { label: "Select Severity", value: "" },
         { label: "Normal", value: "success" },
@@ -217,17 +484,17 @@ const ManageAnnouncement = () => {
           const currentDate = new Date();
           currentDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
 
-          // Allow selecting dates starting from today onwards, disallow past dates
-          if (selectedDate < currentDate) {
-            setEndDateErrorMessage("End date cannot be in the past");
-            return "End date cannot be in the past";
-          } else if (
-            formData.start_date &&
-            selectedDate < new Date(formData.start_date)
-          ) {
-            setEndDateErrorMessage("End date cannot be before the start date");
-            return "End date cannot be less than the start date";
-          }
+          // // Allow selecting dates starting from today onwards, disallow past dates
+          // if (selectedDate < currentDate) {
+          //   setEndDateErrorMessage("End date cannot be in the past");
+          //   return "End date cannot be in the past";
+          // } else if (
+          //   formData.start_date &&
+          //   selectedDate < new Date(formData.start_date)
+          // ) {
+          //   setEndDateErrorMessage("End date cannot be before the start date");
+          //   return "End date cannot be less than the start date";
+          // }
         },
       },
       dataTestId: "end-date",
@@ -251,30 +518,55 @@ const ManageAnnouncement = () => {
   ];
 
   const handleSubmit = async () => {
-    setProgressModalMessage("Creating announcement...");
-    setLoading(true);
-    //Remove rental_property, rental_unit, portfolio from form data
-    delete formData.rental_property;
-    delete formData.rental_unit;
-    delete formData.portfolio;
-    const response = await updateAnnouncement(id, formData).then((res) => {
-      console.log("Response ", res);
-      if (res.status === 200) {
-        setLoading(false);
-        setFormData({});
-        setErrors({});
-        setAlertModalTitle("Success");
-        setAlertModalMessage("Announcement updated successfully");
-        setAlertModalRedirect("/dashboard/owner/announcements/");
-        setAlertModalOpen(true);
-      } else {
-        setLoading(false);
-        setAlertModalTitle("Error");
-        setAlertModalMessage("An error occurred while updating announcement");
-        setAlertModalRedirect("/dashboard/owner/announcements/" + id);
-        setAlertModalOpen(true);
+    console.log("NEWWWWW Form data ", formData);
+    const { isValid, newErrors } = validateForm(formData, formInputs);
+    console.log("isValid ", isValid);
+    console.log("newErrors ", newErrors);
+    if (!isValid) {
+      setErrors(newErrors);
+      return;
+    } else {
+      setProgressModalMessage("Creating announcement...");
+      setLoading(true);
+
+      //Remove rental_property, rental_unit, portfolio from form data
+      delete formData.rental_property;
+      delete formData.rental_unit;
+      delete formData.portfolio;
+
+      if (selectedTarget === "rental_unit") {
+        formData.target = JSON.stringify({
+          rental_unit: selectedRentalUnit.id,
+        });
+      } else if (selectedTarget === "rental_property") {
+        formData.target = JSON.stringify({
+          rental_property: selectedRentalProperty.id,
+        });
+      } else if (selectedTarget === "portfolio") {
+        formData.target = JSON.stringify({
+          portfolio: selectedPortfolio.id,
+        });
       }
-    });
+
+      const response = await updateAnnouncement(id, formData).then((res) => {
+        console.log("Response ", res);
+        if (res.status === 200) {
+          setLoading(false);
+          setFormData({});
+          setErrors({});
+          setAlertModalTitle("Success");
+          setAlertModalMessage("Announcement updated successfully");
+          setAlertModalRedirect(0);
+          setAlertModalOpen(true);
+        } else {
+          setLoading(false);
+          setAlertModalTitle("Error");
+          setAlertModalMessage("An error occurred while updating announcement");
+          setAlertModalRedirect("/dashboard/owner/announcements/" + id);
+          setAlertModalOpen(true);
+        }
+      });
+    }
   };
 
   const formatDate = (date) => {
@@ -298,7 +590,20 @@ const ManageAnnouncement = () => {
         res.end_date = new Date(res.end_date);
 
         setAnnouncement(res);
-        setTargetObject(res.target_object);
+        if (res.target_object) {
+          setTargetObject(res.target_object);
+          setSelectedTarget(res.target_object.datatype);
+          if (res.target_object.datatype === "rental_unit") {
+            setSelectedRentalUnit(res.target_object);
+            formData.rental_unit = res.target_object.id;
+          } else if (res.target_object.datatype === "rental_property") {
+            setSelectedRentalProperty(res.target_object);
+            formData.rental_property = res.target_object.id;
+          } else if (res.target_object.datatype === "portfolio") {
+            setSelectedPortfolio(res.target_object);
+            formData.portfolio = res.target_object.id;
+          }
+        }
         setFormData((prevData) => ({ ...prevData, ...res }));
       })
       .catch((error) => {
@@ -317,7 +622,7 @@ const ManageAnnouncement = () => {
     <>
       {loadingPage ? (
         <>
-          <UIProgressPrompt 
+          <UIProgressPrompt
             title="Loading Announcement details..."
             message="Please wait while we load the announcement details."
           />
@@ -345,15 +650,410 @@ const ManageAnnouncement = () => {
               skip: "Skip",
             }}
           />
+          <UIDialog
+            open={rentalUnitModalOpen}
+            title="Select Rental Unit"
+            onClose={() => setRentalUnitModalOpen(false)}
+            style={{ width: "500px" }}
+          >
+            <UIInput
+              onChange={(e) => {
+                setRentalUnitSearchQuery(e.target.value);
+                handleSearchRentalUnits();
+              }}
+              type="text"
+              placeholder="Search rental unit"
+              inputStyle={{ margin: "10px 0" }}
+              value={rentalUnitSearchQuery}
+              name="rental_unit_search"
+            />
+            <UICheckbox
+              label="Show Occupied Units Only"
+              checked={showOccupiedUnitsOnly}
+              onChange={handleChangeShowOccupiedUnitsOnly}
+              style={{ margin: "10px 0" }}
+            />
+
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: "100%",
+                maxHeight: 500,
+                overflow: "auto",
+                color: uiGrey2,
+                bgcolor: "white",
+              }}
+            >
+              {rentalUnits.map((unit, index) => (
+                <ListItem
+                  key={index}
+                  alignItems="flex-start"
+                  onClick={() => {
+                    setSelectedRentalUnit(unit);
+                    triggerValidation(
+                      "rental_unit",
+                      unit.id,
+                      formInputs.find((input) => input.name === "rental_unit")
+                        .validations
+                    );
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      rental_unit: unit.id,
+                    }));
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      rental_property: null,
+                      portfolio: null,
+                    }));
+                    setSelectedPortfolio(null);
+                    setSelectedRentalProperty(null);
+                    setErrors((prevErrors) => ({
+                      ...prevErrors,
+                      rental_unit: "",
+                    }));
+                    setRentalUnitModalOpen(false);
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    justifyContent={"space-between"}
+                    alignContent={"center"}
+                    alignItems={"center"}
+                    sx={{ width: "100%" }}
+                  >
+                    <ListItemText
+                      primary={`${unit.name} (${
+                        unit.is_occupied ? "Occupied" : "Vacant"
+                      })`}
+                      secondary={`${unit.rental_property_name}`}
+                    />
+                    <UIButton
+                      dataTestId={`select-unit-button-${index}`}
+                      onClick={() => {
+                        setSelectedRentalUnit(unit);
+                        setFormData((prevData) => ({
+                          ...prevData,
+                          rental_unit: unit.id,
+                        }));
+                        setRentalUnitModalOpen(false);
+                      }}
+                      btnText="Select"
+                      style={{ margin: "10px 0" }}
+                    />
+                  </Stack>
+                </ListItem>
+              ))}
+            </List>
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent={"space-between"}
+              alignContent={"center"}
+              alignItems={"center"}
+              sx={{ width: "100%" }}
+            >
+              {rentalUnitPreviousPage && (
+                <ButtonBase onClick={handlePreviousPageRentalUnitClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowBackOutlined />
+                    </IconButton>
+                    <span style={{ color: uiGreen }}>Prev</span>
+                  </Stack>
+                </ButtonBase>
+              )}
+              <span></span>
+              {rentalUnitNextPage && (
+                <ButtonBase onClick={handleNextPageRentalUnitClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <span style={{ color: uiGreen }}>Next</span>
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowForwardIcon />
+                    </IconButton>
+                  </Stack>
+                </ButtonBase>
+              )}
+            </Stack>
+          </UIDialog>
+          <UIDialog
+            open={rentalPropertyModalOpen}
+            title="Select Rental Property"
+            onClose={() => setRentalPropertyModalOpen(false)}
+            style={{ width: "500px" }}
+          >
+            {/* Create a search input using ui input */}
+            <UIInput
+              onChange={(e) => {
+                setRentalPropertySearchQuery(e.target.value);
+                handleSearchRentalProperties();
+              }}
+              type="text"
+              placeholder="Search rental property"
+              inputStyle={{ margin: "10px 0" }}
+              name="rental_property_search"
+            />
+            {/* Create a list of rental properties */}
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: "100%",
+                maxHeight: 500,
+                overflow: "auto",
+                color: uiGrey2,
+                bgcolor: "white",
+              }}
+            >
+              {rentalProperties.map((property, index) => {
+                return (
+                  <ListItem
+                    key={index}
+                    alignItems="flex-start"
+                    onClick={() => {
+                      setSelectedRentalProperty(property);
+                      triggerValidation(
+                        "rental_property",
+                        property.id,
+                        formInputs.find(
+                          (input) => input.name === "rental_property"
+                        ).validations
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        rental_property: property.id,
+                      }));
+                      //Set the tenant to null
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        rental_unit: null,
+                        portfolio: null,
+                      }));
+                      // setSelectedTenant(null);
+                      setSelectedPortfolio(null);
+                      setSelectedRentalUnit(null);
+                      setErrors((prevErrors) => ({
+                        ...prevErrors,
+                        rental_property: "",
+                      }));
+                      setRentalPropertyModalOpen(false);
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      justifyContent={"space-between"}
+                      alignContent={"center"}
+                      alignItems={"center"}
+                      sx={{ width: "100%" }}
+                    >
+                      <ListItemText primary={property.name} />
+                      <UIButton
+                        dataTestId={`select-property-button-${index}`}
+                        onClick={() => {
+                          setSelectedRentalProperty(property);
+                          setFormData((prevData) => ({
+                            ...prevData,
+                            rental_property: property.id,
+                          }));
+                          setRentalPropertyModalOpen(false);
+                        }}
+                        btnText="Select"
+                        style={{ margin: "10px 0" }}
+                      />
+                    </Stack>
+                  </ListItem>
+                );
+              })}
+            </List>
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent={"space-between"}
+              alignContent={"center"}
+              alignItems={"center"}
+              sx={{ width: "100%" }}
+            >
+              {rentalPropertyPreviousPage && (
+                <ButtonBase onClick={handlePreviousPageRentalPropertyClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowBackOutlined />
+                    </IconButton>
+                    <span style={{ color: uiGreen }}>Prev</span>
+                  </Stack>
+                </ButtonBase>
+              )}
+              <span></span>
+              {rentalPropertyNextPage && (
+                <ButtonBase onClick={handleNextPageRentalPropertyClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <span style={{ color: uiGreen }}>Next</span>
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowForwardIcon />
+                    </IconButton>
+                  </Stack>
+                </ButtonBase>
+              )}
+            </Stack>
+          </UIDialog>
+          <UIDialog
+            open={portfolioModalOpen}
+            title="Select Portfolio"
+            onClose={() => setPortfolioModalOpen(false)}
+            style={{ width: "500px" }}
+          >
+            {/* Create a search input using ui input */}
+            <UIInput
+              onChange={(e) => {
+                setPortfolioSearchQuery(e.target.value);
+                handleSearchPortfolios();
+              }}
+              type="text"
+              placeholder="Search portfolio"
+              inputStyle={{ margin: "10px 0" }}
+              name="portfolio_search"
+            />
+            {/* Create a list of portfolios */}
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: "100%",
+                maxHeight: 500,
+                overflow: "auto",
+                color: uiGrey2,
+                bgcolor: "white",
+              }}
+            >
+              {portfolios.map((portfolio, index) => {
+                return (
+                  <ListItem
+                    key={index}
+                    alignItems="flex-start"
+                    onClick={() => {
+                      setSelectedPortfolio(portfolio);
+                      triggerValidation(
+                        "portfolio",
+                        portfolio.id,
+                        formInputs.find((input) => input.name === "portfolio")
+                          .validations
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        portfolio: portfolio.id,
+                      }));
+                      //Set the tenant to null
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        rental_unit: null,
+                        rental_property: null,
+                      }));
+                      // setSelectedTenant(null);
+                      setSelectedRentalProperty(null);
+                      setSelectedRentalUnit(null);
+                      setErrors((prevErrors) => ({
+                        ...prevErrors,
+                        portfolio: "",
+                      }));
+                      setPortfolioModalOpen(false);
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      justifyContent={"space-between"}
+                      alignContent={"center"}
+                      alignItems={"center"}
+                      sx={{ width: "100%" }}
+                    >
+                      <ListItemText primary={portfolio.name} />
+                      <UIButton
+                        dataTestId={`select-portfolio-button-${index}`}
+                        onClick={() => {
+                          setSelectedPortfolio(portfolio);
+                          setFormData((prevData) => ({
+                            ...prevData,
+                            portfolio: portfolio.id,
+                          }));
+                          setPortfolioModalOpen(false);
+                        }}
+                        btnText="Select"
+                        style={{ margin: "10px 0" }}
+                      />
+                    </Stack>
+                  </ListItem>
+                );
+              })}
+            </List>
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent={"space-between"}
+              alignContent={"center"}
+              alignItems={"center"}
+              sx={{ width: "100%" }}
+            >
+              {portfolioPreviousPage && (
+                <ButtonBase onClick={handlePreviousPagePortfolioClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowBackOutlined />
+                    </IconButton>
+                    <span style={{ color: uiGreen }}>Prev</span>
+                  </Stack>
+                </ButtonBase>
+              )}
+              <span></span>
+              {portfolioNextPage && (
+                <ButtonBase onClick={handleNextPagePortfolioClick}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    spacing={0}
+                  >
+                    <span style={{ color: uiGreen }}>Next</span>
+                    <IconButton style={{ color: uiGreen }}>
+                      <ArrowForwardIcon />
+                    </IconButton>
+                  </Stack>
+                </ButtonBase>
+              )}
+            </Stack>
+          </UIDialog>
           <UIPageHeader
             style={{ marginBottom: "20px" }}
             backButtonURL="/dashboard/owner/announcements"
             backButtonPosition="top"
             title={
               <span>
-                Manage Announcement
+                Manage Anouncement
                 {targetObject &&
-                  ` for ${targetObject.type + " " + targetObject.name}`}
+                  ` for ${targetObject?.type + " " + targetObject?.name}`}
               </span>
             }
             subtitle="Update announcement details below"
@@ -436,7 +1136,13 @@ const ManageAnnouncement = () => {
                               name={input.name}
                               className="form-control"
                               onChange={input.onChange}
-                              value={formData[input.name]}
+                              value={
+                                input.name === "target"
+                                  ? targetObject?.datatype
+                                    ? targetObject.datatype
+                                    : ""
+                                  : formData[input.name]
+                              }
                               data-testId={input.dataTestId}
                             >
                               <option value="">Select One</option>
@@ -461,6 +1167,57 @@ const ManageAnnouncement = () => {
                             )}
                           </div>
                         )}
+                        {input.type === "button_select" &&
+                          input.name === selectedTarget && (
+                            <div className={`col-md-${input.colSpan} mb-2`}>
+                              <label
+                                className="text-black"
+                                style={{ display: "block" }}
+                              >
+                                {input.label}
+                              </label>
+                              {input.selectTarget ? (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{
+                                    color: "black",
+                                    marginTop: "5px",
+                                  }}
+                                >
+                                  {input.selectTargetLabel} -
+                                  <Button
+                                    dataTestId={input.dataTestId}
+                                    onClick={input.dialogAction}
+                                    variant="text"
+                                    style={{
+                                      textTransform: "none",
+                                      color: uiGreen,
+                                    }}
+                                  >
+                                    {`Change ${input.label}`}
+                                  </Button>
+                                </span>
+                              ) : (
+                                <UIButton
+                                  dataTestId={input.dataTestId}
+                                  onClick={input.dialogAction}
+                                  btnText={`Select ${input.label}`}
+                                  style={{ margin: "10px 0" }}
+                                />
+                              )}
+                              {errors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{
+                                    ...validationMessageStyle,
+                                    display: "block",
+                                  }}
+                                >
+                                  {errors[input.name]}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         {input.type === "text" && (
                           <div
                             className={`col-md-${input.colSpan} mb-2`}
@@ -472,7 +1229,7 @@ const ManageAnnouncement = () => {
                               type={input.type}
                               placeholder={input.placeholder}
                               onChange={input.onChange}
-                              defaultValue={formData[input.name]}
+                              value={formData[input.name]}
                               error={errors[input.name]}
                               dataTestId={input.dataTestId}
                               errorMessageDataTestid={
@@ -568,21 +1325,7 @@ const ManageAnnouncement = () => {
                 </div>
                 <UIButton
                   dataTestId="create-announcement"
-                  onClick={() => {
-                    console.log("Form data ", formData);
-                    const { isValid, newErrors } = validateForm(
-                      formData,
-                      formInputs
-                    );
-                    console.log("isValid ", isValid);
-                    console.log("newErrors ", newErrors);
-                    if (!isValid) {
-                      setErrors(newErrors);
-                      return;
-                    } else {
-                      handleSubmit();
-                    }
-                  }}
+                  onClick={handleSubmit}
                   btnText="Update Announcement"
                   style={{ margin: "10px 0", width: "100%" }}
                 />

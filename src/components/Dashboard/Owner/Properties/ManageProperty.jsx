@@ -36,8 +36,11 @@ import { Box } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import {
   authUser,
+  globalMaxFileSize,
+  token,
   uiGreen,
   uiGrey2,
+  uiRed,
   validationMessageStyle,
 } from "../../../../constants";
 import { set, useForm } from "react-hook-form";
@@ -87,6 +90,8 @@ import Joyride, {
 } from "react-joyride";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
+import { getUserStripeSubscriptions } from "../../../../api/auth";
+import { validAnyString } from "../../../../constants/rexgex";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -108,6 +113,9 @@ const ManageProperty = () => {
   const [bedsCount, setBedsCount] = useState(0); //Create a state to hold the number of beds in the property
   const [bathsCount, setBathsCount] = useState(0); //Create a state to hold the number of baths in the property
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [deleteAlertTitle, setDeleteAlertTitle] = useState("");
+  const [deleteAlertMessage, setDeleteAlertMessage] = useState("");
+  const [deleteAlertAction, setDeleteAlertAction] = useState(() => {});
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [tabPage, setTabPage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
@@ -124,6 +132,7 @@ const ManageProperty = () => {
     showResetLeaseTemplateConfirmModal,
     setShowResetLeaseTemplateConfirmModal,
   ] = useState(false);
+  const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
   const navigate = useNavigate();
   const anchorRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -240,7 +249,7 @@ const ManageProperty = () => {
       placeholder: "Sunset Blvd, 38",
       validations: {
         required: true,
-        regex: /^\d+\s[a-zA-Z0-9\s,'-]+$/,
+        regex: validAnyString,
         errorMessage: "Enter a valid street address (e.g., 123 Main St)",
       },
       dataTestId: "update-property-street-input",
@@ -438,6 +447,14 @@ const ManageProperty = () => {
   const onDrop = (acceptedFiles) => {
     let validFiles = true;
     acceptedFiles.forEach((file) => {
+      //Check if file is valid size
+      if (file.size > globalMaxFileSize) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage("File size is too large. Max file size is 3MB");
+        setShowFileUploadAlert(true);
+        validFiles = false;
+        return;
+      }
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(
@@ -582,6 +599,52 @@ const ManageProperty = () => {
       });
     }
   };
+  const retrieveSubscriptionPlan = async () => {
+    const res = await getUserStripeSubscriptions(authUser.id, token).then(
+      (res) => {
+        setCurrentSubscriptionPlan(res.subscriptions);
+      }
+    );
+    return res;
+  };
+  //Create a function that deletes all units in a property by looping through the units array and deleting each unit using the deleteUnit function
+  const handleDeleteAllUnits = async () => {
+    try {
+      //Check if any units are occupied before deleting
+      let occupiedUnits = units.filter((unit) => unit.is_occupied);
+      if (occupiedUnits.length > 0) {
+        //Hide confirm modal
+        setShowDeleteAlert(false);
+        setShowDeleteError(true);
+        setErrorMessage(
+          `This property has occupied units. Please vacate all units before deleting them.`
+        );
+      } else {
+        //Loop through the units array and delete each unit
+        units.forEach((unit) => {
+          let payload = {
+            unit_id: unit.id,
+            rental_property: unit.rental_property.id,
+            product_id: currentSubscriptionPlan.plan.product,
+            subscription_id: currentSubscriptionPlan.id,
+          };
+          deleteUnit(payload).then((res) => {
+            console.log("Unit delete res", res);
+          });
+        });
+        //Show success alert
+        setUpdateAlertTitle("Success");
+        setUpdateAlertMessage("All units deleted");
+        setShowDeleteAlert(false);
+        setUpdateAlertIsOpen(true);
+      }
+    } catch (error) {
+      console.error("Error deleting units", error);
+      setUpdateAlertTitle("Error");
+      setUpdateAlertMessage("Something went wrong");
+      setUpdateAlertIsOpen(true);
+    }
+  };
 
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName) => {
@@ -604,70 +667,89 @@ const ManageProperty = () => {
   };
 
   useEffect(() => {
-    syncPropertyPreferences(id);
-    if (!property || !formData) {
-      getProperty(id).then((res) => {
-        setProperty(res.data);
-        console.log("Property", res.data);
-        setPropertyPreferences(JSON.parse(res.data.preferences));
-        setFormData({
-          name: res.data.name,
-          street: res.data.street,
-          city: res.data.city,
-          state: res.data.state,
-          zip_code: res.data.zip_code,
-          country: res.data.country,
-        });
-        setUnits(res.data.units);
-        setUnitCount(res.data.units.length);
-        setBedsCount(
-          res.data.units.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
-        );
-        setBathsCount(
-          res.data.units.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
-        );
-        getPortfolios()
-          .then((portfolio_res) => {
-            if (portfolio_res.status === 200) {
-              setPortfolios(portfolio_res.data);
-              if (res.data?.portfolio) {
-                setCurrentPortfolio(
-                  portfolio_res.data.find(
-                    (portfolio) => portfolio.id === res.data?.portfolio
-                  )
-                );
-              }
-            } else {
-              console.error(
-                "An error occured retieving portfolios",
-                portfolio_res
-              );
+    try {
+      if (!property || !formData) {
+        getProperty(id).then((res) => {
+          console.log("Property RES", res);
+          if (res.status === 404) {
+            //Navigate to properties page
+            navigate("/dashboard/owner/properties");
+          } else {
+            retrieveSubscriptionPlan();
+            syncPropertyPreferences(id);
+            setProperty(res.data);
+            console.log("Property", res.data);
+            if (res.data.preferences) {
+              setPropertyPreferences(JSON.parse(res.data.preferences));
             }
-          })
-          .catch((error) => {
-            console.error("An error occured retieving portfolios", error);
-            setUpdateAlertTitle("Error");
-            setUpdateAlertMessage("Something went wrong");
-            setUpdateAlertIsOpen(true);
-          });
-      });
-      retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
-        .then((res) => {
-          setPropertyMedia(res.data);
-          console.log(res.data);
-          setPropertyMediaCount(res.data.length);
-        })
-        .catch((error) => {
-          console.error("An error occured retieving property media", error);
-          setUpdateAlertTitle("Error");
-          setUpdateAlertMessage(
-            "Something went wrong retrieving property media"
-          );
-          setUpdateAlertIsOpen(true);
-        })
-        .finally(() => {
-          setIsLoading(false);
+            setFormData({
+              name: res.data.name,
+              street: res.data.street,
+              city: res.data.city,
+              state: res.data.state,
+              zip_code: res.data.zip_code,
+              country: res.data.country,
+            });
+            setUnits(res.data.units);
+            setUnitCount(res.data.units.length);
+            setBedsCount(
+              res.data.units.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
+            );
+            setBathsCount(
+              res.data.units
+                .map((unit) => unit.baths)
+                .reduce((a, b) => a + b, 0)
+            );
+            getPortfolios()
+              .then((portfolio_res) => {
+                if (portfolio_res.status === 200) {
+                  setPortfolios(portfolio_res.data);
+                  if (res.data?.portfolio) {
+                    setCurrentPortfolio(
+                      portfolio_res.data.find(
+                        (portfolio) => portfolio.id === res.data?.portfolio
+                      )
+                    );
+                  }
+                } else {
+                  console.error(
+                    "An error occured retieving portfolios",
+                    portfolio_res
+                  );
+                }
+              })
+              .catch((error) => {
+                console.error("An error occured retieving portfolios", error);
+                setUpdateAlertTitle("Error");
+                setUpdateAlertMessage("Something went wrong");
+                setUpdateAlertIsOpen(true);
+              });
+            retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
+              .then((res) => {
+                setPropertyMedia(res.data);
+                console.log(res.data);
+                setPropertyMediaCount(res.data.length);
+              })
+              .catch((error) => {
+                console.error(
+                  "An error occured retieving property media",
+                  error
+                );
+                setUpdateAlertTitle("Error");
+                setUpdateAlertMessage(
+                  "Something went wrong retrieving property media"
+                );
+                setUpdateAlertIsOpen(true);
+              })
+              .finally(() => {
+                setIsLoading(false);
+              });
+          }
         });
+      }
+    } catch (error) {
+      console.log("Get Unit Error: ", error);
+      return error.response;
     }
   }, [property, formData]);
 
@@ -707,7 +789,6 @@ const ManageProperty = () => {
               skip: "Skip",
             }}
           />
-          {/* <BackButton  /> */}
           <ConfirmModal
             open={showResetLeaseTemplateConfirmModal}
             title="Remove Lease Template"
@@ -757,8 +838,36 @@ const ManageProperty = () => {
             title={updateAlertTitle}
             message={updateAlertMessage}
             btnText={"Ok"}
-            onClick={() => setUpdateAlertIsOpen(false)}
+            onClick={() => {
+              navigate(0);
+              setUpdateAlertIsOpen(false);
+            }}
           />
+          <AlertModal
+            dataTestId="property-delete-error-alert-modal"
+            open={showDeleteError}
+            title="Error"
+            message={errorMessage}
+            onClick={() => setShowDeleteError(false)}
+          />
+          <ConfirmModal
+            open={showDeleteAlert}
+            title={deleteAlertTitle}
+            message={deleteAlertMessage}
+            confirmBtnText="Delete"
+            cancelBtnText="Cancel"
+            confirmBtnStyle={{
+              backgroundColor: uiRed,
+              color: "white",
+            }}
+            cancelBtnStyle={{
+              backgroundColor: uiGrey2,
+              color: "white",
+            }}
+            handleConfirm={deleteAlertAction}
+            handleCancel={() => setShowDeleteAlert(false)}
+          />
+
           {/* Property Detail Edit Dialog  */}
           <UIDialog
             dataTestId="property-detail-edit-dialog"
@@ -1045,8 +1154,26 @@ const ManageProperty = () => {
                 action: () => setSelectPortfolioDialogOpen(true),
               },
               {
+                label: "Delete All Units",
+                action: () => {
+                  setDeleteAlertTitle("Delete All Units");
+                  setDeleteAlertMessage(
+                    "Are you sure you want to delete all units in this property?"
+                  );
+                  setDeleteAlertAction(() => handleDeleteAllUnits);
+                  setShowDeleteAlert(true);
+                },
+              },
+              {
                 label: "Delete Property",
-                action: () => setShowDeleteAlert(true),
+                action: () => {
+                  setDeleteAlertTitle("Delete Property");
+                  setDeleteAlertMessage(
+                    "Are you sure you want to delete this property?"
+                  );
+                  setDeleteAlertAction(() => handleDeleteProperty);
+                  setShowDeleteAlert(true);
+                },
               },
             ]}
           />

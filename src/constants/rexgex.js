@@ -23,4 +23,4 @@ export const validAnyString = /^(?!\s*$)[\w\s\S]+$/;//Example valid matches: "Jo
 
 export const validStrongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;//Example valid matches: "Password1!", "Password123!", "Password1234!"
 
-export const validUserName = /^[a-zA-Z0-9_]*$/;//Example valid matches: "John", "JohnDoe", "John_Doe", "John123", "John_Doe123"
+export const validUserName = /^[a-zA-Z0-9._-]*$/;//Example valid matches: "John", "JohnDoe", "John_Doe", "John123", "John_Doe123"

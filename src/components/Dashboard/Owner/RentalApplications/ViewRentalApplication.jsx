@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Chip, Stack } from "@mui/material";
-import { authUser, uiGreen, uiRed } from "../../../../constants";
+import { authUser, uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import { useParams } from "react-router";
 import { createLeaseAgreement } from "../../../../api/lease_agreements";
 import {
@@ -9,6 +9,7 @@ import {
   deleteOtherRentalApplications,
   getRentalApplicationById,
   rejectRentalApplication,
+  revokeRentalApplication,
   unarchiveRentalApplication,
 } from "../../../../api/rental_applications";
 import { getUnit } from "../../../../api/units";
@@ -41,6 +42,7 @@ const ViewRentalApplication = () => {
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [openAlertModal, setOpenAlertModal] = useState(false);
+  const [openRevokeModal, setOpenRevokeModal] = useState(false);
   const [aletModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [tabPage, setTabPage] = useState(0);
@@ -190,6 +192,31 @@ const ViewRentalApplication = () => {
         setOpenAlertModal(true);
       });
   };
+
+  const handleRevoke = () => {
+    revokeRentalApplication(id)
+      .then((res) => {
+        if (res.status === 200) {
+          console.log(res);
+          setOpenRevokeModal(false);
+          setAlertModalTitle(res.message);
+          setOpenAlertModal(true);
+        } else {
+          console.log(res);
+          setAlertModalTitle("An error occured");
+          setOpenAlertModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error revoking rental application:", error);
+        setAlertModalTitle("An error occurred");
+        setAlertModalMessage(
+          "An error occurred while revoking the rental application. Please try again."
+        );
+        setOpenAlertModal(true);
+      });
+  };
+
   function isJsonString(str) {
     try {
       JSON.parse(str);
@@ -198,6 +225,7 @@ const ViewRentalApplication = () => {
     }
     return true;
   }
+  
 
   useEffect(() => {
     setIsLoading(true);
@@ -297,6 +325,20 @@ const ViewRentalApplication = () => {
             cancelBtnStyle={{ background: uiGreen }}
             confirmBtnStyle={{ background: uiRed }}
           />
+          <ConfirmModal
+            open={openRevokeModal}
+            title={"Revoke Rental Application"}
+            message={
+              "Are you sure you want to revoke this application? The rental application will be deleted and the recipient will no longer be able to accept and sign the lease agreement."
+            }
+            cancelBtnText="Cancel"
+            confirmBtnText="Revoke"
+            handleClose={() => setOpenRevokeModal(false)}
+            handleConfirm={handleRevoke}
+            handleCancel={() => setOpenRevokeModal(false)}
+            cancelBtnStyle={{ background: uiGrey2 }}
+            confirmBtnStyle={{ background: uiRed }}
+          />
 
           <UIPageHeader
             backButtonURL="/dashboard/owner/rental-applications"
@@ -333,12 +375,6 @@ const ViewRentalApplication = () => {
               </span>
             }
             menuItems={[
-              // {
-              //   label: "View Full Report",
-              //   action: () => {
-              //     console.log("View Full Report");
-              //   },
-              // },
               {
                 label: "Accept Rental Application",
                 action: () => {
@@ -382,6 +418,13 @@ const ViewRentalApplication = () => {
                   });
                 },
                 hidden: !rentalApplicationIsArchived,
+              },
+              {
+                label: "Revoke Rental Application",
+                hidden: !rentalApplication.is_approved && !rentalApplication.tenant,
+                action: () => {
+                  setOpenRevokeModal(true);
+                },
               },
             ]}
             style={{ marginBottom: "20px" }}

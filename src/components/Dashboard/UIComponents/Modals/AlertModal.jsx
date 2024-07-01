@@ -105,8 +105,7 @@ const AlertModal = (props) => {
                   onClick={() => {
                     if (!disabled) {
                       props.onClick();
-                    } else {
-                    }
+                    } 
                   }}
                   className={classes.button}
                   variant="contained"

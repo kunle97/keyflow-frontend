@@ -64,7 +64,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import HotelIcon from "@mui/icons-material/Hotel";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import TenantInviteForm from "../Tenants/TenantInviteForm";
+import TenantInviteForm from "../TenantInvites/TenantInviteForm";
 import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UIDropzone from "../../UIComponents/Modals/UploadDialog/UIDropzone";
 import {
@@ -880,7 +880,7 @@ const ManageUnit = () => {
         console.log(res);
       });
       //Redirect to the property page
-      navigate(`/dashboard/owner/properties/${property_id}`);
+      window.location.href = `/dashboard/owner/properties/${property_id}`;
     }
   };
 
@@ -977,6 +977,11 @@ const ManageUnit = () => {
     try {
       //Retrieve Unit Information
       getUnit(unit_id).then((res) => {
+        if(res.status === 404){
+          //Navigate to properties page
+          navigate("/dashboard/owner/units");
+        }
+        console.log("REtrieve UNit REs", res);
         setUnit(res);
         console.log("UNIT PREFENCESSSZZZ", JSON.parse(res.preferences));
         setUnitPreferences(JSON.parse(res.preferences));

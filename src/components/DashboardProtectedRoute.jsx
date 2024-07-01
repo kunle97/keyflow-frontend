@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router-dom";
 import { authUser } from "../constants";
 import { clearLocalStorage, isTokenExpired, validateToken } from "../helpers/utils";
 

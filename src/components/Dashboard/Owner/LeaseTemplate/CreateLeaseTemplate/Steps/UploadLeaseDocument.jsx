@@ -76,6 +76,7 @@ const UploadLeaseDocument = (props) => {
 
   const handleDrop = async (acceptedFiles) => {
     setIsLoading(true);
+    
     console.log("dropzone file", acceptedFiles[0]);
     let accepted_file = acceptedFiles[0];
     const payload = {

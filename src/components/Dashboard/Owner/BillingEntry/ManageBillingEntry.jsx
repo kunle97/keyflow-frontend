@@ -27,7 +27,12 @@ import Joyride, {
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters, validHTMLDateInput } from "../../../../constants/rexgex";
+import {
+  lettersNumbersAndSpecialCharacters,
+  uppercaseAndLowercaseLetters,
+  validAnyString,
+  validHTMLDateInput,
+} from "../../../../constants/rexgex";
 const ManageBillingEntry = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -82,6 +87,46 @@ const ManageBillingEntry = () => {
 
   const formInputs = [
     {
+      id: 6,
+      label: "Tenant",
+      type: "text_display",
+      name: "tenant",
+      hide: formData && formData?.tenant ? false : true,
+      customRender: (tenant) => {
+        return tenant
+          ? tenant.user.first_name + " " + tenant.user.last_name
+          : "";
+      },
+      dataTestId: "tenant-text-display",
+      validations: {
+        required: false,
+        errorMessage: "",
+        regex: validAnyString,
+      },
+      dataTestId: "tenant-text-display",
+      errorMessageDataTestId: "tenant-error",
+    },
+    {
+      id: 7,
+      label: "Rental Unit",
+      type: "text_display",
+      name: "rental_unit",
+      hide: formData && formData?.unit ? false : true,
+      customRender: (unit) => {
+        return unit
+          ? "Unit " + unit.name + " (" + unit.rental_property_name + ")"
+          : "";
+      },
+      dataTestId: "unit-text-display",
+      validations: {
+        required: false,
+        errorMessage: "",
+        regex: validAnyString,
+      },
+      dataTestId: "unit-text-display",
+      errorMessageDataTestId: "unit-error",
+    },
+    {
       id: 1,
       label: "Amount",
       type: "text_display",
@@ -104,7 +149,7 @@ const ManageBillingEntry = () => {
         return `${tenant.user.first_name} ${tenant.user.last_name}`;
       },
       name: "tenant",
-      hide: isExpense,
+      hide: true,
       dataTestId: "tenant-text-display",
       validations: {
         required: false,
@@ -123,7 +168,7 @@ const ManageBillingEntry = () => {
           ? "Unit " + unit.name + " (" + unit.rental_property_name + ")"
           : "";
       },
-      hide: !isExpense,
+      hide: true,
       dataTestId: "unit-text-display",
       validations: {
         required: false,
@@ -240,6 +285,7 @@ const ManageBillingEntry = () => {
       dataTestId: "status-select",
       errorMessageDataTestId: "status-error-message",
     },
+
     {
       id: 8,
       label: "Description",

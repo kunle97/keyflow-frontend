@@ -43,16 +43,19 @@ const UIRadioGroup = (props) => {
           value={props.value}
           onChange={props.onChange}
         >
-          {props.radioOptions.map((option) => {
+          {props.radioOptions.map((option, index) => {
             return (
-              <FormControlLabel
-                value={option.value}
-                control={<Radio />}
-                label={option.label}
-                sx={{
-                  flexDirection: props.direction, // posoible values: row, column
-                }}
-              />
+              !option.hidden && ( // if option.hidden is false, then render the radio button
+                <FormControlLabel
+                  key={index} // Adding key for list items
+                  value={option.value}
+                  control={<Radio />}
+                  label={option.label}
+                  sx={{
+                    flexDirection: props.direction, // possible values: row, column
+                  }}
+                />
+              )
             );
           })}
         </RadioGroup>

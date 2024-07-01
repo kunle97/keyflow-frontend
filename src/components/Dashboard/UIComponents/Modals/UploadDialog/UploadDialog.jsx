@@ -1,7 +1,7 @@
 import React from "react";
 import UIDialog from "../UIDialog";
 import { Stack } from "@mui/material";
-import { authUser, uiGreen } from "../../../../../constants";
+import { authUser, globalMaxFileSize, uiGreen } from "../../../../../constants";
 import UIButton from "../../UIButton";
 import { useState } from "react";
 import { uploadFile } from "../../../../../api/file_uploads";
@@ -40,9 +40,19 @@ const UploadDialog = (props) => {
   };
 
   const onDrop = (acceptedFiles) => {
+    console.log("Accepted Files", acceptedFiles);
     let validFiles = true;
     acceptedFiles.forEach((file) => {
-      console.log("File Data info", file);
+      //Check if file is valid size
+      if (file.size > globalMaxFileSize) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage("File size is too large. Max file size is 3MB");
+        setShowFileUploadAlert(true);
+        props.onClose();
+        validFiles = false;
+        return;
+      }
+      
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(

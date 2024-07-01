@@ -10,7 +10,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -40,6 +40,10 @@ export const uiGrey = "#eff4f5";
 export const uiGrey1 = "#2c3a4a";
 export const uiGrey2 = "#364658";
 export const uiGrey3 = "#dcdde3"; //Used to set background color of a read notification
+export const globalMaxFileSize = process.env
+  .REACT_APP_GLOBAL_MAX_FILE_UPLOAD_SIZE
+  ? process.env.REACT_APP_GLOBAL_MAX_FILE_UPLOAD_SIZE
+  : 3145728; //3MB
 
 export const validationMessageStyle = {
   color: uiRed,
@@ -95,6 +99,44 @@ export const ownerMenuItems = [
     icon: "fa fa-home",
     isSearchable: true,
     dataTestId: "owner-properties-menu-item",
+    subMenuItems: [
+      {
+        label: "Add New Property",
+        link: "/dashboard/owner/properties/create",
+        muiIcon: <HomeWorkIcon />,
+        description: "Add a new property",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-add-new-property-menu-item",
+      },
+      {
+        label: "View Properties",
+        link: "/dashboard/owner/properties",
+        muiIcon: <HomeWorkIcon />,
+        description: "View your properties",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-view-properties-menu-item",
+      },
+      {
+        label: "Units",
+        link: "/dashboard/owner/units",
+        muiIcon: <PeopleAltIcon />,
+        description: "View your units",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-units-menu-item",
+      },
+      {
+        label: "Add New Unit",
+        link: "/dashboard/owner/units/create",
+        muiIcon: <PeopleAltIcon />,
+        description: "Add a new unit",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-add-new-unit-menu-item",
+      },
+    ],
   },
   {
     label: "Portfolios ",
@@ -107,12 +149,31 @@ export const ownerMenuItems = [
   },
   {
     label: "Tenants",
-    link: "/dashboard/owner/tenants",
     icon: "fa fa-group",
     muiIcon: <PeopleAltIcon sx={muiIconStyle} />,
     description: "View your tenants",
     isSearchable: true,
     dataTestId: "owner-tenants-menu-item",
+    subMenuItems: [
+      {
+        label: "View Tenants",
+        link: "/dashboard/owner/tenants",
+        muiIcon: <PeopleAltIcon />,
+        description: "View your tenants",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-view-tenants-menu-item",
+      },
+      {
+        label: "Tenant Invites",
+        link: "/dashboard/owner/tenant-invites",
+        muiIcon: <PeopleAltIcon />,
+        description: "View your tenant invites",
+        icon: "fas fa-tools",
+        isSearchable: true,
+        dataTestId: "owner-tenant-invites-menu-item",
+      },
+    ],
   },
 
   {

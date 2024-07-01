@@ -20,7 +20,7 @@ import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 
 const AdditionalCharge = (props) => {
   const { name, amount, frequency } = props.charge;
-  
+
   const [formData, setFormData] = useState({
     name: name,
     amount: amount,
@@ -180,50 +180,46 @@ const AdditionalCharge = (props) => {
             alignItems="center"
             spacing={1}
           >
-            {props.index == props.additionalCharges.length - 1 && (
-              <Button
-                className="add-unit-button"
-                data-testId={`${props.dataTestId}-add-unit-button`}
-                sx={{
-                  color: uiGreen,
-                  textTransform: "none",
-                }}
-                //   variant="contained"
-                onClick={() => {
-                  const { isValid, newErrors } = validateForm(
-                    formData,
-                    formInputs
-                  );
-                  if (isValid && hasNoErrors(errors)) {
-                    props.addAdditionalCharge();
-                  } else {
-                    setErrors(newErrors);
-                    props.setErrors(newErrors);
-                  }
-                }}
-              >
-                + Add
-              </Button>
-            )}
+            <Button
+              className="add-unit-button"
+              data-testId={`${props.dataTestId}-add-unit-button`}
+              sx={{
+                color: uiGreen,
+                textTransform: "none",
+              }}
+              //   variant="contained"
+              onClick={() => {
+                const { isValid, newErrors } = validateForm(
+                  formData,
+                  formInputs
+                );
+                if (isValid && hasNoErrors(errors)) {
+                  props.addAdditionalCharge();
+                } else {
+                  setErrors(newErrors);
+                  props.setErrors(newErrors);
+                }
+              }}
+            >
+              + Add
+            </Button>
             <>
-              {props.index !== 0 && (
-                <div className="col-md-1">
-                  <Button
-                    onClick={() => {
-                      props.removeAdditionalCharge(props.index);
-                      //Reset the errors:
-                      props.setErrors({});
-                      setErrors({});
-                    }}
-                    sx={{
-                      color: uiRed,
-                      textTransform: "none",
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              )}
+              <div className="col-md-1">
+                <Button
+                  onClick={() => {
+                    props.removeAdditionalCharge(props.index);
+                    //Reset the errors:
+                    props.setErrors({});
+                    setErrors({});
+                  }}
+                  sx={{
+                    color: uiRed,
+                    textTransform: "none",
+                  }}
+                >
+                  Remove
+                </Button>
+              </div>
             </>
           </Stack>
         </div>
@@ -240,7 +236,9 @@ const AdditionalCharge = (props) => {
               handleNextStep={() => {
                 //Check all additional charges have the same frequency
                 //Check if additional charges all have the same frequency
-                const frequencies = props.additionalCharges.map((charge) => charge.frequency);
+                const frequencies = props.additionalCharges.map(
+                  (charge) => charge.frequency
+                );
                 const allFrequenciesEqual = frequencies.every(
                   (freq, index) => freq === frequencies[0]
                 );
@@ -249,7 +247,9 @@ const AdditionalCharge = (props) => {
                   console.log("Additional charges have different frequencies");
                   // Perform actions or show an error message to the user
                   // You can return early, show an error message, or prevent form submission
-                  setAlertMessage("All additional charges must have the same frequency");
+                  setAlertMessage(
+                    "All additional charges must have the same frequency"
+                  );
                   setAlertTitle("Frequency Mismatch");
                   setAlertOpen(true);
                   return; // Example: return or show an error message
@@ -260,7 +260,7 @@ const AdditionalCharge = (props) => {
                 //   (charge) => charge.frequency === rentFrequency
                 // );
                 // if (!chargesMatchRentFrequency) {
-                //   console.log("rent frequency ", rentFrequency);  
+                //   console.log("rent frequency ", rentFrequency);
                 //   console.log("formData ", props.formData);
                 //   console.log("Additional charges ", props.additionalCharges.map((charge) => charge.frequency));
                 //   // Handle case where frequencies don't match rent frequency

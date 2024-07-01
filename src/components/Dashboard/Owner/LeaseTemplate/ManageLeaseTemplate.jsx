@@ -819,8 +819,8 @@ const ManageLeaseTemplate = () => {
             }}
             confirmBtnText="Remove"
             cancelBtnText="Cancel"
-            confirmBtnStyle={{ backgroundColor: uiGrey2 }}
-            cancelBtnStyle={{ backgroundColor: uiGreen }}
+            confirmBtnStyle={{ backgroundColor: uiRed }}
+            cancelBtnStyle={{ backgroundColor: uiGrey2 }}
           />
           <ConfirmModal
             open={showDeleteConfirmModal}
@@ -845,7 +845,7 @@ const ManageLeaseTemplate = () => {
                 });
             }}
             confirmBtnText="Delete"
-            confirmBtnStyle={{ backgroundColor: uiGrey2 }}
+            confirmBtnStyle={{ backgroundColor: uiRed }}
             cancelBtnText="Cancel"
             handleCancel={() => {
               setShowDeleteConfirmModal(false);
@@ -1132,10 +1132,15 @@ const ManageLeaseTemplate = () => {
                         data={units}
                         columns={unit_columns}
                         options={unit_options}
-                        onRowClick={(row) => {
-                          const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                          navigate(navlink);
-                        }}
+                        menuOptions={[
+                          {
+                            name: "View",
+                            onClick: (row) => {
+                              const navlink = `/dashboard/owner/units/${row.rental_property.id}/${row.id}`;
+                              navigate(navlink);
+                            },
+                          },
+                        ]}
                       />
                     </>
                   )}
@@ -1161,8 +1166,14 @@ const ManageLeaseTemplate = () => {
                       orderingFields={[
                         { field: "name", label: "Name (Ascending)" },
                         { field: "-name", label: "Name (Descending)" },
-                        {field: "created_at", label: "Date Created (Ascending)"},
-                        {field: "-created_at", label: "Date Created (Descending)"}
+                        {
+                          field: "created_at",
+                          label: "Date Created (Ascending)",
+                        },
+                        {
+                          field: "-created_at",
+                          label: "Date Created (Descending)",
+                        },
                       ]}
                       searchFields={["name", "street", "city", "state"]}
                     />
@@ -1182,11 +1193,16 @@ const ManageLeaseTemplate = () => {
                       ]}
                       options={{
                         isSelectable: false,
-                        onRowClick: (row) => {
-                          const navlink = `/dashboard/owner/properties/${row.id}`;
-                          navigate(navlink);
-                        },
                       }}
+                      menuOptions={[
+                        {
+                          name: "View",
+                          onClick: (row) => {
+                            const navlink = `/dashboard/owner/properties/${row.id}`;
+                            navigate(navlink);
+                          },
+                        },
+                      ]}
                     />
                   )}
                 </>
