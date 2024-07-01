@@ -91,7 +91,7 @@ const Units = () => {
             {
               name: "View",
               onClick: (row) => {
-                const navlink = `/dashboard/owner/units/${row.rental_property}/${row.id}`;
+                const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}/`;
                 navigate(navlink);
               },
             },

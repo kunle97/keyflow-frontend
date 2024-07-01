@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
+import { uiGreen, uiRed, uiGrey2, uiGrey } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 import {
@@ -208,9 +208,15 @@ const LeaseRenewalRequestDetail = () => {
                   (lease_agreement) => lease_agreement.is_active === true
                 );
                 setCurrentLeaseAgreement(current_lease_agreement);
-                setCurrentLeaseTemplate(current_lease_agreement.lease_template);
+                setCurrentLeaseTemplate(
+                  current_lease_agreement?.lease_template
+                );
                 setCurrentLeaseTerms(
-                  JSON.parse(current_lease_agreement.rental_unit.lease_terms)
+                  current_lease_agreement
+                    ? JSON.parse(
+                        current_lease_agreement?.rental_unit.lease_terms
+                      )
+                    : []
                 );
 
                 console.log("Current Lease Agreement", current_lease_agreement);
@@ -303,6 +309,8 @@ const LeaseRenewalRequestDetail = () => {
         handleCancel={() => setOpenRejectModal(false)}
         cancelBtnText="Cancel"
         confirmBtnText="Reject"
+        cancelBtnStyle={{ backgroundColor: uiGrey2 }}
+        confirmBtnStyle={{ backgroundColor: uiRed }}
       />
       {isLoading ? (
         <UIProgressPrompt
@@ -320,9 +328,9 @@ const LeaseRenewalRequestDetail = () => {
               style={{ color: uiGrey2, fontSize: isMobile ? "15pt" : "24pt" }}
             >
               {" "}
-              {leaseRenewalRequest.tenant.user.first_name}{" "}
-              {leaseRenewalRequest.tenant.user.last_name}'s Lease Renewal
-              Request ({leaseRenewalRequest.status})
+              {leaseRenewalRequest?.tenant.user.first_name}{" "}
+              {leaseRenewalRequest?.tenant.user.last_name}'s Lease Renewal
+              Request ({leaseRenewalRequest?.status})
             </h4>
             {/* {leaseRenewalRequest.status !== "approved" &&
               !isMobile &&
@@ -340,18 +348,19 @@ const LeaseRenewalRequestDetail = () => {
                         <h6 className="rental-application-lease-heading">
                           Current Unit
                         </h6>
-                        {currentLeaseAgreement.rental_unit.name}
+                        {currentLeaseAgreement?.rental_unit.name}
                       </div>{" "}
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
                           Curent Term
                         </h6>
                         {
-                          currentLeaseTerms.find((term) => term.name === "term")
-                            .value
+                          currentLeaseTerms?.find(
+                            (term) => term.name === "term"
+                          ).value
                         }{" "}
                         {
-                          currentLeaseTerms.find(
+                          currentLeaseTerms?.find(
                             (term) => term.name === "rent_frequency"
                           ).value
                         }
@@ -361,7 +370,10 @@ const LeaseRenewalRequestDetail = () => {
                         <h6 className="rental-application-lease-heading">
                           Property
                         </h6>
-                        {currentLeaseAgreement.rental_unit.rental_property_name}
+                        {
+                          currentLeaseAgreement?.rental_unit
+                            .rental_property_name
+                        }
                       </div>{" "}
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
                         <h6 className="rental-application-lease-heading">
@@ -369,8 +381,9 @@ const LeaseRenewalRequestDetail = () => {
                         </h6>
                         $
                         {
-                          currentLeaseTerms.find((term) => term.name === "rent")
-                            .value
+                          currentLeaseTerms?.find(
+                            (term) => term.name === "rent"
+                          ).value
                         }
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
@@ -378,7 +391,7 @@ const LeaseRenewalRequestDetail = () => {
                           Lease Start Date
                         </h6>
                         {new Date(
-                          currentLeaseAgreement.start_date
+                          currentLeaseAgreement?.start_date
                         ).toLocaleDateString()}
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
@@ -386,7 +399,7 @@ const LeaseRenewalRequestDetail = () => {
                           Lease End Date
                         </h6>
                         {new Date(
-                          currentLeaseAgreement.end_date
+                          currentLeaseAgreement?.end_date
                         ).toLocaleDateString()}
                       </div>
                     </div>
@@ -394,7 +407,11 @@ const LeaseRenewalRequestDetail = () => {
                 </div>
               </div>
             )}
-            <div className="col-md-6 align-self-center">
+            <div
+              className={`col-md-${
+                currentLeaseAgreement ? "6" : "12"
+              } align-self-center`}
+            >
               <div className="card mb-3 lease-renewal-request-details-card">
                 <div className="card-body">
                   <div className="row">
@@ -403,21 +420,21 @@ const LeaseRenewalRequestDetail = () => {
                       <h6 className="rental-application-lease-heading">
                         Requested Unit
                       </h6>
-                      {leaseRenewalRequest.rental_unit.name}
+                      {leaseRenewalRequest?.rental_unit.name}
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Requested Lease Term
                       </h6>
-                      {leaseRenewalRequest.request_term}{" "}
-                      {leaseRenewalRequest.rent_frequency}(s)
+                      {leaseRenewalRequest?.request_term}{" "}
+                      {leaseRenewalRequest?.rent_frequency}(s)
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Desired Move In Date
                       </h6>
                       {new Date(
-                        leaseRenewalRequest.move_in_date
+                        leaseRenewalRequest?.move_in_date
                       ).toLocaleDateString()}
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
@@ -425,14 +442,14 @@ const LeaseRenewalRequestDetail = () => {
                         Date Submitted
                       </h6>
                       {new Date(
-                        leaseRenewalRequest.request_date
+                        leaseRenewalRequest?.request_date
                       ).toLocaleDateString()}
                     </div>
                     <div className="col-sm-12 col-md-12 mb-4 text-black">
                       <h6 className="rental-application-lease-heading">
                         Additional Comments
                       </h6>
-                      {leaseRenewalRequest.comments}
+                      {leaseRenewalRequest?.comments}
                     </div>
                   </div>
                 </div>
@@ -517,7 +534,7 @@ const LeaseRenewalRequestDetail = () => {
               )}
             </div>
           </div>
-          {leaseRenewalRequest.status !== "approved" && actionStack}
+          {leaseRenewalRequest?.status !== "approved" && actionStack}
         </>
       )}
       <UIHelpButton onClick={handleClickStart} />

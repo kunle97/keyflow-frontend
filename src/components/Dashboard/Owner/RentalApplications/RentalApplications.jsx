@@ -63,14 +63,10 @@ const RentalApplications = () => {
     {
       name: "first_name",
       label: "First Name",
-      selector: (row) => row.first_name,
-      sortable: true,
     },
     {
       label: "Last Name",
       name: "last_name",
-      selector: (row) => row.last_name,
-      sortable: true,
     },
     {
       label: "Unit",
@@ -78,7 +74,11 @@ const RentalApplications = () => {
       options: {
         orderingField: "unit__name",
         customBodyRender: (value) => {
-          return value.name;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return value.name;
+          }
         },
       },
     },
@@ -88,7 +88,11 @@ const RentalApplications = () => {
       options: {
         orderingField: "unit__rental_property_name",
         customBodyRender: (value) => {
-          return value.rental_property_name;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return value.rental_property_name;
+          }
         },
       },
     },
@@ -231,11 +235,11 @@ const RentalApplications = () => {
           ]}
         />
       )}
-      <Stack 
-        direction="row" 
+      <Stack
+        direction="row"
         spacing={2}
-        sx={{ marginTop: "10px", px: "15px"}}
-        justifyContent={"flex-end"}  
+        sx={{ marginTop: "10px", px: "15px" }}
+        justifyContent={"flex-end"}
       >
         <UIButton
           btnText="Archived Rental Applications"

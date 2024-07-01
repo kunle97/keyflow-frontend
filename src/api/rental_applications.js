@@ -193,6 +193,25 @@ export async function deleteOtherRentalApplications(rentalAppId) {
   }
 }
 
+//Create a function to delete one specific rental application by its id
+export async function revokeRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .delete(`/rental-applications/${rentalAppId}/revoke-rental-application/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application deleted.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Delete Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
 //Create a function to archive a rental application using the POST endpoint  /rental-applications/{id}/archive-rental-application/
 export async function archiveRentalApplication(rentalAppId) {
   try {

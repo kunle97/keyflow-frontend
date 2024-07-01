@@ -410,34 +410,41 @@ const CreateProperty = () => {
 
   //Create a handle function to handle the form submission of creating a property
   const onSubmit = async (data) => {
-    console.log("DAta: ", data);
-    console.log("Form Data: ", formData);
     setIsLoading(true);
-    try {
-      const res = await createProperty(
-        formData.name,
-        formData.street,
-        formData.city,
-        formData.state,
-        formData.zipcode,
-        formData.country
-      );
-      console.log(res);
-      const newPropertyId = res.res.id;
-      if (res.status === 200) {
-        let payload = {};
-        payload.units = JSON.stringify(units);
-        payload.rental_property = newPropertyId;
-        payload.subscription_id = currentSubscriptionPlan.id;
-        payload.product_id = currentSubscriptionPlan.plan.product;
-        payload.user = authUser.id;
-        payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
-
-        const res = await createUnit(payload);
+    // check if errors and unitValidationErrors have values that are all undefined
+    if (hasNoErrors(errors) && hasNoErrors(unitValidationErrors)) {
+      try {
+        const res = await createProperty(
+          formData.name,
+          formData.street,
+          formData.city,
+          formData.state,
+          formData.zipcode,
+          formData.country
+        );
         console.log(res);
+        const newPropertyId = res.res.id;
         if (res.status === 200) {
-          setIsLoading(false);
-          navigate(`/dashboard/owner/properties/${newPropertyId}`);
+          let payload = {};
+          payload.units = JSON.stringify(units);
+          payload.rental_property = newPropertyId;
+          payload.subscription_id = currentSubscriptionPlan.id;
+          payload.product_id = currentSubscriptionPlan.plan.product;
+          payload.user = authUser.id;
+          payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
+
+          const res = await createUnit(payload);
+          console.log(res);
+          if (res.status === 200) {
+            setIsLoading(false);
+            navigate(`/dashboard/owner/properties/${newPropertyId}`);
+          } else {
+            setUnitCreateError(true);
+            setErrorMessage(
+              "There was an error creating your property" + res.message
+            );
+            setIsLoading(false);
+          }
         } else {
           setUnitCreateError(true);
           setErrorMessage(
@@ -445,19 +452,18 @@ const CreateProperty = () => {
           );
           setIsLoading(false);
         }
-      } else {
+      } catch (error) {
+        console.log("Error creating property: ", error);
         setUnitCreateError(true);
-        setErrorMessage(
-          "There was an error creating your property" + res.message
-        );
+        setErrorMessage("Error creating property");
         setIsLoading(false);
       }
-    } catch (error) {
-      console.log("Error creating property: ", error);
-      setUnitCreateError(true);
-      setErrorMessage("Error creating property");
-      setIsLoading(false);
+    } else {
+      console.log("Cannot submit");
     }
+    console.log("DAta: ", data);
+    console.log("Form Data: ", formData);
+    setIsLoading(true);
   };
 
   const retrieveSubscriptionPlan = async () => {
@@ -631,24 +637,36 @@ const CreateProperty = () => {
                         </div>
                       );
                     })}
-                    <UIButton
-                      dataTestId="create-property-next-button"
-                      type="button"
-                      style={{ float: "right" }}
-                      btnText="Next"
-                      onClick={() => {
-                        const { isValid, newErrors } = validateForm(
-                          formData,
-                          formInputs
-                        );
-                        setErrors(newErrors);
-                        if (isValid && hasNoErrors(errors)) {
-                          setStep(1);
-                        } else {
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <UIButton
+                        dataTestId="create-property-next-button"
+                        type="button"
+                        // style={{ float: "right" }}
+                        btnText="Add Units"
+                        onClick={() => {
+                          const { isValid, newErrors } = validateForm(
+                            formData,
+                            formInputs
+                          );
                           setErrors(newErrors);
-                        }
-                      }}
-                    />
+                          if (isValid && hasNoErrors(errors)) {
+                            setStep(1);
+                          } else {
+                            setErrors(newErrors);
+                          }
+                        }}
+                      />
+                      <UIButton
+                        btnText="Create Property"
+                        onClick={onSubmit}
+                        dataTestId="create-property-submit-button-1"
+                      />
+                    </Stack>
                   </div>
                 )}
                 {step === 1 && (
@@ -700,18 +718,7 @@ const CreateProperty = () => {
                       <div className="text-end my-3">
                         <UIButton
                           dataTestId="create-property-submit-button"
-                          onClick={() => {
-                            // check if errors and unitValidationErrors have values that are all undefined
-                            if (
-                              hasNoErrors(errors) &&
-                              hasNoErrors(unitValidationErrors)
-                            ) {
-                              console.log("Can subm,it");
-                              onSubmit();
-                            } else {
-                              console.log("Cannot submit");
-                            }
-                          }}
+                          onClick={onSubmit}
                           btnText="Create Property"
                         />
                       </div>

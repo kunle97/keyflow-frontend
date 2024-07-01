@@ -65,12 +65,9 @@ export async function deleteTenantInvite(tenantInviteId) {
     const res = await authenticatedInstance
       .delete(`/tenant-invites/${tenantInviteId}/`)
       .then((res) => {
-        if (res.status == 204) {
-          return { data: res.data };
-        }
-        return { data: [] };
+        return res;
       });
-    return res.data;
+    return res;
   } catch (error) {
     console.log("Delete tenant invite Error: ", error);
     return error.response;

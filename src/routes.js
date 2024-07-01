@@ -95,6 +95,9 @@ import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pa
 import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
 import TenantLeaseAgreements from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreements";
 import ArchivedRentalApplications from "./components/Dashboard/Owner/RentalApplications/ArchivedRentalApplications";
+import TenantInvites from "./components/Dashboard/Owner/TenantInvites/TenantInvites";
+import ManageTenantInvite from "./components/Dashboard/Owner/TenantInvites/ManageTenantInvite";
+import CreateTenantInvite from "./components/Dashboard/Owner/TenantInvites/CreateTenantInvite";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -356,7 +359,7 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
-    category: "Units",
+    category: "Properties",
     label: "Units",
     description: "Manage your units",
     isQuickLink: true,
@@ -392,7 +395,7 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Create Unit",
-    category: "Units",
+    category: "Properties",
     description: "Create a new unit",
     isQuickLink: false,
     muiIcon: <AddHomeOutlined />,
@@ -419,7 +422,40 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
-
+  {
+    path: "/dashboard/owner/tenant-invites",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantInvites />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Tenant Invites",
+    category: "Tenants",
+    description: "Manage your tenant invites",
+    isQuickLink: true,
+    muiIcon: <PeopleAltOutlined />,
+  },
+  {
+    path: "/dashboard/owner/tenant-invites/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageTenantInvite />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/owner/tenant-invites/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateTenantInvite />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Tenant Invite",
+    category: "Tenants",
+    description: "Create a new tenant invite",
+  },
   {
     path: "/dashboard/owner/maintenance-requests",
     element: withDashboardContainer(
@@ -632,7 +668,7 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
-    label: "Lease Terms",
+    label: "Lease Templates",
     category: "Lease Templates",
     description: "Manage your lease terms",
     isQuickLink: true,
@@ -667,7 +703,7 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
-    label: "Rental Applications",
+    label: "Pending Rental Applications",
     category: "Rental Applications",
     description: "Manage your rental applications",
     isQuickLink: true,

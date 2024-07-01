@@ -113,6 +113,8 @@ const OwnerMaintenanceRequests = () => {
             return <Chip label="Urgent" color="error" />;
           } else if (value === 5) {
             return <Chip label="Emergency" color="error" />;
+          }else{
+            return <Chip label="N/A" color="default" />;
           }
         },
       },
@@ -129,6 +131,8 @@ const OwnerMaintenanceRequests = () => {
             return <Chip label="In Progress" color="info" />;
           } else if (value === "completed") {
             return <Chip label="Completed" color="success" />;
+          }else{
+            return <Chip label="N/A" color="default" />;
           }
         },
       },

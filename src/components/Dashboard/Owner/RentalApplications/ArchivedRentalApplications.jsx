@@ -63,21 +63,22 @@ const ArchivedRentalApplications = () => {
     {
       name: "first_name",
       label: "First Name",
-      selector: (row) => row.first_name,
-      sortable: true,
     },
     {
       label: "Last Name",
       name: "last_name",
-      selector: (row) => row.last_name,
-      sortable: true,
     },
     {
       label: "Unit",
       name: "unit",
       options: {
+        orderingField: "unit__name",
         customBodyRender: (value) => {
-          return value.name;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return value.name;
+          }
         },
       },
     },
@@ -85,8 +86,13 @@ const ArchivedRentalApplications = () => {
       label: "Property",
       name: "unit",
       options: {
+        orderingField: "unit__rental_property_name",
         customBodyRender: (value) => {
-          return value.rental_property_name;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return value.rental_property_name;
+          }
         },
       },
     },

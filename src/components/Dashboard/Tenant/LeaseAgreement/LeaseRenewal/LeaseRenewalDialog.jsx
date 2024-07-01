@@ -24,6 +24,7 @@ const LeaseRenewalDialog = (props) => {
             setAlertModalMessage={props.setAlertModalMessage}
             setShowAlertModal={props.setShowAlertModal}
             isOwnerMode={props.isOwnerMode}
+            tenant={props.tenant}
           />
         ) : (
           <div className="row">
