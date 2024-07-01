@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
 import useScreen from "../hooks/useScreen";
 import { createInvoicesForRenewal } from "../api/tenants";
+import { preventPageReload } from "../helpers/utils";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -192,6 +193,7 @@ const SignLeaseAgreement = () => {
   };
 
   useEffect(() => {
+    preventPageReload();
     setIsLoading(true);
     if (!leaseAgreement) {
       try {

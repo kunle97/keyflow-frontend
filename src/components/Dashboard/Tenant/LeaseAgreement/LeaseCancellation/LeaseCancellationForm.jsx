@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import UIButton from "../../../UIComponents/UIButton";
 import { useState } from "react";
 import { authUser, validationMessageStyle } from "../../../../../constants";
@@ -9,6 +9,7 @@ import {
 } from "../../../../../helpers/formValidation";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import { validAnyString, validHTMLDateInput } from "../../../../../constants/rexgex";
+import { preventPageReload } from "../../../../../helpers/utils";
 const LeaseCancellationForm = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
@@ -147,6 +148,9 @@ const LeaseCancellationForm = (props) => {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    preventPageReload();
+  }, []);
   return (
     <div>
       <ProgressModal open={isLoading} title="Creating Lease Cancellation Request..." />

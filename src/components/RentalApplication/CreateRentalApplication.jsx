@@ -24,6 +24,7 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
 import useScreen from "../../hooks/useScreen";
 import { triggerValidation } from "../../helpers/formValidation";
+import { preventPageReload } from "../../helpers/utils";
 const CreateRentalApplication = () => {
   const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
@@ -176,7 +177,13 @@ const CreateRentalApplication = () => {
           : "",
       companyAddress:
         process.env.REACT_APP_ENVIRONMENT == "development"
-          ? faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode()
+          ? faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode()
           : "",
       income:
         process.env.REACT_APP_ENVIRONMENT == "development"
@@ -210,7 +217,13 @@ const CreateRentalApplication = () => {
       address:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
+          : faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode(),
       residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -262,7 +275,13 @@ const CreateRentalApplication = () => {
       companyAddress:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
+          : faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode(),
       income:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -317,7 +336,13 @@ const CreateRentalApplication = () => {
       address:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
+          : faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode(),
       residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -433,6 +458,7 @@ const CreateRentalApplication = () => {
      * */
 
     // get unit data
+    preventPageReload();
     getUnitUnauthenticated(unit_id)
       .then((unit_res) => {
         setIsLoading(true);

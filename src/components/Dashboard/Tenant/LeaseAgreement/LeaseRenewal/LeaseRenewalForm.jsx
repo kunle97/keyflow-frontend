@@ -44,6 +44,7 @@ import {
 } from "../../../../../constants/rexgex";
 import { authenticatedInstance } from "../../../../../api/api";
 import UIInput from "../../../UIComponents/UIInput";
+import { preventPageReload } from "../../../../../helpers/utils";
 const LeaseRenewalForm = (props) => {
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
@@ -370,6 +371,7 @@ const LeaseRenewalForm = (props) => {
   };
 
   useEffect(() => {
+    preventPageReload();
     handleSearchRentalUnits();
     console.log("Lease agreement prop", props.leaseAgreement);
     setCurrentLeaseTerms(

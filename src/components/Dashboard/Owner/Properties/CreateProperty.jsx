@@ -42,6 +42,7 @@ import {
   getStripeAccountRequirements,
   getStripeOnboardingAccountLink,
 } from "../../../../api/owners";
+import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateProperty = () => {
   const navigate = useNavigate();
@@ -480,6 +481,7 @@ const CreateProperty = () => {
   };
 
   useEffect(() => {
+    preventPageReload();
     try {
       retrieveSubscriptionPlan();
       getStripeOnboardingAccountLink().then((res) => {

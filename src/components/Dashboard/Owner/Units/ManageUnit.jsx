@@ -75,6 +75,7 @@ import {
   handleChangeLeaseTemplate,
   isValidFileExtension,
   isValidFileName,
+  preventPageReload,
 } from "../../../../helpers/utils";
 import UIRadioGroup from "../../UIComponents/UIRadioGroup";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -971,6 +972,7 @@ const ManageUnit = () => {
   };
 
   useEffect(() => {
+    preventPageReload();
     setIsLoadingPage(true);
     syncRentalUnitPreferences(unit_id);
     syncRentalUnitLeaseTerms(unit_id);

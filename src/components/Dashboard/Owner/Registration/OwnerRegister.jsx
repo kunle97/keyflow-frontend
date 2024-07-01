@@ -238,6 +238,10 @@ const OwnerRegister = () => {
     }
   };
 
+  useEffect(() => {
+    preventPageReload();
+  }, []);
+
   return (
     <div className="container-fluid" style={{ padding: 0, overflow: "hidden" }}>
       <ProgressModal
