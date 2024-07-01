@@ -28,7 +28,11 @@ const Tenants = () => {
       options: {
         isObject: true,
         customBodyRender: (value) => {
-          return value.first_name;
+          if (value.first_name) {
+            return value.first_name;
+          } else {
+            return "N/A";
+          }
         },
         orderingField: "user__first_name",
       },
@@ -39,7 +43,11 @@ const Tenants = () => {
       options: {
         isObject: true,
         customBodyRender: (value) => {
-          return value.last_name;
+          if (value.last_name) {
+            return value.last_name;
+          } else {
+            return value.last_name;
+          }
         },
         orderingField: "user__last_name",
       },
@@ -50,7 +58,11 @@ const Tenants = () => {
       options: {
         isObject: true,
         customBodyRender: (value) => {
-          return value.email;
+          if (value.email) {
+            return value.email;
+          } else {
+            return "N/A";
+          }
         },
         orderingField: "user__email",
       },

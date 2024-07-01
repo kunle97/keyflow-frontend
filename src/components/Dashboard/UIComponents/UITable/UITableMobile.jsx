@@ -4,6 +4,7 @@ import {
   uiGrey2,
   uiGreen,
   defaultWhiteInputStyle,
+  globalMaxFileSize,
 } from "../../../../constants";
 import {
   Button,
@@ -327,6 +328,15 @@ const UITableMobile = (props) => {
     let validFiles = true;
 
     acceptedFiles.forEach((file) => {
+      //Check if file is valid size
+      if (file.size > globalMaxFileSize) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage("File size is too large. Max file size is 3MB");
+        setShowFileUploadAlert(true);
+        props.onClose();
+        validFiles = false;
+        return;
+      }
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(
@@ -662,6 +672,7 @@ const UITableMobile = (props) => {
                                 setRowSelected(row.id, e.target.checked);
                               }}
                               sx={{
+                                zIndex: 999,
                                 color: uiGreen,
                                 "&.Mui-checked": {
                                   color: uiGreen,

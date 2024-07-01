@@ -84,8 +84,8 @@ export async function getProperty(propertyId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Properties Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
+    console.log("Get Unit Error: ", error);
+    return error.response;
   }
 }
 
@@ -171,7 +171,7 @@ export async function updatePropertyPortfolio(propertyId, portfolio) {
   try {
     const res = await authenticatedMediaInstance
       .patch(`/properties/${propertyId}/update-portfolio/`, {
-        portfolio:portfolio,
+        portfolio: portfolio,
       })
       .then((res) => {
         console.log(res);

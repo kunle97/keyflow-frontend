@@ -89,7 +89,7 @@ const UIPageHeader = (props) => {
               style={{
                 marginBottom: "0px",
                 fontSize: "17pt",
-                maxWidth: "350px",
+                maxWidth:  isMobile ? "250px" : "670px",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
                 overflow: "hidden",

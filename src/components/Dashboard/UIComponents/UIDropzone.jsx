@@ -18,7 +18,7 @@ const UIDropzone = (props) => {
         onDrop={handleDrop}
         accept={props.allowedFileTypes.join(",")}
         minSize={1024}
-        maxSize={3072000}
+        maxSize={props.maxFileSize ? props.maxFileSize : 3145728}
       >
         {({
           getRootProps,
@@ -60,8 +60,10 @@ const UIDropzone = (props) => {
                 name="file"
               />
 
-              <p className="text-black" >Drag'n'drop the file representing your lease agreeement </p>
-              <p className="text-black" >
+              <p className="text-black">
+                Drag'n'drop the file representing your lease agreeement{" "}
+              </p>
+              <p className="text-black">
                 Only the following files will be accepted:{" "}
                 {props.allowedFileTypes.join(", ")}
               </p>

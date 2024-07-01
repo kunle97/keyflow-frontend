@@ -198,11 +198,21 @@ export const generateVariedColors = (baseColor, numberOfColors) => {
 
 export const removeUnderscoresAndCapitalize = (value) => {
   //remove the underscore from the value and capitalize the first letter of each word
-  let transactionType = value
+  let newValue = value
     .replace(/_/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
-  return transactionType;
+  return newValue;
 };
+
+//Create a function to lowercase each word in a string and replace spaces with underscores
+export const addUnderscoresAndLowercase = (value) => {
+  //replace spaces with underscores and lowercase each word
+  let newValue = value
+    .toLowerCase()
+    .replace(/\s/g, "_")
+    .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toLowerCase()));
+  return newValue;
+}
 
 //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
 export const isValidFileName = (file_name) => {
@@ -293,25 +303,22 @@ export const regexCheck = (strings, patterns) => {
   return { matches, errors };
 };
 
-// Create a function to check if the accessToken is expired by comparing current date to the localStorage accessTokenExpirationDate value
+// utils.js
 export const isTokenExpired = () => {
-  // Check if the accessToken localStorage value exists
   if (
     !localStorage.getItem("accessTokenExpirationDate") ||
     !localStorage.getItem("accessToken")
   ) {
-    return true; // Token is expired if the expiration date or the token itself is missing
+    return true;
   }
 
   const expirationDate = localStorage.getItem("accessTokenExpirationDate");
   const currentDate = new Date();
   const expirationDateObject = new Date(expirationDate);
 
-  // Compare the expiration date with the current date
-  return currentDate > expirationDateObject; // Returns true if the token is expired, false otherwise
+  return currentDate > expirationDateObject;
 };
 
-//Create a function to clear localstorage items set at login
 export const clearLocalStorage = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("accessTokenExpirationDate");
@@ -322,7 +329,6 @@ export const clearLocalStorage = () => {
   localStorage.removeItem("tenantData");
 };
 
-//Create a function that uses tthe unauthenticatedInstance to validate a token in local storage
 export const validateToken = async () => {
   let isValid = false;
   try {
@@ -337,6 +343,7 @@ export const validateToken = async () => {
     return error.response;
   }
 };
+
 
 //Create a function taht abbrieveiates rent frequescies for example "monthly" to "mo" and "yearly" to "yr" etc
 export const abbreviateRentFrequency = (frequency) => {

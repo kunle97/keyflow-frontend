@@ -88,7 +88,11 @@ const Annoucements = () => {
         isObject: true,
         customBodyRender: (value) => {
           console.log(value);
-          return `${value.type} - ${value.name}`;
+          if (!value) {
+            return "N/A";
+          } else {
+            return `${value?.type} - ${value?.name}`;
+          }
         },
       },
     },
@@ -132,7 +136,7 @@ const Annoucements = () => {
             createSubtitle={(row) => `${row.body}`}
             createTitle={(row) => {
               return (
-                <>  
+                <>
                   <span>{new Date(row.start_date).toLocaleDateString()}</span> -
                   <span>{new Date(row.end_date).toLocaleDateString()}</span>
                 </>

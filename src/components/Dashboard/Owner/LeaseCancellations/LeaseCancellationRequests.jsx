@@ -82,7 +82,11 @@ const LeaseCancellationRequests = () => {
         orderingField: "rental_unit__name",
         isObject: true,
         customBodyRender: (value) => {
-          return <span>{value.name}</span>;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return <span>{value.name}</span>;
+          }
         },
       },
     },

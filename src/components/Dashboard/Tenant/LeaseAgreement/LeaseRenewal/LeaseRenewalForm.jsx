@@ -5,7 +5,12 @@ import { useState } from "react";
 import {
   FormControl,
   FormControlLabel,
+  List,
+  ListItem,
+  ListItemText,
   RadioGroup,
+  ButtonBase,
+  IconButton,
   Stack,
 } from "@mui/material";
 import { set, useForm } from "react-hook-form";
@@ -13,17 +18,17 @@ import {
   authUser,
   defaultWhiteInputStyle,
   uiGreen,
+  uiGrey2,
   validationMessageStyle,
 } from "../../../../../constants";
-import CancelIcon from "@mui/icons-material/CancelOutlined";
-import { createLeaseCancellationRequest } from "../../../../../api/lease_cancellation_requests";
-import UITableMini from "../../../UIComponents/UITable/UITableMini";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import { create } from "@mui/material/styles/createTransitions";
 import { createLeaseRenewalRequest } from "../../../../../api/lease_renewal_requests";
 import { getProperty } from "../../../../../api/properties";
 import { FormLabel, Radio } from "@mui/material";
-import { getUnits } from "../../../../../api/units";
+import { getAllUnits, getUnits } from "../../../../../api/units";
 import UIRadioGroup from "../../../UIComponents/UIRadioGroup";
 import {
   triggerValidation,
@@ -31,7 +36,14 @@ import {
 } from "../../../../../helpers/formValidation";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import { useNavigate } from "react-router";
-import { lettersNumbersAndSpecialCharacters, validAnyString, validHTMLDateInput, validWholeNumber } from "../../../../../constants/rexgex";
+import {
+  lettersNumbersAndSpecialCharacters,
+  validAnyString,
+  validHTMLDateInput,
+  validWholeNumber,
+} from "../../../../../constants/rexgex";
+import { authenticatedInstance } from "../../../../../api/api";
+import UIInput from "../../../UIComponents/UIInput";
 const LeaseRenewalForm = (props) => {
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
@@ -43,9 +55,13 @@ const LeaseRenewalForm = (props) => {
   ]);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [unitMode, setUnitMode] = useState("current_unit"); //This is the unit that the tenant is currently renting
+  const [unitMode, setUnitMode] = useState(
+    props.leaseAgreement ? "current_unit" : "new_unit"
+  ); //This is the unit that the tenant is currently renting
   const [selectedUnit, setSelectedUnit] = useState(null); //This is the unit that the tenant has selected to renew their lease to
-  const [leaseMode, setLeaseMode] = useState("current_lease");
+  const [leaseMode, setLeaseMode] = useState(
+    props.leaseAgreement ? "current_lease" : "new_lease"
+  );
   const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null); //This is the lease terms that the tenant is currently renting
   const [selectedLeaseTerm, setSelectedLeaseTerm] = useState(null); //This is the lease term that the tenant has selected to renew their lease to
   const [selectedRentFrequency, setSelectedRentFrequency] = useState(null); //This is the rent frequency that the tenant has selected to renew their lease to
@@ -64,6 +80,15 @@ const LeaseRenewalForm = (props) => {
   const [step3FormData, setStep3FormData] = useState({
     comments: "",
   });
+  //Rental unit state variables
+  const [rentalUnitModalOpen, setRentalUnitModalOpen] = useState(false);
+  const [rentalUnitSearchQuery, setRentalUnitSearchQuery] = useState("");
+  const [rentalUnitEndpoint, setRentalUnitEndpoint] = useState(
+    "/units/?is_occupied=False"
+  );
+  const [showOccupiedUnitsOnly, setShowOccupiedUnitsOnly] = useState(true);
+  const [rentalUnitNextPage, setRentalUnitNextPage] = useState("");
+  const [rentalUnitPreviousPage, setRentalUnitPreviousPage] = useState("");
 
   const handleChange = (e, formData, setFormData, formInputs) => {
     const { name, value } = e.target;
@@ -165,6 +190,12 @@ const LeaseRenewalForm = (props) => {
     } else {
       setStep(step + 1);
     }
+    //props.leaseAgreement is null then skip step 1
+    if (step === 0 && !props.leaseAgreement) {
+      setStep(step + 2);
+    } else {
+      setStep(step + 1);
+    }
   };
   const handleBack = () => {
     //If props.isOwnerMode is true, then we skip the comments step
@@ -172,6 +203,41 @@ const LeaseRenewalForm = (props) => {
       setStep(step - 2);
     } else {
       setStep(step - 1);
+    }
+    //props.leaseAgreement is null then skip step 1
+    if (step === 2 && !props.leaseAgreement) {
+      setStep(step - 2);
+    }
+  };
+
+  const handleSearchRentalUnits = async (endpoint = rentalUnitEndpoint) => {
+    try {
+      const res = await authenticatedInstance.get(endpoint, {
+        params: {
+          search: rentalUnitSearchQuery,
+          limit: 10,
+        },
+      });
+      console.log("Search res", res);
+      setUnits(res.data.results);
+      setRentalUnitNextPage(res.data.next);
+      setRentalUnitPreviousPage(res.data.previous);
+    } catch (error) {
+      console.error("Failed to fetch rental units:", error);
+    }
+  };
+
+  const handleNextPageRentalUnitClick = async () => {
+    if (rentalUnitNextPage) {
+      handleSearchRentalUnits(rentalUnitNextPage);
+      setRentalUnitEndpoint(rentalUnitNextPage);
+    }
+  };
+
+  const handlePreviousPageRentalUnitClick = async () => {
+    if (rentalUnitPreviousPage) {
+      handleSearchRentalUnits(rentalUnitPreviousPage);
+      setRentalUnitEndpoint(rentalUnitPreviousPage);
     }
   };
 
@@ -203,47 +269,71 @@ const LeaseRenewalForm = (props) => {
 
   const onSubmit = () => {
     setIsLoading(true);
-    const payload = {
-      move_in_date: step0FormData.moveInDate,
-      lease_term:
-        leaseMode === "current_lease"
-          ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
-              (term) => term.name === "term"
-            ).value
-          : step1FormData.leaseTerm,
-      rent_frequency:
-        leaseMode === "current_lease"
-          ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
-              (term) => term.name === "rent_frequency"
-            ).value
-          : step1FormData.rent_frequency,
-      comments: step3FormData.comments,
-      tenant: props.leaseAgreement.tenant.id,
-      owner: props.leaseAgreement.owner.id,
-      rental_unit:
-        unitMode === "current_unit"
-          ? props.leaseAgreement.rental_unit.id
-          : selectedUnit,
-      rental_property: props.leaseAgreement.rental_unit.rental_property,
-    };
-    console.log(payload);
-    //Check that move in date comes after the lease end date
-    let leaseEndDate = new Date(props.leaseAgreement.end_date);
-    let moveInDate = new Date(step0FormData.moveInDate);
-    if (moveInDate < leaseEndDate) {
-      props.setShowLeaseRenewalDialog(false);
-      props.setAlertModalTitle("Invalid Move In Date");
-      props.setAlertModalMessage(
-        "Your move in date must be after the end of your current lease."
-      );
-      props.setShowAlertModal(true);
-      return;
+    let payload = {};
+    if (props.leaseAgreement) {
+      payload = {
+        move_in_date: step0FormData.moveInDate,
+        lease_term:
+          leaseMode === "current_lease"
+            ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
+                (term) => term.name === "term"
+              ).value
+            : step1FormData.leaseTerm,
+        rent_frequency:
+          leaseMode === "current_lease"
+            ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
+                (term) => term.name === "rent_frequency"
+              ).value
+            : step1FormData.rent_frequency,
+        comments: step3FormData.comments,
+        tenant: props.leaseAgreement.tenant.id,
+        owner: props.leaseAgreement.owner.id,
+        rental_unit:
+          unitMode === "current_unit"
+            ? props.leaseAgreement.rental_unit.id
+            : selectedUnit.id,
+        rental_property: props.leaseAgreement.rental_unit.rental_property,
+      };
+      //Check that move in date comes after the lease end date
+      let leaseEndDate = new Date(props.leaseAgreement.end_date);
+      let moveInDate = new Date(step0FormData.moveInDate);
+      if (moveInDate < leaseEndDate) {
+        props.setShowLeaseRenewalDialog(false);
+        props.setAlertModalTitle("Invalid Move In Date");
+        props.setAlertModalMessage(
+          "Your move in date must be after the end of your current lease."
+        );
+        props.setShowAlertModal(true);
+        return;
+      }
+    } else {
+      console.log("Selected unit rental  ", selectedUnit);
+      console.log("Selected unit rental Propserfgtey ", selectedUnit.rental_property);
+      let parsed_lease_terms = JSON.parse(selectedUnit.lease_terms);
+      let lease_term = parsed_lease_terms.find(
+        (term) => term.name === "term"
+      ).value;
+      let rent_frequency = parsed_lease_terms.find(
+        (term) => term.name === "rent_frequency"
+      ).value;
+
+      payload = {
+        move_in_date: step0FormData.moveInDate,
+        lease_term: lease_term,
+        rent_frequency: rent_frequency,
+        comments: step3FormData.comments,
+        tenant: props.tenant.id,
+        owner: authUser.owner_id,
+        rental_unit: selectedUnit.id,
+        rental_property: selectedUnit.rental_property,
+      };
     }
+
     createLeaseRenewalRequest(payload)
       .then((res) => {
         if (res.status === 201) {
           if (props.isOwnerMode) {
-            console.log("Creaente Owner lease rebewak reqyest teres ",res);
+            console.log("Creaente Owner lease rebewak reqyest teres ", res);
             //If the user is an owner, then redirect them to the lease documents page
             navigate(`/dashboard/owner/lease-renewal-requests/${res.data.id}`);
           } else {
@@ -280,16 +370,27 @@ const LeaseRenewalForm = (props) => {
   };
 
   useEffect(() => {
+    handleSearchRentalUnits();
     console.log("Lease agreement prop", props.leaseAgreement);
     setCurrentLeaseTerms(
-      JSON.parse(props.leaseAgreement.rental_unit.lease_terms)
+      props.leaseAgreement
+        ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms)
+        : null
     );
-    //Find only units that have the is_occopied property set to false
-    let unoccupied_units = props.leaseAgreement.rental_property.units.filter(
-      (unit) => unit.is_occupied === false
-    );
-    setUnits(unoccupied_units);
-  }, []);
+    if (props.leaseAgreement) {
+      //Find only units that have the is_occopied property set to false
+      let unoccupied_units = props.leaseAgreement.rental_property.units.filter(
+        (unit) => unit.is_occupied === false
+      );
+      setUnits(unoccupied_units);
+    } else {
+      authenticatedInstance.get("/units/?is_occupied=False").then((res) => {
+        console.log("All units ", res);
+        setUnits(res.data);
+      });
+      setLeaseMode("new_lease");
+    }
+  }, [rentalUnitSearchQuery]);
 
   return (
     <div>
@@ -364,6 +465,7 @@ const LeaseRenewalForm = (props) => {
                     {
                       value: "current_lease",
                       label: "Current Lease Terms",
+                      hidden: !props.leaseAgreement,
                     },
                     {
                       value: "new_lease",
@@ -524,6 +626,7 @@ const LeaseRenewalForm = (props) => {
                       {
                         value: "current_unit",
                         label: "Current Unit",
+                        hidden: !props.leaseAgreement,
                       },
                       {
                         value: "new_unit",
@@ -535,13 +638,136 @@ const LeaseRenewalForm = (props) => {
                     direction="row"
                   />
                   {unitMode === "new_unit" && (
-                    <UITableMini
-                      data={units}
-                      columns={unit_table_columns}
-                      options={options}
-                      showViewButton={true}
-                      viewButtonText="Select"
-                    />
+                    <>
+                      <UIInput
+                        onChange={(e) => {
+                          setRentalUnitSearchQuery(e.target.value);
+                          handleSearchRentalUnits();
+                        }}
+                        type="text"
+                        placeholder="Search rental unit"
+                        inputStyle={{ margin: "10px 0" }}
+                        value={rentalUnitSearchQuery}
+                        name="rental_unit_search"
+                      />
+                      {/* <UICheckbox
+                        label="Show Occupied Units Only"
+                        checked={showOccupiedUnitsOnly}
+                        onChange={handleChangeShowOccupiedUnitsOnly}
+                        style={{ margin: "10px 0" }}
+                      /> */}
+
+                      <List
+                        sx={{
+                          width: "100%",
+                          maxWidth: "100%",
+                          maxHeight: 500,
+                          overflow: "auto",
+                          color: uiGrey2,
+                          bgcolor: "white",
+                        }}
+                      >
+                        {units.map((unit, index) => (
+                          <ListItem
+                            key={index}
+                            alignItems="flex-start"
+                            onClick={() => {
+                              setSelectedUnit(unit);
+                              console.log(unit);
+                              // triggerValidation(
+                              //   "rental_unit",
+                              //   unit.id,
+                              //   formInputs.find(
+                              //     (input) => input.name === "rental_unit"
+                              //   ).validations
+                              // );
+                              // setFormData((prevData) => ({
+                              //   ...prevData,
+                              //   rental_unit: unit.id,
+                              // }));
+                              // setFormData((prevData) => ({
+                              //   ...prevData,
+                              //   rental_property: null,
+                              //   portfolio: null,
+                              // }));
+                              handleNext();
+                            }}
+                          >
+                            <Stack
+                              direction="row"
+                              spacing={2}
+                              justifyContent={"space-between"}
+                              alignContent={"center"}
+                              alignItems={"center"}
+                              sx={{ width: "100%" }}
+                            >
+                              <ListItemText
+                                primary={`${unit.name} (${
+                                  unit.is_occupied ? "Occupied" : "Vacant"
+                                })`}
+                                secondary={`${unit.rental_property_name}`}
+                              />
+                              <UIButton
+                                dataTestId={`select-unit-button-${index}`}
+                                onClick={() => {
+                                  setSelectedUnit(unit);
+                                  console.log(unit);
+                                  // setFormData((prevData) => ({
+                                  //   ...prevData,
+                                  //   rental_unit: unit.id,
+                                  // }));
+                                  handleNext();
+                                }}
+                                btnText="Select"
+                                style={{ margin: "10px 0" }}
+                              />
+                            </Stack>
+                          </ListItem>
+                        ))}
+                      </List>
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        justifyContent={"space-between"}
+                        alignContent={"center"}
+                        alignItems={"center"}
+                        sx={{ width: "100%" }}
+                      >
+                        {rentalUnitPreviousPage && (
+                          <ButtonBase
+                            onClick={handlePreviousPageRentalUnitClick}
+                          >
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              spacing={0}
+                            >
+                              <IconButton style={{ color: uiGreen }}>
+                                <ArrowBackOutlined />
+                              </IconButton>
+                              <span style={{ color: uiGreen }}>Prev</span>
+                            </Stack>
+                          </ButtonBase>
+                        )}
+                        <span></span>
+                        {rentalUnitNextPage && (
+                          <ButtonBase onClick={handleNextPageRentalUnitClick}>
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              spacing={0}
+                            >
+                              <span style={{ color: uiGreen }}>Next</span>
+                              <IconButton style={{ color: uiGreen }}>
+                                <ArrowForwardIcon />
+                              </IconButton>
+                            </Stack>
+                          </ButtonBase>
+                        )}
+                      </Stack>
+                    </>
                   )}
                   {errors.unitSelect && (
                     <span style={validationMessageStyle}>

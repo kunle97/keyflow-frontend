@@ -439,6 +439,8 @@ const CreateBillingEntry = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { isValid, newErrors } = validateForm(formData, formInputs);
+    console.log("Form data is vlaid", isValid );
+    console.log("Errors ", newErrors);
     setErrors(newErrors);
     if (isValid) {
       setIsLoading(true);
@@ -834,7 +836,7 @@ const CreateBillingEntry = () => {
               {formInputs.map((input, index) => {
                 return (
                   <>
-                    {input.hide === false && (
+                    {!input.hide && (
                       <>
                         {input.type === "select" && (
                           <div className="col-md-6 mb-2">

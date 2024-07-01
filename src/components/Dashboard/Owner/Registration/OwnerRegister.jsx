@@ -8,7 +8,7 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { Input, Button, Stack, IconButton } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../constants";
-import { makeId } from "../../../../helpers/utils";
+import { makeId, preventPageReload } from "../../../../helpers/utils";
 import UIButton from "../../UIComponents/UIButton";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
@@ -172,7 +172,9 @@ const OwnerRegister = () => {
       errorMessageDataTestId: "password_repeat_error",
     },
   ];
-
+  useEffect(() => {
+    preventPageReload();
+  }, []);
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -231,10 +233,9 @@ const OwnerRegister = () => {
       setSuccessMode(false);
       setIsLoading(false);
       return;
-    }finally{
+    } finally {
       setIsLoading(false);
     }
-
   };
 
   return (

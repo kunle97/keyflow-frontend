@@ -34,6 +34,7 @@ const UICard = ({
           justifyContent={"space-between"}
           alignItems="center"
           sx={{ width: "100%" }}
+          onClick={onClick}
         >
           <Stack
             direction="row"

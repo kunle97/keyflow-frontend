@@ -17,7 +17,7 @@ import {
 import { ArrowBackOutlined, MoreVert } from "@mui/icons-material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, { useEffect } from "react";
-import { uiGreen, uiGrey2 } from "../../../../constants";
+import { globalMaxFileSize, uiGreen, uiGrey2 } from "../../../../constants";
 import { useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import AddIcon from "@mui/icons-material/Add";
@@ -111,8 +111,8 @@ const UITable = (props) => {
             ...props.additionalParams,
           },
         });
-        console.log("response", response.data)
-        console.log("additional params", props.additionalParams)
+        console.log("response", response.data);
+        console.log("additional params", props.additionalParams);
         return response.data;
       };
 
@@ -241,15 +241,15 @@ const UITable = (props) => {
         setSearchTerm(query);
         // Function to get nested property value
         const getNestedValue = (obj, path) => {
-          return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+          return path.split(".").reduce((acc, part) => acc && acc[part], obj);
         };
         // Filter the data based on the search term
         const filtered = results.filter((item) =>
           props.searchFields.some((field) => {
             const value = getNestedValue(item, field);
-            if (typeof value === 'string') {
+            if (typeof value === "string") {
               return value.toLowerCase().includes(query.toLowerCase());
-            } else if (typeof value === 'number') {
+            } else if (typeof value === "number") {
               return value.toString().includes(query.toLowerCase());
             }
             return false;
@@ -260,7 +260,6 @@ const UITable = (props) => {
       }
     }
   };
-  
 
   //Handles the selection change for the filter dropdowns
   const handleFilterSelectionChange = (newSelectedOptions, index) => {
@@ -332,6 +331,15 @@ const UITable = (props) => {
 
     acceptedFiles.forEach((file) => {
       if (!isValidFileName(file.name)) {
+        //Check if file is valid size
+        if (file.size > globalMaxFileSize) {
+          setResponseTitle("File Upload Error");
+          setResponseMessage("File size is too large. Max file size is 3MB");
+          setShowFileUploadAlert(true);
+          props.onClose();
+          validFiles = false;
+          return;
+        }
         setResponseTitle("File Upload Error");
         setResponseMessage(
           "One or more of the file names is invalid. File name can only contain numbers, letters, underscores, and dashes. No special characters or spaces."
@@ -407,7 +415,7 @@ const UITable = (props) => {
 
   useEffect(() => {
     refresh(currentPageEndPoint);
-  }, [props.data,searchTerm]);
+  }, [props.data, searchTerm]);
 
   return (
     <div style={{ width: "100%", overflowX: "auto", padding: "0 15px" }}>
@@ -650,7 +658,7 @@ const UITable = (props) => {
                       return (
                         <th
                           style={{
-                            maxWidth:  maxTableCellWidth,
+                            maxWidth: maxTableCellWidth,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
@@ -718,7 +726,7 @@ const UITable = (props) => {
                                   return (
                                     <td
                                       style={{
-                                        maxWidth:  maxTableCellWidth,
+                                        maxWidth: maxTableCellWidth,
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         whiteSpace: "nowrap",
@@ -734,7 +742,7 @@ const UITable = (props) => {
                               return (
                                 <td
                                   style={{
-                                    maxWidth:  maxTableCellWidth,
+                                    maxWidth: maxTableCellWidth,
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
                                     whiteSpace: "nowrap",
@@ -821,7 +829,7 @@ const UITable = (props) => {
                                   return (
                                     <td
                                       style={{
-                                        maxWidth:  maxTableCellWidth,
+                                        maxWidth: maxTableCellWidth,
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         whiteSpace: "nowrap",
@@ -837,7 +845,7 @@ const UITable = (props) => {
                               return (
                                 <td
                                   style={{
-                                    maxWidth:  maxTableCellWidth,
+                                    maxWidth: maxTableCellWidth,
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
                                     whiteSpace: "nowrap",

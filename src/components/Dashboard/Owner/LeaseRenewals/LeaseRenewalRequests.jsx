@@ -74,7 +74,11 @@ const LeaseRenewalRequests = () => {
       options: {
         orderingField: "rental_unit__name",
         customBodyRender: (value) => {
-          return <span>{value.name}</span>;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return <span>{value.name}</span>;
+          }
         },
       },
     },
@@ -83,7 +87,11 @@ const LeaseRenewalRequests = () => {
       label: "Property",
       options: {
         customBodyRender: (value) => {
-          return <span>{value.name}</span>;
+          if (!value) {
+            return <span>N/A</span>;
+          } else {
+            return <span>{value.name}</span>;
+          }
         },
       },
     },
@@ -158,8 +166,11 @@ const LeaseRenewalRequests = () => {
             }
             createSubtitle={(row) => `${row.status}`}
             orderingFields={[
-              {field: "tenant__user__last_name", label: "Tenant (Ascending)"},
-              {field: "-tenant__user__last_name", label: "Tenant (Descending)"},
+              { field: "tenant__user__last_name", label: "Tenant (Ascending)" },
+              {
+                field: "-tenant__user__last_name",
+                label: "Tenant (Descending)",
+              },
               { field: "status", label: "Status (Ascending)" },
               { field: "-status", label: "Status (Descending)" },
               { field: "created_at", label: "Date Created (Ascending)" },

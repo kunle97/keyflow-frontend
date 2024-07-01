@@ -51,6 +51,7 @@ const ManageTenant = () => {
   const [progressModalTitle, setProgressModalTitle] = useState("");
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [showLeaseRenewalDialog, setShowLeaseRenewalDialog] = useState(false);
+
   const [showLeaseCancellationDialog, setShowLeaseCancellationDialog] =
     useState(false);
   const [showLeaseRenewalForm, setShowLeaseRenewalForm] = useState(false);
@@ -319,6 +320,7 @@ const ManageTenant = () => {
         setAlertModalTitle={setAlertTitle}
         setAlertModalMessage={setAlertMessage}
         setShowAlertModal={setShowAlert}
+        tenant={tenant}
       />
       <LeaseCancellationDialog
         isOwnerMode={true}
@@ -358,6 +360,7 @@ const ManageTenant = () => {
                 action: () => {
                   setShowLeaseCancellationDialog(true);
                 },
+                hidden: lease ? false : true,
               },
             ]}
           />
@@ -496,40 +499,6 @@ const ManageTenant = () => {
                   />
                 </div>
               </div>
-              {/* <div className="row mb-3">
-                <div className="col-lg-8">
-                  <div className="row">
-                    <div className="col-sm-12">
-                      <div className="row">
-                      <div className="col-sm-12 col-md-6 mb-4">
-                        <UICard
-                          cardStyle={{ background: "white", color: uiGreen }}
-                          infoStyle={{ color: uiGreen, fontSize: "16pt" }}
-                          titleStyle={{ color: uiGreen, fontSize: "12pt" }}
-                          info={`$${faker.finance
-                            .amount({ min: 1000, max: 10000 })
-                            .toString()
-                            .toLocaleString()}`}
-                          title={"Total Payments"}
-                        />
-                      </div>
-                      <div className="col-sm-12 col-md-6 mb-4">
-                        <UICard
-                          cardStyle={{ background: "white", color: uiRed }}
-                          infoStyle={{ color: uiRed, fontSize: "16pt" }}
-                          titleStyle={{ color: uiRed, fontSize: "12pt" }}
-                          info={`$${faker.finance
-                            .amount({ min: 13000, max: 40000 })
-                            .toString()
-                            .toLocaleString()}`}
-                          title={"Remaining Payments"}
-                        />
-                      </div>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </>
           )}
           {tabPage === 1 && (
@@ -590,7 +559,7 @@ const ManageTenant = () => {
             </div>
           )}
           {tabPage === 3 && (
-            <div className="mb-3" style={{ overflow: "hidden" }}>
+            <div className="mb-3 container" style={{ overflow: "hidden" }}>
               <UITableMobile
                 data={maintenanceRequests}
                 createInfo={(row) =>
@@ -607,6 +576,11 @@ const ManageTenant = () => {
                   maxWidth: "180px",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                }}
+                checked={[]}
+                setChecked={() => {}}
+                options={{
+                  isSelectable: true,
                 }}
                 orderingFields={[
                   { field: "created_at", label: "Date Created (Ascending)" },

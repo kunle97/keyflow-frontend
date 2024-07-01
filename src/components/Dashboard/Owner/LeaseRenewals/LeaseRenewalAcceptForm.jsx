@@ -68,7 +68,6 @@ const LeaseRenewalAcceptForm = () => {
     }
 
     try {
-
       //If the lease_renewal_request's rental unit does not equal the lease agreeement's update the unit's is_occupied status to true. Also set the unit's lease_template to current leaseTemplate
       const updateRentalUnitPayload = {
         is_occupied: true,
@@ -107,7 +106,7 @@ const LeaseRenewalAcceptForm = () => {
         tenant_first_name: leaseRenewalRequest.tenant.user.first_name,
         tenant_last_name: leaseRenewalRequest.tenant.user.last_name,
         tenant_email: leaseRenewalRequest.tenant.email,
-        document_title: `${leaseRenewalRequest.tenant.user.first_name} ${leaseRenewalRequest.tenant.user.last_name} Lease Agreement (Renewal) for unit ${currentLeaseAgreement.rental_unit.name}`,
+        document_title: `${leaseRenewalRequest.tenant.user.first_name} ${leaseRenewalRequest.tenant.user.last_name} Lease Agreement (Renewal) for unit ${leaseRenewalRequest.rental_unit.name}`,
         message: "Please sign the lease renewal agreement",
       };
 
@@ -148,7 +147,6 @@ const LeaseRenewalAcceptForm = () => {
         throw new Error("Lease agreement creation failed.");
       }
 
-
       setAlertModalTitle("Success");
       setAlertModalMessage(
         "The lease renewal request was accepted, and the tenant was notified."
@@ -158,9 +156,10 @@ const LeaseRenewalAcceptForm = () => {
         navigate("/dashboard/owner/lease-renewal-requests/")
       );
     } catch (error) {
+      console.error(error);
       setAlertModalTitle("Error");
       setAlertModalMessage(
-        `An error occurred: ${error.message}. Please try again later.`
+        `An error occurred. Please try again later.`
       );
       //Update the lease renewal request status to pending
       const updateLeaseRenewalRequestPayload = {
@@ -286,21 +285,33 @@ const LeaseRenewalAcceptForm = () => {
             if (!currentLeaseAgreement) {
               getLeaseAgreementsByTenant(lease_renewal_res.data.tenant.id)
                 .then((lease_agreements_res) => {
-                  console.log(lease_agreements_res);
+                  console.log("LEase Agreemnent Res:", lease_agreements_res);
                   if (lease_agreements_res.status === 200) {
                     let lease_agreements = lease_agreements_res.data;
-                    let current_lease_agreement = lease_agreements.find(
-                      (lease_agreement) => lease_agreement.is_active === true
-                    );
-                    setCurrentLeaseAgreement(current_lease_agreement);
-                    setCurrentTemplateId(
-                      lease_renewal_res.data.rental_unit.template_id
-                    );
-                    setCurrentLeaseTerms(
-                      JSON.parse(
-                        current_lease_agreement.rental_unit.lease_terms
-                      )
-                    );
+                    if (lease_agreements.length === 0) {
+                      setCurrentLeaseAgreement({});
+                      setCurrentTemplateId(
+                        lease_renewal_res.data.rental_unit.template_id
+                      );
+                      setCurrentLeaseTerms(
+                        JSON.parse(
+                          lease_renewal_res.data.rental_unit.lease_terms
+                        )
+                      );
+                    } else {
+                      let current_lease_agreement = lease_agreements.find(
+                        (lease_agreement) => lease_agreement.is_active === true
+                      );
+                      setCurrentLeaseAgreement(current_lease_agreement);
+                      setCurrentTemplateId(
+                        lease_renewal_res.data.rental_unit.template_id
+                      );
+                      setCurrentLeaseTerms(
+                        JSON.parse(
+                          current_lease_agreement.rental_unit.lease_terms
+                        )
+                      );
+                    }
                   } else {
                     navigate("/dashboard/owner/lease-renewal-requests/");
                     setAlertModalTitle("Error");
@@ -424,7 +435,7 @@ const LeaseRenewalAcceptForm = () => {
                           {
                             currentLeaseTerms.find(
                               (term) => term.name === "rent_frequency"
-                            ).value
+                            )?.value
                           }
                           s
                         </div>
@@ -435,7 +446,7 @@ const LeaseRenewalAcceptForm = () => {
                             value={
                               currentLeaseTerms.find(
                                 (term) => term.name === "combine_payments"
-                              ).value
+                              )?.value
                             }
                             onChange={handleChangeCombinedPayments}
                           >
