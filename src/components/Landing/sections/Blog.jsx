@@ -29,10 +29,10 @@ const Blog = () => {
       <div className="container">
         {" "}
         <div className="section-header">
-          <h2>Landlord Guide</h2>
+          <h2>Owner Guide</h2>
           <p>
             Check out our blog for tips and tricks on becoming a better
-            landlord.&nbsp;
+            owner.&nbsp;
           </p>
         </div>
         <div className="row">

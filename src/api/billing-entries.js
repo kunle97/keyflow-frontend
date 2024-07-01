@@ -13,8 +13,8 @@ export async function createBillingEntry(data) {
       });
     return {
       message: "Tenant invite created successfully",
-      status: 200,
-      res: res,
+      status: 201,
+      data: res,
     };
   } catch (error) {
     console.log("Create tenant invite error Error: ", error);

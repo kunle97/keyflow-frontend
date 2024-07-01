@@ -1,4 +1,8 @@
-import { authenticatedInstance, authenticatedMediaInstance, unauthenticatedInstance } from "./api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+  unauthenticatedInstance,
+} from "./api";
 import { authUser } from "../constants";
 
 // create an api function to create a property
@@ -80,8 +84,8 @@ export async function getProperty(propertyId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Properties Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
+    console.log("Get Unit Error: ", error);
+    return error.response;
   }
 }
 
@@ -115,10 +119,84 @@ export async function updateProperty(propertyId, data) {
         }
         return { data: [] };
       });
-    return { data: res.data, status: 200, message: "Property updated successfully" };
+    return {
+      data: res.data,
+      status: 200,
+      message: "Property updated successfully",
+    };
   } catch (error) {
     console.log("Get Properties Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+export async function updatePropertyMedia(propertyId, data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/`, data)
+      .then((res) => {
+        if (res.status !== 200) {
+          return { status: 200, message: "Property updated successfully" };
+        }
+        return { data: [] };
+      });
+    return {
+      data: res.data,
+      status: 200,
+      message: "Property updated successfully",
+    };
+  } catch (error) {
+    console.log("Get Properties Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function that call the api/properties/{id}/update-preferences endpoint to update the preferences of a property using a patch request
+export async function updatePropertyPreferences(propertyId, data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/update-preferences/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Property Preferences Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that updates the preferences of a property with a patch request using the url_path: api/properties/{id}/update-portfolio
+export async function updatePropertyPortfolio(propertyId, portfolio) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/update-portfolio/`, {
+        portfolio: portfolio,
+      })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Property Portfolio Error: ", error);
+    return error.response;
+  }
+}
+
+//#Create a function that expects to receive an array and updates portfolio for multiple properties. url_path: api/properties/update-portfolios
+export async function updatePortfolioProperties(data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/update-portfolios/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Properties Portfolio Error: ", error);
+    return error.response;
   }
 }
 
@@ -138,5 +216,36 @@ export async function deleteProperty(propertyId) {
   } catch (error) {
     console.log("Get Properties Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+//Create a function that removes the lease template from a property using a patch request to the api/properties/{id}/remove-lease-template endpoint
+export async function removePropertyLeaseTemplate(propertyId) {
+  try {
+    const res = await authenticatedMediaInstance
+      .patch(`/properties/${propertyId}/remove-lease-template/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Remove Lease Template Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that validates the name of a property using the api/properties/validate-name endpoint takes the name of the property as a parameter
+export async function validatePropertyName(data) {
+  try {
+    const res = await authenticatedMediaInstance
+      .post(`/properties/validate-name/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Validate Property Name Error: ", error);
+    return error.response;
   }
 }

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { authenticatedInstance, unauthenticatedInstance } from "./api";
 import { authUser } from "../constants";
+import { clearLocalStorage } from "../helpers/utils";
 
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 ///-----------------AUTH API FUNCTIONS---------------------------///
@@ -19,19 +20,28 @@ export async function getUserStripeSubscriptions() {
     return error.response;
   }
 }
-export async function login(email, password) {
+export async function login(data) {
+  clearLocalStorage();
   try {
     const res = await unauthenticatedInstance
-      .post(`/auth/login/`, { email, password })
+      .post(`/auth/login/`, { 
+        email: data.email, 
+        password: data.password,
+        remember_me: data.remember_me
+      })
       .then((res) => {
         const response = res.data;
         console.log("axios login response ", response);
         return response;
       });
 
-    if (res.statusCode === 200 && email !== "" && password !== "") {
+    if (res.statusCode === 200 && data.email !== "" && data.password !== "") {
       //Set authUser and isLoggedIn in context
       localStorage.setItem("accessToken", res.token);
+      localStorage.setItem(
+        "accessTokenExpirationDate",
+        res.token_expiration_date
+      );
       //Save auth user in local storage
       let userData = {
         id: res.user.id,
@@ -44,30 +54,21 @@ export async function login(email, password) {
         isAuthenticated: res.isAuthenticated,
         is_active: res.user.is_active,
         accessToken: res.token,
+        owner_id: res.owner_id,
         susbcription_plan: {},
       };
       if (res.user.account_type === "owner") {
         userData.owner_id = res.owner_id;
-      } else {
+        localStorage.setItem("ownerData", JSON.stringify(res.owner));
+      } else if(res.user.account_type === "tenant") {
         userData.tenant_id = res.tenant_id;
+        localStorage.setItem("tenantData", JSON.stringify(res.tenant));
       }
-      // getUserStripeSubscriptions(res.user.id, res.token)
-      //   .then((res) => {
-      //     console.log(res.subscriptions.plan);
-      //     userData.susbcription_plan = res.subscriptions.plan;
-      //     localStorage.setItem(
-      //       "subscriptionPlan",
-      //       JSON.stringify(res.subscriptions)
-      //     );
-      //   })
-      //   .catch((error) => {
-      //     console.log("Error Retrieveing user subscription plan", error);
-      //   });
       localStorage.setItem("authUser", JSON.stringify(userData));
       //Check for response code before storing data in context
       const redirect_url =
         res.user.account_type === "owner"
-          ? "/dashboard/landlord"
+          ? "/dashboard/owner"
           : "/dashboard/tenant";
 
       console.log(userData);
@@ -98,10 +99,7 @@ export async function logout() {
         console.log("axios logout response ", response);
         if (response.status === 200) {
           //redirect to login page on Login.jsx
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("authUser");
-          localStorage.removeItem("stripe_onoboarding_link");
-          localStorage.removeItem("subscriptionPlan");
+          clearLocalStorage();
           message = response.message;
           status = response.status;
         } else {
@@ -114,8 +112,8 @@ export async function logout() {
     return error;
   }
 }
-// create an api function to register a landlord
-export async function registerLandlord(data) {
+// create an api function to register a owner
+export async function registerOwner(data) {
   try {
     const res = await unauthenticatedInstance
       .post(`/owners/register/`, data)
@@ -211,12 +209,12 @@ export async function getStripeSubscription(subscription_id) {
 }
 //Create a function to retrieve a users data
 export async function getUserData(user_id) {
-  //TODO: Delete this functiuon. To be replaced with the getLandlordTenant function in landlords.js
+  //TODO: Delete this functiuon. To be replaced with the getOwnerTenant function in owners.js
   try {
     const res = await authenticatedInstance
       .post(`/users/${authUser.id}/tenant/`, {
         tenant_id: user_id,
-        landlord_id: authUser.id,
+        owner_id: authUser.id,
       })
       .then((res) => {
         console.log(res);

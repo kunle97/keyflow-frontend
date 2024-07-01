@@ -1,75 +1,284 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { authUser, uiGreen, uiRed } from "../../../constants";
 import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { authUser, uiGreen, uiGrey, uiRed } from "../../../constants";
+import {
+  createBillingPortalSession,
   deleteStripePaymentMethod,
   listStripePaymentMethods,
   setDefaultPaymentMethod,
 } from "../../../api/payment_methods";
-import { getTenantDashboardData } from "../../../api/tenants";
+import {
+  getTenantDashboardData,
+  getTenantPreferences,
+  updateTenantPreferences,
+} from "../../../api/tenants";
 import { changePassword } from "../../../api/passwords";
 import { getStripeSubscription, updateUserData } from "../../../api/auth";
 import { ListDivider } from "@mui/joy";
 import UIButton from "../UIComponents/UIButton";
 import { useNavigate } from "react-router";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../constants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import UploadDialog from "../UIComponents/Modals/UploadDialog/UploadDialog";
 import { retrieveFilesBySubfolder } from "../../../api/file_uploads";
 import useScreen from "../../../hooks/useScreen";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../helpers/formValidation";
+import UITabs from "../UIComponents/UITabs";
+import UISwitch from "../UIComponents/UISwitch";
+import { syncPreferences } from "../../../helpers/preferences";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
+import { validAnyString, validEmail, validName, validStrongPassword, validUserName } from "../../../constants/rexgex";
 const TenantMyAccount = () => {
   const { isMobile } = useScreen();
-  const [email, setEmail] = useState(authUser.email);
-  const [firstName, setFirstName] = useState(authUser.first_name);
-  const [lastName, setLastName] = useState(authUser.last_name);
+  const [tabPage, setTabPage] = useState(0);
+  const [tabs, setTabs] = useState([
+    { label: "Basic Information" },
+    { label: "Notification Settings" },
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progressMessage, setProgressMessage] = useState(null);
   const [paymentMethods, setPaymentMethods] = useState([]); //Value of either the Stripe token or the Plaid token
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [paymentMethodDeleteId, setPaymentMethodDeleteId] = useState(null);
-  const [showDefaultConfirm, setShowDefaultConfirm] = useState(false);
-  const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [defaultPaymentMethod, setPrimaryPaymentMethod] = useState(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [tenantPreferences, setTenantPreferences] = useState({});
   const navigate = useNavigate();
-  const {
-    register: registerAccountUpdate,
-    handleSubmit: handleSubmitAccountUpdate,
-    formState: { errors: errorsAccountUpdate },
-  } = useForm({
-    defaultValues: {
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-    },
-  });
-  const {
-    register: registerChangePassword,
-    watch: watchChangePassword,
-    handleSubmit: handleSubmitChangePassword,
-    formState: { errors: errorsChangePassword },
-  } = useForm();
 
-  const onSubmitUpdateAccount = (data) => {
-    console.log(data);
-    updateUserData(data).then((res) => {
+  const [accountFormData, setAccountFormData] = useState({
+    username: authUser.username,
+    email: authUser.email,
+    first_name: authUser.first_name,
+    last_name: authUser.last_name,
+  });
+  const [passwordFormData, setPasswordFormData] = useState({
+    old_password: "",
+    new_password: "",
+    repeat_password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
+    const { name, value } = e.target;
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
+
+  const accountFormInputs = [
+    {
+      name: "first_name",
+      label: "First Name",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "First Name",
+      validations: {
+        required: true,
+        regex: validName,
+        errorMessage: "Please enter a valid first name",
+      },
+      dataTestId: "first-name",
+      errorMessageDataTestId: "first-name-error",
+    },
+    {
+      name: "last_name",
+      label: "Last Name",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "Last Name",
+      validations: {
+        required: true,
+        regex: validName,
+        errorMessage: "Please enter a valid last name",
+      },
+      dataTestId: "last-name",
+      errorMessageDataTestId: "last-name-error",
+    },
+    {
+      name: "username",
+      label: "Username",
+
+      type: "text",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "Username",
+      validations: {
+        required: true,
+        regex: validUserName,
+        errorMessage: "Please enter a valid username",
+      },
+      dataTestId: "username",
+      errorMessageDataTestId: "username-error",
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      colSpan: 6,
+      onChange: (e) =>
+        handleChange(
+          e,
+          accountFormData,
+          setAccountFormData,
+          accountFormInputs,
+          setErrors
+        ),
+      placeholder: "Email",
+      validations: {
+        required: true,
+        regex: validEmail,
+        errorMessage: "Please enter a valid email",
+      },
+      dataTestId: "email",
+      errorMessageDataTestId: "email-error",
+    },
+  ];
+  const passwordFormInputs = [
+    {
+      name: "old_password",
+      label: "Current Password",
+      type: "password",
+      colSpan: 12,
+      onChange: (e) =>
+        handleChange(
+          e,
+          passwordFormData,
+          setPasswordFormData,
+          passwordFormInputs,
+          setPasswordErrors
+        ),
+      placeholder: "Current Password",
+      validations: {
+        required: true,
+        regex: validAnyString,
+        errorMessage: "Please enter your current password",
+      },
+      dataTestId: "current-password",
+      errorMessageDataTestId: "current-password-error",
+    },
+    {
+      name: "new_password",
+      label: "New Password",
+      type: "password",
+      colSpan: 12,
+      onChange: (e) =>
+        handleChange(
+          e,
+          passwordFormData,
+          setPasswordFormData,
+          passwordFormInputs,
+          setPasswordErrors
+        ),
+      placeholder: "New Password",
+      validations: {
+        required: true,
+        regex:
+          validStrongPassword,
+        errorMessage:
+          "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
+      },
+      dataTestId: "new-password",
+      errorMessageDataTestId: "new-password-error",
+    },
+    {
+      name: "repeat_password",
+      label: "Retype New Password",
+      type: "password",
+      colSpan: 12,
+      onChange: (e) =>
+        handleChange(
+          e,
+          passwordFormData,
+          setPasswordFormData,
+          passwordFormInputs,
+          setPasswordErrors
+        ),
+      placeholder: "Retype New Password",
+      validations: {
+        required: true,
+        errorMessage: "New passwords must match",
+        validate: (val) => {
+          if (passwordFormData.new_password != val) {
+            return "Your passwords do not match";
+          }
+        },
+      },
+      dataTestId: "repeat-password",
+      errorMessageDataTestId: "repeat-password-error",
+    },
+  ];
+
+  const onSubmitUpdateAccount = () => {
+    setIsLoading(true);
+    //Create a data object to send to the backend
+    updateUserData(accountFormData).then((res) => {
       console.log(res);
       if (res.status === 200) {
         setResponseTitle("Success");
         setResponseMessage("Account updated successfully");
         setShowResponseModal(true);
       }
+    }).catch((error) => {
+      console.error("Error updating account: ", error);
+      setResponseTitle("Error");
+      setResponseMessage("Error updating account");
+      setShowResponseModal(true);
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
 
-  const onSubmitChangePassword = (data) => {
-    console.log(data);
-    changePassword(data).then((res) => {
+  const onSubmitChangePassword = () => {
+    setIsLoading(true);
+    setProgressMessage("Changing password...");
+    changePassword(passwordFormData).then((res) => {
       console.log(res);
       if (res.status === 200) {
         setResponseTitle("Success");
@@ -77,9 +286,16 @@ const TenantMyAccount = () => {
         setShowResponseModal(true);
       } else {
         setResponseTitle("Error");
-        setResponseMessage("Error changing your password");
+        setResponseMessage("Error changeing your password");
         setShowResponseModal(true);
       }
+    }).catch((error) => {
+      console.error("Error changing password: ", error);
+      setResponseTitle("Error");
+      setResponseMessage("Error changing your password");
+      setShowResponseModal(true);
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
@@ -124,31 +340,85 @@ const TenantMyAccount = () => {
     });
   };
 
-  useEffect(() => {
-    //Get the payment methods for the user
-    listStripePaymentMethods(`${authUser.id}`).then((res) => {
-      console.log(res.data);
-      setPaymentMethods(res.data);
-    });
-    //Retrieve the users lease agreemetn
-    getTenantDashboardData().then((res) => {
-      console.log("Dashboard datrat ", res);
-      setLeaseAgreement(res.lease_agreement);
-      const subscription_id = res.lease_agreement.stripe_subscription_id;
-      getStripeSubscription(subscription_id).then((res) => {
-        console.log("Subscription", res);
-        setPrimaryPaymentMethod(res.default_payment_method);
+  const manageBillingOnClick = () => {
+    setIsLoading(true);
+    setProgressMessage("Redirecting to billing portal...");
+    createBillingPortalSession()
+      .then((res) => {
+        console.log(res);
+        window.location.href = res.url;
+      })
+      .catch((error) => {
+        console.log("Error creating billing portal session: ", error);
+        setIsLoading(false);
+      })
+      .finally(() => {});
+  };
+  //Create a function that handle the change of the value of a preference
+  const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
+    if (inputType === "switch") {
+      console.log(e.target.checked);
+      //Update the value of the preference and use setOwnerPreferences to update the state
+      let newTenantPreferences = tenantPreferences.map((preference) => {
+        if (preference.name === preferenceName) {
+          preference.values.map((value) => {
+            if (value.name === valueName) {
+              value.value = e.target.checked;
+            }
+          });
+        }
+        return preference;
       });
-    });
-    retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
-      (res) => {
-        setProfilePictureFile(res.data[0]);
-      }
-    );
+      console.log("New Owner Preferences ", newTenantPreferences);
+      setTenantPreferences(newTenantPreferences);
+      let payload = {
+        preferences: newTenantPreferences,
+      };
+      updateTenantPreferences(payload).then((res) => {
+        console.log(res);
+      });
+    } else {
+      console.log(e.target.value);
+    }
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabPage(newValue);
+  };
+
+  useEffect(() => {
+    try{
+      syncPreferences();
+      //Get the payment methods for the user
+      listStripePaymentMethods(`${authUser.id}`).then((res) => {
+        console.log(res.data);
+        setPaymentMethods(res.data);
+      });
+      //Retrieve the users lease agreemetn
+      getTenantDashboardData().then((res) => {
+        console.log("Dashboard datrat ", res);
+        setLeaseAgreement(res.lease_agreement);
+      });
+      retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
+        (res) => {
+          setProfilePictureFile(res.data[0]);
+        }
+      );
+      getTenantPreferences().then((res) => {
+        console.log("Tenant Preferences: ", res);
+        setTenantPreferences(res.preferences);
+      });
+    }catch(e){
+      console.log(e);
+      setResponseTitle("Error");
+      setResponseMessage("Error loading data");
+      setShowResponseModal(true);
+    }
   }, []);
 
   return (
     <div className="container">
+      <ProgressModal open={isLoading} title={progressMessage} />
       <UploadDialog
         open={uploadDialogOpen}
         setOpen={setUploadDialogOpen}
@@ -161,399 +431,429 @@ const TenantMyAccount = () => {
         message={responseMessage}
         open={showResponseModal}
         btnText="Okay"
-        handleClose={() => setShowResponseModal(false)}
         onClick={() => setShowResponseModal(false)}
       />
       <Stack
-        direction={"column"}
-        justifyContent="center"
+        direction="row"
+        justifyContent="flex-start"
         alignItems="center"
-        spacing={1}
+        spacing={2}
         sx={{ marginBottom: "30px" }}
       >
-        <div
-          style={{
-            borderRadius: "50%",
-            overflow: "hidden",
-            width: isMobile ? "100px" : "200px",
-            height: isMobile ? "100px" : "200px",
-            margin: "15px auto",
-          }}
+        <Stack
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          spacing={0}
         >
-          <img
-            style={{ height: "100%" }}
-            src={
-              profilePictureFile
-                ? profilePictureFile.file
-                : "/assets/img/avatars/default-user-profile-picture.png"
-            }
-          />
-        </div>
-        <Button
-          btnText="Change Profile Picture"
-          onClick={() => setUploadDialogOpen(true)}
-          variant="text"
-          sx={{
-            color: uiGreen,
-            textTransform: "none",
-            fontSize: "12pt",
-            margin: "0 10px",
-          }}
-        >
-          Change Profile Picture
-        </Button>
-        <h4 style={{ width: "100%", textAlign: "center" }}>
-          {authUser.first_name} {authUser.last_name}
-        </h4>
-        <div style={{ width: "100%", textAlign: "center" }}>
-          <span className="text-muted">{authUser.email}</span>
+          {" "}
+          <div
+            style={{
+              borderRadius: "50%",
+              overflow: "hidden",
+              width: "75px",
+              height: "75px",
+              margin: "15px 0",
+            }}
+          >
+            <img
+              style={{ height: "100%" }}
+              src={
+                profilePictureFile
+                  ? profilePictureFile.file
+                  : "/assets/img/avatars/default-user-profile-picture.png"
+              }
+            />
+          </div>
+          <Button
+            btnText="Change Photo"
+            onClick={() => setUploadDialogOpen(true)}
+            variant="text"
+            sx={{
+              color: uiGreen,
+              textTransform: "none",
+              fontSize: "10pt",
+              margin: "0 10px",
+            }}
+          >
+            Change Photo
+          </Button>
+        </Stack>
+
+        <div>
+          <h5 style={{ width: "100%", textAlign: "left", margin: "0" }}>
+            {authUser.first_name} {authUser.last_name}
+          </h5>
+          <div style={{ width: "100%", textAlign: "left" }}>
+            <a href={`mailto:${authUser.email}`} className="text-muted">
+              {authUser.email}
+            </a>
+          </div>
         </div>
       </Stack>
-      <div className="row mb-3">
-        <div className="col">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="card shadow mb-3">
-                <div className="card-body">
-                  <h5 className="text-black mb-2 ">Basic Information</h5>
-                  <form
-                    onSubmit={handleSubmitAccountUpdate(onSubmitUpdateAccount)}
-                  >
-                    {" "}
-                    <div className="row">
-                      <div className="col">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="first_name"
-                          >
-                            First Name
-                          </label>
-                          <input
-                            {...registerAccountUpdate("first_name", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="first_name"
-                            placeholder="John"
-                            name="first_name"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errorsAccountUpdate.first_name &&
-                              errorsAccountUpdate.first_name.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="last_name"
-                          >
-                            Last Name
-                          </label>
-                          <input
-                            {...registerAccountUpdate("last_name", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control"
-                            type="text"
-                            id="last_name"
-                            placeholder="Doe"
-                            name="last_name"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errorsAccountUpdate.last_name &&
-                              errorsAccountUpdate.last_name.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="email"
-                          >
-                            Email Address
-                          </label>
-                          <input
-                            {...registerAccountUpdate("email", {
-                              required: "This is a required field",
-                              pattern: {
-                                value: /\S+@\S+\.\S+/,
-                                message: "Please enter a valid email",
-                              },
-                            })}
-                            className="form-control"
-                            type="email"
-                            id="email"
-                            placeholder="user@example.com"
-                            style={{
-                              borderStyle: "none",
-                              color: "rgb(255,255,255)",
-                            }}
-                          />
-                          <span style={validationMessageStyle}>
-                            {errorsAccountUpdate.email &&
-                              errorsAccountUpdate.email.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <button
-                        className="btn btn-primary btn-sm ui-btn"
-                        type="submit"
-                        style={{ padding: "6px 12px" }}
-                      >
-                        Save Settings
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-md-6">
-              <div className="card shadow mb-3">
-                <div className="card-body">
-                  <h5 className="text-black mb-2 ">Change Password</h5>
-                  <form
-                    onSubmit={handleSubmitChangePassword(
-                      onSubmitChangePassword
-                    )}
-                  >
-                    <div className="row">
-                      <div className="col-12">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="username"
-                          >
-                            Current Password
-                          </label>
-                          <input
-                            {...registerChangePassword("old_password", {
-                              required: "This is a required field",
-                            })}
-                            className="form-control border-0"
-                            type="password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errorsChangePassword.old_password &&
-                              errorsChangePassword.old_password.message}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-12">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="email"
-                          >
-                            Retype-Current Password
-                          </label>
-                          <input
-                            {...registerChangePassword("repeat_password", {
-                              required: "This is a required field",
-                              validate: (val) => {
-                                if (
-                                  watchChangePassword("old_password") != val
-                                ) {
-                                  return "Your passwords do not match";
-                                }
-                              },
-                            })}
-                            className="form-control border-0"
-                            type="password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errorsChangePassword.repeat_password &&
-                              errorsChangePassword.repeat_password.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-12">
-                        <div className="mb-3">
-                          <label
-                            className="form-label text-black"
-                            htmlFor="first_name"
-                          >
-                            New Password
-                          </label>
-                          <input
-                            {...registerChangePassword("new_password", {
-                              required: "This is a required field",
-                              minLength: {
-                                value: 8,
-                                message:
-                                  "Password must be at least 8 characters",
-                              },
-                              pattern: {
-                                value:
-                                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                                message:
-                                  "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-                              },
-                            })}
-                            className="form-control border-0"
-                            type="password"
-                          />
-                          <span style={validationMessageStyle}>
-                            {errorsChangePassword.new_password &&
-                              errorsChangePassword.new_password.message}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mb-3">
-                      <button
-                        className="btn btn-primary btn-sm ui-btn"
-                        type="submit"
-                        style={{ padding: "6px 12px" }}
-                      >
-                        Update Password
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 ">
-              <div className="card shadow mb-3">
-                <div className="card-body">
-                  <div className="mb-3" style={{ overflow: "auto" }}>
-                    <h5 className="text-black  my-1 " style={{ float: "left" }}>
-                      Payment Methods
-                    </h5>
-                    <UIButton
-                      style={{ float: "right" }}
-                      onClick={() => {
-                        navigate("/dashboard/tenant/add-payment-method");
-                      }}
-                      btnText="Add New"
-                    />
-                  </div>
-                  <form>
-                    <div className="row">
-                      <ConfirmModal
-                        open={showDefaultConfirm}
-                        handleClose={() => setShowDefaultConfirm(false)}
-                        title="Set As Default Payment Method"
-                        message="Are you sure you want to set this as your default payment method?"
-                        cancelBtnText="Cancel"
-                        confirmBtnText="Set As Default"
-                        handleConfirm={() => {
-                          handleSetDefaultPaymentMethod(paymentMethodDefaultId);
-                          setShowDefaultConfirm(false);
-                        }}
-                        handleCancel={() => setShowDefaultConfirm(false)}
-                      />
 
-                      <ConfirmModal
-                        open={showDeleteConfirm}
-                        handleClose={() => setShowDeleteConfirm(false)}
-                        title="Delete Payment Method"
-                        message="Are you sure you want to delete this payment method?"
-                        cancelBtnText="Cancel"
-                        confirmBtnText="Delete"
-                        confirmBtnStyle={{ backgroundColor: uiRed }}
-                        cancelBtnStyle={{ backgroundColor: uiGreen }}
-                        handleConfirm={() => {
-                          handlePaymentMethodDelete(paymentMethodDeleteId);
-                          setShowDeleteConfirm(false);
-                        }}
-                        handleCancel={() => setShowDeleteConfirm(false)}
-                      />
-                      <div style={{ maxHeight: "277px", overflowY: "auto" }}>
-                        {paymentMethods.map((paymentMethod) => {
+      <UITabs
+        style={{ marginBottom: "30px" }}
+        value={tabPage}
+        tabs={tabs}
+        handleChange={handleTabChange}
+      />
+
+      {tabPage === 0 && (
+        <>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={2}
+            sx={{ mb: 2 }}
+          >
+            <h4>Account Information</h4>
+            <UIButton btnText="Manage Billing" onClick={manageBillingOnClick} />
+          </Stack>
+          <div className="row mb-3">
+            <div className="col">
+              <div className="row">
+                <div className="col-md-12">
+                  <div className="card shadow mb-3">
+                    <div className="card-body">
+                      <form>
+                        <div className="row">
+                          {accountFormInputs.map((input, index) => {
+                            return (
+                              <div
+                                className={`col-md-${input.colSpan} mb-3`}
+                                key={index}
+                                data-testId={`${input.dataTestId}`}
+                              >
+                                <label
+                                  className="form-label text-black"
+                                  htmlFor={input.name}
+                                >
+                                  {input.label}
+                                </label>
+
+                                <input
+                                  style={{
+                                    background: uiGrey,
+                                  }}
+                                  className="form-control"
+                                  type={input.type}
+                                  name={input.name}
+                                  onChange={input.onChange}
+                                  onBlur={input.onChange}
+                                  value={accountFormData[input.name]}
+                                />
+                                {errors[input.name] && (
+                                  <span
+                                    data-testId={input.errorMessageDataTestId}
+                                    style={{ ...validationMessageStyle }}
+                                  >
+                                    {errors[input.name]}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="mb-3">
+                          <UIButton
+                            style={{ float: "right" }}
+                            onClick={() => {
+                              const { isValid, newErrors } = validateForm(
+                                accountFormData,
+                                accountFormInputs
+                              );
+                              if (isValid) {
+                                onSubmitUpdateAccount();
+                              } else {
+                                setErrors(newErrors);
+                              }
+                            }}
+                            btnText="Update Account "
+                          />
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-12">
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mb: 2 }}
+                  >
+                    <h4>Change Password</h4>
+                  </Stack>
+                  <div className="card shadow mb-3">
+                    <div className="card-body">
+                      <form>
+                        {passwordFormInputs.map((input, index) => {
                           return (
-                            <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
-                              <Box className="mb-3" sx={{ display: "flex" }}>
-                                <Box sx={{ flex: "2" }}>
-                                  <Typography className="text-black">
-                                    {paymentMethod.card.brand} ending in{" "}
-                                    {paymentMethod.card.last4}
-                                  </Typography>
-                                  <Typography
-                                    sx={{ fontSize: "10pt" }}
-                                    className="text-black"
-                                  >
-                                    Expires {paymentMethod.card.exp_month}/
-                                    {paymentMethod.card.exp_year}
-                                    {paymentMethod.id ===
-                                    defaultPaymentMethod ? (
-                                      <Typography
-                                        sx={{
-                                          fontSize: "10pt",
-                                          color: uiGreen,
-                                        }}
-                                      >
-                                        Default Payment Method
-                                      </Typography>
-                                    ) : (
-                                      <>
-                                        <br />
-                                        <UIButton
-                                          sx={{
-                                            color: uiGreen,
-                                            textTransform: "none",
-                                            display: "block",
-                                            fontSize: "6pt",
-                                          }}
-                                          onClick={() => {
-                                            setPaymentMethodDefaultId(
-                                              paymentMethod.id
-                                            );
-                                            setShowDefaultConfirm(true);
-                                          }}
-                                          btnText="Set As Default"
-                                        />
-                                      </>
-                                    )}
-                                  </Typography>
-                                </Box>
-                                <Box>
-                                  <Button
-                                    sx={{ color: uiRed, textTransform: "none" }}
-                                    onClick={() => {
-                                      setPaymentMethodDeleteId(
-                                        paymentMethod.id
-                                      );
-                                      setShowDeleteConfirm(true);
-                                    }}
-                                  >
-                                    Delete
-                                  </Button>
-                                </Box>
-                              </Box>
-                              <ListDivider sx={{ color: "white" }} />
+                            <div
+                              className={`col-md-${input.colSpan} mb-3`}
+                              key={index}
+                              data-testId={`${input.dataTestId}`}
+                            >
+                              <label
+                                className="form-label text-black"
+                                htmlFor={input.name}
+                              >
+                                {input.label}
+                              </label>
+                              <input
+                                style={{
+                                  background: uiGrey,
+                                }}
+                                className="form-control"
+                                type={input.type}
+                                name={input.name}
+                                onChange={input.onChange}
+                                onBlur={input.onChange}
+                                value={passwordFormData[input.name]}
+                              />
+                              {passwordErrors[input.name] && (
+                                <span
+                                  data-testId={input.errorMessageDataTestId}
+                                  style={{ ...validationMessageStyle }}
+                                >
+                                  {passwordErrors[input.name]}
+                                </span>
+                              )}
                             </div>
                           );
                         })}
-                      </div>
+                        <div className="mb-3">
+                          <UIButton
+                            style={{ float: "right" }}
+                            onClick={() => {
+                              const { isValid, newErrors } = validateForm(
+                                passwordFormData,
+                                passwordFormInputs
+                              );
+                              if (isValid) {
+                                onSubmitChangePassword();
+                              } else {
+                                setPasswordErrors(newErrors);
+                              }
+                            }}
+                            btnText="Change Password"
+                          />
+                        </div>
+                      </form>
                     </div>
-                  </form>
+                  </div>
                 </div>
+                {/* <div className="col-md-6 ">
+                  <div className="card shadow mb-3">
+                    <div className="card-body">
+                      <div className="mb-3" style={{ overflow: "auto" }}>
+                        <h5
+                          className="text-black  my-1 "
+                          style={{ float: "left" }}
+                        >
+                          Payment Methods
+                        </h5>
+                        <UIButton
+                          style={{ float: "right" }}
+                          onClick={() => {
+                            navigate("/dashboard/add-payment-method");
+                          }}
+                          btnText="Add New"
+                        />
+                      </div>
+                      <form>
+                        <div className="row">
+                          <ConfirmModal
+                            open={showDefaultConfirm}
+                            handleClose={() => setShowDefaultConfirm(false)}
+                            title="Set As Default Payment Method"
+                            message="Are you sure you want to set this as your default payment method?"
+                            cancelBtnText="Cancel"
+                            confirmBtnText="Set As Default"
+                            handleConfirm={() => {
+                              handleSetDefaultPaymentMethod(
+                                paymentMethodDefaultId
+                              );
+                              setShowDefaultConfirm(false);
+                            }}
+                            handleCancel={() => setShowDefaultConfirm(false)}
+                          />
+
+                          <ConfirmModal
+                            open={showDeleteConfirm}
+                            handleClose={() => setShowDeleteConfirm(false)}
+                            title="Delete Payment Method"
+                            message="Are you sure you want to delete this payment method?"
+                            cancelBtnText="Cancel"
+                            confirmBtnText="Delete"
+                            confirmBtnStyle={{ backgroundColor: uiRed }}
+                            cancelBtnStyle={{ backgroundColor: uiGreen }}
+                            handleConfirm={() => {
+                              handlePaymentMethodDelete(paymentMethodDeleteId);
+                              setShowDeleteConfirm(false);
+                            }}
+                            handleCancel={() => setShowDeleteConfirm(false)}
+                          />
+                          <div
+                            style={{ maxHeight: "277px", overflowY: "auto" }}
+                          >
+                            {paymentMethods.map((paymentMethod) => {
+                              return (
+                                <div className="col-sm-12 col-md-12 col-lg-12 mb-2">
+                                  <Box
+                                    className="mb-3"
+                                    sx={{ display: "flex" }}
+                                  >
+                                    <Box sx={{ flex: "2" }}>
+                                      <Typography className="text-black">
+                                        {paymentMethod.card.brand} ending in{" "}
+                                        {paymentMethod.card.last4}
+                                      </Typography>
+                                      <Typography
+                                        sx={{ fontSize: "10pt" }}
+                                        className="text-black"
+                                      >
+                                        Expires {paymentMethod.card.exp_month}/
+                                        {paymentMethod.card.exp_year}
+                                        {paymentMethod.id ===
+                                        defaultPaymentMethod ? (
+                                          <Typography
+                                            sx={{
+                                              fontSize: "10pt",
+                                              color: uiGreen,
+                                            }}
+                                          >
+                                            Default Payment Method
+                                          </Typography>
+                                        ) : (
+                                          <>
+                                            <br />
+                                            <UIButton
+                                              sx={{
+                                                color: uiGreen,
+                                                textTransform: "none",
+                                                display: "block",
+                                                fontSize: "6pt",
+                                              }}
+                                              onClick={() => {
+                                                setPaymentMethodDefaultId(
+                                                  paymentMethod.id
+                                                );
+                                                setShowDefaultConfirm(true);
+                                              }}
+                                              btnText="Set As Default"
+                                            />
+                                          </>
+                                        )}
+                                      </Typography>
+                                    </Box>
+                                    <Box>
+                                      <Button
+                                        sx={{
+                                          color: uiRed,
+                                          textTransform: "none",
+                                        }}
+                                        onClick={() => {
+                                          setPaymentMethodDeleteId(
+                                            paymentMethod.id
+                                          );
+                                          setShowDeleteConfirm(true);
+                                        }}
+                                      >
+                                        Delete
+                                      </Button>
+                                    </Box>
+                                  </Box>
+                                  <ListDivider sx={{ color: "white" }} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div> */}
               </div>
             </div>
           </div>
+        </>
+      )}
+      {tabPage === 1 && (
+        <div className={isMobile && "container-fluid"}>
+          <div className="row">
+            <div className="col-md-12">
+              <List
+                sx={{
+                  width: "100%",
+                  // maxWidth: 360,
+                }}
+              >
+                {tenantPreferences &&
+                  tenantPreferences.map((preference) => {
+                    return (
+                      <ListItem
+                        style={{
+                          borderRadius: "10px",
+                          background: "white",
+                          margin: "10px 0",
+                          boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          sx={{ width: "100%" }}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography sx={{ color: "black" }}>
+                                {preference.label}
+                              </Typography>
+                            }
+                            secondary={
+                              <React.Fragment>
+                                {preference.description}
+                              </React.Fragment>
+                            }
+                          />
+                          {preference.values.map((value) => {
+                            return (
+                              <>
+                                <span className="text-black">
+                                  {value.label}
+                                </span>
+                                {value.inputType === "switch" && (
+                                  <UISwitch
+                                    onChange={(e) =>
+                                      handlePreferenceChange(
+                                        e,
+                                        value.inputType,
+                                        preference.name,
+                                        value.name
+                                      )
+                                    }
+                                    value={value.value}
+                                  />
+                                )}
+                              </>
+                            );
+                          })}
+                        </Stack>
+                      </ListItem>
+                    );
+                  })}
+              </List>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

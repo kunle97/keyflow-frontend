@@ -17,7 +17,8 @@ import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
 import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
-import { get } from "react-hook-form";
+import useScreen from "../hooks/useScreen";
+import { createInvoicesForRenewal } from "../api/tenants";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
@@ -27,6 +28,8 @@ const SignLeaseAgreement = () => {
   const [signResponseMessage, setSignResponseMessage] = useState("");
   const [showSignResponse, setShowSignResponse] = useState(false);
   const [redirectLink, setRedirectLink] = useState("");
+  const [redirectMessage, setRedirectMessage] = useState("");
+  const [renewalMode, setRenewalMode] = useState(false);
   const [signingLink, setSigningLink] = useState(null);
   const [signingLinkIsValid, setSigningLinkIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,8 +37,11 @@ const SignLeaseAgreement = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]);
+  const [progressModalText, setProgressModalText] = useState(
+    "Loading your lease agreement..."
+  );
   const navigate = useNavigate();
-
+  const { isMobile } = useScreen();
   const getUnitPreferenceValueByName = (name, unitLeaseTerms) => {
     const preference = unitLeaseTerms.find((pref) => pref.name === name);
     return preference ? preference.value : null; // Return null or handle the case where preference is not found
@@ -43,6 +49,8 @@ const SignLeaseAgreement = () => {
 
   //Create a function to sign the lease agreement which calls the API to update the lease agreement
   const handleSignLeaseAgreement = () => {
+    setProgressModalText("Signing your lease agreement...");
+    setIsLoading(true);
     let date = new Date();
     let end_date;
     if (
@@ -86,12 +94,38 @@ const SignLeaseAgreement = () => {
 
     signLeaseAgreement(data).then((res) => {
       if (res.status === 200) {
-        //On update success redirect to tenant registration page with approval_hash
-        setShowSignResponse(true);
-        setShowSignConfirmation(false);
-        setSignResponseMessage(
-          "Lease Agreement Signed Successfully. Click the button below to create your account."
-        );
+        if (renewalMode) {
+          //Create the invoices for the lease renewal
+          let payload = {
+            lease_agreement_id: leaseAgreement.id,
+            tenant_id: leaseAgreement.tenant.id,
+          };
+          createInvoicesForRenewal(payload).then((res) => {
+            console.log(res);
+            if(res.status === 200){
+              console.log("Invoices created successfully")
+              setSignResponseMessage(
+                "Lease Renewal Agreement Signed Successfully. Click the button below to  be redirected back to your dashboard."
+              );
+              //REdirect to the tenant dashboard
+              setRedirectLink(
+                process.env.REACT_APP_HOSTNAME + "/dashboard/tenant/"
+              );
+              setIsLoading(false);
+            }
+          }).finally(() => {
+            setIsLoading(false);
+            setShowSignResponse(true);
+            setShowSignConfirmation(false);
+          });
+        } else {
+          //On update success redirect to tenant registration page with approval_hash
+          setSignResponseMessage(
+            "Lease Agreement Signed Successfully. Click the button below to create your account."
+          );
+          setShowSignResponse(true);
+          setShowSignConfirmation(false);
+        }
         setSigningLink(null);
       }
     });
@@ -136,7 +170,7 @@ const SignLeaseAgreement = () => {
         // handle document declining success
         setErrorTitle("Document Declined");
         setErrorMessage(
-          "Your lease agreement has been declined. Please contact your landlord for more information."
+          "Your lease agreement has been declined. Please contact your owner for more information."
         );
         setShowErrorMessage(true);
         break;
@@ -165,56 +199,77 @@ const SignLeaseAgreement = () => {
         getLeaseAgreementByIdAndApprovalHash({
           lease_agreement_id,
           approval_hash,
-        }).then((res) => {
-          if (res.id) {
-            setLeaseAgreement(res);
-            setUnitLeaseTerms(JSON.parse(res.rental_unit.lease_terms));
-            console.log(JSON.parse(res.rental_unit.lease_terms));
-            let redirectLink =
-              process.env.REACT_APP_HOSTNAME +
-              "/dashboard/tenant/register" +
-              "/" +
-              res.id +
-              "/" +
-              res.rental_unit.id +
-              "/" +
-              res.approval_hash;
-            setRedirectLink(redirectLink);
-            let payload = {
-              document_id: res.document_id,
-              tenant_email: res.tenant_invite
-                ? res.tenant_invite.email
-                : res.rental_application.email,
-              tenant_register_redirect_url: redirectLink,
-              link_validity: "12/31/2030",
-            };
-            if (!signingLink) {
-              generateSigningLink(payload).then((res) => {
-                console.log(res);
-                if (res.status === 200) {
-                  //Set the src of the iframe to the signing link
-                  setSigningLink(res.data.signLink);
-                  setSigningLinkIsValid(true);
-                } else {
-                  setSigningLink("invalid");
-                  setSigningLinkIsValid(false);
-                }
-              });
-            }
+        })
+          .then((lease_agreement_res) => {
+            if (lease_agreement_res.id) {
+              setLeaseAgreement(lease_agreement_res);
+              setUnitLeaseTerms(
+                JSON.parse(lease_agreement_res.rental_unit.lease_terms)
+              );
+              console.log(
+                JSON.parse(lease_agreement_res.rental_unit.lease_terms)
+              );
+              let redirectLink =
+                process.env.REACT_APP_HOSTNAME +
+                "/dashboard/tenant/register" +
+                "/" +
+                lease_agreement_res.id +
+                "/" +
+                lease_agreement_res.rental_unit.id +
+                "/" +
+                lease_agreement_res.approval_hash;
+              setRedirectLink(redirectLink);
+              let payload = {};
+              if (lease_agreement_res.tenant) {
+                payload = {
+                  document_id: lease_agreement_res.document_id,
+                  tenant_email: lease_agreement_res.tenant.email,
+                  tenant_register_redirect_url: redirectLink,
+                  link_validity: "12/31/2030",
+                };
+                setRenewalMode(true);
+              } else {
+                payload = {
+                  document_id: lease_agreement_res.document_id,
+                  tenant_email: lease_agreement_res.tenant_invite
+                    ? lease_agreement_res.tenant_invite.email
+                    : lease_agreement_res.rental_application.email,
+                  tenant_register_redirect_url: redirectLink,
+                  link_validity: "12/31/2030",
+                };
+                setRenewalMode(false);
+              }
+              if (!signingLink) {
+                generateSigningLink(payload).then((res) => {
+                  console.log(res);
+                  if (res.data.status === 200) {
+                    //Set the src of the iframe to the signing link
+                    setSigningLink(res.data.data.signLink);
+                    setSigningLinkIsValid(true);
+                  } else {
+                    setSigningLink("invalid");
+                    setSigningLinkIsValid(false);
+                  }
+                });
+              }
 
-            //Check that the approval_hash matches the lease agreement's approval_hash
-            if (res.approval_hash !== approval_hash) {
-              //Display an error message
+              //Check that the approval_hash matches the lease agreement's approval_hash
+              if (lease_agreement_res.approval_hash !== approval_hash) {
+                //Display an error message
+                setDisplayError(true);
+              }
+              if (lease_agreement_res.is_active) {
+                //Display an error message
+                navigate("/*");
+              }
+            } else {
               setDisplayError(true);
             }
-            if (res.is_active) {
-              //Display an error message
-              navigate("/*");
-            }
-          } else {
+          })
+          .catch((err) => {
+            console.log(err);
             setDisplayError(true);
-          }
-        });
+          });
         setIsLoading(false);
       } catch (err) {
         console.log(err);
@@ -229,18 +284,21 @@ const SignLeaseAgreement = () => {
     };
   }, [leaseAgreement]);
   return (
-    <div className="container" style={{ paddingTop: "105px" }}>
+    <div
+      className={!isMobile ? "container" : "container-fluid"}
+      style={{ paddingTop: !isMobile ? "105px" : "0px" }}
+    >
       <LandingPageNavbar isDarkNav={true} />
       <AlertModal
         open={showErrorMessage}
         title={errorTitle}
         message={errorMessage}
         btnText="Okay"
-        handleClose={() => {
+        onClick={() => {
           navigate(0);
         }}
       />
-      <ProgressModal open={isLoading} title="Loading your lease agreement..." />
+      <ProgressModal open={isLoading} title={progressModalText} />
       {!displayError ? (
         <>
           {" "}
@@ -248,19 +306,9 @@ const SignLeaseAgreement = () => {
             open={showSignResponse}
             title={"Sign Lease Agreement"}
             message={signResponseMessage}
-            btnText="Create Account"
+            btnText="Continue"
             to={redirectLink}
             handleClose={() => setShowSignResponse(false)}
-          />
-          <ConfirmModal
-            open={showSignConfirmation}
-            title={"Sign Lease Agreement"}
-            message="Are you sure you want to sign this lease agreement? Once signed you are legally bound to the terms of this lease agreement."
-            cancelBtnText="Cancel"
-            confirmBtnText="Confirm"
-            handleClose={() => setShowSignConfirmation(false)}
-            handleConfirm={handleSignLeaseAgreement}
-            handleCancel={() => setShowSignConfirmation(false)}
           />
           <div className="row mt-3">
             {signingLink && (
@@ -271,7 +319,7 @@ const SignLeaseAgreement = () => {
                   {leaseAgreement.rental_unit.rental_property_name}{" "}
                 </h2>
                 <div className="row">
-                  <div className="col-md-4">
+                  {/* <div className="col-md-4">
                     <div className="card my-3">
                       <div className="card-body">
                         <h6 className="card-title text-black">
@@ -401,13 +449,13 @@ const SignLeaseAgreement = () => {
                         </Link>
                       </Typography>
                     </div>
-                  </div>
-                  <div className="col-md-8">
+                  </div> */}
+                  <div className="col-md-12">
                     <iframe
                       src={signingLink}
                       className="card my-3"
                       style={{
-                        height: "1200px",
+                        height: "900px",
                         padding: "0px",
                         width: "100%",
                       }}
@@ -437,7 +485,7 @@ const SignLeaseAgreement = () => {
                     />
                   }
                   title="Invalid Lease Agreement Link"
-                  message="This lease agreement is either invalid has either already been signed or is not ready to be signed yet. Please contact your landlord for more information."
+                  message="This lease agreement is either invalid has either already been signed or is not ready to be signed yet. Please contact your owner for more information."
                 />
                 <p></p>
               </Stack>
@@ -445,7 +493,15 @@ const SignLeaseAgreement = () => {
           </div>
         </>
       ) : (
-        <h1>There was an error</h1>
+        <AlertModal
+          open={displayError}
+          title={"Error"}
+          message={"There was an error loading this lease agreement."}
+          btnText="Okay"
+          onClick={() => {
+            navigate(0);
+          }}
+        />
       )}
     </div>
   );

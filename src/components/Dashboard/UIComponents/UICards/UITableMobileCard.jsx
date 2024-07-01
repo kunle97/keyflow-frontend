@@ -18,14 +18,13 @@ const UICard = ({
   dropDownOptions,
   onDropdownChange,
   showChevron,
-  chartHeaderMode,
+  checkbox,
 }) => {
   const { isMobile } = useScreen();
   return (
     <div
       className="card"
       style={{ margin: "10px 0", overflow: "hidden", ...cardStyle }}
-      onClick={onClick}
       data-testId={dataTestId}
     >
       <div className="card-body">
@@ -35,76 +34,67 @@ const UICard = ({
           justifyContent={"space-between"}
           alignItems="center"
           sx={{ width: "100%" }}
+          onClick={onClick}
         >
-          {imageSrc && (
-            <Stack
-              direction="row"
-              spacing={2}
-              justifyContent={"space-between"}
-              alignItems="center"
-              sx={{}}
-            >
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent={"space-between"}
+            alignItems="center"
+            sx={{}}
+          >
+            {checkbox && checkbox}
+            {(info || title) && (
               <div
                 style={{
-                  width: "75px",
-                  height: "75px",
-                  borderRadius: "10px",
-                  overflow: "hidden",
+                  lineHeight: "1",
                 }}
+                onClick={onClick}
               >
-                <img src={imageSrc} alt="profile" style={{ width: "100%" }} />
-              </div>
-              {(info || title) && (
-                <div
+                <h5
+                  className="card-title ui-table-mobile-info"
                   style={{
-                    lineHeight: "1",
+                    maxWidth: isMobile ? "250px" : "600px",
+                    // maxHeight: "60px",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    ...infoStyle,
                   }}
                 >
-                  <h5
-                    className="card-title ui-table-mobile-info"
-                    style={{
-                      maxWidth: isMobile ? "150px" : "600px",
-                      // maxHeight: "60px",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      ...infoStyle,
-                    }}
-                  >
-                    <b>{info}</b>
-                  </h5>
+                  <b>{info}</b>
+                </h5>
+                <p
+                  className="card-text text-muted ui-table-mobile-title"
+                  style={{
+                    maxWidth: isMobile ? "250px" : "600px",
+                    // maxHeight: "70px",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    ...titleStyle,
+                  }}
+                >
+                  {title}
+                </p>
+                {subtitle && (
                   <p
-                    className="card-text text-muted ui-table-mobile-title"
+                    className="text-dark ui-table-mobile-subtitle"
                     style={{
-                      maxWidth: isMobile ? "160px" : "600px",
-                      // maxHeight: "70px",
+                      maxWidth: isMobile ? "250px" : "600px",
+                      // maxHeight: "80px",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      ...titleStyle,
+                      ...subtitleStyle,
                     }}
                   >
-                    {title}
+                    {subtitle}
                   </p>
-                  {subtitle && (
-                    <p
-                      className="text-dark ui-table-mobile-subtitle"
-                      style={{
-                        maxWidth: isMobile ? "160px" : "600px",
-                        // maxHeight: "80px",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        ...subtitleStyle,
-                      }}
-                    >
-                      {subtitle}
-                    </p>
-                  )}
-                </div>
-              )}
-            </Stack>
-          )}
+                )}
+              </div>
+            )}
+          </Stack>
 
           {dropDownOptions && (
             <Stack>
@@ -121,7 +111,9 @@ const UICard = ({
               <p></p>
             </Stack>
           )}
-          {showChevron && <ChevronRightIcon sx={{ color: uiGreen }} />}
+          {showChevron && (
+            <ChevronRightIcon onClick={onClick} sx={{ color: uiGreen }} />
+          )}
         </Stack>
         <div>{children}</div>
       </div>

@@ -3,25 +3,48 @@ import {
   ButtonBase,
   Checkbox,
   CircularProgress,
+  ClickAwayListener,
   FormControlLabel,
+  Grow,
   IconButton,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
   Stack,
+  Typography,
 } from "@mui/material";
-import { ArrowBackOutlined } from "@mui/icons-material";
+import { ArrowBackOutlined, MoreVert } from "@mui/icons-material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, { useEffect } from "react";
-import { uiGreen, uiGrey2 } from "../../../../constants";
+import { globalMaxFileSize, uiGreen, uiGrey2 } from "../../../../constants";
 import { useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import AddIcon from "@mui/icons-material/Add";
-import { authenticatedInstance } from "../../../../api/api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+} from "../../../../api/api";
 import { useNavigate } from "react-router";
 import { MultiSelectDropdown } from "../MultiSelectDropdown";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
+import SwapVertIcon from "@mui/icons-material/SwapVert";
+import AlertModal from "../Modals/AlertModal";
+import UIDialog from "../Modals/UIDialog";
+import UIDropzone from "../Modals/UploadDialog/UIDropzone";
+import {
+  isValidFileExtension,
+  isValidFileName,
+} from "../../../../helpers/utils";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import ProgressModal from "../Modals/ProgressModal";
 const UITable = (props) => {
   const navigate = useNavigate();
+  const [maxTableCellWidth, setMaxTableCellWidth] = useState("200px");
   const [results, setResults] = useState([]);
+  const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false); //THis will be used to tell if the DRFfilterbackend is being used
   //Pagination Variables for when  no DRF Filter Backend is available
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,9 +53,16 @@ const UITable = (props) => {
   const [filteredData, setFilteredData] = useState([]);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
-
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
+  const [responseTitle, setResponseTitle] = useState(null);
+  const [responseMessage, setResponseMessage] = useState(null);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
 
   //DRF Filter Backend Variables
   const [limit, setLimit] = useState(10);
@@ -48,78 +78,71 @@ const UITable = (props) => {
   const [selectedOptionsArray, setSelectedOptionsArray] = useState(
     initialSelectedOptions
   );
+  const [endpointParams, setEndpointParams] = useState({});
   let currentPageEndPoint = `${props.endpoint}?limit=${limit}${
     query ? `&search=${query}` : ""
   }`;
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const handleMenuClick = (event, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedIndex(index);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedIndex(null);
+  };
+
   const refresh = async (endpoint) => {
     setIsLoading(true);
-    if (props.data) {
-      setResults(props.data);
-      setFilteredData(props.data);
-      setIsDrfFilterBackend(false);
-      setIsLoading(false);
-    } else {
-      await authenticatedInstance
-        .get(endpoint, {
+    setEndpointParams({
+      limit: limit,
+      search: query,
+      ordering: orderby,
+      ...props.additionalParams,
+    });
+    try {
+      const fetchData = async () => {
+        const response = await authenticatedInstance.get(endpoint, {
           params: {
             search: query,
+            ...props.additionalParams,
           },
-        })
-        .then((res) => {
-          if (res.data.results) {
-            setIsDrfFilterBackend(true);
-            setResults(res.data.results);
-            setNextPageEndPoint(res.data.next);
-            setPreviousPageEndPoint(res.data.previous);
-            setCount(res.data.count);
-            setIsLoading(false);
-            if (props.options.isSelectable) {
-              let newChecked = [];
-              //loop through the first set of results and set the selected property to false for each row. After
-              res.data.results.map((result) => {
-                newChecked.push({
-                  id: result.id,
-                  selected: false,
-                });
-              });
-              while (!nextPageEndPoint === null) {
-                const remaining_res = authenticatedInstance
-                  .get(nextPageEndPoint)
-                  .then((r_res) => {
-                    r_res.data.results.map((result) => {
-                      newChecked.push({
-                        id: result.id,
-                        selected: false,
-                      });
-                    });
-                    setNextPageEndPoint(r_res.data.next);
-                  });
-              }
-              setNextPageEndPoint(res.data.next);
-              props.setChecked(newChecked);
-            }
-          } else {
-            setIsDrfFilterBackend(false);
-            setResults(res.data);
-            setFilteredData(res.data);
-            setNextPageEndPoint(null);
-            setPreviousPageEndPoint(null);
-            setCount(null);
-            setLimit(null);
-            setIsLoading(false);
-            if (props.options.isSelectable) {
-              let newChecked = [];
-              res.data.map((result) => {
-                newChecked.push({
-                  id: result.id,
-                  selected: false,
-                });
-              });
-              props.setChecked(newChecked);
-            }
+        });
+        console.log("response", response.data);
+        console.log("additional params", props.additionalParams);
+        return response.data;
+      };
+
+      const data = props.data || (await fetchData());
+
+      setResults(data.results || data);
+      setFilteredData(data.results || data);
+      setIsDrfFilterBackend(!!data.results);
+      setNextPageEndPoint(data.next || null);
+      setPreviousPageEndPoint(data.previous || null);
+      setCount(data.count || null);
+      setIsLoading(false);
+
+      if (props.options.isSelectable) {
+        const newChecked = [...props.checked];
+        const currentIds = data.results
+          ? data.results.map((item) => item.id)
+          : data.map((item) => item.id);
+        currentIds.forEach((id) => {
+          if (!newChecked.find((item) => item.id === id)) {
+            newChecked.push({ id, selected: false });
           }
         });
+        props.setChecked(newChecked);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setAlertTitle("Error");
+      setAlertMessage("An error occurred while fetching the data");
+      setShowAlert(true);
     }
   };
 
@@ -198,7 +221,6 @@ const UITable = (props) => {
       }
     }
   };
-
   const handleSearch = async (e) => {
     e.preventDefault();
     const query = e.target.value;
@@ -212,16 +234,26 @@ const UITable = (props) => {
       }
       refresh(currentPageEndPoint);
     } else {
-      //Search threough the results and filter them based on the search term that matches the search fields
       if (query === "") {
-        setFilteredData(results);
+        setFilteredData(results); // Reset to the original results
+        setSearchTerm(""); // Clear the search term
       } else {
         setSearchTerm(query);
+        // Function to get nested property value
+        const getNestedValue = (obj, path) => {
+          return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+        };
         // Filter the data based on the search term
         const filtered = results.filter((item) =>
-          props.searchFields.some((field) =>
-            item[field].toLowerCase().includes(query.toLowerCase())
-          )
+          props.searchFields.some((field) => {
+            const value = getNestedValue(item, field);
+            if (typeof value === "string") {
+              return value.toLowerCase().includes(query.toLowerCase());
+            } else if (typeof value === "number") {
+              return value.toString().includes(query.toLowerCase());
+            }
+            return false;
+          })
         );
         setFilteredData(filtered);
         setCurrentPage(1); // Reset to the first page when searching
@@ -273,6 +305,13 @@ const UITable = (props) => {
     // newChecked[index].selected = selected;
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
+    console.log(props.checked);
+    //Add support for a function that will be called when a row is selected
+    if (props.options.onRowSelect) {
+      console.log("Row selected");
+      props.options.onRowSelect();
+    }
+    console.log("Checked rows", props.checked);
   };
 
   //Handles the select all checkbox in table header
@@ -286,12 +325,150 @@ const UITable = (props) => {
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
   };
+
+  const onDrop = (acceptedFiles) => {
+    let validFiles = true;
+
+    acceptedFiles.forEach((file) => {
+      if (!isValidFileName(file.name)) {
+        //Check if file is valid size
+        if (file.size > globalMaxFileSize) {
+          setResponseTitle("File Upload Error");
+          setResponseMessage("File size is too large. Max file size is 3MB");
+          setShowFileUploadAlert(true);
+          props.onClose();
+          validFiles = false;
+          return;
+        }
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file names is invalid. File name can only contain numbers, letters, underscores, and dashes. No special characters or spaces."
+        );
+        setShowFileUploadAlert(true);
+        validFiles = false;
+        setShowUploadDialog(false);
+        return;
+      } else if (!isValidFileExtension(file.name, props.acceptedFileTypes)) {
+        setResponseTitle("File Upload Error");
+        setResponseMessage(
+          "One or more of the file types is invalid. Accepted file types: " +
+            props.acceptedFileTypes.join(", ")
+        );
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        validFiles = false;
+        return;
+      }
+    });
+
+    if (!validFiles) {
+      return;
+    }
+
+    // Process valid files
+    const updatedFiles = acceptedFiles.map((file) =>
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      })
+    );
+    console.log("updatedFiles", updatedFiles);
+    setFiles(updatedFiles);
+    setResponseMessage(null);
+    setResponseTitle(null);
+  };
+
+  const handleUpload = () => {
+    setIsUploading(true); //Set isUploading to true to show the progress bar
+    //Create a function to handle the file upload from the  files array
+    const formData = new FormData(); //Create a new FormData object
+    files.forEach((file) => {
+      formData.append("file", file); //Append each file to the FormData object
+    });
+    authenticatedMediaInstance
+      .post(props.fileUploadEndpoint, formData)
+      .then((res) => {
+        console.log("res", res);
+        setResponseTitle("File Upload Success");
+        setResponseMessage("File(s) uploaded successfully");
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        setFiles([]); //Clear the files array
+      })
+      .catch((err) => {
+        console.log("err", err);
+        setResponseTitle("File Upload Error");
+        if (err.response.data.error_type === "duplicate_name_error") {
+          setResponseMessage(err.response.data.message);
+        } else {
+          setResponseMessage(
+            "There was an error uploading your file(s). Please ensure that you file has the correct column headers and try again."
+          );
+        }
+        setShowFileUploadAlert(true);
+        setShowUploadDialog(false);
+        setFiles([]); //Clear the files array
+      })
+      .finally(() => {
+        setIsUploading(false); //Set isUploading to false to hide the progress bar
+      });
+  };
+
   useEffect(() => {
     refresh(currentPageEndPoint);
-  }, [props.data]);
+  }, [props.data, searchTerm]);
 
   return (
-    <div style={{ width: "100%", overflowX: "auto" }}>
+    <div style={{ width: "100%", overflowX: "auto", padding: "0 15px" }}>
+      {props.showUpload && (
+        <>
+          <ProgressModal open={isUploading} title="Uploading Files" />
+          <AlertModal
+            title={responseTitle}
+            message={responseMessage}
+            open={showFileUploadAlert}
+            onClick={() => setShowFileUploadAlert(false)}
+            btnText="OK"
+          />
+          <UIDialog
+            open={showUploadDialog}
+            onClose={() => setShowUploadDialog(false)}
+            maxWidth="lg"
+            style={{ width: "700px", zIndex: 991 }}
+          >
+            <UIDropzone
+              onDrop={onDrop}
+              acceptedFileTypes={props.acceptedFileTypes}
+              files={files}
+              setFiles={setFiles}
+            />
+            {props.uploadHelpText && (
+              <div style={{ margin: "10px" }}>
+                <HelpOutlineIcon
+                  style={{ color: uiGreen, marginRight: "5px" }}
+                />
+                <span style={{ color: uiGrey2, fontSize: "10pt" }}>
+                  {props.uploadHelpText}
+                </span>
+              </div>
+            )}
+            {files.length > 0 && (
+              <UIButton
+                onClick={props.handleUpload ? props.handleUpload : handleUpload}
+                btnText="Upload File"
+                style={{ width: "100%" }}
+              />
+            )}
+          </UIDialog>
+        </>
+      )}
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          setShowAlert(false);
+        }}
+      />
       <Stack
         direction="row"
         justifyContent="flex-end"
@@ -330,29 +507,48 @@ const UITable = (props) => {
               {props.title} ({isDrfFilterBackend ? count : results.length})
             </h3>
           </Stack>
+
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
             spacing={2}
           >
-            {" "}
+            {props.showUpload && (
+              <>
+                <ButtonBase
+                  data-testid="ui-table-mobile-create-button"
+                  style={{ color: uiGreen, float: "right" }}
+                  onClick={() => {
+                    setShowUploadDialog(true);
+                  }}
+                >
+                  {props.uploadButtonText ? props.uploadButtonText : "Upload"}
+                  <IconButton style={{ color: uiGreen }}>
+                    <FileUploadIcon />
+                  </IconButton>
+                </ButtonBase>
+              </>
+            )}{" "}
             {props.showCreate && (
-              <ButtonBase
-                style={{ color: uiGreen }}
-                onClick={() => {
-                  navigate(props.createURL);
-                }}
-              >
-                New
-                <IconButton style={{ color: uiGreen }}>
-                  <AddIcon />
-                </IconButton>
-              </ButtonBase>
+              <span className="ui-table-create-button">
+                <ButtonBase
+                  style={{ color: uiGreen }}
+                  onClick={() => {
+                    navigate(props.createURL);
+                  }}
+                >
+                  New
+                  <IconButton style={{ color: uiGreen }}>
+                    <AddIcon />
+                  </IconButton>
+                </ButtonBase>
+              </span>
             )}
             <input
+              className="ui-table-search-input"
               style={{
-                background: "white",
+                background: "#efefef",
                 color: "black",
                 border: "none",
                 outline: "none",
@@ -367,7 +563,7 @@ const UITable = (props) => {
               Show
             </span>
             <select
-              className="form-select "
+              className="form-select ui-table-result-limit-select"
               value={limit}
               onChange={(e) => {
                 changeSearchLimit(e.target.value);
@@ -418,35 +614,76 @@ const UITable = (props) => {
                 />
               </>
             ) : (
-              <table id="ui-table" className="" style={{ width: "100%", padding:"0 35px" }}>
-                {/* Table Header  */}
-                <tr>
-                  {props.options.isSelectable && (
-                    <th>
-                      <Checkbox
-                        // checked={props.checked[0] && props.checked[1]}
-                        indeterminate={props.checked[0] !== props.checked[1]}
-                        onChange={handleSelectAll}
-                      />
-                    </th>
-                  )}
-                  {props.columns.map((column) => {
-                    return (
-                      <th>
-                        <ButtonBase
-                          onClick={() => {
-                            handleTableHeaderClick(column.name);
+              <table
+                // id="ui-table"
+                className="styled-table "
+                style={{ width: "100%", padding: "0 35px" }}
+              >
+                <thead>
+                  {/* Table Header  */}
+                  <tr>
+                    {props.options.isSelectable && (
+                      <th
+                        style={{
+                          maxWidth: maxTableCellWidth,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <Checkbox
+                          checked={
+                            //Check if all the rows are selected
+                            props.checked.every((element) => element.selected)
+                          }
+                          indeterminate={
+                            //Check if some of the rows are selected
+                            props.checked.some((element) => element.selected) &&
+                            !props.checked.every((element) => element.selected)
+                          }
+                          onChange={handleSelectAll}
+                          sx={{
+                            color: uiGreen,
+                            "&.Mui-checked": {
+                              color: uiGreen,
+                            },
+                            "&.MuiCheckbox-indeterminate": {
+                              color: uiGreen,
+                            },
+                          }}
+                        />
+                      </th>
+                    )}
+                    {props.columns.map((column) => {
+                      return (
+                        <th
+                          style={{
+                            maxWidth: maxTableCellWidth,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {column.label}
-                        </ButtonBase>
-                      </th>
-                    );
-                  })}
-                  <th></th>
-                </tr>
+                          <ButtonBase
+                            onClick={() => {
+                              handleTableHeaderClick(
+                                column.options?.orderingField
+                                  ? column.options.orderingField
+                                  : column.name
+                              );
+                            }}
+                          >
+                            {column.label}{" "}
+                            <SwapVertIcon sx={{ color: uiGreen }} />
+                          </ButtonBase>
+                        </th>
+                      );
+                    })}
+                    <th></th>
+                  </tr>
+                </thead>
                 {/* TableRows */}
-                <>
+                <tbody>
                   {isDrfFilterBackend ? (
                     <>
                       {" "}
@@ -455,8 +692,9 @@ const UITable = (props) => {
                           <tr
                             style={{
                               backgroundColor: "white",
-                              boxShadow:
-                                "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important",
+                              boxShadow: !props.hideShadow
+                                ? "0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important"
+                                : "none",
                             }}
                           >
                             {props.options.isSelectable && (
@@ -486,7 +724,14 @@ const UITable = (props) => {
                               if (column.options) {
                                 if (column.options.customBodyRender) {
                                   return (
-                                    <td>
+                                    <td
+                                      style={{
+                                        maxWidth: maxTableCellWidth,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
                                       {column.options.customBodyRender(
                                         row[column.name]
                                       )}
@@ -494,15 +739,73 @@ const UITable = (props) => {
                                   );
                                 }
                               }
-                              return <td>{row[column.name]}</td>;
+                              return (
+                                <td
+                                  style={{
+                                    maxWidth: maxTableCellWidth,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {row[column.name]}
+                                </td>
+                              );
                             })}
                             <td>
-                              <UIButton
-                                onClick={() => {
-                                  props.options.onRowClick(row.id);
-                                }}
-                                btnText="View"
-                              />
+                              <div className="ui-table-more-button">
+                                <IconButton
+                                  id="ui-table-more-button"
+                                  onClick={(event) =>
+                                    handleMenuClick(event, index)
+                                  }
+                                >
+                                  <MoreVert />
+                                </IconButton>
+                              </div>
+                              <Popper
+                                open={selectedIndex === index}
+                                anchorEl={anchorEl}
+                                placement="bottom-start"
+                                transition
+                              >
+                                {({ TransitionProps, placement }) => (
+                                  <Grow
+                                    {...TransitionProps}
+                                    style={{
+                                      transformOrigin:
+                                        placement === "bottom-start"
+                                          ? "right top"
+                                          : "right top",
+                                    }}
+                                  >
+                                    <Paper>
+                                      <ClickAwayListener
+                                        onClickAway={handleCloseMenu}
+                                      >
+                                        <MenuList>
+                                          {props.menuOptions.map(
+                                            (option, index) => (
+                                              <MenuItem
+                                                key={index}
+                                                onClick={() =>
+                                                  option.onClick(row)
+                                                }
+                                                id="menu-list-grow"
+                                                onKeyDown={handleCloseMenu}
+                                              >
+                                                <Typography>
+                                                  {option.name}
+                                                </Typography>
+                                              </MenuItem>
+                                            )
+                                          )}
+                                        </MenuList>
+                                      </ClickAwayListener>
+                                    </Paper>
+                                  </Grow>
+                                )}
+                              </Popper>
                             </td>
                           </tr>
                         );
@@ -510,7 +813,7 @@ const UITable = (props) => {
                     </>
                   ) : (
                     <>
-                      {currentItems.map((row) => {
+                      {currentItems.map((row, index) => {
                         return (
                           <tr
                             style={{
@@ -524,7 +827,14 @@ const UITable = (props) => {
                               if (column.options) {
                                 if (column.options.customBodyRender) {
                                   return (
-                                    <td>
+                                    <td
+                                      style={{
+                                        maxWidth: maxTableCellWidth,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
                                       {column.options.customBodyRender(
                                         row[column.name]
                                       )}
@@ -532,23 +842,79 @@ const UITable = (props) => {
                                   );
                                 }
                               }
-                              return <td>{row[column.name]}</td>;
+                              return (
+                                <td
+                                  style={{
+                                    maxWidth: maxTableCellWidth,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {row[column.name]}
+                                </td>
+                              );
                             })}
-                            <td>
-                              <UIButton
-                                onClick={() => {
-                                  // navigate(`${props.detailURL}${row.id}`);
-                                  props.options.onRowClick(row.id);
-                                }}
-                                btnText="View"
-                              />
-                            </td>
+                            {props.menuOptions && (
+                              <td>
+                                <IconButton
+                                  onClick={(event) =>
+                                    handleMenuClick(event, index)
+                                  }
+                                >
+                                  <MoreVert />
+                                </IconButton>
+                                <Popper
+                                  open={selectedIndex === index}
+                                  anchorEl={anchorEl}
+                                  placement="bottom-start"
+                                  transition
+                                >
+                                  {({ TransitionProps, placement }) => (
+                                    <Grow
+                                      {...TransitionProps}
+                                      style={{
+                                        transformOrigin:
+                                          placement === "bottom-start"
+                                            ? "right top"
+                                            : "right top",
+                                      }}
+                                    >
+                                      <Paper>
+                                        <ClickAwayListener
+                                          onClickAway={handleCloseMenu}
+                                        >
+                                          <MenuList>
+                                            {props.menuOptions.map(
+                                              (option, index) => (
+                                                <MenuItem
+                                                  key={index}
+                                                  onClick={() =>
+                                                    option.onClick(row)
+                                                  }
+                                                  id="menu-list-grow"
+                                                  onKeyDown={handleCloseMenu}
+                                                >
+                                                  <Typography>
+                                                    {option.name}
+                                                  </Typography>
+                                                </MenuItem>
+                                              )
+                                            )}
+                                          </MenuList>
+                                        </ClickAwayListener>
+                                      </Paper>
+                                    </Grow>
+                                  )}
+                                </Popper>
+                              </td>
+                            )}
                           </tr>
                         );
                       })}
                     </>
                   )}
-                </>
+                </tbody>
               </table>
             )}
           </>

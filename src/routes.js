@@ -1,21 +1,21 @@
-import Dashboard from "./components/Dashboard/Landlord/Units/Dashboard";
+import OwnerDashboard from "./components/Dashboard/OwnerDashboard";
 import MaintenanceRequests from "./components/Dashboard/Tenant/MaintenanceRequests/MaintenanceRequests";
 import CreateMaintenanceRequest from "./components/Dashboard/Tenant/MaintenanceRequests/CreateMaintenanceRequest";
 import { createBrowserRouter } from "react-router-dom";
-import Properties from "./components/Dashboard/Landlord/Properties/Properties";
-import CreateProperty from "./components/Dashboard/Landlord/Properties/CreateProperty";
-import ManageProperty from "./components/Dashboard/Landlord/Properties/ManageProperty";
-import CreatePortfolio from "./components/Dashboard/Landlord/Portfolios/CreatePortfolio";
-import Portfolios from "./components/Dashboard/Landlord/Portfolios/Portfolios";
-import ManagePortfolio from "./components/Dashboard/Landlord/Portfolios/ManagePortfolio";
-import Units from "./components/Dashboard/Landlord/Units/Units";
-import ManageUnit from "./components/Dashboard/Landlord/Units/ManageUnit";
-import Tenants from "./components/Dashboard/Landlord/Tenants/Tenants";
-import ManageTenant from "./components/Dashboard/Landlord/Tenants/ManageTenant";
-import CreateUnit from "./components/Dashboard/Landlord/Units/CreateUnit";
-import MyAccount from "./components/Dashboard/Landlord/MyAccount/MyAccount";
-import LandlordLogin from "./components/Dashboard/Landlord/LandlordLogin";
-import LandlordRegister from "./components/Dashboard/Landlord/Registration/LandlordRegister";
+import Properties from "./components/Dashboard/Owner/Properties/Properties";
+import CreateProperty from "./components/Dashboard/Owner/Properties/CreateProperty";
+import ManageProperty from "./components/Dashboard/Owner/Properties/ManageProperty";
+import CreatePortfolio from "./components/Dashboard/Owner/Portfolios/CreatePortfolio";
+import Portfolios from "./components/Dashboard/Owner/Portfolios/Portfolios";
+import ManagePortfolio from "./components/Dashboard/Owner/Portfolios/ManagePortfolio";
+import Units from "./components/Dashboard/Owner/Units/Units";
+import ManageUnit from "./components/Dashboard/Owner/Units/ManageUnit";
+import Tenants from "./components/Dashboard/Owner/Tenants/Tenants";
+import ManageTenant from "./components/Dashboard/Owner/Tenants/ManageTenant";
+import CreateUnit from "./components/Dashboard/Owner/Units/CreateUnit";
+import MyAccount from "./components/Dashboard/Owner/MyAccount/MyAccount";
+import OwnerLogin from "./components/Dashboard/Owner/OwnerLogin";
+import OwnerRegister from "./components/Dashboard/Owner/Registration/OwnerRegister";
 import ForgotPassword from "./components/Dashboard/PasswordReset/ForgotPassword";
 import { withDashboardContainer } from "./helpers/utils";
 import LandingPage from "./components/Landing/LandingPage";
@@ -25,21 +25,21 @@ import TenantRegister from "./components/Dashboard/Tenant/TenantRegister";
 import TenantDashboard from "./components/Dashboard/Tenant/TenantDashboard";
 import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
 import TenantMyAccount from "./components/Dashboard/Tenant/TenantMyAccount";
-import CreateLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
-import LeaseTemplates from "./components/Dashboard/Landlord/LeaseTemplate/LeaseTemplates";
-import ViewRentalApplication from "./components/Dashboard/Landlord/RentalApplications/ViewRentalApplication";
+import CreateLeaseTemplate from "./components/Dashboard/Owner/LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
+import LeaseTemplates from "./components/Dashboard/Owner/LeaseTemplate/LeaseTemplates";
+import ViewRentalApplication from "./components/Dashboard/Owner/RentalApplications/ViewRentalApplication";
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
-import RentalApplications from "./components/Dashboard/Landlord/RentalApplications/RentalApplications";
+import RentalApplications from "./components/Dashboard/Owner/RentalApplications/RentalApplications";
 import SignLeaseAgreement from "./components/SignLeaseAgreement";
 import { Elements } from "@stripe/react-stripe-js";
 import { stripePromise } from "./constants";
-import AddPaymentMethod from "./components/Dashboard/Tenant/AddPaymentMethod";
+import AddPaymentMethod from "./components/Dashboard/AddPaymentMethod";
 import PageNotFound from "./components/Errors/PageNotFound";
-import MyLeaseAgreement from "./components/Dashboard/Tenant/LeaseAgreement/MyLeaseAgreement";
-import LandlordTransactions from "./components/Dashboard/Landlord/Transactions/LandlordTransactions";
-import LandlordTransactionDetail from "./components/Dashboard/Landlord/Transactions/LandlordTransactionDetail";
-import LandlordMaintenanceRequests from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequests";
-import LandlordMaintenanceRequestDetail from "./components/Dashboard/Landlord/MaintenaceRequests/LandlordMaintenanceRequestDetail";
+import MyLeaseAgreement from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreementDetail";
+import OwnerTransactions from "./components/Dashboard/Owner/Transactions/OwnerTransactions";
+import OwnerTransactionDetail from "./components/Dashboard/Owner/Transactions/OwnerTransactionDetail";
+import OwnerMaintenanceRequests from "./components/Dashboard/Owner/MaintenaceRequests/OwnerMaintenanceRequests";
+import OwnerMaintenanceRequestDetail from "./components/Dashboard/Owner/MaintenaceRequests/OwnerMaintenanceRequestDetail";
 import ResetPassword from "./components/Dashboard/PasswordReset/ResetPassword";
 import ActivateAccount from "./components/Dashboard/AccountActivation/ActivateAccount";
 import ActivateAccountMessage from "./components/Dashboard/AccountActivation/ActivateAccountMessage";
@@ -56,19 +56,21 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import {
   AddHomeOutlined,
   AddHomeWorkOutlined,
+  Category,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
-import ManageLeaseTemplate from "./components/Dashboard/Landlord/LeaseTemplate/ManageLeaseTemplate";
+import CampaignIcon from "@mui/icons-material/Campaign";
+import ManageLeaseTemplate from "./components/Dashboard/Owner/LeaseTemplate/ManageLeaseTemplate";
 import Notifications from "./components/Dashboard/Notifications/Notifications";
 import { NotificationDetail } from "./components/Dashboard/Notifications/NotificationDetail";
 import Logout from "./components/Dashboard/Logout";
-import ViewLeaseAgreements from "./components/Dashboard/Landlord/LeaseAgreements/ViewLeaseAgreements";
-import LeaseAgreementDetail from "./components/Dashboard/Landlord/LeaseAgreements/LeaseAgreementDetail";
-import LeaseCancellationRequests from "./components/Dashboard/Landlord/LeaseCancellations/LeaseCancellationRequests";
-import LeaseCancellationRequestDetail from "./components/Dashboard/Landlord/LeaseCancellations/LeaseCancellationRequestDetail";
-import LeaseRenewalRequests from "./components/Dashboard/Landlord/LeaseRenewals/LeaseRenewalRequests";
-import LeaseRenewalRequestDetail from "./components/Dashboard/Landlord/LeaseRenewals/LeaseRenewalRequestDetail";
-import LeaseRenewalAcceptForm from "./components/Dashboard/Landlord/LeaseRenewals/LeaseRenewalAcceptForm";
+import ViewLeaseAgreements from "./components/Dashboard/Owner/LeaseAgreements/ViewLeaseAgreements";
+import LeaseAgreementDetail from "./components/Dashboard/Owner/LeaseAgreements/LeaseAgreementDetail";
+import LeaseCancellationRequests from "./components/Dashboard/Owner/LeaseCancellations/LeaseCancellationRequests";
+import LeaseCancellationRequestDetail from "./components/Dashboard/Owner/LeaseCancellations/LeaseCancellationRequestDetail";
+import LeaseRenewalRequests from "./components/Dashboard/Owner/LeaseRenewals/LeaseRenewalRequests";
+import LeaseRenewalRequestDetail from "./components/Dashboard/Owner/LeaseRenewals/LeaseRenewalRequestDetail";
+import LeaseRenewalAcceptForm from "./components/Dashboard/Owner/LeaseRenewals/LeaseRenewalAcceptForm";
 import TenantLeaseRenewalRequests from "./components/Dashboard/Tenant/LeaseAgreement/LeaseRenewal/TenantLeaseRenewalRequests";
 import TenantLeaseRenewalRequestDetail from "./components/Dashboard/Tenant/LeaseAgreement/LeaseRenewal/TenantLeaseRenewalRequestDetail";
 import TenantLeaseCancellationRequests from "./components/Dashboard/Tenant/LeaseAgreement/LeaseCancellation/TenantLeaseCancellationRequests";
@@ -77,11 +79,26 @@ import { ContactPage } from "./components/Landing/ContactPage";
 import PricingPage from "./components/Landing/PricingPage";
 import FeaturesPage from "./components/Landing/FeaturesPage";
 import BlogPage from "./components/Landing/BlogPage";
-import BillingEntries from "./components/Dashboard/Landlord/BillingEntry/BillingEntries";
-import ManageBillingEntry from "./components/Dashboard/Landlord/BillingEntry/ManageBillingEntry";
-import CreateBillingEntry from "./components/Dashboard/Landlord/BillingEntry/CreateBillingEntry";
+import BillingEntries from "./components/Dashboard/Owner/BillingEntry/BillingEntries";
+import ManageBillingEntry from "./components/Dashboard/Owner/BillingEntry/ManageBillingEntry";
+import CreateBillingEntry from "./components/Dashboard/Owner/BillingEntry/CreateBillingEntry";
 import Bills from "./components/Dashboard/Tenant/Bills/Bills";
 import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
+import Annoucements from "./components/Dashboard/Owner/Annoucements/Annoucements";
+import ManageAnnouncement from "./components/Dashboard/Owner/Annoucements/ManageAnnouncement";
+import CreateAccouncement from "./components/Dashboard/Owner/Annoucements/CreateAnnouncement";
+
+//Prototype conponents
+import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accounts";
+import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
+import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
+import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
+import TenantLeaseAgreements from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreements";
+import ArchivedRentalApplications from "./components/Dashboard/Owner/RentalApplications/ArchivedRentalApplications";
+import TenantInvites from "./components/Dashboard/Owner/TenantInvites/TenantInvites";
+import ManageTenantInvite from "./components/Dashboard/Owner/TenantInvites/ManageTenantInvite";
+import CreateTenantInvite from "./components/Dashboard/Owner/TenantInvites/CreateTenantInvite";
+
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
 
@@ -123,27 +140,27 @@ export const routes = [
     label: "Blog",
   },
   {
-    path: "/dashboard/landlord/login",
+    path: "/dashboard/owner/login",
     element: (
       <LoggedInRedirect token={token}>
-        <LandlordLogin />
+        <OwnerLogin />
       </LoggedInRedirect>
     ),
     isSearchable: false,
-    label: "Landlord Login",
+    label: "Owner Login",
   },
   {
     path: "/dashboard/logout",
     element: <Logout />,
     isSearchable: false,
-    label: "Landlord Logout",
+    label: "Owner Logout",
   },
   {
-    path: "/dashboard/landlord/register",
+    path: "/dashboard/owner/register",
     element: (
       <LoggedInRedirect token={token}>
         <Elements stripe={stripePromise}>
-          <LandlordRegister />
+          <OwnerRegister />
         </Elements>
       </LoggedInRedirect>
     ),
@@ -209,7 +226,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/tenant/add-payment-method",
+    path: "/dashboard/add-payment-method",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Elements stripe={stripePromise}>
@@ -219,21 +236,22 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/",
+    path: "/dashboard/owner/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <Dashboard />
+        <OwnerDashboard />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
     label: "Dashboard",
     description: "An overview of your properties",
+    category: "Dashboard",
     isQuickLink: true,
     muiIcon: <DashboardOutlined />,
     breadcrumbs: [],
   },
   {
-    path: "/dashboard/landlord/my-account",
+    path: "/dashboard/owner/my-account",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyAccount />
@@ -242,6 +260,7 @@ export const routes = [
     isSearchable: true,
     label: "My Account",
     description: "Manage your account",
+    category: "Dashboard",
     isQuickLink: true,
     muiIcon: <PeopleAltOutlined />,
     breadcrumbs: ["My Account"],
@@ -258,7 +277,7 @@ export const routes = [
     breadcrumbs: ["My Account"],
   },
   {
-    path: "/dashboard/landlord/properties",
+    path: "/dashboard/owner/properties",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Properties />
@@ -267,12 +286,13 @@ export const routes = [
     isSearchable: true,
     label: "Properties",
     description: "Manage your properties",
+    category: "Properties",
     isQuickLink: true,
     muiIcon: <HomeWorkOutlined />,
     breadcrumbs: ["Properties"],
   },
   {
-    path: "/dashboard/landlord/properties/create",
+    path: "/dashboard/owner/properties/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateProperty />
@@ -280,13 +300,14 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Create Property",
+    category: "Properties",
     description: "Create a new property",
     isQuickLink: true,
     muiIcon: <AddHomeWorkOutlined />,
     breadcrumbs: ["Properties", "Create Property"],
   },
   {
-    path: "/dashboard/landlord/properties/:id",
+    path: "/dashboard/owner/properties/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageProperty />
@@ -295,7 +316,7 @@ export const routes = [
     breadcrumbs: ["Properties", "Manage Property", "[:id]_name"],
   },
   {
-    path: "/dashboard/landlord/portfolios",
+    path: "/dashboard/owner/portfolios",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Portfolios />
@@ -303,12 +324,13 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Portfolios",
+    category: "Properties",
     description: "Manage your portfolios",
     isQuickLink: true,
     muiIcon: <FolderCopyIcon />,
   },
   {
-    path: "/dashboard/landlord/portfolios/create",
+    path: "/dashboard/owner/portfolios/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreatePortfolio />
@@ -316,12 +338,13 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Create Portfolio",
+    category: "Properties",
     description: "Create a new portfolio",
     isQuickLink: true,
     muiIcon: <CreateNewFolderIcon />,
   },
   {
-    path: "/dashboard/landlord/portfolios/:id",
+    path: "/dashboard/owner/portfolios/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManagePortfolio />
@@ -329,20 +352,21 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/units",
+    path: "/dashboard/owner/units",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Units />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
+    category: "Properties",
     label: "Units",
     description: "Manage your units",
     isQuickLink: true,
     muiIcon: <HolidayVillageOutlined />,
   },
   {
-    path: "/dashboard/landlord/units/:unit_id/:property_id",
+    path: "/dashboard/owner/units/:unit_id/:property_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageUnit />
@@ -350,7 +374,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/units/create/:property_id",
+    path: "/dashboard/owner/units/create/:property_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateUnit />
@@ -363,7 +387,7 @@ export const routes = [
     muiIcon: <AddHomeOutlined />,
   },
   {
-    path: "/dashboard/landlord/units/create/",
+    path: "/dashboard/owner/units/create/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateUnit />
@@ -371,12 +395,13 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Create Unit",
+    category: "Properties",
     description: "Create a new unit",
     isQuickLink: false,
     muiIcon: <AddHomeOutlined />,
   },
   {
-    path: "/dashboard/landlord/tenants",
+    path: "/dashboard/owner/tenants",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Tenants />
@@ -384,43 +409,85 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Tenants",
+    category: "Tenants",
     description: "Manage your tenants",
     isQuickLink: true,
     muiIcon: <PeopleAltOutlined />,
   },
   {
-    path: "/dashboard/landlord/tenants/:tenant_id",
+    path: "/dashboard/owner/tenants/:tenant_id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageTenant />
       </DashboardProtectedRoute>
     ),
   },
-
   {
-    path: "/dashboard/landlord/maintenance-requests",
+    path: "/dashboard/owner/tenant-invites",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <LandlordMaintenanceRequests />
+        <TenantInvites />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Tenant Invites",
+    category: "Tenants",
+    description: "Manage your tenant invites",
+    isQuickLink: true,
+    muiIcon: <PeopleAltOutlined />,
+  },
+  {
+    path: "/dashboard/owner/tenant-invites/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageTenantInvite />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/owner/tenant-invites/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateTenantInvite />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Tenant Invite",
+    category: "Tenants",
+    description: "Create a new tenant invite",
+  },
+  {
+    path: "/dashboard/owner/maintenance-requests",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <OwnerMaintenanceRequests />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
     label: "Maintenance Requests",
+    category: "Maintenance Requests",
     description: "Manage your maintenance requests",
     isQuickLink: true,
     muiIcon: <HandymanOutlinedIcon />,
   },
-
   {
-    path: "/dashboard/landlord/maintenance-requests/:id",
+    path: "/dashboard/owner/maintenance-requests/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <LandlordMaintenanceRequestDetail />
+        <OwnerMaintenanceRequestDetail />
       </DashboardProtectedRoute>
     ),
   },
   {
-    path: "/dashboard/tenant/my-lease",
+    path: "/dashboard/tenant/maintenance-requests/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <OwnerMaintenanceRequestDetail />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/lease-agreements/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <MyLeaseAgreement />
@@ -428,10 +495,31 @@ export const routes = [
     ),
   },
   {
+    path: "/dashboard/tenant/lease-agreements/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <TenantLeaseAgreements />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: false,
+    label: "Lease Agreements",
+    description: "Manage your lease agreements",
+    isQuickLink: true,
+    muiIcon: <DescriptionOutlined />,
+  },
+  {
     path: "/dashboard/tenant/bills/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <Bills />
+      </DashboardProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/tenant/bills/:invoice_id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <BillDetail />
       </DashboardProtectedRoute>
     ),
   },
@@ -483,8 +571,9 @@ export const routes = [
       </DashboardProtectedRoute>
     ),
   },
+
   {
-    path: "/dashboard/landlord/lease-agreements/",
+    path: "/dashboard/owner/lease-agreements/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ViewLeaseAgreements />
@@ -493,11 +582,12 @@ export const routes = [
     isSearchable: true,
     label: "Lease Agreements",
     description: "Manage your lease agreements",
+    category: "Lease Agreements",
     isQuickLink: true,
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-agreements/:id",
+    path: "/dashboard/owner/lease-agreements/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseAgreementDetail />
@@ -505,7 +595,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/lease-cancellation-requests/",
+    path: "/dashboard/owner/lease-cancellation-requests/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseCancellationRequests />
@@ -514,11 +604,12 @@ export const routes = [
     isSearchable: true,
     label: "Lease Cancellation Requests",
     description: "Manage your lease cancellation requests",
+    category: "Lease Agreements",
     isQuickLink: true,
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-cancellation-requests/:id",
+    path: "/dashboard/owner/lease-cancellation-requests/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseCancellationRequestDetail />
@@ -526,7 +617,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/lease-renewal-requests/",
+    path: "/dashboard/owner/lease-renewal-requests/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseRenewalRequests />
@@ -535,11 +626,12 @@ export const routes = [
     isSearchable: true,
     label: "Lease Renewal Requests",
     description: "Manage your lease renewal requests",
+    category: "Lease Agreements",
     isQuickLink: true,
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-renewal-requests/:id",
+    path: "/dashboard/owner/lease-renewal-requests/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseRenewalRequestDetail />
@@ -547,7 +639,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/lease-renewal-accept-form/:id",
+    path: "/dashboard/owner/lease-renewal-accept-form/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseRenewalAcceptForm />
@@ -555,7 +647,7 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/lease-templates/create",
+    path: "/dashboard/owner/lease-templates/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateLeaseTemplate isLeaseRenewal={false} />
@@ -564,37 +656,39 @@ export const routes = [
     isSearchable: true,
     label: "Create Lease Term",
     description: "Create a new lease term",
+    category: "Lease Templates",
     isQuickLink: true,
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-templates/",
+    path: "/dashboard/owner/lease-templates/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <LeaseTemplates />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
-    label: "Lease Terms",
+    label: "Lease Templates",
+    category: "Lease Templates",
     description: "Manage your lease terms",
     isQuickLink: true,
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/lease-templates/:id",
+    path: "/dashboard/owner/lease-templates/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageLeaseTemplate />
       </DashboardProtectedRoute>
     ),
-    isSearchable: true,
+    isSearchable: false,
     label: "Lease Terms",
     description: "Manage your lease terms",
     isQuickLink: true,
     muiIcon: <DescriptionOutlined />,
   },
   {
-    path: "/dashboard/landlord/rental-applications/:id",
+    path: "/dashboard/owner/rental-applications/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ViewRentalApplication />
@@ -602,20 +696,35 @@ export const routes = [
     ),
   },
   {
-    path: "/dashboard/landlord/rental-applications/",
+    path: "/dashboard/owner/rental-applications/",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <RentalApplications />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
-    label: "Rental Applications",
+    label: "Pending Rental Applications",
+    category: "Rental Applications",
     description: "Manage your rental applications",
     isQuickLink: true,
     muiIcon: <ReceiptLongOutlined />,
   },
   {
-    path: "/rental-application/:unit_id/:landlord_id",
+    path: "/dashboard/owner/archived-rental-applications/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ArchivedRentalApplications />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Archived Rental Applications",
+    category: "Rental Applications",
+    description: "Manage your rental applications",
+    isQuickLink: true,
+    muiIcon: <ReceiptLongOutlined />,
+  },
+  {
+    path: "/rental-application/:unit_id/:owner_id",
     element: <CreateRentalApplication />,
   },
   {
@@ -623,23 +732,24 @@ export const routes = [
     element: <SignLeaseAgreement />,
   },
   {
-    path: "/dashboard/landlord/transactions",
+    path: "/dashboard/owner/transactions",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <LandlordTransactions />
+        <OwnerTransactions />
       </DashboardProtectedRoute>
     ),
     isSearchable: true,
     label: "Transactions",
     description: "Manage your transactions",
+    category: "Finances",
     isQuickLink: true,
     muiIcon: <PaidOutlined />,
   },
   {
-    path: "/dashboard/landlord/transactions/:id",
+    path: "/dashboard/owner/transactions/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <LandlordTransactionDetail />
+        <OwnerTransactionDetail />
       </DashboardProtectedRoute>
     ),
   },
@@ -666,7 +776,7 @@ export const routes = [
         <Messages />
       </DashboardProtectedRoute>
     ),
-    isSearchable: true,
+    isSearchable: false,
     label: "Messages",
     description: "View your messages",
     isQuickLink: true,
@@ -682,7 +792,7 @@ export const routes = [
     isSearchable: false,
   },
   {
-    path: "/dashboard/landlord/billing-entries",
+    path: "/dashboard/owner/billing-entries",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <BillingEntries />
@@ -690,12 +800,13 @@ export const routes = [
     ),
     isSearchable: true,
     label: "Billing Entries",
+    category: "Finances",
     description: "Manage your billing entries",
     isQuickLink: true,
     muiIcon: <PaidOutlined />,
   },
   {
-    path: "/dashboard/landlord/billing-entries/create",
+    path: "/dashboard/owner/billing-entries/create",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <CreateBillingEntry />
@@ -704,22 +815,101 @@ export const routes = [
     isSearchable: true,
     label: "Create Billing Entry",
     description: "Create a new billing entry",
+    category: "Finances",
     isQuickLink: true,
     muiIcon: <PaidOutlined />,
   },
   {
-    path: "/dashboard/landlord/billing-entries/:id",
+    path: "/dashboard/owner/billing-entries/create/maintenance-request/:maintenance_request_id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateBillingEntry />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: false,
+    label: "Create Billing Entry",
+    description: "Create a new billing entry",
+    isQuickLink: true,
+    muiIcon: <PaidOutlined />,
+  },
+  {
+    path: "/dashboard/owner/billing-entries/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
         <ManageBillingEntry />
       </DashboardProtectedRoute>
     ),
-    isSearchable: true,
+    isSearchable: false,
     label: "Billing Entry",
     description: "Manage your billing entry",
     isQuickLink: true,
     muiIcon: <PaidOutlined />,
   },
+  {
+    path: "/dashboard/owner/announcements",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Annoucements />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Announcements",
+    category: "Announcements",
+    description: "Manage your announcements",
+    isQuickLink: true,
+    muiIcon: <CampaignIcon />,
+  },
+  {
+    path: "/dashboard/owner/announcements/create",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <CreateAccouncement />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Announcement",
+    description: "Create a new announcement",
+    category: "Announcements",
+    isQuickLink: true,
+    muiIcon: <CampaignIcon />,
+  },
+  {
+    path: "/dashboard/owner/announcements/:id",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <ManageAnnouncement />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: false,
+    label: "Announcement",
+    description: "Manage your announcement",
+    isQuickLink: false,
+  },
+  //Prototype routes
+  {
+    path: "/dashboard/owner/accounts",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <Accounts />
+      </DashboardProtectedRoute>
+    ),
+  },
+  // {
+  //   path: "/dashboard/owner/website-builder",
+  //   element: withDashboardContainer(
+  //     <DashboardProtectedRoute token={token}>
+  //       <WebsiteBuilder />
+  //     </DashboardProtectedRoute>
+  //   ),
+  // },
+  // {
+  //   path: "/dashboard/owner/occupancy-progress",
+  //   element: withDashboardContainer(
+  //     <DashboardProtectedRoute token={token}>
+  //       <OccupancyProgress />
+  //     </DashboardProtectedRoute>
+  //   ),
+  // },
 ];
 
 export const router = createBrowserRouter(routes);

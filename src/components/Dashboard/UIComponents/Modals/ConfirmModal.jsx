@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Backdrop, Box, Typography, Button, Stack } from "@mui/material";
-import { uiGreen, uiGrey1, uiRed } from "../../../../constants";
+import { uiGreen, uiGrey1, uiGrey2, uiRed } from "../../../../constants";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles(() => ({
@@ -67,7 +67,7 @@ const ConfirmModal = (props) => {
           <Typography
             id="modal-modal-description"
             data-testid="confirm-modal-message"
-            sx={{ mt: "16px" }}
+            sx={{ my: "5px" }}
           >
             {props.message}
           </Typography>
@@ -77,7 +77,7 @@ const ConfirmModal = (props) => {
               onClick={props.handleCancel}
               className={classes.cancelBtn}
               style={{
-                background: uiGreen,
+                background: uiGrey2,
                 textTransform: "none",
                 ...props.cancelBtnStyle,
               }}
@@ -90,7 +90,7 @@ const ConfirmModal = (props) => {
               onClick={props.handleConfirm}
               className={classes.confirmBtn}
               style={{
-                background: uiRed,
+                background: uiGreen,
                 textTransform: "none",
                 ...props.confirmBtnStyle,
               }}

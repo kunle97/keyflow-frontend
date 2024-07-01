@@ -1,8 +1,6 @@
-/**
- * Axios instances for making API calls as well as some helper  API functions
- * **/
 import axios from "axios";
 import { token } from "../constants";
+import { clearLocalStorage, isTokenExpired } from "../helpers/utils";
 
 const API_HOST = process.env.REACT_APP_API_HOSTNAME;
 
@@ -12,17 +10,12 @@ const handleError = (error) => {
 };
 
 const addErrorHandler = (instance) => {
-  instance.interceptors.request.use(
-    (config) => config,
-    handleError
-  );
+  instance.interceptors.request.use((config) => config, handleError);
 
-  instance.interceptors.response.use(
-    (response) => response,
-    handleError
-  );
+  instance.interceptors.response.use((response) => response, handleError);
 };
 
+// Create authenticated instances with different configurations
 export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
   headers: {
@@ -30,7 +23,6 @@ export const authenticatedInstance = axios.create({
     Authorization: `Token ${token}`,
   },
 });
-addErrorHandler(authenticatedInstance);
 
 export const authenticatedMediaInstance = axios.create({
   baseURL: API_HOST,
@@ -39,6 +31,39 @@ export const authenticatedMediaInstance = axios.create({
     Authorization: `Token ${token}`,
   },
 });
+
+// Add a request interceptor to check for token expiration in authenticatedInstance
+authenticatedInstance.interceptors.request.use(
+  (config) => {
+    const accessTokenExpired = isTokenExpired();
+    if (accessTokenExpired) {
+      clearLocalStorage(); // Clear local storage and redirect to login if token is expired
+      window.location.href = "/"; // Redirect to login page
+      return Promise.reject(new Error("Token expired or invalid")); // Reject the request
+    } else {
+      return config;
+    }
+  },
+  (error) => Promise.reject(error)
+);
+
+// Add the same interceptor to authenticatedMediaInstance
+authenticatedMediaInstance.interceptors.request.use(
+  (config) => {
+    const accessTokenExpired = isTokenExpired();
+    if (accessTokenExpired) {
+      clearLocalStorage(); // Clear local storage and redirect to login if token is expired
+      window.location.href = "/"; // Redirect to login page
+      return Promise.reject(new Error("Token expired or invalid")); // Reject the request
+    } else {
+      return config;
+    }
+  },
+  (error) => Promise.reject(error)
+);
+
+// Apply the error handler to the authenticated instances
+addErrorHandler(authenticatedInstance);
 addErrorHandler(authenticatedMediaInstance);
 
 export const unauthenticatedInstance = axios.create({
@@ -49,66 +74,20 @@ export const unauthenticatedInstance = axios.create({
 });
 addErrorHandler(unauthenticatedInstance);
 
-//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
-export async function getLandlordsEmails() {
+// Create functions to retrieve credentials (emails or usernames)
+const getCredentials = async (endpoint) => {
   try {
-    const res = await unauthenticatedInstance
-      .get(`/landlords-emails/`)
-      .then((res) => {
-        console.log(res);
-        return res.data;
-      });
-    return res;
+    const res = await unauthenticatedInstance.get(endpoint);
+    console.log(res);
+    return res.data;
   } catch (error) {
-    console.error("Get Landlords Emails Error: ", error);
+    console.error("API Error:", error);
     return error.response;
   }
-}
+};
 
-//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
-export async function getLandlordsUsernames() {
-  try {
-    const res = await unauthenticatedInstance
-      .get(`/landlords-usernames/`)
-      .then((res) => {
-        console.log(res);
-        return res.data;
-      });
-    return res;
-  } catch (error) {
-    console.error("Get Landlords Emails Error: ", error);
-    return error.response;
-  }
-}
-
-//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
-export async function getTenantsEmails() {
-  try {
-    const res = await unauthenticatedInstance
-      .get(`/tenants-emails/`)
-      .then((res) => {
-        console.log(res);
-        return res.data;
-      });
-    return res;
-  } catch (error) {
-    console.error("Get Landlords Emails Error: ", error);
-    return error.response;
-  }
-}
-
-//Create a function to retrieve all the emails of all landlords using the endpoint /landlords-emails/
-export async function getTenantsUsernames() {
-  try {
-    const res = await unauthenticatedInstance
-      .get(`/tenants-usernames/`)
-      .then((res) => {
-        console.log(res);
-        return res.data;
-      });
-    return res;
-  } catch (error) {
-    console.error("Get Landlords Emails Error: ", error);
-    return error.response;
-  }
-}
+export const getOwnersEmails = () => getCredentials("/owners-emails/");
+export const getOwnersUsernames = () =>
+  getCredentials("/owners-usernames/");
+export const getTenantsEmails = () => getCredentials("/tenants-emails/");
+export const getTenantsUsernames = () => getCredentials("/tenants-usernames/");

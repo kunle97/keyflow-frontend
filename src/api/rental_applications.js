@@ -22,7 +22,7 @@ export async function createRentalApplication(data) {
         evicted: data.evicted,
         employment_history: JSON.stringify(data.employment_history),
         residential_history: JSON.stringify(data.residential_history),
-        landlord_id: data.landlord_id,
+        owner_id: data.owner_id,
         comments: data.comments,
       })
       .then((res) => {
@@ -117,14 +117,30 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
 }
 
 //Create A function to approve a rental application
+// export async function approveRentalApplication(rentalAppId) {
+//   try {
+//     const res = await authenticatedInstance
+//       .patch(`/rental-applications/${rentalAppId}/`, {
+//         is_approved: true,
+//         approval_hash: makeId(64),
+//         is_archived: true,
+//       })
+//       .then((res) => {
+//         console.log(res);
+//         return res.data;
+//       });
+//     console.log("Rental Application Approved", res);
+//     return res;
+//   } catch (error) {
+//     console.log("Approve Rental Application Error: ", error);
+//     return error.response;
+//   }
+// }
+
 export async function approveRentalApplication(rentalAppId) {
   try {
     const res = await authenticatedInstance
-      .patch(`/rental-applications/${rentalAppId}/`, {
-        is_approved: true,
-        approval_hash: makeId(64),
-        is_archived: true,
-      })
+      .post(`/rental-applications/${rentalAppId}/approve-rental-application/`)
       .then((res) => {
         console.log(res);
         return res.data;
@@ -173,6 +189,63 @@ export async function deleteOtherRentalApplications(rentalAppId) {
     return res;
   } catch (error) {
     console.log("Approve Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to delete one specific rental application by its id
+export async function revokeRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .delete(`/rental-applications/${rentalAppId}/revoke-rental-application/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application deleted.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Delete Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to archive a rental application using the POST endpoint  /rental-applications/{id}/archive-rental-application/
+export async function archiveRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/rental-applications/${rentalAppId}/archive-rental-application/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application archived.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Archive Rental Application Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to unarchive a rental application using the POST endpoint  /rental-applications/{id}/unarchive-rental-application/
+export async function unarchiveRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/rental-applications/${rentalAppId}/unarchive-rental-application/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application unarchived.",
+          status: 200,
+        };
+      });
+    return res;
+  } catch (error) {
+    console.log("Unarchive Rental Application Error: ", error);
     return error.response;
   }
 }

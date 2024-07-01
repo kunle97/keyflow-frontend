@@ -70,7 +70,7 @@ Cypress.Commands.add("login", (email, password) => {
         token: response.body.token,
         redirect_url:
           response.body.user.account_type === "owner"
-            ? "/dashboard/landlord"
+            ? "/dashboard/owner"
             : "/dashboard/tenant",
       };
     } else {

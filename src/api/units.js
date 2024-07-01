@@ -1,4 +1,8 @@
-import { authenticatedInstance, authenticatedMediaInstance, unauthenticatedInstance } from "./api";
+import {
+  authenticatedInstance,
+  authenticatedMediaInstance,
+  unauthenticatedInstance,
+} from "./api";
 import { authUser } from "../constants";
 ///-----------------UNIT API FUNCTIONS---------------------------///
 //create a function to create a unit
@@ -18,6 +22,26 @@ export async function createUnit(data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
+
+//Create a function to retrieve all units from an owner using the endpoint /units/
+export async function getAllUnits() {
+  try {
+    const res = await authenticatedInstance.get(`/units/`).then((res) => {
+      console.log(res);
+
+      if (res.status == 200 && res.data.length == 0) {
+        return { data: [] };
+      }
+      return { data: res.data };
+    });
+
+    return res;
+  } catch (error) {
+    console.log("Get Units Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
 
 //Create function to get all units for the specific property
 export async function getUnits(propertyId) {
@@ -139,8 +163,8 @@ export async function deleteUnit(data) {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-//Create a funtion to get all units for a specific landlord using the endpoint /users/{landlord_id}/units/
-export async function getLandlordUnits() {
+//Create a funtion to get all units for a specific owner using the endpoint /users/{owner_id}/units/
+export async function getOwnerUnits() {
   try {
     const res = await authenticatedInstance.get(`/units/`).then((res) => {
       console.log(res);
@@ -153,7 +177,65 @@ export async function getLandlordUnits() {
 
     return res;
   } catch (error) {
-    console.log("Get Landlord Units Error: ", error);
+    console.log("Get Owner Units Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function that applies a lease template to a unit using the endpoint /units/{unit_id}/assign-lease-template/. The function should have the parameter: data:
+export async function assignLeaseTemplateToUnit(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/units/${data.unit_id}/assign-lease-template/`, {
+        lease_template_id: data.lease_template_id,
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Assign Lease Template to Unit Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//CReate a function that removes a lease template from a unit using the endpoint /units/{unit_id}/remove-lease-template/. The function should have the parameter: data:
+export async function removeUnitLeaseTemplate(unit_id) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/units/${unit_id}/remove-lease-template/`, {
+        unit_id: unit_id,
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Remove Lease Template from Unit Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function that checks if a unit name is valid using the endpoint /units/validate-name/. The function should have the parameter: data:
+export async function validateUnitName(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/units/validate-name/`, data)
+      .then((res) => {
+        if (res.status == 200) {
+          return { data: res.data };
+        }
+        return { data: [] };
+      });
+    return res.data;
+  } catch (error) {
+    console.log("Validate Unit Name Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

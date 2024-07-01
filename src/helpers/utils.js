@@ -1,4 +1,7 @@
-import { authenticatedMediaInstance } from "../api/api";
+import {
+  authenticatedMediaInstance,
+  unauthenticatedInstance,
+} from "../api/api";
 import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
@@ -195,11 +198,21 @@ export const generateVariedColors = (baseColor, numberOfColors) => {
 
 export const removeUnderscoresAndCapitalize = (value) => {
   //remove the underscore from the value and capitalize the first letter of each word
-  let transactionType = value
+  let newValue = value
     .replace(/_/g, " ")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
-  return transactionType;
+  return newValue;
 };
+
+//Create a function to lowercase each word in a string and replace spaces with underscores
+export const addUnderscoresAndLowercase = (value) => {
+  //replace spaces with underscores and lowercase each word
+  let newValue = value
+    .toLowerCase()
+    .replace(/\s/g, "_")
+    .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toLowerCase()));
+  return newValue;
+}
 
 //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
 export const isValidFileName = (file_name) => {
@@ -261,29 +274,113 @@ export const handleChangeLeaseTemplate = (
         console.log(res);
         if (res.status == 200) {
           changeResponse = true;
+          return changeResponse;
         }
       })
       .catch((error) => {
         console.log(error);
         changeResponse = false;
+        return changeResponse;
       });
   } catch (err) {
     console.log("An error occured trying to change the lease template", err);
     changeResponse = false;
+    return changeResponse;
   }
-  return changeResponse;
 };
 //Create a function that takes in an object of strings and a regex patern and returs if each string in the object matches the regex pattern
 export const regexCheck = (strings, patterns) => {
   let matches = true;
-  let i = 0
-  let errors = []
+  let i = 0;
+  let errors = [];
   for (let key in strings) {
     if (!patterns[i].test(strings[key])) {
       matches = false;
-      errors.push(key)
+      errors.push(key);
     }
     i++;
   }
-  return { matches, errors};
+  return { matches, errors };
 };
+
+// utils.js
+export const isTokenExpired = () => {
+  if (
+    !localStorage.getItem("accessTokenExpirationDate") ||
+    !localStorage.getItem("accessToken")
+  ) {
+    return true;
+  }
+
+  const expirationDate = localStorage.getItem("accessTokenExpirationDate");
+  const currentDate = new Date();
+  const expirationDateObject = new Date(expirationDate);
+
+  return currentDate > expirationDateObject;
+};
+
+export const clearLocalStorage = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("accessTokenExpirationDate");
+  localStorage.removeItem("authUser");
+  localStorage.removeItem("stripe_onoboarding_link");
+  localStorage.removeItem("subscriptionPlan");
+  localStorage.removeItem("ownerData");
+  localStorage.removeItem("tenantData");
+};
+
+export const validateToken = async () => {
+  let isValid = false;
+  try {
+    const res = await unauthenticatedInstance.post("/auth/validate-token/", {
+      token: localStorage.getItem("accessToken"),
+    });
+    console.log(res);
+    isValid = res.data.isValid;
+    return res;
+  } catch (error) {
+    console.error("Validate Token Error: ", error);
+    return error.response;
+  }
+};
+
+
+//Create a function taht abbrieveiates rent frequescies for example "monthly" to "mo" and "yearly" to "yr" etc
+export const abbreviateRentFrequency = (frequency) => {
+  switch (frequency) {
+    case "monthly":
+    case "month":
+      return "mo";
+    case "yearly":
+    case "year":
+      return "yr";
+    case "weekly":
+    case "week":
+      return "wk";
+    case "daily":
+    case "day":
+      return "dy"; // Adjusted for abbreviation consistency
+    default:
+      return frequency;
+  }
+};
+
+//A function to warn the user before leaving/refreshing the page
+export const preventPageReload = (e) => {
+  const handleBeforeUnload = (event) => {
+    const message =
+      "Are you sure you want to leave? You may lose unsaved changes.";
+    event.returnValue = message; // Standard way of setting a warning message
+    return message; // Some browsers may use this
+  };
+
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+  };
+};
+
+export const formatDateToMMDDYYYY = (date) => {
+  return new Date(date).toLocaleDateString("en-US");
+}

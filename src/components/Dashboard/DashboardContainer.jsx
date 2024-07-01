@@ -1,19 +1,43 @@
 import React, { Children, Fragment, useEffect, useState } from "react";
-import Sidebar from "./Landlord/Navigation/Sidebar";
-import Topbar from "./Landlord/Navigation/Topbar";
-import SidebarDrawer from "./Landlord/Navigation/SidebarDrawer";
-import TopBarMUI from "../Dashboard/Landlord/Navigation/TopBarMUI";
-import { authUser, uiGrey, uiGrey2 } from "../../constants";
+import Sidebar from "./Owner/Navigation/Sidebar";
+import Topbar from "./Owner/Navigation/Topbar";
+import SidebarDrawer from "./Owner/Navigation/SidebarDrawer";
+import TopBarMUI from "../Dashboard/Owner/Navigation/TopBarMUI";
+import { authUser, uiGreen, uiGrey, uiGrey2 } from "../../constants";
 import { Navigate, useNavigate } from "react-router-dom";
 import DeveloperToolsMenu from "./DevTools/DeveloperToolsMenu";
 import useScreen from "../../hooks/useScreen"; //src\hooks\useScreen.jsx
 import SearchDialog from "./UIComponents/Modals/Search/SearchDialog";
-import { getMessages } from "../../api/messages";
+import { getMessages, retrieveUnreadMessagesCount } from "../../api/messages";
 import { authenticatedInstance } from "../../api/api";
 import { createThreads } from "../../helpers/messageUtils"; // src\helpers\messageUtils.js
 import { routes } from "../../routes";
 import { useLocation } from "react-router-dom";
+import {
+  clearLocalStorage,
+  isTokenExpired,
+  validateToken,
+} from "../../helpers/utils";
+import Joyride, {
+  ACTIONS,
+  CallBackProps,
+  EVENTS,
+  STATUS,
+  Step,
+} from "react-joyride";
+import { IconButton, Tooltip } from "@mui/material";
+import HelpIcon from "@mui/icons-material/Help";
 const DashboardContainer = ({ children }) => {
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+
+  const [tourSteps, setTourSteps] = useState([]);
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
+
   const [pageTitle, setPageTitle] = useState("");
   const [pageBreadCrumb, setPageBreadCrumb] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -27,6 +51,7 @@ const DashboardContainer = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [messageThreads, setMessageThreads] = useState([]);
   const [messageCount, setMessageCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const style = { paddingTop: muiMode ? "80px " : "" };
@@ -37,15 +62,6 @@ const DashboardContainer = ({ children }) => {
     localStorage.removeItem("stripe_onoboarding_link");
   }
 
-  const fetchMessages = () => {
-    getMessages().then((res) => {
-      // Use the messages to create threads
-      let threads = createThreads(res.data);
-      //Filter the threads variable to show 5 threads with the most recent messages
-      threads = threads.slice(0, 5);
-      setMessageThreads(threads);
-    });
-  };
   const fetchNotifications = async (count = 0) => {
     let endpoint = "";
     if (count === 0) {
@@ -70,24 +86,58 @@ const DashboardContainer = ({ children }) => {
   //Using useLocation retrieve the current path and find the object in the routes array that matches the path
   const findCurrentRoute = () => {
     const currentPath = location.pathname;
-    console.log("path anme ", currentPath)
+    console.log("path anme ", currentPath);
     const currentRoute = routes.find((route) => route.path === currentPath);
-    console.log("current route ", currentRoute)
+    console.log("current route ", currentRoute);
     return currentRoute;
   };
 
-  useEffect(() => {
-    fetchNotifications(5);
-    fetchMessages();
-    // setPageTitle(findCurrentRoute().label);
-    if (screenWidth < breakpoints.lg) {
-      setMUIMode(true);
-    } else {
-      setMUIMode(false);
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
     }
+  };
+
+  useEffect(() => {
+    console.log("TOken is expired value: ", isTokenExpired());
+
+    const fetchData = async () => {
+      const tokenValidationResponse = await validateToken();
+      console.log("Token Validation response ", tokenValidationResponse);
+      if (!tokenValidationResponse.data.isValid) {
+        clearLocalStorage();
+        navigate("/");
+      }
+      fetchNotifications(5);
+      // setPageTitle(findCurrentRoute().label);
+      if (screenWidth < breakpoints.lg) {
+        setMUIMode(true);
+      } else {
+        setMUIMode(false);
+      }
+    };
+
+    retrieveUnreadMessagesCount().then((res) => {
+      console.log("Unread messages count ", res);
+      setUnreadMessagesCount(res.data.unread_messages_count);
+    }).catch((error) => {
+      console.log("Error retrieving unread messages count ", error);
+    });
+
+
+    fetchData();
+
+    return () => {
+      // Cleanup function if needed
+    };
   }, [screenWidth, location.pathname]);
+
   return (
     <div id="wrapper pb-2">
+
       {showSearchDialog && (
         <SearchDialog
           open={showSearchDialog}
@@ -102,10 +152,7 @@ const DashboardContainer = ({ children }) => {
         <Sidebar showNavMenu={showNavMenu} setShowNavMenu={setShowNavMenu} />
       )}
       <div className="d-flex flex-column" id="content-wrapper">
-        <div
-          id="content"
-          style={{ background: isDarkMode ? "#2c3a4a" : uiGrey }}
-        >
+        <div id="content" className="dashboard-content">
           <div
             className={`${screenWidth > breakpoints.md && "container"} `}
             style={{ ...style }}
@@ -118,8 +165,7 @@ const DashboardContainer = ({ children }) => {
                 openMenu={setMenuOpen}
                 notifications={notifications}
                 notificationCount={notificationCount}
-                messageThreads={messageThreads}
-                messageCount={messageCount}
+                unreadMessagesCount={unreadMessagesCount}
               />
             ) : (
               <Topbar
@@ -131,8 +177,7 @@ const DashboardContainer = ({ children }) => {
                 setShowNavMenu={setShowNavMenu}
                 notifications={notifications}
                 notificationCount={notificationCount}
-                messageThreads={messageThreads}
-                messageCount={messageCount}
+                unreadMessagesCount={unreadMessagesCount}
               />
             )}
             {<h1>{pageTitle}</h1>}
@@ -144,7 +189,7 @@ const DashboardContainer = ({ children }) => {
             )}
             {/* Footer */}
             <footer
-              // className=" sticky-footer"
+              // className="sticky-footer"
               style={{
                 // background: "white",
                 padding: "2rem 0",
@@ -163,8 +208,31 @@ const DashboardContainer = ({ children }) => {
             </footer>
           </div>
         </div>
-        {process.env.REACT_APP_ENVIRONMENT === "development" && (
+        {process.env.REACT_APP_ENVIRONMENT !== "development" ? (
           <DeveloperToolsMenu />
+        ) : (
+          <>
+            {/* <div className="d-flex justify-content-center">
+              <Tooltip title="Help">
+                <IconButton
+                  onClick={handleClickStart}
+                  style={{
+                    background: uiGrey,
+                    color: uiGreen,
+                    position: "fixed",
+                    bottom: "20px",
+                    right: "20px",
+                  }}
+                >
+                  <HelpIcon
+                    sx={{
+                      fontSize: "2rem",
+                    }}
+                  />
+                </IconButton>
+              </Tooltip>
+            </div> */}
+          </>
         )}
       </div>
     </div>

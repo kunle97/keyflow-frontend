@@ -17,7 +17,7 @@ const UIInput = (props) => {
     <div>
       <div className="form-group">
         <label
-          className="text-black"
+          className="text-black mb-1"
           style={{ display: "block", ...props.labelStyles }}
         >
           {props.label}
@@ -28,9 +28,11 @@ const UIInput = (props) => {
             ...props.inputStyle,
             ...(props.disabled ? disabledStyle : {}),
           }}
+          value={props.value ? props.value : ""}
           type={props.type ? props.type : "text"}
           placeholder={props.placeholder ? props.placeholder : ""}
           onChange={props.onChange ? props.onChange : () => {}}
+          onBlur={props.onBlur ? props.onBlur : () => {}}
           defaultValue={props.defaultValue ? props.defaultValue : ""}
           name={props.name ? props.name : ""}
           step={props.step ? props.step : ""}

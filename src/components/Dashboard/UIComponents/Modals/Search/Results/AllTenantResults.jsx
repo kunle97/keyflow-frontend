@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { filterTenants } from "../../../../../../helpers/utils";
 import { useEffect } from "react";
-import { getLandlordTenants } from "../../../../../../api/landlords";
+import { getOwnerTenants } from "../../../../../../api/owners";
 import SearchResultCard from "../SearchResultCard";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import UIPrompt from "../../../UIPrompt";
@@ -72,6 +72,9 @@ const AllTenantResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       {isLoading ? (
         <UIProgressPrompt
@@ -103,7 +106,7 @@ const AllTenantResults = (props) => {
                 {searchResults.map((tenant,index) => (
                   <SearchResultCard
                     dataTestId={`tenant-search-result-${index}`}
-                    to={`/dashboard/landlord/tenants/${tenant.id}`}
+                    to={`/dashboard/owner/tenants/${tenant.id}`}
                     key={tenant.id}
                     gridSize={4}
                     handleClose={props.handleClose}

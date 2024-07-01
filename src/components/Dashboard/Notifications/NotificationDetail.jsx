@@ -11,18 +11,30 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import { removeUnderscoresAndCapitalize } from "../../../helpers/utils";
 export const NotificationDetail = () => {
   const { id } = useParams();
-  const [notification, setNotification] = useState({}); //initialize notification state
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "",
+    timestamp: "",
+  }); //initialize notification state
   useEffect(() => {
     //retrieve notification by id from api
-    getNotification(id).then((res) => {
-      console.log("Notification Resposne ", res);
-      setNotification(res);
-    });
+    getNotification(id)
+      .then((res) => {
+        console.log("Notification Resposne ", res);
+        setNotification(res);
+      })
+      .catch((error) => {
+        console.error("Error fetching notification", error);
+      });
 
     //Mark notification as read
-    markNotificationAsRead(id).then((res) => {
-      console.log("Marked as read", res);
-    });
+    markNotificationAsRead(id)
+      .then((res) => {
+        console.log("Marked as read", res);
+      })
+      .catch((error) => {
+        console.error("Error marking as read", error);
+      });
   }, []);
   return (
     <div>

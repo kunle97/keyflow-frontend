@@ -69,11 +69,11 @@ const AllMaintenanceRequestResults = (props) => {
     <div>
       <AlertModal
         open={open}
-        handleClose={() => {
-          setOpen(false);
-        }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
 
       <div id="maintenance-requests" style={{ overflow: "hidden" }}>
@@ -125,7 +125,7 @@ const AllMaintenanceRequestResults = (props) => {
                     return (
                       <SearchResultCard
                         dataTestId={`maintenance-request-search-result-${index}`}
-                        to={`/dashboard/landlord/maintenance-requests/${maintenance_request.id}/`}
+                        to={`/dashboard/owner/maintenance-requests/${maintenance_request.id}/`}
                         gridSize={12}
                         key={maintenance_request.id}
                         handleClose={props.handleClose}

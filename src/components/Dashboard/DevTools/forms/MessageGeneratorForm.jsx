@@ -3,10 +3,10 @@ import {
   devToolInputStyle,
   validationMessageStyle,
 } from "../../../../constants";
-import { getLandlordTenants } from "../../../../api/landlords";
+import { getOwnerTenants } from "../../../../api/owners";
 import { useState } from "react";
 import { useEffect } from "react";
-import { authUser, uiGreen,uiGrey } from "../../../../constants";
+import { authUser, uiGreen, uiGrey } from "../../../../constants";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
@@ -55,7 +55,7 @@ const MessageGeneratorForm = (props) => {
       });
   };
   useEffect(() => {
-    getLandlordTenants().then((res) => {
+    getOwnerTenants().then((res) => {
       setTenants(res.data);
     });
   }, []);
@@ -64,7 +64,7 @@ const MessageGeneratorForm = (props) => {
       <UIDialog
         open={props.open}
         onClose={props.onClose}
-        style={{ padding: "10px", width: "500px", background: uiGrey}}
+        style={{ padding: "10px", width: "500px", background: uiGrey }}
       >
         {" "}
         <AlertModal
@@ -72,6 +72,7 @@ const MessageGeneratorForm = (props) => {
           onClose={() => setAlertModalOpen(false)}
           title={alertModalTitle}
           message={alertModalMessage}
+          onClick={() => setAlertModalOpen(false)}
         />
         <Stack
           direction="row"

@@ -88,10 +88,14 @@ const Pricing = () => {
   };
   useEffect(() => {
     if (process.env.REACT_APP_ENVIRONMENT !== "development") {
-      getSubscriptionPlanPrices().then((res) => {
-        setPlans(res.products);
-        console.log(plans);
-      });
+      getSubscriptionPlanPrices()
+        .then((res) => {
+          setPlans(res.products);
+          console.log(plans);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, []);
   return (

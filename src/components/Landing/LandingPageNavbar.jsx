@@ -37,7 +37,7 @@ const LandingPageNavbar = (props) => {
         boxShadow:
           scrollPosition > 250 || isMobile
             ? "0px 2px 4px rgba(0, 0, 0, 0.1)"
-            : "none",        
+            : "none",
       }}
     >
       <div className="container">
@@ -46,7 +46,7 @@ const LandingPageNavbar = (props) => {
             <img
               className="logo"
               src={
-                scrollPosition > 250 || isMobile
+                props.isDarkNav ||    scrollPosition > 250 || isMobile
                   ? "/assets/img/key-flow-logo-black-transparent.png"
                   : "/assets/img/key-flow-logo-white-transparent.png"
               }
@@ -77,7 +77,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Home
@@ -98,7 +98,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#base-features"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Features
@@ -119,7 +119,7 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#rentals"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Rentals
@@ -140,35 +140,55 @@ const LandingPageNavbar = (props) => {
                   className="nav-link landing-nav-link"
                   href="#pricing"
                   style={{
-                    color: scrollPosition > 250 ? "black" : "white",
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
                   }}
                 >
                   Pricing
                 </a>
               )}
             </li>
-            {process.env.REACT_APP_ENVIRONMENT === "production" && (
-              <li className="nav-item">
-                <Link
+            <li className="nav-item">
+              {isMobile ? (
+                <a
                   className="nav-link landing-nav-link"
-                  to="/dashboard/tenant/login"
-                  style={{ color: scrollPosition > 250 ? "black" : "white" }}
+                  href="/dashboard/tenant/login"
+                  style={mobileLinkStyle}
                 >
                   Tenants
-                </Link>
-              </li>
-            )}
-            {process.env.REACT_APP_ENVIRONMENT === "production" && (
-              <li className="nav-item">
-                <Link
+                </a>
+              ) : (
+                <a
                   className="nav-link landing-nav-link"
-                  to="/dashboard/landlord/login"
-                  style={{ color: scrollPosition > 250 ? "black" : "white" }}
+                  href="/dashboard/tenant/login"
+                  style={{
+                    color:  props.isDarkNav || scrollPosition > 250 ? "black" : "white",
+                  }}
                 >
-                  Landlords
-                </Link>{" "}
-              </li>
-            )}
+                  Tenants
+                </a>
+              )}
+            </li>
+            <li className="nav-item">
+              {isMobile ? (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="/dashboard/owner/login"
+                  style={mobileLinkStyle}
+                >
+                  Owner
+                </a>
+              ) : (
+                <a
+                  className="nav-link landing-nav-link"
+                  href="/dashboard/owner/login"
+                  style={{
+                    color: props.isDarkNav ||  scrollPosition > 250 ? "black" : "white",
+                  }}
+                >
+                  Owner
+                </a>
+              )}
+            </li>
             <li className="nav-item">
               <a
                 className="nav-link  nav-button"

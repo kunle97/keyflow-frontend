@@ -42,7 +42,6 @@ export async function getPortfolio(id) {
 export async function getPortfolios() {
   try {
     const res = await authenticatedInstance.get(`/portfolios/`).then((res) => {
-      console.log(res);
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
       }
@@ -76,6 +75,21 @@ export async function updatePortfolio(id, data) {
   }
 }
 
+//Create function to update a portfolio preferences with patch method using the api endpoint /portfolios/{id}/update-preferences
+export async function updatePortfolioPreferences(id, data) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/portfolios/${id}/update-preferences/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Update Portfolio Preferences Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
 //Create a function to call the API endpoint /portfolios/ to make a delete request to delete a portfolio
 export async function deletePortfolio(id) {
   try {
@@ -89,6 +103,37 @@ export async function deletePortfolio(id) {
     return { message: "Portfolio deleted successfully", status: 200, res: res };
   } catch (error) {
     console.log("Delete Portfolio Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+//Create a function that removes a lease template from a portfolio using the api endpoint /portfolios/{id}/remove-lease-template
+export async function removePortfolioLeaseTemplate(id) {
+  try {
+    const res = await authenticatedInstance
+      .patch(`/portfolios/${id}/remove-lease-template/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Remove Portfolio Lease Template Error: ", error);
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function that validates a portfolio name using the api endpoint /portfolios/validate-name
+export async function validatePortfolioName(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/portfolios/validate-name/`, data)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Validate Portfolio Name Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

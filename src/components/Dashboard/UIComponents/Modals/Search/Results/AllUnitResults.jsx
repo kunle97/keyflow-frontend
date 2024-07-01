@@ -72,6 +72,9 @@ const AllUnitResults = (props) => {
         }}
         title={alertTitle}
         message={alertMessage}
+        onClick={() => {
+          setOpen(false);
+        }}
       />
       <div id="units" style={{ overflow: "hidden" }}>
         <div className="row">
@@ -112,7 +115,7 @@ const AllUnitResults = (props) => {
                     return (
                       <SearchResultCard
                         dataTestId={`unit-search-result-${index}`}
-                        to={`/dashboard/landlord/units/${unit.id}/${unit.rental_property}`}
+                        to={`/dashboard/owner/units/${unit.id}/${unit.rental_property}`}
                         gridSize={4}
                         key={unit.id}
                         handleClose={props.handleClose}

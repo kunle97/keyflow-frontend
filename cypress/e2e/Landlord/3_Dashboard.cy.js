@@ -1,6 +1,6 @@
 const hostname = "http://localhost:3000";
 
-describe("Test all functions on the landlord Dasboard", () => {
+describe("Test all functions on the owner Dasboard", () => {
   ///Crewate a preperation function that runs before each test
   beforeEach(() => {
     // Log user out
@@ -13,12 +13,12 @@ describe("Test all functions on the landlord Dasboard", () => {
     cy.login("Sandra83@hotmail.com", "Password1");
   });
   //   it("Navigate to dashboard", () => {
-  //     cy.visit(hostname + "/dashboard/landlord/");
+  //     cy.visit(hostname + "/dashboard/owner/");
 
   //   });
 
   it("should detect all cards on the dashboard", () => {
-    cy.visit(hostname + "/dashboard/landlord/");
+    cy.visit(hostname + "/dashboard/owner/");
     cy.get('[data-testid="dashboard-line-chart-card"]').should("be.visible");
     cy.get('[data-testId="ui-line-chart"]').should("be.visible");
 
@@ -62,16 +62,16 @@ describe("Test all functions on the landlord Dasboard", () => {
   });
 
   it("Navigate to all menu items", () => {
-    cy.visit(hostname + "/dashboard/landlord/");
+    cy.visit(hostname + "/dashboard/owner/");
 
     // Load menu items from fixture
-    cy.fixture("landlordMenuItems.json").then(({ landlordMenuItems }) => {
+    cy.fixture("ownerMenuItems.json").then(({ ownerMenuItems }) => {
       // Test Sidebar
       cy.get('[data-testid="nav-menu-button"]').should("be.visible").click();
       cy.get('[data-testid="sidebar-desktop"]').should("be.visible");
 
-      // Iterate through landlordMenuItems
-      landlordMenuItems.forEach((menuItem) => {
+      // Iterate through ownerMenuItems
+      ownerMenuItems.forEach((menuItem) => {
         // Click on the menu item
         cy.get(`[data-testid="${menuItem.dataTestId}"]`)
           .should("be.visible")
@@ -100,7 +100,7 @@ describe("Test all functions on the landlord Dasboard", () => {
   });
 
   it("Should test search bar", () => {
-    cy.visit(hostname + "/dashboard/landlord/");
+    cy.visit(hostname + "/dashboard/owner/");
     cy.get('[data-testid="search-bar-desktop"]').should("be.visible");
     cy.get('[data-testid="search-bar-submit-button"]').should("be.visible");
     cy.get('[data-testid="search-bar-desktop"]').clear();

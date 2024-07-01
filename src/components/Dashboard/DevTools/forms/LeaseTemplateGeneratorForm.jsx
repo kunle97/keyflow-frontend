@@ -51,6 +51,7 @@ const LeaseTemplateGeneratorForm = (props) => {
         onClose={() => setAlertModalOpen(false)}
         title={alertModalTitle}
         message={alertModalMessage}
+        onClick={() => setAlertModalOpen(false)}
       />
       <Stack
         direction="row"

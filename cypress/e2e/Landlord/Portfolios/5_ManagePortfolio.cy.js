@@ -12,7 +12,7 @@ describe("ManagePortfolio Component", () => {
     cy.login("Sandra83@hotmail.com", "Password1");
   });
   it("should render the ManagePortfolio component", () => {
-    cy.visit(hostname + "/dashboard/landlord/portfolios/");
+    cy.visit(hostname + "/dashboard/owner/portfolios/");
     //Click on a portfolio that has a data-testid that starts with portfolio-
     cy.get('[data-testid^="portfolio-"]').first().click();
 

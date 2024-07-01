@@ -1,152 +1,178 @@
 import Checkbox from "@mui/material/Checkbox";
-import React from "react";
+import React, { useState } from "react";
 import { uiGreen, validationMessageStyle } from "../../../constants";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
 import { Button, Stack } from "@mui/material";
+import {
+  triggerValidation,
+  validateForm,
+} from "../../../helpers/formValidation";
+import { uppercaseAndLowercaseLetters, validAnyString, validEmail, validPhoneNumber } from "../../../constants/rexgex";
 
 const RentalHistorySection = (props) => {
   const {
     address,
     residenceStartDate,
     residenceEndDate,
-    landlordName,
-    landlordPhone,
-    landlordEmail,
+    ownerName,
+    ownerPhone,
+    ownerEmail,
   } = props.residence;
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    address: address,
+    residenceStartDate: residenceStartDate,
+    residenceEndDate: residenceEndDate,
+    ownerName: ownerName,
+    ownerPhone: ownerPhone,
+    ownerEmail: ownerEmail,
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log("Name ", name);
+    console.log("Value ", value);
+    let newErrors = triggerValidation(
+      name,
+      value,
+      formInputs.find((input) => input.name === name).validations
+    );
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name],
+    }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    //Find the residence history node that is being edited by matching the index of the node with the index from the props.index
+    const residenceHistoryNode = props.residenceHistory.find(
+      (node, index) => index === props.index
+    );
+    //UPdate the residence history node with the new data
+    props.setResidenceHistory([
+      ...props.residenceHistory.slice(0, props.index),
+      { ...residenceHistoryNode, [name]: value },
+      ...props.residenceHistory.slice(props.index + 1),
+    ]);
+    console.log("Form data ", formData);
+    console.log("Errors ", errors);
+  };
 
+  const formInputs = [
+    {
+      name: "address",
+      label: "Full Address (Street, City, State, Zip)",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "123 Durmot Lane, Apt 2, New York, NY 10001",
+      validations: {
+        required: true,
+        errorMessage: "This is a required field",
+        regex: validAnyString,
+      },
+      dataTestId: "address",
+      errorMessageDataTestId: "address-error",
+    },
+    {
+      name: "residenceStartDate",
+      label: "Start Date",
+      type: "date",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        errorMessage: "This is a required field",
+      },
+      dataTestId: "residenceStartDate",
+      errorMessageDataTestId: "residenceStartDate-error",
+    },
+    {
+      name: "residenceEndDate",
+      label: "End Date",
+      type: "date",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      validations: {
+        required: true,
+        errorMessage: "This is a required field",
+      },
+      dataTestId: "residenceEndDate",
+      errorMessageDataTestId: "residenceEndDate-error",
+    },
+    {
+      name: "ownerName",
+      label: "Owner Name",
+      type: "text",
+      colSpan: 12,
+      onChange: (e) => handleChange(e),
+      placeholder: "John Doe",
+      validations: {
+        required: true,
+        errorMessage: "This is a required field",
+        regex: uppercaseAndLowercaseLetters,
+      },
+      dataTestId: "ownerName",
+      errorMessageDataTestId: "ownerName-error",
+    },
+    {
+      name: "ownerPhone",
+      label: "Owner Phone",
+      type: "text",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "123-456-7890",
+      validations: {
+        required: true,
+        errorMessage: "This is a required field",
+        regex: validPhoneNumber,
+      },
+      dataTestId: "ownerPhone",
+      errorMessageDataTestId: "ownerPhone-error",
+    },
+    {
+      name: "ownerEmail",
+      label: "Owner Email",
+      type: "email",
+      colSpan: 6,
+      onChange: (e) => handleChange(e),
+      placeholder: "johndoe@email.com",
+      validations: {
+        required: true,
+        errorMessage: "This is a required field",
+        regex: validEmail,
+      },
+      dataTestId: "ownerEmail",
+      errorMessageDataTestId: "ownerEmail-error",
+    },
+  ];
   return (
     <>
       <div className="card mb-3">
         <div className="row card-body">
-          <div className="col-md-12 mb-4">
-            <label className="mb-2 text-black">
-              Full Address (Street, City, State, Zip)
-            </label>
-            <input
-              {...props.register(`address_${props.id}`, {
-                required: "This is a required field",
-              })}
-              className="form-control"
-              name="address"
-              defaultValue={address}
-              onChange={props.onResidenceChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder=" Address"
-            />
-            <span style={validationMessageStyle}>
-              {props.addressErrors && props.addressErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Start Date</label>
-            <input
-              {...props.register(`residenceStartDate_${props.id}`, {
-                required: "This is a required field",
-              })}
-              type="date"
-              className="form-control"
-              defaultValue={residenceStartDate}
-              onChange={props.onResidenceChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Start Date"
-            />
-            <span style={validationMessageStyle}>
-              {props.residenceStartDateErrors &&
-                props.residenceStartDateErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">End Date</label>
-            <input
-              {...props.register(`residenceEndDate_${props.id}`, {
-                required: "This is a required field",
-                validate: (value) => {
-                  if (
-                    props.watch(`residenceStartDate_${props.id}`) > value ||
-                    value === "" ||
-                    value === props.watch(`residenceStartDate_${props.id}`)
-                  ) {
-                    return "End date must be after start date";
-                  }
-                },
-              })}
-              type="date"
-              className="form-control"
-              name="endDate"
-              defaultValue={residenceEndDate}
-              onChange={props.onResidenceChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="End Date"
-            />
-            <span className="text-black">
-              <Checkbox /> Current Residence
-            </span>
-            <div style={validationMessageStyle}>
-              {props.residenceEndDateErrors &&
-                props.residenceEndDateErrors.message}
-            </div>
-          </div>
-          <div className="col-md-12 mb-4">
-            <label className="mb-2 text-black">Landlord Name</label>
-            <input
-              {...props.register(`landlordName_${props.id}`, {
-                required: "This is a required field",
-              })}
-              className="form-control"
-              name="landlordName"
-              defaultValue={landlordName}
-              onChange={props.onResidenceChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Company Name"
-            />
-            <span style={validationMessageStyle}>
-              {props.landlordNameErrors && props.landlordNameErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Landlord Phone</label>
-            <input
-              {...props.register(`landlordPhone_${props.id}`, {
-                required: "This is a required field",
-                pattern: {
-                  value: /\d{3}-\d{3}-\d{4}/,
-                  message: "Please enter a valid phone number",
-                },
-              })}
-              className="form-control"
-              name="landlordPhone"
-              defaultValue={landlordPhone}
-              onChange={props.onResidenceChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Landlord Phone"
-            />
-            <span style={validationMessageStyle}>
-              {props.landlordPhoneErrors && props.landlordPhoneErrors.message}
-            </span>
-          </div>
-          <div className="col-md-6 mb-4">
-            <label className="mb-2 text-black">Landlord Email</label>
-            <input
-              {...props.register(`landlordEmail_${props.id}`, {
-                required: "This is a required field",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Please enter a valid email address",
-                },
-              })}
-              className="form-control"
-              name="landlordEmail"
-              defaultValue={landlordEmail}
-              onChange={props.onResidenceChange}
-              sx={{ color: "white", width: "100%" }}
-              placeholder="Landlord Email"
-            />
-            <span style={validationMessageStyle}>
-              {props.landlordEmailErrors && props.landlordEmailErrors.message}
-            </span>
-          </div>
+          {formInputs.map((input, index) => {
+            return (
+              <div className={`col-md-${input.colSpan} mb-4`} key={index}>
+                <label className="mb-2 text-black">{input.label}</label>
+                <input
+                  type={input.type}
+                  className="form-control"
+                  name={input.name}
+                  defaultValue={formData[input.name]}
+                  onChange={input.onChange}
+                  sx={{ color: "white", width: "100%" }}
+                  placeholder={input.placeholder}
+                />
+                {errors[input.name] && (
+                  <span
+                    data-testId={input.errorMessageDataTestId}
+                    style={{ ...validationMessageStyle }}
+                  >
+                    {errors[input.name]}
+                  </span>
+                )}
+              </div>
+            );
+          })}
           <Stack direction="row" gap={2}>
-            {props.removeBtn}{" "}
+            {props.removeBtn}
             {props.showStepButtons && (
               <Button
                 sx={{
@@ -154,7 +180,17 @@ const RentalHistorySection = (props) => {
                   textTransform: "none",
                 }}
                 variant="contained"
-                onClick={props.addRentalHistoryNode}
+                onClick={() => {
+                  const { isValid, newErrors } = validateForm(
+                    formData,
+                    formInputs
+                  );
+                  if (isValid) {
+                    props.addRentalHistoryNode();
+                  } else {
+                    setErrors(newErrors);
+                  }
+                }}
               >
                 Add
               </Button>
@@ -175,29 +211,14 @@ const RentalHistorySection = (props) => {
               style={{ width: "100%" }}
               btnText="Next"
               onClick={() => {
-                props.trigger([
-                  `address_${props.id}`,
-                  `residenceStartDate_${props.id}`,
-                  `residenceEndDate_${props.id}`,
-                  `landlordName_${props.id}`,
-                  `landlordPhone_${props.id}`,
-                  `landlordEmail_${props.id}`,
-                ]);
-                if (
-                  props.addressErrors ||
-                  props.residenceStartDateErrors ||
-                  props.residenceEndDateErrors ||
-                  props.landlordNameErrors ||
-                  props.landlordPhoneErrors ||
-                  props.landlordEmailErrors
-                ) {
-                  props.setIsValid(false);
-                } else {
-                  props.setIsValid(true);
-                }
-
-                if (props.isValid) {
+                const { isValid, newErrors } = validateForm(
+                  formData,
+                  formInputs
+                );
+                if (isValid) {
                   props.nextStep();
+                } else {
+                  setErrors(newErrors);
                 }
               }}
               type="button"
