@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { set, useForm } from "react-hook-form";
 import {
@@ -18,6 +18,7 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
+import { preventPageReload } from "../../../../helpers/utils";
 const CreatePortfolio = () => {
   const navigate = useNavigate();
   const { isMobile, screenWidth, breakpoints } = useScreen();
@@ -135,7 +136,9 @@ const CreatePortfolio = () => {
         console.log("finally");
       });
   };
-
+  useEffect(() => {
+    preventPageReload();
+  }, []);
   return (
     <div
       className={`${screenWidth > breakpoints.md && "container-fluid "} pt-4`}

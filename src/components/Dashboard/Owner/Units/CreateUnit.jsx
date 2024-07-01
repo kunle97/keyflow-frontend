@@ -29,6 +29,7 @@ import Joyride, {
   Step,
 } from "react-joyride";
 import { hasNoErrors } from "../../../../helpers/formValidation";
+import { preventPageReload } from "../../../../helpers/utils";
 const CreateUnit = () => {
   //Create a state for the form data
   const { isMobile } = useScreen();
@@ -237,6 +238,7 @@ const CreateUnit = () => {
   };
 
   useEffect(() => {
+    preventPageReload();
     //Retrieve all users properties
     getProperties()
       .then((res) => {

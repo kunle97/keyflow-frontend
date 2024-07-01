@@ -59,6 +59,7 @@ import {
   getMaintenanceRequestById,
   updateMaintenanceRequest,
 } from "../../../../api/maintenance_requests";
+import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
@@ -491,6 +492,7 @@ const CreateBillingEntry = () => {
     }
   };
   useEffect(() => {
+    preventPageReload();
     if (maintenance_request_id) {
       getMaintenanceRequestById(maintenance_request_id).then((res) => {
         console.log("Maintenance Request: ", res);

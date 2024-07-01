@@ -19,6 +19,7 @@ import {
 import { Stack } from "@mui/material";
 import { authenticatedInstance } from "../../../../api/api";
 import { useNavigate } from "react-router";
+import { preventPageReload } from "../../../../helpers/utils";
 const TenantInviteForm = (props) => {
   const [selectedUnit, setSelectedUnit] = useState({});
   const [units, setUnits] = useState([]);
@@ -219,6 +220,7 @@ const TenantInviteForm = (props) => {
   };
 
   useEffect(() => {
+    preventPageReload();
     if (!props.rental_unit_id && !props.signedLeaseDocumentFileId ) {
       authenticatedInstance("/units/?is_occupied=False").then((res) => {
         setUnits(res.data);
