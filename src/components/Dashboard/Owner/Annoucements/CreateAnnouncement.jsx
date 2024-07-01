@@ -44,6 +44,7 @@ import {
   uppercaseAndLowercaseLetters,
   validAnyString,
 } from "../../../../constants/rexgex";
+import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateAnnouncement = () => {
   const navigate = useNavigate();
@@ -564,6 +565,7 @@ const CreateAnnouncement = () => {
   };
 
   useEffect(() => {
+    preventPageReload();
     handleSearchRentalUnits();
   }, [showOccupiedUnitsOnly, rentalUnitSearchQuery, rentalPropertyEndpoint]);
 
