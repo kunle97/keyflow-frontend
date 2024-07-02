@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { uiGreen, uiGrey1, uiGrey2 } from "../../../../constants";
 import { fa, faker } from "@faker-js/faker";
-import { registerOwner } from "../../../../api/auth";
+import { checkEmail, checkUsername, registerOwner } from "../../../../api/auth";
 import { Link, useNavigate } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -20,6 +20,7 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import { validEmail, validStrongPassword, validUserName } from "../../../../constants/rexgex";
 const OwnerRegister = () => {
   //Cards state variables
   const stripe = useStripe();
@@ -118,6 +119,45 @@ const OwnerRegister = () => {
         required: true,
         minLength: 3,
         errorMessage: "Minimum length should be 3 characters",
+        validate: async (val) => {
+          let regex = validUserName;
+          console.log("Userbane regex test ", regex.test(val));
+          if (!regex.test(val)) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              username: "Please enter a valid username",
+            }));
+            return "Please enter a valid username";
+          }
+
+          try {
+            const res = await checkUsername(val);
+            if (res.status === 400) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                username: "A user with this username already exists",
+              }));
+              return "A user with this username already exists";
+            }
+          } catch (err) {
+            // Handle potential errors from the checkEmail function
+            console.error(err);
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              username: "There was an error checking the username",
+            }));
+            return false;
+          }
+
+          // If the email is valid and doesn't exist, clear the error message
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            username: null,
+          }));
+
+          return true;
+        },
+        
       },
       dataTestId: "username",
       errorMessageDataTestId: "username_error",
@@ -130,8 +170,45 @@ const OwnerRegister = () => {
       colSpan: 12,
       validations: {
         required: true,
-        pattern: /\S+@\S+\.\S+/,
         errorMessage: "Please enter a valid email address",
+        validate: async (val) => {
+          let regex = validEmail;
+          console.log("Email regex test ", regex.test(val));
+          if (!regex.test(val)) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: "Please enter a valid email address",
+            }));
+            return "Please enter a valid email address";
+          }
+
+          try {
+            const res = await checkEmail(val);
+            if (res.status === 400) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                email: "A user with this email already exists",
+              }));
+              return "A user with this email already exists";
+            }
+          } catch (err) {
+            // Handle potential errors from the checkEmail function
+            console.error(err);
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: "There was an error checking the email address",
+            }));
+            return false;
+          }
+
+          // If the email is valid and doesn't exist, clear the error message
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            email: null,
+          }));
+
+          return true;
+        },
       },
       dataTestId: "email",
       errorMessageDataTestId: "email_error",
@@ -145,7 +222,7 @@ const OwnerRegister = () => {
       validations: {
         required: true,
         minLength: 6,
-        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        pattern: validStrongPassword,
         errorMessage:
           "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       },
