@@ -11,7 +11,7 @@ export const validWholeNumber = /^\d+$/; //Alternative: /^[0-9]*$/; Example vali
 
 export const validPhoneNumber = /^(?:\d{10}|\d{3}-\d{3}-\d{4})$/;//Example valid matches: "1234567890", "123-456-7890"
 
-export const validEmail = /\S+@\S+\.\S+/; //Alternative: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; //Example valid matches: sample@email.com
+export const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //Alternative: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; //Example valid matches: sample@email.com
 
 export const validFullStreetAddress = /^\d+\s[A-Za-z0-9\s.,#-]+,\s[A-Za-z\s]+,\s[A-Za-z]{2}\s\d{5}(?:-\d{4})?$/;//Example valid matches: "123 Main St, Anytown, NY 12345", "123 Main St, Anytown, NY 12345-6789"
 
@@ -23,4 +23,4 @@ export const validAnyString = /^(?!\s*$)[\w\s\S]+$/;//Example valid matches: "Jo
 
 export const validStrongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;//Example valid matches: "Password1!", "Password123!", "Password1234!"
 
-export const validUserName = /^[a-zA-Z0-9._-]*$/;//Example valid matches: "John", "JohnDoe", "John_Doe", "John123", "John_Doe123"
+export const validUserName = /^[a-zA-Z0-9._-]{3,}$/;//Example valid matches: "John", "JohnDoe", "John_Doe", "John123", "John_Doe123"

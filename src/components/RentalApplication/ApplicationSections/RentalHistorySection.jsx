@@ -107,7 +107,7 @@ const RentalHistorySection = (props) => {
       validations: {
         required: true,
         errorMessage: "This is a required field",
-        regex: uppercaseAndLowercaseLetters,
+        regex: validAnyString,
       },
       dataTestId: "ownerName",
       errorMessageDataTestId: "ownerName-error",
