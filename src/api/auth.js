@@ -241,3 +241,35 @@ export async function updateUserData(data) {
     return error.response;
   }
 }
+
+//Create a function that checks to see if an email already exists in the database using the endpoint /auth/user-email-check/
+export async function checkEmail(email) {
+  try {
+    const res = await unauthenticatedInstance
+      .post(`/auth/user-email-check/`, { email: email })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Check Email Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function that checks to see if a username already exists in the database using the endpoint /auth/user-email-check/
+export async function checkUsername(username) {
+  try {
+    const res = await unauthenticatedInstance
+      .post(`/auth/user-username-check/`, { username: username })
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Check Username Error: ", error);
+    return error.response;
+  }
+}

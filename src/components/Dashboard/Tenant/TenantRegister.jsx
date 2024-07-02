@@ -3,7 +3,7 @@ import { authUser, uiGreen, uiGrey1 } from "../../../constants";
 import { faker } from "@faker-js/faker";
 import { getRentalApplicationByApprovalHash } from "../../../api/rental_applications";
 import { verifyTenantRegistrationCredentials } from "../../../api/tenants";
-import { registerTenant } from "../../../api/auth";
+import { checkEmail, checkUsername, registerTenant } from "../../../api/auth";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
@@ -20,7 +20,12 @@ import {
   validateForm,
 } from "../../../helpers/formValidation";
 import UIButton from "../UIComponents/UIButton";
-import { validEmail, validName, validStrongPassword, validUserName } from "../../../constants/rexgex";
+import {
+  validEmail,
+  validName,
+  validStrongPassword,
+  validUserName,
+} from "../../../constants/rexgex";
 const TenantRegister = () => {
   const { lease_agreement_id, approval_hash, unit_id } = useParams();
 
@@ -127,8 +132,45 @@ const TenantRegister = () => {
       placeholder: "jdoe@email.com",
       validations: {
         required: true,
-        regex: validEmail,
         errorMessage: "Please enter a valid email address",
+        validate: async (val) => {
+          let regex = validEmail;
+          console.log("Email regex test ", regex.test(val));
+          if (!regex.test(val)) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: "Please enter a valid email address",
+            }));
+            return false;
+          }
+
+          try {
+            const res = await checkEmail(val);
+            if (res.status === 400) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                email: "A user with this email already exists",
+              }));
+              return false;
+            }
+          } catch (err) {
+            // Handle potential errors from the checkEmail function
+            console.error(err);
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: "There was an error checking the email address",
+            }));
+            return false;
+          }
+
+          // If the email is valid and doesn't exist, clear the error message
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            email: null,
+          }));
+
+          return true;
+        },
       },
       dataTestId: "email",
       errorMessageDataTestId: "email-error",
@@ -142,9 +184,46 @@ const TenantRegister = () => {
       placeholder: "johndoe",
       validations: {
         required: true,
-        regex: validUserName,
         errorMessage:
           "Please enter a valid username. It can only contain letters, numbers, periods,underscores, and dashes. No spaces or special characters.",
+        validate: async (val) => {
+          let regex = validUserName;
+          console.log("Userbane regex test ", regex.test(val));
+          if (!regex.test(val)) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              username: "Please enter a valid username",
+            }));
+            return false;
+          }
+
+          try {
+            const res = await checkUsername(val);
+            if (res.status === 400) {
+              setErrors((prevErrors) => ({
+                ...prevErrors,
+                username: "A user with this username already exists",
+              }));
+              return false;
+            }
+          } catch (err) {
+            // Handle potential errors from the checkEmail function
+            console.error(err);
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              username: "There was an error checking the username",
+            }));
+            return false;
+          }
+
+          // If the email is valid and doesn't exist, clear the error message
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            username: null,
+          }));
+
+          return true;
+        },
       },
       dataTestId: "username",
       errorMessageDataTestId: "username-error",
@@ -398,7 +477,7 @@ const TenantRegister = () => {
         "Invalid or expired registration link. Please contact your landlord."
       );
     }
-    preventPageReload();//Warns user before leaving the page
+    preventPageReload(); //Warns user before leaving the page
   }, []);
   return (
     <div className="container-fluid">
