@@ -16,11 +16,16 @@ import PlanSelectDialog from "./PlanSelectDialog";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import UIStepper from "../../UIComponents/UIStepper";
 import {
+  hasNoErrors,
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import { validEmail, validStrongPassword, validUserName } from "../../../../constants/rexgex";
+import {
+  validEmail,
+  validStrongPassword,
+  validUserName,
+} from "../../../../constants/rexgex";
 const OwnerRegister = () => {
   //Cards state variables
   const stripe = useStripe();
@@ -29,6 +34,9 @@ const OwnerRegister = () => {
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [stripeRedirectLink, setStripeRedirectLink] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertTitle, setAlertTitle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [successMode, setSuccessMode] = useState(false);
@@ -117,47 +125,25 @@ const OwnerRegister = () => {
       colSpan: 12,
       validations: {
         required: true,
-        minLength: 3,
-        errorMessage: "Minimum length should be 3 characters",
         validate: async (val) => {
           let regex = validUserName;
-          console.log("Userbane regex test ", regex.test(val));
           if (!regex.test(val)) {
             setErrors((prevErrors) => ({
               ...prevErrors,
               username: "Please enter a valid username",
             }));
-            return "Please enter a valid username";
+            return false;
           }
-
-          try {
-            const res = await checkUsername(val);
+          await checkUsername(val).then((res) => {
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
                 username: "A user with this username already exists",
               }));
-              return "A user with this username already exists";
+              return false;
             }
-          } catch (err) {
-            // Handle potential errors from the checkEmail function
-            console.error(err);
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              username: "There was an error checking the username",
-            }));
-            return false;
-          }
-
-          // If the email is valid and doesn't exist, clear the error message
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            username: null,
-          }));
-
-          return true;
+          });
         },
-        
       },
       dataTestId: "username",
       errorMessageDataTestId: "username_error",
@@ -170,7 +156,6 @@ const OwnerRegister = () => {
       colSpan: 12,
       validations: {
         required: true,
-        errorMessage: "Please enter a valid email address",
         validate: async (val) => {
           let regex = validEmail;
           console.log("Email regex test ", regex.test(val));
@@ -179,35 +164,17 @@ const OwnerRegister = () => {
               ...prevErrors,
               email: "Please enter a valid email address",
             }));
-            return "Please enter a valid email address";
+            return false;
           }
-
-          try {
-            const res = await checkEmail(val);
+          await checkEmail(val).then((res) => {
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
                 email: "A user with this email already exists",
               }));
-              return "A user with this email already exists";
+              return false;
             }
-          } catch (err) {
-            // Handle potential errors from the checkEmail function
-            console.error(err);
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              email: "There was an error checking the email address",
-            }));
-            return false;
-          }
-
-          // If the email is valid and doesn't exist, clear the error message
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            email: null,
-          }));
-
-          return true;
+          });
         },
       },
       dataTestId: "email",
@@ -253,65 +220,84 @@ const OwnerRegister = () => {
     preventPageReload();
   }, []);
   //Create handlSubmit() function to handle form submission to create a new user using the API
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     setIsLoading(true);
-    let payload = {
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      email: formData.email,
-      username: formData.username,
-      password: formData.password,
-      password_repeat: formData.password_repeat,
-    };
-    payload.activation_token = makeId(32);
-    payload.account_type = "owner";
-    //Handle stripe elements
-    if (!stripe || !elements) {
-      // Stripe.js has not yet loaded.
-      return;
-    }
 
-    const cardElement = elements.getElement(CardElement);
-
-    try {
-      if (cardMode) {
-        const { paymentMethod } = await stripe.createPaymentMethod({
-          type: "card",
-          card: cardElement,
-        });
-        setPaymentMethodId(paymentMethod.id);
-        console.log(paymentMethod.id);
-        console.log("PaymentMethod:", paymentMethod);
-        payload.payment_method_id = paymentMethod.id;
-        payload.price_id = selectedPlan.price_id;
-        payload.product_id = selectedPlan.product_id;
-        console.log("COMPLETE FORM DATA", payload);
-      } else {
+    if (hasNoErrors(errors)) {
+      let payload = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        password_repeat: formData.password_repeat,
+      };
+      payload.activation_token = makeId(32);
+      payload.account_type = "owner";
+      //Handle stripe elements
+      if (!stripe || !elements) {
+        // Stripe.js has not yet loaded.
+        return;
       }
-      const response = await registerOwner(payload).then((res) => {
-        console.log(res);
-        if (res.status === 200) {
-          //Show success message
-          setErrorMode(false);
-          setOpen(true);
-          setStripeRedirectLink(res.stripe_onboarding_link.url);
+
+      const cardElement = elements.getElement(CardElement);
+
+      try {
+        if (cardMode) {
+          const { paymentMethod } = await stripe.createPaymentMethod({
+            type: "card",
+            card: cardElement,
+          });
+          setPaymentMethodId(paymentMethod.id);
+          console.log(paymentMethod.id);
+          console.log("PaymentMethod:", paymentMethod);
+          payload.payment_method_id = paymentMethod.id;
+          payload.price_id = selectedPlan.price_id;
+          payload.product_id = selectedPlan.product_id;
+          console.log("COMPLETE FORM DATA", payload);
         } else {
-          //TODO: Show error message moodal
-          setErrorMode(true);
-          setOpen(true);
-          setIsLoading(false);
         }
-      });
-      //Call the API to create a new owner user
-    } catch (err) {
-      setMessage("Error adding your payment method");
-      console.log(err);
-      setErrorMode(true);
-      setSuccessMode(false);
+        const response = await registerOwner(payload).then((res) => {
+          console.log(res);
+          if (res.status === 200) {
+            //Show success message
+            setErrorMode(false);
+            setOpen(true);
+            setStripeRedirectLink(res.stripe_onboarding_link.url);
+          } else {
+            //TODO: Show error message moodal
+            setErrorMode(true);
+            setOpen(true);
+            setIsLoading(false);
+          }
+        });
+        //Call the API to create a new owner user
+      } catch (err) {
+        setMessage("Error adding your payment method");
+        console.log(err);
+        setErrorMode(true);
+        setSuccessMode(false);
+        setIsLoading(false);
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
       setIsLoading(false);
-      return;
-    } finally {
-      setIsLoading(false);
+      //Create alert modal to show user that there are errors in the form
+      setAlertTitle("Error");
+      //Filter out the errors that are not undefined
+      let filteredErrors = Object.keys(errors).reduce((acc, key) => {
+        if (errors[key] !== undefined) {
+          acc[key] = errors[key];
+        }
+        return acc;
+      }, {});
+      setAlertMessage(
+        "Please fill out all the following required fields correctly: " +
+          Object.keys(filteredErrors).join(", ")
+      );
+      setShowAlert(true);
     }
   };
 
@@ -363,7 +349,12 @@ const OwnerRegister = () => {
           )}
         </>
       )}
-
+      <AlertModal
+        open={showAlert && !open}
+        onClick={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
       <div className="row">
         <div
           className="col-md-12"
