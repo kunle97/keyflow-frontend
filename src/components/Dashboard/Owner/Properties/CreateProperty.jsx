@@ -461,6 +461,7 @@ const CreateProperty = () => {
       }
     } else {
       console.log("Cannot submit");
+      setIsLoading(false);
     }
     console.log("DAta: ", data);
     console.log("Form Data: ", formData);
