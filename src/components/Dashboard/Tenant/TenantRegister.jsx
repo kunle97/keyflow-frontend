@@ -10,12 +10,13 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
-import { IconButton } from "@mui/material";
+import { Alert, IconButton } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { validationMessageStyle } from "../../../constants";
 import { makeId, preventPageReload } from "../../../helpers/utils";
 import { getLeaseAgreementByIdAndApprovalHash } from "../../../api/lease_agreements";
 import {
+  hasNoErrors,
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
@@ -81,7 +82,7 @@ const TenantRegister = () => {
     let newErrors = triggerValidation(
       name,
       value,
-      step1FormInputs.find((input) => input.name === name).validations
+      step1FormInputs.find((input) => input.name == name).validations
     );
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -132,7 +133,6 @@ const TenantRegister = () => {
       placeholder: "jdoe@email.com",
       validations: {
         required: true,
-        errorMessage: "Please enter a valid email address",
         validate: async (val) => {
           let regex = validEmail;
           console.log("Email regex test ", regex.test(val));
@@ -141,35 +141,15 @@ const TenantRegister = () => {
               ...prevErrors,
               email: "Please enter a valid email address",
             }));
-            return false;
           }
-
-          try {
-            const res = await checkEmail(val);
+          await checkEmail(val).then((res) => {
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
                 email: "A user with this email already exists",
               }));
-              return false;
             }
-          } catch (err) {
-            // Handle potential errors from the checkEmail function
-            console.error(err);
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              email: "There was an error checking the email address",
-            }));
-            return false;
-          }
-
-          // If the email is valid and doesn't exist, clear the error message
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            email: null,
-          }));
-
-          return true;
+          });
         },
       },
       dataTestId: "email",
@@ -184,11 +164,8 @@ const TenantRegister = () => {
       placeholder: "johndoe",
       validations: {
         required: true,
-        errorMessage:
-          "Please enter a valid username. It can only contain letters, numbers, periods,underscores, and dashes. No spaces or special characters.",
         validate: async (val) => {
           let regex = validUserName;
-          console.log("Userbane regex test ", regex.test(val));
           if (!regex.test(val)) {
             setErrors((prevErrors) => ({
               ...prevErrors,
@@ -196,9 +173,7 @@ const TenantRegister = () => {
             }));
             return false;
           }
-
-          try {
-            const res = await checkUsername(val);
+          await checkUsername(val).then((res) => {
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -206,23 +181,7 @@ const TenantRegister = () => {
               }));
               return false;
             }
-          } catch (err) {
-            // Handle potential errors from the checkEmail function
-            console.error(err);
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              username: "There was an error checking the username",
-            }));
-            return false;
-          }
-
-          // If the email is valid and doesn't exist, clear the error message
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            username: null,
-          }));
-
-          return true;
+          });
         },
       },
       dataTestId: "username",
@@ -277,80 +236,100 @@ const TenantRegister = () => {
   };
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
-  const onSubmit = async () => {
+  const onSubmit = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
-    let payload = {
-      unit_id: unit_id,
-      lease_agreement_id: lease_agreement_id,
-      approval_hash: approval_hash,
-      activation_token: makeId(32),
-      account_type: "tenant",
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      email: formData.email,
-      username: formData.username,
-      password: formData.password,
-      password_repeat: formData.password_repeat,
-    };
+    //Check if stripe elements are valid
+    const { isValid, newErrors } = validateForm(formData, step1FormInputs);
+    if (hasNoErrors(errors) && isValid) {
+      console.log("can submit form")
+      let payload = {
+        unit_id: unit_id,
+        lease_agreement_id: lease_agreement_id,
+        approval_hash: approval_hash,
+        activation_token: makeId(32),
+        account_type: "tenant",
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        password_repeat: formData.password_repeat,
+      };
 
-    //Handle stripe elements
-    if (!stripe || !elements) {
-      // Stripe.js has not yet loaded.
-      return;
-    }
-
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      console.log("Card Element not found");
-      setErrorMode(true);
-      setMessage("Please enter a valid card number");
-      setErrorModeMessage("Please enter a valid card number");
-      setErrorModeTitle("Error");
-      setIsLoading(false);
-      return;
-    }
-    try {
-      if (cardMode) {
-        const { paymentMethod } = await stripe.createPaymentMethod({
-          type: "card",
-          card: cardElement,
-        });
-        setPaymentMethodId(paymentMethod.id);
-        console.log(paymentMethod.id);
-        console.log("Return Token:", returnToken);
-        console.log("PaymentMethod:", paymentMethod);
-        payload.payment_method_id = paymentMethod.id;
-
-        console.log("COMPLETE FORM DATA", payload);
-      } else {
+      //Handle stripe elements
+      if (!stripe || !elements) {
+        // Stripe.js has not yet loaded.
+        return;
       }
-    } catch (err) {
-      setMessage("Error adding your payment method");
-      console.log(err);
-      setErrorMode(true);
-      setSuccessMode(false);
-      setIsLoading(false);
-      return;
-    }
 
-    const response = await registerTenant(payload).then((res) => {
-      console.log(res);
-      if (res.status === 200) {
-        setUserId(authUser.id);
-
-        //Show success message
-        setMessage("Your account has been created successfully!");
-        setErrorMode(false);
-        setOpen(true);
-        setIsLoading(false);
-      } else {
-        //TODO: Show error message moodal
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        console.log("Card Element not found");
         setErrorMode(true);
-        setOpen(true);
+        setMessage("Please enter a valid card number");
+        setErrorModeMessage("Please enter a valid card number");
+        setErrorModeTitle("Error");
         setIsLoading(false);
         return;
       }
-    });
+      try {
+        if (cardMode) {
+          const { paymentMethod } = await stripe.createPaymentMethod({
+            type: "card",
+            card: cardElement,
+          });
+          setPaymentMethodId(paymentMethod.id);
+          console.log(paymentMethod.id);
+          console.log("Return Token:", returnToken);
+          console.log("PaymentMethod:", paymentMethod);
+          payload.payment_method_id = paymentMethod.id;
+
+          console.log("COMPLETE FORM DATA", payload);
+        } else {
+        }
+      } catch (err) {
+        setMessage("Error adding your payment method");
+        console.log(err);
+        setErrorMode(true);
+        setSuccessMode(false);
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await registerTenant(payload).then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          setUserId(authUser.id);
+
+          //Show success message
+          setMessage("Your account has been created successfully!");
+          setErrorMode(false);
+          setOpen(true);
+          setIsLoading(false);
+        } else {
+          //TODO: Show error message moodal
+          setErrorMode(true);
+          setOpen(true);
+          setIsLoading(false);
+          return;
+        }
+      });
+    } else {
+      setIsLoading(false);
+      setErrors(newErrors);
+      //Create alert modal to show user that there are errors in the form
+      setAlertTitle("Error");
+      //Filter out the errors that are not undefined
+      let filteredErrors = Object.keys(errors).reduce((acc, key) => {
+        if (errors[key] !== undefined) {
+          acc[key] = errors[key];
+        }
+        return acc;
+      }, {});
+      setAlertMessage("Please fill out all the following required fields correctly: " + Object.keys(filteredErrors).join(", "));
+      setShowAlert(true);
+    }
   };
 
   //Veryfy that the lease agreement id and approval hash are valid on page load
@@ -401,11 +380,11 @@ const TenantRegister = () => {
                     password:
                       process.env.REACT_APP_ENVIRONMENT !== "development"
                         ? ""
-                        : "Password1",
+                        : "Password1*",
                     password_repeat:
                       process.env.REACT_APP_ENVIRONMENT !== "development"
                         ? ""
-                        : "Password1",
+                        : "Password1*",
                   };
                   // Set the preloaded data in the form using setValue
                   // Object.keys(preloadedData).forEach((key) => {
@@ -506,7 +485,12 @@ const TenantRegister = () => {
           )}
         </>
       )}
-
+      <AlertModal
+        open={showAlert && !open}
+        onClick={() => setShowAlert(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
       <div
         className="row"
         style={{
@@ -703,20 +687,7 @@ const TenantRegister = () => {
                         <UIButton
                           btnText="Sign Up"
                           style={{ marginTop: "15px", width: "100%" }}
-                          onClick={() => {
-                            //Check if stripe elements are valid
-                            const { isValid, newErrors } = validateForm(
-                              formData,
-                              step1FormInputs
-                            );
-                            if (isValid) {
-                              //Submit the form
-                              onSubmit();
-                            } else {
-                              setErrors(newErrors);
-                              //Mqaybe show alert modal
-                            }
-                          }}
+                          onClick={onSubmit}
                         />
                       </div>
                     </div>
