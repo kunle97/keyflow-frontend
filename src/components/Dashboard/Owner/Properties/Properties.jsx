@@ -5,6 +5,9 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import useScreen from "../../../../hooks/useScreen";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import Joyride, { STATUS } from "react-joyride";
+import { uiGreen } from "../../../../constants";
 const Properties = () => {
   const { screenWidth, breakpoints, isMobile } = useScreen();
   const [properties, setProperties] = useState([]);
@@ -29,6 +32,36 @@ const Properties = () => {
       navlink = `/dashboard/owner/properties/${row}`;
       navigate(navlink);
     },
+  };
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".properties-list-section",
+      content: "This is the list of all your properties.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view more options for this property",
+    },
+    {
+      target: ".ui-table-create-button",
+      content: "Click here to create a new property",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
   };
 
   //Create a useEffect that calls the get propertiees api function and sets the properties state
@@ -63,6 +96,27 @@ const Properties = () => {
   }, []);
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <AlertModal
         open={showDeleteError}
         setOpen={setShowDeleteError}
@@ -111,39 +165,45 @@ const Properties = () => {
           ]}
         />
       ) : (
-        <UITable
-          options={options}
-          columns={columns}
-          checked={checked}
-          setChecked={setChecked}
-          endpoint={"/properties/"}
-          searchFields={[
-            "name",
-            "street",
-            "city",
-            "state",
-            "zip_code",
-            "country",
-          ]}
-          menuOptions={[
-            {
-              name: "View",
-              onClick: (row) => {
-                const navlink = `/dashboard/owner/properties/${row.id}`;
-                navigate(navlink);
+        <div
+          className="properties-list-section"
+          style={{ marginTop: "20px", marginBottom: "20px" }}
+        >
+          <UITable
+            options={options}
+            columns={columns}
+            checked={checked}
+            setChecked={setChecked}
+            endpoint={"/properties/"}
+            searchFields={[
+              "name",
+              "street",
+              "city",
+              "state",
+              "zip_code",
+              "country",
+            ]}
+            menuOptions={[
+              {
+                name: "View",
+                onClick: (row) => {
+                  const navlink = `/dashboard/owner/properties/${row.id}`;
+                  navigate(navlink);
+                },
               },
-            },
-          ]}
-          title="Properties"
-          showCreate={true}
-          createURL="/dashboard/owner/properties/create"
-          acceptedFileTypes={[".csv"]}
-          showUpload={true}
-          uploadButtonText="Upload CSV"
-          uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
-          fileUploadEndpoint={`/properties/upload-csv-properties/`}
-        />
+            ]}
+            title="Properties"
+            showCreate={true}
+            createURL="/dashboard/owner/properties/create"
+            acceptedFileTypes={[".csv"]}
+            showUpload={true}
+            uploadButtonText="Upload CSV"
+            uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
+            fileUploadEndpoint={`/properties/upload-csv-properties/`}
+          />
+        </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

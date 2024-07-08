@@ -32,7 +32,7 @@ const LeaseTemplates = () => {
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
     {
-      target: ".lease-agreements-page",
+      target: ".lease-template-page",
       content:
         "This is the lease template page where you can view all your lease templates. A lease template is a pre-made lease agreement document and set of terms that you can use to apply to multiple units.",
       disableBeacon: true,
