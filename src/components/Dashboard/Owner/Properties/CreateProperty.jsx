@@ -18,6 +18,7 @@ import {
   validationMessageStyle,
 } from "../../../../constants";
 import UIStepper from "../../UIComponents/UIStepper";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import UIButton from "../../UIComponents/UIButton";
 import UnitRow from "./UnitRow";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -43,6 +44,7 @@ import {
   getStripeOnboardingAccountLink,
 } from "../../../../api/owners";
 import { preventPageReload } from "../../../../helpers/utils";
+import UIPrompt from "../../UIComponents/UIPrompt";
 
 const CreateProperty = () => {
   const navigate = useNavigate();
@@ -337,31 +339,7 @@ const CreateProperty = () => {
       errorMessageDataTestId: "create-property-country-error-message",
     },
   ];
-  const [units, setUnits] = useState([
-    {
-      name: `${
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.string.alpha()
-      }${
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.accountNumber(1)
-      }`,
-      beds:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 4, max: 10 }),
-      baths:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 4, max: 6 }),
-      size:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 500, max: 1500 }),
-    },
-  ]);
+  const [units, setUnits] = useState([]);
 
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
@@ -674,24 +652,24 @@ const CreateProperty = () => {
                 )}
                 {step === 1 && (
                   <div className="units-section">
-                    {units.map((unit, index) => {
-                      return (
-                        <UnitRow
-                          units={units}
-                          errors={unitValidationErrors}
-                          setErrors={setUnitValidationErrors}
-                          style={{ marginBottom: "20px" }}
-                          key={index}
-                          id={index}
-                          unitNameErrors={errors[`unitName_${index}`]}
-                          unitBedsErrors={errors[`unitBeds_${index}`]}
-                          unitBathsErrors={errors[`unitBaths_${index}`]}
-                          unitSizeErrors={errors[`unitSize_${index}`]}
-                          unit={unit}
-                          onUnitChange={(e) => handleUnitChange(e, index)}
-                          addUnit={addUnit}
-                          removeBtn={
-                            index !== 0 && (
+                    {units.length > 0 ? (
+                      units.map((unit, index) => {
+                        return (
+                          <UnitRow
+                            units={units}
+                            errors={unitValidationErrors}
+                            setErrors={setUnitValidationErrors}
+                            style={{ marginBottom: "20px" }}
+                            key={index}
+                            id={index}
+                            unitNameErrors={errors[`unitName_${index}`]}
+                            unitBedsErrors={errors[`unitBeds_${index}`]}
+                            unitBathsErrors={errors[`unitBaths_${index}`]}
+                            unitSizeErrors={errors[`unitSize_${index}`]}
+                            unit={unit}
+                            onUnitChange={(e) => handleUnitChange(e, index)}
+                            addUnit={addUnit}
+                            removeBtn={
                               <Button
                                 sx={{
                                   color: uiRed,
@@ -701,11 +679,42 @@ const CreateProperty = () => {
                               >
                                 Delete
                               </Button>
-                            )
+                            }
+                          />
+                        );
+                      })
+                    ) : (
+                      <>
+                        <UIPrompt
+                          hideBoxShadow={true}
+                          title={"No Units Created"}
+                          icon={
+                            <MeetingRoomIcon
+                              style={{ fontSize: "32pt", color: uiGreen }}
+                            />
+                          }
+                          message={
+                            "You have not created any units for this property. Would you like to create one now?"
+                          }
+                          btnText={"Create Unit"}
+                          body={
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              spacing={2}
+                            >
+                              <UIButton
+                                btnText={"Create Unit"}
+                                onClick={() => {
+                                  addUnit();
+                                }}
+                              />
+                            </Stack>
                           }
                         />
-                      );
-                    })}
+                      </>
+                    )}
 
                     <Stack
                       direction="row"
