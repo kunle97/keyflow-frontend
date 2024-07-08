@@ -80,7 +80,7 @@ const CreateProperty = () => {
     },
     {
       target: "button[data-testid='create-property-next-button']",
-      content: "Click this button to continue tothe next step",
+      content: "Click this button to continue to add units to the property",
       spotlightClicks: true,
     },
     {
@@ -89,22 +89,22 @@ const CreateProperty = () => {
         "Here is where you add units to your property. Click the add unit button to add a new unit and the remove button to remove a unit",
     },
     {
-      target: 'input[name="name"]:first-of-type',
+      target: 'input[data-testid="unit-name"]:first-of-type',
       content: "In this textbox, enter the name of the unit you want to add.",
       placement: "bottom",
     },
     {
-      target: 'input[name="beds"]:first-of-type',
+      target: 'input[data-testid="unit-beds"]:first-of-type',
       content: "In this textbox, enter the number of bedrooms in the unit.",
       placement: "bottom",
     },
     {
-      target: 'input[name="baths"]:first-of-type',
+      target: 'input[data-testid="unit-baths"]:first-of-type',
       content: "In this textbox, enter the number of bathrooms in the unit.",
       placement: "bottom",
     },
     {
-      target: 'input[name="size"]:first-of-type',
+      target: 'input[data-testid="unit-size"]:first-of-type',
       content: "In this textbox, enter the size of the unit in square feet.",
       placement: "bottom",
     },
@@ -138,14 +138,14 @@ const CreateProperty = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+    console.log("Current Joyride data ", data);
   };
   const handleClickStart = (event) => {
     event.preventDefault();
     if (step === 0) {
       setTourIndex(0);
     } else if (step === 1) {
-      setTourIndex(1);
+      setTourIndex(3);
     }
     setRunTour(true);
     console.log(runTour);

@@ -11,6 +11,8 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { getStripeAccountLink } from "../../../../api/owners";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import Joyride, { STATUS } from "react-joyride";
 const OwnerTransactions = () => {
   let revenueData = [];
   const [showAlert, setShowAlert] = useState(false);
@@ -44,6 +46,40 @@ const OwnerTransactions = () => {
       ],
     },
   ];
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".transactions-list",
+      content: "This is the list of all your transactions.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-search-input",
+      content: "Use the search bar to search for a specific transaction.",
+    },
+    {
+      target: ".ui-table-result-limit-select",
+      content: "Use this to change the number of results per page.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view transaction details.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   //Create a function to calculate the total revenue for all transactions
   const calculateTotalRevenue = () => {
@@ -144,6 +180,27 @@ const OwnerTransactions = () => {
   ]);
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <AlertModal
         open={showAlert}
         onClick={() => setShowAlert(false)}
@@ -196,23 +253,27 @@ const OwnerTransactions = () => {
               searchFields={["type", "amount", "timestamp"]}
             />
           ) : (
-            <UITable
-              columns={columns}
-              options={options}
-              endpoint="/transactions/"
-              title="Transactions"
-              detailURL="/dashboard/owner/transactions/"
-              showCreate={false}
-              menuOptions={[
-                {
-                  name: "View",
-                  onClick: (row) => {
-                    const navlink = `/dashboard/owner/transactions/${row.id}`;
-                    navigate(navlink);
+            <div
+              className="transactions-list"
+            >
+              <UITable
+                columns={columns}
+                options={options}
+                endpoint="/transactions/"
+                title="Transactions"
+                detailURL="/dashboard/owner/transactions/"
+                showCreate={false}
+                menuOptions={[
+                  {
+                    name: "View",
+                    onClick: (row) => {
+                      const navlink = `/dashboard/owner/transactions/${row.id}`;
+                      navigate(navlink);
+                    },
                   },
-                },
-              ]}
-            />
+                ]}
+              />
+            </div>
           )}
         </>
       )}
@@ -290,6 +351,7 @@ const OwnerTransactions = () => {
           </div>
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };
