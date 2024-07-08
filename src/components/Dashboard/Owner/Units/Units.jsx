@@ -4,6 +4,9 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { useNavigate } from "react-router";
 import useScreen from "../../../../hooks/useScreen";
+import Joyride, { STATUS } from "react-joyride";
+import { uiGreen } from "../../../../constants";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const Units = () => {
   const [units, setUnits] = useState([]);
   const [showDeleteError, setShowDeleteError] = useState(false);
@@ -33,9 +36,61 @@ const Units = () => {
       navigate(navlink);
     },
   };
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".units-list-section",
+      content:
+        "This is the list of all your units.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view more options for this property",
+    },
+    {
+      target: ".ui-table-create-button",
+      content: "Click here to create a new property",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+    console.log(runTour);
+  };
 
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <AlertModal
         open={showDeleteError}
         setOpen={setShowDeleteError}
@@ -80,32 +135,38 @@ const Units = () => {
           ]}
         />
       ) : (
-        <UITable
-          options={options}
-          checked={checked}
-          columns={columns}
-          setChecked={setChecked}
-          endpoint={"/units/"}
-          searchFields={["name", "rental_property_name"]}
-          menuOptions={[
-            {
-              name: "View",
-              onClick: (row) => {
-                const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}/`;
-                navigate(navlink);
+        <div
+          className="units-list-section"
+          style={{ padding: "20px" }}
+        >
+          <UITable
+            options={options}
+            checked={checked}
+            columns={columns}
+            setChecked={setChecked}
+            endpoint={"/units/"}
+            searchFields={["name", "rental_property_name"]}
+            menuOptions={[
+              {
+                name: "View",
+                onClick: (row) => {
+                  const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}/`;
+                  navigate(navlink);
+                },
               },
-            },
-          ]}
-          title="Units"
-          showCreate={true}
-          createURL="/dashboard/owner/units/create"
-          acceptedFileTypes={[".csv"]}
-          showUpload={true}
-          uploadButtonText="Upload CSV"
-          uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
-          fileUploadEndpoint={`/properties/upload-csv-units/`}
-        />
+            ]}
+            title="Units"
+            showCreate={true}
+            createURL="/dashboard/owner/units/create"
+            acceptedFileTypes={[".csv"]}
+            showUpload={true}
+            uploadButtonText="Upload CSV"
+            uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
+            fileUploadEndpoint={`/properties/upload-csv-units/`}
+          />
+        </div>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

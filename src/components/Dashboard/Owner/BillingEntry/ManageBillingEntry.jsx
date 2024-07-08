@@ -601,7 +601,20 @@ const ManageBillingEntry = () => {
                     alignItems="center"
                     style={{ margin: "20px 0" }}
                   >
-                    <span className="delete-billing-entry-wrapper"></span>
+                    <span className="delete-billing-entry-wrapper">
+                      <DeleteButton
+                        onClick={() => {
+                          setConfirmTitle("Delete Billing Entry");
+                          setConfirmMessage(
+                            "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
+                          );
+                          setConfirmAction(() => handleDelete);
+                          setConfirmModelOpen(true);
+                        }}
+                        dataTestId="delete-billing-entry-button"
+                        btnText="Delete Billing Entry"
+                      />
+                    </span>
                     <span className="update-billing-entry-wrapper">
                       <UIButton
                         type="submit"
