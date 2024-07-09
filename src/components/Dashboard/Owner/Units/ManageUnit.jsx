@@ -2118,7 +2118,7 @@ const ManageUnit = () => {
                                 marginTop: "1rem",
                               }}
                               onClick={() => setShowLeaseTemplateSelector(true)}
-                              btnText="Assign Lease Template"
+                              btnText="Change Lease Template"
                             />
                           )}
                         </>
@@ -2144,7 +2144,7 @@ const ManageUnit = () => {
                                     onClick={() =>
                                       setShowLeaseTemplateSelector(true)
                                     }
-                                    btnText="Assign Lease Template"
+                                    btnText="Set Lease Template"
                                   />
                                 )}
                               </>
