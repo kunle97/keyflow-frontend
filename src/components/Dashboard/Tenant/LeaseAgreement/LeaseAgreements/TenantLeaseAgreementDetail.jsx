@@ -32,6 +32,7 @@ import { authenticatedInstance } from "../../../../../api/api";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import PaymentCalendar from "../../PaymentCalendar";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
+import { preventPageReload } from "../../../../../helpers/utils";
 const TenantLeaseAgreementDetail = () => {
   const { id } = useParams();
   const [unit, setUnit] = useState(null);
@@ -303,6 +304,7 @@ const TenantLeaseAgreementDetail = () => {
       );
       setShowAlertModal(true);
     }
+    preventPageReload();
   }, []);
 
   return (
