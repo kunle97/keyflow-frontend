@@ -50,7 +50,6 @@ import { syncPreferences } from "../../../../helpers/preferences";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { getStripeAccountLink } from "../../../../api/owners";
 
-import AddCardIcon from "@mui/icons-material/AddCard";
 import {
   lettersNumbersAndSpecialCharacters,
   validEmail,
@@ -58,6 +57,7 @@ import {
   validStrongPassword,
   validUserName,
 } from "../../../../constants/rexgex";
+import BillingSubscriptionsSection from "./BillingSubscriptionsSection/BillingSubscriptionsSection";
 const MyAccount = () => {
   const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,9 +65,9 @@ const MyAccount = () => {
   const [tabPage, setTabPage] = useState(0);
   const [tabs, setTabs] = useState([
     { label: "Account" },
+    { label: "Billing & Subsciptions" },
     { label: "Notification Settings" },
     // { label: "Payment Methods" },
-    // { label: "Manage Subscription" },
   ]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -412,30 +412,7 @@ const MyAccount = () => {
         console.log("Stripe ACcount link res: ", res);
         setStripeAccountLink(res.account_link);
       });
-      //Get the payment methods for the user
-      listOwnerStripePaymentMethods(`${authUser.id}`)
-        .then((res) => {
-          console.log("PAyment M3th0Ds Response: ", res);
-          setPaymentMethods(res.payment_methods.data);
-          setPaymentMethodDefaultId(res.default_payment_method);
-        })
-        .catch((error) => {
-          console.log("Error getting payment methods: ", error);
-          setPaymentMethods([]);
-        });
-      getSubscriptionPlanPrices()
-        .then((res) => {
-          setPlans(res.products);
-        })
-        .catch((error) => {
-          console.log("Error getting subscription plans: ", error);
-          setResponseTitle("Error");
-          setResponseMessage("Error getting subscription plans");
-          setShowResponseModal(true);
-        });
-      getUserStripeSubscriptions(authUser.id, token).then((res) => {
-        setCurrentSubscriptionPlan(res.subscriptions);
-      });
+      
       retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
         (res) => {
           setProfilePictureFile(res.data[0]);
@@ -704,6 +681,74 @@ const MyAccount = () => {
         </>
       )}
       {tabPage === 1 && (
+        <BillingSubscriptionsSection />
+      )}
+      {tabPage === 3 && (
+        <div className="row">
+          <PlanChangeDialog
+            open={showChangePlanModal}
+            onClose={() => setShowChangePlanModal(false)}
+            plans={plans}
+          />
+          <div className="col-md-6">
+            <div className="card shadow mb-3">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-12">
+                    <div className="mb-3">
+                      {plans.map((plan) => {
+                        if (
+                          plan.product_id ===
+                          currentSubscriptionPlan.items.data[0].plan.product
+                        ) {
+                          return (
+                            <Stack>
+                              <h5 className="text-black">{plan.name}</h5>
+                              <Stack
+                                direction="row"
+                                justifyContent="flex-start"
+                                alignItems="center"
+                                spacing={2}
+                              >
+                                <h4 style={{ fontSize: "25pt" }}>
+                                  ${plan.price}
+                                </h4>
+                                <Stack
+                                  direction="column"
+                                  justifyContent="flex-start"
+                                  alignItems="baseline"
+                                  spacing={0}
+                                >
+                                  {currentSubscriptionPlan.items.data[0].plan
+                                    .product ===
+                                    process.env
+                                      .REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
+                                    <span>per Rental Unit</span>
+                                  )}
+                                  <span>per month</span>
+                                </Stack>
+                              </Stack>
+                            </Stack>
+                          );
+                        }
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <UIButton
+                    onClick={() => {
+                      setShowChangePlanModal(true);
+                    }}
+                    btnText="Change Plan"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {tabPage === 2 && (
         <div className={isMobile && "container-fluid"}>
           <div className="row">
             <div className="col-md-12">
@@ -773,191 +818,6 @@ const MyAccount = () => {
           </div>
         </div>
       )}
-      {/* {tabPage === 2 && (
-        <>
-          <div className="mb-3" style={{ overflow: "auto" }}>
-            <UIButton
-              style={{ float: "right" }}
-              onClick={() => {
-                navigate("/dashboard/add-payment-method");
-              }}
-              btnText="Add New"
-            />
-          </div>
-          <div className="row">
-            <ConfirmModal
-              open={showDefaultConfirm}
-              handleClose={() => setShowDefaultConfirm(false)}
-              title="Set As Default Payment Method"
-              message="Are you sure you want to set this as your default payment method?"
-              cancelBtnText="Cancel"
-              confirmBtnText="Set As Default"
-              handleConfirm={() => {
-                handleSetDefaultPaymentMethod(updatedDefaultPaymentMethod);
-                setShowDefaultConfirm(false);
-              }}
-              handleCancel={() => setShowDefaultConfirm(false)}
-            />
-
-            <ConfirmModal
-              open={showDeleteConfirm}
-              handleClose={() => setShowDeleteConfirm(false)}
-              title="Delete Payment Method"
-              message="Are you sure you want to delete this payment method?"
-              cancelBtnText="Cancel"
-              confirmBtnText="Delete"
-              confirmBtnStyle={{ backgroundColor: uiRed }}
-              cancelBtnStyle={{ backgroundColor: uiGreen }}
-              handleConfirm={() => {
-                handlePaymentMethodDelete(paymentMethodDeleteId);
-                setShowDeleteConfirm(false);
-              }}
-              handleCancel={() => setShowDeleteConfirm(false)}
-            />
-            {paymentMethods ? (
-              paymentMethods.map((paymentMethod) => {
-                return (
-                  <div className="col-sm-12 col-md-6  mb-3">
-                    <div className="card" style={{ width: "100%" }}>
-                      <div className="card-body">
-                        <Box sx={{ display: "flex" }}>
-                          <Box sx={{ flex: "2" }}>
-                            <Typography className="text-black">
-                              {paymentMethod.card.brand} ending in{" "}
-                              {paymentMethod.card.last4}
-                            </Typography>
-                            <Typography
-                              sx={{ fontSize: "10pt" }}
-                              className="text-black"
-                            >
-                              Expires {paymentMethod.card.exp_month}/
-                              {paymentMethod.card.exp_year}
-                              {paymentMethod.id === paymentMethodDefaultId ? (
-                                <Typography
-                                  sx={{ fontSize: "10pt", color: uiGreen }}
-                                >
-                                  Default Payment Method
-                                </Typography>
-                              ) : (
-                                <>
-                                  <br />
-                                  <UIButton
-                                    sx={{
-                                      color: uiGreen,
-                                      textTransform: "none",
-                                      display: "block",
-                                      fontSize: "6pt",
-                                    }}
-                                    onClick={() => {
-                                      setUpdatedDefaultPaymentMethod(
-                                        paymentMethod.id
-                                      );
-                                      setShowDefaultConfirm(true);
-                                    }}
-                                    btnText="Set As Default"
-                                  />
-                                </>
-                              )}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Button
-                              sx={{ color: uiRed, textTransform: "none" }}
-                              onClick={() => {
-                                setPaymentMethodDeleteId(paymentMethod.id);
-                                setShowDeleteConfirm(true);
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </Box>
-                        </Box>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <UIPrompt
-                icon={<AddCardIcon sx={{ fontSize: "30pt", color: uiGreen }} />}
-                title="No payment methods found"
-                message="You have not added any payment methods yet"
-                body={
-                  <UIButton
-                    onClick={() => navigate("/dashboard/add-payment-method")}
-                    btnText="Add Payment Method"
-                  />
-                }
-              />
-            )}
-          </div>
-        </>
-      )}
-      {tabPage === 3 && (
-        <div className="row">
-          <PlanChangeDialog
-            open={showChangePlanModal}
-            onClose={() => setShowChangePlanModal(false)}
-            plans={plans}
-          />
-          <div className="col-md-6">
-            <div className="card shadow mb-3">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      {plans.map((plan) => {
-                        if (
-                          plan.product_id ===
-                          currentSubscriptionPlan.items.data[0].plan.product
-                        ) {
-                          return (
-                            <Stack>
-                              <h5 className="text-black">{plan.name}</h5>
-                              <Stack
-                                direction="row"
-                                justifyContent="flex-start"
-                                alignItems="center"
-                                spacing={2}
-                              >
-                                <h4 style={{ fontSize: "25pt" }}>
-                                  ${plan.price}
-                                </h4>
-                                <Stack
-                                  direction="column"
-                                  justifyContent="flex-start"
-                                  alignItems="baseline"
-                                  spacing={0}
-                                >
-                                  {currentSubscriptionPlan.items.data[0].plan
-                                    .product ===
-                                    process.env
-                                      .REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
-                                    <span>per Rental Unit</span>
-                                  )}
-                                  <span>per month</span>
-                                </Stack>
-                              </Stack>
-                            </Stack>
-                          );
-                        }
-                      })}
-                    </div>
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <UIButton
-                    onClick={() => {
-                      setShowChangePlanModal(true);
-                    }}
-                    btnText="Change Plan"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

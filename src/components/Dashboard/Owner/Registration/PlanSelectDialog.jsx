@@ -12,21 +12,17 @@ const PlanSelectDialog = (props) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
-  useEffect(() => {
-    getSubscriptionPlanPrices()
-      .then((res) => {
-        setPlans(res.products);
-        console.log(plans);
-      })
-      .catch((error) => {
-        console.error("Error fetching subscription plans", error);
-        setAlertTitle("Error!");
-        setAlertMessage(
-          "There was an error fetching subscription plans. Please try again."
-        );
-        setShowAlert(true);
-      });
-  }, []);
+  const [freePlan, setFreePlan] = useState({
+    name: "Free Plan",
+    price: 0,
+    product_id: null,
+    features: [
+      { name: "Accept online rent payments" },
+      { name: "Manage Up to 4 rental units" },
+      { name: "Communicate directly with tenants" },
+      { name: "Manage maintenance requests" },
+    ],
+  });
   return (
     <>
       <AlertModal
@@ -38,33 +34,63 @@ const PlanSelectDialog = (props) => {
       />
       <UIDialog open={props.open} onClose={props.onClose} maxWidth={"xxl"}>
         <div className="row m-3 ">
-          {plans.map((plan) => (
+          {/* Create a Column for Free plan */}
+          <div className="col-md-6 col-sm-12 mb-3 py-3 ">
+            <div className="">
+              <div className="card-body">
+                <h5>{freePlan.name}</h5>
+                <div id="price-info">
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <h2 style={{ fontSize: "27pt" }}>${freePlan.price}</h2>
+                    <Stack
+                      direction="column"
+                      justifyContent="flex-start"
+                      alignItems="baseline"
+                      spacing={0}
+                    >
+                      <span className="text-black">per month</span>
+                    </Stack>
+                  </Stack>
+                  <UIButton
+                    style={{ width: "100%", margin: "10px 0" }}
+                    btnText="Select Plan"
+                    onClick={() => {
+                      props.setSelectedPlan(freePlan);
+                      console.log(props.selectedPlan);
+                      props.onClose();
+                    }}
+                  />
+                  <Stack
+                    direction="column"
+                    justifyContent="flex-start"
+                    alignItems="flex-start"
+                    spacing={2}
+                  >
+                    <span className="text-black">This plan includes:</span>
+                    {freePlan.features.map((feature) => (
+                      <span className="text-black">
+                        <CheckCircleIcon
+                          style={{ color: uiGreen, width: "15px" }}
+                        />{" "}
+                        {feature.name}
+                      </span>
+                    ))}
+                  </Stack>
+                </div>
+              </div>
+            </div>
+          </div>
+          {props.plans.map((plan) => (
             <div className="col-md-6 col-sm-12 mb-3 py-3 ">
               <div className="">
                 <div className="card-body">
                   <h5>{plan.name}</h5>
-                  {plan.product_id ===
-                  process.env.REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID ? (
-                    <Chip
-                      label="Best Value"
-                      sx={{
-                        margin: "5px 0",
-                        padding: "0px",
-                        color: "white",
-                        background: uiGreen,
-                      }}
-                    />
-                  ) : (
-                    <Chip
-                      label=""
-                      sx={{
-                        margin: "5px 0",
-                        padding: "0px",
-                        color: "white",
-                        background: "none",
-                      }}
-                    />
-                  )}
+
                   <div id="price-info">
                     <Stack
                       direction="row"
@@ -79,12 +105,34 @@ const PlanSelectDialog = (props) => {
                         alignItems="baseline"
                         spacing={0}
                       >
-                        {plan.product_id ===
-                          process.env.REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
+                        {(plan.product_id === process.env.REACT_APP_STRIPE_OWNER_PROFESSIONAL_PLAN_PRODUCT_ID || plan.product_id === process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID) && (
                           <span className="text-black">per Rental Unit </span>
                         )}
                         <span className="text-black">per month</span>
                       </Stack>
+                      {plan.product_id ===
+                      process.env
+                        .REACT_APP_STRIPE_OWNER_PROFESSIONAL_PLAN_PRODUCT_ID ? (
+                        <Chip
+                          label="Best Value"
+                          sx={{
+                            margin: "5px 0",
+                            padding: "0px",
+                            color: "white",
+                            background: uiGreen,
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label=""
+                          sx={{
+                            margin: "5px 0",
+                            padding: "0px",
+                            color: "white",
+                            background: "none",
+                          }}
+                        />
+                      )}
                     </Stack>
 
                     <UIButton

@@ -45,6 +45,7 @@ import {
   validAnyString,
 } from "../../../../constants/rexgex";
 import { preventPageReload } from "../../../../helpers/utils";
+import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 
 const CreateAnnouncement = () => {
   const navigate = useNavigate();
@@ -206,7 +207,6 @@ const CreateAnnouncement = () => {
       setRentalUnitEndpoint(rentalUnitPreviousPage);
     }
   };
-
 
   const handleOpenRentalUnitSelectModal = async () => {
     setRentalUnitModalOpen(true);
@@ -549,22 +549,44 @@ const CreateAnnouncement = () => {
           setAlertModalOpen(true);
         } else {
           setLoading(false);
-          setAlertModalTitle("Error");
-          setAlertModalMessage("An error occurred while creating announcement");
+          setAlertModalTitle("Error Creating Announcement");
+          setAlertModalMessage(
+            res.message
+              ? res.message
+              : "An error occurred while creating announcement."
+          );
           setAlertModalRedirect("/dashboard/owner/announcements/create");
           setAlertModalOpen(true);
         }
       })
       .catch((error) => {
         setLoading(false);
-        setAlertModalTitle("Error");
-        setAlertModalMessage("An error occurred while creating announcement");
+        setAlertModalTitle("Error Creating Announcement");
+        setAlertModalMessage(
+          error.message
+            ? error.message
+            : "An error occurred while creating announcement"
+        );
         setAlertModalRedirect("/dashboard/owner/announcements/create");
         setAlertModalOpen(true);
       });
   };
 
   useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      console.log("Subscription Plan Data", res);
+      if(!res.can_use_announcements){
+        setAlertModalRedirect("/dashboard/owner/");
+        setAlertModalTitle("Subscription Plan Mismatch");
+        setAlertModalMessage("To create an announcement, you need to upgrade your subscription plan to the Keyflow Owner Standard Plan or higher. ");
+        setAlertModalOpen(true);
+      }else{
+        setAlertModalRedirect(null);
+        setAlertModalTitle("");
+        setAlertModalMessage("");
+        setAlertModalOpen(false);
+      }
+    });
     preventPageReload();
     handleSearchRentalUnits();
   }, [showOccupiedUnitsOnly, rentalUnitSearchQuery, rentalPropertyEndpoint]);

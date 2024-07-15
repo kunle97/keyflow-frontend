@@ -14,7 +14,8 @@ export const uploadFile = async (data) => {
     );
     return response;
   } catch (error) {
-    console.log(error);
+    console.log("Upload file Error: ", error);
+    return { response: error.response, message: error.response.data.message, status: error.response.status };
   }
 };
 
@@ -55,7 +56,7 @@ export const retrieveFilesBySubfolder = async (subfolder, user_id) => {
     return response;
   } catch (error) {
     console.log(error);
-  }
+  } 
 };
 
 //Create a function that uses the unauthenticated instance to retrieve files by subfolder using a post to the endpoint /retrieve-images-by-subfolder/

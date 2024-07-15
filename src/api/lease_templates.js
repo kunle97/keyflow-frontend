@@ -42,7 +42,7 @@ export async function createLeaseTemplate(data) {
     };
   } catch (error) {
     console.log("Create Lease Term Error: ", error);
-    return { response: error.response, message: "Error", status: 400 };
+    return { response: error.response, message: error.response.data.message, status: 400 };
   }
 }
 

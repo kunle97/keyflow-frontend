@@ -200,7 +200,7 @@ const Pricing = () => {
                     </p>
                     {plan.best_value ? (
                       <a
-                        href="#call-to-action"
+                        href={`/dashboard/owner/register/${index}`}
                         style={{
                           width: "100%",
                         }}
@@ -214,12 +214,12 @@ const Pricing = () => {
                             padding: "8px 0",
                           }}
                         >
-                          Learn More
+                          Sign Up
                         </button>
                       </a>
                     ) : (
                       <a
-                        href="#call-to-action"
+                        href={`/dashboard/owner/register/${index}`}
                         style={{
                           width: "100%",
                         }}
@@ -229,7 +229,7 @@ const Pricing = () => {
                             width: "100%",
                             margin: 0,
                           }}
-                          btnText="Learn More"
+                          btnText="Sign Up"
                         />
                       </a>
                     )}

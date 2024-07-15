@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { useNavigate } from "react-router";
@@ -13,6 +13,8 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const Annoucements = () => {
   const navigate = useNavigate();
   const handleRowClick = (row) => {
@@ -21,6 +23,12 @@ const Annoucements = () => {
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertModalRedirect, setAlertModalRedirect] = useState(
+    "/dashboard/owner/announcements"
+  );
   const tourSteps = [
     {
       target: ".announcements-list",
@@ -101,6 +109,25 @@ const Annoucements = () => {
     isSelectable: false,
   };
 
+  useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      console.log("Subscription Plan Data", res);
+      if (!res.can_use_announcements) {
+        setAlertModalRedirect("/dashboard/owner/");
+        setAlertModalTitle("Subscription Plan Mismatch");
+        setAlertModalMessage(
+          "To access the announcements feature, you need to upgrade your subscription plan to the Keyflow Owner Standard Plan or higher. "
+        );
+        setAlertModalOpen(true);
+      } else {
+        setAlertModalRedirect(null);
+        setAlertModalTitle("");
+        setAlertModalMessage("");
+        setAlertModalOpen(false);
+      }
+    });
+  }, []);
+
   return (
     <div className="container-fluid">
       {" "}
@@ -124,6 +151,17 @@ const Annoucements = () => {
           next: "Next",
           skip: "Skip",
         }}
+      />{" "}
+      <AlertModal
+        open={alertModalOpen}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onClose={() => setAlertModalOpen(false)}
+        onClick={() => {
+          navigate(alertModalRedirect);
+          setAlertModalOpen(false);
+        }}
+        btnText="Okay"
       />
       <div className="announcements-list">
         {isMobile ? (

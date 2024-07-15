@@ -2,7 +2,10 @@ import React, { useEffect } from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useState } from "react";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
-import { addStripePaymentMethod } from "../../api/payment_methods";
+import {
+  addStripePaymentMethod,
+  listOwnerStripePaymentMethods,
+} from "../../api/payment_methods";
 import { authUser, uiGreen, uiGrey1 } from "../../constants";
 import UIButton from "./UIComponents/UIButton";
 import ProgressModal from "./UIComponents/Modals/ProgressModal";
@@ -73,8 +76,8 @@ const AddPaymentMethod = (props) => {
   };
 
   return (
-    <div className="container">
-      <BackButton />
+    <div className="container pb-4">
+      {props.hideBackButton ?? <BackButton />}
       <ProgressModal open={isLoading} />
       <AlertModal
         open={errorMode}
@@ -94,9 +97,9 @@ const AddPaymentMethod = (props) => {
         to={props.returnTo}
       />
 
-      <div className="card">
+      <div className={props.hideBoxShaddow ? "" : "card"}>
         <div className="card-body">
-          <h5 className="mb-3">Add A Payment Method</h5>
+          {props.hideTitle ?? <h5 className="mb-3">Add A Payment Method</h5>}
           <div className="stripeSection">
             <>
               {" "}

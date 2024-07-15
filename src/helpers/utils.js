@@ -212,7 +212,7 @@ export const addUnderscoresAndLowercase = (value) => {
     .replace(/\s/g, "_")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toLowerCase()));
   return newValue;
-}
+};
 
 //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
 export const isValidFileName = (file_name) => {
@@ -344,7 +344,6 @@ export const validateToken = async () => {
   }
 };
 
-
 //Create a function taht abbrieveiates rent frequescies for example "monthly" to "mo" and "yearly" to "yr" etc
 export const abbreviateRentFrequency = (frequency) => {
   switch (frequency) {
@@ -383,4 +382,38 @@ export const preventPageReload = (e) => {
 
 export const formatDateToMMDDYYYY = (date) => {
   return new Date(date).toLocaleDateString("en-US");
-}
+};
+
+export const isValidStripePaymentMethod = (paymentMethod) => {
+  // Check if the payment method is a card
+  if (paymentMethod.type !== "card") {
+    return false;
+  }
+
+  const { card } = paymentMethod;
+  const { exp_month, exp_year, checks, three_d_secure_usage } = card;
+
+  // Check if the card is expired
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1; // getMonth() is zero-based
+
+  if (
+    exp_year < currentYear ||
+    (exp_year === currentYear && exp_month < currentMonth)
+  ) {
+    return false;
+  }
+
+  // Check if CVC is checked
+  if (checks.cvc_check !== "pass") {
+    return false;
+  }
+
+  // Check if 3D Secure is supported
+  if (!three_d_secure_usage.supported) {
+    return false;
+  }
+
+  return true;
+};

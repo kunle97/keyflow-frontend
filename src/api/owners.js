@@ -16,6 +16,38 @@ export async function getOwnerPreferences() {
   }
 }
 
+//Create a function to retrieve an owner's plan data using a GET request to the endpoint api/owners/{id}/subscription-plan-data
+export async function getOwnerSubscriptionPlanData() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/subscription-plan-data/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Owner Subscription Plan Data Error: ", error);
+    return error.response;
+  }
+}
+
+//Create a function to retrieve an owner's usage stats using the endpoint api/owners/{id}/usage-stats
+export async function getOwnerUsageStats() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/usage-stats/`)
+      .then((res) => {
+        console.log(res);
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+    console.log("Get Owner Usage Stats Error: ", error);
+    return error.response;
+  }
+}
+
 //Create a function to update an owner's preferences using a POST request the endpoint api/owners/{id}/update-preferences
 export async function updateOwnerPreferences(data) {
   try {
