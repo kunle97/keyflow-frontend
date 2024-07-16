@@ -101,7 +101,7 @@ export async function getSubscriptionPlanPrices() {
 export async function changeSubscriptionPlan(data) {
   try {
     const res = await authenticatedInstance
-      .post(`/users/${authUser.id}/change-subscription-plan/`, data)
+      .post(`/owners/${authUser.owner_id}/change-subscription-plan/`, data)
       .then((res) => {
         console.log(res);
         return res.data;

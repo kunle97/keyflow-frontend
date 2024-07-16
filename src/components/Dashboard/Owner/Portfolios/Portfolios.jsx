@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
 import { useNavigate } from "react-router";
@@ -12,9 +12,15 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const Portfolios = () => {
   const navigate = useNavigate();
   const { screenWidth, breakpoints, isMobile } = useScreen();
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertModalRedirect, setAlertModalRedirect] = useState(null);
   const portfolio_columns = [
     {
       name: "name",
@@ -54,17 +60,18 @@ const Portfolios = () => {
   const tourSteps = [
     {
       target: ".portfolio-list-section",
-      content: "This is the list of all your portfolios. A portfolio is a collection of properties.",
+      content:
+        "This is the list of all your portfolios. A portfolio is a collection of properties.",
       disableBeacon: true,
     },
     {
-      target:".ui-table-more-button:first-of-type",
+      target: ".ui-table-more-button:first-of-type",
       content: "Click here to view more options for this portfolio",
     },
     {
       target: ".ui-table-create-button",
       content: "Click here to create a new portfolio",
-    }
+    },
   ];
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data;
@@ -79,8 +86,30 @@ const Portfolios = () => {
     setRunTour(true);
     console.log(runTour);
   };
+  useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      console.log("Subscription Plan Data", res);
+      if (!res.can_use_portfolios) {
+        setAlertModalRedirect("/dashboard/owner/");
+        setAlertModalTitle("Subscription Plan Mismatch");
+        setAlertModalMessage(
+          "To access the portfolios feature, you need to upgrade your subscription plan to the Keyflow Owner Standard Plan or higher. "
+        );
+        setAlertModalOpen(true);
+      } else {
+        setAlertModalRedirect(null);
+        setAlertModalTitle("");
+        setAlertModalMessage("");
+        setAlertModalOpen(false);
+      }
+    });
+  }, []);
   return (
-    <div className={`${screenWidth > breakpoints.md && "container-fluid"} portfolio-list-section`}>
+    <div
+      className={`${
+        screenWidth > breakpoints.md && "container-fluid"
+      } portfolio-list-section`}
+    >
       <Joyride
         run={runTour}
         index={tourIndex}
@@ -100,6 +129,19 @@ const Portfolios = () => {
           last: "Finish",
           next: "Next",
           skip: "Skip",
+        }}
+      />
+      <AlertModal
+        open={alertModalOpen}
+        setOpen={setAlertModalOpen}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        btnText={"Ok"}
+        onClick={() => {
+          if (alertModalRedirect) {
+            navigate(alertModalRedirect);
+          }
+          setAlertModalOpen(false);
         }}
       />
       {isMobile ? (

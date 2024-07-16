@@ -84,7 +84,7 @@ import ManageBillingEntry from "./components/Dashboard/Owner/BillingEntry/Manage
 import CreateBillingEntry from "./components/Dashboard/Owner/BillingEntry/CreateBillingEntry";
 import Bills from "./components/Dashboard/Tenant/Bills/Bills";
 import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
-import Annoucements from "./components/Dashboard/Owner/Annoucements/Annoucements";
+import Annoucements from "./components/Dashboard/Owner/Annoucements/Announcements";
 import ManageAnnouncement from "./components/Dashboard/Owner/Annoucements/ManageAnnouncement";
 import CreateAccouncement from "./components/Dashboard/Owner/Annoucements/CreateAnnouncement";
 
@@ -157,6 +157,16 @@ export const routes = [
   },
   {
     path: "/dashboard/owner/register",
+    element: (
+      <LoggedInRedirect token={token}>
+        <Elements stripe={stripePromise}>
+          <OwnerRegister />
+        </Elements>
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/owner/register/:plan_index",
     element: (
       <LoggedInRedirect token={token}>
         <Elements stripe={stripePromise}>

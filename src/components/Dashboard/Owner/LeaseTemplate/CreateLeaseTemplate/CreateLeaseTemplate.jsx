@@ -28,6 +28,7 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { preventPageReload } from "../../../../../helpers/utils";
+import { getOwnerSubscriptionPlanData } from "../../../../../api/owners";
 const CreateLeaseTemplate = (props) => {
   //TODO: Add steps to create lease term form
   /**
@@ -357,7 +358,7 @@ const CreateLeaseTemplate = (props) => {
         } else {
           setIsLoading(false);
           setResponseTitle("Error");
-          setResponseMessage("Something went wrong");
+          setResponseMessage(res.message ? res.message : "Something went wrong");
           setShowResponseMessage(true);
         }
       })
@@ -370,6 +371,19 @@ const CreateLeaseTemplate = (props) => {
       });
   };
   useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      if(!res.can_create_new_lease_template){
+        setAlertLink("/dashboard/owner/lease-templates");
+        setResponseTitle("Subscription Plan Mismatch");
+        setResponseMessage("You have reached the maximum number of lease templates allowed by your plan. Upgrade your plan to create more lease templates.");
+        setShowResponseMessage(true);
+      }else{
+        setAlertLink(null);
+        setResponseTitle("");
+        setResponseMessage("");
+        setShowResponseMessage(false);
+      }
+    });
     preventPageReload();
   }, [step, skipAdditionalChargesStep, skipAssignStep]);
   return (

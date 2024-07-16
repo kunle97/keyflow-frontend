@@ -157,7 +157,7 @@ export async function deleteUnit(data) {
         }
         return { data: [] };
       });
-    return res.data;
+    return res;
   } catch (error) {
     console.log("Delete Unit Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };

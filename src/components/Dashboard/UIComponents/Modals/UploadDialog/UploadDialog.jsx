@@ -19,7 +19,7 @@ const UploadDialog = (props) => {
   const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const navigate = useNavigate();
-  
+
   //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
   const isValidFileName = (file_name) => {
     console.log("File Name:", file_name); // Log the file name
@@ -52,7 +52,7 @@ const UploadDialog = (props) => {
         validFiles = false;
         return;
       }
-      
+
       if (!isValidFileName(file.name)) {
         setResponseTitle("File Upload Error");
         setResponseMessage(
@@ -106,19 +106,37 @@ const UploadDialog = (props) => {
         subfolder: props.subfolder,
       };
 
-      uploadFile(payload).then((res) => {
-        console.log(res);
-        setIsLoading(false);
-        if (res.status === 201) {
-          setResponseTitle("File Upload");
-          setResponseMessage("File uploaded successfully");
-        } else {
+      uploadFile(payload)
+        .then((res) => {
+          console.log(res.message);
+          if (res.status === 201) {
+            setResponseTitle("File Upload");
+            setResponseMessage("File uploaded successfully");
+          } else {
+            setResponseTitle("File Upload Error");
+            setResponseMessage(
+              res.message
+                ? res.message
+                : "An error occured uploading your file."
+            );
+            setShowFileUploadAlert(true);
+            return;
+          }
+        })
+        .catch((error) => {
+          console.error("Error uploading file", error);
           setResponseTitle("File Upload Error");
-          setResponseMessage("Something went wrong");
+          setResponseMessage(
+            error.message
+              ? error.message
+              : "An error occured uploading your file."
+          );
           setShowFileUploadAlert(true);
           return;
-        }
-      });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     });
 
     props.onClose();

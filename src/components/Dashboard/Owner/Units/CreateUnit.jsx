@@ -83,6 +83,8 @@ const CreateUnit = () => {
         "Once you are finished adding units, click this button to create the units.",
     },
   ];
+  const [showPropertyErrorMessages, setShowPropertyErrorMessages] =
+    useState(false);
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
@@ -121,7 +123,6 @@ const CreateUnit = () => {
           : faker.number.int({ min: 500, max: 1500 }),
     },
   ]);
-
 
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
@@ -174,11 +175,25 @@ const CreateUnit = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     setProgressModalTitle("Creating Unit...");
+
+    //Check if a property has been selected
+    if (!selectedPropertyId) {
+      setIsLoading(false);
+      setShowPropertyErrorMessages(true);
+      return;
+    }else{
+      setShowPropertyErrorMessages(false);
+    }
+
     let payload = {};
     payload.units = JSON.stringify(units);
     payload.rental_property = selectedPropertyId;
-    payload.subscription_id = currentSubscriptionPlan.id;
-    payload.product_id = currentSubscriptionPlan.plan.product;
+    payload.subscription_id = currentSubscriptionPlan
+      ? currentSubscriptionPlan.id
+      : null;
+    payload.product_id = currentSubscriptionPlan
+      ? currentSubscriptionPlan.plan.product
+      : null;
     payload.user = authUser.id;
     payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
 
@@ -293,9 +308,7 @@ const CreateUnit = () => {
             <BackButton />
             <div className="card shadow my-3">
               <div className="card-body">
-                <form
-                  data-testid="create-unit-form"
-                >
+                <form data-testid="create-unit-form">
                   <Stack
                     direction="row"
                     alignItems="center"
@@ -308,7 +321,9 @@ const CreateUnit = () => {
                     >
                       Add Unit(s)
                     </h6>
-                    <div>
+                    <div style={{
+                      maxWidth: "260px",
+                    }} >
                       <select
                         data-testid="create-unit-property-select"
                         name="rental_property"
@@ -335,6 +350,11 @@ const CreateUnit = () => {
                           );
                         })}
                       </select>{" "}
+                      {showPropertyErrorMessages && (
+                        <span style={validationMessageStyle}>
+                          Please select a property to add the unit(s) to.
+                        </span>
+                      )}
                     </div>
                   </Stack>
 
