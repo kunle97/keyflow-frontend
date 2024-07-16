@@ -58,7 +58,7 @@ import {
 import UIPrompt from "../../UIComponents/UIPrompt";
 import useScreen from "../../../../hooks/useScreen";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { getOwnerTenant } from "../../../../api/owners";
+import { getOwnerSubscriptionPlanData, getOwnerTenant } from "../../../../api/owners";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import HomeIcon from "@mui/icons-material/Home";
 import HotelIcon from "@mui/icons-material/Hotel";
@@ -119,6 +119,7 @@ const ManageUnit = () => {
   const { isMobile } = useScreen();
   const [unit, setUnit] = useState({});
   const [unitPreferences, setUnitPreferences] = useState([]);
+  const [ownerSubscriptionPlanData, setOwnerSubscriptionPlanData] = useState({});
   const [tenant, setTenant] = useState({});
   const [editLink, setEditLink] = useState(null);
   const [signedLeaseViewLink, setSignedLeaseViewLink] = useState(null);
@@ -873,15 +874,18 @@ const ManageUnit = () => {
       let payload = {
         unit_id: unit_id,
         rental_property: property_id,
-        product_id: currentSubscriptionPlan.plan.product,
-        subscription_id: currentSubscriptionPlan.id,
+        product_id: currentSubscriptionPlan?.plan?.product ? currentSubscriptionPlan?.plan?.product : null,
+        subscription_id: currentSubscriptionPlan?.id ? currentSubscriptionPlan?.id : null,
       };
       //Delete the unit with the api
       deleteUnit(payload).then((res) => {
         console.log(res);
+      }).then((res) => {
+        //Redirect to the property page
+        navigate(`/dashboard/owner/properties/${property_id}`);
+      }).catch((err) => {
+        console.log(err);
       });
-      //Redirect to the property page
-      window.location.href = `/dashboard/owner/properties/${property_id}`;
     }
   };
 
@@ -972,6 +976,9 @@ const ManageUnit = () => {
   };
 
   useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      setOwnerSubscriptionPlanData(res);
+    });
     preventPageReload();
     setIsLoadingPage(true);
     syncRentalUnitPreferences(unit_id);
@@ -1566,7 +1573,7 @@ const ManageUnit = () => {
                 action: () => {
                   setViewRentalApplicationModalOpen(true);
                 },
-                hidden: isOccupied,
+                hidden: isOccupied  || !ownerSubscriptionPlanData.can_use_rental_applications,
               },
               {
                 label: "Delete Unit",

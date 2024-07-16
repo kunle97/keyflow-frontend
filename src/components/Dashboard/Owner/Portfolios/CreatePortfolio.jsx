@@ -8,7 +8,10 @@ import {
   validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
-import { createPortfolio, validatePortfolioName } from "../../../../api/portfolios";
+import {
+  createPortfolio,
+  validatePortfolioName,
+} from "../../../../api/portfolios";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../hooks/useScreen";
@@ -19,6 +22,7 @@ import {
 } from "../../../../helpers/formValidation";
 import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
 import { preventPageReload } from "../../../../helpers/utils";
+import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 const CreatePortfolio = () => {
   const navigate = useNavigate();
   const { isMobile, screenWidth, breakpoints } = useScreen();
@@ -64,7 +68,7 @@ const CreatePortfolio = () => {
               name: "Please enter a valid name for the portfolio. No special characters allowed.",
             }));
             return false;
-          }else{
+          } else {
             setErrors((prevErrors) => ({
               ...prevErrors,
               name: "",
@@ -122,21 +126,38 @@ const CreatePortfolio = () => {
           setOpen(true);
           // navigate("/dashboard/owner/portfolios");
         } else {
-          setAlertTitle("Error");
-          setAlertMessage("Error Creating Portfolio");
+          setAlertTitle("Error Creating Portfolio");
+          setAlertMessage(
+            res.message ? res.message : "Error Creating Portfolio: "
+          );
           setOpen(true);
         }
       })
       .catch((err) => {
         console.log(err);
-        setAlertTitle("Error");
-        setAlertMessage("Error Creating Portfolio. " + err.message);
+        setAlertTitle("Error Creating Portfolio");
+        setAlertMessage(
+          err.message ? err.message : "Error Creating Portfolio."
+        );
       })
       .finally(() => {
         console.log("finally");
+        setIsLoading(false);
       });
   };
   useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      console.log("Subscription Plan Data", res);
+      if(!res.can_use_portfolios){
+        setAlertTitle("Subscription Plan Mismatch");
+        setAlertMessage("To create a portfolio, you need to upgrade your subscription plan to the Keyflow Owner Standard Plan or higher. ");
+        setOpen(true);
+      }else{
+        setAlertTitle("");
+        setAlertMessage("");
+        setOpen(false);
+      }
+    });
     preventPageReload();
   }, []);
   return (
@@ -150,14 +171,15 @@ const CreatePortfolio = () => {
         title={alertTitle}
         message={alertMessage}
         btnText={"Ok"}
-        onClick={() => navigate("/dashboard/owner/portfolios")}
+        onClick={() => {
+          navigate("/dashboard/owner/portfolios")
+          setOpen(false);
+        }}
       />
       <h4 data-testid="create-portfolio-title">Create Portfolio</h4>
       <div className="card">
         <div className="card-body">
-          <form
-            data-testid="create-portfolio-form"
-          >
+          <form data-testid="create-portfolio-form">
             {formInputs.map((input, index) => {
               return (
                 <div

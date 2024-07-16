@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { uiGreen, uiGrey1, uiGrey2 } from "../../../../constants";
 import { fa, faker } from "@faker-js/faker";
 import { checkEmail, checkUsername, registerOwner } from "../../../../api/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { Input, Button, Stack, IconButton } from "@mui/material";
@@ -26,11 +26,25 @@ import {
   validStrongPassword,
   validUserName,
 } from "../../../../constants/rexgex";
+import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
 const OwnerRegister = () => {
   //Cards state variables
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
+  const { plan_index } = useParams();
+  const [plans, setPlans] = useState([]);
+  const [freePlan, setFreePlan] = useState({
+    name: "Free Plan",
+    price: 0,
+    product_id: null,
+    features: [
+      { name: "Accept online rent payments" },
+      { name: "Manage Up to 4 rental units" },
+      { name: "Communicate directly with tenants" },
+      { name: "Manage maintenance requests" },
+    ],
+  });
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [stripeRedirectLink, setStripeRedirectLink] = useState("");
@@ -216,9 +230,6 @@ const OwnerRegister = () => {
       errorMessageDataTestId: "password_repeat_error",
     },
   ];
-  useEffect(() => {
-    preventPageReload();
-  }, []);
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const onSubmit = async () => {
     setIsLoading(true);
@@ -234,53 +245,85 @@ const OwnerRegister = () => {
       };
       payload.activation_token = makeId(32);
       payload.account_type = "owner";
-      //Handle stripe elements
-      if (!stripe || !elements) {
-        // Stripe.js has not yet loaded.
-        return;
-      }
 
-      const cardElement = elements.getElement(CardElement);
-
-      try {
-        if (cardMode) {
-          const { paymentMethod } = await stripe.createPaymentMethod({
-            type: "card",
-            card: cardElement,
-          });
-          setPaymentMethodId(paymentMethod.id);
-          console.log(paymentMethod.id);
-          console.log("PaymentMethod:", paymentMethod);
-          payload.payment_method_id = paymentMethod.id;
-          payload.price_id = selectedPlan.price_id;
-          payload.product_id = selectedPlan.product_id;
-          console.log("COMPLETE FORM DATA", payload);
-        } else {
-        }
-        const response = await registerOwner(payload).then((res) => {
-          console.log(res);
-          if (res.status === 200) {
-            //Show success message
-            setErrorMode(false);
-            setOpen(true);
-            setStripeRedirectLink(res.stripe_onboarding_link.url);
-          } else {
-            //TODO: Show error message moodal
+      if (selectedPlan.price === 0) {
+        payload.price_id = null;
+        payload.product_id = null;
+        payload.payment_method_id = null;
+        console.log("COMPLETE FORM DATA", payload);
+        const response = await registerOwner(payload)
+          .then((res) => {
+            console.log(res);
+            if (res.status === 200) {
+              //Show success message
+              setErrorMode(false);
+              setOpen(true);
+              setStripeRedirectLink(res.stripe_onboarding_link.url);
+            } else {
+              //TODO: Show error message moodal
+              setErrorMode(true);
+              setOpen(true);
+              setIsLoading(false);
+            }
+          })
+          .catch((err) => {
+            setMessage("Error adding your payment method");
+            console.log(err);
             setErrorMode(true);
-            setOpen(true);
+            setSuccessMode(false);
             setIsLoading(false);
+            return;
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      } else {
+        //Handle stripe elements
+        if (!stripe || !elements) {
+          // Stripe.js has not yet loaded.
+          return;
+        }
+        const cardElement = elements.getElement(CardElement);
+        try {
+          if (cardMode) {
+            const { paymentMethod } = await stripe.createPaymentMethod({
+              type: "card",
+              card: cardElement,
+            });
+            setPaymentMethodId(paymentMethod.id);
+            console.log(paymentMethod.id);
+            console.log("PaymentMethod:", paymentMethod);
+            payload.payment_method_id = paymentMethod.id;
+            payload.price_id = selectedPlan.price_id;
+            payload.product_id = selectedPlan.product_id;
+            console.log("COMPLETE FORM DATA", payload);
+          } else {
           }
-        });
-        //Call the API to create a new owner user
-      } catch (err) {
-        setMessage("Error adding your payment method");
-        console.log(err);
-        setErrorMode(true);
-        setSuccessMode(false);
-        setIsLoading(false);
-        return;
-      } finally {
-        setIsLoading(false);
+          const response = await registerOwner(payload).then((res) => {
+            console.log(res);
+            if (res.status === 200) {
+              //Show success message
+              setErrorMode(false);
+              setOpen(true);
+              setStripeRedirectLink(res.stripe_onboarding_link.url);
+            } else {
+              //TODO: Show error message moodal
+              setErrorMode(true);
+              setOpen(true);
+              setIsLoading(false);
+            }
+          });
+          //Call the API to create a new owner user
+        } catch (err) {
+          setMessage("Error adding your payment method");
+          console.log(err);
+          setErrorMode(true);
+          setSuccessMode(false);
+          setIsLoading(false);
+          return;
+        } finally {
+          setIsLoading(false);
+        }
       }
     } else {
       setIsLoading(false);
@@ -302,8 +345,29 @@ const OwnerRegister = () => {
   };
 
   useEffect(() => {
+    if (!plans || plans.length === 0) {
+      getSubscriptionPlanPrices()
+        .then((res) => {
+          setPlans(res.products);
+          if (plan_index && plan_index == 0) {
+            //Set the selected plan to the free plan
+            setSelectedPlan(freePlan);
+          } else if (plan_index) {
+            setSelectedPlan(res.products[plan_index - 1]);
+          }
+          console.log(plans);
+        })
+        .catch((error) => {
+          console.error("Error fetching subscription plans", error);
+          setAlertTitle("Error!");
+          setAlertMessage(
+            "There was an error fetching subscription plans. Please try again."
+          );
+          setShowAlert(true);
+        });
+    }
     preventPageReload();
-  }, []);
+  }, [plans]);
 
   return (
     <div className="container-fluid" style={{ padding: 0, overflow: "hidden" }}>
@@ -508,11 +572,19 @@ const OwnerRegister = () => {
                               Change Plan
                             </Button>
                           </div>{" "}
-                          <UIButton
-                            style={{ width: "100%", marginTop: "10px" }}
-                            btnText="Next"
-                            onClick={() => setStep(2)}
-                          />
+                          {selectedPlan.price === 0 ? (
+                            <UIButton
+                              style={{ width: "100%" }}
+                              btnText="Sign Up"
+                              onClick={onSubmit}
+                            />
+                          ) : (
+                            <UIButton
+                              style={{ width: "100%", marginTop: "10px" }}
+                              btnText="Next"
+                              onClick={() => setStep(2)}
+                            />
+                          )}
                         </>
                       ) : (
                         <>
@@ -642,6 +714,8 @@ const OwnerRegister = () => {
                     onClose={() => setPlanSelectDialogIsOpen(false)}
                     setSelectedPlan={setSelectedPlan}
                     selectedPlan={selectedPlan}
+                    plan_index={plan_index}
+                    plans={plans}
                   />
                 </form>
               </div>
