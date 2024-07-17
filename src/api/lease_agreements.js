@@ -188,3 +188,26 @@ export async function cancelLeaseAgreement(leaseAgreementId) {
     return { response: error.response, message: "Error", status: 400 };
   }
 }
+
+//Create a function that generates missing lease agreements using endpoint /api/lease-agreements/{lease_agreement_id}/check-lease-agreement-invoices/
+export async function generateMissingLeaseAgreementInvoices(leaseAgreementId) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/lease-agreements/check-lease-agreement-invoices/`,
+        { lease_agreement_id: leaseAgreementId }
+      )
+      .then((res) => {
+        const response = res.data;
+        console.log("axios generate missing lease agreement invoices response ", response);
+        return response;
+      });
+    return {
+      message: "Missing lease agreement invoices generated successfully",
+      status: 200,
+      response: res,
+    };
+  } catch (error) {
+    console.log("Generate Missing Lease Agreement Invoices Error: ", error);
+    return { response: error.response, message: "Error", status: 400 };
+  }
+}

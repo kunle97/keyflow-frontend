@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  generateMissingLeaseAgreementInvoices,
   getLeaseAgreementById,
   updateLeaseAgreement,
 } from "../../../../api/lease_agreements";
@@ -47,9 +48,11 @@ import UISwitch from "../../UIComponents/UISwitch";
 import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
 import { authenticatedInstance } from "../../../../api/api";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
+  const [isLoadingRequest, setIsLoadingRequest] = useState(false);
   const [isPreparingDownload, setIsPreparingDownload] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
@@ -180,6 +183,34 @@ const LeaseAgreementDetail = () => {
     }
   };
 
+  const generateRentInvoices = () => {
+    setIsLoadingRequest(true);
+    generateMissingLeaseAgreementInvoices(leaseAgreement.id)
+      .then((res) => {
+        console.log("Generate Rent Invoices Response: ", res);
+        if (res.status === 200) {
+          setAlertTitle("Success");
+          setAlertMessage("Rent invoices generated successfully");
+        } else {
+          setAlertTitle("Error");
+          setAlertMessage(
+            res.data?.message
+              ? res.data.message
+              : "Error generating rent invoices. Please try again later."
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Error generating rent invoices: ", error);
+        setAlertTitle("Error");
+        setAlertMessage("Error generating rent invoices");
+      })
+      .finally(() => {
+        setAlertModalOpen(true);
+        setIsLoadingRequest(false);
+      });
+  };
+
   useEffect(() => {
     setIsLoadingPage(true);
     // fetch the lease agreement with the id
@@ -258,6 +289,10 @@ const LeaseAgreementDetail = () => {
           <ProgressModal
             open={isPreparingDownload}
             title="Preparing download..."
+          />
+          <ProgressModal
+            open={isLoadingRequest}
+            title="Generating rent invoices..."
           />
           <Joyride
             run={runTour}
@@ -452,6 +487,11 @@ const LeaseAgreementDetail = () => {
                     weekends={true}
                     events={dueDates}
                     // eventContent={renderEventContent}
+                  />
+                  <UIButton
+                    btnText="Generate Rent Invoices"
+                    style={{ width: "100%", marginTop: "25px" }}
+                    onClick={generateRentInvoices}
                   />
                 </div>
               </div>
