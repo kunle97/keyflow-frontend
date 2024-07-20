@@ -17,7 +17,6 @@ const UIDropzone = (props) => {
     cursor: "pointer",
     width: "100%",
     height: "400px",
-    // marginBottom: "15px",
     justifyContent: "center",
     alignItems: "center",
     display: "flex",

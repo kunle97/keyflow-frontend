@@ -8,7 +8,6 @@ import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
 import ImageGallery from "react-image-gallery";
 import { createRentalApplication } from "../../api/rental_applications";
-import { getLeaseTemplateByUnitId } from "../../api/units";
 import { getUnitUnauthenticated } from "../../api/units";
 import { getPropertyUnauthenticated } from "../../api/properties";
 import { useParams } from "react-router-dom";
@@ -23,18 +22,14 @@ import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads"
 import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
 import useScreen from "../../hooks/useScreen";
-import { triggerValidation } from "../../helpers/formValidation";
 import { preventPageReload } from "../../helpers/utils";
 const CreateRentalApplication = () => {
   const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
   const [step, setStep] = useState(0); // step state
-  const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
-  const [step1IsValid, setStep1IsValid] = useState(false); // step 2 validation state
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
   const [unit, setUnit] = useState({}); // unit data
-  const [unitPreferences, setUnitPreferences] = useState([]); // unit preferences data
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]); // unit preferences data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
@@ -46,7 +41,6 @@ const CreateRentalApplication = () => {
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
   const [alertMessage, setAlertMessage] = useState("");
   const [alertModalRedirect, setAlertModalRedirect] = useState(""); // alert modal redirect state
-  const [leaseTemplate, setLeaseTemplate] = useState({}); // lease terms
   const navigate = useNavigate();
   const [unitImages, setUnitImages] = useState([]); // unit images state
   const [errorMode, setErrorMode] = useState(false); // error mode state
@@ -258,7 +252,7 @@ const CreateRentalApplication = () => {
     let realName = name.split("_")[0];
     const updatedHistory = [...employmentHistory];
     updatedHistory[index][realName] = value;
-    console.log("updated historm ", updatedHistory);
+
     setEmploymentHistory(updatedHistory);
   };
 
@@ -388,11 +382,11 @@ const CreateRentalApplication = () => {
     payload.owner_id = owner_id;
     payload.comments = data.comments ? data.comments : "";
 
-    console.log(payload);
+
 
     const res = await createRentalApplication(payload);
     setIsLoading(true);
-    console.log(res);
+
     if (res.status == 200) {
       // show a success message
       setIsLoading(false);
@@ -412,10 +406,6 @@ const CreateRentalApplication = () => {
       setAlertButtonText("Try Again");
       setAlertTitle("Error Submitting Application");
     }
-  };
-
-  const handleOtherOccupants = (value) => {
-    setOtherOccupants(value);
   };
 
   const steps = [
@@ -451,12 +441,6 @@ const CreateRentalApplication = () => {
   };
 
   useEffect(() => {
-    /**
-     *
-     * TODO: Create a functioning checkbox for the employment history and residence history sections for current employment and current residence
-     *
-     * */
-
     // get unit data
     preventPageReload();
     getUnitUnauthenticated(unit_id)
@@ -466,7 +450,6 @@ const CreateRentalApplication = () => {
           setUnit(unit_res.data);
 
           setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
-          //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
           retrieveUnauthenticatedFilesBySubfolder(
             `properties/${unit_res.data.rental_property}/units/${unit_id}`
           )

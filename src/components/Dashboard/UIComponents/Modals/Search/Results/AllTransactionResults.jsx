@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useSearch } from "../../../../../../contexts/SearchContext";
-import { Box, CircularProgress } from "@mui/material";
 import { Fragment } from "react";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import SearchResultCard from "../SearchResultCard";
@@ -48,7 +46,7 @@ const AllTransactionResults = (props) => {
         setPreviousPageEndPoint(response.data.previous);
       })
       .catch((error) => {
-        console.log(error);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occured retrieving properties: " + error.message

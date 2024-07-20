@@ -2,10 +2,8 @@ import React from "react";
 import { useEffect } from "react";
 import {
   getMaintenanceRequestsByTenant,
-  getMaintenanceRequestsByUser,
 } from "../../../../api/maintenance_requests";
 import { useState } from "react";
-import MUIDataTable from "mui-datatables";
 import useScreen from "../../../../hooks/useScreen";
 import UITable from "../../UIComponents/UITable/UITable";
 import { getTenantDashboardData } from "../../../../api/tenants";
@@ -15,11 +13,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { useNavigate } from "react-router";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -30,9 +24,6 @@ const MaintenanceRequests = () => {
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [orderingField, setOrderingField] = useState("created_at");
-  const [searchField, setSearchField] = useState("");
-  const [limit, setLimit] = useState(10);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
@@ -69,7 +60,7 @@ const MaintenanceRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     { name: "description", label: "Issue" },
@@ -119,21 +110,21 @@ const MaintenanceRequests = () => {
     //Retrieve the maintenance requests
     getTenantDashboardData().then((res) => {
       //Check if lease agreement is active
-      console.log(res);
+
       setLeaseAgreement(res.lease_agreement);
       if (res.lease_agreement) {
         getMaintenanceRequestsByTenant(authUser.tenant_id).then((res) => {
-          console.log(res);
+
           setMaintenanceRequests(res.data);
         });
       }
     }).catch((error) => {
-      console.log(error);
+
       setShowAlert(true);
       setAlertTitle("Error");
       setAlertMessage("An error occurred while fetching maintenance requests");
     });
-  }, []);
+  },[]);
 
   return (
     <div className="container-fluid">
@@ -207,15 +198,6 @@ const MaintenanceRequests = () => {
                 options={options}
                 title="Maintenance Requests"
                 searchFields={["description", "status"]}
-                onSearch={(value) => {
-                  setSearchField(value);
-                }}
-                onOrderingChange={(value) => {
-                  setOrderingField(value);
-                }}
-                onResultLimitChange={(value) => {
-                  setLimit(value);
-                }}
                 showResultLimit={true}
                 loadingTitle="Maintenance Requests"
                 loadingMessage="Loading your maintenance requests..."
@@ -227,7 +209,7 @@ const MaintenanceRequests = () => {
                       navigate(navlink);
                     },
                   },
-                  { name: "Delete", onClick: () => console.log("Delete") },
+
                 ]}
               />
             </div>

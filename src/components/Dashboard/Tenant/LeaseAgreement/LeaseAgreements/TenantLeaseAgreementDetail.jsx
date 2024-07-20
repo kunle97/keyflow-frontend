@@ -1,7 +1,6 @@
 import React from "react";
 import { useState } from "react";
 import {
-  getTenantDashboardData,
   updateTenantAutoRenewStatus,
 } from "../../../../../api/tenants";
 import { useEffect } from "react";
@@ -18,18 +17,13 @@ import { getTenantLeaseRenewalRequests } from "../../../../../api/lease_renewal_
 import { getTenantInvoices } from "../../../../../api/tenants";
 import { useNavigate } from "react-router";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import UISwitch from "../../../UIComponents/UISwitch";
 import { useParams } from "react-router";
 import { getLeaseAgreementById } from "../../../../../api/lease_agreements";
 import { authenticatedInstance } from "../../../../../api/api";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
 import PaymentCalendar from "../../PaymentCalendar";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import { preventPageReload } from "../../../../../helpers/utils";
@@ -50,7 +44,6 @@ const TenantLeaseAgreementDetail = () => {
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [
     hasExistingLeaseCancellationRequest,
@@ -58,7 +51,6 @@ const TenantLeaseAgreementDetail = () => {
   ] = useState(false);
   const [hasExistingLeaseRenewalRequest, setHasExistingLeaseRenewalRequest] =
     useState(false);
-  const [invoices, setInvoices] = useState([]);
   const [totalAmountDue, setTotalAmountDue] = useState(0);
   const [totalAmountPaid, setTotalAmountPaid] = useState(0);
   const [runTour, setRunTour] = useState(false);
@@ -102,7 +94,7 @@ const TenantLeaseAgreementDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const openCancellationDialog = () => {
     let today = new Date();
@@ -118,8 +110,8 @@ const TenantLeaseAgreementDetail = () => {
       noticePeriodBeforeEndDate.getMonth() - cancellationNoticePeriod
     );
 
-    console.log("Today: ", today);
-    console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
+
+
 
     // Check if today is before the notice period starts
     if (today < noticePeriodBeforeEndDate) {
@@ -128,7 +120,7 @@ const TenantLeaseAgreementDetail = () => {
         `You cannot cancel your lease at this time. Please try again after ${cancellationNoticePeriod} month(s) before the end of your lease.`
       );
       setShowAlertModal(true);
-      console.log("You cannot cancel your lease at this time");
+
     } else if (hasExistingLeaseCancellationRequest) {
       setShowLeaseCancellationFormDialog(false);
       setAlertModalTitle("Existing Lease Cancellation Request");
@@ -136,7 +128,7 @@ const TenantLeaseAgreementDetail = () => {
         "You already have an existing lease cancellation request. You will be notified when the property manager responds."
       );
       setShowAlertModal(true);
-      console.log("You cannot cancel your lease at this time");
+
     } else if (hasExistingLeaseRenewalRequest) {
       setShowLeaseCancellationFormDialog(false);
       setAlertModalTitle("Existing Lease Renewal Request");
@@ -144,7 +136,7 @@ const TenantLeaseAgreementDetail = () => {
         "You cannot cancel your lease at this time. You already have an existing lease renewal request. You will be notified when the property manager responds."
       );
       setShowAlertModal(true);
-      console.log("You cannot cancel your lease at this time");
+
     } else {
       setShowLeaseCancellationFormDialog(true);
     }
@@ -164,8 +156,8 @@ const TenantLeaseAgreementDetail = () => {
       noticePeriodBeforeEndDate.getMonth() - renewalNoticePeriod
     );
 
-    console.log("Today: ", today);
-    console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
+
+
 
     // Check if today's date is within the notice period threshold before the end of the lease
     if (today < noticePeriodBeforeEndDate) {
@@ -200,7 +192,7 @@ const TenantLeaseAgreementDetail = () => {
       tenant_id: leaseAgreement.tenant.id,
     })
       .then((res) => {
-        console.log(res);
+
         if (res.status !== 200) {
           setAlertModalTitle("Error");
           setAlertModalMessage(
@@ -226,7 +218,7 @@ const TenantLeaseAgreementDetail = () => {
         { document_id: leaseAgreement.document_id },
         { responseType: "blob" } // This is important to handle binary data
       );
-      console.log("Response: ", response);
+
       if (response.status !== 200) {
         throw new Error("Error downloading document");
       }
@@ -235,7 +227,6 @@ const TenantLeaseAgreementDetail = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      setPdfUrl(url);
       link.setAttribute("download", "lease_agreement.pdf");
       document.body.appendChild(link);
       link.click();
@@ -283,16 +274,14 @@ const TenantLeaseAgreementDetail = () => {
         }
       });
       getTenantInvoices().then((res) => {
-        //Reverse the array so the most recent invoices are shown first
-        setInvoices(res.invoices.data.reverse());
         let amountDue = 0;
         let amountPaid = 0;
         res.invoices.data.forEach((invoice) => {
           amountDue += invoice.amount_remaining;
           amountPaid += invoice.amount_paid;
         });
-        console.log("Amount Due: ", amountDue);
-        console.log("Amount Paid: ", amountPaid);
+
+
         setTotalAmountDue(amountDue / 100);
         setTotalAmountPaid(amountPaid / 100);
       });
@@ -305,7 +294,7 @@ const TenantLeaseAgreementDetail = () => {
       setShowAlertModal(true);
     }
     preventPageReload();
-  }, []);
+  },[]);
 
   return (
     <div className="container">

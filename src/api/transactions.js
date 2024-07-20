@@ -11,7 +11,7 @@ export async function getTransactionsByUser() {
       });
     return res;
   } catch (error) {
-    console.log("Get Transactions Error: ", error);
+
     return error.response;
   }
 }
@@ -26,7 +26,7 @@ export async function getTenantTransactionsByUser() { //TODO: Delete this functi
       });
     return res;
   } catch (error) {
-    console.log("Get Transactions Error: ", error);
+
     return error.response;
   }
 }
@@ -44,7 +44,7 @@ export async function getTransactionById(transactionId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Transaction Error: ", error);
+
     return error.response;
   }
 }
@@ -61,7 +61,7 @@ export async function getTransactionsByTenant(tenantId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Tenant Transactions Error: ", error);
+
     return error.response;
   }
 }

@@ -1,6 +1,6 @@
 import React from "react";
-import { uiGreen, uiGrey2 } from "../../../../../../../constants";
-import { Button, ButtonBase, IconButton, Stack } from "@mui/material";
+import { uiGreen } from "../../../../../../../constants";
+import { ButtonBase, IconButton, Stack } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 const ResultsHeader = (props) => {
   return (

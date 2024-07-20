@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getOwnerTenants } from "../../../../api/owners";
 import { useNavigate } from "react-router-dom";
-import TitleCard from "../../UIComponents/TitleCard";
-import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
+import { uiGreen, uiGrey2 } from "../../../../constants";
 import UITable from "../../UIComponents/UITable/UITable";
-import { defaultUserProfilePicture } from "../../../../constants";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
@@ -107,25 +105,25 @@ const Tenants = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   useEffect(() => {
     try {
       getOwnerTenants().then((res) => {
-        console.log(res);
+
         setTenants(res.data);
-        console.log(tenants);
+
       });
       getAllLeaseRenewalRequests().then((res) => {
-        console.log(res);
+
         setLeaseRenewals(res.data);
-        console.log(leaseRenewals);
+
       });
       getAllLeaseCancellationRequests().then((res) => {
-        console.log(res);
+
         setLeaseCancellations(res.data);
-        console.log(leaseCancellations);
+
       });
     } catch (err) {
       console.error(err);

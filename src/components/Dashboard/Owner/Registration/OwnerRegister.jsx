@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { uiGreen, uiGrey1, uiGrey2 } from "../../../../constants";
-import { fa, faker } from "@faker-js/faker";
+import { uiGreen } from "../../../../constants";
+import { faker } from "@faker-js/faker";
 import { checkEmail, checkUsername, registerOwner } from "../../../../api/auth";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
-import { Input, Button, Stack, IconButton } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { Button, Stack, IconButton } from "@mui/material";
 import { validationMessageStyle } from "../../../../constants";
 import { makeId, preventPageReload } from "../../../../helpers/utils";
 import UIButton from "../../UIComponents/UIButton";
@@ -27,6 +26,7 @@ import {
   validUserName,
 } from "../../../../constants/rexgex";
 import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
+import { freePlan } from "../../../../constants";
 const OwnerRegister = () => {
   //Cards state variables
   const stripe = useStripe();
@@ -34,17 +34,6 @@ const OwnerRegister = () => {
   const navigate = useNavigate();
   const { plan_index } = useParams();
   const [plans, setPlans] = useState([]);
-  const [freePlan, setFreePlan] = useState({
-    name: "Free Plan",
-    price: 0,
-    product_id: null,
-    features: [
-      { name: "Accept online rent payments" },
-      { name: "Manage Up to 4 rental units" },
-      { name: "Communicate directly with tenants" },
-      { name: "Manage maintenance requests" },
-    ],
-  });
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [stripeRedirectLink, setStripeRedirectLink] = useState("");
@@ -99,8 +88,8 @@ const OwnerRegister = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
   const formInputs = [
     {
@@ -172,7 +161,7 @@ const OwnerRegister = () => {
         required: true,
         validate: async (val) => {
           let regex = validEmail;
-          console.log("Email regex test ", regex.test(val));
+
           if (!regex.test(val)) {
             setErrors((prevErrors) => ({
               ...prevErrors,
@@ -250,10 +239,10 @@ const OwnerRegister = () => {
         payload.price_id = null;
         payload.product_id = null;
         payload.payment_method_id = null;
-        console.log("COMPLETE FORM DATA", payload);
+
         const response = await registerOwner(payload)
           .then((res) => {
-            console.log(res);
+
             if (res.status === 200) {
               //Show success message
               setErrorMode(false);
@@ -268,7 +257,7 @@ const OwnerRegister = () => {
           })
           .catch((err) => {
             setMessage("Error adding your payment method");
-            console.log(err);
+
             setErrorMode(true);
             setSuccessMode(false);
             setIsLoading(false);
@@ -291,16 +280,16 @@ const OwnerRegister = () => {
               card: cardElement,
             });
             setPaymentMethodId(paymentMethod.id);
-            console.log(paymentMethod.id);
-            console.log("PaymentMethod:", paymentMethod);
+
+
             payload.payment_method_id = paymentMethod.id;
             payload.price_id = selectedPlan.price_id;
             payload.product_id = selectedPlan.product_id;
-            console.log("COMPLETE FORM DATA", payload);
+
           } else {
           }
           const response = await registerOwner(payload).then((res) => {
-            console.log(res);
+
             if (res.status === 200) {
               //Show success message
               setErrorMode(false);
@@ -316,7 +305,7 @@ const OwnerRegister = () => {
           //Call the API to create a new owner user
         } catch (err) {
           setMessage("Error adding your payment method");
-          console.log(err);
+
           setErrorMode(true);
           setSuccessMode(false);
           setIsLoading(false);
@@ -355,7 +344,7 @@ const OwnerRegister = () => {
           } else if (plan_index) {
             setSelectedPlan(res.products[plan_index - 1]);
           }
-          console.log(plans);
+
         })
         .catch((error) => {
           console.error("Error fetching subscription plans", error);

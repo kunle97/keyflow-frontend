@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import ResultsHeader from "./Pagination/ResultsHeader";
-import { Box, CircularProgress } from "@mui/material";
 import { Fragment } from "react";
 import SearchResultCard from "../SearchResultCard";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
-import { authUser, uiGreen } from "../../../../../../constants";
-import { useSearch } from "../../../../../../contexts/SearchContext";
+import { uiGreen } from "../../../../../../constants";
 import { useEffect } from "react";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import UIPrompt from "../../../UIPrompt";
@@ -48,7 +46,7 @@ const AllRentalApplicationResults = (props) => {
         setPreviousPageEndPoint(response.data.previous);
       })
       .catch((error) => {
-        console.log(error);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occured retrieving properties: " + error.message

@@ -7,18 +7,18 @@ import { authUser } from "../constants";
 ///-----------------UNIT API FUNCTIONS---------------------------///
 //create a function to create a unit
 export async function createUnit(data) {
-  console.log("create unit data: ", data);
+
   try {
     const res = await authenticatedInstance
       .post(`/units/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios create unit response ", response);
+
         return response;
       });
     return { message: "Unit created successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Create Unit Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -27,7 +27,7 @@ export async function createUnit(data) {
 export async function getAllUnits() {
   try {
     const res = await authenticatedInstance.get(`/units/`).then((res) => {
-      console.log(res);
+
 
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
@@ -37,7 +37,7 @@ export async function getAllUnits() {
 
     return res;
   } catch (error) {
-    console.log("Get Units Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -49,7 +49,7 @@ export async function getUnits(propertyId) {
     const res = await authenticatedInstance
       .get(`/properties/${propertyId}/units/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -57,7 +57,7 @@ export async function getUnits(propertyId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Units Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -75,7 +75,7 @@ export async function getUnit(unitId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Unit Error: ", error);
+
     return error.response;
   }
 }
@@ -86,7 +86,7 @@ export async function getUnitUnauthenticated(unitId) {
     const res = await unauthenticatedInstance
       .post(`/retrieve-unit/`, { unit_id: unitId })
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -94,7 +94,7 @@ export async function getUnitUnauthenticated(unitId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Units Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -117,7 +117,7 @@ export async function getLeaseTemplateByUnitId(unit_id) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Unit Error: ", error);
+
     return error.response;
   }
 }
@@ -135,7 +135,7 @@ export async function updateUnit(unitId, data) {
       });
     return res;
   } catch (error) {
-    console.log("Update Unit Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -159,7 +159,7 @@ export async function deleteUnit(data) {
       });
     return res;
   } catch (error) {
-    console.log("Delete Unit Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -167,7 +167,7 @@ export async function deleteUnit(data) {
 export async function getOwnerUnits() {
   try {
     const res = await authenticatedInstance.get(`/units/`).then((res) => {
-      console.log(res);
+
 
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
@@ -177,7 +177,7 @@ export async function getOwnerUnits() {
 
     return res;
   } catch (error) {
-    console.log("Get Owner Units Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -197,7 +197,7 @@ export async function assignLeaseTemplateToUnit(data) {
       });
     return res.data;
   } catch (error) {
-    console.log("Assign Lease Template to Unit Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -217,7 +217,7 @@ export async function removeUnitLeaseTemplate(unit_id) {
       });
     return res.data;
   } catch (error) {
-    console.log("Remove Lease Template from Unit Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -235,7 +235,7 @@ export async function validateUnitName(data) {
       });
     return res.data;
   } catch (error) {
-    console.log("Validate Unit Name Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

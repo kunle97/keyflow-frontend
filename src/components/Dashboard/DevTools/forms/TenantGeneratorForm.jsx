@@ -51,7 +51,7 @@ export const TenantGeneratorForm = (props) => {
   });
 
   const onSubmit = async (data) => {
-    console.log(data);
+
     setIsLoading(true);
     // Collect input values
     let payload = {
@@ -71,7 +71,7 @@ export const TenantGeneratorForm = (props) => {
     axios
       .post(`${process.env.REACT_APP_API_HOSTNAME}/generate/tenants/`, payload)
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           alert(`Successfully generated ${response.data.count} tenants`);
           setIsLoading(false);
@@ -91,7 +91,7 @@ export const TenantGeneratorForm = (props) => {
     //retrieve lease terms that the user has created
     getLeaseTemplatesByUser().then((res) => {
       setLeaseTemplates(res.data);
-      console.log(res);
+
     });
   }, []);
   return (
@@ -119,7 +119,7 @@ export const TenantGeneratorForm = (props) => {
       </Stack>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {console.log("Form errors ", errors)}
+
         <div className="form-group my-2">
           <label style={{ color: "black", marginBottom: "10px" }}>
             Number of Tenants

@@ -5,7 +5,6 @@ import {
   uiGreen,
   validationMessageStyle,
 } from "../../../../constants";
-import { set, useForm } from "react-hook-form";
 import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { createTenantInvite } from "../../../../api/tenant_invite";
@@ -64,7 +63,7 @@ const TenantInviteForm = (props) => {
 
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -74,7 +73,7 @@ const TenantInviteForm = (props) => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,8 +87,8 @@ const TenantInviteForm = (props) => {
   };
   const handleChangeSelectedUnit = (e) => {
     setSelectedUnit(units.find((unit) => unit.id === parseInt(e.target.value)));
-    console.log("targe value: ", e.target.value);
-    console.log("Selected Unit: ", selectedUnit);
+
+
   };
   const formInputs = [
     {
@@ -167,7 +166,7 @@ const TenantInviteForm = (props) => {
 
   const handleSubmitTenantInvite = (e) => {
     e.preventDefault();
-    console.log("Form Data: ", formData);
+
     const { isValid, newErrors } = validateForm(formData, formInputs);
     if (isValid) {
       setIsLoading(true);
@@ -186,7 +185,7 @@ const TenantInviteForm = (props) => {
 
         sendDocumentToUser(doc_payload)
           .then((res) => {
-            console.log("sendDocResponse: ", res);
+
             // Retrieve document_id from sendDocResponse and add to data
             if (res.documentId) {
               let tenant_invite_data = {
@@ -197,7 +196,7 @@ const TenantInviteForm = (props) => {
                 boldsign_document_id: res.documentId,
               };
               createTenantInvite(tenant_invite_data).then((res) => {
-                console.log("Create invite res ", res);
+
                 if (res.status === 200) {
                   setMessage("Tenant invite sent!");
                   setTitle("Success!");
@@ -213,7 +212,7 @@ const TenantInviteForm = (props) => {
             }
           })
           .catch((err) => {
-            console.log("sendDocError: ", err);
+
             setMessage(
               "Tenant invite failed to send. Please ensure you have not already sent a tenant invite to this email for this rental unit and try again."
             );
@@ -235,7 +234,7 @@ const TenantInviteForm = (props) => {
         };
         createTenantInvite(tenant_invite_data)
           .then((res) => {
-            console.log("Create invite res ", res);
+
             if (res.status === 200) {
               setMessage("Tenant invite sent!");
               setTitle("Success!");
@@ -249,7 +248,7 @@ const TenantInviteForm = (props) => {
             }
           })
           .catch((err) => {
-            console.log("sendDocError: ", err);
+
             setMessage(
               "Tenant invite failed to send. Please ensure you have not already sent a tenant invite to this email for this rental unit and try again."
             );

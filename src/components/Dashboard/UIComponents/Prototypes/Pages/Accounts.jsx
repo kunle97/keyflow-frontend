@@ -32,11 +32,11 @@ const Accounts = () => {
       menuOptions: [
         {
           name: "Edit",
-          action: () => console.log("Edit"),
+
         },
         {
           name: "Delete",
-          action: () => console.log("Delete"),
+
         },
       ],
     },
@@ -49,11 +49,11 @@ const Accounts = () => {
       menuOptions: [
         {
           name: "Edit",
-          action: () => console.log("Edit"),
+
         },
         {
           name: "Delete",
-          action: () => console.log("Delete"),
+
         },
       ],
     },
@@ -66,11 +66,11 @@ const Accounts = () => {
       menuOptions: [
         {
           name: "Edit",
-          action: () => console.log("Edit"),
+
         },
         {
           name: "Delete",
-          action: () => console.log("Delete"),
+
         },
       ],
     },
@@ -83,11 +83,11 @@ const Accounts = () => {
       menuOptions: [
         {
           name: "Edit",
-          action: () => console.log("Edit"),
+
         },
         {
           name: "Delete",
-          action: () => console.log("Delete"),
+
         },
       ],
     },
@@ -100,11 +100,11 @@ const Accounts = () => {
       menuOptions: [
         {
           name: "Edit",
-          action: () => console.log("Edit"),
+
         },
         {
           name: "Delete",
-          action: () => console.log("Delete"),
+
         },
       ],
     },

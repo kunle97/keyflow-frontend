@@ -84,7 +84,7 @@ export default function PrimarySearchAppBar({
     }
     let response = await logout();
     if (response.status === 200) {
-      console.log("User was logged out successfully");
+
       setOpenLogoutModal(true);
     } else {
       console.error("Error logging user out");

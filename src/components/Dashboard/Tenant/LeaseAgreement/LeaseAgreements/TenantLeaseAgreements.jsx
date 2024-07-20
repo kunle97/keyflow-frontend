@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import useScreen from "../../../../../hooks/useScreen";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import { uiGreen, uiRed } from "../../../../../constants";
 import UITable from "../../../UIComponents/UITable/UITable";
@@ -54,7 +50,7 @@ const TenantLeaseAgreements = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {

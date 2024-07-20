@@ -58,7 +58,6 @@ Cypress.Commands.add("login", (email, password) => {
       } else {
         userData.tenant_id = response.body.tenant_id;
       }
-      console.log("cypress login response", response);
       // Store data in Cypress Local Storage
       localStorage.setItem("accessToken", response.body.token);
       localStorage.setItem("authUser", JSON.stringify(userData));
@@ -87,7 +86,6 @@ Cypress.Commands.add("logout", (token) => {
     return cy.wrap(null, { log: false }).then(() => {
       const accessToken = localStorage.getItem("accessToken");
   
-      console.log("accessToken before logout", accessToken);
   
       if (accessToken) {
         return cy
@@ -100,18 +98,11 @@ Cypress.Commands.add("logout", (token) => {
             },
           })
           .then((response) => {
-            // if (response.status === 200) {
-            //   cy.clearAuth();
-            //   console.log("Logout success", response.body.message);
-            //   return response.body.message;
-            // } else {
-            //   console.log("Logout failed", response.body.message);
-            //   return response.body.message;
-            // }
+
           });
       } else {
         // Handle the case where accessToken is null
-        console.log("No accessToken found for logout");
+
         return "No accessToken found for logout";
       }
     });

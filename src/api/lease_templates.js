@@ -32,7 +32,7 @@ export async function createLeaseTemplate(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios create lease term response ", response);
+
         return response;
       });
     return {
@@ -41,7 +41,7 @@ export async function createLeaseTemplate(data) {
       res: res,
     };
   } catch (error) {
-    console.log("Create Lease Term Error: ", error);
+
     return { response: error.response, message: error.response.data.message, status: 400 };
   }
 }
@@ -57,12 +57,12 @@ export async function getLeaseTemplatesByUser() {
         },
       })
       .then((res) => {
-        // console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Get Lease Terms Error: ", error);
+
     return error;
   }
 }
@@ -80,7 +80,7 @@ export async function getLeaseTemplateByIdAndApprovalHash(data) {
       });
     return res.data;
   } catch (error) {
-    console.log("Error Retrieving LEase Term: ", error);
+
     return error.response;
   }
 }
@@ -98,7 +98,7 @@ export async function getLeaseTemplateById(leaseTemplateId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Error Retrieving LEase Term: ", error);
+
     return error.response;
   }
 }
@@ -121,7 +121,7 @@ export async function updateLeaseTemplate(leaseTemplateId, data) {
       });
     return res.data;
   } catch (error) {
-    console.log("Update Lease Term Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -137,12 +137,12 @@ export async function assignLeaseTemplate(data) {
         lease_template_id: data.lease_template_id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Assign Lease Template Error: ", error);
+
     return error.response;
   }
 }
@@ -153,12 +153,12 @@ export async function removeLeaseTemplateFromAssignedResources(data) {
     const res = await authenticatedInstance
       .post(`/lease-templates/remove-lease-template-from-assigned-resources/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Remove Lease Template Error: ", error);
+
     return error.response;
   }
 }
@@ -174,12 +174,12 @@ export async function deleteLeaseTemplate(leaseTemplateId) {
         },
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Delete Lease Term Error: ", error);
+
     return error.response;
   }
 }

@@ -14,7 +14,7 @@ const PayBill = () => {
     const fetchData = async () => {
       try {
         const res = await getBillingEntry(id);
-        console.log(res);
+
         setPaymentLink(res.data.payment_link);
         // Open the payment link in a new window
         const newWindow = window.open(res.data.payment_link, "_blank");

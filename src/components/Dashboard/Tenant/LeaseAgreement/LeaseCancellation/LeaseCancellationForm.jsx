@@ -33,8 +33,8 @@ const LeaseCancellationForm = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -119,7 +119,7 @@ const LeaseCancellationForm = (props) => {
     };
     try {
       createLeaseCancellationRequest(payload).then((res) => {
-        console.log(res);
+
         if (res.status === 201) {
           props.setShowLeaseCancellationFormDialog(false);
           props.setAlertModalTitle("Lease Cancellation Request Created");
@@ -128,7 +128,7 @@ const LeaseCancellationForm = (props) => {
           );
           props.setShowAlertModal(true);
         } else {
-          console.log("Error creating lease cancellation request", res);
+
           props.setShowLeaseCancellationFormDialog(false);
           props.setAlertModalTitle("Error");
           props.setAlertModalMessage(
@@ -150,7 +150,7 @@ const LeaseCancellationForm = (props) => {
   };
   useEffect(() => {
     preventPageReload();
-  }, []);
+  },[]);
   return (
     <div>
       <ProgressModal open={isLoading} title="Creating Lease Cancellation Request..." />

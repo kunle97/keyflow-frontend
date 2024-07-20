@@ -2,29 +2,17 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import { deleteUnit } from "../../../../api/units";
 import {
-  Alert,
-  Avatar,
   Button,
   CircularProgress,
-  ClickAwayListener,
   Divider,
-  Grow,
-  IconButton,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemText,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
 import {
   deleteProperty,
-  updateProperty,
   getProperty,
   updatePropertyMedia,
   updatePropertyPreferences,
@@ -43,15 +31,11 @@ import {
   uiRed,
   validationMessageStyle,
 } from "../../../../constants";
-import { set, useForm } from "react-hook-form";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import {
-  authenticatedInstance,
-  authenticatedMediaInstance,
-} from "../../../../api/api";
+import { authenticatedMediaInstance } from "../../../../api/api";
 import FileManagerView from "../../UIComponents/FileManagerView";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -63,35 +47,25 @@ import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import { getPortfolios } from "../../../../api/portfolios";
-import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UIDropzone from "../../UIComponents/Modals/UploadDialog/UIDropzone";
 import {
   isValidFileExtension,
   isValidFileName,
 } from "../../../../helpers/utils";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import { MoreVert } from "@mui/icons-material";
 import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
-import {
-  syncPortfolioPreferences,
-  syncPropertyPreferences,
-} from "../../../../helpers/preferences";
+import { syncPropertyPreferences } from "../../../../helpers/preferences";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { validAnyString } from "../../../../constants/rexgex";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -119,7 +93,6 @@ const ManageProperty = () => {
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [tabPage, setTabPage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
-  const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
   const [propertyMediaCount, setPropertyMediaCount] = useState(0); //Create a propertyMediaCount state to hold the number of property media files
   const { isMobile, breakpoints, screenWidth } = useScreen();
@@ -152,7 +125,7 @@ const ManageProperty = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
 
   const handleClickStart = (event) => {
@@ -219,8 +192,8 @@ const ManageProperty = () => {
     const newValue = e.target.type === "select-one" ? e.target.value : value;
 
     setFormData((prevData) => ({ ...prevData, [name]: newValue }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -487,7 +460,7 @@ const ManageProperty = () => {
         preview: URL.createObjectURL(file),
       })
     );
-    console.log("updatedFiles", updatedFiles);
+
     setCsvFiles(updatedFiles);
     setResponseMessage(null);
     setResponseTitle(null);
@@ -503,7 +476,7 @@ const ManageProperty = () => {
     authenticatedMediaInstance
       .post(`/properties/${id}/upload-csv-units/`, updloadFormData)
       .then((res) => {
-        console.log("res", res);
+
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -511,7 +484,7 @@ const ManageProperty = () => {
         setCsvFiles([]); //Clear the files array
       })
       .catch((err) => {
-        console.log("MANAGEPROPERTY.JSX err", err);
+
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(
@@ -535,7 +508,7 @@ const ManageProperty = () => {
   const onSubmit = async () => {
     const response = await updatePropertyMedia(id, formData)
       .then((res) => {
-        console.log("Property Details submit res ", res);
+
         if (res.status === 200) {
           setUpdateAlertTitle("Success");
           setUpdateAlertMessage("Property updated");
@@ -563,7 +536,7 @@ const ManageProperty = () => {
     );
     updatePropertyPortfolio(property.id, selected_portfolio_id)
       .then((res) => {
-        console.log("Portfolio Change Res", res);
+
         if (res.status === 200) {
           setUpdateAlertTitle("Portfolio Updated");
           setUpdateAlertMessage("The property's portfolio has been updated");
@@ -629,7 +602,7 @@ const ManageProperty = () => {
             subscription_id: currentSubscriptionPlan.id,
           };
           deleteUnit(payload).then((res) => {
-            console.log("Unit delete res", res);
+
           });
         });
         //Show success alert
@@ -670,7 +643,7 @@ const ManageProperty = () => {
     try {
       if (!property || !formData) {
         getProperty(id).then((res) => {
-          console.log("Property RES", res);
+
           if (res.status === 404) {
             //Navigate to properties page
             navigate("/dashboard/owner/properties");
@@ -678,7 +651,7 @@ const ManageProperty = () => {
             retrieveSubscriptionPlan();
             syncPropertyPreferences(id);
             setProperty(res.data);
-            console.log("Property", res.data);
+
             if (res.data.preferences) {
               setPropertyPreferences(JSON.parse(res.data.preferences));
             }
@@ -727,7 +700,7 @@ const ManageProperty = () => {
             retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
               .then((res) => {
                 setPropertyMedia(res.data);
-                console.log(res.data);
+
                 setPropertyMediaCount(res.data.length);
               })
               .catch((error) => {
@@ -748,7 +721,7 @@ const ManageProperty = () => {
         });
       }
     } catch (error) {
-      console.log("Get Unit Error: ", error);
+
       return error.response;
     }
   }, [property, formData]);
@@ -809,7 +782,7 @@ const ManageProperty = () => {
             handleConfirm={() => {
               removePropertyLeaseTemplate(id)
                 .then((res) => {
-                  console.log("Remove Lease Template Res", res);
+
                   if (res.status === 200) {
                     setUpdateAlertTitle("Success");
                     setUpdateAlertMessage(
@@ -1209,6 +1182,10 @@ const ManageProperty = () => {
                               message={responseMessage}
                               btnText={"Ok"}
                               onClick={() => setShowFileUploadAlert(false)}
+                            />
+                            <ProgressModal
+                              open={isUploading}
+                              title="Uploading File..."
                             />
                             <UIDialog
                               open={showCsvFileUploadDialog}

@@ -11,7 +11,7 @@ export async function getUserStripeSubscriptions() {
     const res = await authenticatedInstance
       .get(`/owners/${authUser.owner_id}/subscriptions/ `, {})
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
@@ -31,7 +31,7 @@ export async function login(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios login response ", response);
+
         return response;
       });
 
@@ -71,8 +71,8 @@ export async function login(data) {
           ? "/dashboard/owner"
           : "/dashboard/tenant";
 
-      console.log(userData);
-      console.log("res. ", res);
+
+
       return {
         userData: userData,
         message: res.message,
@@ -83,7 +83,7 @@ export async function login(data) {
       return res.message;
     }
   } catch (error) {
-    console.log("Login Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -96,7 +96,7 @@ export async function logout() {
       .post(`/auth/logout/`)
       .then((res) => {
         const response = res.data;
-        console.log("axios logout response ", response);
+
         if (response.status === 200) {
           //redirect to login page on Login.jsx
           clearLocalStorage();
@@ -119,7 +119,7 @@ export async function registerOwner(data) {
       .post(`/owners/register/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios register response ", response);
+
         return response;
       });
 
@@ -132,7 +132,7 @@ export async function registerOwner(data) {
       status: 200,
     };
   } catch (error) {
-    console.log("Register Error: ", error);
+
     return error;
   }
 }
@@ -144,13 +144,13 @@ export async function registerTenant(data) {
       .post(`/tenants/register/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios register response ", response);
+
         return response;
       });
 
     return { message: res.message, status: 200 };
   } catch (error) {
-    console.log("Register Error: ", error);
+
     return error;
   }
 }
@@ -162,12 +162,12 @@ export async function activateAccount(token) {
       .post(`/auth/activate-account/`, { activation_token: token })
       .then((res) => {
         const response = res.data;
-        console.log("axios activate account response ", response);
+
         return response;
       });
     return res;
   } catch (error) {
-    console.log("Activate Account Error: ", error);
+
     return error;
   }
 }
@@ -178,12 +178,12 @@ export async function createPlaidLinkToken(user_id) {
     const res = await authenticatedInstance
       .post(`/plaid/create-link-token/`, { user_id: user_id })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Create Plaid Link Token Error: ", error);
+
     return error.response;
   }
 }
@@ -198,12 +198,12 @@ export async function getStripeSubscription(subscription_id) {
       })
 
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Stripe Subscription Error: ", error);
+
     return error.response;
   }
 }
@@ -217,12 +217,12 @@ export async function getUserData(user_id) {
         owner_id: authUser.id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get User Data Error: ", error);
+
     return error.response;
   }
 }
@@ -232,12 +232,12 @@ export async function updateUserData(data) {
     const res = await authenticatedInstance
       .patch(`/users/${authUser.id}/`, data)
       .then((res) => {
-        console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Update User Data Error: ", error);
+
     return error.response;
   }
 }
@@ -248,12 +248,12 @@ export async function checkEmail(email) {
     const res = await unauthenticatedInstance
       .post(`/auth/user-email-check/`, { email: email })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Check Email Error: ", error);
+
     return error.response;
   }
 }
@@ -264,12 +264,12 @@ export async function checkUsername(username) {
     const res = await unauthenticatedInstance
       .post(`/auth/user-username-check/`, { username: username })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Check Username Error: ", error);
+
     return error.response;
   }
 }

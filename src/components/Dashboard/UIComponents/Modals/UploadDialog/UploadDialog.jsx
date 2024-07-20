@@ -1,13 +1,11 @@
 import React from "react";
 import UIDialog from "../UIDialog";
-import { Stack } from "@mui/material";
-import { authUser, globalMaxFileSize, uiGreen } from "../../../../../constants";
+import { authUser, globalMaxFileSize } from "../../../../../constants";
 import UIButton from "../../UIButton";
 import { useState } from "react";
 import { uploadFile } from "../../../../../api/file_uploads";
 import AlertModal from "../AlertModal";
 import ProgressModal from "../ProgressModal";
-import { authenticatedInstance } from "../../../../../api/api";
 import UIDropzone from "./UIDropzone";
 import { useNavigate } from "react-router";
 
@@ -16,31 +14,30 @@ const UploadDialog = (props) => {
   const [showFileUploadAlert, setShowFileUploadAlert] = useState(false); //Create a state to hold the value of the alert modal
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
-  const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const navigate = useNavigate();
 
   //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
   const isValidFileName = (file_name) => {
-    console.log("File Name:", file_name); // Log the file name
+
     const regex = /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9]+)?$/;
     const isValid = regex.test(file_name);
-    console.log("isValid name", isValid);
+
     return isValid;
   };
 
   //Create a function that checks the props.acceptedFileTypes array to see if the file extension is valid
   const isValidFileExtension = (file_name) => {
-    console.log("File Name:", file_name); // Log the file name
+
     const file_extension = file_name.split(".").pop();
-    console.log("File Extension:", file_extension); // Log the file extension
+
     const isValid = props.acceptedFileTypes.includes("." + file_extension);
-    console.log("isValid extension", isValid);
+
     return isValid;
   };
 
   const onDrop = (acceptedFiles) => {
-    console.log("Accepted Files", acceptedFiles);
+
     let validFiles = true;
     acceptedFiles.forEach((file) => {
       //Check if file is valid size
@@ -108,7 +105,7 @@ const UploadDialog = (props) => {
 
       uploadFile(payload)
         .then((res) => {
-          console.log(res.message);
+
           if (res.status === 201) {
             setResponseTitle("File Upload");
             setResponseMessage("File uploaded successfully");

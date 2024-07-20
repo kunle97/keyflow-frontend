@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import { authenticatedInstance } from "../../../../api/api";
-import { CircularProgress, Box, ButtonBase, Alert } from "@mui/material";
+import { CircularProgress, Box } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
 import AlertModal from "../Modals/AlertModal";
 
 const UITableMini = (props) => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [query, setQuery] = useState("");
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false);
   const [currentPageEndPoint, setCurrentPageEndPoint] = useState(
     props.endpoint
   );
   const [nextPageEndPoint, setNextPageEndPoint] = useState(null);
   const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
-  const [count, setCount] = useState(null);
   const [limit, setLimit] = useState(10);
-  const [filteredData, setFilteredData] = useState([]);
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -30,14 +25,12 @@ const UITableMini = (props) => {
     try {
       if (props.data) {
         setResults(props.data);
-        setFilteredData(props.data);
         setIsDrfFilterBackend(false);
         setIsLoading(false);
       } else {
         await authenticatedInstance
           .get(endpoint, {
             params: {
-              search: query,
               limit: props.options.limit ? props.options.limit : limit,
               ordering: props.options.sortOrder.desc
                 ? "-" + props.options.sortOrder.name
@@ -50,7 +43,6 @@ const UITableMini = (props) => {
               setResults(res.data.results);
               setNextPageEndPoint(res.data.next);
               setPreviousPageEndPoint(res.data.previous);
-              setCount(res.data.count);
               setIsLoading(false);
               if (props.options.isSelectable) {
                 let newChecked = [];
@@ -80,10 +72,8 @@ const UITableMini = (props) => {
             } else {
               setIsDrfFilterBackend(false);
               setResults(res.data);
-              setFilteredData(res.data);
               setNextPageEndPoint(null);
               setPreviousPageEndPoint(null);
-              setCount(null);
               setLimit(null);
               setIsLoading(false);
               if (props.options.isSelectable) {
@@ -110,7 +100,7 @@ const UITableMini = (props) => {
       setAlertTitle("Error");
       setAlertMessage("An error occurred while fetching the data");
       setShowAlert(true);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -200,11 +190,6 @@ const UITableMini = (props) => {
                               />
                             </td>
                           )}
-                          {/* {props.options.actionEnabled && (
-                            <td>
-                              <UIButton btnText={props.options.actionText} />
-                            </td>
-                          )} */}
                         </tr>
                       );
                     })}
@@ -235,7 +220,6 @@ const UITableMini = (props) => {
                               <UIButton
                                 variant="text"
                                 onClick={() => {
-                                  // navigate(`${props.detailURL}${row.id}`);
                                   props.options.onRowClick(row.id);
                                 }}
                                 btnText={

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   triggerValidation,
-  validateInput,
   validateForm,
 } from "../../../../helpers/formValidation";
 import { useNavigate } from "react-router";
@@ -23,16 +22,8 @@ import UIInput from "../../UIComponents/UIInput";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useParams } from "react-router";
-import BackButton from "../../UIComponents/BackButton";
-import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -41,7 +32,6 @@ import {
   uppercaseAndLowercaseLetters,
   validAnyString,
 } from "../../../../constants/rexgex";
-import { addUnderscoresAndLowercase } from "../../../../helpers/utils";
 import {
   Button,
   ButtonBase,
@@ -125,7 +115,7 @@ const ManageAnnouncement = () => {
           limit: 10,
         },
       });
-      console.log("Search res", res);
+
       setRentalUnits(res.data.results);
       setRentalUnitNextPage(res.data.next);
       setRentalUnitPreviousPage(res.data.previous);
@@ -263,13 +253,13 @@ const ManageAnnouncement = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -277,8 +267,8 @@ const ManageAnnouncement = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Errors ", errors);
-    console.log("Form Data ", formData);
+
+
   };
 
   const formInputs = [
@@ -484,17 +474,25 @@ const ManageAnnouncement = () => {
           const currentDate = new Date();
           currentDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
 
-          // // Allow selecting dates starting from today onwards, disallow past dates
-          // if (selectedDate < currentDate) {
-          //   setEndDateErrorMessage("End date cannot be in the past");
-          //   return "End date cannot be in the past";
-          // } else if (
-          //   formData.start_date &&
-          //   selectedDate < new Date(formData.start_date)
-          // ) {
-          //   setEndDateErrorMessage("End date cannot be before the start date");
-          //   return "End date cannot be less than the start date";
-          // }
+          // Allow selecting dates starting from today onwards, disallow past dates
+          if (selectedDate < currentDate) {
+            setEndDateErrorMessage("End date cannot be in the past");
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              end_date: "End date cannot be in the past",
+            }));
+            return "End date cannot be in the past";
+          } else if (
+            formData.start_date &&
+            selectedDate < new Date(formData.start_date)
+          ) {
+            setEndDateErrorMessage("End date cannot be before the start date");
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              end_date: "End date cannot be before the start date",
+            }));
+            return "End date cannot be less than the start date";
+          }
         },
       },
       dataTestId: "end-date",
@@ -518,10 +516,10 @@ const ManageAnnouncement = () => {
   ];
 
   const handleSubmit = async () => {
-    console.log("NEWWWWW Form data ", formData);
+
     const { isValid, newErrors } = validateForm(formData, formInputs);
-    console.log("isValid ", isValid);
-    console.log("newErrors ", newErrors);
+
+
     if (!isValid) {
       setErrors(newErrors);
       return;
@@ -549,7 +547,7 @@ const ManageAnnouncement = () => {
       }
 
       const response = await updateAnnouncement(id, formData).then((res) => {
-        console.log("Response ", res);
+
         if (res.status === 200) {
           setLoading(false);
           setFormData({});
@@ -1095,7 +1093,7 @@ const ManageAnnouncement = () => {
               setConfirmModalOpen(false);
               // Call the delete function here
               deleteAnnouncement(id).then((res) => {
-                console.log("Delete response ", res);
+
                 navigate("/dashboard/owner/announcements");
               });
             }}
@@ -1136,6 +1134,7 @@ const ManageAnnouncement = () => {
                               name={input.name}
                               className="form-control"
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               value={
                                 input.name === "target"
                                   ? targetObject?.datatype
@@ -1229,6 +1228,7 @@ const ManageAnnouncement = () => {
                               type={input.type}
                               placeholder={input.placeholder}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               value={formData[input.name]}
                               error={errors[input.name]}
                               dataTestId={input.dataTestId}
@@ -1267,6 +1267,7 @@ const ManageAnnouncement = () => {
                               type={input.type}
                               placeholder={input.placeholder}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               value={formatDate(new Date(formData[input.name]))}
                               error={errors[input.name]}
                               dataTestId={input.dataTestId}
@@ -1306,6 +1307,7 @@ const ManageAnnouncement = () => {
                               placeholder={input.placeholder}
                               value={formData[input.name]}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               className="form-control"
                               style={{ height: "100px" }}
                             />

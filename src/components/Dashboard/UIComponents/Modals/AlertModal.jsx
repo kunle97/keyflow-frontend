@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Backdrop, Box, Typography, Button } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Modal, Backdrop, Button } from "@mui/material";
 import { uiGreen, uiGrey1 } from "../../../../constants";
 import { makeStyles } from "@mui/styles";
 import UICheckbox from "../UICheckbox";
@@ -39,13 +38,12 @@ const AlertModal = (props) => {
   const classes = useStyles();
   const handleDisableChange = (event) => {
     setDisabled(event.target.checked);
-    console.log("Disabled: ", disabled);
+
   };
   return (
     <Modal
       className={classes.modal}
       open={props.open}
-      // onClose={props.handleClose}
       closeAfterTransition={false} // Prevent modal from closing on backdrop click
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"

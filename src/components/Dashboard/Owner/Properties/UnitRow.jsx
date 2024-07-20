@@ -16,8 +16,8 @@ const UnitRow = (props) => {
   const [errors, setErrors] = useState({});
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -32,8 +32,8 @@ const UnitRow = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -62,7 +62,7 @@ const UnitRow = (props) => {
             rental_property: parseInt(props.property_id),
           }
           await validateUnitName(payload).then((res) => {
-            console.log(res)
+
             if (res.status === 400) {
               props.setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -174,8 +174,8 @@ const UnitRow = (props) => {
           onClick={() => {
             //Check if all the values in the array are undefined'
 
-            console.log("Erorossxzz ", errors);
-            console.log("Errors ", hasNoErrors(errors));
+
+
             if (hasNoErrors(errors)) {
               props.addUnit();
             }

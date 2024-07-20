@@ -192,7 +192,7 @@ const ManageUnit = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
 
   const handleClickStart = (event) => {
@@ -292,8 +292,8 @@ const ManageUnit = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -304,8 +304,8 @@ const ManageUnit = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -436,7 +436,7 @@ const ManageUnit = () => {
   const rental_application_table_options = {
     isSelectable: false,
     onRowClick: (row) => {
-      console.log(row);
+
     },
   };
 
@@ -474,7 +474,7 @@ const ManageUnit = () => {
   //Create a function to handle the form submission to update unit information
   const onSubmitUnitBasicInfoUpdate = async () => {
     await updateUnit(unit_id, formData).then((res) => {
-      console.log(res);
+
       if (res.status == 200) {
         setAlertMessage("Unit updated successfully");
         setAlertTitle("Success");
@@ -548,12 +548,12 @@ const ManageUnit = () => {
   const retrieveEditLink = async (template_id) => {
     setIsLoading(true);
     setProgressModalTitle("Retrieving Lease Document...");
-    console.log("Tempalte ID:", unit.template_id);
+
     createBoldSignEmbeddedTemplateEditLink({
       template_id: template_id,
     })
       .then((res) => {
-        console.log(res);
+
         setEditLink(res.url);
       })
       .finally(() => {
@@ -585,7 +585,7 @@ const ManageUnit = () => {
       }
     });
     if (validFiles) {
-      console.log("dropzone file", acceptedFiles[0]);
+
       let accepted_file = acceptedFiles[0];
       const payload = {
         file: acceptedFiles[0],
@@ -599,20 +599,20 @@ const ManageUnit = () => {
       //Call the createBoldSignEmbeddedTemplateLink API
       await createBoldSignEmbeddedTemplateLink(payload)
         .then((res) => {
-          console.log("Create BoldSign SIgend EMbed Link: ", res);
+
           if (res.status === 201) {
             setCreateLink(res.url);
             setRenderIframe(true);
             setTemplateId(res.template_id);
             updateUnit(unit_id, { template_id: res.template_id }).then(
               (res) => {
-                console.log(res);
+
               }
             );
           }
         })
         .catch((err) => {
-          console.log(err);
+
           setAlertTitle("Error");
           setAlertMessage("Something went wrong");
           setAlertOpen(true);
@@ -655,10 +655,10 @@ const ManageUnit = () => {
         "/signed_lease_documents/",
     };
     uploadFile(payload).then((res) => {
-      console.log(res);
+
       setIsLoading(false);
       if (res.status === 201) {
-        console.log(res);
+
         let file_id = res.data.id;
         let file = res.data;
         authenticatedMediaInstance
@@ -670,7 +670,7 @@ const ManageUnit = () => {
           })
           .then((res) => {
             if (res.status === 200) {
-              console.log("unit updated");
+
             } else {
               setAlertOpen(true);
               setAlertTitle("Error");
@@ -748,7 +748,7 @@ const ManageUnit = () => {
   const handleDeleteSignedLeaseDocument = () => {
     let file_id = unit.signed_lease_document_file.id;
     let file_key = unit.signed_lease_document_file.file_key;
-    console.log("Fole data", file_id, file_key);
+
     authenticatedMediaInstance
       .patch(`/units/${unit_id}/`, {
         signed_lease_document_file: null,
@@ -756,7 +756,7 @@ const ManageUnit = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log("unit updated");
+
           deleteFile({ id: file_id, file_key })
             .then((res) => {
               if (res.status === 200) {
@@ -802,7 +802,7 @@ const ManageUnit = () => {
     setAdditionalCharges(newCharges);
   };
   const saveAdditionalCharges = async () => {
-    console.log("Saving additional charges");
+
     //Check if additional charges all have the same frequency
     const frequencies = additionalCharges.map((charge) => charge.frequency);
     const allFrequenciesEqual = frequencies.every(
@@ -810,7 +810,7 @@ const ManageUnit = () => {
     );
     if (!allFrequenciesEqual) {
       // Handle case where frequencies are not all the same
-      console.log("Additional charges have different frequencies");
+
       // Perform actions or show an error message to the user
       // You can return early, show an error message, or prevent form submission
       setIsLoading(false);
@@ -843,7 +843,7 @@ const ManageUnit = () => {
       additional_charges: additionalChargesString,
     })
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setAlertOpen(true);
           setAlertTitle("Success");
@@ -855,7 +855,7 @@ const ManageUnit = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
       });
   };
 
@@ -879,12 +879,12 @@ const ManageUnit = () => {
       };
       //Delete the unit with the api
       deleteUnit(payload).then((res) => {
-        console.log(res);
+
       }).then((res) => {
         //Redirect to the property page
         navigate(`/dashboard/owner/properties/${property_id}`);
       }).catch((err) => {
-        console.log(err);
+
       });
     }
   };
@@ -920,7 +920,7 @@ const ManageUnit = () => {
     );
     //Update the value of the preference
     if (preference.inputType === "switch") {
-      console.log(event);
+
       // For switches, directly access event.target.checked
       preference.value = event.target.checked;
     } else {
@@ -990,21 +990,21 @@ const ManageUnit = () => {
           //Navigate to properties page
           navigate("/dashboard/owner/units");
         }
-        console.log("REtrieve UNit REs", res);
+
         setUnit(res);
-        console.log("UNIT PREFENCESSSZZZ", JSON.parse(res.preferences));
+
         setUnitPreferences(JSON.parse(res.preferences));
         setUnitLeaseTerms(JSON.parse(res.lease_terms));
-        console.log("Additional Charges", JSON.parse(res.additional_charges));
+
         setAdditionalCharges(JSON.parse(res.additional_charges));
         if (res.signed_lease_document_file) {
           setSignedLeaseViewLink(res.signed_lease_document_file.file);
         }
 
-        console.log("lease_terms", JSON.parse(res.lease_terms));
+
         if (res.is_occupied) {
           getOwnerTenant(res.tenant).then((tenant_res) => {
-            console.log("Tenant", tenant_res.data);
+
             setTenant(tenant_res.data);
           });
         }
@@ -1018,7 +1018,7 @@ const ManageUnit = () => {
 
         if (res.lease_template) {
           getLeaseTemplateById(res.lease_template).then((res) => {
-            console.log("Lease Template", res);
+
             setCurrentLeaseTemplate(res);
           });
         }
@@ -1037,16 +1037,16 @@ const ManageUnit = () => {
           setunitMediaCount(res.data.length);
         })
         .catch((err) => {
-          console.log(err);
+
         });
       authenticatedInstance
         .get(`/units/${unit_id}/rental-applications/`)
         .then((res) => {
-          console.log("Untius Rental APps", res);
+
           setRentalApplications(res.data);
         });
     } catch (err) {
-      console.log(err);
+
       setAlertOpen(true);
       setAlertTitle("Error");
       setAlertMessage("There was an error loading the unit information");
@@ -1186,7 +1186,7 @@ const ManageUnit = () => {
                           dataTestId="edit-unit-submit-button"
                           className="btn btn-primary ui-btn"
                           onClick={() => {
-                            console.log(formData);
+
                             const { isValid, newErrors } = validateForm(
                               formData,
                               formInputs
@@ -1276,13 +1276,13 @@ const ManageUnit = () => {
               setShowDeleteTemplateConfirmModal(false);
             }}
             handleConfirm={() => {
-              console.log("Template ID update");
+
               //update the unit to set the tempalate_id field to null
               updateUnit(unit_id, {
                 template_id: null,
               }).then((res) => {
                 if (res.status === 200) {
-                  console.log("unit updated");
+
                   setShowDeleteTemplateConfirmModal(false);
                   setAlertOpen(true);
                   setAlertTitle("Success");
@@ -1344,7 +1344,7 @@ const ManageUnit = () => {
               setShowLeaseTemplateChangeWarning(false);
             }}
             handleConfirm={() => {
-              console.log("signed_lease_document_file", unit);
+
               handleChangeLeaseTemplate(
                 leaseTemplates,
                 currentLeaseTemplate.id,
@@ -1763,7 +1763,7 @@ const ManageUnit = () => {
                             unit.signed_lease_document_file ||
                             unit.template_id
                           ) {
-                            console.log("Leasde AGreement Docuemtn set");
+
                             setCurrentLeaseTemplate(
                               leaseTemplates.find(
                                 (term) => term.id === lease_template_id
@@ -1771,7 +1771,7 @@ const ManageUnit = () => {
                             );
                             setShowLeaseTemplateChangeWarning(true);
                           } else {
-                            console.log("Leasde Agreement Docuemtn not set");
+
                             const res = handleChangeLeaseTemplate(
                               leaseTemplates,
                               lease_template_id,

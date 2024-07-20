@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  getLeaseAgreementById,
-  updateLeaseAgreement,
-} from "../../../../api/lease_agreements";
+import { getLeaseAgreementById } from "../../../../api/lease_agreements";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import {
@@ -19,8 +16,6 @@ import {
   getNextPaymentDate,
   getPaymentDates,
 } from "../../../../api/manage_subscriptions";
-import { downloadBoldSignDocument } from "../../../../api/boldsign";
-import BackButton from "../../UIComponents/BackButton";
 import SensorsIcon from "@mui/icons-material/Sensors";
 import HomeIcon from "@mui/icons-material/Home";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -30,20 +25,12 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { abbreviateRentFrequency } from "../../../../helpers/utils";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import { Stack } from "@mui/material";
-import UISwitch from "../../UIComponents/UISwitch";
 import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
 import { authenticatedInstance } from "../../../../api/api";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -55,11 +42,9 @@ const LeaseAgreementDetail = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [leaseAgreement, setLeaseAgreement] = useState({});
-  const [leaseTemplate, setLeaseTemplate] = useState({});
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [rentalApplication, setRentalApplication] = useState({});
   const [rentalUnit, setRentalUnit] = useState({});
-  const [leaseTerms, setLeaseTerms] = useState({});
   const [rent, setRent] = useState(0);
   const [rentFrequency, setRentFrequency] = useState("");
   const [term, setTerm] = useState("");
@@ -102,7 +87,7 @@ const LeaseAgreementDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const iconStyles = { color: uiGreen, fontSize: "24pt", marginBottom: "5px" };
@@ -125,9 +110,9 @@ const LeaseAgreementDetail = () => {
       tenant_id: leaseAgreement.tenant.id,
     })
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
-          console.log("Checked", event.target.checked);
+
         } else {
           setAlertTitle("Error");
           setAlertMessage(
@@ -153,7 +138,7 @@ const LeaseAgreementDetail = () => {
         { document_id: leaseAgreement.document_id },
         { responseType: "blob" } // This is important to handle binary data
       );
-      console.log("Response: ", response);
+
       if (response.status !== 200) {
         throw new Error("Error downloading document");
       }
@@ -162,7 +147,7 @@ const LeaseAgreementDetail = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      console.log("PDF DOWNLAOASSD link", link);
+
       link.setAttribute("download", "lease_agreement.pdf");
       document.body.appendChild(link);
       link.click();
@@ -186,7 +171,6 @@ const LeaseAgreementDetail = () => {
     getLeaseAgreementById(id)
       .then((res) => {
         setLeaseAgreement(res.data);
-        setLeaseTemplate(res.data.lease_template);
         setRentalApplication(res.data.rental_application);
         setRentalUnit(res.data.rental_unit);
         setRent(
@@ -212,13 +196,11 @@ const LeaseAgreementDetail = () => {
         if (res.data.tenant) {
           setAutoRenewalEnabled(res.data.tenant.auto_renew_lease_is_enabled);
           getNextPaymentDate(res.data.tenant.user.id).then((res) => {
-            console.log("nExt pay date data", res);
             setNextPaymentDate(res.data.next_payment_date);
           });
           getPaymentDates(res.data.tenant.user.id).then((res) => {
             if (res.status === 200) {
               const payment_dates = res.data.payment_dates;
-              console.log("Payment dates ", payment_dates);
               const due_dates = payment_dates.map((date) => {
                 return {
                   title: "Rent Due",

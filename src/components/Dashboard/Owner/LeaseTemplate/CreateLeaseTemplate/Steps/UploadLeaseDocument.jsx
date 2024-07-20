@@ -4,7 +4,7 @@ import { createBoldSignEmbeddedTemplateLink } from "../../../../../../api/boldsi
 import UIButton from "../../../../UIComponents/UIButton";
 import Dropzone from "react-dropzone";
 import { Stack } from "@mui/material";
-import { uiGreen, authUser, uiGrey2 } from "../../../../../../constants";
+import { uiGreen, authUser } from "../../../../../../constants";
 import ProgressModal from "../../../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
@@ -77,7 +77,7 @@ const UploadLeaseDocument = (props) => {
   const handleDrop = async (acceptedFiles) => {
     setIsLoading(true);
     
-    console.log("dropzone file", acceptedFiles[0]);
+
     let accepted_file = acceptedFiles[0];
     const payload = {
       file: acceptedFiles[0],
@@ -90,7 +90,7 @@ const UploadLeaseDocument = (props) => {
     };
     //Call the createBoldSignEmbeddedTemplateLink API
     await createBoldSignEmbeddedTemplateLink(payload).then((res) => {
-      console.log(res);
+
       if (res.status === 201) {
         setIframeUrl(res.url);
         props.setTemplateId(res.template_id);
@@ -142,12 +142,6 @@ const UploadLeaseDocument = (props) => {
             height={isMobile ? "500px" : "900px"}
             onLoad={() => setIsLoading(false)}
           />
-          {/* <StepControl
-            step={props.step}
-            steps={props.steps}
-            handlePreviousStep={props.handlePreviousStep}
-            handleNextStep={props.handleNextStep}
-          /> */}
         </div>
       ) : (
         <div>
@@ -157,7 +151,7 @@ const UploadLeaseDocument = (props) => {
               name="lease_template_options"
               value={props.documentMode}
               onChange={(e) => {
-                console.log(props.templateId);
+
                 props.setDocumentMode(e.target.value);
               }}
               direction="row"
@@ -214,8 +208,8 @@ const UploadLeaseDocument = (props) => {
                       {...getInputProps()}
                       onChange={(e) => {
                         setFile(e.target.files[0]);
-                        console.log("onChange file", e.target.files[0]);
-                        console.log("onCHange state file", file);
+
+
                         handleDrop([e.target.files[0]]);
                       }}
                       type="file"

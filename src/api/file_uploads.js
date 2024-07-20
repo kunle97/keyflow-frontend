@@ -14,7 +14,7 @@ export const uploadFile = async (data) => {
     );
     return response;
   } catch (error) {
-    console.log("Upload file Error: ", error);
+
     return { response: error.response, message: error.response.data.message, status: error.response.status };
   }
 };
@@ -30,7 +30,7 @@ export const retrievePresignedURL = async (file_key) => {
     );
     return response;
   } catch (error) {
-    console.log(error);
+
   }
 };
 
@@ -40,7 +40,7 @@ export const deleteFile = async (data) => {
     const response = await authenticatedInstance.post(`/s3-file-delete/`, data);
     return response;
   } catch (error) {
-    console.log(error);
+
   }
 };
 
@@ -55,7 +55,7 @@ export const retrieveFilesBySubfolder = async (subfolder, user_id) => {
     });
     return response;
   } catch (error) {
-    console.log(error);
+
   } 
 };
 
@@ -70,6 +70,6 @@ export const retrieveUnauthenticatedFilesBySubfolder = async (subfolder) => {
     );
     return response;
   } catch (error) {
-    console.log(error);
+
   }
 };

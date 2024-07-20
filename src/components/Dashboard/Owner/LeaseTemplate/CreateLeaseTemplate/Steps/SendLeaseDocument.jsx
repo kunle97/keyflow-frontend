@@ -3,9 +3,7 @@ import StepControl from "./StepControl";
 import { createBoldSignEmbeddedDocumentSendLink } from "../../../../../../api/boldsign";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 const SendLeaseDocument = (props) => {
-  const [iframeUrl, setIframeUrl] = useState("");
   const [templateId, setTemplateId] = useState(props.templateId);
-  const [renderIframe, setRenderIframe] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
@@ -17,7 +15,7 @@ const SendLeaseDocument = (props) => {
     };
     createBoldSignEmbeddedDocumentSendLink(payload)
       .then((res) => {
-        console.log("send link", res);
+
       })
       .catch((error) => {
         console.error("Error creating send link:", error);

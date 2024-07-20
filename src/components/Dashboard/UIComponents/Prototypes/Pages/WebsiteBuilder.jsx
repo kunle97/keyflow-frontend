@@ -97,8 +97,8 @@ const WebsiteBuilder = () => {
     // },
   ];
   const previewWebsite = () => {
-    console.log(selectedTemplate);
-    console.log(selectedColor);
+
+
     //Navigate to the image of the selected template
     window.location.href = templates.find(
       (template) => template.id === selectedTemplate

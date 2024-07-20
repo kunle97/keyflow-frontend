@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getSubscriptionPlanPrices } from "../../../api/manage_subscriptions";
-import { Link } from "react-router-dom";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
-import { Chip, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { uiGreen } from "../../../constants";
 import UISwitch from "../../Dashboard/UIComponents/UISwitch";
@@ -91,7 +90,7 @@ const Pricing = () => {
       getSubscriptionPlanPrices()
         .then((res) => {
           setPlans(res.products);
-          console.log(plans);
+
         })
         .catch((err) => {
           console.error(err);

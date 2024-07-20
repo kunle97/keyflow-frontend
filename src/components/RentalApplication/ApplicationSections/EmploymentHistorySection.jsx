@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { faker } from "@faker-js/faker";
 import { uiGreen, validationMessageStyle } from "../../../constants";
-import { Button, Checkbox, Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
 import {
   triggerValidation,
@@ -35,8 +34,8 @@ const EmploymentHistorySection = (props) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -61,8 +60,8 @@ const EmploymentHistorySection = (props) => {
       ...props.employmentHistory.slice(props.index + 1),
     ]);
 
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const [formInputs, setFormInputs] = useState([
@@ -299,54 +298,6 @@ const EmploymentHistorySection = (props) => {
           />
         </Stack>
       )}
-      {/* {props.showStepButtons && (
-        <>
-          <Stack sx={{ marginTop: "20px" }} direction="row" gap={2}>
-            <UIButton
-              style={{ width: "100%" }}
-              btnText="Back"
-              onClick={props.previousStep}
-              type="button"
-            />
-            <UIButton
-              style={{ width: "100%" }}
-              btnText="Next"
-              onClick={() => {
-                props.trigger([
-                  `supervisorEmail_${props.id}`,
-                  `supervisorPhone_${props.id}`,
-                  `supervisorName_${props.id}`,
-                  `income_${props.id}`,
-                  `employmentStartDate_${props.id}`,
-                  `employmentEndDate_${props.id}`,
-                  `companyAddress_${props.id}`,
-                  `position_${props.id}`,
-                  `companyName_${props.id}`,
-                ]);
-                if (
-                  props.supervisorEmailErrors ||
-                  props.supervisorPhoneErrors ||
-                  props.supervisorNameErrors ||
-                  props.incomeErrors ||
-                  props.employmentStartDateErrors ||
-                  props.employmentEndDateErrors ||
-                  props.companyAddressErrors ||
-                  props.positionErrors ||
-                  props.companyNameErrors
-                ) {
-                  props.setIsValid(false);
-                } else {
-                  props.setIsValid(true);
-                  if (props.isValid) {
-                    props.nextStep();
-                  }
-                }
-              }}
-              type="button"
-            />
-          </Stack>
-        </>
-      )} */}
     </div>
   );
 };

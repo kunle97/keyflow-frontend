@@ -1,15 +1,11 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { uiGreen } from "../../../../../../constants";
-import { Box, CircularProgress } from "@mui/material";
 import SearchResultCard from "../SearchResultCard";
 import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
-import { checkIfTenantMatchesMaintenanceRequest } from "../../../../../../helpers/utils";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import UIPrompt from "../../../UIPrompt";
-import { useSearch } from "../../../../../../contexts/SearchContext";
 import { authenticatedInstance } from "../../../../../../api/api";
-import { set } from "react-hook-form";
 import AlertModal from "../../AlertModal";
 import UIProgressPrompt from "../../../UIProgressPrompt";
 const AllMaintenanceRequestResults = (props) => {
@@ -49,7 +45,7 @@ const AllMaintenanceRequestResults = (props) => {
         setPreviousPageEndPoint(response.data.previous);
       })
       .catch((error) => {
-        console.log(error);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occured retrieving maintenance requests: " + error.message
@@ -112,7 +108,7 @@ const AllMaintenanceRequestResults = (props) => {
                     changeSearchLimit={setLimit}
                   />
                   {searchResults.map((maintenance_request, index) => {
-                    console.log("MR Searhc Tenant", maintenance_request);
+
                     let status = <></>;
                     if (maintenance_request.status === "pending") {
                       status = <span className="text-warning">Pending</span>;

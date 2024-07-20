@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Stack } from "@mui/material";
 import {
   ClickAwayListener,
@@ -12,7 +12,6 @@ import {
 import useScreen from "../../../hooks/useScreen";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import BackButton from "./BackButton";
-import zIndex from "@mui/material/styles/zIndex";
 
 const UIPageHeader = (props) => {
   const [open, setOpen] = useState(false);

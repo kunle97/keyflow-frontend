@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { filterDashboardPages } from "../../../../../../helpers/utils";
 import { routes } from "../../../../../../routes";
-import { Button } from "@mui/material";
 import SearchResultCard from "../SearchResultCard";
 import UIPrompt from "../../../UIPrompt";
 import { uiGreen } from "../../../../../../constants";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
 const AllPageResults = (props) => {
-  const [dashboardPages, setDashboardPages] = useState(routes);
-  const filteredPages = filterDashboardPages(dashboardPages, props.searchValue);
+  const filteredPages = filterDashboardPages(routes, props.searchValue);
 
   return (
     <React.Fragment>

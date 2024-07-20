@@ -5,11 +5,7 @@ import { useNavigate } from "react-router";
 import UITableMobile from "../../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../../hooks/useScreen";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../../constants";
@@ -44,7 +40,7 @@ const TenantLeaseRenewalRequests = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -54,7 +50,7 @@ const TenantLeaseRenewalRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {
@@ -114,7 +110,7 @@ const TenantLeaseRenewalRequests = () => {
     getTenantLeaseRenewalRequests()
       .then((res) => {
         setData(res.data);
-        console.log(res);
+
       })
       .catch((error) => {
         console.error("Error fetching lease renewal requests:", error);
@@ -124,7 +120,7 @@ const TenantLeaseRenewalRequests = () => {
         );
         setShowAlert(true);
       });
-  }, []);
+  },[]);
   return (
     <div className="container-fluid lease-renewal-request-page">
       <AlertModal
@@ -159,7 +155,6 @@ const TenantLeaseRenewalRequests = () => {
       <div className="lease-renewal-requests-table-container">
         {isMobile ? (
           <UITableMobile
-            // endpoint={"/lease-renewal-requests/"}
             data={data}
             tableTitle={"Lease Renewal Requests"}
             createInfo={(row) =>

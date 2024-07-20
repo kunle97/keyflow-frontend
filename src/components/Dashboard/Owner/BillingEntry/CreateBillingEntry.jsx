@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import UIInput from "../../UIComponents/UIInput";
 import { createBillingEntry } from "../../../../api/billing-entries";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -13,6 +13,7 @@ import {
 import UIButton from "../../UIComponents/UIButton";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import {
+  Alert,
   Button,
   ButtonBase,
   CircularProgress,
@@ -38,13 +39,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import {
@@ -55,10 +50,7 @@ import {
   validWholeNumber,
 } from "../../../../constants/rexgex";
 import { useParams } from "react-router";
-import {
-  getMaintenanceRequestById,
-  updateMaintenanceRequest,
-} from "../../../../api/maintenance_requests";
+import { getMaintenanceRequestById } from "../../../../api/maintenance_requests";
 import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateBillingEntry = () => {
@@ -66,7 +58,6 @@ const CreateBillingEntry = () => {
   const { maintenance_request_id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState(null);
   const [tenantSerchQuery, setTenantSearchQuery] = useState("");
-  const [filteredTenants, setFilteredTenants] = useState([]);
   const [tenantModalOpen, setTenantModalOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState(null);
   const [rentalUnitModalOpen, setRentalUnitModalOpen] = useState(false);
@@ -88,6 +79,7 @@ const CreateBillingEntry = () => {
   const [stripeAccountRequirements, setStripeAccountRequirements] = useState(
     []
   );
+  const [stripeOnboardingAccountLink, setStripeOnboardingAccountLink] = useState("");
   const [displayOnboardingAlert, setDisplayOnboardingAlert] = useState(false);
   const [stripeOnboardingPromptOpen, setStripeOnboardingPromptOpen] =
     useState(false);
@@ -142,7 +134,7 @@ const CreateBillingEntry = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -152,7 +144,7 @@ const CreateBillingEntry = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const [formData, setFormData] = useState({
@@ -177,8 +169,8 @@ const CreateBillingEntry = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
   const formInputs = [
     {
@@ -314,7 +306,7 @@ const CreateBillingEntry = () => {
       selectTargetLabel: selectedRentalUnit?.name,
       name: "rental_unit",
       dialogAction: () => handleOpenRentalUnitSelectModal(),
-      hide: !isExpense  || maintenance_request_id,
+      hide: !isExpense || maintenance_request_id,
       validations: {
         required: false,
         errorMessage: "Rental Unit cannot be blank",
@@ -440,8 +432,6 @@ const CreateBillingEntry = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { isValid, newErrors } = validateForm(formData, formInputs);
-    console.log("Form data is vlaid", isValid );
-    console.log("Errors ", newErrors);
     setErrors(newErrors);
     if (isValid) {
       setIsLoading(true);
@@ -456,9 +446,9 @@ const CreateBillingEntry = () => {
       }
       createBillingEntry(formData)
         .then((res) => {
-          console.log("ZXZXCreate billing entry response ", res);
+
           if (res.status === 201) {
-            console.log("Billing entry created successfully");
+
             setAlertTitle("Success");
             setAlertMessage("Billing entry created successfully");
             setRedirectToBillingEntries(true);
@@ -476,7 +466,7 @@ const CreateBillingEntry = () => {
           setRedirectToBillingEntries(false);
         })
         .finally(() => {
-          console.log("Create billing entry finally");
+
           setAlertOpen(true);
           setIsLoading(false);
         });
@@ -495,23 +485,38 @@ const CreateBillingEntry = () => {
     preventPageReload();
     if (maintenance_request_id) {
       getMaintenanceRequestById(maintenance_request_id).then((res) => {
-        console.log("Maintenance Request: ", res);
+
         setMaintenanceRequest(res.data);
       });
     }
     getStripeOnboardingAccountLink().then((res) => {
-      console.log("Stripe Account link res: ", res);
+
       setStripeAccountLink(res.account_link);
     });
     getStripeAccountRequirements().then((res) => {
-      console.log("Stripe Account Requirements: ", res);
+
       setStripeAccountRequirements(res.requirements);
       setStripeOnboardingPromptOpen(res.requirements.currently_due.length > 0);
       setDisplayOnboardingAlert(res.requirements.currently_due.length > 0);
     });
-  }, []);
+    getStripeOnboardingAccountLink().then((res) => {
+
+      setStripeOnboardingAccountLink(res.account_link);
+    });
+  },[]);
   return (
     <div className="container-fluid">
+      <AlertModal
+        open={displayOnboardingAlert}
+        title={"Complete Stripe Account Onboarding"}
+        message={
+          "Creating billing entries is a disabled feature until you complete your Stripe account onboarding."
+        }
+        btnText={"Continue"}
+        onClick={() => {
+          window.open(stripeAccountLink, "_blank");
+        }}
+      />
       <ConfirmModal
         open={stripeOnboardingPromptOpen}
         title={"Complete Stripe Account Onboarding"}

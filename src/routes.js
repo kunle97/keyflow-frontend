@@ -27,7 +27,7 @@ import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
 import TenantMyAccount from "./components/Dashboard/Tenant/TenantMyAccount";
 import CreateLeaseTemplate from "./components/Dashboard/Owner/LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
 import LeaseTemplates from "./components/Dashboard/Owner/LeaseTemplate/LeaseTemplates";
-import ViewRentalApplication from "./components/Dashboard/Owner/RentalApplications/ViewRentalApplication";
+import RentalApplicationDetail from "./components/Dashboard/Owner/RentalApplications/RentalApplicationDetail";
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
 import RentalApplications from "./components/Dashboard/Owner/RentalApplications/RentalApplications";
 import SignLeaseAgreement from "./components/SignLeaseAgreement";
@@ -56,7 +56,6 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import {
   AddHomeOutlined,
   AddHomeWorkOutlined,
-  Category,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
 import CampaignIcon from "@mui/icons-material/Campaign";
@@ -90,8 +89,6 @@ import CreateAccouncement from "./components/Dashboard/Owner/Annoucements/Create
 
 //Prototype conponents
 import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accounts";
-import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
-import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
 import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
 import TenantLeaseAgreements from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreements";
 import ArchivedRentalApplications from "./components/Dashboard/Owner/RentalApplications/ArchivedRentalApplications";
@@ -701,7 +698,7 @@ export const routes = [
     path: "/dashboard/owner/rental-applications/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <ViewRentalApplication />
+        <RentalApplicationDetail />
       </DashboardProtectedRoute>
     ),
   },

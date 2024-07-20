@@ -47,7 +47,7 @@ const MaintenanceRequestGeneratorForm = (props) => {
         payload
       )
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           setIsLoading(false);
           alert(`Successfully generated ${numberOfItems} maintenance requrests`);
@@ -92,7 +92,7 @@ const MaintenanceRequestGeneratorForm = (props) => {
           </IconButton>
         </Stack>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {console.log("Form errors ", errors)}
+
           <div className="form-group my-2">
             <label style={{ color: "white", marginBottom: "10px" }}>
               Number of Maintenance Requests

@@ -9,7 +9,6 @@ import { authUser, uiGreen, uiRed } from "../../../../constants";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import UIPrompt from "../../UIComponents/UIPrompt";
 import { Button, Stack } from "@mui/material";
-import { getLeaseTemplatesByUser } from "../../../../api/lease_templates";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import { sendDocumentToUser } from "../../../../api/boldsign";
@@ -20,37 +19,27 @@ import {
 } from "../../../../api/lease_agreements";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { updateLeaseRenewalRequest } from "../../../../api/lease_renewal_requests";
-import CreateLeaseTemplate from "../LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
 import { updateUnit } from "../../../../api/units";
 import UnitDocumentManager from "../Units/UnitDocumentManager";
 
 const LeaseRenewalAcceptForm = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState(null);
-  const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [currentLeaseAgreement, setCurrentLeaseAgreement] = useState(null);
-  const [currentLeaseTemplate, setCurrentLeaseTemplate] = useState(null); // Used to check if the current lease template term is different from the lease renewal request term [Optional
   const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
   const [currentTemplateId, setCurrentTemplateId] = useState(null); //
-  const [selectedLeaseTemplate, setSelectedLeaseTemplate] = useState(null);
-  const [unit, setUnit] = useState(null); // Used to check if the current lease template term is different from the lease renewal request term [Optional
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
-
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmModalTitle, setConfirmModalTitle] = useState("");
   const [confirmModalMessage, setConfirmModalMessage] = useState("");
-
-  const [alertModalLink, setAlertModalLink] = useState(""); // Used to show a link in the alert modal [Optional]
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false); // Used to show the progress modal when the user clicks the submit button
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
-  const [changeLeaseTermMode, setChangeLeaseTermMode] = useState("new"); // Values: new, existing
   const [viewMode, setViewMode] = useState("review"); //Values: Review,  change_terms, submit_confirmation
-  const [documentMode, setDocumentMode] = useState("existing"); // Values: new, existing
   const [alertModalAction, setAlertModalAction] = useState(null); // Used to show a button in the alert modal [Optional]
-  const navigate = useNavigate();
 
   const handleAccept = async () => {
     setIsSubmitting(true);
@@ -79,11 +68,11 @@ const LeaseRenewalAcceptForm = () => {
         leaseRenewalRequest.rental_unit.id,
         updateRentalUnitPayload
       ).then((res) => {
-        console.log(res);
+
         if (res.id) {
-          console.log("Successfully updated rental unit");
+
         } else {
-          console.log("Failed to update rental unit");
+
         }
       });
 
@@ -110,7 +99,7 @@ const LeaseRenewalAcceptForm = () => {
         message: "Please sign the lease renewal agreement",
       };
 
-      console.log("Doc Payload: ", docPayload);
+
 
       const sendDocResponse = await sendDocumentToUser(docPayload);
 
@@ -132,7 +121,6 @@ const LeaseRenewalAcceptForm = () => {
         tenant: leaseRenewalRequest.tenant.id,
         user: authUser.id,
         approval_hash: makeId(64),
-        // lease_template: currentLeaseTemplate.id,
         document_id: sendDocResponse.documentId,
         start_date: formattedStartDate,
         end_date: formattedEndDate,
@@ -185,7 +173,7 @@ const LeaseRenewalAcceptForm = () => {
       }
       return term;
     });
-    console.log(updatedLeaseTerms);
+
     setCurrentLeaseTerms(updatedLeaseTerms);
   };
 
@@ -207,10 +195,10 @@ const LeaseRenewalAcceptForm = () => {
     };
     await updateUnit(leaseRenewal.rental_unit.id, updateRentalUnitPayload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setCurrentLeaseTerms(updatedUnitLeaseTerms);
-          console.log("Successfully updated rental unit lease terms");
+
           setAlertModalTitle("Success");
           setAlertModalMessage(
             "The unit's lease terms were successfully updated. You can now proceed to accept the lease renewal request."
@@ -220,7 +208,7 @@ const LeaseRenewalAcceptForm = () => {
           setAlertModalAction(() => setViewMode("submit_confirmation"));
           //Update the current lease terms to the updated lease terms
         } else {
-          console.log("Failed to update rental unit lease terms");
+
           setAlertModalTitle("Error");
           setAlertModalMessage("Something went wrong!");
           setShowConfirmModal(false);
@@ -228,7 +216,7 @@ const LeaseRenewalAcceptForm = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertModalTitle("Error");
         setAlertModalMessage("Something went wrong!");
         setShowAlertModal(true);
@@ -248,12 +236,6 @@ const LeaseRenewalAcceptForm = () => {
     ).value;
     if (currentLeaseTerms) {
       if (parseInt(currentTermDuration) !== leaseRenewal.request_term) {
-        console.log(
-          "CUrrent term on unit: ",
-          currentTermDuration,
-          " Requested Term:",
-          leaseRenewal.request_term
-        );
         setConfirmModalTitle("Lease Term Mismatch");
         setConfirmModalMessage(
           "The Tenant chose a different lease term than the current lease template. " +
@@ -279,13 +261,13 @@ const LeaseRenewalAcceptForm = () => {
       setIsLoading(true);
       getLeaseRenewalRequestById(id)
         .then((lease_renewal_res) => {
-          console.log(lease_renewal_res);
+
           if (lease_renewal_res.status === 200) {
             setLeaseRenewalRequest(lease_renewal_res.data);
             if (!currentLeaseAgreement) {
               getLeaseAgreementsByTenant(lease_renewal_res.data.tenant.id)
                 .then((lease_agreements_res) => {
-                  console.log("LEase Agreemnent Res:", lease_agreements_res);
+
                   if (lease_agreements_res.status === 200) {
                     let lease_agreements = lease_agreements_res.data;
                     if (lease_agreements.length === 0) {
@@ -331,7 +313,7 @@ const LeaseRenewalAcceptForm = () => {
           }
         })
         .catch((err) => {
-          console.log(err);
+
           setAlertModalTitle("Error");
           setAlertModalMessage("Something went wrong!");
           setShowAlertModal(true);
@@ -339,9 +321,6 @@ const LeaseRenewalAcceptForm = () => {
         .finally(() => {
           setIsLoading(false);
         });
-      getLeaseTemplatesByUser().then((res) => {
-        setLeaseTemplates(res.data);
-      });
     } else {
       // Call isCurrentLeaseTemplateTermDifferent here, after setting the states
       isCurrentLeaseTemplateTermDifferent(
@@ -583,24 +562,6 @@ const LeaseRenewalAcceptForm = () => {
           )}
           {viewMode === "change_terms" && (
             <div>
-              {/* <h5 className="my-2">Update Lease Document</h5> */}
-              {/* <CreateLeaseTemplate
-                isLeaseRenewal={true}
-                setSelectedLeaseTemplate={setSelectedLeaseTemplate}
-                hideBackButton={true}
-                leaseRenewalRequest={leaseRenewalRequest}
-                currentLeaseAgreement={currentLeaseAgreement}
-                customTitle={` ${leaseRenewalRequest.tenant.user.first_name}
-                ${leaseRenewalRequest.tenant.user.last_name} - Change Lease Terms`}
-                currentTemplateId={currentTemplateId}
-                setCurrentTemplateId={setCurrentTemplateId}
-                documentMode={documentMode}
-                setDocumentMode={setDocumentMode}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                currentLeaseTemplate={currentLeaseTemplate}
-                setCurrentLeaseTemplate={setCurrentLeaseTemplate}
-              /> */}
               <Button
                 sx={{
                   textTransform: "none",

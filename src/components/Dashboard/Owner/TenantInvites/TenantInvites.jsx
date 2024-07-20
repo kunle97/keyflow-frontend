@@ -9,6 +9,7 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const TenantInvites = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progressModalMessage, setProgressModalMessage] =
@@ -16,8 +17,6 @@ const TenantInvites = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
-  const [leaseRenewals, setLeaseRenewals] = useState([]);
-  const [leaseCancellations, setLeaseCancellations] = useState([]);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmModalTitle, setConfirmModalTitle] = useState("");
   const [confirmModalMessage, setConfirmModalMessage] = useState("");
@@ -46,7 +45,7 @@ const TenantInvites = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -56,10 +55,10 @@ const TenantInvites = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const handleResendTenantInvite = () => {
-    console.log("Resend Tenant Invite");
+
     setIsLoading(true);
     setProgressModalMessage("Resending tenant invite...");
   };
@@ -69,7 +68,7 @@ const TenantInvites = () => {
     setProgressModalMessage("Revoking tenant invite...");
     deleteTenantInvite(id)
       .then((res) => {
-        console.log("TENANT INVITE REVOKE RES", res);
+
         if (res.status === 204) {
           setAlertTitle("Tenant Invite Revoked");
           setAlertMessage("The tenant invite revoked successfully.");
@@ -79,7 +78,7 @@ const TenantInvites = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error revoking tenant invite. Please try again."
@@ -133,7 +132,6 @@ const TenantInvites = () => {
       direction: "desc",
     },
   };
-  useEffect(() => {}, []);
   return (
     <div className="container">
       <Joyride
@@ -157,6 +155,7 @@ const TenantInvites = () => {
           skip: "Skip",
         }}
       />
+      <ProgressModal open={isLoading} title={progressModalMessage} />
       <AlertModal
         open={showAlert}
         onClick={() => {

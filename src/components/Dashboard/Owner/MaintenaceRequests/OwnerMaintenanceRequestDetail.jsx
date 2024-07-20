@@ -13,21 +13,9 @@ import UIButton from "../../UIComponents/UIButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import BackButton from "../../UIComponents/BackButton";
-import {
-  Button,
-  Chip,
-  ClickAwayListener,
-  Grow,
-  IconButton,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-  Stack,
-} from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import { authUser, uiGreen, uiRed } from "../../../../constants";
-import { set, useForm } from "react-hook-form";
-import useScreen from "../../../../hooks/useScreen";
+import { useForm } from "react-hook-form";
 import Timeline from "@mui/lab/Timeline";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
@@ -36,25 +24,18 @@ import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import TimelineDot from "@mui/lab/TimelineDot";
 import Typography from "@mui/material/Typography";
-import ContactVendorModal from "../../UIComponents/Prototypes/Modals/ContactVendorModal";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 const OwnerMaintenanceRequestDetail = () => {
   const { id } = useParams();
   const [maintenanceRequest, setMaintenanceRequest] = useState({});
-  const [billingEntryConfirmModalOpen, setBillingEntryConfirmModalOpen] = useState(false);
+  const [billingEntryConfirmModalOpen, setBillingEntryConfirmModalOpen] =
+    useState(false);
   const [events, setEvents] = useState([]);
   const [property, setProperty] = useState({});
   const [unit, setUnit] = useState({});
@@ -66,8 +47,6 @@ const OwnerMaintenanceRequestDetail = () => {
   const [deleteErrorMessage, setDeleteErrorMessage] = useState(false);
   const [status, setStatus] = useState(null); //["pending", "in_progress", "completed"]
   const [priority, setPriority] = useState(null); //["1", "2", "3", "4", "5"]
-  const { screenWidth, breakpoints, isMobile } = useScreen();
-  const [contantVendorModalOpen, setContactVendorModalOpen] = useState(false);
   const [changeStatusDialogOpen, setChangeStatusDialogOpen] = useState(false);
   const [changePriorityDialogOpen, setChangePriorityDialogOpen] =
     useState(false);
@@ -105,7 +84,7 @@ const OwnerMaintenanceRequestDetail = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -115,31 +94,10 @@ const OwnerMaintenanceRequestDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const anchorRef = useRef(null);
-
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  function handleListKeyDown(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setOpen(false);
-    } else if (event.key === "Escape") {
-      setOpen(false);
-    }
-  }
 
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = useRef(open);
@@ -172,21 +130,24 @@ const OwnerMaintenanceRequestDetail = () => {
     };
     changeMaintenanceRequestStatus(id, payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setConfirmMessage("Maintenance Request status has been changed");
           setShowAlertModal(true);
           setStatus(status);
-          if (status === "completed" && maintenanceRequest.billing_entry === null){
+          if (
+            status === "completed" &&
+            maintenanceRequest.billing_entry === null
+          ) {
             //Create a confirm modal messages asking the user if they want to create a billing entry
             setBillingEntryConfirmModalOpen(true);
-          }else{
+          } else {
             navigate(0);
           }
         }
       })
       .catch((err) => {
-        console.log(err);
+
       })
       .finally(() => {
         setProgressModalOpen(false);
@@ -202,7 +163,7 @@ const OwnerMaintenanceRequestDetail = () => {
     };
     changeMaintenanceRequestPriority(id, payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setConfirmMessage("Maintenance Request priority has been changed");
           setShowAlertModal(true);
@@ -211,7 +172,7 @@ const OwnerMaintenanceRequestDetail = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
       })
       .finally(() => {
         setProgressModalOpen(false);
@@ -231,7 +192,7 @@ const OwnerMaintenanceRequestDetail = () => {
     }
     deleteMaintenanceRequest(id)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 204) {
           setConfirmMessage(
             "Maintenance Request has been deleted. You will be redirected to the maintenance requests page."
@@ -243,7 +204,7 @@ const OwnerMaintenanceRequestDetail = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setDeleteErrorMessage("Error deleting maintenance request");
         setShowDeleteError(true);
       });
@@ -260,7 +221,7 @@ const OwnerMaintenanceRequestDetail = () => {
         //Retrieve property by id
         getProperty(res.data.rental_property.id)
           .then((property_res) => {
-            console.log(property_res);
+
             setProperty(property_res.data);
           })
           .catch((err) => {
@@ -278,11 +239,9 @@ const OwnerMaintenanceRequestDetail = () => {
           });
       })
       .catch((err) => {
-        console.log(err);
-      });
-  }, []);
 
-  //TODO: Add component that allows user to search for service providers
+      });
+  },[]);
 
   return (
     <div className="container-fluid">
@@ -323,11 +282,6 @@ const OwnerMaintenanceRequestDetail = () => {
             message={confirmMessage}
             btnText="Okay"
           />
-          {/* <ContactVendorModal
-            open={contantVendorModalOpen}
-            onClose={() => setContactVendorModalOpen(false)}
-            issue={maintenanceRequest.description}
-          /> */}
           <AlertModal
             open={showDeleteError}
             handleClose={() => setShowDeleteError(false)}
@@ -349,7 +303,6 @@ const OwnerMaintenanceRequestDetail = () => {
             handleClose={() => setShowDeleteConfirm(false)}
             handleCancel={() => setShowDeleteConfirm(false)}
             handleConfirm={handleDeleteMaintenanceRequest}
-            
           />
           <ConfirmModal
             title="Create Billing Entry"
@@ -359,12 +312,13 @@ const OwnerMaintenanceRequestDetail = () => {
             handleCancel={() => setBillingEntryConfirmModalOpen(false)}
             handleConfirm={() => {
               setBillingEntryConfirmModalOpen(false);
-              navigate(`/dashboard/owner/billing-entries/create/maintenance-request/${id}`);
+              navigate(
+                `/dashboard/owner/billing-entries/create/maintenance-request/${id}`
+              );
             }}
             cancelBtnText="Cancel"
             confirmBtnText="Create Billing Entry"
           />
-
           <UIDialog
             id="changeStatusDialog"
             title="Change Status"
@@ -436,9 +390,7 @@ const OwnerMaintenanceRequestDetail = () => {
               </form>
             </div>
           </UIDialog>
-          <BackButton
-            to={`/dashboard/owner/maintenance-requests`}Pa
-          />
+          <BackButton to={`/dashboard/owner/maintenance-requests`} Pa />
           <UIPageHeader
             style={{ marginBottom: "20px" }}
             title={
@@ -456,40 +408,30 @@ const OwnerMaintenanceRequestDetail = () => {
                     maintenanceRequest?.tenant.user.last_name}
                 </h4>{" "}
                 <p style={{ marginRight: "0px" }}>
-                  {/* <span className="text-black">Status: </span> */}
                   {status === "pending" && (
-                    // <span className="text-warning">Pending</span>
                     <Chip label="Pending" color="warning" />
                   )}
                   {status === "in_progress" && (
-                    // <span className="text-info">In Progress</span>
                     <Chip label="In Progress" color="info" />
                   )}
                   {status === "completed" && (
-                    // <span className="text-success">Completed</span>
                     <Chip label="Completed" color="success" />
                   )}
                 </p>
                 <p style={{ marginRight: "0px" }}>
-                  {/* <span className="text-black">Priority: </span> */}
                   {maintenanceRequest.priority === 1 && (
-                    // <span className="text-success">Low</span>
                     <Chip label="Low Priority" color="success" />
                   )}
                   {maintenanceRequest.priority === 2 && (
-                    // <span className="text-warning">Medium</span>
                     <Chip label="Moderate Priority" color="warning" />
                   )}
                   {maintenanceRequest.priority === 3 && (
-                    // <span className="text-danger">High</span>
                     <Chip label="High Priority" color="error" />
                   )}
                   {maintenanceRequest.priority === 4 && (
-                    // <span className="text-danger">Urgent</span>
                     <Chip label="Urgent Priority" color="error" />
                   )}
                   {maintenanceRequest.priority === 5 && (
-                    // <span className="text-danger">Emergency</span>
                     <Chip label="Emergency Priority" color="error" />
                   )}
                 </p>

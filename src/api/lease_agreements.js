@@ -8,7 +8,7 @@ export async function getAllLeaseAgreements() {
       .get(`/lease-agreements/`)
       .then((res) => {
         const response = res.data;
-        console.log("axios get lease agreements response ", response);
+
         return response;
       });
     return {
@@ -17,7 +17,6 @@ export async function getAllLeaseAgreements() {
       response: res,
     };
   } catch (error) {
-    console.log("Get Lease Agreements Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -29,7 +28,7 @@ export async function getLeaseAgreementById(leaseAgreementId) {
       .get(`/lease-agreements/${leaseAgreementId}/`)
       .then((res) => {
         const response = res.data;
-        console.log("axios get lease agreement by id response ", response);
+
         return response;
       });
     return {
@@ -38,7 +37,6 @@ export async function getLeaseAgreementById(leaseAgreementId) {
       data: res,
     };
   } catch (error) {
-    console.log("Get Lease Agreement By Id Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -50,7 +48,7 @@ export async function createLeaseAgreement(data) {
       .post(`/lease-agreements/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios create lease agreement response ", response);
+
         return response;
       });
     return {
@@ -59,7 +57,6 @@ export async function createLeaseAgreement(data) {
       response: res,
     };
   } catch (error) {
-    console.log("Create Lease Agreement Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -71,7 +68,7 @@ export async function updateLeaseAgreement(leaseAgreementId, data) {
       .patch(`/lease-agreements/${leaseAgreementId}/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios update lease agreement response ", response);
+
         return {
           response: response,
           message: "Lease agreement updated successfully",
@@ -84,7 +81,6 @@ export async function updateLeaseAgreement(leaseAgreementId, data) {
       res: res,
     };
   } catch (error) {
-    console.log("Update Lease Agreement Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -95,14 +91,13 @@ export async function getLeaseAgreementByIdAndApprovalHash(data) {
     const res = await unauthenticatedInstance
       .post(`/retrieve-lease-agreement-approval/`, data)
       .then((res) => {
-        if (res.status == 200) {
+        if (res.status === 200) {
           return { data: res.data };
         }
         return { data: [] };
       });
     return res.data;
   } catch (error) {
-    console.log("Error Retrieving LEase Term: ", error);
     return error.response;
   }
 }
@@ -112,12 +107,10 @@ export async function signLeaseAgreement(data) {
     const res = await unauthenticatedInstance
       .post(`/sign-lease-agreement/`, data)
       .then((res) => {
-        console.log(res);
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Sign Lease Agreement Error: ", error);
     return error.response;
   }
 }
@@ -129,12 +122,11 @@ export async function getLeaseAgreementsByTenant(tenant_id) {
       .get(`/tenants/${tenant_id}/lease-agreements/`)
       .then((res) => {
         const response = res;
-        console.log("axios get lease agreements by tenant response ", response);
+
         return response;
       });
     return res;
   } catch (error) {
-    console.log("Get Lease Agreements By Tenant Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -150,18 +142,10 @@ export async function getLeaseAgreementByLeaseRenewalRequestId( //TODO: Depricat
       })
       .then((res) => {
         const response = res.data;
-        console.log(
-          "axios get lease agreement by lease renewal request id response ",
-          response
-        );
         return response;
       });
     return res;
   } catch (error) {
-    console.log(
-      "Get Lease Agreement By Lease Renewal Request Id Error: ",
-      error
-    );
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -175,7 +159,7 @@ export async function cancelLeaseAgreement(leaseAgreementId) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios cancel lease agreement response ", response);
+
         return response;
       });
     return {
@@ -184,7 +168,6 @@ export async function cancelLeaseAgreement(leaseAgreementId) {
       response: res,
     };
   } catch (error) {
-    console.log("Cancel Lease Agreement Error: ", error);
     return { response: error.response, message: "Error", status: 400 };
   }
 }

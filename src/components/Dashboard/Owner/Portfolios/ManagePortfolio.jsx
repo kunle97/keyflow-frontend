@@ -11,23 +11,14 @@ import {
 } from "../../../../api/portfolios";
 import {
   updatePortfolioProperties,
-  updateProperty,
-  updatePropertyMedia,
 } from "../../../../api/properties";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import EditIcon from "@mui/icons-material/Edit";
 import {
   ButtonBase,
-  ClickAwayListener,
-  Grow,
   IconButton,
   List,
   ListItem,
   ListItemText,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -54,7 +45,6 @@ import {
 import UISwitch from "../../UIComponents/UISwitch";
 import { syncPortfolioPreferences } from "../../../../helpers/preferences";
 import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIInput from "../../UIComponents/UIInput";
@@ -71,12 +61,8 @@ const ManagePortfolio = () => {
   const [portfolio, setPortfolio] = useState(null);
   const [portfolioPreferences, setPortfolioPreferences] = useState([]);
   const [properties, setProperties] = useState([]);
-  const [allUserProperties, setAllUserProperties] = useState([]);
   const [open, setAlertOpen] = useState(false);
-  const anchorRef = React.useRef(null);
-  const [openPopper, setOpenPopper] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [propertySelectModalOpen, setPropertySelectModalOpen] = useState(false);
   const [rentalUnitModalOpen, setRentalPropertyModalOpen] = useState(false);
   const [selectedRentalProperties, setSelectedRentalProperties] = useState([]);
   const [rentalPropertyEndpoint, setRentalPropertyEndpoint] =
@@ -85,7 +71,6 @@ const ManagePortfolio = () => {
   const [rentalPropertyNextPage, setRentalPropertyNextPage] = useState(null);
   const [rentalPropertyPreviousPage, setRentalPropertyPreviousPage] =
     useState(null);
-
   const [rentalPropertySearchQuery, setRentalUnitSearchQuery] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertRedirectURL, setAlertRedirectURL] = useState(null);
@@ -95,10 +80,7 @@ const ManagePortfolio = () => {
   const tabs = [{ label: "Properties " }, { label: "Preferences" }];
   const [checked, setChecked] = useState([]);
   const [errors, setErrors] = useState({});
-  const [formData, setFormData] = useState({
-    // name: portfolio ? portfolio.name : "",
-    // description: portfolio ? portfolio.description : "",
-  });
+  const [formData, setFormData] = useState({});
   const [
     showResetLeaseTemplateConfirmModal,
     setShowResetLeaseTemplateConfirmModal,
@@ -142,7 +124,7 @@ const ManagePortfolio = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -152,7 +134,7 @@ const ManagePortfolio = () => {
       setTourIndex(4);
     }
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const handleChange = (e) => {
@@ -164,8 +146,8 @@ const ManagePortfolio = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -202,9 +184,7 @@ const ManagePortfolio = () => {
   ];
 
   const {
-    register,
     handleSubmit,
-    // formState: { errors },
   } = useForm();
   const columns = [
     { label: "Name", name: "name" },
@@ -230,7 +210,7 @@ const ManagePortfolio = () => {
     };
     updatePortfolio(id, payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio updated successfully");
@@ -256,7 +236,7 @@ const ManagePortfolio = () => {
 
   const handleDelete = () => {
     deletePortfolio(id).then((res) => {
-      console.log(res);
+
       if (res.status === 200 || res.status === 201) {
         setAlertTitle("Portfolio Deleted");
         setAlertMessage("");
@@ -275,28 +255,6 @@ const ManagePortfolio = () => {
   const handleTabChange = (event, newValue) => {
     setTabPage(newValue);
   };
-
-  // Dropdown
-  const handleToggle = () => {
-    setOpenPopper((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpenPopper(false);
-  };
-
-  function handleListKeyDown(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setOpenPopper(false);
-    } else if (event.key === "Escape") {
-      setOpenPopper(false);
-    }
-  }
 
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName) => {
@@ -376,13 +334,13 @@ const ManagePortfolio = () => {
     if (!properties || !portfolio) {
       getPortfolio(id)
         .then((res) => {
-          console.log(res);
+
           if (res.status === 200) {
             setPortfolio(res.data);
             setProperties(res.data.rental_properties);
             setSelectedRentalProperties(res.data.rental_properties);
             setPortfolioPreferences(JSON.parse(res.data.preferences));
-            console.log(JSON.parse(res.data.preferences));
+
             setFormData({
               name: res.data.name,
               description: res.data.description,
@@ -390,7 +348,7 @@ const ManagePortfolio = () => {
           }
         })
         .catch((err) => {
-          console.log(err);
+
           setPortfolio(null);
           setProperties([]);
           setPortfolioPreferences([]);
@@ -470,7 +428,7 @@ const ManagePortfolio = () => {
             handleConfirm={() => {
               removePortfolioLeaseTemplate(id)
                 .then((res) => {
-                  console.log("Remove Lease Template Res", res);
+
                   if (res.status === 200) {
                     setAlertTitle("Success");
                     setAlertMessage(
@@ -703,11 +661,11 @@ const ManagePortfolio = () => {
             <UIButton
               btnText="Save"
               onClick={() => {
-                console.log(selectedRentalProperties);
+
                 let selectedProperties = JSON.stringify(
                   selectedRentalProperties.map((property) => property.id)
                 );
-                console.log("Selected Properties " + selectedProperties);
+
 
                 setIsLoading(true);
                 try {
@@ -715,10 +673,10 @@ const ManagePortfolio = () => {
                     properties: selectedProperties,
                     portfolio: id,
                   };
-                  console.log(payload);
+
                   updatePortfolioProperties(payload)
                     .then((res) => {
-                      console.log(res);
+
                       if (res.status !== 200) {
                         throw new Error(
                           "Error updating properties in portfolio"
