@@ -1,16 +1,3 @@
-/**
- * Owner Notification Settings
- * 
- * - Tenant Lease Agreement Signed (Owner)
- *   - Lease Cancellation Request Created (Owner)
- *   - Lease Renewal Request Created (Owner)
- *  - Lease Renewal Agreement Signed (Owner)
- *  - Rental Application Created For Unit (Owner)
- *  - (Stripe Invoice) Paid for Rent Payments, Security Deposits, etc.  (Owner)
- * -  New Tenant Completes Registration After Signing Lease (Owner)
- * 
- */
-
 export const defaultOwnerAccountPreferences = [
     {
       type: "notifications",

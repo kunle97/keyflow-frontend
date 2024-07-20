@@ -82,8 +82,8 @@ const ResetPassword = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
   const onSubmit = () => {
     setIsLoading(true);
@@ -92,7 +92,7 @@ const ResetPassword = () => {
       new_password: formData.new_password,
     };
     resetPassword(payload).then((res) => {
-      console.log(res);
+
       if (res.status === 200) {
         setAlertTitle("Password Reset Successful");
         setAlertMessage(
@@ -123,7 +123,7 @@ const ResetPassword = () => {
     // retrievePasswordResetToken
     validatePasswordResetToken(token)
       .then((res) => {
-        console.log(res);
+
         if (res.status !== 200) {
           //if Reset token validation fails navigate to 404
           navigate("/*");

@@ -5,7 +5,7 @@ export async function createLeaseRenewalRequest(data) {
     const response = await authenticatedInstance
       .post("/lease-renewal-requests/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal request created successfully",
           status: 201,
@@ -14,7 +14,7 @@ export async function createLeaseRenewalRequest(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -24,7 +24,7 @@ export async function getAllLeaseRenewalRequests() {
     const response = await authenticatedInstance
       .get("/lease-renewal-requests/")
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal requests retrieved successfully",
           status: 200,
@@ -33,7 +33,7 @@ export async function getAllLeaseRenewalRequests() {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -44,7 +44,7 @@ export async function getLeaseRenewalRequestById(id) {
     const response = await authenticatedInstance
       .get(`/lease-renewal-requests/${id}/`)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal request retrieved successfully",
           status: 200,
@@ -53,7 +53,7 @@ export async function getLeaseRenewalRequestById(id) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -63,7 +63,7 @@ export async function approveLeaseRenewalRequest(data) {
     const response = await authenticatedInstance
       .post("/lease-renewal-requests/approve/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal request approved successfully",
           status: 204,
@@ -72,7 +72,7 @@ export async function approveLeaseRenewalRequest(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -82,7 +82,7 @@ export async function rejectLeaseRenewalRequest(data) {
     const response = await authenticatedInstance
       .post("/lease-renewal-requests/deny/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal request rejected successfully",
           status: 204,
@@ -91,7 +91,7 @@ export async function rejectLeaseRenewalRequest(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -102,7 +102,7 @@ export async function getTenantLeaseRenewalRequests() {
     const response = await authenticatedInstance
       .get("/lease-renewal-requests/tenant/")
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal requests retrieved successfully",
           status: 200,
@@ -111,7 +111,7 @@ export async function getTenantLeaseRenewalRequests() {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -122,7 +122,7 @@ export async function updateLeaseRenewalRequest(id, data) {
     const response = await authenticatedInstance
       .patch(`/lease-renewal-requests/${id}/`, data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal request updated successfully",
           status: 204,
@@ -131,7 +131,7 @@ export async function updateLeaseRenewalRequest(id, data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -142,7 +142,7 @@ export async function signLeaseAgreementRenewal(data) {
     const response = await authenticatedInstance
       .post("/lease-renewal-requests/sign/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease renewal request signed successfully",
           status: 204,
@@ -151,7 +151,7 @@ export async function signLeaseAgreementRenewal(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }

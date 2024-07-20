@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
 import UIButton from "../../../../../UIComponents/UIButton";
 import ConfirmModal from "../../../../../UIComponents/Modals/ConfirmModal";
-import {
-  authUser,
-  token,
-  uiGreen,
-  uiRed,
-  validationMessageStyle,
-} from "../../../../../../../constants";
+import { authUser, uiGreen, uiRed } from "../../../../../../../constants";
 import UIPrompt from "../../../../../UIComponents/UIPrompt";
 import {
-  Box,
-  Button,
   ClickAwayListener,
   Grow,
   IconButton,
   MenuItem,
   MenuList,
   Stack,
-  Typography,
 } from "@mui/material";
 import { Paper, Popper } from "@material-ui/core";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -33,12 +24,13 @@ import UIDialog from "../../../../../UIComponents/Modals/UIDialog";
 import AddPaymentMethod from "../../../../../AddPaymentMethod";
 import AlertModal from "../../../../../UIComponents/Modals/AlertModal";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import ProgressModal from "../../../../../UIComponents/Modals/ProgressModal";
 const PaymentMethodsSection = () => {
   const navigate = useNavigate();
   const [openAddPaymentMethodModal, setOpenAddPaymentMethodModal] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [progressMessage, setProgressMessage] = useState(null);
+  const [progressMessage, setProgressMessage] = useState("Please wait...");
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
@@ -77,13 +69,13 @@ const PaymentMethodsSection = () => {
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
     setIsLoading(true);
     setProgressMessage("Setting as default payment method...");
-    console.log("Set as default PM: ", paymentMethodId);
+
     let data = {};
     data.payment_method_id = paymentMethodId;
     data.user_id = authUser.id;
     setOwnerDefaultPaymentMethod(data)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setResponseTitle("Alert");
           setResponseMessage("Payment method set as default");
@@ -107,18 +99,18 @@ const PaymentMethodsSection = () => {
       });
   };
   const handlePaymentMethodDelete = (paymentMethodId) => {
-    console.log("Deleted PM: ", paymentMethodId);
+
     let data = {
       payment_method_id: paymentMethodId,
     };
     deleteStripePaymentMethod(data).then((res) => {
-      console.log(res);
+
       setResponseTitle("Alert");
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
       listOwnerStripePaymentMethods(`${authUser.id}`).then((res) => {
-        console.log(res.data);
+
         setPaymentMethods(res.payment_methods.data);
       });
     });
@@ -127,12 +119,12 @@ const PaymentMethodsSection = () => {
     //Get the payment methods for the user
     listOwnerStripePaymentMethods(`${authUser.id}`)
       .then((res) => {
-        console.log("PAyment M3th0Ds Response: ", res);
+
         setPaymentMethods(res.payment_methods.data);
         setPaymentMethodDefaultId(res.default_payment_method);
       })
       .catch((error) => {
-        console.log("Error getting payment methods: ", error);
+
         setPaymentMethods([]);
       });
   }, []);
@@ -145,6 +137,7 @@ const PaymentMethodsSection = () => {
         btnText="Okay"
         onClick={() => setShowResponseModal(false)}
       />{" "}
+      <ProgressModal open={isLoading} title={progressMessage} />
       <>
         <div className="row">
           <ConfirmModal
@@ -248,9 +241,19 @@ const PaymentMethodsSection = () => {
                             alignItems={"flex-start"}
                             spacing={0}
                           >
-                            <span className="text-black">
-                              •••• •••• •••• {paymentMethod.card.last4}
-                            </span>
+                            <Stack
+                              direction={"row"}
+                              justifyContent={"flex-start"}
+                              alignItems={"center"}
+                              spacing={1}
+                            >
+                              <span className="text-black">
+                                •••• •••• •••• {paymentMethod.card.last4}
+                              </span>{" - "}
+                              {paymentMethod.id === paymentMethodDefaultId ? (
+                                <span style={{ color: uiGreen }}>Default</span>
+                              ) : null}
+                            </Stack>
                             <span className="text-muted">
                               Expires {paymentMethod.card.exp_month}/
                               {paymentMethod.card.exp_year}
@@ -262,7 +265,9 @@ const PaymentMethodsSection = () => {
                             ref={anchorRef}
                             id={`composition-button-${index}`}
                             aria-controls={
-                              openContextMenu ? `composition-menu-${index}` : undefined
+                              openContextMenu
+                                ? `composition-menu-${index}`
+                                : undefined
                             }
                             aria-expanded={openContextMenu ? "true" : undefined}
                             aria-haspopup="true"

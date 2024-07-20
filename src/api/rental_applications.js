@@ -27,7 +27,7 @@ export async function createRentalApplication(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios create rental app response ", response);
+
         return response;
       });
     return {
@@ -36,7 +36,7 @@ export async function createRentalApplication(data) {
       res: res,
     };
   } catch (error) {
-    console.log("Create Rental App Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -47,7 +47,7 @@ export async function getRentalApplications(unitId) {
     const res = await authenticatedInstance
       .get(`/units/${unitId}/rental-applications/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -55,7 +55,7 @@ export async function getRentalApplications(unitId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Rental Applications Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -66,7 +66,7 @@ export async function getRentalApplicationsByUser() {
     const res = await authenticatedInstance
       .get(`/rental-applications/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -74,7 +74,7 @@ export async function getRentalApplicationsByUser() {
       });
     return res;
   } catch (error) {
-    console.log("Get Rental Applications Error: ", error);
+
     return error.response;
   }
 }
@@ -92,7 +92,7 @@ export async function getRentalApplicationById(rentalAppId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -111,7 +111,7 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -126,13 +126,13 @@ export async function getRentalApplicationByApprovalHash(approval_hash) {
 //         is_archived: true,
 //       })
 //       .then((res) => {
-//         console.log(res);
+
 //         return res.data;
 //       });
-//     console.log("Rental Application Approved", res);
+
 //     return res;
 //   } catch (error) {
-//     console.log("Approve Rental Application Error: ", error);
+
 //     return error.response;
 //   }
 // }
@@ -142,13 +142,13 @@ export async function approveRentalApplication(rentalAppId) {
     const res = await authenticatedInstance
       .post(`/rental-applications/${rentalAppId}/approve-rental-application/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
-    console.log("Rental Application Approved", res);
+
     return res;
   } catch (error) {
-    console.log("Approve Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -167,7 +167,7 @@ export async function rejectRentalApplication(rentalAppId) {
       });
     return res;
   } catch (error) {
-    console.log("Approve Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -188,7 +188,7 @@ export async function deleteOtherRentalApplications(rentalAppId) {
       });
     return res;
   } catch (error) {
-    console.log("Approve Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -207,7 +207,7 @@ export async function revokeRentalApplication(rentalAppId) {
       });
     return res;
   } catch (error) {
-    console.log("Delete Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -226,7 +226,7 @@ export async function archiveRentalApplication(rentalAppId) {
       });
     return res;
   } catch (error) {
-    console.log("Archive Rental Application Error: ", error);
+
     return error.response;
   }
 }
@@ -245,7 +245,7 @@ export async function unarchiveRentalApplication(rentalAppId) {
       });
     return res;
   } catch (error) {
-    console.log("Unarchive Rental Application Error: ", error);
+
     return error.response;
   }
 }

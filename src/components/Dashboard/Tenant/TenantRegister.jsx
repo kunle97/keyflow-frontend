@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { authUser, uiGreen, uiGrey1 } from "../../../constants";
+import { authUser, uiGreen } from "../../../constants";
 import { faker } from "@faker-js/faker";
 import { getRentalApplicationByApprovalHash } from "../../../api/rental_applications";
 import { verifyTenantRegistrationCredentials } from "../../../api/tenants";
@@ -10,7 +10,7 @@ import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
-import { Alert, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { validationMessageStyle } from "../../../constants";
 import { makeId, preventPageReload } from "../../../helpers/utils";
@@ -51,8 +51,7 @@ const TenantRegister = () => {
       ? ""
       : faker.internet.email({ firstName, lastName })
   );
-  const [password, setPassword] = useState("password");
-  const [password2, setPassword2] = useState("password");
+
   const [open, setOpen] = useState(false);
   const [errorMode, setErrorMode] = useState(false);
   const [errorModeMessage, setErrorModeMessage] = useState(null);
@@ -64,7 +63,6 @@ const TenantRegister = () => {
   const [showStep1, setShowStep1] = useState(true);
   const [showStep2, setShowStep2] = useState(false);
   const [userId, setUserId] = useState(null);
-  const navigate = useNavigate();
   const [errors, setErrors] = useState({}); //Create a state to hold the form errors
   const [formData, setFormData] = useState({
     first_name:
@@ -89,8 +87,8 @@ const TenantRegister = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const step1FormInputs = [
@@ -135,7 +133,7 @@ const TenantRegister = () => {
         required: true,
         validate: async (val) => {
           let regex = validEmail;
-          console.log("Email regex test ", regex.test(val));
+
           if (!regex.test(val)) {
             setErrors((prevErrors) => ({
               ...prevErrors,
@@ -225,15 +223,8 @@ const TenantRegister = () => {
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState(null);
-  const [cardMode, setCardMode] = useState(true);
-  const [returnToken, setReturnToken] = useState(null); //Value of either the Stripe token or the Plaid token
   const [successMode, setSuccessMode] = useState(false); //If true, display error message
   const [paymentMethodId, setPaymentMethodId] = useState(null); //If true, display error message
-  const handlePlaidSuccess = (token, metadata) => {
-    console.log(token);
-    console.log(metadata);
-    setReturnToken(token);
-  };
 
   //Create handlSubmit() function to handle form submission to create a new user using the API
   const onSubmit = async (e) => {
@@ -242,7 +233,7 @@ const TenantRegister = () => {
     //Check if stripe elements are valid
     const { isValid, newErrors } = validateForm(formData, step1FormInputs);
     if (hasNoErrors(errors) && isValid) {
-      console.log("can submit form")
+
       let payload = {
         unit_id: unit_id,
         lease_agreement_id: lease_agreement_id,
@@ -265,7 +256,7 @@ const TenantRegister = () => {
 
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-        console.log("Card Element not found");
+
         setErrorMode(true);
         setMessage("Please enter a valid card number");
         setErrorModeMessage("Please enter a valid card number");
@@ -274,23 +265,15 @@ const TenantRegister = () => {
         return;
       }
       try {
-        if (cardMode) {
-          const { paymentMethod } = await stripe.createPaymentMethod({
-            type: "card",
-            card: cardElement,
-          });
-          setPaymentMethodId(paymentMethod.id);
-          console.log(paymentMethod.id);
-          console.log("Return Token:", returnToken);
-          console.log("PaymentMethod:", paymentMethod);
-          payload.payment_method_id = paymentMethod.id;
-
-          console.log("COMPLETE FORM DATA", payload);
-        } else {
-        }
+        const { paymentMethod } = await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement,
+        });
+        setPaymentMethodId(paymentMethod.id);
+        payload.payment_method_id = paymentMethod.id;
       } catch (err) {
         setMessage("Error adding your payment method");
-        console.log(err);
+
         setErrorMode(true);
         setSuccessMode(false);
         setIsLoading(false);
@@ -298,7 +281,7 @@ const TenantRegister = () => {
       }
 
       const response = await registerTenant(payload).then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setUserId(authUser.id);
 
@@ -345,7 +328,7 @@ const TenantRegister = () => {
           }
         })
         .catch((err) => {
-          console.log(err);
+
           setShowAlert(true);
           setAlertTitle("Error");
           setAlertMessage(
@@ -362,7 +345,7 @@ const TenantRegister = () => {
             if (res.rental_application) {
               //Retrieve users rental application data using the approval_hash
               getRentalApplicationByApprovalHash(approval_hash).then((res) => {
-                console.log(res);
+
                 if (res.id) {
                   //Populate the form with the rental application data
                   const first_name = res.first_name;
@@ -386,10 +369,6 @@ const TenantRegister = () => {
                         ? ""
                         : "Password1*",
                   };
-                  // Set the preloaded data in the form using setValue
-                  // Object.keys(preloadedData).forEach((key) => {
-                  //   setValue(key, preloadedData[key]);
-                  // });
                   //Set the form data
                   setFormData({
                     first_name: res.first_name,
@@ -424,11 +403,6 @@ const TenantRegister = () => {
                     ? ""
                     : "Password1",
               };
-              // Set the preloaded data in the form using setValue
-              // Object.keys(preloadedData).forEach((key) => {
-              //   setValue(key, preloadedData[key]);
-              // });
-              //Set the form data
               setFormData({
                 first_name: res.tenant_invite.first_name,
                 last_name: res.tenant_invite.last_name,
@@ -441,7 +415,7 @@ const TenantRegister = () => {
           }
         })
         .catch((err) => {
-          console.log(err);
+
           setShowAlert(true);
           setAlertTitle("Error");
           setAlertMessage(
@@ -449,7 +423,7 @@ const TenantRegister = () => {
           );
         });
     } catch (err) {
-      console.log(err);
+
       setShowAlert(true);
       setAlertTitle("Error");
       setAlertMessage(
@@ -457,7 +431,7 @@ const TenantRegister = () => {
       );
     }
     preventPageReload(); //Warns user before leaving the page
-  }, []);
+  },[]);
   return (
     <div className="container-fluid">
       <ProgressModal
@@ -595,16 +569,6 @@ const TenantRegister = () => {
                         }
                       }}
                     />
-
-                    {/* <div className="mb-2">
-                        <Link
-                          className="small"
-                          to="/dashboard/tenant/login"
-                          style={{ color: uiGreen }}
-                        >
-                          Already have an account? Login!
-                        </Link>
-                      </div> */}
                   </div>
                 )}
                 {showStep2 && (

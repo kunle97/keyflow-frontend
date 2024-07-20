@@ -70,12 +70,12 @@ const LeaseTemplates = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const columns = [
@@ -197,7 +197,7 @@ const LeaseTemplates = () => {
       filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
         deleteLeaseTemplate(id)
           .then((res) => {
-            console.log(res);
+
           })
           .catch((err) => {
             setAlertModalMessage(err.response.data.message);
@@ -213,7 +213,7 @@ const LeaseTemplates = () => {
     getLeaseTemplatesByUser()
       .then((res) => {
         setLeaseTemplates(res.data);
-        console.log(res);
+
       })
       .catch((error) => {
         console.error("Error fetching lease templates:", error);
@@ -227,7 +227,7 @@ const LeaseTemplates = () => {
     getOwnerUnits()
       .then((res) => {
         setUnits(res.data);
-        console.log(res);
+
       })
       .catch((error) => {
         console.error("Error fetching units:", error);

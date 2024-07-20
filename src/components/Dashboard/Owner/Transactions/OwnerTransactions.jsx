@@ -78,7 +78,6 @@ const OwnerTransactions = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
 
   //Create a function to calculate the total revenue for all transactions
@@ -156,8 +155,6 @@ const OwnerTransactions = () => {
           }
         });
         setRevenueChartData(revenueData);
-        console.log(revenueData);
-        console.log(data[0].data);
       })
       .catch((error) => {
         console.error("Error fetching transactions", error);
@@ -168,16 +165,9 @@ const OwnerTransactions = () => {
         setShowAlert(true);
       });
     getStripeAccountLink().then((res) => {
-      console.log("Stripe ACcount link res: ", res);
       setStripeAccountLink(res.account_link);
     });
-  }, []);
-  console.log([
-    {
-      id: "revenue",
-      data: revenueChartData,
-    },
-  ]);
+  },[]);
   return (
     <div className="container-fluid">
       <Joyride
@@ -253,9 +243,7 @@ const OwnerTransactions = () => {
               searchFields={["type", "amount", "timestamp"]}
             />
           ) : (
-            <div
-              className="transactions-list"
-            >
+            <div className="transactions-list">
               <UITable
                 columns={columns}
                 options={options}

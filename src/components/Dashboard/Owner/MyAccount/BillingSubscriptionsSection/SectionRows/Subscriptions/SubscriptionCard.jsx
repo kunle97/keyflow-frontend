@@ -1,7 +1,6 @@
 import React from "react";
 import { uiGreen } from "../../../../../../../constants";
-import UIButton from "../../../../../UIComponents/UIButton";
-import { Button, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const SubscriptionCard = (props) => {

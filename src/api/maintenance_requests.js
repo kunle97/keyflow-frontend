@@ -16,7 +16,7 @@ export async function createMaintenanceRequest(data) {
       data: res,
     };
   } catch (error) {
-    console.log("Create Maintenance Request Error: ", error);
+
     return {
       response: error.response,
       message:
@@ -31,7 +31,7 @@ export async function getMaintenanceRequests(unitId) {
     const res = await authenticatedInstance
       .get(`/units/${unitId}/maintenance-requests/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -39,7 +39,7 @@ export async function getMaintenanceRequests(unitId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Maintenance Requests Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -54,7 +54,7 @@ export async function getMaintenanceRequestsByUser() {
       });
     return res;
   } catch (error) {
-    console.log("Get Maintenance Requests Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -75,7 +75,7 @@ export async function getAllOwnerMaintenanceRequests(ordering = "-created_at", q
       });
     return res;
   } catch (error) {
-    console.log("Get Maintenance Requests Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -93,7 +93,7 @@ export async function getMaintenanceRequestById(maintenanceRequestId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Maintenance Request Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -111,7 +111,7 @@ export async function getMaintenanceRequestsByTenant(tenantId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Maintenance Requests Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -129,7 +129,7 @@ export async function markMaintenanceRequestAsResolved(maintenanceRequestId) {
       });
     return res;
   } catch (error) {
-    console.log("Mark Maintenance Request As Resolved Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -147,7 +147,7 @@ export async function markMaintenanceRequestAsUnresolved(maintenanceRequestId) {
       });
     return res;
   } catch (error) {
-    console.log("Mark Maintenance Request As Resolved Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -180,7 +180,7 @@ export async function changeMaintenanceRequestStatus(
       });
     return res;
   } catch (error) {
-    console.log("Change Maintenance Request Status Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -199,7 +199,7 @@ export async function changeMaintenanceRequestPriority(
       });
     return res;
   } catch (error) {
-    console.log("Change Maintenance Request Priority Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -214,7 +214,7 @@ export async function updateMaintenanceRequest(maintenanceRequestId, data) {
       });
     return res;
   } catch (error) {
-    console.log("Update Maintenance Request Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -230,7 +230,7 @@ export async function deleteMaintenanceRequest(maintenanceRequestId) {
       });
     return res;
   } catch (error) {
-    console.log("Delete Maintenance Request Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

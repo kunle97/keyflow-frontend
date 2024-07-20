@@ -1,4 +1,3 @@
-import Checkbox from "@mui/material/Checkbox";
 import React, { useState } from "react";
 import { uiGreen, validationMessageStyle } from "../../../constants";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
@@ -7,7 +6,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
-import { uppercaseAndLowercaseLetters, validAnyString, validEmail, validPhoneNumber } from "../../../constants/rexgex";
+import {  validAnyString, validEmail, validPhoneNumber } from "../../../constants/rexgex";
 
 const RentalHistorySection = (props) => {
   const {
@@ -29,8 +28,8 @@ const RentalHistorySection = (props) => {
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -51,8 +50,8 @@ const RentalHistorySection = (props) => {
       { ...residenceHistoryNode, [name]: value },
       ...props.residenceHistory.slice(props.index + 1),
     ]);
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [

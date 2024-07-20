@@ -2,7 +2,6 @@ import {
   authenticatedMediaInstance,
   unauthenticatedInstance,
 } from "../api/api";
-import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
 //Create a fucntion to surround a component with the DashboardContainer
@@ -143,8 +142,6 @@ export const generateSimilarColor = (baseColor) => {
   return `rgb(${randomR}, ${randomG}, ${randomB})`;
 };
 export const generateVariedColors = (baseColor, numberOfColors) => {
-  const [r, g, b] = baseColor.match(/\w\w/g).map((x) => parseInt(x, 16));
-
   const colors = [];
   const hueIncrement = 360 / numberOfColors;
   const lightnessIncrement = 20;
@@ -216,20 +213,15 @@ export const addUnderscoresAndLowercase = (value) => {
 
 //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
 export const isValidFileName = (file_name) => {
-  console.log("File Name:", file_name); // Log the file name
   const regex = /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9]+)?$/;
   const isValid = regex.test(file_name);
-  console.log("isValid name", isValid);
   return isValid;
 };
 
 //Create a function that checks the props.acceptedFileTypes array to see if the file extension is valid
 export const isValidFileExtension = (file_name, acceptedFileTypes) => {
-  console.log("File Name:", file_name); // Log the file name
   const file_extension = file_name.split(".").pop();
-  console.log("File Extension:", file_extension); // Log the file extension
   const isValid = acceptedFileTypes.includes("." + file_extension);
-  console.log("isValid extension", isValid);
   return isValid;
 };
 
@@ -271,19 +263,16 @@ export const handleChangeLeaseTemplate = (
         additional_charges: leaseTemplate.additional_charges,
       })
       .then((res) => {
-        console.log(res);
-        if (res.status == 200) {
+        if (res.status === 200) {
           changeResponse = true;
           return changeResponse;
         }
       })
       .catch((error) => {
-        console.log(error);
         changeResponse = false;
         return changeResponse;
       });
   } catch (err) {
-    console.log("An error occured trying to change the lease template", err);
     changeResponse = false;
     return changeResponse;
   }
@@ -335,7 +324,6 @@ export const validateToken = async () => {
     const res = await unauthenticatedInstance.post("/auth/validate-token/", {
       token: localStorage.getItem("accessToken"),
     });
-    console.log(res);
     isValid = res.data.isValid;
     return res;
   } catch (error) {

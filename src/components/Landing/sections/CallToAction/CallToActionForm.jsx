@@ -29,7 +29,7 @@ const CallToActionForm = () => {
     setIsLoading(true);
     try {
       const res = await requestDemo(data).then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           ReactGA.event({
             category: "Mailing List",
@@ -49,7 +49,7 @@ const CallToActionForm = () => {
         }
       });
     } catch (error) {
-      console.log(error);
+
       setModalTitle("Error!");
       setModalMessage(
         "Something went wrong. Please try  using a  different email address or try again later."

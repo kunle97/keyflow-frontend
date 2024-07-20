@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   triggerValidation,
-  validateInput,
   validateForm,
 } from "../../../../helpers/formValidation";
 import { useNavigate } from "react-router";
@@ -30,14 +29,9 @@ import UIInput from "../../UIComponents/UIInput";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import UICheckbox from "../../UIComponents/UICheckbox";
-import { error } from "pdf-lib";
 import BackButton from "../../UIComponents/BackButton";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import {
@@ -162,7 +156,7 @@ const CreateAnnouncement = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const handleChange = (e) => {
@@ -185,7 +179,7 @@ const CreateAnnouncement = () => {
           limit: 10,
         },
       });
-      console.log("Search res", res);
+
       setRentalUnits(res.data.results);
       setRentalUnitNextPage(res.data.next);
       setRentalUnitPreviousPage(res.data.previous);
@@ -473,12 +467,20 @@ const CreateAnnouncement = () => {
           // Compare year, month, and day parts without considering time
           if (selectedDate <= currentDate) {
             setEndDateErrorMessage("End date cannot be in the past");
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              end_date: "End date cannot be in the past",
+            }));
             return "End date cannot be in the past";
           } else if (
             formData.start_date &&
             selectedDate < new Date(formData.start_date)
           ) {
             setEndDateErrorMessage("End date cannot be before the start date");
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              end_date: "End date cannot be before the start date",
+            }));
             return "End date cannot be less than the start date";
           }
         },
@@ -574,7 +576,7 @@ const CreateAnnouncement = () => {
 
   useEffect(() => {
     getOwnerSubscriptionPlanData().then((res) => {
-      console.log("Subscription Plan Data", res);
+
       if(!res.can_use_announcements){
         setAlertModalRedirect("/dashboard/owner/");
         setAlertModalTitle("Subscription Plan Mismatch");
@@ -1161,7 +1163,6 @@ const CreateAnnouncement = () => {
                         >
                           {input.label}
                         </label>
-                        {/* {notifyImmediatelyEnabled && ( */}
                         <input
                           className="form-control"
                           name={input.name}
@@ -1169,28 +1170,12 @@ const CreateAnnouncement = () => {
                           type={input.type}
                           placeholder={input.placeholder}
                           onChange={input.onChange}
+                          onBlur={input.onChange}
                           value={formData[input.name]}
                           error={errors[input.name]}
                           data-testId={input.dataTestId}
                           errorMessageDataTestid={input.errorMessageDataTestId}
                         />
-                        {/* )} */}
-
-                        {/* {input.name === "start_date" && (
-                          <UICheckbox
-                            label="Notify Immediately"
-                            name="notify_immediately"
-                            checked={notifyImmediatelyEnabled}
-                            onChange={(e) => {
-                              setFormData((prevData) => ({
-                                ...prevData,
-                                notify_immediately: e.target.checked,
-                              }));
-                              setNotifyImmediatelyEnabled(e.target.checked);
-                            }}
-                          />
-                        )} */}
-
                         {errors[input.name] && (
                           <span
                             data-testId={input.errorMessageDataTestId}
@@ -1244,8 +1229,8 @@ const CreateAnnouncement = () => {
                   formData,
                   formInputs
                 );
-                console.log("Form data", formData);
-                console.log("Errors", newErrors);
+
+
                 if (!isValid) {
                   setErrors(newErrors);
                   return;

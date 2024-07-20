@@ -1,14 +1,12 @@
-import { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { login } from "../../../api/auth";
-import AuthContext, { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { uiGreen, uiGrey, defaultWhiteInputStyle } from "../../../constants";
-import { Input, Button, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { validationMessageStyle } from "../../../constants";
-import { getTenantsEmails, getTenantsUsernames } from "../../../api/api";
+import { getTenantsEmails } from "../../../api/api";
 import {
   triggerValidation,
   validateForm,
@@ -19,14 +17,9 @@ const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [openError, setOpenError] = useState(false);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
-  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
-  const [email, setEmail] = useState("");
   const [tenantsEmails, setTenantsEmails] = useState([]); //TODO: get usernames from db and set here
-  const [tenantsUsernames, setTenantsUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(true); //T
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
@@ -36,7 +29,7 @@ const TenantLogin = () => {
 
   const handleCheckboxChange = (event) => {
     setRememberMe(event.target.checked);
-    console.log("Remember me state varaianble", rememberMe);
+
   };
 
   const handleChange = (e, formInputs) => {
@@ -48,8 +41,8 @@ const TenantLogin = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const passwordInput = [
@@ -119,17 +112,12 @@ const TenantLogin = () => {
     //if token is returned, set it in local storage
     if (response.token) {
       //Set authUser and isLoggedIn in context
-      // localStorage.setItem("accessToken", response.token);
-      //Save auth user in local storage
-      // localStorage.setItem("authUser", JSON.stringify(response.userData));
       setRedirectURL("/dashboard/tenant");
-      setAuthUser(response.userData);
-      setIsLoggedIn(true);
       setIsLoading(false);
       //Navigate to dashboard
       setOpen(true);
     } else {
-      console.log("Login Error: ", response);
+
       setErrMsg(response.message);
       setOpenError(true);
       setIsLoading(false);
@@ -143,13 +131,8 @@ const TenantLogin = () => {
           setTenantsEmails(res);
         }
       });
-      getTenantsUsernames().then((res) => {
-        if (res) {
-          setTenantsUsernames(res);
-        }
-      });
     }
-  }, []);
+  },[]);
 
   return (
     <div
@@ -250,7 +233,6 @@ const TenantLogin = () => {
                               name={input.name}
                               onChange={input.onChange}
                               onBlur={input.onChange}
-                              // {...register(input.name, { required: true })}
                             />
                           )}
                           {errors[input.name] && (
@@ -304,7 +286,6 @@ const TenantLogin = () => {
                     })}
                   </div>
                 )}
-
                 {passwordInput.map((input, index) => {
                   return (
                     <div
@@ -328,7 +309,6 @@ const TenantLogin = () => {
                         onChange={input.onChange}
                         onBlur={input.onChange}
                         value={formData[input.name]}
-                        // {...register(input.name, { required: true })}
                       />
                       {errors[input.name] && (
                         <span

@@ -7,12 +7,12 @@ export async function getNotifications() {
     const res = await authenticatedInstance
       .get(`/users/${authUser.id}/notifications/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Notifications Error: ", error);
+
     return error.response;
   }
 }
@@ -22,12 +22,12 @@ export async function getNotification(notification_id) {
     const res = await authenticatedInstance
       .get(`/notifications/${notification_id}/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Notification Error: ", error);
+
     return error.response;
   }
 }
@@ -37,12 +37,12 @@ export async function markNotificationAsRead(notification_id) {
     const res = await authenticatedInstance
       .patch(`/notifications/${notification_id}/`, { is_read: true })
       .then((res) => {
-        console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Mark Notification As Read Error: ", error);
+
     return error.response;
   }
 }

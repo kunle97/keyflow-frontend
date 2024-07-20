@@ -46,7 +46,7 @@ const MessageGeneratorForm = (props) => {
     axios
       .post(`${process.env.REACT_APP_API_HOSTNAME}/generate/messages/`, payload)
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           setIsLoading(false);
           alert(`Successfully generated ${numberOfItems} messages`);
@@ -92,7 +92,7 @@ const MessageGeneratorForm = (props) => {
           </IconButton>
         </Stack>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {console.log("Form errors ", errors)}
+
           <div className="form-group my-2">
             <label style={{ color: "white", marginBottom: "10px" }}>
               Number of Messages

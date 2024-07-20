@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import UIRadioGroup from "./UIComponents/UIRadioGroup";
-import BackButton from "./UIComponents/BackButton";
 import Dropzone from "react-dropzone";
 import { Stack } from "@mui/material";
 import UIButton from "./UIComponents/UIButton";
@@ -17,7 +16,6 @@ const ImportDataForm = () => {
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [importMode, setImportMode] = useState("properties");
-  // const [uploadEndpoint, setUploadEndpoint] = useState("");
   const [properties, setProperties] = useState(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const { isMobile } = useScreen();
@@ -55,13 +53,13 @@ const ImportDataForm = () => {
             process.env.REACT_APP_API_HOSTNAME +
             `/properties/${selectedPropertyId}/upload-csv-units/`;
         }
-        console.log("IMport MOde: ", importMode);
+
         const response = await authenticatedMediaInstance.post(
           uploadEndpoint,
           payload
         );
 
-        console.log("Response:", response);
+
         if (response.status === 201) {
           setFile(null);
           setAlertModalTitle("Success");
@@ -170,11 +168,11 @@ const ImportDataForm = () => {
         </Stack>
         <Dropzone
           onDrop={(acceptedFiles) => {
-            console.log("Accepted Files:", acceptedFiles); // Log accepted files
+
             if (acceptedFiles.length > 0) {
               setFile(acceptedFiles[0]); // Set the first accepted file
             } else {
-              console.log("No files were dropped or selected.");
+
             }
           }}
           accept=".csv"

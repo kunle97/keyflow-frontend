@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { uiGreen, uiRed, uiGrey2, uiGrey } from "../../../../constants";
+import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 import {
@@ -18,11 +18,7 @@ import { getTenantInvoices } from "../../../../api/tenants";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LeaseRenewalRequestDetail = () => {
@@ -30,8 +26,6 @@ const LeaseRenewalRequestDetail = () => {
   const navigate = useNavigate();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [transactions, setTransactions] = useState([]);
-  const [nextPaymentDate, setNextPaymentDate] = useState(null); //TODO: get next payment date from db and set here
   const [dueDates, setDueDates] = useState([]);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
@@ -39,7 +33,6 @@ const LeaseRenewalRequestDetail = () => {
   const [currentLeaseAgreement, setCurrentLeaseAgreement] = useState(null); //TODO: get current lease agreement from db and set here
   const [currentLeaseTemplate, setCurrentLeaseTemplate] = useState(null); //TODO: get current lease template from db and set here
   const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
-  const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [invoices, setInvoices] = useState([]);
   const [runTour, setRunTour] = useState(false);
@@ -80,7 +73,7 @@ const LeaseRenewalRequestDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const rent_payment_columns = [
@@ -150,7 +143,7 @@ const LeaseRenewalRequestDetail = () => {
       lease_renewal_request_id: leaseRenewalRequest.id,
     })
       .then((res) => {
-        console.log(res);
+
         if (res.status === 204) {
           setAlertModalTitle("Success");
           setAlertModalMessage("Lease renewal request rejected!");
@@ -202,7 +195,7 @@ const LeaseRenewalRequestDetail = () => {
           if (!currentLeaseAgreement || !currentLeaseTemplate) {
             getLeaseAgreementsByTenant(lease_renewal_res.data.tenant.id).then(
               (res) => {
-                console.log("Tenant's Lease agreements ", res);
+
                 const lease_agreements = res.data;
                 const current_lease_agreement = lease_agreements.find(
                   (lease_agreement) => lease_agreement.is_active === true
@@ -219,11 +212,11 @@ const LeaseRenewalRequestDetail = () => {
                     : []
                 );
 
-                console.log("Current Lease Agreement", current_lease_agreement);
+
                 getTenantInvoices(lease_renewal_res.data.tenant.id).then(
                   (res) => {
                     setInvoices(res.invoices.data);
-                    console.log(res.invoices.data);
+
                     const due_dates = res.invoices.data.map((invoice) => {
                       if (!invoice.paid) {
                         let date = new Date(invoice.due_date * 1000);
@@ -245,7 +238,7 @@ const LeaseRenewalRequestDetail = () => {
                         };
                       }
                     });
-                    console.log(due_dates);
+
                     setDueDates(due_dates);
                   }
                 );
@@ -259,7 +252,7 @@ const LeaseRenewalRequestDetail = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertModalTitle("Error");
         setAlertModalMessage("Something went wrong. Please try again later.");
         setShowAlertModal(true);
@@ -332,9 +325,6 @@ const LeaseRenewalRequestDetail = () => {
               {leaseRenewalRequest?.tenant.user.last_name}'s Lease Renewal
               Request ({leaseRenewalRequest?.status})
             </h4>
-            {/* {leaseRenewalRequest.status !== "approved" &&
-              !isMobile &&
-              actionStack} */}
           </Stack>
 
           <div className="row">

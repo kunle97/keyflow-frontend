@@ -22,11 +22,7 @@ import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 import UIButton from "../../UIComponents/UIButton";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import { hasNoErrors } from "../../../../helpers/formValidation";
 import { preventPageReload } from "../../../../helpers/utils";
@@ -96,7 +92,7 @@ const CreateUnit = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const [units, setUnits] = useState([
     {
@@ -131,7 +127,7 @@ const CreateUnit = () => {
     const list = [...units];
     list[index][realName] = value;
     setUnits(list);
-    console.log(units);
+
   };
 
   //Create a function to add a new unit
@@ -197,13 +193,13 @@ const CreateUnit = () => {
     payload.user = authUser.id;
     payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
 
-    console.log("Data ", data);
-    console.log("Pay load ", payload);
-    console.log("UNits ", units);
+
+
+
 
     const response = await createUnit(payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setIsLoading(false);
           navigate(`/dashboard/owner/properties/${selectedPropertyId}`);
@@ -230,7 +226,7 @@ const CreateUnit = () => {
   //Create a function to handle the property select change
   const handlePropertySelectChange = (e) => {
     setSelectedPropertyId(e.target.value);
-    console.log(e.target.value);
+
   };
   const retrieveSubscriptionPlan = async () => {
     setIsLoading(true);
@@ -401,7 +397,7 @@ const CreateUnit = () => {
                             setIsLoading(true);
                             onSubmit();
                           } else {
-                            console.log("Errors ", unitValidationErrors);
+
                           }
                         }}
                         btnText="Create Unit(s)"

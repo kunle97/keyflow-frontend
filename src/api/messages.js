@@ -12,7 +12,7 @@ export async function getMessages() {
     });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -29,7 +29,7 @@ export async function getMessagesWithLimit(limit) {
       });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -47,7 +47,7 @@ export async function getMessageByRecipient() {
       });
     return res;
   } catch (error) {
-    console.log("Get Message By Recipient Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -59,12 +59,12 @@ export async function sendMessage(data) {
       .post(`/messages/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios send message response ", response);
+
         return response;
       });
     return { message: "Message sent successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Send Message Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -78,12 +78,12 @@ export async function editMessage(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios edit message response ", response);
+
         return response;
       });
     return { message: "Message edited successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Edit Message Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -97,12 +97,12 @@ export async function deleteMessage(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios delete message response ", response);
+
         return response;
       });
     return { message: "Message deleted successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Delete Message Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -113,7 +113,7 @@ export async function retrieveUserThreads() {
     const res = await authenticatedInstance
       .get(`/retrieve-user-threads/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -121,7 +121,7 @@ export async function retrieveUserThreads() {
       });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -132,7 +132,7 @@ export async function retrieveUnreadMessagesCount() {
     const res = await authenticatedInstance
       .get(`/messages/retrieve-unread-messages-count/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -140,7 +140,7 @@ export async function retrieveUnreadMessagesCount() {
       });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -151,12 +151,12 @@ export async function setMessageThreadAsRead(data) {
     const res = await authenticatedInstance
       .patch(`/messages/set-messages-thread-as-read/`, data)
       .then((res) => {
-        console.log(res);
+
         return { data: res.data };
       });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

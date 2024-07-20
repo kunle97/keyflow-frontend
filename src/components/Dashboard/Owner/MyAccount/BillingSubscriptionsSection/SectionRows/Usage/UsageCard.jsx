@@ -1,7 +1,6 @@
 import React from "react";
-import { LinearProgress, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import UIProgressBar from "../../../../../UIComponents/UIProgressBar";
-import { uiGreen } from "../../../../../../../constants";
 
 const UsageCard = (props) => {
   return (

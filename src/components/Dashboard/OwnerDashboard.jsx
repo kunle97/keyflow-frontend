@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { uiGreen, uiRed, uiGrey2, authUser, uiGrey } from "../../constants";
+import { uiGreen, uiRed, uiGrey2, authUser } from "../../constants";
 import { useEffect } from "react";
 import { getTransactionsByUser } from "../../api/transactions";
 import { useNavigate } from "react-router";
@@ -11,12 +11,11 @@ import { getProperties } from "../../api/properties";
 import UIInfoCard from "./UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UICardList from "./UIComponents/UICards/UICardList";
-import UIChartCard from "./UIComponents/UICards/UICard";
 import UICard from "./UIComponents/UICards/UICard";
 import UIProgressPrompt from "./UIComponents/UIProgressPrompt";
 import { getAllLeaseRenewalRequests } from "../../api/lease_renewal_requests";
 import { getAllLeaseCancellationRequests } from "../../api/lease_cancellation_requests";
-import { Alert, IconButton, Stack, Tooltip } from "@mui/material";
+import { Alert, Stack } from "@mui/material";
 import useScreen from "../../hooks/useScreen";
 import { authenticatedInstance } from "../../api/api";
 import { getAllOwnerMaintenanceRequests } from "../../api/maintenance_requests";
@@ -27,11 +26,7 @@ import { Link } from "react-router-dom";
 import UIDialog from "./UIComponents/Modals/UIDialog";
 import ImportDataForm from "./ImportDataForm";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "./UIComponents/UIHelpButton";
 import UIButton from "./UIComponents/UIButton";
@@ -71,19 +66,11 @@ const OwnerDashboard = () => {
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalTitle, setAlertModalTitle] = useState("");
   /*Transaction Related States*/
-  const [transactionTypes, setTransactionTypes] = useState([]); // ["revenue", "expense", "rent_payment", "security_deposit"
   const [groupedTransactionData, setGroupedTransactionData] = useState([]);
   const [transactionLabels, setTransactionLabels] = useState([]);
   const [transactionDataValues, setTransactionDataValues] = useState([]);
   const [groupedPropertiesByTransactions, setGroupedPropertiesByTransactions] =
     useState([]);
-
-  const [groupedLeaseRenewalRequests, setGroupedLeaseRenewalRequests] =
-    useState([]);
-  const [
-    groupedLeaseCancellationRequests,
-    setGroupedLeaseCancellationRequests,
-  ] = useState([]);
   const startIconStyles = {
     fontSize: "55pt",
     color: uiGreen,
@@ -158,7 +145,7 @@ const OwnerDashboard = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -168,7 +155,6 @@ const OwnerDashboard = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
 
   const handleOpenImportDataDialog = () => {
@@ -212,7 +198,6 @@ const OwnerDashboard = () => {
     },
   ];
   //Create MUI DataTable columsn for transactions using amount, description, rental_property, rental_unit, type, created_at, and tenant_id
-
   const lease_agreement_columns = [
     {
       name: "tenant",
@@ -384,7 +369,6 @@ const OwnerDashboard = () => {
   ];
 
   const maintenance_request_columns = [
-    // { name: "description", label: "Issue" },
     { name: "type", label: "Type" },
     {
       name: "status",
@@ -673,15 +657,12 @@ const OwnerDashboard = () => {
     //retrieve transactions from api
     try {
       getStripeOnboardingAccountLink().then((res) => {
-        console.log("Stripe ACcount link res: ", res);
         setStripeOnboardingAccountLink(res.account_link);
       });
       getStripeAccountLink().then((res) => {
-        console.log("Stripe Account Link: ", res);
         setStripeAccountLink(res.account_link);
       });
       getStripeAccountRequirements().then((res) => {
-        console.log("Stripe Account Requirements: ", res);
         setStripeAccountRequirements(res.requirements);
         setStripeOnboardingPromptOpen(
           res.requirements.currently_due.length > 0
@@ -703,13 +684,9 @@ const OwnerDashboard = () => {
       });
       getAllLeaseRenewalRequests().then((res) => {
         setLeaseRenewalRequests(res.data);
-        setGroupedLeaseRenewalRequests(groupLeaseRenewalRequests(res.data));
       });
       getAllLeaseCancellationRequests().then((res) => {
         setLeaseCancellationRequests(res.data);
-        setGroupedLeaseCancellationRequests(
-          groupLeaseCancellationRequests(res.data)
-        );
       });
       authenticatedInstance
         .get("/lease-agreements/?ordering=end_date&limit=5")

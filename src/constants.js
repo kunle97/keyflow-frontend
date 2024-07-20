@@ -33,6 +33,17 @@ export const stripe_onboarding_link = localStorage.getItem(
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
+export const freePlan = {
+  name: "Free Plan",
+  price: 0,
+  product_id: null,
+  features: [
+    { name: "Accept online rent payments" },
+    { name: "Manage Up to 4 rental units" },
+    { name: "Communicate directly with tenants" },
+    { name: "Manage maintenance requests" },
+  ],
+};
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";

@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { uiGrey2, validationMessageStyle } from "../../../../../../constants";
-import UIButton from "../../../../UIComponents/UIButton";
-import { Tooltip, Typography } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import { HelpOutline } from "@mui/icons-material";
 import StepControl from "./StepControl";
-import { faker } from "@faker-js/faker";
 import { triggerValidation } from "../../../../../../helpers/formValidation";
 import { numberUpTo2DecimalPlaces, validNoWhiteSpaceOrSpecialCharactersOrNumbers, validWholeNumber } from "../../../../../../constants/rexgex";
 
@@ -21,8 +19,8 @@ const AddTerms = (props) => {
       [name]: newErrors[name],
     }));
     props.setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", props.formData);
-    console.log("Errors ", props.errors);
+
+
   };
 
   const formInputs = [

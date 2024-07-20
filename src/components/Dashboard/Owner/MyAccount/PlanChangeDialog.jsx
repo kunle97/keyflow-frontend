@@ -43,7 +43,7 @@ const PlanChangeDialog = (props) => {
       subscription_id: currentSubscriptionPlan.id,
     };
     changeSubscriptionPlan(payload).then((res) => {
-      console.log(res);
+
       if (res.status === 200) {
         //set the current subscription plan to the new plan usinng set logcalk storage
         localStorage.removeItem("subscriptionPlan");
@@ -195,7 +195,7 @@ const PlanChangeDialog = (props) => {
                               disabled={isCurrentPlan}
                               onClick={() => {
                                 setSelectedPlan(plan);
-                                console.log(selectedPlan);
+
                                 setStep(1);
                               }}
                             />
@@ -295,7 +295,7 @@ const PlanChangeDialog = (props) => {
                     style={{ width: "100%", margin: "10px 0" }}
                     className="btn btn-primary d-block  w-100 mb-2"
                     onClick={() => {
-                      console.log("Confirm Change Plan");
+
                       setShowChangePlanConfirm(true);
                       handleClose();
                     }}

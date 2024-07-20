@@ -3,13 +3,8 @@ import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { useNavigate } from "react-router";
 import useScreen from "../../../../hooks/useScreen";
-import { getUnit } from "../../../../api/units";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
@@ -59,7 +54,7 @@ const Annoucements = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {
@@ -95,7 +90,7 @@ const Annoucements = () => {
       options: {
         isObject: true,
         customBodyRender: (value) => {
-          console.log(value);
+
           if (!value) {
             return "N/A";
           } else {
@@ -111,7 +106,7 @@ const Annoucements = () => {
 
   useEffect(() => {
     getOwnerSubscriptionPlanData().then((res) => {
-      console.log("Subscription Plan Data", res);
+
       if (!res.can_use_announcements) {
         setAlertModalRedirect("/dashboard/owner/");
         setAlertModalTitle("Subscription Plan Mismatch");

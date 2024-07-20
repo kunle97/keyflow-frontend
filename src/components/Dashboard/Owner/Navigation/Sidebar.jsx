@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   authUser,
   ownerMenuItems,
   tenantMenuItems,
-  uiGreen,
   uiGrey2,
 } from "../../../../constants";
 const Sidebar = (props) => {
@@ -24,10 +23,6 @@ const Sidebar = (props) => {
   return (
     <div>
       {props.showNavMenu && <div className="overlay" onClick={toggleNavMenu} />}
-      {/* <div
-        className={`navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark `}
-        style={{ background: uiGrey}}
-      ></div> */}
       <nav
         data-testid="sidebar-desktop"
         className={`navbar align-items-start sidebar-desktop sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark ${
@@ -80,10 +75,6 @@ const Sidebar = (props) => {
                       href="#"
                       style={{ color: uiGrey2, fontSize: "13pt" }}
                     >
-                      {/* <i
-                        className={"${item.icon} text-gray-400"}
-                        style={{ color: uiGrey2, fontSize: "13pt" }}
-                      /> */}
                       <span style={{ marginRight: "10px" }}>
                         {item.muiIcon}
                       </span>

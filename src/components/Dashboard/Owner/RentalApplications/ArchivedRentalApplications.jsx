@@ -5,11 +5,7 @@ import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
@@ -47,7 +43,7 @@ const ArchivedRentalApplications = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -57,7 +53,7 @@ const ArchivedRentalApplications = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {
@@ -136,16 +132,12 @@ const ArchivedRentalApplications = () => {
   useEffect(() => {
     getRentalApplicationsByUser()
       .then((res) => {
-        console.log(res);
+
         if (res) {
-          //Create a new array that only holds data with the is_arhived property set to false
-          // const filteredData = res.data.filter((data) => {
-          //   return data.is_archived === false;
-          // });
           setRentalApplications(res.data);
           setIsLoading(false);
         }
-        console.log("Rental Applications: ", rentalApplications);
+
       })
       .catch((error) => {
         console.error("Error getting rental applications:", error);
@@ -208,18 +200,6 @@ const ArchivedRentalApplications = () => {
             { field: "is_approved", label: "Approved (Ascending)" },
             { field: "-is_approved", label: "Approved (Descending)" },
           ]}
-          // getImage={(row) => {
-          //   retrieveFilesBySubfolder(
-          //     `properties/${row.id}`,
-          //     authUser.id
-          //   ).then((res) => {
-          //     if (res.data.length > 0) {
-          //       return res.data[0].file;
-          //     } else {
-          //       return "https://picsum.photos/200";
-          //     }
-          //   });
-          // }}
           onRowClick={(row) => {
             const navlink = `/dashboard/owner/rental-applications/${row.id}`;
             navigate(navlink);

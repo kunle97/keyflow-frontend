@@ -3,20 +3,15 @@ import UIStepper from "../../../UIComponents/UIStepper";
 import UIButton from "../../../UIComponents/UIButton";
 import { useState } from "react";
 import {
-  FormControl,
-  FormControlLabel,
   List,
   ListItem,
   ListItemText,
-  RadioGroup,
   ButtonBase,
   IconButton,
   Stack,
 } from "@mui/material";
-import { set, useForm } from "react-hook-form";
 import {
   authUser,
-  defaultWhiteInputStyle,
   uiGreen,
   uiGrey2,
   validationMessageStyle,
@@ -24,11 +19,7 @@ import {
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import { create } from "@mui/material/styles/createTransitions";
 import { createLeaseRenewalRequest } from "../../../../../api/lease_renewal_requests";
-import { getProperty } from "../../../../../api/properties";
-import { FormLabel, Radio } from "@mui/material";
-import { getAllUnits, getUnits } from "../../../../../api/units";
 import UIRadioGroup from "../../../UIComponents/UIRadioGroup";
 import {
   triggerValidation,
@@ -103,8 +94,8 @@ const LeaseRenewalForm = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
   const step0FormInputs = [
     {
@@ -219,7 +210,7 @@ const LeaseRenewalForm = (props) => {
           limit: 10,
         },
       });
-      console.log("Search res", res);
+
       setUnits(res.data.results);
       setRentalUnitNextPage(res.data.next);
       setRentalUnitPreviousPage(res.data.previous);
@@ -308,8 +299,8 @@ const LeaseRenewalForm = (props) => {
         return;
       }
     } else {
-      console.log("Selected unit rental  ", selectedUnit);
-      console.log("Selected unit rental Propserfgtey ", selectedUnit.rental_property);
+
+
       let parsed_lease_terms = JSON.parse(selectedUnit.lease_terms);
       let lease_term = parsed_lease_terms.find(
         (term) => term.name === "term"
@@ -334,7 +325,7 @@ const LeaseRenewalForm = (props) => {
       .then((res) => {
         if (res.status === 201) {
           if (props.isOwnerMode) {
-            console.log("Creaente Owner lease rebewak reqyest teres ", res);
+
             //If the user is an owner, then redirect them to the lease documents page
             navigate(`/dashboard/owner/lease-renewal-requests/${res.data.id}`);
           } else {
@@ -373,7 +364,7 @@ const LeaseRenewalForm = (props) => {
   useEffect(() => {
     preventPageReload();
     handleSearchRentalUnits();
-    console.log("Lease agreement prop", props.leaseAgreement);
+
     setCurrentLeaseTerms(
       props.leaseAgreement
         ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms)
@@ -387,7 +378,7 @@ const LeaseRenewalForm = (props) => {
       setUnits(unoccupied_units);
     } else {
       authenticatedInstance.get("/units/?is_occupied=False").then((res) => {
-        console.log("All units ", res);
+
         setUnits(res.data);
       });
       setLeaseMode("new_lease");
@@ -652,13 +643,6 @@ const LeaseRenewalForm = (props) => {
                         value={rentalUnitSearchQuery}
                         name="rental_unit_search"
                       />
-                      {/* <UICheckbox
-                        label="Show Occupied Units Only"
-                        checked={showOccupiedUnitsOnly}
-                        onChange={handleChangeShowOccupiedUnitsOnly}
-                        style={{ margin: "10px 0" }}
-                      /> */}
-
                       <List
                         sx={{
                           width: "100%",
@@ -675,23 +659,7 @@ const LeaseRenewalForm = (props) => {
                             alignItems="flex-start"
                             onClick={() => {
                               setSelectedUnit(unit);
-                              console.log(unit);
-                              // triggerValidation(
-                              //   "rental_unit",
-                              //   unit.id,
-                              //   formInputs.find(
-                              //     (input) => input.name === "rental_unit"
-                              //   ).validations
-                              // );
-                              // setFormData((prevData) => ({
-                              //   ...prevData,
-                              //   rental_unit: unit.id,
-                              // }));
-                              // setFormData((prevData) => ({
-                              //   ...prevData,
-                              //   rental_property: null,
-                              //   portfolio: null,
-                              // }));
+
                               handleNext();
                             }}
                           >
@@ -713,11 +681,6 @@ const LeaseRenewalForm = (props) => {
                                 dataTestId={`select-unit-button-${index}`}
                                 onClick={() => {
                                   setSelectedUnit(unit);
-                                  console.log(unit);
-                                  // setFormData((prevData) => ({
-                                  //   ...prevData,
-                                  //   rental_unit: unit.id,
-                                  // }));
                                   handleNext();
                                 }}
                                 btnText="Select"

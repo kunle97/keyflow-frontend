@@ -5,15 +5,10 @@ import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import { useNavigate } from "react-router";
 import { uiGreen, uiRed } from "../../../../constants";
 import { getTenantInvoices } from "../../../../api/tenants";
-import UIButton from "../../UIComponents/UIButton";
 import useScreen from "../../../../hooks/useScreen";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -54,7 +49,7 @@ const Bills = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -64,7 +59,7 @@ const Bills = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const handleRowClick = (row) => {
     navigate(`/dashboard/tenant/bills/${row.id}`);
@@ -139,7 +134,7 @@ const Bills = () => {
         setInvoices(res.invoices.data.reverse());
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertTitle("Error");
         setAlertMessage("There was an error loading your bills");
         setShowAlert(true);
@@ -147,7 +142,7 @@ const Bills = () => {
       .finally(() => {
         setIsLoadingPage(false);
       });
-  }, []);
+  },[]);
 
   return (
     <>

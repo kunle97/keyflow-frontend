@@ -119,19 +119,19 @@ export const syncPreferences = async () => {
     defaultPreferences
   ); // Sync the current user's preferences with the default preferences
 
-  console.log("Syncing Preferences...", currentUserPreferences); // Log the synced preferences
+
 
   // Update the user's preferences in the database based on account type
   if (accountType === "owner") {
     const response = await updateOwnerPreferences({
       preferences: currentUserPreferences,
     });
-    console.log(response);
+
   } else if (accountType === "tenant") {
     const response = await updateTenantPreferences({
       preferences: currentUserPreferences,
     });
-    console.log(response);
+
   }
 };
 
@@ -198,13 +198,13 @@ export const syncRentalUnitPreferences = (unit_id) => {
       return resourcePreference;
     });
 
-    console.log("Syncing Rental Unit Preferences...", resourcePreferences);
+
 
     // Update the rental unit's preferences in the database with the resource preferences using the updateUnit function.
     updateUnit(unit_id, {
       preferences: JSON.stringify(resourcePreferences),
     }).then((response) => {
-      console.log(response);
+
     });
   });
 };
@@ -271,13 +271,13 @@ export const syncPropertyPreferences = (property_id) => {
       return resourcePreference;
     });
 
-    console.log("Syncing Property Preferences...", resourcePreferences);
+
 
     // Update the property's preferences in the database with the resource preferences using the updatePropertyMedia function.
     updatePropertyMedia(property_id, {
       preferences: JSON.stringify(resourcePreferences),
     }).then((response) => {
-      console.log(response);
+
     });
   });
 };
@@ -344,13 +344,13 @@ export const syncPortfolioPreferences = (portfolio_id) => {
       return resourcePreference;
     });
 
-    console.log("Syncing Portfolio Preferences...", resourcePreferences);
+
 
     // Update the portfolio's preferences in the database with the resource preferences using the updatePortfolio function.
     updatePortfolio(portfolio_id, {
       preferences: JSON.stringify(resourcePreferences),
     }).then((response) => {
-      console.log(response);
+
     });
   });
 };
@@ -409,12 +409,12 @@ export const syncRentalUnitLeaseTerms = (unit_id) => {
       return resourceLeaseTerm;
     });
 
-    console.log("Syncing Rental Unit Lease Terms...", resourceLeaseTerms);
+
 
     updateUnit(unit_id, {
       lease_terms: JSON.stringify(resourceLeaseTerms),
     }).then((response) => {
-      console.log(response);
+
     });
   }
   );
