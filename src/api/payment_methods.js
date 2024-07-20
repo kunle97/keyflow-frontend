@@ -11,12 +11,12 @@ export async function addStripePaymentMethod(data) {
         payment_method_id: data.payment_method_id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Add Payment Method Error: ", error);
+
     return error.response;
   }
 }
@@ -29,12 +29,12 @@ export async function listStripePaymentMethods(user_id) {
         user_id: user_id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("List Payment Methods Error: ", error);
+
     return error.response;
   }
 }
@@ -47,12 +47,12 @@ export async function listOwnerStripePaymentMethods() {
         user_id: authUser.id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("List Owner Payment Methods Error: ", error);
+
     return error.response;
   }
 }
@@ -66,12 +66,12 @@ export async function deleteStripePaymentMethod(data) {
         payment_method_id: data.payment_method_id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Delete Payment Method Error: ", error);
+
     return error.response;
   }
 }
@@ -82,12 +82,12 @@ export async function setDefaultPaymentMethod(data) {
     const res = await authenticatedInstance
       .post(`/stripe/set-default-payment-method/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Set Default Payment Method Error: ", error);
+
     return error.response;
   }
 }
@@ -98,12 +98,12 @@ export async function setOwnerDefaultPaymentMethod(data) {
     const res = await authenticatedInstance
       .post(`/stripe/set-owner-default-payment-method/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Set Owner Default Payment Method Error: ", error);
+
     return error.response;
   }
 }
@@ -116,12 +116,12 @@ export async function createBillingPortalSession() {
         user_id: authUser.id,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Create Billing Portal Session Error: ", error);
+
     return error.response;
   }
 }

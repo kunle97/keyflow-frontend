@@ -1,28 +1,16 @@
 import React from "react";
 import { useEffect } from "react";
-import {
-  deleteMaintenanceRequest,
-  getAllOwnerMaintenanceRequests,
-} from "../../../../api/maintenance_requests";
+import { getAllOwnerMaintenanceRequests } from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
-import TitleCard from "../../UIComponents/TitleCard";
+import { uiGreen, uiGrey2 } from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import VendorPaymentModel from "../../UIComponents/Prototypes/Modals/VendorPaymentModal";
-import UIButton from "../../UIComponents/UIButton";
-import { Chip, Stack } from "@mui/material";
+import { Chip } from "@mui/material";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 const OwnerMaintenanceRequests = () => {
   const navigate = useNavigate();
@@ -39,9 +27,6 @@ const OwnerMaintenanceRequests = () => {
   const [orderingField, setOrderingField] = useState("created_at");
   const [searchField, setSearchField] = useState("");
   const [limit, setLimit] = useState(10);
-  const [nextEndpoint, setNextEndpoint] = useState(null);
-  const [previousEndpoint, setPreviousEndpoint] = useState(null);
-  const [openVenorPayModal, setOpenVendorPayModal] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -77,7 +62,7 @@ const OwnerMaintenanceRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {
@@ -113,7 +98,7 @@ const OwnerMaintenanceRequests = () => {
             return <Chip label="Urgent" color="error" />;
           } else if (value === 5) {
             return <Chip label="Emergency" color="error" />;
-          }else{
+          } else {
             return <Chip label="N/A" color="default" />;
           }
         },
@@ -131,7 +116,7 @@ const OwnerMaintenanceRequests = () => {
             return <Chip label="In Progress" color="info" />;
           } else if (value === "completed") {
             return <Chip label="Completed" color="success" />;
-          }else{
+          } else {
             return <Chip label="N/A" color="default" />;
           }
         },
@@ -152,7 +137,7 @@ const OwnerMaintenanceRequests = () => {
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/owner/maintenance-requests/${rowData}`;
     navigate(navlink);
-    console.log(navlink);
+
   };
   const options = {
     filter: true,
@@ -163,30 +148,6 @@ const OwnerMaintenanceRequests = () => {
     },
     onRowClick: handleRowClick,
     rowHover: true,
-    //Create a delete function that will delete the maintenance request only if it is not in progress
-    // onRowsDelete: (rowsDeleted, newTableData) => {
-    //   console.log(rowsDeleted);
-    //   console.log(newTableData);
-    //   let idsToDelete = [];
-    //   rowsDeleted.data.map((row) => {
-    //     //Check if the status is in progress
-    //     if (maintenanceRequests[row.dataIndex].status === "in_progress") {
-    //       setShowDeleteError(true);
-    //       setDeleteErrorMessage(
-    //         "One or more of the maintenance requests you have selected are in progress. You cannot delete a maintenance request that is in progress. Please mark it as completed first."
-    //       );
-    //       return false;
-    //     } else {
-    //       idsToDelete.push(maintenanceRequests[row.dataIndex].id);
-    //     }
-    //   });
-    //   console.log(idsToDelete);
-    //   idsToDelete.map((id) => {
-    //     deleteMaintenanceRequest(id).then((res) => {
-    //       console.log(res.data);
-    //     });
-    //   });
-    // },
   };
 
   useEffect(() => {
@@ -248,7 +209,6 @@ const OwnerMaintenanceRequests = () => {
             titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
             info={resolvedIssues}
             title={"Resolved Issues"}
-            // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
         <div className="col-6 col-md-4 mb-4">
@@ -258,7 +218,6 @@ const OwnerMaintenanceRequests = () => {
             titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
             info={inProgressIssues}
             title={"Issues In Progress"}
-            // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
         <div className="col-6 col-md-4 mb-4">
@@ -268,16 +227,9 @@ const OwnerMaintenanceRequests = () => {
             titleStyle={{ color: uiGrey2, fontSize: "12pt", margin: 0 }}
             info={pendingIssues}
             title={"Pending Issues"}
-            // icon={<PeopleAltIcon style={{ fontSize: "25pt" }} />}
           />
         </div>
       </div>
-      {/* <VendorPaymentModel
-        open={openVenorPayModal}
-        onClose={() => {
-          setOpenVendorPayModal(false);
-        }}
-      /> */}
       <AlertModal
         open={showDeleteError}
         onClick={() => setShowDeleteError(false)}
@@ -285,20 +237,6 @@ const OwnerMaintenanceRequests = () => {
         message={deleteErrorMessage}
         btnText="Close"
       />
-      {/* <Stack
-        direction="row"
-        spacing={2}
-        justifyContent="flex-end"
-        alignItems="center"
-      >
-        <div className="pay-vendor-button">
-          <UIButton
-            btnText="Pay Vendor"
-            onClick={() => setOpenVendorPayModal(true)}
-            style={{ width: "100%", marginBottom: "15px" }}
-          />
-        </div>
-      </Stack> */}
       {isMobile ? (
         <UITableMobile
           data={maintenanceRequests}
@@ -359,7 +297,7 @@ const OwnerMaintenanceRequests = () => {
                   navigate(navlink);
                 },
               },
-              { name: "Delete", onClick: () => console.log("Delete") },
+
             ]}
           />
         </div>

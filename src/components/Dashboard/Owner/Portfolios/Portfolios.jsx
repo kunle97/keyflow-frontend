@@ -4,11 +4,7 @@ import useScreen from "../../../../hooks/useScreen";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
+  STATUS
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
@@ -74,7 +70,7 @@ const Portfolios = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -84,11 +80,11 @@ const Portfolios = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   useEffect(() => {
     getOwnerSubscriptionPlanData().then((res) => {
-      console.log("Subscription Plan Data", res);
+
       if (!res.can_use_portfolios) {
         setAlertModalRedirect("/dashboard/owner/");
         setAlertModalTitle("Subscription Plan Mismatch");

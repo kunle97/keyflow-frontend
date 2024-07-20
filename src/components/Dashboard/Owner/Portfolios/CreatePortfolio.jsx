@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { set, useForm } from "react-hook-form";
 import {
   authUser,
   defaultWhiteInputStyle,
@@ -44,8 +43,8 @@ const CreatePortfolio = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -78,7 +77,7 @@ const CreatePortfolio = () => {
             name: value,
           };
           await validatePortfolioName(payload).then((res) => {
-            console.log(res);
+
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -115,11 +114,11 @@ const CreatePortfolio = () => {
       owner: authUser.owner_id,
     };
 
-    console.log(payload);
+
 
     createPortfolio(payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio created successfully");
@@ -134,20 +133,20 @@ const CreatePortfolio = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertTitle("Error Creating Portfolio");
         setAlertMessage(
           err.message ? err.message : "Error Creating Portfolio."
         );
       })
       .finally(() => {
-        console.log("finally");
+
         setIsLoading(false);
       });
   };
   useEffect(() => {
     getOwnerSubscriptionPlanData().then((res) => {
-      console.log("Subscription Plan Data", res);
+
       if(!res.can_use_portfolios){
         setAlertTitle("Subscription Plan Mismatch");
         setAlertMessage("To create a portfolio, you need to upgrade your subscription plan to the Keyflow Owner Standard Plan or higher. ");
@@ -159,7 +158,7 @@ const CreatePortfolio = () => {
       }
     });
     preventPageReload();
-  }, []);
+  },[]);
   return (
     <div
       className={`${screenWidth > breakpoints.md && "container-fluid "} pt-4`}
@@ -228,7 +227,7 @@ const CreatePortfolio = () => {
                   formData,
                   formInputs
                 );
-                console.log(isValid);
+
                 if (isValid && hasNoErrors(errors)) {
                   setIsLoading(true);
                   onSubmit();

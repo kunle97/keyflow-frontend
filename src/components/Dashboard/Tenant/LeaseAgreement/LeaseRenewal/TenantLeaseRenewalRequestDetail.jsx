@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  getLeaseRenewalRequestById,
   getTenantLeaseRenewalRequests,
   signLeaseAgreementRenewal,
 } from "../../../../../api/lease_renewal_requests";
@@ -12,11 +11,7 @@ import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import UIPrompt from "../../../UIComponents/UIPrompt";
 import UIProgressPrompt from "../../../UIComponents/UIProgressPrompt";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
@@ -27,7 +22,6 @@ const TenantLeaseRenewalRequestDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTemplate, setLeaseTemplate] = useState(null); //
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
@@ -59,7 +53,7 @@ const TenantLeaseRenewalRequestDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const handleSignLeaseAgreement = () => {
     setIsSubmitting(true);
@@ -69,7 +63,7 @@ const TenantLeaseRenewalRequestDetail = () => {
     };
     signLeaseAgreementRenewal(payload)
       .then((res) => {
-        console.log("Sign Lease Agreement Renewal: ", res);
+
         if (res.data.status === 200) {
           setAlertModalTitle("Success");
           setAlertModalMessage("Lease Agreement Signed Successfully");
@@ -83,7 +77,7 @@ const TenantLeaseRenewalRequestDetail = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertModalTitle("Error");
         setAlertModalMessage(
           "There was an error signing your lease agreement. Please try again."
@@ -165,14 +159,14 @@ const TenantLeaseRenewalRequestDetail = () => {
               (lease_renewal_request) =>
                 lease_renewal_request.id === parseInt(id)
             );
-            console.log("LRR", lease_renewal_request);
+
             setLeaseRenewalRequest(lease_renewal_request);
             setLeaseTerms(
               JSON.parse(lease_renewal_request.rental_unit.lease_terms)
             );
           })
           .catch((err) => {
-            console.log(err);
+
             setAlertModalTitle("Error");
             setAlertModalMessage(
               "Something went wrong. Please try again later."
@@ -183,7 +177,6 @@ const TenantLeaseRenewalRequestDetail = () => {
           .then((res) => {
             let lease_agreement = res.data;
             setLeaseAgreement(lease_agreement);
-            setLeaseTemplate(lease_agreement.lease_template);
             let payload = {
               document_id: lease_agreement.document_id,
               tenant_email: authUser.email,
@@ -192,7 +185,7 @@ const TenantLeaseRenewalRequestDetail = () => {
               link_validity: "12/31/2030",
             };
             generateSigningLink(payload).then((res) => {
-              console.log(res);
+
               if (res.data.status === 200) {
                 //Set the src of the iframe to the signing link
                 setSigningLink(res.data.data.signLink);
@@ -213,7 +206,7 @@ const TenantLeaseRenewalRequestDetail = () => {
           });
       }
     } catch (err) {
-      console.log(err);
+
       setAlertModalTitle("Error");
       setAlertModalMessage("Something went wrong. Please try again later.");
       setShowAlertModal(true);

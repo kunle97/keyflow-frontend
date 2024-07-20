@@ -4,11 +4,7 @@ import { useNavigate } from "react-router";
 import UITable from "../../../UIComponents/UITable/UITable";
 import UITableMobile from "../../../UIComponents/UITable/UITableMobile";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../../constants";
@@ -50,7 +46,7 @@ const TenantLeaseCancellationRequests = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -60,7 +56,7 @@ const TenantLeaseCancellationRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {
@@ -118,7 +114,7 @@ const TenantLeaseCancellationRequests = () => {
   };
   useEffect(() => {
     getTenantLeaseCancellationRequests().then((res) => {
-      console.log("TCRRR", res);
+
       setData(res.data);
     }).catch((error) => {
       console.error("Error fetching lease cancellation requests:", error);
@@ -128,7 +124,7 @@ const TenantLeaseCancellationRequests = () => {
       );
       setShowAlert(true);
     });
-  }, []);
+  },[]);
   return (
     <div className="container-fluid lease-cancellation-request-page">
       <AlertModal 
@@ -190,15 +186,6 @@ const TenantLeaseCancellationRequests = () => {
             options={options}
             data={data}
             title={"Lease Cancellation Requests"}
-            // menuOptions={[
-            //   {
-            //     name: "View",
-            //     onClick: (row) => {
-            //       const navlink = `/dashboard/tenant/lease-cancellation-requests/${row.id}`;
-            //       navigate(navlink);
-            //     },
-            //   },
-            // ]}
           />
         )}
       </div>

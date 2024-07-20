@@ -1,15 +1,6 @@
 import React from "react";
 
 const UIInput = (props) => {
-  // const defaultStyles = {
-  //   borderRadius: "5px",
-  //   border: "none",
-  //   padding: "5px 10px",
-  //   outline: "none",
-  //   backgroundColor: "#f4f7f8",
-  //   boxShadow: "0px 0px 5px rgba(0,0,0,0.1)",
-  //   display: "block",
-  // };
   const disabledStyle = {
     color: "green",
   };

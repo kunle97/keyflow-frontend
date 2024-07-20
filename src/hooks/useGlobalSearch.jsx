@@ -12,18 +12,8 @@ export function useGlobalSearch() {
   const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
   let currentPageEndPoint = `${endpoint}?search=${searchQuery}&limit=${searchLimit}`;
   const [batchSearchHistory, setBatchSearchHistory] = useState([]); //TODO implement batch search history [ {endpoint: ""} ]
-  const [endpointBatch, setEndpointBatch] = useState([
-    // { endpoint: "/", name: "", limit: "10", query: "" },
-  ]);
-  const [searchResultsBatch, setSearchResultsBatch] = useState([
-    // {
-    //   endpoint: "",
-    //   results: {},
-    //   nextPageEndPoint: null,
-    //   previousPageEndPoint: null,
-    //   resultCount: 0,
-    // },
-  ]);
+  const [endpointBatch, setEndpointBatch] = useState([]);
+  const [searchResultsBatch, setSearchResultsBatch] = useState([]);
 
   const searchBatch = async () => {
     const results = await Promise.all(
@@ -36,16 +26,6 @@ export function useGlobalSearch() {
         }
         authenticatedInstance.get(url).then((res) => {
           if (res.data.results) {
-            // setSearchResultsBatch((searchResultsBatch) => [
-            //   ...searchResultsBatch,
-            //   {
-            //     endpoint: endpoint.endpoint,
-            //     results: res.data.results,
-            //     nextPageEndPoint: res.data.next,
-            //     previousPageEndPoint: res.data.previous,
-            //     resultCount: res.data.count,
-            //   },
-            // ]);
             let result = {
               endpoint: endpoint.endpoint,
               results: res.data.results,
@@ -53,16 +33,9 @@ export function useGlobalSearch() {
               previousPageEndPoint: res.data.previous,
               resultCount: res.data.count,
             };
-            console.log("result from bach", result);
+
             return result;
           } else {
-            // setSearchResultsBatch((searchResultsBatch) => [
-            //   ...searchResultsBatch,
-            //   {
-            //     endpoint: endpoint.endpoint,
-            //     results: res.data,
-            //   },
-            // ]);
             let result = {
               endpoint: endpoint.endpoint,
               results: res.data,
@@ -72,12 +45,11 @@ export function useGlobalSearch() {
         });
       })
     );
-    console.log("SearchCOntext.js searchbatch results", results);
+
     setSearchResultsBatch(results);
   };
   // Define a function to add a new search configuration
   const addBatchEndpoint = (newEndpoint) => {
-    //newEndpoint object: { endpoint: "/", name: "", limit: "10", query: "" },
     // Create a copy of the current initialSearches array
     const updatedEndpoints = [...endpointBatch];
 

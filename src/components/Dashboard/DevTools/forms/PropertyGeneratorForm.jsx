@@ -23,7 +23,7 @@ const PropertyGeneratorForm = (props) => {
     axios
       .post(`${process.env.REACT_APP_API_HOSTNAME}/generate/properties/`, data)
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           alert(`Successfully generated ${response.data.count} properties`);
           setIsLoading(false);

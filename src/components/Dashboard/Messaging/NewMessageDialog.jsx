@@ -77,7 +77,7 @@ const NewMessageDialog = (props) => {
     if (authUser.account_type === "tenant") {
       setTenants([]);
       setSelectedRecipient(authUser.owner_id);
-      console.log(authUser, "tenantData.owner_id");
+
     }
   }, [tenants]);
   return (

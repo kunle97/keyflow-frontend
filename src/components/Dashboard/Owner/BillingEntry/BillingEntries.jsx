@@ -1,18 +1,11 @@
- import React, { useState } from "react";
+import React, { useState } from "react";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import { useNavigate } from "react-router";
 import { uiGreen, uiRed } from "../../../../constants";
 import UITable from "../../UIComponents/UITable/UITable";
-import isMobile from "../../../../hooks/useScreen";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 const BillingEntries = () => {
   const navigate = useNavigate();
@@ -52,7 +45,7 @@ const BillingEntries = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {

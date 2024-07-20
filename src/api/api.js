@@ -78,7 +78,7 @@ addErrorHandler(unauthenticatedInstance);
 const getCredentials = async (endpoint) => {
   try {
     const res = await unauthenticatedInstance.get(endpoint);
-    console.log(res);
+
     return res.data;
   } catch (error) {
     console.error("API Error:", error);

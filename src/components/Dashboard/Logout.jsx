@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { logout } from "../../api/auth";
-import { redirect, useNavigate } from "react-router-dom";
-import { authUser } from "../../constants";
-
+import { useNavigate } from "react-router-dom";
 const Logout = () => {
   const navigate = useNavigate();
 
@@ -11,7 +9,7 @@ const Logout = () => {
     const handleLogout = async () => {
       try {
         const res = await logout();
-        console.log("Logout response:", res);
+
         // Navigate to the login page or any other page after successful logout
         navigate(redirect_link);
       } catch (error) {

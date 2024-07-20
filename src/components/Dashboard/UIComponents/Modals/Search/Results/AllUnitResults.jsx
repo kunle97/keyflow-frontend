@@ -1,11 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { uiGreen } from "../../../../../../constants";
 import { Box, CircularProgress } from "@mui/material";
-import { getProperties } from "../../../../../../api/properties";
 import SearchResultCard from "../SearchResultCard";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
-import { checkIfUnitMatchesProperty } from "../../../../../../helpers/utils";
-import { useSearch } from "../../../../../../contexts/SearchContext";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import UIPrompt from "../../../UIPrompt";
@@ -47,7 +44,7 @@ const AllUnitResults = (props) => {
         setPreviousPageEndPoint(response.data.previous);
       })
       .catch((error) => {
-        console.log(error);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occured retrieving properties: " + error.message

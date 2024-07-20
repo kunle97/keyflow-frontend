@@ -17,7 +17,7 @@ export async function createBoldSignEmbeddedTemplateLink(data) {
         }
       )
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
@@ -42,7 +42,7 @@ export async function createBoldSignEmbeddedTemplateEditLink(data) {
         }
       )
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
@@ -66,7 +66,7 @@ export async function createBoldSignEmbeddedDocumentSendLink(data) {
         }
       )
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
@@ -91,7 +91,7 @@ export async function sendDocumentToUser(data) {
         }
       )
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return response;
@@ -110,7 +110,7 @@ export async function generateSigningLink(data) {
         data
       )
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return { data: response };

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { getTenantInvoice } from "../../../../api/tenants";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import BackButton from "../../UIComponents/BackButton";
 import { authUser, uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import PaymentModal from "../../UIComponents/Modals/PaymentModal";
@@ -11,9 +10,7 @@ import UIButton from "../../UIComponents/UIButton";
 import { listStripePaymentMethods } from "../../../../api/payment_methods";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
-import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-// import styles from "../../../Dashboard/Messaging/styles.module.css";
 import scrollbarStyles from "./scrollbarStyles.module.css";
 const BillDetail = (props) => {
   const { invoice_id } = useParams();
@@ -33,22 +30,11 @@ const BillDetail = (props) => {
     setOpenPaymentModal(false);
   };
 
-  /**
-   * TODO:
-   * 1. Display All Line items for the bill
-   * 2. Display the total amount due
-   * 3. Display the total amount paid
-   * 4. Display the date due
-   * 5. Display the payment button
-   * 6. Display the payment modal
-   * 7. Display the payment method
-   * 8. Show a discreet link to the stripe payment page
-   */
   useEffect(() => {
     setIsLoading(true);
     try {
       getTenantInvoice(invoice_id).then((res) => {
-        console.log(res.invoice);
+
         setInvoice(res.invoice);
       });
       listStripePaymentMethods(`${authUser.id}`).then((res) => {
@@ -58,7 +44,7 @@ const BillDetail = (props) => {
           setIsLoadingPaymentMethods(false);
         } else {
           setPaymentMethods(res.data);
-          console.log("Payment Methods: ", res.data);
+
           setIsLoadingPaymentMethods(false);
         }
       });

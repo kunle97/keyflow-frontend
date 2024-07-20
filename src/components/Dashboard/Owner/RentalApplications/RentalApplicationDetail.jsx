@@ -1,35 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Button, Chip, Stack } from "@mui/material";
-import { authUser, uiGreen, uiGrey2, uiRed } from "../../../../constants";
+import { Chip } from "@mui/material";
+import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import { useParams } from "react-router";
-import { createLeaseAgreement } from "../../../../api/lease_agreements";
 import {
   approveRentalApplication,
   archiveRentalApplication,
-  deleteOtherRentalApplications,
   getRentalApplicationById,
   rejectRentalApplication,
   revokeRentalApplication,
   unarchiveRentalApplication,
 } from "../../../../api/rental_applications";
-import { getUnit } from "../../../../api/units";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITabs from "../../UIComponents/UITabs";
-import useScreen from "../../../../hooks/useScreen";
 import Joyride, {
   ACTIONS,
-  CallBackProps,
   EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
-const ViewRentalApplication = () => {
+const RentalApplicationDetail = () => {
   const { id } = useParams();
-  const { isMobile } = useScreen();
   const [unit, setUnit] = useState(null);
   const [rentalApplication, setRentalApplication] = useState({});
   const [rentalApplicationIsArchived, setRentalApplicationIsArchived] =
@@ -101,7 +94,7 @@ const ViewRentalApplication = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -124,8 +117,8 @@ const ViewRentalApplication = () => {
 
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
-    console.log("Accepting Application...");
-    console.log("unt", unit);
+
+
     //Check if unit has a template
     if (!unit.template_id && !unit.signed_lease_document_file) {
       setAlertModalTitle("An error occurred");
@@ -139,7 +132,7 @@ const ViewRentalApplication = () => {
     try {
       // Approve and Archive this application
       const approvalResponse = await approveRentalApplication(id);
-      console.log(approvalResponse);
+
 
       if (approvalResponse.status === 200) {
         setOpenAcceptModal(false);
@@ -149,12 +142,12 @@ const ViewRentalApplication = () => {
         );
         setOpenAlertModal(true);
       } else {
-        console.log(approvalResponse);
+
         setAlertModalTitle("An error occurred");
         setOpenAlertModal(true);
       }
     } catch (error) {
-      console.log(error);
+
       setAlertModalTitle("An error occurred");
       setOpenAlertModal(true);
     } finally {
@@ -166,18 +159,18 @@ const ViewRentalApplication = () => {
   //create a function to reject the appplciation
   const handleReject = () => {
     setIsLoadingApplicationAction(true);
-    console.log("Rejecting Application...");
+
     rejectRentalApplication(id)
       .then((res) => {
         if (res.status === 200) {
-          console.log(res);
+
           setOpenRejectModal(false);
           //TODO: Delete this application
           setAlertModalTitle(res.message);
           setOpenAlertModal(true);
           setIsLoadingApplicationAction(false);
         } else {
-          console.log(res);
+
           setAlertModalTitle("An error occured");
           setOpenAlertModal(true);
           setIsLoadingApplicationAction(false);
@@ -197,12 +190,12 @@ const ViewRentalApplication = () => {
     revokeRentalApplication(id)
       .then((res) => {
         if (res.status === 200) {
-          console.log(res);
+
           setOpenRevokeModal(false);
           setAlertModalTitle(res.message);
           setOpenAlertModal(true);
         } else {
-          console.log(res);
+
           setAlertModalTitle("An error occured");
           setOpenAlertModal(true);
         }
@@ -260,7 +253,7 @@ const ViewRentalApplication = () => {
         );
         setOpenAlertModal(true);
       });
-  }, []);
+  },[]);
   return (
     <div className="container-fluid rental-application-detail-view">
       <AlertModal
@@ -394,7 +387,7 @@ const ViewRentalApplication = () => {
                 action: () => {
                   archiveRentalApplication(id).then((res) => {
                     if (res.status === 200) {
-                      console.log(res);
+
                       setRentalApplicationIsArchived(true);
                     } else {
                       setAlertModalTitle("An error occurred");
@@ -409,7 +402,7 @@ const ViewRentalApplication = () => {
                 action: () => {
                   unarchiveRentalApplication(id).then((res) => {
                     if (res.status === 200) {
-                      console.log(res);
+
                       setRentalApplicationIsArchived(false);
                     } else {
                       setAlertModalTitle("An error occurred");
@@ -669,4 +662,4 @@ const ViewRentalApplication = () => {
   );
 };
 
-export default ViewRentalApplication;
+export default RentalApplicationDetail;

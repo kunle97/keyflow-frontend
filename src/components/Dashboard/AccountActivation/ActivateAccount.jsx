@@ -11,7 +11,7 @@ const ActivateAccount = () => {
     //Activate users account
     activateAccount(token).then((res) => {
       if (res.status === 200) {
-        console.log("Account activated");
+
         //Log user out if logged in
         if (localStorage.getItem("accessToken")) {
             localStorage.removeItem("accessToken");
@@ -26,7 +26,7 @@ const ActivateAccount = () => {
         }
       } else if (res.response.status !== 200) {
         //Display error
-        console.log("Error activating account");
+
         setShowError(true);
       }
     }).catch((error) => {

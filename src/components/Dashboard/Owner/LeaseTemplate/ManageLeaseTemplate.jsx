@@ -1,7 +1,6 @@
-import { Button, Input, Stack, Tooltip, Typography } from "@mui/material";
+import {  Stack, Typography } from "@mui/material";
 import React from "react";
 import {
-  muiIconStyle,
   uiGreen,
   uiGrey2,
   uiRed,
@@ -11,31 +10,25 @@ import { useParams } from "react-router";
 import { useEffect } from "react";
 import { authenticatedInstance } from "../../../../api/api";
 import { useState } from "react";
-import { Delete, HelpOutline } from "@mui/icons-material";
 import UITabs from "../../UIComponents/UITabs";
 import BackButton from "../../UIComponents/BackButton";
 import UIButton from "../../UIComponents/UIButton";
 import UITable from "../../UIComponents/UITable/UITable";
-import { getUnit } from "../../../../api/units";
 import { useNavigate } from "react-router";
 import { createBoldSignEmbeddedTemplateEditLink } from "../../../../api/boldsign";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import UIInput from "../../UIComponents/UIInput";
 import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
 import Joyride, {
   ACTIONS,
-  CallBackProps,
   EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
@@ -48,10 +41,8 @@ import {
   removeLeaseTemplateFromAssignedResources,
 } from "../../../../api/lease_templates";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import DeleteButton from "../../UIComponents/DeleteButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import {
   numberUpTo2DecimalPlaces,
   uppercaseAndLowercaseLetters,
@@ -88,7 +79,6 @@ const ManageLeaseTemplate = () => {
   const [alertModalIsOpen, setAlertModalIsOpen] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
-  const [chargesValid, setChargesValid] = useState(false);
   const [additionalCharges, setAdditionalCharges] = useState(null);
   const [openLeaseTemplateRemovePrompt, setOpenLeaseTemplateRemovePrompt] =
     useState(false);
@@ -139,7 +129,7 @@ const ManageLeaseTemplate = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -155,7 +145,7 @@ const ManageLeaseTemplate = () => {
       setTourIndex(5);
     }
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
@@ -170,7 +160,7 @@ const ManageLeaseTemplate = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
+
   };
 
   const [detailsErrors, setDetailsErrors] = useState({});
@@ -526,10 +516,6 @@ const ManageLeaseTemplate = () => {
     );
     if (!allFrequenciesEqual) {
       // Handle case where frequencies are not all the same
-      console.log(
-        "Additional charges have different frequencies",
-        additionalCharges
-      );
       // Perform actions or show an error message to the user
       // You can return early, show an error message, or prevent form submission
       setIsLoading(false);
@@ -567,7 +553,7 @@ const ManageLeaseTemplate = () => {
           additional_charges: JSON.stringify(chargesWithNumericAmount),
         })
         .then((res) => {
-          console.log(res);
+
           if (res.status === 200) {
             setAlertModalIsOpen(true);
             setAlertModalTitle("Success");
@@ -600,7 +586,7 @@ const ManageLeaseTemplate = () => {
       selected_assignments: JSON.stringify(selectedAssignments),
     };
     await assignLeaseTemplate(data).then((res) => {
-      console.log(res);
+
       if (res.status === 200) {
         setAlertModalIsOpen(true);
         setAlertModalTitle("Success");
@@ -620,7 +606,7 @@ const ManageLeaseTemplate = () => {
     await authenticatedInstance
       .patch(`/lease-templates/${id}/`, detailsFormData)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setAlertModalIsOpen(true);
           setAlertModalTitle("Success");
@@ -690,7 +676,7 @@ const ManageLeaseTemplate = () => {
       template_id: leaseTemplate.template_id,
     })
       .then((res) => {
-        console.log(res);
+
         setEditLink(res.url);
       })
       .finally(() => {
@@ -800,7 +786,7 @@ const ManageLeaseTemplate = () => {
               removeLeaseTemplateFromAssignedResources({
                 lease_template_id: id,
               }).then((res) => {
-                console.log(res);
+
                 if (res.status === 200) {
                   setAlertModalIsOpen(true);
                   setAlertModalTitle("Success");
@@ -829,7 +815,7 @@ const ManageLeaseTemplate = () => {
             handleConfirm={() => {
               deleteLeaseTemplate(id)
                 .then((res) => {
-                  console.log(res);
+
                   setAlertModalIsOpen(true);
                   setAlertModalTitle("Lease Template Deleted");
                   setAlertModalMessage("");
@@ -1097,20 +1083,6 @@ const ManageLeaseTemplate = () => {
                       createSubtitle={(row) =>
                         `Beds: ${row.beds} | Baths: ${row.baths}`
                       }
-                      // createURL={`/dashboard/owner/lease-templates/units/create/${id}`}
-                      // showCreate={true}
-                      // getImage={(row) => {
-                      //   retrieveFilesBySubfolder(
-                      //     `properties/${property.id}/units/${row.id}`,
-                      //     authUser.id
-                      //   ).then((res) => {
-                      //     if (res.data.length > 0) {
-                      //       return res.data[0].file;
-                      //     } else {
-                      //       return "https://picsum.photos/200";
-                      //     }
-                      //   });
-                      // }}
                       onRowClick={(row) => {
                         const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
                         navigate(navlink);
@@ -1280,6 +1252,7 @@ const ManageLeaseTemplate = () => {
                   src={editLink}
                   height={isMobile ? "500px" : "1200px"}
                   width="100%"
+                  title="Edit Lease Template"
                 />
               </div>
             </>

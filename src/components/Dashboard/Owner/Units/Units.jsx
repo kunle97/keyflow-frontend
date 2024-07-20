@@ -65,7 +65,7 @@ const Units = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   return (

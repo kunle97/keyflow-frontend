@@ -6,7 +6,7 @@ export async function createLeaseCancellationRequest(data) {
     const response = await authenticatedInstance
       .post("/lease-cancellation-requests/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease cancellation request created successfully",
           status: 201,
@@ -15,7 +15,7 @@ export async function createLeaseCancellationRequest(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -26,7 +26,7 @@ export async function getAllLeaseCancellationRequests() {
     const response = await authenticatedInstance
       .get("/lease-cancellation-requests/")
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease cancellation requests retrieved successfully",
           status: 200,
@@ -35,7 +35,7 @@ export async function getAllLeaseCancellationRequests() {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -46,7 +46,7 @@ export async function getLeaseCancellationRequestById(id) {
     const response = await authenticatedInstance
       .get(`/lease-cancellation-requests/${id}/`)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease cancellation request retrieved successfully",
           status: 200,
@@ -55,7 +55,7 @@ export async function getLeaseCancellationRequestById(id) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -66,7 +66,7 @@ export async function approveLeaseCancellationRequest(data) {
     const response = await authenticatedInstance
       .post("/lease-cancellation-requests/approve/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease cancellation request approved successfully",
           status: 204,
@@ -75,7 +75,7 @@ export async function approveLeaseCancellationRequest(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -86,7 +86,7 @@ export async function denyLeaseCancellationRequest(data) {
     const response = await authenticatedInstance
       .post("/lease-cancellation-requests/deny/", data)
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease cancellation request rejected successfully",
           status: 204,
@@ -95,7 +95,7 @@ export async function denyLeaseCancellationRequest(data) {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }
@@ -106,7 +106,7 @@ export async function getTenantLeaseCancellationRequests() {
     const response = await authenticatedInstance
       .get("/lease-cancellation-requests/tenant/")
       .then((res) => {
-        console.log("Response: ", res);
+
         return {
           message: "Lease cancellation requests retrieved successfully",
           status: 200,
@@ -115,7 +115,7 @@ export async function getTenantLeaseCancellationRequests() {
       });
     return response;
   } catch (error) {
-    console.log("Error: ", error);
+
     return { response: error.response, message: "Error", status: 400 };
   }
 }

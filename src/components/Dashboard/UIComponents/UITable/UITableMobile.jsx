@@ -7,16 +7,13 @@ import {
   globalMaxFileSize,
 } from "../../../../constants";
 import {
-  Button,
   ButtonBase,
   Checkbox,
-  CircularProgress,
   IconButton,
   Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router";
-import UIDropdown from "../UIDropdown";
 import useScreen from "../../../../hooks/useScreen";
 import {
   authenticatedInstance,
@@ -39,7 +36,6 @@ import {
 import ProgressModal from "../Modals/ProgressModal";
 const UITableMobile = (props) => {
   const navigate = useNavigate();
-  const [maxTableCellWidth, setMaxTableCellWidth] = useState("200px");
   const { isMobile, screenWidth, breakpoints } = useScreen();
   const [results, setResults] = useState([]);
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
@@ -83,15 +79,7 @@ const UITableMobile = (props) => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const handleMenuClick = (event, index) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedIndex(index);
-  };
 
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-    setSelectedIndex(null);
-  };
 
   const refresh = async (endpoint) => {
     setIsLoading(true);
@@ -109,8 +97,8 @@ const UITableMobile = (props) => {
             ...props.additionalParams,
           },
         });
-        console.log("response", response.data);
-        console.log("additional params", props.additionalParams);
+
+
         return response.data;
       };
 
@@ -303,13 +291,13 @@ const UITableMobile = (props) => {
     // newChecked[index].selected = selected;
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
-    console.log(props.checked);
+
     //Add support for a function that will be called when a row is selected
     if (props.options.onRowSelect) {
-      console.log("Row selected");
+
       props.options.onRowSelect();
     }
-    console.log("Checked rows", props.checked);
+
   };
 
   //Handles the select all checkbox in table header
@@ -369,7 +357,7 @@ const UITableMobile = (props) => {
         preview: URL.createObjectURL(file),
       })
     );
-    console.log("updatedFiles", updatedFiles);
+
     setFiles(updatedFiles);
     setResponseMessage(null);
     setResponseTitle(null);
@@ -385,7 +373,7 @@ const UITableMobile = (props) => {
     authenticatedMediaInstance
       .post(props.fileUploadEndpoint, formData)
       .then((res) => {
-        console.log("res", res);
+
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -393,7 +381,7 @@ const UITableMobile = (props) => {
         setFiles([]); //Clear the files array
       })
       .catch((err) => {
-        console.log("err", err);
+
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(err.response.data.message);

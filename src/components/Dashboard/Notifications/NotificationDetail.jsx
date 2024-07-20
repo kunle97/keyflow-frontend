@@ -20,7 +20,7 @@ export const NotificationDetail = () => {
     //retrieve notification by id from api
     getNotification(id)
       .then((res) => {
-        console.log("Notification Resposne ", res);
+
         setNotification(res);
       })
       .catch((error) => {
@@ -30,7 +30,7 @@ export const NotificationDetail = () => {
     //Mark notification as read
     markNotificationAsRead(id)
       .then((res) => {
-        console.log("Marked as read", res);
+
       })
       .catch((error) => {
         console.error("Error marking as read", error);

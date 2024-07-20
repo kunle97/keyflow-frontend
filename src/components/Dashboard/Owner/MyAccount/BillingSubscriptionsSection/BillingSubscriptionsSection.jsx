@@ -1,27 +1,11 @@
 import React, { useEffect, useState } from "react";
 import UIButton from "../../../UIComponents/UIButton";
-import ConfirmModal from "../../../UIComponents/Modals/ConfirmModal";
-import {
-  authUser,
-  token,
-  uiGreen,
-  uiRed,
-  validationMessageStyle,
-} from "../../../../../constants";
-import UIPrompt from "../../../UIComponents/UIPrompt";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { authUser, token, uiGreen } from "../../../../../constants";
+import { Stack } from "@mui/material";
 import { useNavigate } from "react-router";
-import {
-  deleteStripePaymentMethod,
-  listOwnerStripePaymentMethods,
-  setOwnerDefaultPaymentMethod,
-} from "../../../../../api/payment_methods";
-import AddCardIcon from "@mui/icons-material/AddCard";
 import { getUserStripeSubscriptions } from "../../../../../api/auth";
-import SubscriptionCard from "./SectionRows/Subscriptions/SubscriptionCard";
 import UsageCard from "./SectionRows/Usage/UsageCard";
 import PaymentMethodsSection from "./SectionRows/PaymentMethods/PaymentMethodsSection";
-import UITable from "../../../UIComponents/UITable/UITable";
 import UIProgressPrompt from "../../../UIComponents/UIProgressPrompt";
 import {
   getOwnerSubscriptionPlanData,
@@ -44,52 +28,32 @@ const BillingSubscriptionsSection = () => {
     {}
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [showChangePlanModal, setShowChangePlanModal] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
   const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
-  const billing_history_columns = [
-    { label: "Invoice ID", name: "id" },
-    { label: "Amount", name: "amount" },
-    { label: "Date", name: "timestamp" },
-    { label: "Status", name: "status" },
-  ];
-  const billing_history_options = {
-    isSelectable: false,
-    onRowClick: (row) => {
-      let navlink = "/";
-      navlink = `/dashboard/owner/billing/invoice/${row.id}`;
-      navigate(navlink);
-    },
-  };
+
   useEffect(() => {
     setIsLoading(true);
     try {
       getSubscriptionPlanPrices()
         .then((res) => {
-          console.log("Subscription Plans: ", res.products);
           setPlans(res.products);
         })
         .catch((error) => {
-          console.log("Error getting subscription plans: ", error);
           setResponseTitle("Error");
           setResponseMessage("Error getting subscription plans");
           setShowResponseModal(true);
         });
       getUserStripeSubscriptions(authUser.id, token).then((res) => {
-        console.log("Current Subscription Plan: ", res.subscriptions);
         setCurrentSubscriptionPlan(res.subscriptions);
       });
       getOwnerUsageStats().then((res) => {
-        console.log("Usage Stats: ", res);
         setUsageStats(res);
       });
       getOwnerSubscriptionPlanData().then((res) => {
-        console.log("Subscription Plan Data: ", res);
         setOwnerSubscriptionPlanData(res);
       });
-      console.log("Owner Subscription Plan Data: ", currentSubscriptionPlan);
     } catch (error) {
       console.error("Error getting subscription plans:", error);
     } finally {
@@ -259,7 +223,7 @@ const BillingSubscriptionsSection = () => {
                 <UIButton
                   style={{ float: "right" }}
                   onClick={() => {
-                    // setOpenAddPaymentMethodModal(true);
+                    navigate("/dashboard/add-payment-method");
                   }}
                   btnText="Add New"
                 />
@@ -267,28 +231,6 @@ const BillingSubscriptionsSection = () => {
             </Stack>
             <PaymentMethodsSection />
           </div>
-
-          {/* <div className="billing-section mb-4">
-            <div className="billing-section-heading mb-4">
-              <h4>Billing History</h4>
-              <span className="text-muted">
-                View and download your billing invoice
-              </span>
-            </div>
-
-            <UITable
-              columns={billing_history_columns}
-              data={[
-                {
-                  id: "INV-1234",
-                  amount: "$9.99",
-                  timestamp: "2021-10-10",
-                  status: "Paid",
-                },
-              ]}
-              options={billing_history_options}
-            />
-          </div> */}
         </div>
       )}
     </>

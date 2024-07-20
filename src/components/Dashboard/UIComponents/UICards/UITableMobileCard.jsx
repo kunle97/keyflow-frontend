@@ -8,7 +8,6 @@ const UICard = ({
   onClick,
   title,
   dataTestId,
-  imageSrc,
   subtitle,
   children,
   cardStyle,

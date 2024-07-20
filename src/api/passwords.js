@@ -9,12 +9,12 @@ export async function changePassword(data) {
         new_password: data.new_password,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Change Password Error: ", error);
+
     return error.response;
   }
 }
@@ -28,12 +28,12 @@ export async function sendPasswordResetEmail(data) {
         token: data.token,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Reset Password Error: ", error);
+
     return error.response;
   }
 }
@@ -47,12 +47,12 @@ export async function resetPassword(data) {
         new_password: data.new_password,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Reset Password Error: ", error);
+
     return error.response;
   }
 }
@@ -64,12 +64,12 @@ export async function validatePasswordResetToken(token) {
         token: token,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Validate Password Reset Token Error: ", error);
+
     return error.response;
   }
 }

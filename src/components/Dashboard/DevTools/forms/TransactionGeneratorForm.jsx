@@ -45,7 +45,7 @@ const TransactionGeneratorForm = (props) => {
     defaultValues: {},
   });
   const onSubmit = (data) => {
-    console.log(data);
+
     setIsLoading(true);
     const payload = {
       count: parseInt(data.numberOfItems),
@@ -60,7 +60,7 @@ const TransactionGeneratorForm = (props) => {
       tenant: data.tenant,
       amountRange: amountRange,
     };
-    console.log("Payload ", payload);
+
     // Use Axios or your preferred HTTP client to call the appropriate endpoints in your DRF backend.
     axios
       .post(
@@ -68,7 +68,7 @@ const TransactionGeneratorForm = (props) => {
         payload
       )
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           alert(`Successfully generated ${data.numberOfItems} transactions`);
           setIsLoading(false);

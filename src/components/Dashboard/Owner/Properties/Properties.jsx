@@ -9,10 +9,7 @@ import UIHelpButton from "../../UIComponents/UIHelpButton";
 import Joyride, { STATUS } from "react-joyride";
 import { uiGreen } from "../../../../constants";
 const Properties = () => {
-  const { screenWidth, breakpoints, isMobile } = useScreen();
-  const [properties, setProperties] = useState([]);
-  const [filters, setFilters] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isMobile } = useScreen();
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [checked, setChecked] = useState([]);
@@ -61,39 +58,8 @@ const Properties = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
-  };
 
-  //Create a useEffect that calls the get propertiees api function and sets the properties state
-  useEffect(() => {
-    getProperties()
-      .then((res) => {
-        if (res) {
-          setProperties(res.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting properties:", error);
-        setErrorMessage(
-          "An error occurred while retrieving properties. Please try again later."
-        );
-        setShowDeleteError(true);
-      });
-    getPropertyFilters()
-      .then((res) => {
-        if (res) {
-          setFilters(res);
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting property filters:", error);
-        setErrorMessage(
-          "An error occurred while retrieving property filters. Please try again later."
-        );
-        setShowDeleteError(true);
-      });
-    setIsLoading(false);
-  }, []);
+  };
   return (
     <div className="container-fluid">
       <Joyride

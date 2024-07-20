@@ -12,12 +12,12 @@ export async function getStripeSubscription(subscription_id) {
       })
 
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Stripe Subscription Error: ", error);
+
     return error.response;
   }
 }
@@ -33,7 +33,7 @@ export async function turnOffAutoPay() {
       });
     return res;
   } catch (error) {
-    console.log("Turn Off Auto Pay Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -47,7 +47,7 @@ export async function turnOnAutoPay() {
       });
     return res;
   } catch (error) {
-    console.log("Turn On Auto Pay Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -62,7 +62,7 @@ export async function getNextPaymentDate(user_id) {
       });
     return res;
   } catch (error) {
-    console.log("Get Next Payment Date Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -77,7 +77,7 @@ export async function getPaymentDates(user_id) {
       });
     return res;
   } catch (error) {
-    console.log("Get Payment Dates Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -88,7 +88,7 @@ export async function getSubscriptionPlanPrices() {
     const res = await unauthenticatedInstance
       .post(`/retrieve-owner-subscription-prices/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
@@ -103,7 +103,7 @@ export async function changeSubscriptionPlan(data) {
     const res = await authenticatedInstance
       .post(`/owners/${authUser.owner_id}/change-subscription-plan/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;

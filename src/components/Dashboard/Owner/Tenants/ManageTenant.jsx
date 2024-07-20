@@ -1,11 +1,8 @@
 import React, { useState } from "react";
-import UIButton from "../../UIComponents/UIButton";
 import { useParams } from "react-router-dom";
-import TitleCard from "../../UIComponents/TitleCard";
-import { dateDiffForHumans, uiGreen, uiRed } from "../../../../constants";
+import { dateDiffForHumans, uiGreen } from "../../../../constants";
 import { useEffect } from "react";
 import { getOwnerTenant, getTenantUnit } from "../../../../api/owners";
-import { faker } from "@faker-js/faker";
 import { useNavigate } from "react-router-dom";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
@@ -15,9 +12,6 @@ import {
   getNextPaymentDate,
   getPaymentDates,
 } from "../../../../api/manage_subscriptions";
-import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
-import UICard from "../../UIComponents/UICards/UICard";
-import BackButton from "../../UIComponents/BackButton";
 import { getProperty } from "../../../../api/properties";
 import {
   cancelLeaseAgreement,
@@ -38,17 +32,13 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import LeaseRenewalDialog from "../../Tenant/LeaseAgreement/LeaseRenewal/LeaseRenewalDialog";
 import LeaseCancellationDialog from "../../Tenant/LeaseAgreement/LeaseCancellation/LeaseCancellationDialog";
-import { approveLeaseCancellationRequest } from "../../../../api/lease_cancellation_requests";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
-import { Stack } from "@mui/material";
-import UISwitch from "../../UIComponents/UISwitch";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
-  const [progressModalTitle, setProgressModalTitle] = useState("");
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [showLeaseRenewalDialog, setShowLeaseRenewalDialog] = useState(false);
 
@@ -66,7 +56,6 @@ const ManageTenant = () => {
   const [tabPage, setTabPage] = useState(0);
   const [nextPaymentDate, setNextPaymentDate] = useState(null); //TODO: get next payment date from db and set here
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
-  const [tenantProfilePicture, setTenantProfilePicture] = useState(null);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
@@ -121,46 +110,6 @@ const ManageTenant = () => {
     },
   };
 
-  const maintenance_request_columns = [
-    { name: "description", label: "Issue" },
-    { name: "type", label: "Type" },
-    {
-      name: "is_resolved",
-      label: "Status",
-      options: {
-        customBodyRender: (value) => {
-          if (value === true) {
-            return <span className="text-success">Resolved</span>;
-          } else {
-            return <span className="text-danger">Pending</span>;
-          }
-        },
-      },
-    },
-    {
-      name: "created_at",
-      label: "Date",
-      options: {
-        customBodyRender: (value) => {
-          return <span>{new Date(value).toLocaleDateString()}</span>;
-        },
-      },
-    },
-  ];
-
-  const maintenanceRequestHandleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/maintenance-requests/${rowData}`;
-    navigate(navlink);
-  };
-  const maintenance_request_options = {
-    filter: true,
-    sort: true,
-    sortOrder: {
-      name: "created_at",
-      direction: "desc",
-    },
-    onRowClick: maintenanceRequestHandleRowClick,
-  };
   const titleStyle = {
     fontSize: isMobile ? "12pt" : "17pt",
     marginTop: "12px",
@@ -187,7 +136,7 @@ const ManageTenant = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error cancelling the lease agreement. Please try again."
@@ -208,9 +157,9 @@ const ManageTenant = () => {
       tenant_id: lease.tenant.id,
     })
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
-          console.log("Checked", event.target.checked);
+
         } else {
           setAlertTitle("Error");
           setAlertMessage(
@@ -233,7 +182,7 @@ const ManageTenant = () => {
     if (!tenant) {
       try {
         getOwnerTenant(tenant_id).then((tenant_res) => {
-          console.log("tenant_res", tenant_res);
+
           setTenant(tenant_res.data);
           setAutoRenewalEnabled(tenant_res.data.auto_renew_lease_is_enabled);
           getNextPaymentDate(tenant_res.data.user.id).then((res) => {
@@ -276,19 +225,9 @@ const ManageTenant = () => {
               setShowAlert(true);
             }
           });
-
-          retrieveFilesBySubfolder(
-            "user_profile_picture",
-            tenant_res.data.user.id
-          ).then((res) => {
-            if (res.data[0]) {
-              console.log("Tenant profile picture", res.data[0]);
-              setTenantProfilePicture(res.data[0]);
-            }
-          });
         });
       } catch (err) {
-        console.log(err);
+
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error fetching tenant data. Please try again."

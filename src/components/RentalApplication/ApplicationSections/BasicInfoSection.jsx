@@ -7,11 +7,8 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
-import { faker } from "@faker-js/faker";
 import { validEmail, validHTMLDateInput, validName, validPhoneNumber, validSSN } from "../../../constants/rexgex";
 const BasicInfoSection = (props) => {
-  const [formData, setFormData] = useState({});
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newErrors = triggerValidation(
@@ -24,8 +21,8 @@ const BasicInfoSection = (props) => {
       [name]: newErrors[name],
     }));
     props.setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", props.formData);
-    console.log("Errors ", props.errors);
+
+
   };
 
   const formInputs = [

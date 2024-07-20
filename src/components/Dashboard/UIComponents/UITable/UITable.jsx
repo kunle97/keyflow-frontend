@@ -4,7 +4,6 @@ import {
   Checkbox,
   CircularProgress,
   ClickAwayListener,
-  FormControlLabel,
   Grow,
   IconButton,
   MenuItem,
@@ -42,7 +41,7 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ProgressModal from "../Modals/ProgressModal";
 const UITable = (props) => {
   const navigate = useNavigate();
-  const [maxTableCellWidth, setMaxTableCellWidth] = useState("200px");
+  const maxTableCellWidth = "200px";
   const [results, setResults] = useState([]);
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false); //THis will be used to tell if the DRFfilterbackend is being used
@@ -111,8 +110,8 @@ const UITable = (props) => {
             ...props.additionalParams,
           },
         });
-        console.log("response", response.data);
-        console.log("additional params", props.additionalParams);
+
+
         return response.data;
       };
 
@@ -302,16 +301,15 @@ const UITable = (props) => {
       };
       newChecked.push(element);
     }
-    // newChecked[index].selected = selected;
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
-    console.log(props.checked);
+
     //Add support for a function that will be called when a row is selected
     if (props.options.onRowSelect) {
-      console.log("Row selected");
+
       props.options.onRowSelect();
     }
-    console.log("Checked rows", props.checked);
+
   };
 
   //Handles the select all checkbox in table header
@@ -371,7 +369,7 @@ const UITable = (props) => {
         preview: URL.createObjectURL(file),
       })
     );
-    console.log("updatedFiles", updatedFiles);
+
     setFiles(updatedFiles);
     setResponseMessage(null);
     setResponseTitle(null);
@@ -387,7 +385,7 @@ const UITable = (props) => {
     authenticatedMediaInstance
       .post(props.fileUploadEndpoint, formData)
       .then((res) => {
-        console.log("res", res);
+
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -395,7 +393,7 @@ const UITable = (props) => {
         setFiles([]); //Clear the files array
       })
       .catch((err) => {
-        console.log("err", err);
+
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(err.response.data.message);

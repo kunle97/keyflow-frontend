@@ -6,7 +6,6 @@ const UICard = ({
   info,
   onClick,
   title,
-  imageSrc,
   subtitle,
   children,
   cardStyle,
@@ -16,7 +15,6 @@ const UICard = ({
   dropDownOptions,
   onDropdownChange,
   showChevron,
-  chartHeaderMode,
   dataTestId,
 }) => {
   return (

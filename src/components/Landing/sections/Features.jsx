@@ -1,40 +1,22 @@
 import React, { useEffect, useState } from "react";
-import Slider from "react-slick";
 import { uiGreen } from "../../../constants";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import useScreen from "../../../hooks/useScreen";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Stack } from "@mui/material";
 import PsychologyIcon from "@mui/icons-material/Psychology"; // AI
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance"; //Accounting
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"; //E-signature
-import HistoryEduIcon from "@mui/icons-material/HistoryEdu"; //E-signature
-import DrawIcon from "@mui/icons-material/Draw"; //E-signature
 import CurrencyBitcoinIcon from "@mui/icons-material/CurrencyBitcoin"; //Cryptocurrency
 import SmartphoneIcon from "@mui/icons-material/Smartphone"; //Mobile App
 import PersonIcon from "@mui/icons-material/Person"; //Useability
 import SupportAgentIcon from "@mui/icons-material/SupportAgent"; //Customer Service
-import SupportIcon from "@mui/icons-material/Support"; //Customer Service
 import VillaIcon from "@mui/icons-material/Villa"; //Listings
 const Features = () => {
-  var sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    nextArrow: <ArrowForwardIosIcon sx={{ color: uiGreen }} />,
-    prevArrow: <ArrowBackIosIcon sx={{ color: uiGreen }} />,
-  };
 
   const iconStyles = {
     color: uiGreen,
     fontSize: "20pt",
   };
-
-  const { isMobile } = useScreen();
   const [featureRows, setFeatureRows] = useState([
     {
       title: "AI-powered property management",

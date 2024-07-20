@@ -6,7 +6,7 @@ export async function requestDemo(data){
     const res = unauthenticatedInstance
       .post(`/mailchimp/request-demo-subscribe/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;

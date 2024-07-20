@@ -3,7 +3,6 @@ import { uiGreen } from "../../../constants";
 import {
   FormControl,
   FormControlLabel,
-  FormLabel,
   Radio,
   RadioGroup,
 } from "@mui/material";

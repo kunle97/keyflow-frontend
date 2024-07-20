@@ -18,11 +18,7 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
@@ -82,7 +78,7 @@ const ManageBillingEntry = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const formInputs = [
@@ -163,7 +159,6 @@ const ManageBillingEntry = () => {
       name: "rental_unit",
       type: "text_display",
       customRender: (unit) => {
-        console.log("unit cusotm renedsedr", unit);
         return unit
           ? "Unit " + unit.name + " (" + unit.rental_property_name + ")"
           : "";
@@ -274,7 +269,7 @@ const ManageBillingEntry = () => {
           );
           setAlertOpen(true);
         }
-        console.log(formData);
+
         setIsLoading(false);
       },
       validations: {
@@ -312,7 +307,7 @@ const ManageBillingEntry = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("name", name, "value", value);
+
     let newErrors = triggerValidation(
       name,
       value,

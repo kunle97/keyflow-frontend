@@ -2,9 +2,7 @@ import React, { Fragment, useState } from "react";
 import SearchResultCard from "../SearchResultCard";
 import HomeWorkOutlinedIcon from "@mui/icons-material/HomeWorkOutlined";
 import { useEffect } from "react";
-import { Box, CircularProgress } from "@mui/material";
 import { uiGreen } from "../../../../../../constants";
-import { useSearch } from "../../../../../../contexts/SearchContext";
 import ResultsPageControl from "./Pagination/ResultsPageControl";
 import ResultsHeader from "./Pagination/ResultsHeader";
 import UIPrompt from "../../../UIPrompt";
@@ -47,7 +45,7 @@ const AllPropertyResults = (props) => {
         setPreviousPageEndPoint(response.data.previous);
       })
       .catch((error) => {
-        console.log(error);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occured retrieving properties: " + error.message

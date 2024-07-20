@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
-import { uiGreen, validationMessageStyle } from "../../../constants";
+import { uiGreen } from "../../../constants";
 import CallToActionForm from "./CallToAction/CallToActionForm";
 import { Stack } from "@mui/material";
 const Hero = () => {
@@ -25,7 +25,6 @@ const Hero = () => {
             height: "100%",
             objectFit: "cover",
             top: "0",
-            // zIndex: "-1",
           }}
         >
           <source src={heroVideoURL} type="video/mp4" />

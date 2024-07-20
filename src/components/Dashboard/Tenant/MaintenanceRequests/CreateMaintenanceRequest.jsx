@@ -18,11 +18,7 @@ import {
 import UIButton from "../../UIComponents/UIButton";
 import useScreen from "../../../../hooks/useScreen";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters } from "../../../../constants/rexgex";
@@ -30,16 +26,11 @@ import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState(null);
-  const [alertTitle, setAlertTitle] = useState(null);
-
   const [leaseAgreement, setLeaseAgreement] = useState(null);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseMessage, setResponseMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { isMobile } = useScreen();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -82,7 +73,7 @@ const CreateMaintenanceRequest = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,8 +84,8 @@ const CreateMaintenanceRequest = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -144,11 +135,11 @@ const CreateMaintenanceRequest = () => {
     preventPageReload();
     //Retrieve the unit
     getTenantDashboardData().then((res) => {
-      console.log(res);
+
       setUnit(res.unit);
       setLeaseAgreement(res.lease_agreement);
     });
-  }, []);
+  },[]);
 
   //Create a function to handle the form submission
   const onSubmit = () => {
@@ -162,32 +153,24 @@ const CreateMaintenanceRequest = () => {
       type: formData.type,
       owner: leaseAgreement.owner.id,
     };
-    console.log("Payload", payload);
+
     createMaintenanceRequest(payload).then((res) => {
       setIsLoading(false);
-      console.log(res);
+
       if (res.status !== 400) {
         setResponseMessage(res.message);
         setShowResponseModal(true);
-        console.log(res.message);
+
       } else {
         setResponseMessage(res.message);
         setShowResponseModal(true);
-        console.log(responseMessage);
+
       }
     });
   };
 
   return (
     <>
-    <AlertModal
-      title={alertTitle}
-      message={alertMessage}
-      open={showAlert}
-      onClick={() => {
-        setShowAlert(false);
-      }}
-    />
       <Joyride
         run={runTour}
         index={tourIndex}

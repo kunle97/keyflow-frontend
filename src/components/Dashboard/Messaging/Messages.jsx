@@ -73,7 +73,7 @@ const Messages = () => {
     setLoadingMessage("Fetching messages...");
     retrieveUserThreads()
       .then((res) => {
-        console.log("New Threads", res);
+
         setMessageThreads(res.data);
         setFilteredThreads(res.data);
       })
@@ -99,10 +99,10 @@ const Messages = () => {
       other_user_id: thread.recipient_id,
     })
       .then((res) => {
-        console.log(res);
+
       })
       .catch((err) => {
-        console.log("Handle Thread click error: ", err);
+
       });
   };
   const handleSendMessage = (e) => {
@@ -123,7 +123,7 @@ const Messages = () => {
     };
     sendMessage(payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           //Update the selected thread with the new message
           const updatedThread = {
@@ -162,7 +162,7 @@ const Messages = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occurred while sending your message. Please try again."
@@ -217,7 +217,7 @@ const Messages = () => {
         setSelectedThread(filteredThreads[0]);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }, [messageThreads]); // Be cautious with this dependency
 

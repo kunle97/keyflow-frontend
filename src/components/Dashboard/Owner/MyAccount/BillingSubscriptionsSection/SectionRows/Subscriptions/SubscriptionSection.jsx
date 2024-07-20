@@ -8,7 +8,6 @@ import { getUserStripeSubscriptions } from "../../../../../../../api/auth";
 import AlertModal from "../../../../../UIComponents/Modals/AlertModal";
 import { authUser, token, uiGrey2 } from "../../../../../../../constants";
 import UIDialog from "../../../../../UIComponents/Modals/UIDialog";
-import { Stack } from "@mui/material";
 import UIButton from "../../../../../UIComponents/UIButton";
 import { listOwnerStripePaymentMethods } from "../../../../../../../api/payment_methods";
 import { isValidStripePaymentMethod } from "../../../../../../../helpers/utils";
@@ -81,7 +80,7 @@ const SubscriptionSection = () => {
           : null,
       })
         .then((res) => {
-          console.log("Change Subscription Plan Response: ", res);
+
           if (res.status === 200) {
             setResponseTitle("Success");
             setResponseMessage("Subscription plan changed successfully");
@@ -93,7 +92,7 @@ const SubscriptionSection = () => {
           }
         })
         .catch((error) => {
-          console.log("Error changing subscription plan: ", error);
+
           setResponseTitle("Error");
           setResponseMessage("Error changing subscription plan");
           setShowResponseModal(true);
@@ -108,21 +107,21 @@ const SubscriptionSection = () => {
     // Get subscription plans
     getSubscriptionPlanPrices()
       .then((res) => {
-        console.log("Subscription Plans: ", res.products);
+
         setPlans(res.products);
       })
       .catch((error) => {
-        console.log("Error getting subscription plans: ", error);
+
         setResponseTitle("Error");
         setResponseMessage("Error getting subscription plans");
         setShowResponseModal(true);
       });
     getUserStripeSubscriptions(authUser.id, token).then((res) => {
-      console.log("Current Subscription Plan: ", res);
+
       setCurrentSubscriptionPlan(res.subscriptions ? res.subscriptions : null);
     });
     listOwnerStripePaymentMethods().then((res) => {
-      console.log("Payment Methods: ", res);
+
       setPaymentMethods(res.payment_methods.data);
     });
   }, []);
@@ -165,13 +164,13 @@ const SubscriptionSection = () => {
               plan_id: newSelectedSubscriptionPlan.product_id,
             })
               .then((res) => {
-                console.log("Change Subscription Plan Response: ", res);
+
                 setResponseTitle("Success");
                 setResponseMessage("Subscription plan changed successfully");
                 setShowResponseModal(true);
               })
               .catch((error) => {
-                console.log("Error changing subscription plan: ", error);
+
                 setResponseTitle("Error");
                 setResponseMessage("Error changing subscription plan");
                 setShowResponseModal(true);
@@ -238,7 +237,7 @@ const SubscriptionSection = () => {
               plan.product_id === currentSubscriptionPlan?.plan.product
             }
             selectPlanOnClick={() => {
-              console.log("Selected Plan: ", plan);
+
               setNewSelectedSubscriptionPlan(plan);
               setShowChangePlanModal(true);
             }}

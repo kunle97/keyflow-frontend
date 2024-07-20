@@ -1,16 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import { getOwnersEmails, getOwnersUsernames } from "../../../api/api";
+import { useEffect, useState } from "react";
+import { getOwnersEmails } from "../../../api/api";
 import { login } from "../../../api/auth";
-import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import {
   defaultWhiteInputStyle,
   uiGreen,
   uiGrey,
-  uiGrey2,
   validationMessageStyle,
 } from "../../../constants";
-import { Input, Button, Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import {
@@ -21,26 +19,22 @@ import UICheckbox from "../UIComponents/UICheckbox";
 import { validEmail } from "../../../constants/rexgex";
 
 const OwnerLogin = () => {
-  const [email, setEmail] = useState("");
   const [ownersEmails, setOwnersEmails] = useState([]);
-  const [ownerUsernames, setOwnerUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(true); //Toggle to determine what login credentials to use
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const { setAuthUser, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     password:
-      process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
+      process.env.REACT_APP_ENVIRONMENT === "development" ? "Password1" : "",
   });
 
   const handleCheckboxChange = (event) => {
     setRememberMe(event.target.checked);
-    console.log("Remember me state varaianble", rememberMe);
+
   };
 
   const handleChange = (e, formInputs) => {
@@ -52,8 +46,8 @@ const OwnerLogin = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const passwordInput = [
@@ -85,7 +79,7 @@ const OwnerLogin = () => {
       placeholder: "Email",
       validations: {
         required: true,
-        regex:  validEmail,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
       dataTestId: "email",
@@ -120,15 +114,13 @@ const OwnerLogin = () => {
       password: formData.password,
       remember_me: rememberMe,
     };
-    console.log("Payload: ", payload);
+
     try {
       const response = await login(payload);
-      console.log("Login Response: ", response);
+
       // if token is returned, set it in local storage
       if (response.token) {
         setRedirectURL("/dashboard/owner");
-        setAuthUser(response.userData);
-        setIsLoggedIn(true);
         setIsLoading(false);
         // Navigate to dashboard
         setOpenError(false);
@@ -149,30 +141,22 @@ const OwnerLogin = () => {
       setIsLoading(false);
     }
   };
-  
 
   useEffect(() => {
-    getOwnersEmails()
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          setOwnersEmails(res);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching owners emails:", error);
-      });
-    getOwnersUsernames()
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          setOwnerUsernames(res);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching owners usernames:", error);
-      });
-  }, []);
+    if (process.env.REACT_APP_ENVIRONMENT === "development") {
+      getOwnersEmails()
+        .then((res) => {
+
+          if (res) {
+            setOwnersEmails(res);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching owners emails:", error);
+        });
+    }
+  },[])
+  ;
 
   return (
     <div className="container-fluid" style={{ padding: 0, overflow: "hidden" }}>
@@ -276,7 +260,6 @@ const OwnerLogin = () => {
                               name={input.name}
                               onChange={input.onChange}
                               onBlur={input.onChange}
-                              // {...register(input.name, { required: true })}
                             />
                           )}
                           {errors[input.name] && (
@@ -455,7 +438,6 @@ const OwnerLogin = () => {
             </div>
           </Stack>
         </div>
-        {/* <div className="col-md-4 col-sm-12" style={{ padding: "0 15px" }}></div> */}
       </div>
     </div>
   );

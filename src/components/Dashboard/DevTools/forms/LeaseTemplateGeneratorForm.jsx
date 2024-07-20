@@ -28,7 +28,7 @@ const LeaseTemplateGeneratorForm = (props) => {
         data
       )
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           setIsLoading(false);
           setAlertModalMessage(

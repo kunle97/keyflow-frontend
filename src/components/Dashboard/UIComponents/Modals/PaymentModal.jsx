@@ -12,19 +12,12 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { makePayment } from "../../../../api/tenants";
-import { uiGreen, uiGrey1, authUser } from "../../../../constants";
+import { uiGreen } from "../../../../constants";
 import UIButton from "../UIButton";
 import { payTenantInvoice } from "../../../../api/tenants";
+import { useNavigate } from "react-router";
 const PaymentModal = (props) => {
-  /*
-   *Payment data structure
-   *        {
-   *       user_id: data.user_id,
-   *       payment_method_id: data.payment_method_id,
-   *      amount: data.amount,
-   *    },
-   */
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [selectPaymentMode, setSelectPaymentMode] = useState(true);
   const [paymentResponseMessage, setPaymentResponseMessage] = useState(null);
@@ -48,34 +41,28 @@ const PaymentModal = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log("Payment Method", selectedPaymentMethod);
 
     props.invoices.forEach((invoice) => {
       let data = {
         invoice_id: invoice.id,
         payment_method_id: selectedPaymentMethod.id,
       };
-      console.log(data);
+
       // makePayment(data)
       payTenantInvoice(data)
         .then((res) => {
-          console.log(res);
           setIsLoading(false);
           setSelectPaymentMode(false);
           if (res.status === 200) {
-            console.log("Payment successful");
             setPaymentResponseMessage("Payment successful!");
           } else {
             // props.handleClose();
             // props.handleFailure();
-            console.log("Payment failed");
+
             setPaymentResponseMessage("Payment failed");
           }
         })
-        .catch((err) => {
-          console.log(err);
-          console.log("Catch: Payment failed");
-        });
+        .catch((err) => {});
     });
   };
 
@@ -97,9 +84,7 @@ const PaymentModal = (props) => {
                   aria-labelledby="paymentMethod"
                   name="paymentMethod"
                   defaultValue={props.paymentMethods[0].id}
-                  //   onChange={() => setSelectedPaymentMethod(paymentMethod)}
                 >
-                  {console.log(props.paymentMethods[0].id)}
                   {props.paymentMethods.map((paymentMethod) => {
                     return (
                       <>
@@ -115,19 +100,9 @@ const PaymentModal = (props) => {
                               }}
                               onSelect={() => {
                                 setSelectedPaymentMethod(paymentMethod);
-                                console.log("onSelect");
-                                console.log(
-                                  "Current Selected Payment Method",
-                                  selectedPaymentMethod
-                                );
                               }}
                               onClick={() => {
                                 setSelectedPaymentMethod(paymentMethod);
-                                console.log("onCLick");
-                                console.log(
-                                  "Current Selected Payment Method",
-                                  selectedPaymentMethod
-                                );
                               }}
                             />
                           }
@@ -138,9 +113,25 @@ const PaymentModal = (props) => {
                         />
                       </>
                     );
-                  })}{" "}
+                  })}
                 </RadioGroup>
               </FormControl>
+              <span
+                style={{
+                  marginTop: "20px",
+                  textTransform: "none",
+                  background: "none",
+                  backgroundColor: "none",
+                  boxShadow: "none",
+                  color: uiGreen,
+                }}
+                variant="text"
+                onClick={() => {
+                  navigate("/dashboard/add-payment-method");
+                }}
+              >
+                Add New Payment Method
+              </span>
               <Stack direction="row">
                 <Button
                   onClick={props.handleClose}

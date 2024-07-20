@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, Backdrop, Box, Typography, Button, Stack } from "@mui/material";
-import { uiGreen, uiGrey1, uiGrey2, uiRed } from "../../../../constants";
+import { uiGreen, uiGrey1, uiGrey2 } from "../../../../constants";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles(() => ({

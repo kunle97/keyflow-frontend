@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useScreen from "../../../../hooks/useScreen";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -12,7 +11,6 @@ import { deleteTenantInvite } from "../../../../api/tenant_invite";
 const ManageTenantInvite = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [progressModalMessage, setProgressModalMessage] =
     useState("Loading...");
@@ -28,7 +26,7 @@ const ManageTenantInvite = () => {
   );
 
   const handleResendTenantInvite = () => {
-    console.log("Resend Tenant Invite");
+
     setIsLoading(true);
     setProgressModalMessage("Resending tenant invite...");
   };
@@ -38,7 +36,7 @@ const ManageTenantInvite = () => {
     setProgressModalMessage("Revoking tenant invite...");
     deleteTenantInvite(id)
       .then((res) => {
-        console.log("TENANT INVITE REVOKE RES", res);
+
         if (res.status === 204) {
           setAlertTitle("Tenant Invite Revoked");
           setAlertMessage("The tenant invite revoked successfully.");
@@ -48,7 +46,7 @@ const ManageTenantInvite = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error revoking tenant invite. Please try again."
@@ -64,11 +62,11 @@ const ManageTenantInvite = () => {
     if (!tenantInvite) {
       try {
         getTenantInvite(id).then((res) => {
-          console.log(res);
+
           setTenantInvite(res);
         });
       } catch (err) {
-        console.log(err);
+
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error fetching tenant data. Please try again."

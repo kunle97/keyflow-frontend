@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
@@ -13,7 +13,6 @@ import {
   ownerMenuItems,
   tenantMenuItems,
   uiGreen,
-  uiGrey2,
 } from "../../../../constants";
 import { Link } from "react-router-dom";
 

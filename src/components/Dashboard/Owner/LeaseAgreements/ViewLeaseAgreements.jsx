@@ -4,13 +4,7 @@ import { uiGreen, uiRed } from "../../../../constants";
 import { useNavigate } from "react-router";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 const ViewLeaseAgreements = () => {
   const navigate = useNavigate();
@@ -43,7 +37,7 @@ const ViewLeaseAgreements = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -53,7 +47,7 @@ const ViewLeaseAgreements = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {

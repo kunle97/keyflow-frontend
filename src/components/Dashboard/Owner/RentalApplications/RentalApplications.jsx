@@ -1,27 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getRentalApplicationsByUser } from "../../../../api/rental_applications";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
-import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 const RentalApplications = () => {
-  const [rentalApplications, setRentalApplications] = useState([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertTitle, setAlertTitle] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
@@ -47,7 +36,7 @@ const RentalApplications = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -57,7 +46,7 @@ const RentalApplications = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const columns = [
     {
@@ -132,39 +121,8 @@ const RentalApplications = () => {
     },
     onRowClick: handleRowClick,
   };
-
-  useEffect(() => {
-    getRentalApplicationsByUser()
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          //Create a new array that only holds data with the is_arhived property set to false
-          // const filteredData = res.data.filter((data) => {
-          //   return data.is_archived === false;
-          // });
-          setRentalApplications(res.data);
-          setIsLoading(false);
-        }
-        console.log("Rental Applications: ", rentalApplications);
-      })
-      .catch((error) => {
-        console.error("Error getting rental applications:", error);
-        setAlertTitle("Error");
-        setAlertMessage(
-          "An error occurred while fetching rental applications. Please try again."
-        );
-        setShowAlert(true);
-      });
-  }, []);
   return (
     <div className="container-fluid rental-application-list">
-      <AlertModal
-        open={showAlert}
-        onClick={() => setShowAlert(false)}
-        title={alertTitle}
-        message={alertMessage}
-        btnText="Okay"
-      />
       <Joyride
         run={runTour}
         index={tourIndex}

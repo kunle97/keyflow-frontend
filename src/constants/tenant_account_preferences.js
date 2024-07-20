@@ -1,18 +1,3 @@
-/**
- * Tenant Account Preferences:
- * 
- * Cancellation Request Approved (Lease Agreement Cancelled) (Te
- * hidden:false,nant)
-
-    Lease Cancellation Request Denied (Tenant)
-
-    Lease Renewal Request Approved (Tenant)
-
-    Lease Renewal Request Rejected (Tenant)
-
-    Bill Created (Tenant)
- * 
- * */
 export const defaultTenantAccountPreferences = [
     {
       type: "notifications",

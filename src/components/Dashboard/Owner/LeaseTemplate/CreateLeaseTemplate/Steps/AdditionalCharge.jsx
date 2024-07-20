@@ -33,8 +33,7 @@ const AdditionalCharge = (props) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -54,9 +53,6 @@ const AdditionalCharge = (props) => {
       newCharges[prevCharges.length - 1][name] = value;
       return newCharges;
     });
-    console.log("Form data ", formData);
-    console.log("Errors ", props.errors);
-    console.log("Errors ", errors);
   };
 
   const formInputs = [
@@ -224,7 +220,7 @@ const AdditionalCharge = (props) => {
           </Stack>
         </div>
       </div>
-      {props.index == props.additionalCharges.length - 1 && (
+      {props.index === props.additionalCharges.length - 1 && (
         <>
           {!props.hideStepControl ? (
             <StepControl
@@ -244,7 +240,7 @@ const AdditionalCharge = (props) => {
                 );
                 if (!allFrequenciesEqual) {
                   // Handle case where frequencies are not all the same
-                  console.log("Additional charges have different frequencies");
+
                   // Perform actions or show an error message to the user
                   // You can return early, show an error message, or prevent form submission
                   setAlertMessage(
@@ -260,9 +256,7 @@ const AdditionalCharge = (props) => {
                 //   (charge) => charge.frequency === rentFrequency
                 // );
                 // if (!chargesMatchRentFrequency) {
-                //   console.log("rent frequency ", rentFrequency);
-                //   console.log("formData ", props.formData);
-                //   console.log("Additional charges ", props.additionalCharges.map((charge) => charge.frequency));
+
                 //   // Handle case where frequencies don't match rent frequency
                 //   setAlertMessage(
                 //     "Additional charges must have the same frequency as the rent frequency"
@@ -280,10 +274,6 @@ const AdditionalCharge = (props) => {
                 props.setSkipAdditionalChargesStep(true);
                 if (props.skipAdditionalChargesStep === false) {
                   props.setSkipAdditionalChargesStep(true);
-                  console.log(
-                    "Skip additional charges",
-                    props.skipAdditionalChargesStep
-                  );
                 } else {
                   props.handleNextStep();
                 }

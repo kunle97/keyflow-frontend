@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Box, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { uiGreen } from "../../../../../constants";
 import { createLeaseTemplate } from "../../../../../api/lease_templates";
-import { el, faker } from "@faker-js/faker";
+import {  faker } from "@faker-js/faker";
 import BackButton from "../../../UIComponents/BackButton";
 import UIStepper from "../../../UIComponents/UIStepper";
 import UIButton from "../../../UIComponents/UIButton";
@@ -10,37 +10,22 @@ import { useForm } from "react-hook-form";
 import { validationMessageStyle } from "../../../../../constants";
 import { useNavigate } from "react-router";
 import AddTerms from "./Steps/AddTerms";
-import AddAdditionalCharge from "./Steps/AdditionalCharge";
 import Assign from "./Steps/Assign";
 import UploadLeaseDocument from "./Steps/UploadLeaseDocument";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../../hooks/useScreen";
-import { triggerValidation } from "../../../../../helpers/formValidation";
 import AdditionalCharge from "./Steps/AdditionalCharge";
 import Joyride, {
   ACTIONS,
-  CallBackProps,
   EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { preventPageReload } from "../../../../../helpers/utils";
 import { getOwnerSubscriptionPlanData } from "../../../../../api/owners";
 const CreateLeaseTemplate = (props) => {
-  //TODO: Add steps to create lease term form
-  /**
-   * Step 1: Add Terms (with rent change frequncy e.g. monthly, yearly, bi-weekly, etc.)
-   * Step 2: (Skipable) Add Addtional Charges
-   * Step 3: (Skipable) Allow assigning to multiple units or properties
-   * Step 4: Upload lease document
-   * Step 5: Owner is navigated to docusign embeded template editor to edit the lease document and add signature fields
-   * Step 6: (Skipable) Owner is navigated to docusign to send the lease document to the tenant
-   * Step 7: Show completion screen animation and Owner is navigated to the lease term detail page
-   *
-   */
   const { isMobile } = useScreen();
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
@@ -113,7 +98,7 @@ const CreateLeaseTemplate = (props) => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -129,7 +114,7 @@ const CreateLeaseTemplate = (props) => {
       setTourIndex(5);
     }
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const {
@@ -268,9 +253,9 @@ const CreateLeaseTemplate = (props) => {
   const onSubmit = () => {
     setIsLoading(true);
     //Get the values from the form
-    console.log("Form data", formData);
-    console.log("Additional charges array", additionalCharges);
-    console.log("Selected assignments", selectedAssignments);
+
+
+
 
     if (!skipAdditionalChargesStep) {
       //Check if additional charges all have the same frequency
@@ -280,7 +265,7 @@ const CreateLeaseTemplate = (props) => {
       );
       if (!allFrequenciesEqual) {
         // Handle case where frequencies are not all the same
-        console.log("Additional charges have different frequencies");
+
         // Perform actions or show an error message to the user
         // You can return early, show an error message, or prevent form submission
         setIsLoading(false);
@@ -327,7 +312,7 @@ const CreateLeaseTemplate = (props) => {
       formData.selected_assignments = JSON.stringify([]);
     }
     formData.template_id = templateId;
-    console.log("Create lease term submit tewmplate id", templateId);
+
     if (props.isLeaseRenewal) {
       if (props.documentMode === "new") {
         props.setCurrentTemplateId(templateId);
@@ -339,12 +324,12 @@ const CreateLeaseTemplate = (props) => {
           props.currentLeaseAgreement.lease_template.template_id;
       }
     }
-    console.log("Full Form data", formData);
+
 
     // Call the API to createLeaseTemplate() function to create the lease term
     createLeaseTemplate(formData)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           if (props.isLeaseRenewal) {
             props.setCurrentLeaseTemplate(res.res.data);

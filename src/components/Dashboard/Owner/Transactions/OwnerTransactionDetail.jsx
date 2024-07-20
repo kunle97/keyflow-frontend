@@ -11,7 +11,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { uiGreen, uiGrey2 } from "../../../../constants";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import useScreen from "../../../../hooks/useScreen";
-import { Button, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 const OwnerTransactionDetail = () => {
@@ -28,20 +28,20 @@ const OwnerTransactionDetail = () => {
     try {
       //retrieve transaction by id from api
       getTransactionById(id).then((res) => {
-        console.log("Transaction Resposne ", res);
+
         setTransaction(res.data);
         //retrieve property by id from api
         getProperty(res.data.rental_property).then((res) => {
-          console.log(res);
+
           setProperty(res);
         });
         //retrieve unit by id from api
         getUnit(res.data.rental_unit).then((res) => {
-          console.log(res);
+
           setUnit(res);
         });
         getUserData(res.data.tenant).then((res) => {
-          console.log(res);
+
           setTenant(res.data);
         });
       });
@@ -53,7 +53,7 @@ const OwnerTransactionDetail = () => {
       );
       setShowAlert(true);
     }
-  }, []);
+  },[]);
 
   return (
     <div className={isMobile ? "container" : ""}>

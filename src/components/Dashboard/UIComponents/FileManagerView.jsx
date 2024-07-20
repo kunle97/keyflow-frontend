@@ -15,6 +15,7 @@ import UIInput from "./UIInput";
 import UIDropdown from "./UIDropdown";
 import useScreen from "../../../hooks/useScreen";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ProgressModal from "./Modals/ProgressModal";
 const FileManagerView = (props) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -73,7 +74,7 @@ const FileManagerView = (props) => {
   };
   const handleConfirmDelete = () => {
     setIsLoading(true);
-    console.log("deleted");
+
     let payload = {
       id: selectedFileToDelete.id,
       file_key: selectedFileToDelete.file_key,
@@ -108,6 +109,7 @@ const FileManagerView = (props) => {
   }, [props.files]);
   return (
     <div className="row">
+      <ProgressModal open={isLoading} title="Deleting File..." />
       <div className="col-md-12">
         <UploadDialog
           open={uploadDialogOpen}
@@ -264,7 +266,7 @@ const FileManagerView = (props) => {
                           <IconButton
                             data-testId="delete-file-icon"
                             onClick={() => {
-                              console.log("delete", media);
+
                               setShowDeleteConfirmation(true);
                               setSelectedFileToDelete(media);
                             }}

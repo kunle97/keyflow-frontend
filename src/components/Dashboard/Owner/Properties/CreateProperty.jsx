@@ -9,7 +9,6 @@ import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { faker } from "@faker-js/faker";
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router";
-import { set, useForm } from "react-hook-form";
 import {
   authUser,
   token,
@@ -32,7 +31,6 @@ import {
 } from "../../../../helpers/formValidation";
 import Joyride, {
   ACTIONS,
-  CallBackProps,
   EVENTS,
   STATUS,
   Step,
@@ -140,7 +138,7 @@ const CreateProperty = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data ", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -150,7 +148,7 @@ const CreateProperty = () => {
       setTourIndex(3);
     }
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const handleChange = (e) => {
@@ -162,8 +160,8 @@ const CreateProperty = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -191,7 +189,7 @@ const CreateProperty = () => {
             name: value,
           };
           await validatePropertyName(payload).then((res) => {
-            console.log(res);
+
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -402,7 +400,7 @@ const CreateProperty = () => {
           formData.country
         )
           .then((res) => {
-            console.log(res);
+
             const newPropertyId = res.res.id;
             if (res.status === 200) {
               if (units.length === 0) {
@@ -423,7 +421,7 @@ const CreateProperty = () => {
                 );
 
                 createUnit(payload).then((res) => {
-                  console.log(res);
+
                   if (res.status === 200) {
                     setIsLoading(false);
                     navigate(`/dashboard/owner/properties/${newPropertyId}`);
@@ -449,23 +447,23 @@ const CreateProperty = () => {
             }
           })
           .catch((error) => {
-            console.log("Error creating property: ", error);
+
             setUnitCreateError(true);
             setErrorMessage("Error creating property");
             setIsLoading(false);
           });
       } catch (error) {
-        console.log("Error creating property: ", error);
+
         setUnitCreateError(true);
         setErrorMessage("Error creating property");
         setIsLoading(false);
       }
     } else {
-      console.log("Cannot submit");
+
       setIsLoading(false);
     }
-    console.log("DAta: ", data);
-    console.log("Form Data: ", formData);
+
+
     setIsLoading(true);
   };
 
@@ -475,7 +473,7 @@ const CreateProperty = () => {
         setCurrentSubscriptionPlan(res.subscriptions);
       })
       .catch((error) => {
-        console.log("Error retrieving subscription plan: ", error);
+
         setErrorMessage("Error retrieving subscription plan");
         setUnitCreateError(true);
       });
@@ -487,18 +485,18 @@ const CreateProperty = () => {
     try {
       retrieveSubscriptionPlan();
       getStripeOnboardingAccountLink().then((res) => {
-        console.log("Stripe ACcount link res: ", res);
+
         setStripeAccountLink(res.account_link);
       });
       getStripeAccountRequirements().then((res) => {
-        console.log("Stripe Account Requirements: ", res);
+
         setStripeAccountRequirements(res.requirements);
         setStripeOnboardingPromptOpen(
           res.requirements.currently_due.length > 0
         );
       });
     } catch (error) {
-      console.log("Error getting stripe account link: ", error);
+
     }
   }, []);
 

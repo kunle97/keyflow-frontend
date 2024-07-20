@@ -20,11 +20,6 @@ const Footer = () => {
                   Pricing
                 </Link>
               </li>
-              {/* <li>
-                <Link className="link-light" to="/blog">
-                  Blog
-                </Link>
-              </li> */}
               <li>
                 <a className="link-light" href="mailto:keyflowsoftware@gmail.com">
                   Contact
@@ -34,47 +29,8 @@ const Footer = () => {
           </div>
           <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item ">
             <h3 className="fs-6 text-white"></h3>
-            {/* <ul className="list-unstyled">
-              {process.env.REACT_APP_ENVIRONMENT === "production" && (
-                <li>
-                  <Link className="link-light" to="/dashboard/owner/login">
-                    Owner Login
-                  </Link>
-                </li>
-              )}
-              {process.env.REACT_APP_ENVIRONMENT === "production" && (
-                <li>
-                  <Link className="link-light" href="/dashboard/tenant/login">
-                    Tenant Login
-                  </Link>
-                </li>
-              )}
-              <li>
-                <Link className="link-light" to="/dashboard/forgot-password">
-                  Forgot Password
-                </Link>
-              </li>
-            </ul> */}
           </div>
           <div className="col-sm-4 col-md-3 text-center text-lg-start d-flex flex-column item d-sm-none d-md-block">
-            {/* <h3 className="fs-6 text-white">Careers</h3>
-            <ul className="list-unstyled">
-              <li>
-                <a className="link-light" href="#">
-                  Job openings
-                </a>
-              </li>
-              <li>
-                <a className="link-light" href="#">
-                  Employee success
-                </a>
-              </li>
-              <li>
-                <a className="link-light" href="#">
-                  Benefits
-                </a>
-              </li>
-            </ul> */}
           </div>
           <div className="col-lg-3 text-center text-lg-start d-flex flex-column align-items-center order-first align-items-lg-start order-lg-last item social">
             <div className="fw-bold d-flex align-items-center mb-2">

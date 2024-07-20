@@ -1,21 +1,18 @@
 import React from "react";
-import { addMonths, uiGreen } from "../constants";
-import { Stack, Typography } from "@mui/material";
+import { uiGreen } from "../constants";
+import { Stack } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
 import {
   getLeaseAgreementByIdAndApprovalHash,
   signLeaseAgreement,
 } from "../api/lease_agreements";
-import { getLeaseTemplateByIdAndApprovalHash } from "../api/lease_templates";
 import { useState } from "react";
 import AlertModal from "./Dashboard/UIComponents/Modals/AlertModal";
-import ConfirmModal from "./Dashboard/UIComponents/Modals/ConfirmModal";
 import { generateSigningLink } from "../api/boldsign";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
-import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
 import useScreen from "../hooks/useScreen";
 import { createInvoicesForRenewal } from "../api/tenants";
@@ -23,13 +20,11 @@ import { preventPageReload } from "../helpers/utils";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [displayError, setDisplayError] = useState(false);
   const [showSignConfirmation, setShowSignConfirmation] = useState(false);
   const [signResponseMessage, setSignResponseMessage] = useState("");
   const [showSignResponse, setShowSignResponse] = useState(false);
   const [redirectLink, setRedirectLink] = useState("");
-  const [redirectMessage, setRedirectMessage] = useState("");
   const [renewalMode, setRenewalMode] = useState(false);
   const [signingLink, setSigningLink] = useState(null);
   const [signingLinkIsValid, setSigningLinkIsValid] = useState(false);
@@ -101,24 +96,24 @@ const SignLeaseAgreement = () => {
             lease_agreement_id: leaseAgreement.id,
             tenant_id: leaseAgreement.tenant.id,
           };
-          createInvoicesForRenewal(payload).then((res) => {
-            console.log(res);
-            if(res.status === 200){
-              console.log("Invoices created successfully")
-              setSignResponseMessage(
-                "Lease Renewal Agreement Signed Successfully. Click the button below to  be redirected back to your dashboard."
-              );
-              //REdirect to the tenant dashboard
-              setRedirectLink(
-                process.env.REACT_APP_HOSTNAME + "/dashboard/tenant/"
-              );
+          createInvoicesForRenewal(payload)
+            .then((res) => {
+              if (res.status === 200) {
+                setSignResponseMessage(
+                  "Lease Renewal Agreement Signed Successfully. Click the button below to  be redirected back to your dashboard."
+                );
+                //REdirect to the tenant dashboard
+                setRedirectLink(
+                  process.env.REACT_APP_HOSTNAME + "/dashboard/tenant/"
+                );
+                setIsLoading(false);
+              }
+            })
+            .finally(() => {
               setIsLoading(false);
-            }
-          }).finally(() => {
-            setIsLoading(false);
-            setShowSignResponse(true);
-            setShowSignConfirmation(false);
-          });
+              setShowSignResponse(true);
+              setShowSignConfirmation(false);
+            });
         } else {
           //On update success redirect to tenant registration page with approval_hash
           setSignResponseMessage(
@@ -208,9 +203,6 @@ const SignLeaseAgreement = () => {
               setUnitLeaseTerms(
                 JSON.parse(lease_agreement_res.rental_unit.lease_terms)
               );
-              console.log(
-                JSON.parse(lease_agreement_res.rental_unit.lease_terms)
-              );
               let redirectLink =
                 process.env.REACT_APP_HOSTNAME +
                 "/dashboard/tenant/register" +
@@ -243,7 +235,6 @@ const SignLeaseAgreement = () => {
               }
               if (!signingLink) {
                 generateSigningLink(payload).then((res) => {
-                  console.log(res);
                   if (res.data.status === 200) {
                     //Set the src of the iframe to the signing link
                     setSigningLink(res.data.data.signLink);
@@ -269,12 +260,10 @@ const SignLeaseAgreement = () => {
             }
           })
           .catch((err) => {
-            console.log(err);
             setDisplayError(true);
           });
         setIsLoading(false);
       } catch (err) {
-        console.log(err);
       } finally {
       }
     }

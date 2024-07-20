@@ -29,7 +29,7 @@ const UnitGeneratorForm = (props) => {
     axios
       .post(`${process.env.REACT_APP_API_HOSTNAME}/generate/units/`, data)
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           alert(`Successfully generated ${response.data.count} ${dataType}`);
         }
