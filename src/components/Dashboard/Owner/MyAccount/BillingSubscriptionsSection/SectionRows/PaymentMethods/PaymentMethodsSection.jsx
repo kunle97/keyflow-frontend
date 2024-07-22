@@ -15,6 +15,7 @@ import { Paper, Popper } from "@material-ui/core";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router";
 import {
+  createBillingPortalSession,
   deleteStripePaymentMethod,
   listOwnerStripePaymentMethods,
   setOwnerDefaultPaymentMethod,
@@ -25,6 +26,7 @@ import AddPaymentMethod from "../../../../../AddPaymentMethod";
 import AlertModal from "../../../../../UIComponents/Modals/AlertModal";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import ProgressModal from "../../../../../UIComponents/Modals/ProgressModal";
+
 const PaymentMethodsSection = () => {
   const navigate = useNavigate();
   const [openAddPaymentMethodModal, setOpenAddPaymentMethodModal] =
@@ -35,22 +37,20 @@ const PaymentMethodsSection = () => {
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [paymentMethodDeleteId, setPaymentMethodDeleteId] = useState(null);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
   const [showDefaultConfirm, setShowDefaultConfirm] = useState(false);
-  const [updatedDefaultPaymentMethod, setUpdatedDefaultPaymentMethod] =
-    useState(null);
-
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
   const [openContextMenu, setOpenContextMenu] = useState(false);
-  const anchorRef = React.useRef(null);
-  // Dropdown
-  const handleToggle = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleToggle = (event) => {
+    setAnchorEl(event.currentTarget);
     setOpenContextMenu((prevOpen) => !prevOpen);
   };
 
   const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+    if (anchorEl && anchorEl.contains(event.target)) {
       return;
     }
 
@@ -70,64 +70,62 @@ const PaymentMethodsSection = () => {
     setIsLoading(true);
     setProgressMessage("Setting as default payment method...");
 
-    let data = {};
-    data.payment_method_id = paymentMethodId;
-    data.user_id = authUser.id;
-    setOwnerDefaultPaymentMethod(data)
-      .then((res) => {
+    let data = {
+      payment_method_id: paymentMethodId,
+      user_id: authUser.id,
+    };
 
-        if (res.status === 200) {
-          setResponseTitle("Alert");
-          setResponseMessage("Payment method set as default");
-          //Get the payment methods for the user
-          listOwnerStripePaymentMethods(`${authUser.id}`).then((res) => {
-            setPaymentMethods(res.payment_methods.data);
-          });
-          setPaymentMethodDefaultId(paymentMethodId);
-        } else {
-          setResponseTitle("Error");
-          setResponseMessage("Error setting payment method as default");
-        }
-      })
-      .catch((error) => {
+    try {
+      const res = await setOwnerDefaultPaymentMethod(data);
+      if (res.status === 200) {
+        setResponseTitle("Alert");
+        setResponseMessage("Payment method set as default");
+
+        const paymentMethodsResponse = await listOwnerStripePaymentMethods(
+          `${authUser.id}`
+        );
+        setPaymentMethods(paymentMethodsResponse.payment_methods.data);
+        setPaymentMethodDefaultId(paymentMethodId);
+      } else {
         setResponseTitle("Error");
         setResponseMessage("Error setting payment method as default");
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setShowResponseModal(true);
-      });
+      }
+    } catch (error) {
+      setResponseTitle("Error");
+      setResponseMessage("Error setting payment method as default");
+    } finally {
+      setIsLoading(false);
+      setShowResponseModal(true);
+    }
   };
-  const handlePaymentMethodDelete = (paymentMethodId) => {
 
+  const handlePaymentMethodDelete = (paymentMethodId) => {
     let data = {
       payment_method_id: paymentMethodId,
     };
     deleteStripePaymentMethod(data).then((res) => {
-
       setResponseTitle("Alert");
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
       listOwnerStripePaymentMethods(`${authUser.id}`).then((res) => {
-
         setPaymentMethods(res.payment_methods.data);
       });
     });
   };
+
   useEffect(() => {
     //Get the payment methods for the user
     listOwnerStripePaymentMethods(`${authUser.id}`)
       .then((res) => {
-
         setPaymentMethods(res.payment_methods.data);
         setPaymentMethodDefaultId(res.default_payment_method);
       })
       .catch((error) => {
-
         setPaymentMethods([]);
       });
-  }, []);
+  }, [selectedPaymentMethodId]);
+
   return (
     <div>
       <AlertModal
@@ -148,7 +146,7 @@ const PaymentMethodsSection = () => {
             cancelBtnText="Cancel"
             confirmBtnText="Set As Default"
             handleConfirm={() => {
-              handleSetDefaultPaymentMethod(updatedDefaultPaymentMethod);
+              handleSetDefaultPaymentMethod(selectedPaymentMethodId);
               setShowDefaultConfirm(false);
             }}
             handleCancel={() => setShowDefaultConfirm(false)}
@@ -181,7 +179,7 @@ const PaymentMethodsSection = () => {
             confirmBtnStyle={{ backgroundColor: uiRed }}
             cancelBtnStyle={{ backgroundColor: uiGreen }}
             handleConfirm={() => {
-              handlePaymentMethodDelete(paymentMethodDeleteId);
+              handlePaymentMethodDelete(selectedPaymentMethodId);
               setShowDeleteConfirm(false);
             }}
             handleCancel={() => setShowDeleteConfirm(false)}
@@ -207,7 +205,7 @@ const PaymentMethodsSection = () => {
                 cardImageSrc = null;
               }
               return (
-                <div className="col-sm-12 col-md-6  mb-3">
+                <div className="col-sm-12 col-md-6 mb-3" key={index}>
                   <div className="card" style={{ width: "100%" }}>
                     <div className="card-body">
                       <Stack
@@ -229,7 +227,7 @@ const PaymentMethodsSection = () => {
                           }}
                         >
                           {cardImageSrc ? (
-                            <img src={cardImageSrc} width={50} />
+                            <img src={cardImageSrc} width={50} alt="card" />
                           ) : (
                             <CreditCardIcon
                               sx={{ color: uiGreen, fontSize: "35pt" }}
@@ -242,45 +240,93 @@ const PaymentMethodsSection = () => {
                             spacing={0}
                           >
                             <Stack
-                              direction={"row"}
+                              direction="row"
                               justifyContent={"flex-start"}
                               alignItems={"center"}
                               spacing={1}
+                              sx={{
+                                my: 1,
+                              }}
                             >
-                              <span className="text-black">
-                                •••• •••• •••• {paymentMethod.card.last4}
-                              </span>{" - "}
-                              {paymentMethod.id === paymentMethodDefaultId ? (
-                                <span style={{ color: uiGreen }}>Default</span>
-                              ) : null}
+                              <p
+                                style={{
+                                  padding: 0,
+                                  fontSize: "10pt",
+                                  fontWeight: "bold",
+                                  color: "black",
+                                }}
+                              >
+                                {" "}
+                                {paymentMethod.card.brand.toUpperCase()}{" "}
+                              </p>
+                              <p
+                                style={{
+                                  padding: 0,
+                                  fontSize: "10pt",
+                                  color: "black",
+                                }}
+                              >
+                                **** **** **** {paymentMethod.card.last4}{" "}
+                              </p>
+                              {paymentMethodDefaultId === paymentMethod.id ? (
+                                <p
+                                  style={{
+                                    padding: 0,
+                                    fontSize: "10pt",
+                                    color: uiGreen,
+                                  }}
+                                >
+                                  {" "}
+                                  Default{" "}
+                                </p>
+                              ) : (
+                                <></>
+                              )}
                             </Stack>
-                            <span className="text-muted">
-                              Expires {paymentMethod.card.exp_month}/
+                            <p
+                              style={{
+                                margin: 0,
+                                padding: 0,
+                                fontSize: "10pt",
+                                color: "black",
+                              }}
+                            >
+                              Exp {paymentMethod.card.exp_month}/
                               {paymentMethod.card.exp_year}
-                            </span>
+                            </p>
                           </Stack>
                         </Stack>
-                        <div className="menu-button-container">
-                          <IconButton
-                            ref={anchorRef}
-                            id={`composition-button-${index}`}
+                        <Stack
+                          direction="row"
+                          justifyContent={"flex-start"}
+                          alignItems={"center"}
+                          spacing={1}
+                          sx={{
+                            my: 1,
+                          }}
+                        >
+                          {/* <IconButton
+                            ref={anchorEl}
                             aria-controls={
-                              openContextMenu
-                                ? `composition-menu-${index}`
-                                : undefined
+                              openContextMenu ? "context-menu" : undefined
                             }
-                            aria-expanded={openContextMenu ? "true" : undefined}
                             aria-haspopup="true"
-                            onClick={handleToggle}
+                            aria-expanded={openContextMenu ? "true" : undefined}
+                            onClick={(event) => handleToggle(event)}
+                            style={{
+                              padding: 0,
+                              margin: 0,
+                            }}
                           >
-                            <MoreVertIcon />
+                            <MoreVertIcon sx={{ color: uiGreen }} />
                           </IconButton>
                           <Popper
                             open={openContextMenu}
-                            anchorEl={anchorRef.current}
+                            anchorEl={anchorEl}
                             role={undefined}
-                            placement="bottom-start"
+                            placement="bottom-end"
                             transition
+                            // disablePortal
                             sx={{ zIndex: 1300 }} // Ensure Popper is on top
                           >
                             {({ TransitionProps, placement }) => (
@@ -288,32 +334,25 @@ const PaymentMethodsSection = () => {
                                 {...TransitionProps}
                                 style={{
                                   transformOrigin:
-                                    placement === "bottom-start"
-                                      ? "right top"
-                                      : "right top",
+                                    placement === "bottom-end"
+                                      ? "left top"
+                                      : "left bottom",
                                 }}
                               >
-                                <Paper
-                                  sx={{
-                                    borderRadius: "0px",
-                                    boxShadow:
-                                      "0px 0px 10px 0px rgba(0,0,0,0.1)",
-                                    zIndex: "1300000 !important",
-                                  }}
-                                >
+                                <Paper>
                                   <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList
                                       autoFocusItem={openContextMenu}
-                                      id={`composition-menu-${index}`}
-                                      aria-labelledby={`composition-button-${index}`}
+                                      id="context-menu"
+                                      aria-labelledby="more-options-button"
                                       onKeyDown={handleListKeyDown}
-                                      sx={{ zIndex: "1300000 !important" }}
                                     >
                                       <MenuItem
                                         onClick={() => {
-                                          handleSetDefaultPaymentMethod(
+                                          setSelectedPaymentMethodId(
                                             paymentMethod.id
                                           );
+                                          setShowDefaultConfirm(true);
                                           setOpenContextMenu(false);
                                         }}
                                       >
@@ -321,7 +360,7 @@ const PaymentMethodsSection = () => {
                                       </MenuItem>
                                       <MenuItem
                                         onClick={() => {
-                                          setPaymentMethodDeleteId(
+                                          setSelectedPaymentMethodId(
                                             paymentMethod.id
                                           );
                                           setShowDeleteConfirm(true);
@@ -335,8 +374,8 @@ const PaymentMethodsSection = () => {
                                 </Paper>
                               </Grow>
                             )}
-                          </Popper>
-                        </div>
+                          </Popper> */}
+                        </Stack>
                       </Stack>
                     </div>
                   </div>
@@ -345,15 +384,13 @@ const PaymentMethodsSection = () => {
             })
           ) : (
             <UIPrompt
-              icon={<AddCardIcon sx={{ fontSize: "30pt", color: uiGreen }} />}
-              title="No payment methods found"
-              message="You have not added any payment methods yet"
-              body={
-                <UIButton
-                  onClick={() => navigate("/dashboard/add-payment-method")}
-                  btnText="Add Payment Method"
-                />
-              }
+              title="No payment methods"
+              description="You have not added any payment methods."
+              action={() => {
+                setOpenAddPaymentMethodModal(true);
+              }}
+              actionText={"Add a Payment Method"}
+              actionIcon={<AddCardIcon />}
             />
           )}
         </div>

@@ -19,6 +19,7 @@ import DescriptionIcon from "@mui/icons-material/DescriptionOutlined"; //LEase A
 import DocumentScannerIcon from "@mui/icons-material/DocumentScannerOutlined"; //Lease Templates icon
 import FileUploadIcon from "@mui/icons-material/FileUploadOutlined"; //File Uploads icon
 import SubscriptionSection from "./SectionRows/Subscriptions/SubscriptionSection";
+import { createBillingPortalSession } from "../../../../../api/payment_methods";
 
 const BillingSubscriptionsSection = () => {
   const navigate = useNavigate();
@@ -27,11 +28,25 @@ const BillingSubscriptionsSection = () => {
   const [ownerSubscriptionPlanData, setOwnerSubscriptionPlanData] = useState(
     {}
   );
+  const [progressMessage, setProgressMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
   const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
+
+  const manageBillingOnClick = () => {
+    setIsLoading(true);
+    setProgressMessage("Redirecting to billing portal...");
+    createBillingPortalSession()
+      .then((res) => {
+        window.location.href = res.url;
+      })
+      .catch((error) => {
+        setIsLoading(false);
+      })
+      .finally(() => {});
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -221,11 +236,8 @@ const BillingSubscriptionsSection = () => {
               </div>
               <div className="mb-3" style={{ overflow: "auto" }}>
                 <UIButton
-                  style={{ float: "right" }}
-                  onClick={() => {
-                    navigate("/dashboard/add-payment-method");
-                  }}
-                  btnText="Add New"
+                  btnText="Manage Payment Methods"
+                  onClick={manageBillingOnClick}
                 />
               </div>
             </Stack>
