@@ -19,15 +19,16 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const LeaseTemplates = () => {
   const [leaseTemplates, setLeaseTemplates] = useState([]);
   const [units, setUnits] = useState([]);
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const { isMobile } = useScreen();
   const navigate = useNavigate();
-
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -69,13 +70,10 @@ const LeaseTemplates = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-
   };
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
 
   const columns = [
@@ -171,39 +169,72 @@ const LeaseTemplates = () => {
     },
     onRowClick: handleRowClick,
     //CREate a function to handle the row delete
-    onRowsDelete: (rowsDeleted, data) => {
-      const leaseTemplateIdsSelected = [];
-      //Place the selected rows into an array
-      const selectedRows = rowsDeleted.data.map((row) => {
-        leaseTemplateIdsSelected.push(leaseTemplates[row.dataIndex]);
-      });
-      const filteredLeaseTemplates = deleteLeaseTemplatesIfNotUsed(
-        leaseTemplateIdsSelected,
-        units
-      );
-      if (filteredLeaseTemplates.leaseTemplatesInUse > 0) {
-        setAlertModalTitle("Error");
-        setAlertModalMessage(
-          "Some of the selected lease terms are currently in use by units. Please remove them from the units before deleting them."
-        );
-        setShowAlertModal(true);
-      } else {
-        setAlertModalTitle("Success");
-        setAlertModalMessage(
-          "The selected lease terms have been deleted successfully."
-        );
-        setShowAlertModal(true);
-      }
-      filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
-        deleteLeaseTemplate(id)
-          .then((res) => {
+    // onRowsDelete: (rowsDeleted, data) => {
+    //   const leaseTemplateIdsSelected = [];
+    //   //Place the selected rows into an array
+    //   const selectedRows = rowsDeleted.data.map((row) => {
+    //     leaseTemplateIdsSelected.push(leaseTemplates[row.dataIndex]);
+    //   });
+    //   const filteredLeaseTemplates = deleteLeaseTemplatesIfNotUsed(
+    //     leaseTemplateIdsSelected,
+    //     units
+    //   );
+    //   if (filteredLeaseTemplates.leaseTemplatesInUse > 0) {
+    //     setAlertModalTitle("Error");
+    //     setAlertModalMessage(
+    //       "Some of the selected lease terms are currently in use by units. Please remove them from the units before deleting them."
+    //     );
+    //     setShowAlertModal(true);
+    //   } else {
+    //     setAlertModalTitle("Success");
+    //     setAlertModalMessage(
+    //       "The selected lease terms have been deleted successfully."
+    //     );
+    //     setShowAlertModal(true);
+    //   }
+    //   filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
+    //     deleteLeaseTemplate(id)
+    //       .then((res) => {
 
-          })
-          .catch((err) => {
-            setAlertModalMessage(err.response.data.message);
+    //       })
+    //       .catch((err) => {
+    //         setAlertModalMessage(err.response.data.message);
+    //         setShowAlertModal(true);
+    //       });
+    //   });
+    // },
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      deleteLeaseTemplate(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertModalTitle("Success");
+            setAlertModalMessage("Lease template deleted successfully");
             setShowAlertModal(true);
-          });
-      });
+          } else {
+            setAlertModalTitle("Error");
+            setAlertModalMessage(
+              "An error occurred while deleting the lease template"
+            );
+            setShowAlertModal(true);
+          }
+        })
+        .catch((error) => {
+          setAlertModalTitle("Error");
+          setAlertModalMessage(
+            error.message
+              ? error.message
+              : "An error occurred while deleting the lease template"
+          );
+          setShowAlertModal(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      confirmTitle: "Delete Lease Template",
+      confirmMessage: "Are you sure you want to delete this lease template?",
     },
   };
 
@@ -213,7 +244,6 @@ const LeaseTemplates = () => {
     getLeaseTemplatesByUser()
       .then((res) => {
         setLeaseTemplates(res.data);
-
       })
       .catch((error) => {
         console.error("Error fetching lease templates:", error);
@@ -227,7 +257,6 @@ const LeaseTemplates = () => {
     getOwnerUnits()
       .then((res) => {
         setUnits(res.data);
-
       })
       .catch((error) => {
         console.error("Error fetching units:", error);
@@ -261,13 +290,14 @@ const LeaseTemplates = () => {
           skip: "Skip",
         }}
       />
+      <ProgressModal open={showAlertModal} title="Please Wait..." />
       <AlertModal
         open={showAlertModal}
         title={alertModalTitle}
         message={alertModalMessage}
         btnText="Ok"
         onClick={() => {
-          setShowAlertModal(false);
+          navigate(0);
         }}
       />
       <div className="card" style={{ overflow: "hidden" }}></div>

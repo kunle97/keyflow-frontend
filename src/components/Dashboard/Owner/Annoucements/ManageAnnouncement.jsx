@@ -14,6 +14,7 @@ import {
   authUser,
   uiGreen,
   uiGrey2,
+  uiRed,
   validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
@@ -47,6 +48,7 @@ import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
   const [announcement, setAnnouncement] = useState({});
   const [targetObject, setTargetObject] = useState(null);
@@ -63,7 +65,6 @@ const ManageAnnouncement = () => {
     owner: authUser.owner_id,
   });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [progressModalMessage, setProgressModalMessage] = useState("");
   const [selectedTarget, setSelectedTarget] = useState("rental_unit"); //values rental_unit, rental_property, portfolio
   const [rentalUnits, setRentalUnits] = useState([]);
@@ -253,12 +254,10 @@ const ManageAnnouncement = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
 
     let newErrors = triggerValidation(
       name,
@@ -267,8 +266,6 @@ const ManageAnnouncement = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const formInputs = [
@@ -516,16 +513,14 @@ const ManageAnnouncement = () => {
   ];
 
   const handleSubmit = async () => {
-
     const { isValid, newErrors } = validateForm(formData, formInputs);
-
 
     if (!isValid) {
       setErrors(newErrors);
       return;
     } else {
       setProgressModalMessage("Creating announcement...");
-      setLoading(true);
+      setIsLoading(true);
 
       //Remove rental_property, rental_unit, portfolio from form data
       delete formData.rental_property;
@@ -547,9 +542,8 @@ const ManageAnnouncement = () => {
       }
 
       const response = await updateAnnouncement(id, formData).then((res) => {
-
         if (res.status === 200) {
-          setLoading(false);
+          setIsLoading(false);
           setFormData({});
           setErrors({});
           setAlertModalTitle("Success");
@@ -557,7 +551,7 @@ const ManageAnnouncement = () => {
           setAlertModalRedirect(0);
           setAlertModalOpen(true);
         } else {
-          setLoading(false);
+          setIsLoading(false);
           setAlertModalTitle("Error");
           setAlertModalMessage("An error occurred while updating announcement");
           setAlertModalRedirect("/dashboard/owner/announcements/" + id);
@@ -1069,7 +1063,7 @@ const ManageAnnouncement = () => {
             ]}
           />
 
-          <ProgressModal open={loading} message={progressModalMessage} />
+          <ProgressModal open={isLoading} message={progressModalMessage} />
           <AlertModal
             open={alertModalOpen}
             title={alertModalTitle}
@@ -1089,13 +1083,40 @@ const ManageAnnouncement = () => {
             cancelBtnText="Cancel"
             handleCancel={() => setConfirmModalOpen(false)}
             confirmBtnText="Yes"
+            confirmBtnStyle={{ background: uiRed }}
             handleConfirm={() => {
               setConfirmModalOpen(false);
               // Call the delete function here
-              deleteAnnouncement(id).then((res) => {
-
-                navigate("/dashboard/owner/announcements");
-              });
+              deleteAnnouncement(id)
+                .then((res) => {
+                  setIsLoading(true);
+                  setProgressModalMessage("Deleting announcement...");
+                  if (res.status === 204) {
+                    setAlertModalTitle("Error");
+                    setAlertModalMessage(
+                      "An error occurred while deleting announcement"
+                    );
+                    setAlertModalRedirect("/dashboard/owner/announcements/");
+                  } else {
+                    setAlertModalTitle("Error");
+                    setAlertModalMessage(
+                      "An error occurred while deleting announcement"
+                    );
+                    setAlertModalRedirect(0);
+                    setAlertModalOpen(true);
+                  }
+                })
+                .catch((error) => {
+                  setAlertModalTitle("Error");
+                  setAlertModalMessage(
+                    "An error occurred while deleting announcement"
+                  );
+                  setAlertModalRedirect(0);
+                  setAlertModalOpen(true);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                });
             }}
           />
           <div className="card manage-announcement-form">

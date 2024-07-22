@@ -249,3 +249,20 @@ export async function unarchiveRentalApplication(rentalAppId) {
     return error.response;
   }
 }
+//Create a function to delete a rental application using the DELETE method  /rental-applications/{id}
+export async function deleteRentalApplication(rentalAppId) {
+  try {
+    const res = await authenticatedInstance
+      .delete(`/rental-applications/${rentalAppId}/`)
+      .then((res) => {
+        return {
+          data: res.data,
+          message: "Rental application deleted.",
+          status: 204,
+        };
+      });
+    return res;
+  } catch (error) {
+    return error.response;
+  }
+}

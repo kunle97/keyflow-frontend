@@ -58,7 +58,10 @@ import {
 import UIPrompt from "../../UIComponents/UIPrompt";
 import useScreen from "../../../../hooks/useScreen";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { getOwnerSubscriptionPlanData, getOwnerTenant } from "../../../../api/owners";
+import {
+  getOwnerSubscriptionPlanData,
+  getOwnerTenant,
+} from "../../../../api/owners";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import HomeIcon from "@mui/icons-material/Home";
 import HotelIcon from "@mui/icons-material/Hotel";
@@ -110,6 +113,7 @@ import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { validAnyString, validWholeNumber } from "../../../../constants/rexgex";
 import AdditionalCharge from "../LeaseTemplate/CreateLeaseTemplate/Steps/AdditionalCharge";
+import { rejectRentalApplication } from "../../../../api/rental_applications";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -119,7 +123,9 @@ const ManageUnit = () => {
   const { isMobile } = useScreen();
   const [unit, setUnit] = useState({});
   const [unitPreferences, setUnitPreferences] = useState([]);
-  const [ownerSubscriptionPlanData, setOwnerSubscriptionPlanData] = useState({});
+  const [ownerSubscriptionPlanData, setOwnerSubscriptionPlanData] = useState(
+    {}
+  );
   const [tenant, setTenant] = useState({});
   const [editLink, setEditLink] = useState(null);
   const [signedLeaseViewLink, setSignedLeaseViewLink] = useState(null);
@@ -191,8 +197,6 @@ const ManageUnit = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-
   };
 
   const handleClickStart = (event) => {
@@ -293,7 +297,6 @@ const ManageUnit = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-
     let newErrors = triggerValidation(
       name,
       value,
@@ -304,8 +307,6 @@ const ManageUnit = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const formInputs = [
@@ -435,8 +436,50 @@ const ManageUnit = () => {
 
   const rental_application_table_options = {
     isSelectable: false,
-    onRowClick: (row) => {
-
+    onRowClick: (row) => {},
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      rejectRentalApplication(row.id)
+        .then((res) => {
+          if (res.status === 200) {
+            setAlertOpen(false);
+            setAlertTitle("Success");
+            setAlertMessage(
+              res.message
+                ? res.message
+                : "Rental application rejected successfully."
+            );
+            setAlertOpen(true);
+            setIsLoading(false);
+          } else {
+            setAlertTitle("An error occured");
+            setAlertMessage(
+              res.message
+                ? res.message
+                : "An error occurred while rejecting the rental application. Please try again."
+            );
+            setAlertOpen(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error rejecting rental application:", error);
+          setAlertTitle("An error occurred");
+          setAlertMessage(
+            error.message
+              ? error.message
+              : "An error occurred while rejecting the rental application. Please try again."
+          );
+          setAlertOpen(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      label: "Reject",
+      confirmTitle: "Reject Rental Application",
+      confirmMessage:
+        "Are you sure you want to reject this rental application?",
     },
   };
 
@@ -474,7 +517,6 @@ const ManageUnit = () => {
   //Create a function to handle the form submission to update unit information
   const onSubmitUnitBasicInfoUpdate = async () => {
     await updateUnit(unit_id, formData).then((res) => {
-
       if (res.status == 200) {
         setAlertMessage("Unit updated successfully");
         setAlertTitle("Success");
@@ -553,7 +595,6 @@ const ManageUnit = () => {
       template_id: template_id,
     })
       .then((res) => {
-
         setEditLink(res.url);
       })
       .finally(() => {
@@ -585,7 +626,6 @@ const ManageUnit = () => {
       }
     });
     if (validFiles) {
-
       let accepted_file = acceptedFiles[0];
       const payload = {
         file: acceptedFiles[0],
@@ -599,20 +639,16 @@ const ManageUnit = () => {
       //Call the createBoldSignEmbeddedTemplateLink API
       await createBoldSignEmbeddedTemplateLink(payload)
         .then((res) => {
-
           if (res.status === 201) {
             setCreateLink(res.url);
             setRenderIframe(true);
             setTemplateId(res.template_id);
             updateUnit(unit_id, { template_id: res.template_id }).then(
-              (res) => {
-
-              }
+              (res) => {}
             );
           }
         })
         .catch((err) => {
-
           setAlertTitle("Error");
           setAlertMessage("Something went wrong");
           setAlertOpen(true);
@@ -655,10 +691,8 @@ const ManageUnit = () => {
         "/signed_lease_documents/",
     };
     uploadFile(payload).then((res) => {
-
       setIsLoading(false);
       if (res.status === 201) {
-
         let file_id = res.data.id;
         let file = res.data;
         authenticatedMediaInstance
@@ -670,7 +704,6 @@ const ManageUnit = () => {
           })
           .then((res) => {
             if (res.status === 200) {
-
             } else {
               setAlertOpen(true);
               setAlertTitle("Error");
@@ -756,7 +789,6 @@ const ManageUnit = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-
           deleteFile({ id: file_id, file_key })
             .then((res) => {
               if (res.status === 200) {
@@ -802,7 +834,6 @@ const ManageUnit = () => {
     setAdditionalCharges(newCharges);
   };
   const saveAdditionalCharges = async () => {
-
     //Check if additional charges all have the same frequency
     const frequencies = additionalCharges.map((charge) => charge.frequency);
     const allFrequenciesEqual = frequencies.every(
@@ -843,7 +874,6 @@ const ManageUnit = () => {
       additional_charges: additionalChargesString,
     })
       .then((res) => {
-
         if (res.status === 200) {
           setAlertOpen(true);
           setAlertTitle("Success");
@@ -854,9 +884,7 @@ const ManageUnit = () => {
           setAlertMessage("Something went wrong");
         }
       })
-      .catch((err) => {
-
-      });
+      .catch((err) => {});
   };
 
   //Create a function to handle the deletion of a unit
@@ -874,18 +902,30 @@ const ManageUnit = () => {
       let payload = {
         unit_id: unit_id,
         rental_property: property_id,
-        product_id: currentSubscriptionPlan?.plan?.product ? currentSubscriptionPlan?.plan?.product : null,
-        subscription_id: currentSubscriptionPlan?.id ? currentSubscriptionPlan?.id : null,
+        product_id: currentSubscriptionPlan?.plan?.product
+          ? currentSubscriptionPlan?.plan?.product
+          : null,
+        subscription_id: currentSubscriptionPlan?.id
+          ? currentSubscriptionPlan?.id
+          : null,
       };
       //Delete the unit with the api
-      deleteUnit(payload).then((res) => {
-
-      }).then((res) => {
-        //Redirect to the property page
-        navigate(`/dashboard/owner/properties/${property_id}`);
-      }).catch((err) => {
-
-      });
+      deleteUnit(payload)
+        .then((res) => {
+          //Redirect to the property page
+          if (res.status === 204) {
+            //Redirect to the property page
+            setAlertMessage("Unit has been deleted");
+            setAlertTitle("Success");
+            setAlertOpen(true);
+          } else {
+            //Display error message
+            setAlertMessage(res.message ? res.message : "An error occurred");
+            setAlertTitle("Error");
+            setAlertOpen(true);
+          }
+        })
+        .catch((err) => {});
     }
   };
 
@@ -920,7 +960,6 @@ const ManageUnit = () => {
     );
     //Update the value of the preference
     if (preference.inputType === "switch") {
-
       // For switches, directly access event.target.checked
       preference.value = event.target.checked;
     } else {
@@ -986,7 +1025,7 @@ const ManageUnit = () => {
     try {
       //Retrieve Unit Information
       getUnit(unit_id).then((res) => {
-        if(res.status === 404){
+        if (res.status === 404) {
           //Navigate to properties page
           navigate("/dashboard/owner/units");
         }
@@ -1001,10 +1040,8 @@ const ManageUnit = () => {
           setSignedLeaseViewLink(res.signed_lease_document_file.file);
         }
 
-
         if (res.is_occupied) {
           getOwnerTenant(res.tenant).then((tenant_res) => {
-
             setTenant(tenant_res.data);
           });
         }
@@ -1018,7 +1055,6 @@ const ManageUnit = () => {
 
         if (res.lease_template) {
           getLeaseTemplateById(res.lease_template).then((res) => {
-
             setCurrentLeaseTemplate(res);
           });
         }
@@ -1036,17 +1072,13 @@ const ManageUnit = () => {
           setunitMedia(res.data);
           setunitMediaCount(res.data.length);
         })
-        .catch((err) => {
-
-        });
+        .catch((err) => {});
       authenticatedInstance
         .get(`/units/${unit_id}/rental-applications/`)
         .then((res) => {
-
           setRentalApplications(res.data);
         });
     } catch (err) {
-
       setAlertOpen(true);
       setAlertTitle("Error");
       setAlertMessage("There was an error loading the unit information");
@@ -1186,7 +1218,6 @@ const ManageUnit = () => {
                           dataTestId="edit-unit-submit-button"
                           className="btn btn-primary ui-btn"
                           onClick={() => {
-
                             const { isValid, newErrors } = validateForm(
                               formData,
                               formInputs
@@ -1276,13 +1307,11 @@ const ManageUnit = () => {
               setShowDeleteTemplateConfirmModal(false);
             }}
             handleConfirm={() => {
-
               //update the unit to set the tempalate_id field to null
               updateUnit(unit_id, {
                 template_id: null,
               }).then((res) => {
                 if (res.status === 200) {
-
                   setShowDeleteTemplateConfirmModal(false);
                   setAlertOpen(true);
                   setAlertTitle("Success");
@@ -1344,7 +1373,6 @@ const ManageUnit = () => {
               setShowLeaseTemplateChangeWarning(false);
             }}
             handleConfirm={() => {
-
               handleChangeLeaseTemplate(
                 leaseTemplates,
                 currentLeaseTemplate.id,
@@ -1573,7 +1601,9 @@ const ManageUnit = () => {
                 action: () => {
                   setViewRentalApplicationModalOpen(true);
                 },
-                hidden: isOccupied  || !ownerSubscriptionPlanData.can_use_rental_applications,
+                hidden:
+                  isOccupied ||
+                  !ownerSubscriptionPlanData.can_use_rental_applications,
               },
               {
                 label: "Delete Unit",
@@ -1763,7 +1793,6 @@ const ManageUnit = () => {
                             unit.signed_lease_document_file ||
                             unit.template_id
                           ) {
-
                             setCurrentLeaseTemplate(
                               leaseTemplates.find(
                                 (term) => term.id === lease_template_id
@@ -1771,7 +1800,6 @@ const ManageUnit = () => {
                             );
                             setShowLeaseTemplateChangeWarning(true);
                           } else {
-
                             const res = handleChangeLeaseTemplate(
                               leaseTemplates,
                               lease_template_id,

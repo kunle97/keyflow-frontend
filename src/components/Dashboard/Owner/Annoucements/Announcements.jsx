@@ -3,13 +3,12 @@ import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { useNavigate } from "react-router";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  STATUS,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
 import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import { deleteAnnouncement } from "../../../../api/announcements";
 const Annoucements = () => {
   const navigate = useNavigate();
   const handleRowClick = (row) => {
@@ -18,6 +17,7 @@ const Annoucements = () => {
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalOpen, setAlertModalOpen] = useState(false);
@@ -54,7 +54,6 @@ const Annoucements = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -90,7 +89,6 @@ const Annoucements = () => {
       options: {
         isObject: true,
         customBodyRender: (value) => {
-
           if (!value) {
             return "N/A";
           } else {
@@ -102,11 +100,44 @@ const Annoucements = () => {
   ];
   const options = {
     isSelectable: false,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      // Call the delete function here
+      deleteAnnouncement(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertModalTitle("Success");
+            setAlertModalMessage("Announcement deleted successfully");
+            setAlertModalOpen(true);
+          } else {
+            setAlertModalTitle("Error");
+            setAlertModalMessage(
+              "An error occurred while deleting the announcement"
+            );
+            setAlertModalOpen(true);
+          }
+        })
+        .catch((error) => {
+          setAlertModalTitle("Error");
+          setAlertModalMessage(
+            error.message
+              ? error.message
+              : "An error occurred while deleting the announcement"
+          );
+          setAlertModalOpen(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      confirmTitle: "Delete Announcement",
+      confirmMessage: "Are you sure you want to delete this announcement?",
+    },
   };
 
   useEffect(() => {
     getOwnerSubscriptionPlanData().then((res) => {
-
       if (!res.can_use_announcements) {
         setAlertModalRedirect("/dashboard/owner/");
         setAlertModalTitle("Subscription Plan Mismatch");
@@ -153,8 +184,7 @@ const Annoucements = () => {
         message={alertModalMessage}
         onClose={() => setAlertModalOpen(false)}
         onClick={() => {
-          navigate(alertModalRedirect);
-          setAlertModalOpen(false);
+          navigate(0);
         }}
         btnText="Okay"
       />

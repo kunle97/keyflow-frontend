@@ -357,8 +357,8 @@ const ManageBillingEntry = () => {
   };
 
   const handleDelete = () => {
-    setIsLoading(true);
     setLoadingText("Deleting billing entry...");
+    setIsLoading(true);
     deleteBillingEntry(id)
       .then((res) => {
         if (res.status === 204) {

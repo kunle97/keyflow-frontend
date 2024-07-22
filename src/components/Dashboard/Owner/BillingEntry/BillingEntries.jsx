@@ -7,12 +7,19 @@ import UITable from "../../UIComponents/UITable/UITable";
 import useScreen from "../../../../hooks/useScreen";
 import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { deleteBillingEntry } from "../../../../api/billing-entries";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const BillingEntries = () => {
   const navigate = useNavigate();
   const handleRowClick = (row) => {
     navigate(`/dashboard/owner/billing-entries/${row.id}`);
   };
   const { isMobile } = useScreen();
+  const [isLoading, setIsLoading] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertModalMessage, setAlertMessage] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -45,7 +52,6 @@ const BillingEntries = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -96,6 +102,34 @@ const BillingEntries = () => {
   ];
   const options = {
     isSelectable: false,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      deleteBillingEntry(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertTitle("Success");
+            setAlertMessage("Billing entry deleted successfully");
+            setAlertOpen(true);
+          } else {
+            setAlertTitle("Error");
+            setAlertMessage("There was an error deleting the billing entry.");
+            setAlertOpen(true);
+          }
+        })
+        .catch((err) => {
+          console.error("Delete billing entry error ", err);
+          setAlertTitle("Error");
+          setAlertMessage("There was an error deleting the billing entry.");
+          setAlertOpen(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      confirmTitle: "Delete Billing Entry",
+      confirmMessage: "Are you sure you want to delete this billing entry?",
+    },
   };
 
   return (
@@ -119,6 +153,17 @@ const BillingEntries = () => {
           last: "Finish",
           next: "Next",
           skip: "Skip",
+        }}
+      />
+      <ProgressModal open={isLoading} title="Please Wait..." />
+      <AlertModal
+        open={alertOpen}
+        setOpen={setAlertOpen}
+        title={alertTitle}
+        message={alertModalMessage}
+        btnText={"Ok"}
+        onClick={() => {
+          navigate(0);
         }}
       />
       <div className="billing-entries-list">

@@ -155,7 +155,7 @@ export async function deleteUnit(data) {
         if (res.status == 200) {
           return { data: res.data };
         }
-        return { data: [] };
+        return res;
       });
     return res;
   } catch (error) {

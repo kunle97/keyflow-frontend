@@ -3,14 +3,19 @@ import UITable from "../../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router-dom";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  STATUS
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import { rejectLeaseRenewalRequest } from "../../../../api/lease_renewal_requests";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const LeaseRenewalRequests = () => {
   const navigate = useNavigate();
   const { isMobile } = useScreen();
+  const [isLoading, setIsLoading] = useState(false);
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -44,7 +49,6 @@ const LeaseRenewalRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -123,7 +127,32 @@ const LeaseRenewalRequests = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
-    //CREate a function to handle the row delete
+    onRowDelete: (row) => {
+      rejectLeaseRenewalRequest({
+        lease_renewal_request_id: row.id,
+      })
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertModalTitle("Success");
+            setAlertModalMessage("Lease renewal request rejected");
+            setAlertModalOpen(true);
+          } else {
+            setAlertModalTitle("Error");
+            setAlertModalMessage("Something went wrong");
+            setAlertModalOpen(true);
+          }
+        })
+        .catch((error) => {
+          setAlertModalTitle("Error");
+          setAlertModalMessage("Something went wrong!");
+          setAlertModalOpen(true);
+        });
+    },
+    deleteOptions:{
+      label: "Reject",
+      confirmTitle: "Reject Lease Renewal Request",
+      confirmMessage: "Are you sure you want to reject this lease renewal request?",
+    }
   };
   return (
     <div className="container-fluid">
@@ -146,6 +175,15 @@ const LeaseRenewalRequests = () => {
           last: "Finish",
           next: "Next",
           skip: "Skip",
+        }}
+      />
+      <ProgressModal open={isLoading} title="Please Wait..." />
+      <AlertModal
+        open={alertModalOpen}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onClick={() => {
+          navigate(0);
         }}
       />
       <div className="lease-renewal-requests-table-container">

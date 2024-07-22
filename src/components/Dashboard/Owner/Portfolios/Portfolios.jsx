@@ -3,15 +3,16 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
-import Joyride, {
-  STATUS
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
 import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import { deletePortfolio } from "../../../../api/portfolios";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const Portfolios = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const { screenWidth, breakpoints, isMobile } = useScreen();
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
@@ -50,6 +51,40 @@ const Portfolios = () => {
       { field: "created_at", label: "Date Created (Ascending)" },
       { field: "-created_at", label: "Date Created (Descending)" },
     ],
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      setAlertModalRedirect(0);
+      deletePortfolio(row.id)
+        .then((res) => {
+          if (res.status === 200 || res.status === 201) {
+            setAlertModalTitle("Success");
+            setAlertModalMessage("Portfolio deleted successfully");
+            setAlertModalOpen(true);
+          } else {
+            setAlertModalTitle("Error");
+            setAlertModalMessage(
+              "An error occurred while deleting the portfolio"
+            );
+            setAlertModalOpen(true);
+          }
+        })
+        .catch((error) => {
+          setAlertModalTitle("Error");
+          setAlertModalMessage(
+            error.message
+              ? error.message
+              : "An error occurred while deleting the portfolio"
+          );
+          setAlertModalOpen(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions:{
+      confirmTitle: "Delete Portfolio",
+      confirmMessage: "Are you sure you want to delete this portfolio?",
+    }
   };
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
@@ -80,11 +115,9 @@ const Portfolios = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   useEffect(() => {
     getOwnerSubscriptionPlanData().then((res) => {
-
       if (!res.can_use_portfolios) {
         setAlertModalRedirect("/dashboard/owner/");
         setAlertModalTitle("Subscription Plan Mismatch");
@@ -127,6 +160,7 @@ const Portfolios = () => {
           skip: "Skip",
         }}
       />
+      <ProgressModal open={isLoading} title="Please Wait..." />
       <AlertModal
         open={alertModalOpen}
         setOpen={setAlertModalOpen}
@@ -134,10 +168,7 @@ const Portfolios = () => {
         message={alertModalMessage}
         btnText={"Ok"}
         onClick={() => {
-          if (alertModalRedirect) {
-            navigate(alertModalRedirect);
-          }
-          setAlertModalOpen(false);
+          navigate(0);
         }}
       />
       {isMobile ? (

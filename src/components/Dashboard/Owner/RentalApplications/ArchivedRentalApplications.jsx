@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { getRentalApplicationsByUser } from "../../../../api/rental_applications";
+import {
+  deleteRentalApplication,
+  getRentalApplicationsByUser,
+  rejectRentalApplication,
+} from "../../../../api/rental_applications";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  STATUS,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const ArchivedRentalApplications = () => {
   const [rentalApplications, setRentalApplications] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -20,6 +23,7 @@ const ArchivedRentalApplications = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
+
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -53,7 +57,6 @@ const ArchivedRentalApplications = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -127,17 +130,57 @@ const ArchivedRentalApplications = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      deleteRentalApplication(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setShowAlert(false);
+            setAlertTitle("Success");
+            setAlertMessage(
+              res.message
+                ? res.message
+                : "Rental application deleted successfully."
+            );
+            setShowAlert(true);
+            setIsLoading(false);
+          } else {
+            setAlertTitle("An error occured");
+            setAlertMessage(
+              res.message
+                ? res.message
+                : "An error occurred while deleting the rental application. Please try again."
+            );
+            setShowAlert(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting rental application:", error);
+          setAlertTitle("An error occurred");
+          setAlertMessage(
+            error.message
+              ? error.message
+              : "An error occurred while rejecting the rental application. Please try again."
+          );
+          setShowAlert(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions:{
+      confirmTitle: "Delete Rental Application",
+      confirmMessage: "Are you sure you want to delete this rental application?",
+    }
   };
 
   useEffect(() => {
     getRentalApplicationsByUser()
       .then((res) => {
-
         if (res) {
           setRentalApplications(res.data);
           setIsLoading(false);
         }
-
       })
       .catch((error) => {
         console.error("Error getting rental applications:", error);
@@ -150,9 +193,10 @@ const ArchivedRentalApplications = () => {
   }, []);
   return (
     <div className="container-fluid rental-application-list">
+      <ProgressModal open={isLoading} title="Please wait..." />
       <AlertModal
         open={showAlert}
-        onClick={() => setShowAlert(false)}
+        onClick={() => navigate(0)}
         title={alertTitle}
         message={alertMessage}
         btnText="Okay"

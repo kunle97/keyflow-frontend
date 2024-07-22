@@ -55,10 +55,8 @@ const TenantInvites = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const handleResendTenantInvite = () => {
-
     setIsLoading(true);
     setProgressModalMessage("Resending tenant invite...");
   };
@@ -68,7 +66,6 @@ const TenantInvites = () => {
     setProgressModalMessage("Revoking tenant invite...");
     deleteTenantInvite(id)
       .then((res) => {
-
         if (res.status === 204) {
           setAlertTitle("Tenant Invite Revoked");
           setAlertMessage("The tenant invite revoked successfully.");
@@ -78,7 +75,6 @@ const TenantInvites = () => {
         }
       })
       .catch((err) => {
-
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error revoking tenant invite. Please try again."
@@ -127,6 +123,15 @@ const TenantInvites = () => {
     filter: true,
     sort: true,
     onRowClick: handleRowClick,
+    onRowDelete: (row) => handleRevokeTenantInvite(row.id),
+    deleteOptions: {
+      label: "Revoke Tenant Invite",
+      confirmTitle: "Revoke Tenant Invite",
+      confirmMessage:
+        "Are you sure you want to revoke this tenant invite? " +
+        "The tenant invite will be deleted and the recipient will no longer be able to accept it. " +
+        "The lease agreement document will also be voided.",
+    },
     sortOrder: {
       name: "created_at",
       direction: "desc",
@@ -199,9 +204,7 @@ const TenantInvites = () => {
               searchFields={["first_name", "last_name", "email"]}
             />
           ) : (
-            <div 
-              className="tenant-invites-list"
-            >
+            <div className="tenant-invites-list">
               <UITable
                 title="Tenant Invites"
                 endpoint={`/tenant-invites/`}
@@ -221,21 +224,6 @@ const TenantInvites = () => {
                       setConfirmModalOpen(true);
                       setConfirmModalConfirmAction(
                         () => () => handleResendTenantInvite(row.id)
-                      );
-                    },
-                  },
-                  {
-                    name: "Revoke Tenant Invite",
-                    onClick: (row) => {
-                      setConfirmModalTitle("Revoke Tenant Invite");
-                      setConfirmModalMessage(
-                        "Are you sure you want to revoke this tenant invite? " +
-                          "The tenant invite will be deleted and the recipient will no longer be able to accept it. " +
-                          "The lease agreement document will also be voided."
-                      );
-                      setConfirmModalOpen(true);
-                      setConfirmModalConfirmAction(
-                        () => () => handleRevokeTenantInvite(row.id)
                       );
                     },
                   },
