@@ -16,7 +16,12 @@ import {
 import { ArrowBackOutlined, MoreVert } from "@mui/icons-material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, { useEffect } from "react";
-import { globalMaxFileSize, uiGreen, uiGrey2 } from "../../../../constants";
+import {
+  globalMaxFileSize,
+  uiGreen,
+  uiGrey2,
+  uiRed,
+} from "../../../../constants";
 import { useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import AddIcon from "@mui/icons-material/Add";
@@ -39,6 +44,7 @@ import {
 } from "../../../../helpers/utils";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ProgressModal from "../Modals/ProgressModal";
+import ConfirmModal from "../Modals/ConfirmModal";
 const UITable = (props) => {
   const navigate = useNavigate();
   const maxTableCellWidth = "200px";
@@ -62,6 +68,12 @@ const UITable = (props) => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState("Delete Item");
+  const [confirmDeleteMessage, setConfirmDeleteMessage] = useState(
+    "Are you sure you want to delete this item?"
+  );
+  const [confirmDeleteAction, setConfirmDeleteAction] = useState(null);
 
   //DRF Filter Backend Variables
   const [limit, setLimit] = useState(10);
@@ -110,7 +122,6 @@ const UITable = (props) => {
             ...props.additionalParams,
           },
         });
-
 
         return response.data;
       };
@@ -306,10 +317,8 @@ const UITable = (props) => {
 
     //Add support for a function that will be called when a row is selected
     if (props.options.onRowSelect) {
-
       props.options.onRowSelect();
     }
-
   };
 
   //Handles the select all checkbox in table header
@@ -385,7 +394,6 @@ const UITable = (props) => {
     authenticatedMediaInstance
       .post(props.fileUploadEndpoint, formData)
       .then((res) => {
-
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -393,7 +401,6 @@ const UITable = (props) => {
         setFiles([]); //Clear the files array
       })
       .catch((err) => {
-
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(err.response.data.message);
@@ -413,6 +420,18 @@ const UITable = (props) => {
 
   useEffect(() => {
     refresh(currentPageEndPoint);
+    if (props.options.deleteOptions) {
+      setConfirmDeleteTitle(
+        props.options.deleteOptions?.confirmTitle
+          ? props.options.deleteOptions?.confirmTitle
+          : "Delete Item"
+      );
+      setConfirmDeleteMessage(
+        props.options.deleteOptions.confirmMessage
+          ? props.options.deleteOptions.confirmMessage
+          : "Are you sure you want to delete this item?"
+      );
+    }
   }, [props.data, searchTerm]);
 
   return (
@@ -466,6 +485,20 @@ const UITable = (props) => {
         onClick={() => {
           setShowAlert(false);
         }}
+      />
+      <ConfirmModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title={confirmDeleteTitle}
+        message={confirmDeleteMessage}
+        handleCancel={() => setShowDeleteConfirm(false)}
+        handleConfirm={() => {
+          confirmDeleteAction();
+          setShowDeleteConfirm(false);
+        }}
+        cancelBtnText="Cancel"
+        confirmBtnText="Delete"
+        confirmBtnStyle={{ background: uiRed }}
       />
       <Stack
         direction="row"
@@ -798,6 +831,34 @@ const UITable = (props) => {
                                               </MenuItem>
                                             )
                                           )}
+                                          {props.options.onRowDelete && (
+                                            <MenuItem
+                                              onClick={() => {
+                                                // Set confirmDeleteAction to a function that calls onRowDelete
+                                                setConfirmDeleteAction(
+                                                  () => () => {
+                                                    props.options.onRowDelete(
+                                                      row
+                                                    );
+                                                  }
+                                                );
+
+                                                // Show the delete confirmation
+                                                setShowDeleteConfirm(true);
+
+                                                // Close the context menu
+                                                handleCloseMenu();
+                                              }}
+                                            >
+                                              <Typography>
+                                                {props.options?.deleteOptions
+                                                  ?.label
+                                                  ? props.options?.deleteOptions
+                                                      ?.label
+                                                  : "Delete"}
+                                              </Typography>
+                                            </MenuItem>
+                                          )}
                                         </MenuList>
                                       </ClickAwayListener>
                                     </Paper>
@@ -898,6 +959,34 @@ const UITable = (props) => {
                                                   </Typography>
                                                 </MenuItem>
                                               )
+                                            )}
+                                            {props.options.onRowDelete && (
+                                              <MenuItem
+                                                onClick={() => {
+                                                  // Set confirmDeleteAction to a function that calls onRowDelete
+                                                  setConfirmDeleteAction(
+                                                    () => () => {
+                                                      props.options.onRowDelete(
+                                                        row
+                                                      );
+                                                    }
+                                                  );
+
+                                                  // Show the delete confirmation
+                                                  setShowDeleteConfirm(true);
+
+                                                  // Close the context menu
+                                                  handleCloseMenu();
+                                                }}
+                                              >
+                                                <Typography>
+                                                  {props.options?.deleteOptions
+                                                    ?.label
+                                                    ? props.options
+                                                        ?.deleteOptions?.label
+                                                    : "Delete"}
+                                                </Typography>
+                                              </MenuItem>
                                             )}
                                           </MenuList>
                                         </ClickAwayListener>

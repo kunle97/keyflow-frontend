@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPropertyFilters, getProperties } from "../../../../api/properties";
+import { deleteProperty } from "../../../../api/properties";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import useScreen from "../../../../hooks/useScreen";
@@ -8,8 +8,14 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import Joyride, { STATUS } from "react-joyride";
 import { uiGreen } from "../../../../constants";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+
 const Properties = () => {
   const { isMobile } = useScreen();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
   const [showDeleteError, setShowDeleteError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [checked, setChecked] = useState([]);
@@ -26,9 +32,38 @@ const Properties = () => {
     isSelectable: false,
     onRowClick: (row) => {
       let navlink = "/";
-      navlink = `/dashboard/owner/properties/${row}`;
+      navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
       navigate(navlink);
     },
+    onRowDelete: async (row) => {
+      setIsLoading(true);
+      try {
+        await deleteProperty(row.id)
+          .then((res) => {
+            if (res.status === 400) {
+              setErrorMessage(res.message);
+              setShowDeleteError(true);
+            } else {
+              setAlertTitle("Success");
+              setAlertMessage("Property deleted successfully");
+              setShowAlertModal(true);
+            }
+          })
+          .catch((error) => {
+            setErrorMessage(error.message);
+            setShowDeleteError(true);
+          });
+      } catch (error) {
+        setErrorMessage(error.message);
+        setShowDeleteError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    deleteOptions:{
+      confirmTitle: "Delete Property",
+      confirmMessage: "Are you sure you want to delete this property?",
+    }
   };
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
@@ -48,7 +83,7 @@ const Properties = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -58,7 +93,6 @@ const Properties = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   return (
     <div className="container-fluid">
@@ -90,7 +124,16 @@ const Properties = () => {
         message={errorMessage}
         btnText={"Ok"}
         onClick={() => setShowDeleteError(false)}
-      />{" "}
+      />
+      <AlertModal
+        open={showAlertModal}
+        setOpen={setShowAlertModal}
+        title={alertTitle}
+        message={alertMessage}
+        btnText={"Ok"}
+        onClick={() => navigate(0)}
+      />
+      <ProgressModal open={isLoading} title="Please wait..." />
       {isMobile ? (
         <UITableMobile
           testRowIdentifier="property"

@@ -91,6 +91,10 @@ const ManageProperty = () => {
   const [deleteAlertMessage, setDeleteAlertMessage] = useState("");
   const [deleteAlertAction, setDeleteAlertAction] = useState(() => {});
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const [tabPage, setTabPage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
@@ -124,8 +128,6 @@ const ManageProperty = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-
   };
 
   const handleClickStart = (event) => {
@@ -192,8 +194,6 @@ const ManageProperty = () => {
     const newValue = e.target.type === "select-one" ? e.target.value : value;
 
     setFormData((prevData) => ({ ...prevData, [name]: newValue }));
-
-
   };
 
   const formInputs = [
@@ -393,6 +393,40 @@ const ManageProperty = () => {
       navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
       navigate(navlink);
     },
+    onRowDelete: (row) => {
+      setIsProcessing(true);
+      let payload = {
+        unit_id: row.id,
+        rental_property: row.rental_property,
+        product_id: currentSubscriptionPlan?.plan?.product
+          ? currentSubscriptionPlan?.plan?.product
+          : null,
+        subscription_id: currentSubscriptionPlan?.id
+          ? currentSubscriptionPlan?.id
+          : null,
+      };
+      //Delete the unit with the api
+      deleteUnit(payload)
+        .then((res) => {
+          if (res.status === 204) {
+            //Redirect to the property page
+            setAlertMessage("Unit has been deleted");
+            setAlertTitle("Success");
+            setShowAlertModal(true);
+          } else {
+            //Display error message
+            setErrorMessage(res.message ? res.message : "An error occurred");
+            setShowDeleteError(true);
+          }
+        })
+        .catch((err) => {
+          setErrorMessage(err.message ? err.message : "An error occurred");
+          setShowDeleteError(true);
+        })
+        .finally(() => {
+          setIsProcessing(false);
+        });
+    },
   };
 
   const tabs = [
@@ -476,7 +510,6 @@ const ManageProperty = () => {
     authenticatedMediaInstance
       .post(`/properties/${id}/upload-csv-units/`, updloadFormData)
       .then((res) => {
-
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -484,7 +517,6 @@ const ManageProperty = () => {
         setCsvFiles([]); //Clear the files array
       })
       .catch((err) => {
-
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(
@@ -508,7 +540,6 @@ const ManageProperty = () => {
   const onSubmit = async () => {
     const response = await updatePropertyMedia(id, formData)
       .then((res) => {
-
         if (res.status === 200) {
           setUpdateAlertTitle("Success");
           setUpdateAlertMessage("Property updated");
@@ -536,7 +567,6 @@ const ManageProperty = () => {
     );
     updatePropertyPortfolio(property.id, selected_portfolio_id)
       .then((res) => {
-
         if (res.status === 200) {
           setUpdateAlertTitle("Portfolio Updated");
           setUpdateAlertMessage("The property's portfolio has been updated");
@@ -601,9 +631,7 @@ const ManageProperty = () => {
             product_id: currentSubscriptionPlan.plan.product,
             subscription_id: currentSubscriptionPlan.id,
           };
-          deleteUnit(payload).then((res) => {
-
-          });
+          deleteUnit(payload).then((res) => {});
         });
         //Show success alert
         setUpdateAlertTitle("Success");
@@ -643,7 +671,6 @@ const ManageProperty = () => {
     try {
       if (!property || !formData) {
         getProperty(id).then((res) => {
-
           if (res.status === 404) {
             //Navigate to properties page
             navigate("/dashboard/owner/properties");
@@ -721,7 +748,6 @@ const ManageProperty = () => {
         });
       }
     } catch (error) {
-
       return error.response;
     }
   }, [property, formData]);
@@ -762,6 +788,21 @@ const ManageProperty = () => {
               skip: "Skip",
             }}
           />
+          <AlertModal
+            dataTestId="unit-delete-alert-modal"
+            open={showAlertModal}
+            title={alertTitle}
+            message={alertMessage}
+            btnText={"Ok"}
+            onClick={() => {
+              navigate(0);
+            }}
+          />
+          <ProgressModal
+            dataTestId="unit-delete-progress-modal"
+            open={isProcessing}
+            title="Please wait..."
+          />
           <ConfirmModal
             open={showResetLeaseTemplateConfirmModal}
             title="Remove Lease Template"
@@ -782,7 +823,6 @@ const ManageProperty = () => {
             handleConfirm={() => {
               removePropertyLeaseTemplate(id)
                 .then((res) => {
-
                   if (res.status === 200) {
                     setUpdateAlertTitle("Success");
                     setUpdateAlertMessage(
@@ -1321,16 +1361,6 @@ const ManageProperty = () => {
                                       navigate(navlink);
                                     },
                                   },
-                                  // {
-                                  //   name: "Delete",
-                                  //   onClick: (row) => {
-                                  //     deleteUnit(row.id).then((res) => {
-                                  //       if (res) {
-                                  //         setUnits(res.data);
-                                  //       }
-                                  //     });
-                                  //   },
-                                  // },
                                 ]}
                               />
                             )}

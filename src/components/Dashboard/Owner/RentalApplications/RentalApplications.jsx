@@ -3,18 +3,24 @@ import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  STATUS,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
+import { rejectRentalApplication } from "../../../../api/rental_applications";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const RentalApplications = () => {
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openAlertModal, setOpenAlertModal] = useState(false);
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+
   const tourSteps = [
     {
       target: ".rental-application-list",
@@ -46,7 +52,6 @@ const RentalApplications = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -120,6 +125,45 @@ const RentalApplications = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      rejectRentalApplication(row.id)
+        .then((res) => {
+          if (res.status === 200) {
+            setOpenAlertModal(false);
+            setAlertModalTitle("Success");
+            setAlertModalMessage(res.message? res.message: "Rental application rejected successfully."); 
+            setOpenAlertModal(true);
+            setIsLoading(false);
+          } else {
+            setAlertModalTitle("An error occured");
+            setAlertModalMessage(
+              res.message
+                ? res.message
+                : "An error occurred while rejecting the rental application. Please try again."
+            );
+            setOpenAlertModal(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error rejecting rental application:", error);
+          setAlertModalTitle("An error occurred");
+          setAlertModalMessage(
+            error.message
+              ? error.message
+              : "An error occurred while rejecting the rental application. Please try again."
+          );
+          setOpenAlertModal(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      label: "Reject",
+      confirmTitle: "Reject Rental Application",
+      confirmMessage: "Are you sure you want to reject this rental application?",
+    },
   };
   return (
     <div className="container-fluid rental-application-list">
@@ -143,6 +187,14 @@ const RentalApplications = () => {
           next: "Next",
           skip: "Skip",
         }}
+      />
+      <ProgressModal open={isLoading} title="Please wait..." />
+      <AlertModal
+        open={openAlertModal}
+        setOpen={setOpenAlertModal}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onClick={() => navigate(0)}
       />
       {isMobile ? (
         <UITableMobile

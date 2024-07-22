@@ -94,7 +94,6 @@ const OwnerMaintenanceRequestDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
 
   const anchorRef = useRef(null);
@@ -130,7 +129,6 @@ const OwnerMaintenanceRequestDetail = () => {
     };
     changeMaintenanceRequestStatus(id, payload)
       .then((res) => {
-
         if (res.status === 200) {
           setConfirmMessage("Maintenance Request status has been changed");
           setShowAlertModal(true);
@@ -146,9 +144,7 @@ const OwnerMaintenanceRequestDetail = () => {
           }
         }
       })
-      .catch((err) => {
-
-      })
+      .catch((err) => {})
       .finally(() => {
         setProgressModalOpen(false);
         setChangeStatusDialogOpen(false);
@@ -163,7 +159,6 @@ const OwnerMaintenanceRequestDetail = () => {
     };
     changeMaintenanceRequestPriority(id, payload)
       .then((res) => {
-
         if (res.status === 200) {
           setConfirmMessage("Maintenance Request priority has been changed");
           setShowAlertModal(true);
@@ -171,9 +166,7 @@ const OwnerMaintenanceRequestDetail = () => {
           navigate(0);
         }
       })
-      .catch((err) => {
-
-      })
+      .catch((err) => {})
       .finally(() => {
         setProgressModalOpen(false);
         setChangePriorityDialogOpen(false);
@@ -192,7 +185,6 @@ const OwnerMaintenanceRequestDetail = () => {
     }
     deleteMaintenanceRequest(id)
       .then((res) => {
-
         if (res.status === 204) {
           setConfirmMessage(
             "Maintenance Request has been deleted. You will be redirected to the maintenance requests page."
@@ -204,7 +196,6 @@ const OwnerMaintenanceRequestDetail = () => {
         }
       })
       .catch((err) => {
-
         setDeleteErrorMessage("Error deleting maintenance request");
         setShowDeleteError(true);
       });
@@ -221,7 +212,6 @@ const OwnerMaintenanceRequestDetail = () => {
         //Retrieve property by id
         getProperty(res.data.rental_property.id)
           .then((property_res) => {
-
             setProperty(property_res.data);
           })
           .catch((err) => {
@@ -238,10 +228,8 @@ const OwnerMaintenanceRequestDetail = () => {
             setShowDeleteError(true);
           });
       })
-      .catch((err) => {
-
-      });
-  },[]);
+      .catch((err) => {});
+  }, []);
 
   return (
     <div className="container-fluid">

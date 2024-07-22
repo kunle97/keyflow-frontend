@@ -102,11 +102,11 @@ export async function deleteAnnouncement(announcementId) {
       .delete(`/announcements/${announcementId}/`)
       .then((res) => {
         if (res.status == 204) {
-          return { data: res.data };
+          return res;
         }
         return { data: [] };
       });
-    return res.data;
+    return res;
   } catch (error) {
 
     return error.response;

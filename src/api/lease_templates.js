@@ -174,8 +174,7 @@ export async function deleteLeaseTemplate(leaseTemplateId) {
         },
       })
       .then((res) => {
-
-        return res.data;
+        return res;
       });
     return res;
   } catch (error) {

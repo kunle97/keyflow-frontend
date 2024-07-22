@@ -155,9 +155,9 @@ const DashboardContainer = ({ children }) => {
             </footer>
           </div>
         </div>
-        {process.env.REACT_APP_ENVIRONMENT === "development" && (
+        {/* {process.env.REACT_APP_ENVIRONMENT === "development" && (
           <DeveloperToolsMenu />
-        )}
+        )} */}
       </div>
     </div>
   );

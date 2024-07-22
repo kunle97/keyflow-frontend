@@ -3,11 +3,12 @@ import UITable from "../../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router-dom";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  STATUS
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import { denyLeaseCancellationRequest } from "../../../../api/lease_cancellation_requests";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const LeaseCancellationRequests = () => {
   const navigate = useNavigate();
   const { isMobile } = useScreen();
@@ -15,7 +16,10 @@ const LeaseCancellationRequests = () => {
     const navlink = `/dashboard/owner/lease-cancellation-requests/${row.id}/`;
     navigate(navlink);
   };
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -51,7 +55,6 @@ const LeaseCancellationRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -113,6 +116,30 @@ const LeaseCancellationRequests = () => {
   const options = {
     isSelectable: false,
     onRowClick: handleRowClick,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      //Delete the lease cancellation request with the api
+      denyLeaseCancellationRequest({
+        lease_agreement_id: row.lease_agreement.id,
+        lease_cancellation_request_id: row.id,
+      }).then((res) => {
+        if (res.status === 204) {
+          setAlertModalTitle("Success");
+          setAlertModalMessage("Lease cancellation request rejected!");
+          setAlertModalOpen(true);
+        } else {
+          setAlertModalTitle("Error");
+          setAlertModalMessage("Something went wrong!");
+          setAlertModalOpen(true);
+        }
+      });
+    },
+    deleteOptions: {
+      label: "Reject",
+      confirmTitle: "Reject Lease Cancellation Request",
+      confirmMessage:
+        "Are you sure you want to reject this lease cancellation request?",
+    },
   };
 
   return (
@@ -138,6 +165,16 @@ const LeaseCancellationRequests = () => {
           skip: "Skip",
         }}
       />
+      <ProgressModal open={isLoading} title="Please Wait..." />
+      <AlertModal
+        open={alertModalOpen}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onClick={() => {
+          navigate(0);
+        }}
+      />
+
       {isMobile ? (
         <UITableMobile
           endpoint={"/lease-cancellation-requests/"}

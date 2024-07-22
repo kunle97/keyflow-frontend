@@ -1,6 +1,9 @@
 import React from "react";
 import { useEffect } from "react";
-import { getAllOwnerMaintenanceRequests } from "../../../../api/maintenance_requests";
+import {
+  deleteMaintenanceRequest,
+  getAllOwnerMaintenanceRequests,
+} from "../../../../api/maintenance_requests";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { uiGreen, uiGrey2 } from "../../../../constants";
@@ -12,6 +15,7 @@ import { Chip } from "@mui/material";
 import useScreen from "../../../../hooks/useScreen";
 import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const OwnerMaintenanceRequests = () => {
   const navigate = useNavigate();
   const { isMobile } = useScreen();
@@ -21,6 +25,10 @@ const OwnerMaintenanceRequests = () => {
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [resolvedIssues, setResolvedIssues] = useState(0);
   const [pendingIssues, setPendingIssues] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [inProgressIssues, setInProgressIssues] = useState(0);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
   const [showDeleteError, setShowDeleteError] = useState(false);
@@ -62,7 +70,6 @@ const OwnerMaintenanceRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -137,7 +144,6 @@ const OwnerMaintenanceRequests = () => {
   const handleRowClick = (rowData, rowMeta) => {
     const navlink = `/dashboard/owner/maintenance-requests/${rowData}`;
     navigate(navlink);
-
   };
   const options = {
     filter: true,
@@ -148,6 +154,35 @@ const OwnerMaintenanceRequests = () => {
     },
     onRowClick: handleRowClick,
     rowHover: true,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      deleteMaintenanceRequest(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertTitle("Success");
+            setAlertMessage("Maintenance request deleted successfully");
+            setShowAlert(true);
+          } else {
+            setAlertTitle("Error");
+            setAlertMessage(
+              "An error occurred while deleting the maintenance request"
+            );
+            setShowAlert(true);
+          }
+        })
+        .catch((err) => {
+          setAlertTitle("Error");
+          setAlertMessage(
+            "An error occurred while deleting the maintenance request"
+          );
+          setShowAlert(true);
+        });
+    },
+    deleteOptions: {
+      confirmTitle: "Delete Maintenance Request",
+      confirmMessage:
+        "Are you sure you want to delete this maintenance request?",
+    },
   };
 
   useEffect(() => {
@@ -201,6 +236,15 @@ const OwnerMaintenanceRequests = () => {
           skip: "Skip",
         }}
       />
+      <AlertModal
+        title={alertTitle}
+        message={alertMessage}
+        open={showAlert}
+        onClick={() => {
+          navigate(0);
+        }}
+      />
+      <ProgressModal open={isLoading} title="Please Wait..." />
       <div className="row info-cards-row ">
         <div className="col-md-4 mb-4">
           <UIInfoCard
@@ -297,7 +341,6 @@ const OwnerMaintenanceRequests = () => {
                   navigate(navlink);
                 },
               },
-
             ]}
           />
         </div>

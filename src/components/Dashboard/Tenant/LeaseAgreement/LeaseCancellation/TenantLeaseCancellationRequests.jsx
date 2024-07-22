@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getTenantLeaseCancellationRequests } from "../../../../../api/lease_cancellation_requests";
+import {
+  denyLeaseCancellationRequest,
+  getTenantLeaseCancellationRequests,
+} from "../../../../../api/lease_cancellation_requests";
 import { useNavigate } from "react-router";
 import UITable from "../../../UIComponents/UITable/UITable";
 import UITableMobile from "../../../UIComponents/UITable/UITableMobile";
-import Joyride, {
-  STATUS,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../../constants";
 import useScreen from "../../../../../hooks/useScreen";
@@ -19,6 +20,7 @@ const TenantLeaseCancellationRequests = () => {
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const tourSteps = [
     {
       target: ".lease-cancellation-request-page",
@@ -56,7 +58,6 @@ const TenantLeaseCancellationRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -110,31 +111,52 @@ const TenantLeaseCancellationRequests = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
-    //CREate a function to handle the row delete
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      //Delete the lease cancellation request with the api
+      denyLeaseCancellationRequest({
+        lease_agreement_id: row.lease_agreement.id,
+        lease_cancellation_request_id: row.id,
+      }).then((res) => {
+        if (res.status === 204) {
+          setAlertTitle("Success");
+          setAlertMessage("Lease cancellation request deleted");
+          setShowAlert(true);
+        } else {
+          setAlertTitle("Error");
+          setAlertMessage("Something went wrong");
+          setShowAlert(true);
+        }
+      });
+    },
+    deleteOptions:{
+      confirmTitle: "Delete Lease Cancellation Request",
+      confirmMessage: "Are you sure you want to delete this lease cancellation request?",
+    }
   };
   useEffect(() => {
-    getTenantLeaseCancellationRequests().then((res) => {
-
-      setData(res.data);
-    }).catch((error) => {
-      console.error("Error fetching lease cancellation requests:", error);
-      setAlertTitle("Error");
-      setAlertMessage(
-        "An error occurred while fetching the lease cancellation requests"
-      );
-      setShowAlert(true);
-    });
-  },[]);
+    getTenantLeaseCancellationRequests()
+      .then((res) => {
+        setData(res.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching lease cancellation requests:", error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while fetching the lease cancellation requests"
+        );
+        setShowAlert(true);
+      });
+  }, []);
   return (
     <div className="container-fluid lease-cancellation-request-page">
-      <AlertModal 
+      <AlertModal
         title={alertTitle}
         message={alertMessage}
         open={showAlert}
         onClick={() => {
-          setShowAlert(false);
+          navigate(0);
         }}
-        
       />
       <Joyride
         run={runTour}
@@ -186,6 +208,15 @@ const TenantLeaseCancellationRequests = () => {
             options={options}
             data={data}
             title={"Lease Cancellation Requests"}
+            menuOptions={[
+              {
+                name: "View",
+                onClick: (row) => {
+                  const navlink = `/dashboard/tenant/lease-cancellation-requests/${row.id}/`;
+                  navigate(navlink);
+                },
+              },
+            ]}
           />
         )}
       </div>
