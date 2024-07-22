@@ -169,40 +169,6 @@ const LeaseTemplates = () => {
     },
     onRowClick: handleRowClick,
     //CREate a function to handle the row delete
-    // onRowsDelete: (rowsDeleted, data) => {
-    //   const leaseTemplateIdsSelected = [];
-    //   //Place the selected rows into an array
-    //   const selectedRows = rowsDeleted.data.map((row) => {
-    //     leaseTemplateIdsSelected.push(leaseTemplates[row.dataIndex]);
-    //   });
-    //   const filteredLeaseTemplates = deleteLeaseTemplatesIfNotUsed(
-    //     leaseTemplateIdsSelected,
-    //     units
-    //   );
-    //   if (filteredLeaseTemplates.leaseTemplatesInUse > 0) {
-    //     setAlertModalTitle("Error");
-    //     setAlertModalMessage(
-    //       "Some of the selected lease terms are currently in use by units. Please remove them from the units before deleting them."
-    //     );
-    //     setShowAlertModal(true);
-    //   } else {
-    //     setAlertModalTitle("Success");
-    //     setAlertModalMessage(
-    //       "The selected lease terms have been deleted successfully."
-    //     );
-    //     setShowAlertModal(true);
-    //   }
-    //   filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
-    //     deleteLeaseTemplate(id)
-    //       .then((res) => {
-
-    //       })
-    //       .catch((err) => {
-    //         setAlertModalMessage(err.response.data.message);
-    //         setShowAlertModal(true);
-    //       });
-    //   });
-    // },
     onRowDelete: (row) => {
       setIsLoading(true);
       deleteLeaseTemplate(row.id)
