@@ -165,6 +165,22 @@ export async function updateTenantAutoRenewStatus(data) {
     return error.response;
   }
 }
+//Create a function that allows an owner to update a tenant's auto pay status using the endpoint /tenants/{tenant_id}/update-auto-pay-status/
+export async function updateTenantAutoPayStatus(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/tenants/${data.tenant_id}/update-auto-pay-status/`, data)
+      .then((res) => {
+
+        return res;
+      });
+    return res;
+  } catch (error) {
+
+    return error.response;
+  }
+}
+
 //Create a function that creates invoices for a tenant after signing a lease agreement using the endpoint /tenants/create-invoices-for-renewal/ 
 export async function createInvoicesForRenewal(data) {
   try {

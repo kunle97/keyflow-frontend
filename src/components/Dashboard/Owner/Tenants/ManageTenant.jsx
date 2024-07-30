@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { dateDiffForHumans, uiGreen } from "../../../../constants";
+import { dateDiffForHumans, uiGreen, uiGrey2 } from "../../../../constants";
 import { useEffect } from "react";
 import { getOwnerTenant, getTenantUnit } from "../../../../api/owners";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ import {
   cancelLeaseAgreement,
   getLeaseAgreementsByTenant,
 } from "../../../../api/lease_agreements";
+import { HelpOutline } from "@mui/icons-material";
 import { getTransactionsByTenant } from "../../../../api/transactions";
 import { getMaintenanceRequestsByTenant } from "../../../../api/maintenance_requests";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
@@ -33,13 +34,19 @@ import UIPageHeader from "../../UIComponents/UIPageHeader";
 import LeaseRenewalDialog from "../../Tenant/LeaseAgreement/LeaseRenewal/LeaseRenewalDialog";
 import LeaseCancellationDialog from "../../Tenant/LeaseAgreement/LeaseCancellation/LeaseCancellationDialog";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
-import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
+import {
+  updateTenantAutoPayStatus,
+  updateTenantAutoRenewStatus,
+} from "../../../../api/tenants";
+import { Stack, Tooltip } from "@mui/material";
+import UISwitch from "../../UIComponents/UISwitch";
 const ManageTenant = () => {
   const { tenant_id } = useParams();
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
+  const [autoPayEnabled, setAutoPayEnabled] = useState(false);
   const [showLeaseRenewalDialog, setShowLeaseRenewalDialog] = useState(false);
 
   const [showLeaseCancellationDialog, setShowLeaseCancellationDialog] =
@@ -136,7 +143,6 @@ const ManageTenant = () => {
         }
       })
       .catch((err) => {
-
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error cancelling the lease agreement. Please try again."
@@ -157,9 +163,33 @@ const ManageTenant = () => {
       tenant_id: lease.tenant.id,
     })
       .then((res) => {
-
         if (res.status === 200) {
-
+        } else {
+          setAlertTitle("Error");
+          setAlertMessage(
+            "An error occurred while updating the lease agreement's auto renewal status"
+          );
+          setShowAlert(true);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while updating the lease agreement's auto renewal status"
+        );
+        setShowAlert(true);
+      });
+  };
+  const changeAutoPay = (event) => {
+    setAutoPayEnabled(event.target.checked);
+    //Use the updateLEaseAgreement function to update the lease agreement with the new auto renewal status
+    updateTenantAutoPayStatus({
+      auto_pay_is_enabled: event.target.checked,
+      tenant_id: lease.tenant.id,
+    })
+      .then((res) => {
+        if (res.status === 200) {
         } else {
           setAlertTitle("Error");
           setAlertMessage(
@@ -182,9 +212,9 @@ const ManageTenant = () => {
     if (!tenant) {
       try {
         getOwnerTenant(tenant_id).then((tenant_res) => {
-
           setTenant(tenant_res.data);
           setAutoRenewalEnabled(tenant_res.data.auto_renew_lease_is_enabled);
+          setAutoPayEnabled(tenant_res.data.auto_pay_is_enabled);
           getNextPaymentDate(tenant_res.data.user.id).then((res) => {
             setNextPaymentDate(res.data.next_payment_date);
           });
@@ -227,7 +257,6 @@ const ManageTenant = () => {
           });
         });
       } catch (err) {
-
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error fetching tenant data. Please try again."
@@ -313,6 +342,27 @@ const ManageTenant = () => {
             <span className="text-black">Enable Auto Renewal </span>
             <UISwitch value={autoRenewalEnabled} onChange={changeAutoRenewal} />
           </Stack> */}
+          <Stack
+            direction="row"
+            spacing={1}
+            alignContent={"center"}
+            alignItems={"center"}
+            sx={{ marginBottom: "14px" }}
+          >
+            <span className="text-black">Allow Auto Pay </span>
+            <UISwitch value={autoPayEnabled} onChange={changeAutoPay} />
+            <Tooltip title="Turning this on will allow this tenant to enable/disable autopay. 
+            It is recommended to keep this feature turned off when they have an autopay subscription
+             enabled unless they reach out and ask to turn off thier autopay subscription.">
+              <HelpOutline
+                sx={{
+                  marginLeft: "5px",
+                  width: "20px",
+                  color: uiGrey2,
+                }}
+              />
+            </Tooltip>
+          </Stack>
           <UITabs
             value={tabPage}
             handleChange={handleChangeTabPage}

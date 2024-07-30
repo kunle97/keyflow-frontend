@@ -11,7 +11,7 @@ const PaymentCalendar = () => {
   const [alertTitle, setAlertTitle] = useState("");
   useEffect(() => {
     getTenantInvoices().then((res) => {
-      const due_dates = res.invoices.data.map((invoice) => {
+      const due_dates = res.invoices.map((invoice) => {
         if (!invoice.paid) {
           let date = new Date(invoice.due_date * 1000);
           return {
