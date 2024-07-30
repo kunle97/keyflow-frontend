@@ -20,8 +20,7 @@ const BillDetail = (props) => {
   const [paymentMethods, setPaymentMethods] = useState(null);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
-  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
-    useState(false);
+  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
@@ -107,17 +106,17 @@ const BillDetail = (props) => {
                       >
                         <span className="text-muted">
                           {removeUnderscoresAndCapitalize(
-                            invoice.metadata.type
+                            invoice?.metadata?.type
                           )}
                         </span>
                         <span style={{ fontSize: "30pt" }}>
-                          {(invoice.amount_due / 100).toLocaleString("en-US", {
+                          {(invoice?.amount_due / 100).toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
                           })}
                         </span>{" "}
                         <div className="mt-2">
-                          {invoice.paid ? (
+                          {invoice?.paid ? (
                             <Chip
                               label="Paid"
                               sx={{
@@ -134,7 +133,7 @@ const BillDetail = (props) => {
                                 <span style={{ fontSize: "12pt" }}>
                                   Due:{" "}
                                   {new Date(
-                                    invoice.due_date * 1000
+                                    invoice?.due_date * 1000
                                   ).toLocaleDateString()}
                                 </span>
                               }

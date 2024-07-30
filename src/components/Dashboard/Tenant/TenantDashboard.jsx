@@ -19,7 +19,7 @@ import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router";
-import { Alert, AlertTitle } from "@mui/material";
+import { Alert, AlertTitle, CircularProgress, Stack } from "@mui/material";
 import UIPrompt from "../UIComponents/UIPrompt";
 import UIButton from "../UIComponents/UIButton";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -29,11 +29,14 @@ import { getTenantInvoices } from "../../../api/tenants";
 import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../UIComponents/UIHelpButton";
 import UIProgressPrompt from "../UIComponents/UIProgressPrompt";
+import UISwitch from "../UIComponents/UISwitch";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [autoRenewResonse, setAutoRenewResponse] = useState(null);
+  const [autoPayAllowed, setAutoPayAllowed] = useState(null);
   const [showSignConfirmModal, setShowSignConfirmModal] = useState(false);
   const [signLink, setSignLink] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
@@ -135,7 +138,6 @@ const TenantDashboard = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const maintenance_request_columns = [
     { name: "type", label: "Type" },
@@ -176,26 +178,54 @@ const TenantDashboard = () => {
     },
     limit: 5,
   };
-  const handleAutoPayChange = () => {
-    setAutoPayIsLoading(true);
-    if (leaseAgreement && leaseAgreement.auto_pay_is_enabled) {
-      turnOffAutoPay().then((res) => {
-
+  const autoPaySwitchOnClick = () =>{
+    setConfirmModalTitle("Turn On Auto Pay")
+    setConfirmModalMessage("Are you sure you want to turn on auto pay?"+
+      "This will automatically pay your rent on the due date. In order "+
+      "to turn it off you must contact your landlord.");
+    setConfirmButtonText("Turn On AutoPay");
+    setCancelButtonText("Cancel");
+    setConfirmAction(() => handleAutoPayChange);
+    setShowConfirmModal(true);
+  }
+  const handleAutoPayChange = async () => {
+    try {
+      setAutoPayIsLoading(true);
+      if (leaseAgreement && leaseAgreement.auto_pay_is_enabled) {
+        const res = await turnOffAutoPay();
         if (res.data && res.data.status === 200) {
-          navigate(0);
-          setAutoPayIsLoading(false);
+          setAlertMessage("Auto pay has been turned off.");
+          setAlertTitle("Success");
+          setShowAlert(true);
+        }else{
+          setAlertMessage("An error occurred while turning off auto pay. Please try again.");
+          setAlertTitle("Error");
+          setShowAlert(true);
         }
-      });
-    } else {
-      turnOnAutoPay().then((res) => {
-
+      } else {
+        const res = await turnOnAutoPay();
         if (res.data && res.data.status === 200) {
-          navigate(0);
-          setAutoPayIsLoading(false);
+          setAlertMessage("Auto pay has been turned on.");
+          setAlertTitle("Success");
+          setShowAlert(true);
+        }else{
+          setAlertMessage("An error occurred while turning on auto pay. Please try again.");
+          setAlertTitle("Error");
+          setShowAlert(true);
         }
-      });
+      }
+    } catch (e) {
+      console.error(e);
+      setAlertMessage(
+        "An error occurred while turning on/off auto pay. Please try again."
+      );
+      setAlertTitle("Error");
+      setShowAlert(true);
+    } finally {
+      setAutoPayIsLoading(false);
     }
   };
+
   //Create a function to retrieve the invoices that are past due or are within 31 days of the due date
   const getDueInvoices = (invoices) => {
     return invoices.filter((invoice) => {
@@ -231,8 +261,11 @@ const TenantDashboard = () => {
       getTenantDashboardData()
         .then((res) => {
           setTenantData(res);
+          console.log(res.lease_agreement);
           setLeaseAgreement(res.lease_agreement);
           setCurrentBalance(res.current_balance);
+          setAutoPayAllowed(res.auto_pay_is_allowed);
+          console.log("Auto Pay Allowed: ", res.auto_pay_is_allowed);
           setLateFees(res.late_fees);
           setAnnouncements(res.announcements);
           if (res.auto_renew_response) {
@@ -284,7 +317,6 @@ const TenantDashboard = () => {
           if (res.lease_agreement) {
             //Retrieve next payment date
             getNextPaymentDate(authUser.id).then((res) => {
-
               setNextPaymentDate(res.data.next_payment_date);
             });
           }
@@ -300,9 +332,9 @@ const TenantDashboard = () => {
         .finally(() => {
           setIsLoadingPage(false);
         });
-      //Retrieve invoices
+      // Retrieve invoices
       getTenantInvoices().then((res) => {
-        let invoicesDue = getDueInvoices(res.invoices.data.reverse());
+        let invoicesDue = getDueInvoices(res.invoices.reverse());
 
         setInvoices(invoicesDue);
         let amount_due =
@@ -320,7 +352,7 @@ const TenantDashboard = () => {
       setShowAlert(true);
     } finally {
     }
-  },[]);
+  }, []);
 
   return (
     <>
@@ -334,12 +366,13 @@ const TenantDashboard = () => {
           <AlertModal
             open={showAlert}
             onClick={() => {
-              setShowAlert(false);
+              navigate(0);
             }}
             title={alertTitle}
             message={alertMessage}
             btnText="Okay"
           />
+          <ProgressModal open={autoPayIsLoading} title="Updating Auto Pay" />
           <Joyride
             run={runTour}
             index={tourIndex}
@@ -455,28 +488,104 @@ const TenantDashboard = () => {
                               due in{" "}
                               {dateDiffForHumans(new Date(nextPaymentDate))}
                             </Typography>
-                            <Box>
-                              <Button
-                                onClick={() =>
-                                  navigate("/dashboard/tenant/bills")
-                                }
-                                sx={{
-                                  color: "white",
-                                  textTransform: "none",
-                                  backgroundColor: uiGreen,
-                                }}
-                                btnText="View Bills"
-                                to="#"
-                                variant="contained"
-                              >
-                                View Bills
-                              </Button>
-                            </Box>
+                            {autoPayAllowed && (
+                              <Box>
+                                <Stack
+                                  direction="row"
+                                  justifyContent={"flex-start"}
+                                  alignItems={"center"}
+                                  spacing={1}
+                                  sx={{ mb: 2 }}
+                                >
+                                  <UISwitch
+                                    checked={leaseAgreement.auto_pay_is_enabled}
+                                    onChange={autoPaySwitchOnClick}
+                                  />
+                                  {leaseAgreement.auto_pay_is_enabled ? (
+                                    <Typography
+                                      sx={{ fontSize: 16 }}
+                                      gutterBottom
+                                    >
+                                      Turn off Auto Pay
+                                    </Typography>
+                                  ) : (
+                                    <Typography
+                                      sx={{ fontSize: 16 }}
+                                      gutterBottom
+                                    >
+                                      Turn On Auto Pay
+                                    </Typography>
+                                  )}
+                                  {autoPayIsLoading && (
+                                    <CircularProgress
+                                      size={20}
+                                      sx={{
+                                        color: uiGreen,
+                                      }}
+                                    />
+                                  )}
+                                </Stack>
+                                <Button
+                                  onClick={() =>
+                                    navigate("/dashboard/tenant/bills")
+                                  }
+                                  sx={{
+                                    color: "white",
+                                    textTransform: "none",
+                                    backgroundColor: uiGreen,
+                                  }}
+                                  btnText="View Bills"
+                                  to="#"
+                                  variant="contained"
+                                >
+                                  View Bills
+                                </Button>
+                              </Box>
+                            )}
                           </div>
                         ) : (
-                          <Typography sx={{ fontSize: 20 }} gutterBottom>
-                            <span>You have no outstanding balance</span>{" "}
-                          </Typography>
+                          <>
+                            <Typography sx={{ fontSize: 20 }} gutterBottom>
+                              <span>You have no outstanding balance</span>{" "}
+                            </Typography>
+                            {autoPayAllowed && (
+                              <Stack
+                                direction="row"
+                                justifyContent={"flex-start"}
+                                alignItems={"center"}
+                                spacing={1}
+                                sx={{ mb: 2 }}
+                              >
+                                <UISwitch
+                                  value={leaseAgreement.auto_pay_is_enabled}
+                                  onChange={autoPaySwitchOnClick}
+                                />
+                                {leaseAgreement.auto_pay_is_enabled ? (
+                                  <Typography
+                                    sx={{ fontSize: 16 }}
+                                    gutterBottom
+                                  >
+                                    Turn off Auto Pay
+                                  </Typography>
+                                ) : (
+                                  <Typography
+                                    sx={{ fontSize: 16 }}
+                                    gutterBottom
+                                  >
+                                    Turn On Auto Pay
+                                  </Typography>
+                                )}
+                                {autoPayIsLoading && (
+                                  <CircularProgress
+                                    size={20}
+                                    sx={{
+                                      color: uiGreen,
+                                    }}
+                                  />
+                                )}
+                              </Stack>
+                            )}
+                          </>
                         )}
                       </CardContent>
                     </>
