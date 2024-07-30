@@ -129,7 +129,7 @@ const UITableMini = (props) => {
           {results.length === 0 ? (
             <div>
               <UIPrompt
-                title="Uh Oh!"
+                title="Nothing to see here!"
                 message="Looks like there are no results to display.  This data will be populated once you get started."
                 hideBoxShadow={true}
               />

@@ -330,6 +330,7 @@ const TenantLeaseAgreementDetail = () => {
         btnText="Okay"
       />
       <ProgressModal open={isPreparingDownload} title="Preparing download..." />
+      
       {leaseAgreement ? (
         <div className="row lease-agreement-page">
           <Stack

@@ -87,7 +87,6 @@ const LeaseAgreementDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
 
   const iconStyles = { color: uiGreen, fontSize: "24pt", marginBottom: "5px" };
@@ -110,9 +109,7 @@ const LeaseAgreementDetail = () => {
       tenant_id: leaseAgreement.tenant.id,
     })
       .then((res) => {
-
         if (res.status === 200) {
-
         } else {
           setAlertTitle("Error");
           setAlertMessage(
