@@ -42,8 +42,7 @@ const TenantDashboard = () => {
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
-    useState(false);
+  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] = useState(false);
   const [tenantData, setTenantData] = useState(null); //TODO: Remove this and replace with [leaseAgreement, setLeaseAgreement
   const [currentBalance, setCurrentBalance] = useState(0);
   const [lateFees, setLateFees] = useState(0);
@@ -181,8 +180,8 @@ const TenantDashboard = () => {
   const autoPaySwitchOnClick = () =>{
     setConfirmModalTitle("Turn On Auto Pay")
     setConfirmModalMessage("Are you sure you want to turn on auto pay?"+
-      "This will automatically pay your rent on the due date. In order "+
-      "to turn it off you must contact your landlord.");
+      "This will automatically pay your rent on the due date. You will also now be charged for any unpaid security deposits on the lease. "+
+      "In orderto turn it off you must contact your landlord.");
     setConfirmButtonText("Turn On AutoPay");
     setCancelButtonText("Cancel");
     setConfirmAction(() => handleAutoPayChange);
@@ -261,11 +260,9 @@ const TenantDashboard = () => {
       getTenantDashboardData()
         .then((res) => {
           setTenantData(res);
-          console.log(res.lease_agreement);
           setLeaseAgreement(res.lease_agreement);
           setCurrentBalance(res.current_balance);
           setAutoPayAllowed(res.auto_pay_is_allowed);
-          console.log("Auto Pay Allowed: ", res.auto_pay_is_allowed);
           setLateFees(res.late_fees);
           setAnnouncements(res.announcements);
           if (res.auto_renew_response) {
