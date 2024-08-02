@@ -26,26 +26,6 @@ const OwnerTransactions = () => {
   const [revenueChartData, setRevenueChartData] = useState([{ x: 0, y: 0 }]);
   const barChartHeight = "430px";
   const pieChartHeight = "468px";
-  const data = [
-    {
-      id: "money",
-      data: [
-        { x: "2023-09-01", y: 1250 },
-        { x: "2023-09-02", y: 3225 },
-        { x: "2023-09-03", y: 2300 },
-        { x: "2023-10-01", y: 1105 },
-        { x: "2023-10-02", y: 150 },
-        { x: "2023-10-03", y: 2030 },
-        { x: "2023-11-01", y: 1200 },
-        { x: "2023-11-02", y: 1450 },
-        { x: "2023-11-03", y: 2050 },
-        { x: "2023-12-01", y: 1040 },
-        { x: "2023-12-02", y: 3050 },
-        { x: "2023-12-03", y: 4400 },
-        // Add more data points here
-      ],
-    },
-  ];
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [

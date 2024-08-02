@@ -561,26 +561,19 @@ const ManageAnnouncement = () => {
     }
   };
 
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-
-    // Ensure month and day are two digits
-    month = month < 10 ? `0${month}` : month;
-    day = day < 10 ? `0${day}` : day;
-
-    return `${year}-${month}-${day}`;
+  const formatDateForInputValue = (dateString) => {
+    const date = new Date(dateString);
+    const isoString = date.toISOString();
+    // Extract the date part (yyyy-mm-dd)
+    const final_date = isoString.split('T')[0];
+    return final_date;
   };
 
   useEffect(() => {
     setLoadingPage(true);
     getAnnouncement(id)
       .then((res) => {
-        // Convert date strings to Date objects for date inputs
-        res.start_date = new Date(res.start_date);
-        res.end_date = new Date(res.end_date);
-
+        console.log(res)
         setAnnouncement(res);
         if (res.target_object) {
           setTargetObject(res.target_object);
@@ -1289,7 +1282,11 @@ const ManageAnnouncement = () => {
                               placeholder={input.placeholder}
                               onChange={input.onChange}
                               onBlur={input.onChange}
-                              value={formatDate(new Date(formData[input.name]))}
+                              value={
+                                formData[input.name]
+                                  ? formatDateForInputValue(formData[input.name])
+                                  : ""
+                              }
                               error={errors[input.name]}
                               dataTestId={input.dataTestId}
                               errorMessageDataTestid={
