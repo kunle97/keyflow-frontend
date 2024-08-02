@@ -1049,7 +1049,6 @@ const CreateAnnouncement = () => {
                           onBlur={input.onChange}
                           data-testId={input.dataTestId}
                         >
-                          <option value="">Select One</option>
                           {input.options.map((option, index) => {
                             return (
                               <option key={index} value={option.value}>
