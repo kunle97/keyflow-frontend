@@ -124,37 +124,6 @@ const LeaseTemplates = () => {
     },
   ];
 
-  function deleteLeaseTemplatesIfNotUsed(leaseTemplates, unitsToCheck) {
-    const leaseTemplateIdsToDelete = [];
-    const leaseTemplateIdsToOmit = [];
-    let leaseTemplatesInUse = 0;
-    for (const leaseTemplate of leaseTemplates) {
-      // Check if the lease term is associated with any units
-      const isUsedByUnits = unitsToCheck.some(
-        (unit) => unit.lease_template === leaseTemplate.id
-      );
-
-      // If not used by any units, add its ID to the list of IDs to be deleted
-      if (!isUsedByUnits) {
-        leaseTemplateIdsToDelete.push(leaseTemplate.id);
-      } else {
-        leaseTemplatesInUse++;
-        leaseTemplateIdsToOmit.push(leaseTemplate.id);
-      }
-    }
-
-    // Remove the lease terms from the original array
-    const updatedLeaseTemplates = leaseTemplates.filter(
-      (leaseTemplate) => !leaseTemplateIdsToDelete.includes(leaseTemplate.id)
-    );
-
-    return {
-      leaseTemplateIdsToDelete,
-      leaseTemplateIdsToOmit,
-      leaseTemplatesInUse,
-    };
-  }
-
   const handleRowClick = (row) => {
     const navlink = `/dashboard/owner/lease-templates/${row.id}`;
     navigate(navlink);
