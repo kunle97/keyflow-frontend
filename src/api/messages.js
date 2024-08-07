@@ -16,41 +16,6 @@ export async function getMessages() {
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
-//Create a function to get all messages for this user
-export async function getMessagesWithLimit(limit) {
-  try {
-    const res = await authenticatedInstance
-      .get(`/messages/?limit=${limit}`)
-      .then((res) => {
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
-    return res;
-  } catch (error) {
-
-    return error.response ? error.response.data : { error: "Network Error" };
-  }
-}
-
-//Create a function to get a message by a specific recipient id
-export async function getMessageByRecipient() {
-  try {
-    const res = await authenticatedInstance
-      .get(`/messages/?recipient=${authUser.id}`)
-      .then((res) => {
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
-    return res;
-  } catch (error) {
-
-    return error.response ? error.response.data : { error: "Network Error" };
-  }
-}
 
 //Create a function to send a message to a user
 export async function sendMessage(data) {
@@ -107,25 +72,6 @@ export async function deleteMessage(data) {
   }
 }
 
-//Create a function to retrieve the users message threads /retrieve-user-threads/ using a get request
-export async function retrieveUserThreads() {
-  try {
-    const res = await authenticatedInstance
-      .get(`/retrieve-user-threads/`)
-      .then((res) => {
-
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
-    return res;
-  } catch (error) {
-
-    return error.response ? error.response.data : { error: "Network Error" };
-  }
-}
-
 //Create a function that retrieve the users unread messages count using the endpoint GET: messages/retrieve-unread-messages-count/ using a get request
 export async function retrieveUnreadMessagesCount() {
   try {
@@ -161,3 +107,36 @@ export async function setMessageThreadAsRead(data) {
   }
 }
 
+//Create a function to list all threads for the user
+export async function listThreads() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/list-threads/`)
+      .then((res) => {
+        if (res.status === 200 && res.data.length === 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function to list all messages in a thread
+export async function listThreadMessages(threadId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/list-thread-messages/?thread_id=${threadId}`)
+      .then((res) => {
+        if (res.status === 200 && res.data.length === 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}

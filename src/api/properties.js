@@ -249,3 +249,21 @@ export async function validatePropertyName(data) {
     return error.response;
   }
 }
+
+
+//Create a function called retrievePropertyUnits that retrieves all the units of a property using the api/properties/{id}/units endpoint
+export async function getPropertyUnits(propertyId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/properties/${propertyId}/units/`)
+      .then((res) => {
+
+        return res;
+      });
+    return res;
+  } catch (error) {
+
+    return error.response;
+  }
+}
+

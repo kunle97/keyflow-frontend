@@ -233,11 +233,6 @@ const ManageTenant = () => {
           getTenantUnit(tenant_res.data.id).then((unit_res) => {
             if (unit_res.data) {
               setUnit(unit_res.data);
-              getProperty(unit_res.data.rental_property).then(
-                (property_res) => {
-                  setProperty(property_res.data);
-                }
-              );
               getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
                 setLease(res.data[0]);
               });
@@ -380,7 +375,7 @@ const ManageTenant = () => {
                     title="Property"
                     titleStyle={titleStyle}
                     infoStyle={infoStyle}
-                    info={property.name}
+                    info={unit.rental_property_name}
                     muiIcon={
                       <HomeIcon
                         style={{
