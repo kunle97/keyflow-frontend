@@ -1,4 +1,4 @@
-import {  Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import React from "react";
 import {
   uiGreen,
@@ -25,11 +25,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
-import Joyride, {
-  ACTIONS,
-  EVENTS,
-  STATUS,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import AdditionalChargeRow from "./AdditionalChargeRow";
@@ -128,8 +124,6 @@ const ManageLeaseTemplate = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -145,7 +139,6 @@ const ManageLeaseTemplate = () => {
       setTourIndex(5);
     }
     setRunTour(true);
-
   };
 
   const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
@@ -160,7 +153,6 @@ const ManageLeaseTemplate = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
   };
 
   const [detailsErrors, setDetailsErrors] = useState({});
@@ -553,7 +545,6 @@ const ManageLeaseTemplate = () => {
           additional_charges: JSON.stringify(chargesWithNumericAmount),
         })
         .then((res) => {
-
           if (res.status === 200) {
             setAlertModalIsOpen(true);
             setAlertModalTitle("Success");
@@ -586,7 +577,6 @@ const ManageLeaseTemplate = () => {
       selected_assignments: JSON.stringify(selectedAssignments),
     };
     await assignLeaseTemplate(data).then((res) => {
-
       if (res.status === 200) {
         setAlertModalIsOpen(true);
         setAlertModalTitle("Success");
@@ -606,7 +596,6 @@ const ManageLeaseTemplate = () => {
     await authenticatedInstance
       .patch(`/lease-templates/${id}/`, detailsFormData)
       .then((res) => {
-
         if (res.status === 200) {
           setAlertModalIsOpen(true);
           setAlertModalTitle("Success");
@@ -633,6 +622,7 @@ const ManageLeaseTemplate = () => {
     authenticatedInstance
       .get(`/lease-templates/${id}/`)
       .then((res) => {
+        console.log(res);
         setLeaseTemplate(res.data);
         setDetailsFormData({
           rent: res.data.rent,
@@ -676,7 +666,6 @@ const ManageLeaseTemplate = () => {
       template_id: leaseTemplate.template_id,
     })
       .then((res) => {
-
         setEditLink(res.url);
       })
       .finally(() => {
@@ -786,7 +775,6 @@ const ManageLeaseTemplate = () => {
               removeLeaseTemplateFromAssignedResources({
                 lease_template_id: id,
               }).then((res) => {
-
                 if (res.status === 200) {
                   setAlertModalIsOpen(true);
                   setAlertModalTitle("Success");
@@ -815,7 +803,6 @@ const ManageLeaseTemplate = () => {
             handleConfirm={() => {
               deleteLeaseTemplate(id)
                 .then((res) => {
-
                   setAlertModalIsOpen(true);
                   setAlertModalTitle("Lease Template Deleted");
                   setAlertModalMessage("");
@@ -1155,13 +1142,9 @@ const ManageLeaseTemplate = () => {
                       data={properties}
                       columns={[
                         { label: "Name", name: "name" },
-                        {
-                          label: "Units",
-                          name: "units",
-                          options: {
-                            customBodyRender: (value) => value.length,
-                          },
-                        },
+                        { label: "Street", name: "street" },
+                        { label: "City", name: "city" },
+                        { label: "State", name: "state" },
                       ]}
                       options={{
                         isSelectable: false,
