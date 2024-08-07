@@ -7,7 +7,7 @@ import UILineChartCard from "./UIComponents/UICards/UILineChartCard";
 import UItableMiniCard from "./UIComponents/UICards/UITableMiniCard";
 import UIPieChartCard from "./UIComponents/UICards/UIPieChartCard";
 import { getOwnerUnits } from "../../api/units";
-import { getProperties } from "../../api/properties";
+import { getProperties, getPropertyUnits } from "../../api/properties";
 import UIInfoCard from "./UIComponents/UICards/UIInfoCard";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UICardList from "./UIComponents/UICards/UICardList";
@@ -25,9 +25,7 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Link } from "react-router-dom";
 import UIDialog from "./UIComponents/Modals/UIDialog";
 import ImportDataForm from "./ImportDataForm";
-import Joyride, {
-  STATUS,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "./UIComponents/UIHelpButton";
 import UIButton from "./UIComponents/UIButton";
 import {
@@ -61,7 +59,8 @@ const OwnerDashboard = () => {
   const [vacantUnits, setVacantUnits] = useState([]);
   const [leaseAgreements, setLeaseAgreements] = useState([]);
   const [stripeAccountLink, setStripeAccountLink] = useState("");
-  const [stripeOnboardingAccountLink, setStripeOnboardingAccountLink] = useState("");
+  const [stripeOnboardingAccountLink, setStripeOnboardingAccountLink] =
+    useState("");
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalTitle, setAlertModalTitle] = useState("");
@@ -598,15 +597,18 @@ const OwnerDashboard = () => {
       setVacantUnits(units.filter((unit) => unit.is_occupied === false).length);
       return;
     }
+
     const property = properties.find(
       (property) => property.id === parseInt(propertyId)
     );
-    setOccupiedUnits(
-      property.units.filter((unit) => unit.is_occupied === true).length
-    );
-    setVacantUnits(
-      property.units.filter((unit) => unit.is_occupied === false).length
-    );
+    getPropertyUnits(propertyId).then((res) => {
+      setOccupiedUnits(
+        res.data.filter((unit) => unit.is_occupied === true).length
+      );
+      setVacantUnits(
+        res.data.filter((unit) => unit.is_occupied === false).length
+      );
+    });
   };
   //Create a function to change the transaction data based on the transaction type selected
   const handleTransactionTypeChange = (e) => {

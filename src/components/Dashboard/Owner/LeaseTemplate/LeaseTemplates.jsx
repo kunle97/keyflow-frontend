@@ -21,14 +21,12 @@ import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const LeaseTemplates = () => {
-  const [leaseTemplates, setLeaseTemplates] = useState([]);
-  const [units, setUnits] = useState([]);
-  const [showAlertModal, setShowAlertModal] = useState(false);
+  const navigate = useNavigate();
+  const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalTitle, setAlertModalTitle] = useState("");
-  const { isMobile } = useScreen();
-  const navigate = useNavigate();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -173,35 +171,6 @@ const LeaseTemplates = () => {
     },
   };
 
-  //Retrieve user's lease terms
-  useEffect(() => {
-    //retrieve lease terms that the user has created
-    getLeaseTemplatesByUser()
-      .then((res) => {
-        setLeaseTemplates(res.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching lease templates:", error);
-        setAlertModalTitle("Error");
-        setAlertModalMessage(
-          "There was an error fetching your lease templates. Please try again."
-        );
-        setShowAlertModal(true);
-      });
-    //Retrieve the user's units
-    getOwnerUnits()
-      .then((res) => {
-        setUnits(res.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching units:", error);
-        setAlertModalTitle("Error");
-        setAlertModalMessage(
-          "There was an error fetching your units. Please try again."
-        );
-        setShowAlertModal(true);
-      });
-  }, []);
   return (
     <div className="container-fluid lease-template-page">
       <Joyride

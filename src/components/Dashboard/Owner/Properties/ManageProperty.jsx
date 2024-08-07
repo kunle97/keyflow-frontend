@@ -18,6 +18,7 @@ import {
   updatePropertyPreferences,
   updatePropertyPortfolio,
   removePropertyLeaseTemplate,
+  getPropertyUnits,
 } from "../../../../api/properties";
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
@@ -76,6 +77,7 @@ const ManageProperty = () => {
   const [selectPortfolioDialogOpen, setSelectPortfolioDialogOpen] =
     useState(false); //Create a state to hold the select portfolio dialog open state
   const [units, setUnits] = useState([]);
+  const [isLoadingUnits, setIsLoadingUnits] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
   const [updateAlertTitle, setUpdateAlertTitle] = useState("Success"); //Create a state to hold the update alert title
@@ -647,6 +649,37 @@ const ManageProperty = () => {
     }
   };
 
+  const getUnits = async () => {
+    setIsLoadingUnits(true);
+    getPropertyUnits(id)
+      .then((res) => {
+        console.log("property units", res);
+        if (res.status === 200) {
+          setUnits(res.data);
+          setUnitCount(res.data.length);
+          setBedsCount(
+            res.data.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
+          );
+          setBathsCount(
+            res.data.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
+          );
+        } else {
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong");
+          setUpdateAlertIsOpen(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving units", error);
+        setUpdateAlertTitle("Error");
+        setUpdateAlertMessage("Something went wrong");
+        setUpdateAlertIsOpen(true);
+      })
+      .finally(() => {
+        setIsLoadingUnits(false);
+      });
+  };
+
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName) => {
     if (inputType === "switch") {
@@ -690,16 +723,6 @@ const ManageProperty = () => {
               zip_code: res.data.zip_code,
               country: res.data.country,
             });
-            setUnits(res.data.units);
-            setUnitCount(res.data.units.length);
-            setBedsCount(
-              res.data.units.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
-            );
-            setBathsCount(
-              res.data.units
-                .map((unit) => unit.baths)
-                .reduce((a, b) => a + b, 0)
-            );
             getPortfolios()
               .then((portfolio_res) => {
                 if (portfolio_res.status === 200) {
@@ -747,6 +770,9 @@ const ManageProperty = () => {
           }
         });
       }
+      if (!units || units.length === 0) {
+        getUnits();
+      }
     } catch (error) {
       return error.response;
     }
@@ -754,7 +780,7 @@ const ManageProperty = () => {
 
   return (
     <>
-      {isLoading ? (
+      {isLoading || isLoadingUnits ? (
         <UIProgressPrompt
           dataTestId="property-loading-progress-prompt"
           title="Loading Property"
@@ -1306,64 +1332,71 @@ const ManageProperty = () => {
                           </>
                         ) : (
                           <div className="units-list">
-                            {" "}
-                            {isMobile ? (
-                              <UITableMobile
-                                testRowIdentifier="rental-unit"
-                                tableTitle="Units"
-                                data={units}
-                                infoProperty="name"
-                                createTitle={(row) =>
-                                  `Occupied: ${row.is_occupied ? `Yes` : "No"} `
-                                }
-                                createSubtitle={(row) =>
-                                  `Beds: ${row.beds} | Baths: ${row.baths}`
-                                }
-                                createURL={`/dashboard/owner/units/create/${id}`}
-                                showCreate={true}
-                                acceptedFileTypes={[".csv"]}
-                                showUpload={true}
-                                uploadButtonText="Upload CSV"
-                                uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
-                                fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                                onRowClick={(row) => {
-                                  const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                                  navigate(navlink);
-                                }}
-                                orderingFields={[
-                                  { field: "name", label: "Name (Ascending)" },
-                                  {
-                                    field: "-name",
-                                    label: "Name (Descending)",
-                                  },
-                                ]}
-                                searchFields={["name", "beds", "baths"]}
-                              />
-                            ) : (
-                              <UITable
-                                testRowIdentifier="rental-unit"
-                                title="Rental Units"
-                                columns={unit_columns}
-                                data={units}
-                                options={unit_options}
-                                showCreate={true}
-                                createURL={`/dashboard/owner/units/create/${id}`}
-                                acceptedFileTypes={[".csv"]}
-                                showUpload={true}
-                                uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
-                                uploadButtonText="Upload CSV"
-                                fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                                menuOptions={[
-                                  {
-                                    name: "Manage",
-                                    onClick: (row) => {
-                                      const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                                      navigate(navlink);
+
+                            <>
+                              {isMobile ? (
+                                <UITableMobile
+                                  testRowIdentifier="rental-unit"
+                                  tableTitle="Units"
+                                  data={units}
+                                  infoProperty="name"
+                                  createTitle={(row) =>
+                                    `Occupied: ${
+                                      row.is_occupied ? `Yes` : "No"
+                                    } `
+                                  }
+                                  createSubtitle={(row) =>
+                                    `Beds: ${row.beds} | Baths: ${row.baths}`
+                                  }
+                                  createURL={`/dashboard/owner/units/create/${id}`}
+                                  showCreate={true}
+                                  acceptedFileTypes={[".csv"]}
+                                  showUpload={true}
+                                  uploadButtonText="Upload CSV"
+                                  uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                                  fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
+                                  onRowClick={(row) => {
+                                    const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                                    navigate(navlink);
+                                  }}
+                                  orderingFields={[
+                                    {
+                                      field: "name",
+                                      label: "Name (Ascending)",
                                     },
-                                  },
-                                ]}
-                              />
-                            )}
+                                    {
+                                      field: "-name",
+                                      label: "Name (Descending)",
+                                    },
+                                  ]}
+                                  searchFields={["name", "beds", "baths"]}
+                                />
+                              ) : (
+                                <UITable
+                                  testRowIdentifier="rental-unit"
+                                  title="Rental Units"
+                                  columns={unit_columns}
+                                  data={units}
+                                  options={unit_options}
+                                  showCreate={true}
+                                  createURL={`/dashboard/owner/units/create/${id}`}
+                                  acceptedFileTypes={[".csv"]}
+                                  showUpload={true}
+                                  uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                                  uploadButtonText="Upload CSV"
+                                  fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
+                                  menuOptions={[
+                                    {
+                                      name: "Manage",
+                                      onClick: (row) => {
+                                        const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                                        navigate(navlink);
+                                      },
+                                    },
+                                  ]}
+                                />
+                              )}
+                            </>
                           </div>
                         )}
                       </>

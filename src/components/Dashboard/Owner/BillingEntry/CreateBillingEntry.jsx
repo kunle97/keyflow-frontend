@@ -398,13 +398,11 @@ const CreateBillingEntry = () => {
   };
 
   const handleOpenRentalUnitSelectModal = async () => {
-    setRentalUnitModalOpen(true);
     //Fetch rental units from api
     if (rentalUnits.length === 0) {
       await handleSearchRentalUnits();
-    } else {
-      setRentalUnitModalOpen(true);
     }
+    setRentalUnitModalOpen(true);
   };
 
   //Create a function called handleNextPageRentalUnitClick to handle the next page click of the rental unit modal by fetching the next page of rental units from the api
