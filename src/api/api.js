@@ -20,7 +20,7 @@ export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Token ${token}`,
+    Authorization: `Bearer ${token}`,
   },
 });
 
@@ -28,7 +28,7 @@ export const authenticatedMediaInstance = axios.create({
   baseURL: API_HOST,
   headers: {
     "Content-Type": "multipart/form-data",
-    Authorization: `Token ${token}`,
+    Authorization: `Bearer ${token}`,
   },
 });
 
@@ -87,7 +87,6 @@ const getCredentials = async (endpoint) => {
 };
 
 export const getOwnersEmails = () => getCredentials("/owners-emails/");
-export const getOwnersUsernames = () =>
-  getCredentials("/owners-usernames/");
+export const getOwnersUsernames = () => getCredentials("/owners-usernames/");
 export const getTenantsEmails = () => getCredentials("/tenants-emails/");
 export const getTenantsUsernames = () => getCredentials("/tenants-usernames/");
