@@ -20,7 +20,7 @@ export const authenticatedInstance = axios.create({
   baseURL: API_HOST,
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    Authorization: `Token ${token}`,
   },
 });
 
@@ -28,7 +28,7 @@ export const authenticatedMediaInstance = axios.create({
   baseURL: API_HOST,
   headers: {
     "Content-Type": "multipart/form-data",
-    Authorization: `Bearer ${token}`,
+    Authorization: `Token ${token}`,
   },
 });
 

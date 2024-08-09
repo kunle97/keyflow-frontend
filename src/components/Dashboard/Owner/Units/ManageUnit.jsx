@@ -1950,8 +1950,8 @@ const ManageUnit = () => {
                                 bgcolor: "white",
                               }}
                             >
-                              {leaseTemplates.map((leaseTemplate, index) => {
-                                if (leaseTemplates.length == 0) {
+                              {leaseTemplates?.map((leaseTemplate, index) => {
+                                if (leaseTemplates?.length == 0) {
                                   return (
                                     <>
                                       <ListItem alignItems="flex-start">

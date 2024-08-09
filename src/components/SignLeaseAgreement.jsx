@@ -212,6 +212,7 @@ const SignLeaseAgreement = () => {
                 lease_agreement_res.rental_unit.id +
                 "/" +
                 lease_agreement_res.approval_hash;
+                console.log("REDIRECT lInK: ",redirectLink);
               setRedirectLink(redirectLink);
               let payload = {};
               if (lease_agreement_res.tenant) {
@@ -310,137 +311,6 @@ const SignLeaseAgreement = () => {
                   {leaseAgreement.rental_unit.rental_property_name}{" "}
                 </h2>
                 <div className="row">
-                  {/* <div className="col-md-4">
-                    <div className="card my-3">
-                      <div className="card-body">
-                        <h6 className="card-title text-black">
-                          Lease Agreement Overview
-                        </h6>
-                        <div className="row">
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Rent
-                            </h6>
-                            $
-                            {getUnitPreferenceValueByName(
-                              "rent",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Term
-                            </h6>
-                            {getUnitPreferenceValueByName(
-                              "term",
-                              unitLeaseTerms
-                            )}{" "}
-                            {getUnitPreferenceValueByName(
-                              "rent_frequency",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Late Fee
-                            </h6>
-                            $
-                            {getUnitPreferenceValueByName(
-                              "late_fee",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Security Deposit
-                            </h6>
-                            $
-                            {getUnitPreferenceValueByName(
-                              "security_deposit",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Gas Included?
-                            </h6>
-                            {`${
-                              getUnitPreferenceValueByName(
-                                "gas_included",
-                                unitLeaseTerms
-                              )
-                                ? "Yes"
-                                : "No"
-                            }`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Electric Included?
-                            </h6>
-                            {`${
-                              getUnitPreferenceValueByName(
-                                "electric_included",
-                                unitLeaseTerms
-                              )
-                                ? "Yes"
-                                : "No"
-                            }`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Water Included?
-                            </h6>
-                            {`${
-                              getUnitPreferenceValueByName(
-                                "water_included",
-                                unitLeaseTerms
-                              )
-                                ? "Yes"
-                                : "No"
-                            }`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Lease Cancellation Fee
-                            </h6>
-                            {`$${getUnitPreferenceValueByName(
-                              "lease_cancellation_fee",
-                              unitLeaseTerms
-                            )}`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Lease Cancellation Notice period
-                            </h6>
-                            {`${getUnitPreferenceValueByName(
-                              "lease_cancellation_notice_period",
-                              unitLeaseTerms
-                            )} Month(s)`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Grace period
-                            </h6>
-                            {`${getUnitPreferenceValueByName(
-                              "grace_period",
-                              unitLeaseTerms
-                            )} Month(s)`}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Typography sx={{ color: "black" }}>
-                        Powered by{" "}
-                        <Link to="/">
-                          <img
-                            src="/assets/img/key-flow-logo-black-transparent.png"
-                            width={150}
-                          />
-                        </Link>
-                      </Typography>
-                    </div>
-                  </div> */}
                   <div className="col-md-12">
                     <iframe
                       src={signingLink}
