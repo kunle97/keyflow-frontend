@@ -1095,7 +1095,7 @@ const ManageLeaseTemplate = () => {
                           {
                             name: "View",
                             onClick: (row) => {
-                              const navlink = `/dashboard/owner/units/${row.rental_property.id}/${row.id}`;
+                              const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property_id}`;
                               navigate(navlink);
                             },
                           },

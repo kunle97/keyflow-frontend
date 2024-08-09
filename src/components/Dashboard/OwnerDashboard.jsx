@@ -1045,6 +1045,7 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Info Card Row (hidden on mobile and desktop too) */}
+            {/*
             <div className="row my-2">
               {multiplier.map((item, index) => {
                 return (
@@ -1069,6 +1070,7 @@ const OwnerDashboard = () => {
                 );
               })}
             </div>
+           */}
 
             {/* Vacancies & Transactions Row */}
             <div className="row">
