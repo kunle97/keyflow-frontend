@@ -20,7 +20,6 @@ import Joyride, {
   STATUS,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
-import UISwitch from "../../../UIComponents/UISwitch";
 import { useParams } from "react-router";
 import { getLeaseAgreementById } from "../../../../../api/lease_agreements";
 import { authenticatedInstance } from "../../../../../api/api";
@@ -276,7 +275,7 @@ const TenantLeaseAgreementDetail = () => {
       getTenantInvoices().then((res) => {
         let amountDue = 0;
         let amountPaid = 0;
-        res.invoices.data.forEach((invoice) => {
+        res?.invoices?.data?.forEach((invoice) => {
           amountDue += invoice.amount_remaining;
           amountPaid += invoice.amount_paid;
         });
