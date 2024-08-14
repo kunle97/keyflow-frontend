@@ -19,6 +19,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
+import ReactGA from "react-ga4";
 import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
 import { preventPageReload } from "../../../../helpers/utils";
 import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
@@ -124,6 +125,11 @@ const CreatePortfolio = () => {
           setAlertMessage("Portfolio created successfully");
           setOpen(true);
           // navigate("/dashboard/owner/portfolios");
+          ReactGA.event({
+            category: "Portfolios",
+            action: "Portfolio created",
+            label: "Portfolio created",
+          });
         } else {
           setAlertTitle("Error Creating Portfolio");
           setAlertMessage(
