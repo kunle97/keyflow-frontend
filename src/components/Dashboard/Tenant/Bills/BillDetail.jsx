@@ -20,7 +20,8 @@ const BillDetail = (props) => {
   const [paymentMethods, setPaymentMethods] = useState(null);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
-  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] = useState(false);
+  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
+    useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
@@ -33,7 +34,6 @@ const BillDetail = (props) => {
     setIsLoading(true);
     try {
       getTenantInvoice(invoice_id).then((res) => {
-
         setInvoice(res.invoice);
       });
       listStripePaymentMethods(`${authUser.id}`).then((res) => {
@@ -104,20 +104,24 @@ const BillDetail = (props) => {
                         alignContent={"center"}
                         justifyContent="flex-start"
                       >
-                        <span className="text-muted">
+                        <span className="text-muted" data-testId="invoice-type">
                           {removeUnderscoresAndCapitalize(
                             invoice?.metadata?.type
                           )}
                         </span>
-                        <span style={{ fontSize: "30pt" }}>
+                        <span
+                          style={{ fontSize: "30pt" }}
+                          data-testId="invoice-amount-due"
+                        >
                           {(invoice?.amount_due / 100).toLocaleString("en-US", {
                             style: "currency",
                             currency: "USD",
                           })}
                         </span>{" "}
-                        <div className="mt-2">
+                        <div className="mt-2" data-testId="invoice-status">
                           {invoice?.paid ? (
                             <Chip
+                              data-testId="paid-chip"
                               label="Paid"
                               sx={{
                                 paddingLeft: "10px",
@@ -129,6 +133,7 @@ const BillDetail = (props) => {
                             />
                           ) : (
                             <Chip
+                              data-testId="due-chip"
                               label={
                                 <span style={{ fontSize: "12pt" }}>
                                   Due:{" "}
@@ -145,7 +150,8 @@ const BillDetail = (props) => {
                     </div>
                   )}{" "}
                   <div
-                  className={`${scrollbarStyles.customScrollbar}`}
+                    data-testId="invoice-line-items-container"
+                    className={`${scrollbarStyles.customScrollbar}`}
                     style={{
                       maxHeight: "330px",
                       overflow: "auto",
@@ -156,6 +162,7 @@ const BillDetail = (props) => {
                       invoice.lines.data.map((line, index) => {
                         return (
                           <div
+                            data-testId={`invoice-line-item-${index}`}
                             key={index}
                             className="col-md-12 mb-3"
                             style={{
@@ -172,14 +179,23 @@ const BillDetail = (props) => {
                               sx={{ width: "100%" }}
                             >
                               <Stack>
-                                <span style={{ fontSize: "12pt" }}>
+                                <span
+                                  style={{ fontSize: "12pt" }}
+                                  data-testId={`invoice-line-item-${index}-description`}
+                                >
                                   <strong>{line.description}</strong>
                                 </span>
-                                <span style={{ fontSize: "10pt" }}>
+                                <span
+                                  style={{ fontSize: "10pt" }}
+                                  data-testId={`invoice-line-item-${index}-quantity`}
+                                >
                                   Qty. {line.quantity}
                                 </span>
                               </Stack>
-                              <span>
+                              <span
+                                style={{ fontSize: "12pt" }}
+                                data-testId={`invoice-line-item-${index}-amount`}
+                              >
                                 {(line.amount / 100).toLocaleString("en-US", {
                                   style: "currency",
                                   currency: "USD",
@@ -196,8 +212,8 @@ const BillDetail = (props) => {
                         className="col-6 col-md-6 my-2"
                         style={{ textAlign: "center" }}
                       >
-                        <h5>Balance</h5>
-                        <p className="text-black">
+                        <h5 data-testId="invoice-balance-label">Balance</h5>
+                        <p className="text-black" data-testId="invoice-balance">
                           {(invoice.amount_remaining / 100).toLocaleString(
                             "en-US",
                             {
@@ -211,8 +227,11 @@ const BillDetail = (props) => {
                         className="col-6 col-md-6 my-2"
                         style={{ textAlign: "center" }}
                       >
-                        <h5>Amount paid</h5>
-                        <p className="text-black">
+                        <h5 data-testId="invoice-amount-paid-label">Amount paid</h5>
+                        <p
+                          className="text-black"
+                          data-testId="invoice-amount-paid"
+                        >
                           {" "}
                           {(invoice.amount_paid / 100).toLocaleString("en-US", {
                             style: "currency",
@@ -239,6 +258,7 @@ const BillDetail = (props) => {
                           justifyContent={"center"}
                         >
                           <UIButton
+                            dataTestId="view-details-button"
                             onClick={() => {
                               window.open(invoice.hosted_invoice_url, "_blank");
                             }}
@@ -249,6 +269,7 @@ const BillDetail = (props) => {
                             btnText="View Details"
                           />
                           <UIButton
+                            dataTestId="pay-now-details"
                             onClick={() => {
                               setOpenPaymentModal(true);
                             }}
@@ -275,6 +296,7 @@ const BillDetail = (props) => {
                           justifyContent={"center"}
                         >
                           <UIButton
+                            dataTestId="download-invoice-details"
                             onClick={() => {
                               window.open(invoice.hosted_invoice_url, "_blank");
                             }}

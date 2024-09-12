@@ -84,7 +84,7 @@ const UIPageHeader = (props) => {
         >
           <Stack style={{ maxWidth: "100%" }}>
             <h4
-              data-testId="header-title"
+              data-testId="page-header-title"
               style={{
                 marginBottom: "0px",
                 fontSize: "17pt",
@@ -110,6 +110,8 @@ const UIPageHeader = (props) => {
               {props.subtitle}
             </span>
             <span
+              className="text-black"
+              dataTestId="page-header-subtitle-2"
               style={{
                 maxWidth: isMobile ? "250px" : "450px",
                 textOverflow: "ellipsis",
@@ -129,6 +131,7 @@ const UIPageHeader = (props) => {
                 aria-expanded={open ? "true" : undefined}
                 aria-haspopup="true"
                 onClick={handleToggle}
+                data-testid="ui-page-header-menu-button"
               >
                 <MoreVertIcon />
               </IconButton>
@@ -171,6 +174,7 @@ const UIPageHeader = (props) => {
                               <>
                                 {!item.hidden && (
                                   <MenuItem
+                                    data-testid={item.dataTestId ? item.dataTestId : `ui-page-header-menu-item-${index}`}
                                     key={index}
                                     onClick={() => {
                                       item.action();

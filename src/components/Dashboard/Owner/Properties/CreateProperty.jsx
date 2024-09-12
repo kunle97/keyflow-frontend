@@ -230,7 +230,7 @@ const CreateProperty = () => {
       validations: {
         required: true,
         regex: /^[a-zA-Z0-9\s,'-]*$/,
-        errorMessage: "Must be at least 3 characters long",
+        errorMessage: "This field must be at least 3 characters long",
       },
       dataTestId: "create-property-city-input",
       errorMessageDataTestId: "create-property-city-error-message",
@@ -299,7 +299,7 @@ const CreateProperty = () => {
       validations: {
         required: true,
         regex: /^[a-zA-Z0-9\s,'-]*$/,
-        errorMessage: "Must be at least 3 characters long",
+        errorMessage: "This field is required",
       },
       dataTestId: "create-property-state-input",
       errorMessageDataTestId: "create-property-state-error-message",
@@ -603,6 +603,7 @@ const CreateProperty = () => {
                             <>
                               <select
                                 onChange={input.onChange}
+                                onBlur={input.onChange}
                                 data-testId={`create-property-${input.name}-input`}
                                 name={input.name}
                                 className="form-select"
@@ -646,7 +647,7 @@ const CreateProperty = () => {
                       spacing={2}
                     >
                       <UIButton
-                        dataTestId="create-property-next-button"
+                        dataTestId="create-property-add-units-button"
                         type="button"
                         // style={{ float: "right" }}
                         btnText="Add Units"
@@ -674,29 +675,31 @@ const CreateProperty = () => {
                 {step === 1 && (
                   <div className="units-section">
                     {units.length > 0 ? (
-                      units.map((unit, index) => {
+                      units.map((unit, unitIndex) => {
                         return (
                           <UnitRow
                             units={units}
                             errors={unitValidationErrors}
                             setErrors={setUnitValidationErrors}
                             style={{ marginBottom: "20px" }}
-                            key={index}
-                            id={index}
-                            unitNameErrors={errors[`unitName_${index}`]}
-                            unitBedsErrors={errors[`unitBeds_${index}`]}
-                            unitBathsErrors={errors[`unitBaths_${index}`]}
-                            unitSizeErrors={errors[`unitSize_${index}`]}
+                            key={unitIndex}
+                            id={unitIndex}
+                            dataTestId={`unit-row-${unitIndex}`}
+                            unitNameErrors={errors[`unitName_${unitIndex}`]}
+                            unitBedsErrors={errors[`unitBeds_${unitIndex}`]}
+                            unitBathsErrors={errors[`unitBaths_${unitIndex}`]}
+                            unitSizeErrors={errors[`unitSize_${unitIndex}`]}
                             unit={unit}
-                            onUnitChange={(e) => handleUnitChange(e, index)}
+                            onUnitChange={(e) => handleUnitChange(e, unitIndex)}
                             addUnit={addUnit}
                             removeBtn={
                               <Button
+                                data-testId={`remove-unit-${unitIndex}-button`}
                                 sx={{
                                   color: uiRed,
                                   textTransform: "none",
                                 }}
-                                onClick={() => removeUnit(index)}
+                                onClick={() => removeUnit(unitIndex)}
                               >
                                 Delete
                               </Button>
@@ -726,6 +729,7 @@ const CreateProperty = () => {
                               spacing={2}
                             >
                               <UIButton
+                              dataTestId="initial-create-unit-button"
                                 btnText={"Create Unit"}
                                 onClick={() => {
                                   addUnit();

@@ -216,6 +216,7 @@ const Units = () => {
       ) : (
         <div className="units-list-section" style={{ padding: "20px" }}>
           <UITable
+            testRowIdentifier="rental-unit"
             options={options}
             checked={checked}
             columns={columns}

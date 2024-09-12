@@ -9,8 +9,11 @@ describe("Test all functions on the owner Dasboard", () => {
     // Load login credentials from the fixture
     cy.fixture("loginCredentials").as("credentials");
 
+    
+
     // Log in using the loaded credentials
-    cy.login("Sandra83@hotmail.com", "Password1");
+    cy.login("Ignacio62@yahoo.com", "Password1");
+    
   });
   //   it("Navigate to dashboard", () => {
   //     cy.visit(hostname + "/dashboard/owner/");

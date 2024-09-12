@@ -42,6 +42,7 @@ const AlertModal = (props) => {
   };
   return (
     <Modal
+      data-testId={props.dataTestId? props.dataTestId : "alert-modal"}
       className={classes.modal}
       open={props.open}
       closeAfterTransition={false} // Prevent modal from closing on backdrop click
@@ -69,7 +70,7 @@ const AlertModal = (props) => {
           <p
             id="modal-modal-description"
             sx={{ mt: 2 }}
-            data-testid="alert-modal-message"
+            data-testid={props.dataTestId ? props.dataTestId+"-modal-message" : `alert-modal-message`}
           >
             {props.message}
           </p>
@@ -92,7 +93,7 @@ const AlertModal = (props) => {
                     id="modal-modal-button"
                     className={classes.button}
                     variant="contained"
-                    data-testid="alert-modal-button"
+                    data-testid={props.dataTestId ? props.dataTestId+"-modal-button" : `alert-modal-button`}
                   >
                     {props.btnText ? props.btnText : "Okay"}
                   </Button>
@@ -107,7 +108,7 @@ const AlertModal = (props) => {
                   }}
                   className={classes.button}
                   variant="contained"
-                  data-testid="alert-modal-button"
+                  data-testid={props.dataTestId ? props.dataTestId+"-modal-button" : `alert-modal-button`}
                 >
                   {props.btnText ? props.btnText : "Okay"}
                 </Button>

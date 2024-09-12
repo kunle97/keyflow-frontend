@@ -997,7 +997,7 @@ const ManageProperty = () => {
                       </div>
                       <div className="text-end mb-3">
                         <UIButton
-                          dataTestId="property-edit-dialog-save-button"
+                          dataTestId="update-property-save-button"
                           className="btn btn-primary btn-sm ui-btn"
                           onClick={() => {
                             const { isValid, newErrors } = validateForm(

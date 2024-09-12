@@ -34,6 +34,7 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { updateTenantAutoRenewStatus } from "../../../../api/tenants";
 import { authenticatedInstance } from "../../../../api/api";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import UIDetailCard from "../../UIComponents/UICards/UIDetailCard";
 const LeaseAgreementDetail = () => {
   const { id } = useParams();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -286,16 +287,23 @@ const LeaseAgreementDetail = () => {
             <div className="col-md-4 lease-agreement-details">
               <div className="row">
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <PeopleAltIcon sx={iconStyles} />
                       <h5>Tenant</h5>
                       <p className="text-black">{getTenantName()}</p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="tenant-detail-card"
+                    muiIcon={<PeopleAltIcon sx={iconStyles} />}
+                    title="Tenant"
+                    info={getTenantName()}
+                  />
                 </div>
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <HomeIcon sx={iconStyles} />
                       <h5>Property</h5>
@@ -305,10 +313,21 @@ const LeaseAgreementDetail = () => {
                           : "N/A"}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="property-detail-card"
+                    muiIcon={<HomeIcon sx={iconStyles} />}
+                    title="Property"
+                    info={
+                      leaseAgreement.rental_unit
+                        ? rentalUnit.rental_property_name
+                        : "N/A"
+                    }
+                  />
                 </div>
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <MeetingRoomIcon sx={iconStyles} />
                       <h5>Rental Unit</h5>
@@ -316,10 +335,17 @@ const LeaseAgreementDetail = () => {
                         {leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="unit-detail-card"
+                    muiIcon={<MeetingRoomIcon sx={iconStyles} />}
+                    title="Rental Unit"
+                    info={leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
+                  />
                 </div>
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <PaymentsIcon sx={iconStyles} />
                       <h5>Rent</h5>
@@ -327,10 +353,17 @@ const LeaseAgreementDetail = () => {
                         ${rent}/{abbreviateRentFrequency(rentFrequency)}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="rent-detail-card"
+                    muiIcon={<PaymentsIcon sx={iconStyles} />}
+                    title="Rent"
+                    info={`$${rent}/${abbreviateRentFrequency(rentFrequency)}`}
+                  />
                 </div>
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <SensorsIcon sx={iconStyles} />
                       <h5>Status</h5>
@@ -342,11 +375,24 @@ const LeaseAgreementDetail = () => {
                         )}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="status-detail-card"
+                    muiIcon={<SensorsIcon sx={iconStyles} />}
+                    title="Status"
+                    info={
+                      leaseAgreement.is_active ? (
+                        <span style={{ color: uiGreen }}>Active</span>
+                      ) : (
+                        <span style={{ color: uiRed }}>Inactive</span>
+                      )
+                    }
+                  />
                 </div>
 
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <DrawIcon sx={iconStyles} />
                       <h5>Sign Date</h5>
@@ -360,11 +406,24 @@ const LeaseAgreementDetail = () => {
                         )}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="sign-date-detail-card"
+                    muiIcon={<DrawIcon sx={iconStyles} />}
+                    title="Sign Date"
+                    info={
+                      leaseAgreement.start_date ? (
+                        new Date(leaseAgreement.start_date).toLocaleDateString()
+                      ) : (
+                        <span>N/A</span>
+                      )
+                    }
+                  />
                 </div>
 
                 <div className="col-6 col-md-6">
-                  <div className="card mb-3">
+                  {/* <div className="card mb-3">
                     <div className="card-body">
                       <CalendarMonthIcon sx={iconStyles} />
                       <h5>End Date</h5>
@@ -376,10 +435,23 @@ const LeaseAgreementDetail = () => {
                         )}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="lease-end-detail-card"
+                    muiIcon={<CalendarMonthIcon sx={iconStyles} />}
+                    title="End Date"
+                    info={
+                      leaseAgreement.end_date ? (
+                        new Date(leaseAgreement.end_date).toLocaleDateString()
+                      ) : (
+                        <span>N/A</span>
+                      )
+                    }
+                  />
                 </div>
                 <div className="col-6 col-md-6">
-                  <div className="card">
+                  {/* <div className="card">
                     <div className="card-body">
                       <AccessTimeIcon sx={iconStyles} />
                       <h5>Term</h5>
@@ -388,32 +460,45 @@ const LeaseAgreementDetail = () => {
                         {term + " " + rentFrequency}(s)
                       </span>
                     </div>
-                  </div>
+                  </div> */}
+
+                  <UIDetailCard
+                    style={{ marginBottom: "15px" }}
+                    dataTestId="lease-term-detail-card"
+                    muiIcon={<AccessTimeIcon sx={iconStyles} />}
+                    title="Term"
+                    info={term + " " + rentFrequency + "(s)"}
+                  />
                 </div>
               </div>
 
               <p style={{ color: uiGrey2 }}>
-                <strong>Auto Pay Enabled:</strong>{" "}
+                <strong data-testId="auto-pay-enabled-label">
+                  Auto Pay Enabled:
+                </strong>{" "}
                 {leaseAgreement.is_active ? (
-                  <span>
+                  <span data-testId="auto-pay-enabled-value" >
                     {leaseAgreement.auto_pay_is_enabled ? "Yes" : "No"}
                   </span>
                 ) : (
-                  "N/A"
+                  <span data-testId="auto-pay-enabled-value" >"N/A"</span>
                 )}
               </p>
               <p style={{ color: uiGrey2 }}>
                 {dateDiffForHumans(new Date(nextPaymentDate)) <= 5 && (
                   <ReportIcon sx={{ color: "red" }} />
                 )}{" "}
-                <strong>Rent due </strong>
-                {leaseAgreement.is_active
-                  ? dateDiffForHumans(new Date(nextPaymentDate))
-                  : "N/A"}
+                <strong data-testId="rent-due-label">Rent due </strong>
+                <span data-testId="rent-due-value">
+                  {leaseAgreement.is_active
+                    ? dateDiffForHumans(new Date(nextPaymentDate))
+                    : "N/A"}
+                </span>
               </p>
               {leaseAgreement.document_id !== "" && (
-                <div className="download-document-button">
+                <div className="download-document-button-container">
                   <UIButton
+                    dataTestId="download-document-button"
                     btnText="Download Document"
                     style={{ width: "100%", marginBottom: "25px" }}
                     onClick={handleDownloadDocument}
@@ -422,9 +507,10 @@ const LeaseAgreementDetail = () => {
               )}
             </div>
             <div className="col-md-8 lease-agreement-calendar">
-              <div className="card">
+              <div className="card" data-testid="lease-agreement-calendar-card">
                 <div className="card-body">
                   <FullCalendar
+                    data-testid="lease-agreement-calendar"
                     height={isMobile ? "500px" : "600px"}
                     plugins={[dayGridPlugin]}
                     initialView="dayGridMonth"

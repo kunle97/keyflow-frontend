@@ -283,7 +283,7 @@ const OwnerMaintenanceRequests = () => {
       />
       {isMobile ? (
         <UITableMobile
-          data={maintenanceRequests}
+          // data={maintenanceRequests}
           endpoint="/maintenance-requests/"
           createInfo={(row) =>
             `${row.tenant.user["first_name"]} ${row.tenant.user["last_name"]}`
@@ -315,7 +315,10 @@ const OwnerMaintenanceRequests = () => {
       ) : (
         <div className="maintenance-request-section-table">
           <UITable
-            // data={maintenanceRequests}
+            showCreate={true}
+            createURL="/dashboard/owner/create-maintenance-request"
+            dataTestId="maintenance-requests-table"
+            testRowIdentifier="maintenance-request-row"
             endpoint="/maintenance-requests/"
             columns={columns}
             options={options}

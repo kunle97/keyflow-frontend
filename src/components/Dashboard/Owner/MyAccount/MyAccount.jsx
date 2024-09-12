@@ -5,9 +5,7 @@ import {
   uiGrey,
   validationMessageStyle,
 } from "../../../../constants";
-import {
-  createBillingPortalSession,
-} from "../../../../api/payment_methods";
+import { createBillingPortalSession } from "../../../../api/payment_methods";
 import { changePassword } from "../../../../api/passwords";
 import { updateUserData } from "../../../../api/auth";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -51,9 +49,9 @@ const MyAccount = () => {
   const [progressMessage, setProgressMessage] = useState(null);
   const [tabPage, setTabPage] = useState(0);
   const [tabs, setTabs] = useState([
-    { label: "Account" },
-    { label: "Billing & Subsciptions" },
-    { label: "Notification Settings" },
+    { label: "Account", dataTestId: "account-tab" },
+    { label: "Billing & Subsciptions", dataTestId: "billing-tab" },
+    { label: "Notification Settings", dataTestId: "notification-tab" },
   ]);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
@@ -87,8 +85,6 @@ const MyAccount = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const accountFormInputs = [
@@ -111,7 +107,7 @@ const MyAccount = () => {
         regex: validName,
         errorMessage: "Please enter a valid first name",
       },
-      dataTestId: "first-name",
+      dataTestId: "first-name-account-imput",
       errorMessageDataTestId: "first-name-error",
     },
     {
@@ -133,7 +129,7 @@ const MyAccount = () => {
         regex: validName,
         errorMessage: "Please enter a valid last name",
       },
-      dataTestId: "last-name",
+      dataTestId: "last-name-account-imput",
       errorMessageDataTestId: "last-name-error",
     },
     {
@@ -156,7 +152,7 @@ const MyAccount = () => {
         regex: validUserName,
         errorMessage: "Please enter a valid username",
       },
-      dataTestId: "username",
+      dataTestId: "username-account-imput",
       errorMessageDataTestId: "username-error",
     },
     {
@@ -178,7 +174,7 @@ const MyAccount = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email",
       },
-      dataTestId: "email",
+      dataTestId: "email-account-imput",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -202,7 +198,7 @@ const MyAccount = () => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter your current password",
       },
-      dataTestId: "current-password",
+      dataTestId: "current-password-input",
       errorMessageDataTestId: "current-password-error",
     },
     {
@@ -225,7 +221,7 @@ const MyAccount = () => {
         errorMessage:
           "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
       },
-      dataTestId: "new-password",
+      dataTestId: "new-password-input",
       errorMessageDataTestId: "new-password-error",
     },
     {
@@ -251,7 +247,7 @@ const MyAccount = () => {
           }
         },
       },
-      dataTestId: "repeat-password",
+      dataTestId: "repeat-password-input",
       errorMessageDataTestId: "repeat-password-error",
     },
   ];
@@ -259,7 +255,6 @@ const MyAccount = () => {
   const onAccountUpdateSubmit = () => {
     //Create a data object to send to the backend
     updateUserData(accountFormData).then((res) => {
-
       if (res.status === 200) {
         setResponseTitle("Success");
         setResponseMessage("Account updated successfully");
@@ -270,7 +265,6 @@ const MyAccount = () => {
 
   const onSubmitChangePassword = () => {
     changePassword(passwordFormData).then((res) => {
-
       if (res.status === 200) {
         setResponseTitle("Success");
         setResponseMessage("Password changed successfully");
@@ -290,7 +284,6 @@ const MyAccount = () => {
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
     if (inputType === "switch") {
-
       //Update the value of the preference and use setOwnerPreferences to update the state
       let newOwnerPreferences = ownerPreferences.map((preference) => {
         if (preference.name === preferenceName) {
@@ -307,11 +300,8 @@ const MyAccount = () => {
       let payload = {
         preferences: newOwnerPreferences,
       };
-      updateOwnerPreferences(payload).then((res) => {
-
-      });
+      updateOwnerPreferences(payload).then((res) => {});
     } else {
-
     }
   };
 
@@ -320,11 +310,9 @@ const MyAccount = () => {
     setProgressMessage("Redirecting to billing portal...");
     createBillingPortalSession()
       .then((res) => {
-
         window.location.href = res.url;
       })
       .catch((error) => {
-
         setIsLoading(false);
       })
       .finally(() => {});
@@ -334,7 +322,6 @@ const MyAccount = () => {
     try {
       syncPreferences();
       getStripeAccountLink().then((res) => {
-
         setStripeAccountLink(res.account_link);
       });
       retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
@@ -346,7 +333,6 @@ const MyAccount = () => {
         setOwnerPreferences(res.preferences);
       });
     } catch (e) {
-
       setResponseTitle("Error");
       setResponseMessage("Error getting user data");
       setShowResponseModal(true);
@@ -403,6 +389,7 @@ const MyAccount = () => {
               />
             </div>
             <Button
+              data-testId="change-photo"
               btnText="Change Photo"
               onClick={() => setUploadDialogOpen(true)}
               variant="text"
@@ -418,11 +405,18 @@ const MyAccount = () => {
           </Stack>
 
           <div>
-            <h5 style={{ width: "100%", textAlign: "left", margin: "0" }}>
+            <h5
+              style={{ width: "100%", textAlign: "left", margin: "0" }}
+              data-testId="user-full-name"
+            >
               {authUser.first_name} {authUser.last_name}
             </h5>
             <div style={{ width: "100%", textAlign: "left" }}>
-              <a href={`mailto:${authUser.email}`} className="text-muted">
+              <a
+                href={`mailto:${authUser.email}`}
+                className="text-muted"
+                data-testId="user-email"
+              >
                 {authUser.email}
               </a>
             </div>
@@ -430,6 +424,7 @@ const MyAccount = () => {
         </Stack>
 
         <UIButton
+          dataTestId="stripe-dashboard-btn"
           btnText="Stripe Dashboard"
           onClick={() => {
             window.open(stripeAccountLink, "_blank");
@@ -463,6 +458,7 @@ const MyAccount = () => {
             >
               <h4>Account Information</h4>
               <UIButton
+                dataTestId="manage-billing-btn"
                 btnText="Manage Billing"
                 onClick={manageBillingOnClick}
               />
@@ -477,9 +473,9 @@ const MyAccount = () => {
                           <div
                             className={`col-md-${input.colSpan} mb-3`}
                             key={index}
-                            data-testId={`${input.dataTestId}`}
                           >
                             <label
+                              data-testId={`${input.dataTestId}-label`}
                               className="form-label text-black"
                               htmlFor={input.name}
                             >
@@ -487,6 +483,7 @@ const MyAccount = () => {
                             </label>
 
                             <input
+                              data-testId={`${input.dataTestId}`}
                               style={{
                                 background: uiGrey,
                               }}
@@ -511,6 +508,7 @@ const MyAccount = () => {
                     </div>
                     <div className="mb-3">
                       <UIButton
+                        dataTestId="update-account-button"
                         style={{ float: "right" }}
                         onClick={() => {
                           const { isValid, newErrors } = validateForm(
@@ -550,15 +548,16 @@ const MyAccount = () => {
                         <div
                           className={`col-md-${input.colSpan} mb-3`}
                           key={index}
-                          data-testId={`${input.dataTestId}`}
                         >
                           <label
+                            data-testId={`${input.dataTestId}-label`}
                             className="form-label text-black"
                             htmlFor={input.name}
                           >
                             {input.label}
                           </label>
                           <input
+                            data-testId={`${input.dataTestId}`}
                             style={{
                               background: uiGrey,
                             }}
@@ -582,6 +581,7 @@ const MyAccount = () => {
                     })}
                     <div className="mb-3">
                       <UIButton
+                        dataTestId="change-password-button"
                         style={{ float: "right" }}
                         onClick={() => {
                           const { isValid, newErrors } = validateForm(

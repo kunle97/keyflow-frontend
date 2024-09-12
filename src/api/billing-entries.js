@@ -14,7 +14,7 @@ export async function createBillingEntry(data) {
     return {
       message: "Tenant invite created successfully",
       status: 201,
-      data: res,
+      data: res.data,
     };
   } catch (error) {
 

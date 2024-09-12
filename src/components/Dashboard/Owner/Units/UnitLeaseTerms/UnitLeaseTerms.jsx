@@ -19,6 +19,7 @@ const UnitLeaseTerms = (props) => {
             style={{
               marginTop: "15px",
             }}
+            dataTestId="unit-occupied-prompt"
             icon={<NoMeetingRoomIcon style={iconStyles} />}
             title="Unit Occupied"
             message="You cannot edit the lease terms for this unit because it is occupied."
@@ -27,6 +28,7 @@ const UnitLeaseTerms = (props) => {
                 <div className="col-md-12">
                   <Link to={`/dashboard/owner/tenants/${props.tenant?.id}`}>
                     <Button
+                      data-testId="view-tenant-button"
                       style={{
                         background: uiGreen,
                         color: "white",
@@ -51,6 +53,7 @@ const UnitLeaseTerms = (props) => {
                 const selectOptions = preference.options;
                 return (
                   <UIPreferenceRow
+                    dataTestId={preference.name + "_lease_term"}
                     title={preference.label}
                     value={preference.value}
                     description={preference.description}
@@ -64,6 +67,7 @@ const UnitLeaseTerms = (props) => {
               } else if (preference.inputType === "switch") {
                 return (
                   <UIPreferenceRow
+                    dataTestId={preference.name + "_lease_term"}
                     title={preference.label}
                     value={preference.value}
                     description={preference.description}
@@ -74,8 +78,13 @@ const UnitLeaseTerms = (props) => {
                   />
                 );
               } else {
+                console.log(
+                  "preference datatest id",
+                  preference.name + "_lease_term"
+                );
                 return (
                   <UIPreferenceRow
+                    dataTestId={preference.name + "_lease_term"}
                     title={preference.label}
                     value={preference.value}
                     description={preference.description}
@@ -94,6 +103,7 @@ const UnitLeaseTerms = (props) => {
                   const selectOptions = preference.options;
                   return (
                     <UIPreferenceRow
+                      dataTestId={preference.name + "_lease_term"}
                       title={preference.label}
                       value={preference.value}
                       description={preference.description}
@@ -107,6 +117,7 @@ const UnitLeaseTerms = (props) => {
                 } else if (preference.inputType === "switch") {
                   return (
                     <UIPreferenceRow
+                      dataTestId={preference.name + "_lease_term"}
                       title={preference.label}
                       value={preference.value}
                       description={preference.description}
@@ -119,6 +130,7 @@ const UnitLeaseTerms = (props) => {
                 } else {
                   return (
                     <UIPreferenceRow
+                      dataTestId={preference.name + "_lease_term"}
                       title={preference.label}
                       value={preference.value}
                       description={preference.description}

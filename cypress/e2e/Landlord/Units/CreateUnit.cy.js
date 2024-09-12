@@ -8,7 +8,7 @@ describe("CreateUnit Component", () => {
     //LOg the user in using the cypress command login
 
     // Log in using the loaded credentials
-    cy.login("Sandra83@hotmail.com", "Password1");
+    cy.login();
     cy.visit("/dashboard/owner/units/create"); // Replace with the actual route where your component is rendered
   });
 
@@ -63,16 +63,16 @@ describe("CreateUnit Component", () => {
       // Check if index is within the bounds of testData array
       if (index < testData.length) {
         // Add test data to each row
-        cy.get(`[data-testid="unit-row-${index}-unit-name-input"]`).type(
+        cy.get(`[data-testid="unit-row-${index}-name-input"]`).type(
           testData[index].name
         );
-        cy.get(`[data-testid="unit-row-${index}-unit-beds-input"]`).type(
+        cy.get(`[data-testid="unit-row-${index}-beds-input"]`).type(
           testData[index].beds
         );
-        cy.get(`[data-testid="unit-row-${index}-unit-baths-input"]`).type(
+        cy.get(`[data-testid="unit-row-${index}-baths-input"]`).type(
           testData[index].baths
         );
-        cy.get(`[data-testid="unit-row-${index}-unit-size-input"]`).type(
+        cy.get(`[data-testid="unit-row-${index}-size-input"]`).type(
           testData[index].size
         );
       } else {
@@ -83,11 +83,11 @@ describe("CreateUnit Component", () => {
 
     // Submit the form
     cy.get('[data-testid="create-unit-submit-button"]').click();
-
-    //Chec for Progress modal
-    cy.get('[data-testid="progress-modal-title"]').should("be.visible");
+    
+    //Check for Progress modal
+    cy.get('[data-testid="progress-modal-title"]').should("be.visible").contains("Creating Units...");
     cy.get('[data-testid="progress-modal-loading-icon"]').should("be.visible");
-    // Assert the success state or navigate to the success page
+
     //GEt value from property select
     cy.get('[data-testid="create-unit-property-select"]')
       .invoke("val")
@@ -97,7 +97,6 @@ describe("CreateUnit Component", () => {
   });
 
   // Add more test cases as needed
-
   afterEach(() => {
     cy.wait(1000);
     //REtrieve the auth object from the getAuth command
@@ -105,7 +104,7 @@ describe("CreateUnit Component", () => {
       // Log user out witht the cypress command logout
       cy.logout(auth.token);
       //Navigate to the homepage
-      cy.visit(hostname + "/");
+      cy.visit(Cypress.env("REACT_APP_HOSTNAME") + "/");
     });
   });
 });

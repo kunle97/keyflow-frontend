@@ -221,6 +221,7 @@ const BillingEntries = () => {
           />
         ) : (
           <UITable
+            dataTestId="billing-entries-table"
             showCreate={true}
             createURL="/dashboard/owner/billing-entries/create"
             options={options}

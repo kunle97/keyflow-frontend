@@ -15,7 +15,7 @@ import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import BackButton from "../../UIComponents/BackButton";
 import { Chip, Stack } from "@mui/material";
 import { authUser, uiGreen, uiRed } from "../../../../constants";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import Timeline from "@mui/lab/Timeline";
 import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
@@ -41,10 +41,9 @@ const OwnerMaintenanceRequestDetail = () => {
   const [unit, setUnit] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [confirmMessage, setConfirmMessage] = useState("");
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showDeleteError, setShowDeleteError] = useState(false);
-  const [deleteErrorMessage, setDeleteErrorMessage] = useState(false);
   const [status, setStatus] = useState(null); //["pending", "in_progress", "completed"]
   const [priority, setPriority] = useState(null); //["1", "2", "3", "4", "5"]
   const [changeStatusDialogOpen, setChangeStatusDialogOpen] = useState(false);
@@ -52,7 +51,7 @@ const OwnerMaintenanceRequestDetail = () => {
     useState(false);
   const [progressModalOpen, setProgressModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
-
+  const [alertRedirectURL, setAlertRedirectURL] = useState("");
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
@@ -130,7 +129,8 @@ const OwnerMaintenanceRequestDetail = () => {
     changeMaintenanceRequestStatus(id, payload)
       .then((res) => {
         if (res.status === 200) {
-          setConfirmMessage("Maintenance Request status has been changed");
+          setAlertModalTitle("Status Updated");
+          setAlertModalMessage("Maintenance Request status has been changed");
           setShowAlertModal(true);
           setStatus(status);
           if (
@@ -139,8 +139,6 @@ const OwnerMaintenanceRequestDetail = () => {
           ) {
             //Create a confirm modal messages asking the user if they want to create a billing entry
             setBillingEntryConfirmModalOpen(true);
-          } else {
-            navigate(0);
           }
         }
       })
@@ -160,10 +158,10 @@ const OwnerMaintenanceRequestDetail = () => {
     changeMaintenanceRequestPriority(id, payload)
       .then((res) => {
         if (res.status === 200) {
-          setConfirmMessage("Maintenance Request priority has been changed");
+          setAlertModalTitle("Priority Updated");
+          setAlertModalMessage("Maintenance Request priority has been changed");
           setShowAlertModal(true);
           setPriority(priority);
-          navigate(0);
         }
       })
       .catch((err) => {})
@@ -176,28 +174,32 @@ const OwnerMaintenanceRequestDetail = () => {
   const handleDeleteMaintenanceRequest = () => {
     //Check if maintenance request is in progress
     if (maintenanceRequest.status === "in_progress") {
-      setDeleteErrorMessage(
+      setAlertModalTitle("Error");
+      setAlertModalMessage(
         "Cannot delete maintenance request that is in progress"
       );
-      setShowDeleteError(true);
-      setShowDeleteConfirm(false);
+      setShowAlertModal(true);
       return;
     }
     deleteMaintenanceRequest(id)
       .then((res) => {
         if (res.status === 204) {
-          setConfirmMessage(
+          setAlertModalTitle("Maintenance Request Deleted");
+          setAlertModalMessage(
             "Maintenance Request has been deleted. You will be redirected to the maintenance requests page."
           );
           setShowAlertModal(true);
-          navigate("/dashboard/owner/maintenance-requests");
+          setAlertRedirectURL("/dashboard/owner/maintenance-requests");
         } else {
-          setShowDeleteError(true);
+          setAlertModalTitle("Error");
+          setAlertModalMessage("Error deleting maintenance request");
+          setShowAlertModal(true);
         }
       })
       .catch((err) => {
-        setDeleteErrorMessage("Error deleting maintenance request");
-        setShowDeleteError(true);
+        setAlertModalTitle("Error");
+        setAlertModalMessage("Error deleting maintenance request");
+        setShowAlertModal(true);
       });
   };
 
@@ -215,8 +217,9 @@ const OwnerMaintenanceRequestDetail = () => {
             setProperty(property_res.data);
           })
           .catch((err) => {
-            setDeleteErrorMessage("Error retrieving property");
-            setShowDeleteError(true);
+            setAlertModalMessage("Error retrieving property");
+            setAlertModalTitle("Error");
+            setShowAlertModal(true);
           });
         //Retrieve unit by id
         getUnit(res.data.rental_unit.id)
@@ -224,8 +227,9 @@ const OwnerMaintenanceRequestDetail = () => {
             setUnit(unit_res);
           })
           .catch((err) => {
-            setDeleteErrorMessage("Error retrieving unit");
-            setShowDeleteError(true);
+            setAlertModalTitle("Error");
+            setAlertModalMessage("Error retrieving unit");
+            setShowAlertModal(true);
           });
       })
       .catch((err) => {});
@@ -265,17 +269,14 @@ const OwnerMaintenanceRequestDetail = () => {
           <AlertModal
             open={showAlertModal}
             handleClose={() => setShowAlertModal(false)}
-            onClick={() => setShowAlertModal(false)}
-            title="Maintenance Request"
-            message={confirmMessage}
-            btnText="Okay"
-          />
-          <AlertModal
-            open={showDeleteError}
-            handleClose={() => setShowDeleteError(false)}
-            onClick={() => setShowDeleteError(false)}
-            title="Error"
-            message={deleteErrorMessage}
+            onClick={() => {
+              if(alertRedirectURL){
+                navigate(alertRedirectURL);
+              }
+              setShowAlertModal(false);
+            }}
+            title={alertModalTitle}
+            message={alertModalMessage}
             btnText="Okay"
           />
           <ConfirmModal
@@ -317,6 +318,7 @@ const OwnerMaintenanceRequestDetail = () => {
             <div className="mb-4">
               <form onSubmit={handleChangeStatus}>
                 <select
+                  data-testid="status-select"
                   {...register("status", { required: true })}
                   className="form-select card"
                   style={{ background: "white" }}
@@ -331,6 +333,7 @@ const OwnerMaintenanceRequestDetail = () => {
                   <p className="text-danger">Please select a status</p>
                 )}
                 <UIButton
+                  dataTestId="change-status-button"
                   type="submit"
                   className="btn btn-primary mt-3"
                   btnText="Change Status"
@@ -349,6 +352,7 @@ const OwnerMaintenanceRequestDetail = () => {
             <div className="mb-4">
               <form onSubmit={handleChangePriority}>
                 <select
+                  data-testid="priority-select"
                   {...register("priority", { required: true })}
                   className="form-select card"
                   style={{ background: "white" }}
@@ -370,6 +374,7 @@ const OwnerMaintenanceRequestDetail = () => {
                   <p className="text-danger">Please select a priority</p>
                 )}
                 <UIButton
+                  dataTestId="change-priority-button"
                   type="submit"
                   className="btn btn-primary mt-3"
                   btnText="Change Priority"
@@ -445,14 +450,20 @@ const OwnerMaintenanceRequestDetail = () => {
           />
           <div className="row">
             <div className="col-md-4">
-              <div className="card mb-3  tenant-message-section">
+              <div
+                className="card mb-3  tenant-message-section"
+                data-testid="tenant-message-section"
+              >
                 <div className="card-body">
-                  <h5 className="mb-2 card-title text-black">
+                  <h5
+                    className="mb-2 card-title text-black"
+                    data-testid="tenant-message-title"
+                  >
                     Message from tenant
                   </h5>
                   <div className="row">
                     <div className="col-md-12">
-                      <p className="text-black">
+                      <p className="text-black" data-testid="tenant-message">
                         {maintenanceRequest.description}
                       </p>
                     </div>
@@ -463,6 +474,7 @@ const OwnerMaintenanceRequestDetail = () => {
             <div className="col-md-8">
               {events.length === 0 ? (
                 <UIPrompt
+                  data-testid="no-events-prompt"
                   icon={
                     <ConstructionIcon
                       sx={{ fontSize: "30pt", color: uiGreen }}
@@ -480,10 +492,13 @@ const OwnerMaintenanceRequestDetail = () => {
                       maxHeight: "520px",
                     }}
                   >
-                    <h5 className="mb-2 card-title text-black">
+                    <h5
+                      className="mb-2 card-title text-black"
+                      data-testid="event-timeline-title"
+                    >
                       Maintenance Request Updates
                     </h5>
-                    <Timeline align="left">
+                    <Timeline align="left" data-testid="event-timeline">
                       {events.map((event) => (
                         <TimelineItem>
                           <TimelineOppositeContent sx={{ flex: 0.1 }}>
