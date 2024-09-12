@@ -169,6 +169,7 @@ const UploadDialog = (props) => {
               setFiles={setFiles}
             />
             <UIButton
+              dataTestId="dropzone-upload-file-button"
               type="submit"
               btnText="Upload File"
               style={{ width: "100%" }}

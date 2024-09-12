@@ -240,14 +240,16 @@ const Bills = () => {
             }}
           />{" "}
           <span className="text-black">
-            Show Next Invoice  Only
+            Show Next Invoice Only
             <UISwitch
+              data-testId="show-all-invoices-switch"
               value={!showAllInvoices}
               onChange={() => setShowAllInvoices(!showAllInvoices)}
             />{" "}
           </span>
           {leaseAgreement?.auto_pay_is_enabled ? (
             <UIPrompt
+              dataTestId="auto-pay-enabled-prompt"
               icon={
                 <PaymentsIcon
                   sx={{
@@ -285,6 +287,7 @@ const Bills = () => {
             <>
               {isMobile ? (
                 <UITableMobile
+                  dataTestId="tenant-bills-table-mobile"
                   showCreate={false}
                   tableTitle="Bills"
                   data={showAllInvoices ? invoices : [nextInvoice]}
@@ -329,6 +332,8 @@ const Bills = () => {
               ) : (
                 <div className="tenant-bills-table-container">
                   <UITable
+                    dataTestId="tenant-bills-table"
+                    testRowIdentifier="tenant-bills-table-row"
                     columns={columns}
                     options={options}
                     title="Bills"

@@ -29,6 +29,7 @@ const CreatePortfolio = () => {
   const [open, setOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
+  const [alertRedirect, setAlertRedirect] = useState(null);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
@@ -88,8 +89,8 @@ const CreatePortfolio = () => {
           });
         },
       },
-      dataTestId: "portfolio-name",
-      errorMessageDataTestId: "portfolio-name-error",
+      dataTestId: "create-portfolio-name-input",
+      errorMessageDataTestId: "create-portfolio-name-input-error",
     },
     {
       name: "description",
@@ -103,8 +104,8 @@ const CreatePortfolio = () => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid description for the portfolio",
       },
-      dataTestId: "portfolio-description",
-      errorMessageDataTestId: "portfolio-description-error",
+      dataTestId: "create-portfolio-description-textarea",
+      errorMessageDataTestId: "create-portfolio-description-textarea-error",
     },
   ];
   const onSubmit = () => {
@@ -118,12 +119,13 @@ const CreatePortfolio = () => {
 
     createPortfolio(payload)
       .then((res) => {
-
+        
+        console.log(res);
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio created successfully");
           setOpen(true);
-          // navigate("/dashboard/owner/portfolios");
+          setAlertRedirect(`/dashboard/owner/portfolios/${res.data.id}`);
         } else {
           setAlertTitle("Error Creating Portfolio");
           setAlertMessage(
@@ -171,7 +173,11 @@ const CreatePortfolio = () => {
         message={alertMessage}
         btnText={"Ok"}
         onClick={() => {
-          navigate("/dashboard/owner/portfolios")
+          if (alertRedirect) {
+            navigate(alertRedirect);
+          }else{
+            navigate("/dashboard/owner/portfolios");
+          }
           setOpen(false);
         }}
       />
@@ -186,7 +192,9 @@ const CreatePortfolio = () => {
                   key={index}
                   data-testId={`${input.dataTestId}`}
                 >
-                  <label className="form-label text-black" htmlFor={input.name}>
+                  <label className="form-label text-black" htmlFor={input.name}
+                    data-testId={`${input.dataTestId}-label`}
+                  >
                     {input.label}
                   </label>
                   {input.type === "textarea" ? (

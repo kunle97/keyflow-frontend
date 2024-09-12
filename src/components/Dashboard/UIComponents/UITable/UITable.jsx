@@ -80,7 +80,9 @@ const UITable = (props) => {
   const [query, setQuery] = useState(null);
   const [nextPageEndPoint, setNextPageEndPoint] = useState("/");
   const [previousPageEndPoint, setPreviousPageEndPoint] = useState("/");
-  const [orderby, setOrderBy] = useState("-created_at");
+  const [orderby, setOrderBy] = useState(
+    props.defaultOrderingField ? props.defaultOrderingField : "-created_at"
+  );
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const initialSelectedOptions = props.filters
@@ -535,7 +537,10 @@ const UITable = (props) => {
             spacing={2}
           >
             <h3>
-              {props.title} ({isDrfFilterBackend ? count : results.length})
+              {props.title}{" "}
+              <span data-testId={props.dataTestId + "-result-count"}>
+                ({isDrfFilterBackend ? count : results.length})
+              </span>
             </h3>
           </Stack>
 
@@ -577,6 +582,7 @@ const UITable = (props) => {
               </span>
             )}
             <input
+              data-testid={props.dataTestId + "-search-input"}
               className="ui-table-search-input"
               style={{
                 background: "#efefef",
@@ -594,6 +600,7 @@ const UITable = (props) => {
               Show
             </span>
             <select
+              data-testid={props.dataTestId + "-result-limit-select"}
               className="form-select ui-table-result-limit-select"
               value={limit}
               onChange={(e) => {
@@ -635,6 +642,7 @@ const UITable = (props) => {
             {results.length === 0 ? (
               <>
                 <UIPrompt
+                  dataTestId={props.dataTestId + "-no-results-ui-prompt"}
                   icon={
                     <SearchOffIcon
                       style={{ fontSize: "5rem", color: uiGreen }}
@@ -647,7 +655,8 @@ const UITable = (props) => {
             ) : (
               <table
                 // id="ui-table"
-                className="styled-table "
+                data-testid={props.dataTestId}
+                className="styled-table"
                 style={{ width: "100%", padding: "0 35px" }}
               >
                 <thead>
@@ -721,6 +730,11 @@ const UITable = (props) => {
                       {results.map((row, index) => {
                         return (
                           <tr
+                            data-testid={
+                              props.testRowIdentifier
+                                ? `${props.testRowIdentifier}-table-row-${index}`
+                                : `${props.dataTestId}-table-row-${index}`
+                            }
                             style={{
                               backgroundColor: "white",
                               boxShadow: !props.hideShadow
@@ -756,6 +770,11 @@ const UITable = (props) => {
                                 if (column.options.customBodyRender) {
                                   return (
                                     <td
+                                      data-testid={
+                                        props.testRowIdentifier
+                                          ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                          : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                      }
                                       style={{
                                         maxWidth: maxTableCellWidth,
                                         overflow: "hidden",
@@ -772,6 +791,11 @@ const UITable = (props) => {
                               }
                               return (
                                 <td
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                      : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                  }
                                   style={{
                                     maxWidth: maxTableCellWidth,
                                     overflow: "hidden",
@@ -787,6 +811,11 @@ const UITable = (props) => {
                               <div className="ui-table-more-button">
                                 <IconButton
                                   id="ui-table-more-button"
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-more-button-${index}`
+                                      : `${props.dataTestId}-more-button-${index}`
+                                  }
                                   onClick={(event) =>
                                     handleMenuClick(event, index)
                                   }
@@ -816,21 +845,37 @@ const UITable = (props) => {
                                       >
                                         <MenuList>
                                           {props.menuOptions.map(
-                                            (option, index) => (
-                                              <MenuItem
-                                                key={index}
-                                                onClick={() =>
-                                                  option.onClick(row)
-                                                }
-                                                id="menu-list-grow"
-                                                onKeyDown={handleCloseMenu}
-                                              >
-                                                <Typography>
-                                                  {option.name}
-                                                </Typography>
-                                              </MenuItem>
-                                            )
+                                            (option, menuOptionIndex) => {
+                                              return (
+                                                <>
+                                                  {/* Ensure that hidden is called with row data */}
+                                                  {(!option.hidden ||
+                                                    !option.hidden(row)) && (
+                                                    <MenuItem
+                                                      key={menuOptionIndex}
+                                                      onClick={() =>
+                                                        option.onClick(row)
+                                                      }
+                                                      id="menu-list-grow"
+                                                      data-testid={
+                                                        props.testRowIdentifier
+                                                          ? `${props.testRowIdentifier}-${index}-menu-option-${menuOptionIndex}`
+                                                          : `${props.dataTestId}-${index}-menu-option-${menuOptionIndex}`
+                                                      }
+                                                      onKeyDown={
+                                                        handleCloseMenu
+                                                      }
+                                                    >
+                                                      <Typography>
+                                                        {option.name}
+                                                      </Typography>
+                                                    </MenuItem>
+                                                  )}
+                                                </>
+                                              );
+                                            }
                                           )}
+
                                           {props.options.onRowDelete && (
                                             <MenuItem
                                               onClick={() => {
@@ -875,6 +920,11 @@ const UITable = (props) => {
                       {currentItems.map((row, index) => {
                         return (
                           <tr
+                            data-testid={
+                              props.testRowIdentifier
+                                ? `${props.testRowIdentifier}-table-row-${index}`
+                                : `${props.dataTestId}-table-row-${index}`
+                            }
                             style={{
                               backgroundColor: "white",
                               boxShadow:
@@ -887,6 +937,11 @@ const UITable = (props) => {
                                 if (column.options.customBodyRender) {
                                   return (
                                     <td
+                                      data-testid={
+                                        props.testRowIdentifier
+                                          ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                          : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                      }
                                       style={{
                                         maxWidth: maxTableCellWidth,
                                         overflow: "hidden",
@@ -903,6 +958,11 @@ const UITable = (props) => {
                               }
                               return (
                                 <td
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                      : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                  }
                                   style={{
                                     maxWidth: maxTableCellWidth,
                                     overflow: "hidden",
@@ -917,6 +977,11 @@ const UITable = (props) => {
                             {props.menuOptions && (
                               <td>
                                 <IconButton
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-more-button-${index}`
+                                      : `${props.dataTestId}-more-button-${index}`
+                                  }
                                   onClick={(event) =>
                                     handleMenuClick(event, index)
                                   }
@@ -945,21 +1010,28 @@ const UITable = (props) => {
                                         >
                                           <MenuList>
                                             {props.menuOptions.map(
-                                              (option, index) => (
-                                                <MenuItem
-                                                  key={index}
-                                                  onClick={() =>
-                                                    option.onClick(row)
-                                                  }
-                                                  id="menu-list-grow"
-                                                  onKeyDown={handleCloseMenu}
-                                                >
-                                                  <Typography>
-                                                    {option.name}
-                                                  </Typography>
-                                                </MenuItem>
-                                              )
+                                              (option, menuOptionIndex) =>
+                                                !option.hidden ? (
+                                                  <MenuItem
+                                                    key={menuOptionIndex}
+                                                    onClick={() =>
+                                                      option.onClick(row)
+                                                    }
+                                                    id="menu-list-grow"
+                                                    data-testid={
+                                                      props.testRowIdentifier
+                                                        ? `${props.testRowIdentifier}-${index}-menu-option-${menuOptionIndex}`
+                                                        : `${props.dataTestId}-${index}-menu-option-${menuOptionIndex}`
+                                                    }
+                                                    onKeyDown={handleCloseMenu}
+                                                  >
+                                                    <Typography>
+                                                      {option.name}
+                                                    </Typography>
+                                                  </MenuItem>
+                                                ) : null
                                             )}
+
                                             {props.options.onRowDelete && (
                                               <MenuItem
                                                 onClick={() => {
@@ -983,7 +1055,7 @@ const UITable = (props) => {
                                                   {props.options?.deleteOptions
                                                     ?.label
                                                     ? props.options
-                                                        ?.deleteOptions?.label
+                                                        .deleteOptions.label
                                                     : "Delete"}
                                                 </Typography>
                                               </MenuItem>

@@ -9,6 +9,7 @@ const UICheckbox = (props) => {
         value="end"
         control={
           <Checkbox
+            data-testId={props.dataTestId}
             checked={props.checked}
             onChange={props.onChange}
             sx={{

@@ -11,14 +11,9 @@ import {
 } from "../../../../api/units";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { Link, useParams } from "react-router-dom";
-import BackButton from "../../UIComponents/BackButton";
 import {
-  Alert,
-  Box,
   Button,
-  CircularProgress,
   Divider,
-  Grow,
   IconButton,
   List,
   ListItem,
@@ -27,7 +22,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { authUser, token, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
@@ -44,7 +38,6 @@ import {
   authenticatedInstance,
   authenticatedMediaInstance,
 } from "../../../../api/api";
-import EditIcon from "@mui/icons-material/Edit";
 import {
   deleteFile,
   retrieveFilesBySubfolder,
@@ -58,12 +51,10 @@ import {
   getOwnerTenant,
 } from "../../../../api/owners";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
-import HomeIcon from "@mui/icons-material/Home";
 import HotelIcon from "@mui/icons-material/Hotel";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import TenantInviteForm from "../TenantInvites/TenantInviteForm";
-import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UIDropzone from "../../UIComponents/Modals/UploadDialog/UIDropzone";
 import {
   createBoldSignEmbeddedTemplateEditLink,
@@ -78,14 +69,10 @@ import {
 import UIRadioGroup from "../../UIComponents/UIRadioGroup";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import TaskIcon from "@mui/icons-material/Task";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
 import DescriptionIcon from "@mui/icons-material/Description";
 import UnitLeaseTerms from "./UnitLeaseTerms/UnitLeaseTerms";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
-import RentPriceSuggestionModal from "../../UIComponents/Prototypes/Modals/RentPriceSuggestionModal";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ListUnitModal from "../../UIComponents/Prototypes/Modals/ListUnitModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UnitDocumentManager from "./UnitDocumentManager";
 import {
@@ -97,13 +84,7 @@ import {
   syncRentalUnitLeaseTerms,
   syncRentalUnitPreferences,
 } from "../../../../helpers/preferences";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { validAnyString, validWholeNumber } from "../../../../constants/rexgex";
@@ -175,7 +156,6 @@ const ManageUnit = () => {
     useState(false);
   const [viewRentalApplicationModalOpen, setViewRentalApplicationModalOpen] =
     useState(false);
-  const [showListUnitModal, setShowListUnitModal] = useState(false);
   const [showResetLeaseTermsConfirmModal, setShowResetLeaseTermsConfirmModal] =
     useState(false);
   const [errors, setErrors] = useState({});
@@ -317,7 +297,7 @@ const ManageUnit = () => {
         regex: validAnyString,
         errorMessage: "Please enter a valid name for the unit",
       },
-      dataTestId: "unit-name",
+      dataTestId: "update-unit-name",
       errorMessageDataTestId: "unit-name-error",
     },
     {
@@ -331,8 +311,8 @@ const ManageUnit = () => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of beds",
       },
-      dataTestId: "unit-beds",
-      errorMessageDataTestId: "unit-beds-error",
+      dataTestId: "update-unit-bed",
+      errorMessageDataTestId: "update-unit-beds-error",
     },
     {
       name: "baths",
@@ -345,8 +325,8 @@ const ManageUnit = () => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of baths",
       },
-      dataTestId: "unit-baths",
-      errorMessageDataTestId: "unit-baths-error",
+      dataTestId: "update-unit-baths",
+      errorMessageDataTestId: "update-unit-baths-error",
     },
     {
       name: "size",
@@ -359,8 +339,8 @@ const ManageUnit = () => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid size",
       },
-      dataTestId: "unit-size",
-      errorMessageDataTestId: "unit-size-error",
+      dataTestId: "update-unit-size",
+      errorMessageDataTestId: "update-unit-size-error",
     },
   ];
 
@@ -1155,14 +1135,14 @@ const ManageUnit = () => {
                             <div className={`col-md-${input.colSpan}`}>
                               <div>
                                 <label
-                                  data-testid={input.dataTestId}
+                                  data-testid={input.dataTestId + "-label"}
                                   className="form-label text-black"
                                   htmlFor={input.name}
                                 >
                                   <strong>{input.label}</strong>
                                 </label>
                                 <input
-                                  data-testid={input.dataTestId}
+                                  data-testid={input.dataTestId + "-input"}
                                   className="form-control text-black"
                                   type={input.type}
                                   id={input.name}
@@ -1855,6 +1835,7 @@ const ManageUnit = () => {
                     <div className="card-body">
                       {additionalCharges.map((charge, index) => (
                         <AdditionalCharge
+                          dataTestId={`additional-charge-${index}`}
                           index={index}
                           setErrors={setErrors}
                           hideStepControl={true}
@@ -1875,6 +1856,7 @@ const ManageUnit = () => {
                 ) : (
                   <>
                     <UIPrompt
+                      dataTestId="no-additional-charges-prompt"
                       icon={<AttachMoneyIcon style={iconStyles} />}
                       title="No Additional Charges"
                       message="You have not added any additional charges to this unit. Click the button below to add additional charges."

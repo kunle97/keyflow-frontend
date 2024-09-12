@@ -81,10 +81,10 @@ const Portfolios = () => {
           setIsLoading(false);
         });
     },
-    deleteOptions:{
+    deleteOptions: {
       confirmTitle: "Delete Portfolio",
       confirmMessage: "Are you sure you want to delete this portfolio?",
-    }
+    },
   };
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
@@ -201,6 +201,7 @@ const Portfolios = () => {
         />
       ) : (
         <UITable
+          dataTestId="portfolios-table"
           testRowIdentifier="portfolio"
           title="Portfolios"
           endpoint="/portfolios/"

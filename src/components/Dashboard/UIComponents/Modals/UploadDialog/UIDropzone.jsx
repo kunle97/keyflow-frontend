@@ -96,8 +96,10 @@ const UIDropzone = (props) => {
       <div
         {...getRootProps()}
         style={{ ...dropzoneStyles, ...props.dropzoneStyles }}
+        data-testId="file-dropzone"
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} data-testId="file-dropzone-input" 
+        />
         <div>
           <p style={textStyles}>Drag and drop your file</p>
           <p style={textStyles}>

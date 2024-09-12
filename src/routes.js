@@ -95,6 +95,7 @@ import ArchivedRentalApplications from "./components/Dashboard/Owner/RentalAppli
 import TenantInvites from "./components/Dashboard/Owner/TenantInvites/TenantInvites";
 import ManageTenantInvite from "./components/Dashboard/Owner/TenantInvites/ManageTenantInvite";
 import CreateTenantInvite from "./components/Dashboard/Owner/TenantInvites/CreateTenantInvite";
+import OwnerCreateMaintenanceRequest from "./components/Dashboard/Owner/MaintenaceRequests/OwnerCreateMaintenanceRequest";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -476,6 +477,19 @@ export const routes = [
     description: "Manage your maintenance requests",
     isQuickLink: true,
     muiIcon: <HandymanOutlinedIcon />,
+  },
+  {
+    path: "/dashboard/owner/create-maintenance-request/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <OwnerCreateMaintenanceRequest />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Maintenance Request",
+    category: "Maintenance Requests",
+    description: "Create a new maintenance request",
+    
   },
   {
     path: "/dashboard/owner/maintenance-requests/:id",

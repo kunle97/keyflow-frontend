@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import UIInput from "../../UIComponents/UIInput";
 import { createBillingEntry } from "../../../../api/billing-entries";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
@@ -73,13 +73,14 @@ const CreateBillingEntry = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [isExpense, setIsExpense] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const [errors, setErrors] = useState({});
-  const [redirectToBillingEntries, setRedirectToBillingEntries] =
-    useState(false);
+  const [alertRedirectURL, setAlertRedirectURL] = useState(null);
   const [stripeAccountRequirements, setStripeAccountRequirements] = useState(
     []
   );
-  const [stripeOnboardingAccountLink, setStripeOnboardingAccountLink] = useState("");
+  const [stripeOnboardingAccountLink, setStripeOnboardingAccountLink] =
+    useState("");
   const [displayOnboardingAlert, setDisplayOnboardingAlert] = useState(false);
   const [stripeOnboardingPromptOpen, setStripeOnboardingPromptOpen] =
     useState(false);
@@ -144,7 +145,6 @@ const CreateBillingEntry = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
 
   const [formData, setFormData] = useState({
@@ -169,8 +169,6 @@ const CreateBillingEntry = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
   const formInputs = [
     {
@@ -315,7 +313,6 @@ const CreateBillingEntry = () => {
       dataTestId: "rental-unit-select",
       errorMessageDataTestId: "rental-unit-error-message",
     },
-
     {
       id: 5,
       label: "Status",
@@ -326,7 +323,10 @@ const CreateBillingEntry = () => {
         { value: "paid", text: "Paid" },
       ],
       hide: false,
-      onChange: (e) => handleChange(e),
+      onChange: (e) => {
+        setIsPaid(e.target.value === "paid");
+        handleChange(e);
+      },
       validations: {
         required: true,
         errorMessage: "Please specify the status of the billing entry.",
@@ -335,17 +335,16 @@ const CreateBillingEntry = () => {
       dataTestId: "status-select",
       errorMessageDataTestId: "status-error-message",
     },
-
     {
       id: 7,
-      label: isExpense ? "Transaction Date" : "Due Date",
+      label: isPaid ? "Transaction Date" : "Due Date",
       type: "date",
       name: "due_date",
       hide: false,
       onChange: (e) => handleChange(e),
       validations: {
         required: true,
-        errorMessage: isExpense
+        errorMessage: isPaid
           ? "A transaction date is required for the billing entry."
           : "A due date is required for the billing entry.",
         regex: validHTMLDateInput,
@@ -444,27 +443,27 @@ const CreateBillingEntry = () => {
       }
       createBillingEntry(formData)
         .then((res) => {
-
+          console.log("Create billing entry response ", res.data);
           if (res.status === 201) {
-
             setAlertTitle("Success");
             setAlertMessage("Billing entry created successfully");
-            setRedirectToBillingEntries(true);
+            setAlertRedirectURL(
+              "/dashboard/owner/billing-entries/" + res.data.id
+            );
           } else {
             console.error("Create billing entry error ", res);
             setAlertTitle("Error");
             setAlertMessage("There was an error creating the billing entry.");
-            setRedirectToBillingEntries(false);
+            setAlertRedirectURL("/dashboard/owner/billing-entries/");
           }
         })
         .catch((err) => {
           console.error("Create billing entry error ", err);
           setAlertTitle("Error");
           setAlertMessage("There was an error creating the billing entry.");
-          setRedirectToBillingEntries(false);
+          setAlertRedirectURL("/dashboard/owner/billing-entries/");
         })
         .finally(() => {
-
           setAlertOpen(true);
           setIsLoading(false);
         });
@@ -476,32 +475,28 @@ const CreateBillingEntry = () => {
       });
       setAlertMessage("Please fix the form errors before submitting.");
       setAlertOpen(true);
-      setRedirectToBillingEntries(false);
+      setAlertRedirectURL(null);
     }
   };
   useEffect(() => {
     preventPageReload();
     if (maintenance_request_id) {
       getMaintenanceRequestById(maintenance_request_id).then((res) => {
-
         setMaintenanceRequest(res.data);
       });
     }
     getStripeOnboardingAccountLink().then((res) => {
-
       setStripeAccountLink(res.account_link);
     });
     getStripeAccountRequirements().then((res) => {
-
       setStripeAccountRequirements(res.requirements);
       setStripeOnboardingPromptOpen(res.requirements.currently_due.length > 0);
       setDisplayOnboardingAlert(res.requirements.currently_due.length > 0);
     });
     getStripeOnboardingAccountLink().then((res) => {
-
       setStripeOnboardingAccountLink(res.account_link);
     });
-  },[]);
+  }, []);
   return (
     <div className="container-fluid">
       <AlertModal
@@ -567,8 +562,8 @@ const CreateBillingEntry = () => {
         message={alertMessage}
         btnText={"Ok"}
         onClick={() => {
-          if (redirectToBillingEntries) {
-            navigate("/dashboard/owner/billing-entries/");
+          if (alertRedirectURL) {
+            navigate(alertRedirectURL);
           }
           setAlertOpen(false);
         }}
@@ -580,6 +575,7 @@ const CreateBillingEntry = () => {
         style={{ width: "500px" }}
       >
         <UIInput
+          dataTestId="tenant-search-input"
           onChange={(e) => {
             setTenantSearchQuery(e.target.value);
             retrieveTenants();
@@ -707,6 +703,7 @@ const CreateBillingEntry = () => {
       >
         {/* Create a search input using ui input */}
         <UIInput
+          dataTestId="rental-unit-search-input"
           onChange={(e) => {
             setRentalUnitSearchQuery(e.target.value);
             handleSearchRentalUnits();
@@ -846,6 +843,7 @@ const CreateBillingEntry = () => {
                         {input.type === "select" && (
                           <div className="col-md-6 mb-2">
                             <label
+                              data-testId={input.dataTestId + "-label"}
                               className="text-black"
                               style={{ display: "block" }}
                             >
@@ -884,6 +882,7 @@ const CreateBillingEntry = () => {
                         {input.type === "button_select" && (
                           <div className="col-md-6 mb-2">
                             <label
+                              data-testId={input.dataTestId + "-label"}
                               className="text-black"
                               style={{ display: "block" }}
                             >
@@ -965,6 +964,7 @@ const CreateBillingEntry = () => {
                         {input.type === "textarea" && (
                           <div className="col-md-12">
                             <label
+                              data-testId={input.dataTestId + "-label"}
                               className="text-black"
                               style={{ display: "block" }}
                             >
@@ -972,6 +972,7 @@ const CreateBillingEntry = () => {
                             </label>
                             <textarea
                               onChange={handleChange}
+                              onBlur={handleChange}
                               className="form-control"
                               placeholder={input.placeholder}
                               style={{ margin: "10px 0" }}

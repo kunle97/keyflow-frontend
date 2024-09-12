@@ -72,8 +72,8 @@ const UnitRow = (props) => {
           });
         },
       },
-      dataTestId: "unit-name",
-      errorMessageDataTestId: "unit-name-error",
+      dataTestId: `${props.dataTestId}-name-input`,
+      errorMessageDataTestId: `${props.dataTestId}-name-input-error`,
     },
     {
       name: "beds",
@@ -86,8 +86,8 @@ const UnitRow = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of beds",
       },
-      dataTestId: "unit-beds",
-      errorMessageDataTestId: "unit-beds-error",
+      dataTestId: `${props.dataTestId}-beds-input`,
+      errorMessageDataTestId: `${props.dataTestId}-beds-input-error`,
     },
     {
       name: "baths",
@@ -100,8 +100,8 @@ const UnitRow = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of baths",
       },
-      dataTestId: "unit-baths",
-      errorMessageDataTestId: "unit-baths-error",
+      dataTestId: `${props.dataTestId}-baths-input`,
+      errorMessageDataTestId: `${props.dataTestId}-baths-input-error`,
     },
     {
       name: "size",
@@ -114,8 +114,8 @@ const UnitRow = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid size",
       },
-      dataTestId: "unit-size",
-      errorMessageDataTestId: "unit-size-error",
+      dataTestId: `${props.dataTestId}-size-input`,
+      errorMessageDataTestId: `${props.dataTestId}-size-input-error`,
     },
   ];
 

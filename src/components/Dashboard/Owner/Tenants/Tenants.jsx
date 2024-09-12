@@ -105,25 +105,18 @@ const Tenants = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
 
   useEffect(() => {
     try {
       getOwnerTenants().then((res) => {
-
         setTenants(res.data);
-
       });
       getAllLeaseRenewalRequests().then((res) => {
-
         setLeaseRenewals(res.data);
-
       });
       getAllLeaseCancellationRequests().then((res) => {
-
         setLeaseCancellations(res.data);
-
       });
     } catch (err) {
       console.error(err);
@@ -230,10 +223,10 @@ const Tenants = () => {
               searchFields={["first_name", "last_name", "email"]}
             />
           ) : (
-            <div
-              className="tenants-list-section"
-            >
+            <div className="tenants-list-section">
               <UITable
+                dataTestId="tenants-table"
+                testRowIdentifier="tenant-row"
                 title="Tenants"
                 endpoint={`/tenants/`}
                 searchFields={["first_name", "last_name", "email"]}

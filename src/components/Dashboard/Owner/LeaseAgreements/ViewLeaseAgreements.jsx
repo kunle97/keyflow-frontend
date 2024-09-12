@@ -47,7 +47,6 @@ const ViewLeaseAgreements = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const columns = [
     {
@@ -180,6 +179,8 @@ const ViewLeaseAgreements = () => {
           />
         ) : (
           <UITable
+            testRowIdentifier={"lease-agreements-table-row"}
+            dataTestId={"lease-agreements-table"}
             columns={columns}
             endpoint={"/lease-agreements/"}
             options={options}
