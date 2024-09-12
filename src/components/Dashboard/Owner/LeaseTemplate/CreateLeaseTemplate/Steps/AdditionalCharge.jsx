@@ -66,10 +66,14 @@ const AdditionalCharge = (props) => {
       validations: {
         required: true,
         regex: validAnyString,
-        errorMessage: "Please enter a valid name for the unit",
+        errorMessage: "Please enter a valid name for the charge",
       },
-      dataTestId: "unit-name",
-      errorMessageDataTestId: "unit-name-error",
+      dataTestId: props.dataTestId
+        ? props.dataTestId + "-name-input"
+        : "unit-name",
+      errorMessageDataTestId: props.dataTestId
+        ? props.dataTestId + "-name-error"
+        : "unit-name-error",
     },
     {
       name: "amount",
@@ -82,8 +86,12 @@ const AdditionalCharge = (props) => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid amount",
       },
-      dataTestId: "unit-amount",
-      errorMessageDataTestId: "unit-amount-error",
+      dataTestId: props.dataTestId
+        ? props.dataTestId + "-amount-input"
+        : "unit-amount",
+      errorMessageDataTestId: props.dataTestId
+        ? props.dataTestId + "-amount-error"
+        : "unit-amount-error",
     },
     {
       name: "frequency",
@@ -101,8 +109,12 @@ const AdditionalCharge = (props) => {
         required: true,
         errorMessage: "Please select a frequency",
       },
-      dataTestId: "unit-frequency",
-      errorMessageDataTestId: "unit-frequency-error",
+      dataTestId: props.dataTestId
+        ? props.dataTestId + "-frequency-select"
+        : "unit-frequency",
+      errorMessageDataTestId: props.dataTestId
+        ? props.dataTestId + "-frequency-error"
+        : "unit-frequency-error",
     },
   ];
   return (
@@ -114,11 +126,18 @@ const AdditionalCharge = (props) => {
         handleClose={() => setAlertOpen(false)}
         onClick={() => setAlertOpen(false)}
       />
-      <div className="row mt-3">
+      <div 
+        className="row mt-3"
+        data-testId={props.dataTestId ? "row-"+props.dataTestId : "additional-charge"}
+      >
         {formInputs.map((input, i) => (
           <div key={i} className={`col-md-${input.colSpan}`}>
             <div className="form-group">
-              <label className="text-black" htmlFor={input.name}>
+              <label
+                className="text-black"
+                htmlFor={input.name}
+                data-testId={input.dataTestId+"-label"}
+              >
                 {input.label}
               </label>
               {input.type === "text" ? (
@@ -131,6 +150,7 @@ const AdditionalCharge = (props) => {
                   onBlur={input.onChange}
                   placeholder={input.placeholder}
                   value={formData[input.name]}
+                  data-testId={input.dataTestId}
                 />
               ) : input.type === "number" ? (
                 <input
@@ -140,6 +160,7 @@ const AdditionalCharge = (props) => {
                   name={input.name}
                   onChange={input.onChange}
                   onBlur={input.onChange}
+                  data-testId={input.dataTestId}
                   value={formData[input.name]}
                 />
               ) : input.type === "select" ? (
@@ -150,6 +171,7 @@ const AdditionalCharge = (props) => {
                   onChange={input.onChange}
                   onBlur={input.onChange}
                   value={formData[input.name]}
+                  data-testId={input.dataTestId}
                 >
                   {input.options.map((option, i) => (
                     <option key={i} value={option.value}>
@@ -202,6 +224,7 @@ const AdditionalCharge = (props) => {
             <>
               <div className="col-md-1">
                 <Button
+                  data-testId={`${props.dataTestId}-remove-unit-button`}
                   onClick={() => {
                     props.removeAdditionalCharge(props.index);
                     //Reset the errors:

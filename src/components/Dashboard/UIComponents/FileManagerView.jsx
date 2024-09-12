@@ -193,6 +193,7 @@ const FileManagerView = (props) => {
               />
               {screenWidth > breakpoints.md ? (
                 <UIButton
+                  dataTestId="file-manager-upload-media-button"
                   btnText={"Upload File"}
                   onClick={() => setUploadDialogOpen(true)}
                   style={{ width: "130px" }}
@@ -305,6 +306,7 @@ const FileManagerView = (props) => {
                 props.files.length === 0 ? (
                   <UIButton
                     btnText={"Upload Media"}
+                    dataTestId="file-manager-dialog-upload-button"
                     onClick={() => {
                       setUploadDialogOpen(true);
                     }}

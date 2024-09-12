@@ -225,11 +225,13 @@ const Messages = () => {
                     handleClose={() => setShowNewMessageDialog(false)}
                   />{" "}
                   <UIButton
+                    dataTestId="new-message-button"
                     btnText="New Message"
                     style={{ width: "100%", marginBottom: "15px" }}
                     onClick={() => setShowNewMessageDialog(true)}
                   />{" "}
                   <input
+                    data-testid="search-bar"
                     type="text"
                     ref={searchBarRef}
                     className="card"
@@ -250,6 +252,7 @@ const Messages = () => {
                 </>
                 {messageThreads && messageThreads.length > 0 && (
                   <ul
+                    data-testId="message-threads-list"
                     className={`card list-group ${styles.customScrollbar}`}
                     style={{
                       maxHeight: "600px",
@@ -257,9 +260,10 @@ const Messages = () => {
                       overflowX: "hidden",
                     }}
                   >
-                    {filteredThreads.map((thread) => {
+                    {filteredThreads.map((thread, index) => {
                       return (
                         <li
+                          data-testId={`message-thread-${index}`}
                           key={thread.id}
                           className={`list-group-item`}
                           style={
@@ -398,6 +402,7 @@ const Messages = () => {
                   {selectedThread ? (
                     <>
                       <div
+                        data-testId="conversation-view"
                         className={`card ${styles.customScrollbar}`}
                         style={{
                           height: isMobile ? "60vh" : "650px",
@@ -412,44 +417,57 @@ const Messages = () => {
                         >
                           {selectedThread.messages &&
                             selectedThread.messages.length > 0 &&
-                            selectedThread.messages.map((message) => (
-                              <li
-                                key={message.id}
-                                style={{ width: "100%", overflow: "auto" }}
-                                className="list-group-item"
-                              >
-                                <span
-                                  style={{
-                                    backgroundColor: message.isSender
-                                      ? uiGreen
-                                      : uiGrey1,
-                                    color: "white",
-                                    border: "none",
-                                    float: message.isSender ? "right" : "left",
-                                    padding: "5px 10px",
-                                    borderRadius: "10px",
-                                    margin: "5px 10px",
-                                    maxWidth: "80%",
-                                  }}
-                                  className="text-white"
+                            selectedThread.messages.map(
+                              (message, messageIndex) => (
+                                <li
+                                  data-testId={`message-${messageIndex}-list-item`}
+                                  key={message.id}
+                                  style={{ width: "100%", overflow: "auto" }}
+                                  className="list-group-item message-list-item"
                                 >
-                                  {message.text}
-                                  {message.file && (
-                                    <div>
-                                      <img
-                                        src={message.file.file}
-                                        style={{ width: "100%" }}
-                                      />
-                                    </div>
-                                  )}
-                                </span>
-                              </li>
-                            ))}
+                                  <span
+                                    style={{
+                                      backgroundColor: message.isSender
+                                        ? uiGreen
+                                        : uiGrey1,
+                                      color: "white",
+                                      border: "none",
+                                      float: message.isSender
+                                        ? "right"
+                                        : "left",
+                                      padding: "5px 10px",
+                                      borderRadius: "10px",
+                                      margin: "5px 10px",
+                                      maxWidth: "80%",
+                                    }}
+                                    className="text-white"
+                                  >
+                                    <span
+                                      data-testId={`message-${messageIndex}-text`}
+                                      className="message-text"
+                                    >
+                                      {message.text}
+                                    </span>
+                                    {message.file && (
+                                      <div>
+                                        <img
+                                          data-testId={`message-${messageIndex}-file-attachment`}
+                                          className="message-file-attachment"
+                                          src={message.file.file}
+                                          style={{ width: "100%" }}
+                                        />
+                                      </div>
+                                    )}
+                                  </span>
+                                </li>
+                              )
+                            )}
                         </ul>
                       </div>
                       <form onSubmit={handleSendMessage} className="mt-3">
                         <div className="input-group">
                           <input
+                            data-testId="message-input"
                             type="text"
                             className="card"
                             placeholder="Type your message here..."
@@ -468,7 +486,6 @@ const Messages = () => {
                             required
                             name="body"
                           />
-                          {/* <input type="file" name="file" /> */}
                           <>
                             {/* Paperclip icon */}
                             <label htmlFor="fileInput">
@@ -482,6 +499,7 @@ const Messages = () => {
                             </label>
                             {/* Actual file input, visually hidden */}
                             <input
+                              data-testId="attachment-file-input"
                               type="file"
                               id="fileInput"
                               name="file"
@@ -492,6 +510,7 @@ const Messages = () => {
                           <div className="input-group-append"></div>
                           <div className="">
                             <UIButton
+                              dataTestId="send-message-button"
                               style={{
                                 padding: "10px",
                               }}
@@ -542,6 +561,7 @@ const Messages = () => {
                     </>
                   ) : (
                     <UIPrompt
+                      dataTestId="select-thread-prompt"
                       icon={<MessageOutlinedIcon sx={{ color: uiGreen }} />}
                       title="Select a thread"
                       message="Select a thread to view your conversation or start a new one by clicking on the New Message button."

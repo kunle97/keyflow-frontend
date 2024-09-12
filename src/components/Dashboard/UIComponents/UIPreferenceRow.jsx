@@ -23,16 +23,34 @@ const UIPreferenceRow = (props) => {
           sx={{ width: "100%" }}
         >
           <ListItemText
+            data-testId={
+              props.dataTestId
+                ? props.dataTestId + "-label"
+                : "preference-row-label"
+            }
             primary={
               <Typography sx={{ color: "black" }}>{props.title}</Typography>
             }
             secondary={<React.Fragment>{props.description}</React.Fragment>}
           />
           {props.type === "switch" && (
-            <UISwitch onChange={props.onChange} value={props.value} />
+            <UISwitch
+              onChange={props.onChange}
+              value={props.value}
+              data-testId={
+                props.dataTestId
+                  ? props.dataTestId + "-switch"
+                  : "preference-row-switch"
+              }
+            />
           )}
           {props.type === "number" && (
             <input
+              data-testId={
+                props.dataTestId
+                  ? props.dataTestId + "-input"
+                  : "preference-row-input"
+              }
               className="form-control"
               type="number"
               onChange={props.onChange}
@@ -43,6 +61,11 @@ const UIPreferenceRow = (props) => {
           )}
           {props.type === "text" && (
             <input
+              data-testId={
+                props.dataTestId
+                  ? props.dataTestId + "-input"
+                  : "preference-row-input"
+              }
               className="form-control"
               type="text"
               onChange={props.onChange}
@@ -52,6 +75,11 @@ const UIPreferenceRow = (props) => {
           )}
           {props.type === "select" && (
             <select
+              data-testId={
+                props.dataTestId
+                  ? props.dataTestId + "-input"
+                  : "preference-row-input"
+              }
               className="form-select"
               type="select"
               onChange={props.onChange}
@@ -63,7 +91,6 @@ const UIPreferenceRow = (props) => {
               ))}
             </select>
           )}
-          
         </Stack>
       </ListItem>
     </div>

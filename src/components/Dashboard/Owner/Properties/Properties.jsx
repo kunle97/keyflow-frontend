@@ -179,6 +179,7 @@ const Properties = () => {
           style={{ marginTop: "20px", marginBottom: "20px" }}
         >
           <UITable
+          testRowIdentifier="property"
             options={options}
             columns={columns}
             checked={checked}
@@ -207,8 +208,8 @@ const Properties = () => {
             acceptedFileTypes={[".csv"]}
             showUpload={true}
             uploadButtonText="Upload CSV"
-            uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
             fileUploadEndpoint={`/properties/upload-csv-properties/`}
+            uploadHelpText="*CSV file must contain the following column headers: name, street, city, state, zip_code, and country."
           />
         </div>
       )}

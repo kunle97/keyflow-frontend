@@ -9,9 +9,7 @@ import {
   updatePortfolioPreferences,
   removePortfolioLeaseTemplate,
 } from "../../../../api/portfolios";
-import {
-  updatePortfolioProperties,
-} from "../../../../api/properties";
+import { updatePortfolioProperties } from "../../../../api/properties";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import {
   ButtonBase,
@@ -77,7 +75,10 @@ const ManagePortfolio = () => {
   const [alertTitle, setAlertTitle] = useState("");
   const [tabPage, setTabPage] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const tabs = [{ label: "Properties " }, { label: "Preferences" }];
+  const tabs = [
+    { label: "Properties", dataTestId: "properties-tab" },
+    { label: "Preferences", dataTestId: "preferences-tab" },
+  ];
   const [checked, setChecked] = useState([]);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({});
@@ -123,8 +124,6 @@ const ManagePortfolio = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -134,7 +133,6 @@ const ManagePortfolio = () => {
       setTourIndex(4);
     }
     setRunTour(true);
-
   };
 
   const handleChange = (e) => {
@@ -146,8 +144,6 @@ const ManagePortfolio = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const formInputs = [
@@ -163,8 +159,8 @@ const ManagePortfolio = () => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid name for the portfolio",
       },
-      dataTestId: "portfolio-name",
-      errorMessageDataTestId: "portfolio-name-error",
+      dataTestId: "edit-portfolio-name-input",
+      errorMessageDataTestId: "edit-portfolio-name-input-error",
     },
     {
       name: "description",
@@ -178,14 +174,12 @@ const ManagePortfolio = () => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid description for the portfolio",
       },
-      dataTestId: "portfolio-description",
-      errorMessageDataTestId: "portfolio-description-error",
+      dataTestId: "edit-portfolio-description-textarea",
+      errorMessageDataTestId: "edit-portfolio-description-textarea-error",
     },
   ];
 
-  const {
-    handleSubmit,
-  } = useForm();
+  const { handleSubmit } = useForm();
   const columns = [
     { label: "Name", name: "name" },
     { label: "Street", name: "street" },
@@ -203,6 +197,7 @@ const ManagePortfolio = () => {
     },
   };
   const onSubmit = () => {
+    setAlertRedirectURL(null);
     const payload = {
       name: formData.name,
       description: formData.description,
@@ -210,7 +205,6 @@ const ManagePortfolio = () => {
     };
     updatePortfolio(id, payload)
       .then((res) => {
-
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio updated successfully");
@@ -236,7 +230,6 @@ const ManagePortfolio = () => {
 
   const handleDelete = () => {
     deletePortfolio(id).then((res) => {
-
       if (res.status === 200 || res.status === 201) {
         setAlertTitle("Portfolio Deleted");
         setAlertMessage("");
@@ -334,7 +327,6 @@ const ManagePortfolio = () => {
     if (!properties || !portfolio) {
       getPortfolio(id)
         .then((res) => {
-
           if (res.status === 200) {
             setPortfolio(res.data);
             setProperties(res.data.rental_properties);
@@ -348,7 +340,6 @@ const ManagePortfolio = () => {
           }
         })
         .catch((err) => {
-
           setPortfolio(null);
           setProperties([]);
           setPortfolioPreferences([]);
@@ -428,7 +419,6 @@ const ManagePortfolio = () => {
             handleConfirm={() => {
               removePortfolioLeaseTemplate(id)
                 .then((res) => {
-
                   if (res.status === 200) {
                     setAlertTitle("Success");
                     setAlertMessage(
@@ -488,6 +478,7 @@ const ManagePortfolio = () => {
                             data-testId={`${input.dataTestId}`}
                           >
                             <label
+                              data-testId={`${input.dataTestId}-label`}
                               className="form-label text-black"
                               htmlFor={input.name}
                             >
@@ -495,6 +486,7 @@ const ManagePortfolio = () => {
                             </label>
                             {input.type === "textarea" ? (
                               <textarea
+                                data-testId={input.dataTestId}
                                 style={{
                                   ...defaultWhiteInputStyle,
                                   background: uiGrey,
@@ -510,6 +502,7 @@ const ManagePortfolio = () => {
                               </textarea>
                             ) : (
                               <input
+                                data-testId={input.dataTestId}
                                 style={{
                                   ...defaultWhiteInputStyle,
                                   background: uiGrey,
@@ -561,6 +554,7 @@ const ManagePortfolio = () => {
           </UIDialog>
           {/* Add Properties Dialog */}
           <UIDialog
+            dataTestId={"add-properties-dialog"}
             open={rentalUnitModalOpen}
             title="Select Rental Properties"
             onClose={() => setRentalPropertyModalOpen(false)}
@@ -604,6 +598,7 @@ const ManagePortfolio = () => {
                       sx={{ width: "100%" }}
                     >
                       <UICheckbox
+                        dataTestId={`rental-property-${index}-checkbox`}
                         onChange={(e) => {
                           let checked = e.target.checked;
                           handleSelectRentalProperty(property, checked);
@@ -659,13 +654,12 @@ const ManagePortfolio = () => {
               )}
             </Stack>
             <UIButton
+              dataTestId="add-properties-dialog-save-button"
               btnText="Save"
               onClick={() => {
-
                 let selectedProperties = JSON.stringify(
                   selectedRentalProperties.map((property) => property.id)
                 );
-
 
                 setIsLoading(true);
                 try {
@@ -676,7 +670,6 @@ const ManagePortfolio = () => {
 
                   updatePortfolioProperties(payload)
                     .then((res) => {
-
                       if (res.status !== 200) {
                         throw new Error(
                           "Error updating properties in portfolio"
@@ -773,6 +766,7 @@ const ManagePortfolio = () => {
                 />
               ) : (
                 <UITable
+                  dataTestId="portfolio-properties-table"
                   data={properties}
                   searchFields={[
                     "name",
@@ -807,6 +801,7 @@ const ManagePortfolio = () => {
                 portfolioPreferences.map((preference, index) => {
                   return (
                     <ListItem
+                      data-testid={preference.name+"-portfolio-preference"}
                       style={{
                         borderRadius: "10px",
                         background: "white",
@@ -822,19 +817,25 @@ const ManagePortfolio = () => {
                       >
                         <ListItemText
                           primary={
-                            <Typography sx={{ color: "black" }}>
+                            <Typography sx={{ color: "black" }}
+                              data-testid={preference.name+"-portfolio-preference-label"}
+                            >
                               {preference.label}
                             </Typography>
                           }
                           secondary={
-                            <React.Fragment>
+                            <span
+                              className="text-muted"
+                              data-testid={preference.name+"-portfolio-preference-description"}
+                            >
                               {preference.description}
-                            </React.Fragment>
+                            </span>
                           }
                         />
                         <>
                           {preference.inputType === "switch" && (
                             <UISwitch
+                              data-TestId={preference.name+"-portfolio-preference-switch"}
                               onChange={(e) => {
                                 handlePreferenceChange(
                                   e,

@@ -59,7 +59,7 @@ const UIDialog = ({
             onClick={onClose}
             style={{ float: "right", color: uiGreen }}
           >
-            <CloseIcon />
+            <CloseIcon data-testId="ui-dialog-close-icon"  />
           </IconButton>
         </Stack>
       </div>

@@ -170,7 +170,7 @@ const CreateUnit = () => {
   //Call the create unit api function and pass the form data
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setProgressModalTitle("Creating Unit...");
+    setProgressModalTitle("Creating Units...");
 
     //Check if a property has been selected
     if (!selectedPropertyId) {
@@ -390,14 +390,17 @@ const CreateUnit = () => {
                   <div className="text-end my-3 ">
                     <span className="submit-create-unit-button">
                       <UIButton
-                        data-testid="create-unit-submit-button"
+                        dataTestId="create-unit-submit-button"
                         className="btn btn-primary ui-btn "
                         onClick={() => {
                           if (hasNoErrors(unitValidationErrors)) {
                             setIsLoading(true);
                             onSubmit();
                           } else {
-
+                            setErrorMessage(
+                              "Please fix all errors before submitting."
+                            );
+                            setUnitCreateError(true);
                           }
                         }}
                         btnText="Create Unit(s)"

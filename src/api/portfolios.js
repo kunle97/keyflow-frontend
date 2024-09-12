@@ -10,7 +10,7 @@ export async function createPortfolio(data) {
 
         return response;
       });
-    return { message: "Portfolio created successfully", status: 200, res: res };
+    return { message: "Portfolio created successfully", status: 200, data: res };
   } catch (error) {
 
     return error.response ? error.response.data : { error: "Network Error" };

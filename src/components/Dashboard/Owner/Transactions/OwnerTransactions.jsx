@@ -147,7 +147,7 @@ const OwnerTransactions = () => {
     getStripeAccountLink().then((res) => {
       setStripeAccountLink(res.account_link);
     });
-  },[]);
+  }, []);
   return (
     <div className="container-fluid">
       <Joyride
@@ -185,6 +185,7 @@ const OwnerTransactions = () => {
         spacing={2}
       >
         <UIButton
+          dataTestId="stripe-dashboard-button"
           btnText="Stripe Dashboard"
           onClick={() => {
             window.open(stripeAccountLink, "_blank");
@@ -225,6 +226,8 @@ const OwnerTransactions = () => {
           ) : (
             <div className="transactions-list">
               <UITable
+                dataTestId="transactions-table"
+                testRowIdentifier="transactions-table-row"
                 columns={columns}
                 options={options}
                 endpoint="/transactions/"

@@ -4,57 +4,57 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import { getTenantInvoices } from "../../../api/tenants";
 import { removeUnderscoresAndCapitalize } from "../../../helpers/utils";
 import AlertModal from "../UIComponents/Modals/AlertModal";
-const PaymentCalendar = () => {
+const PaymentCalendar = (props) => {
   const [dueDates, setDueDates] = useState([{ title: "", start: new Date() }]);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   useEffect(() => {
-    getTenantInvoices().then((res) => {
-      const due_dates = res.invoices.map((invoice) => {
-        if (!invoice.paid) {
-          let date = new Date(invoice.due_date * 1000);
-          return {
-            title:
-              removeUnderscoresAndCapitalize(invoice.metadata.type) + " Due",
-            start: date,
-          };
-        } else if (invoice.paid) {
-          let date = new Date(invoice.status_transitions.paid_at * 1000);
-          return {
-            title:
-              removeUnderscoresAndCapitalize(invoice.metadata.type) + " Paid",
-            start: date,
-          };
-        } else {
-          return { title: "", start: new Date() };
-        }
-      });
+    getTenantInvoices()
+      .then((res) => {
+        const due_dates = res.invoices.map((invoice) => {
+          if (!invoice.paid) {
+            let date = new Date(invoice.due_date * 1000);
+            return {
+              title:
+                removeUnderscoresAndCapitalize(invoice.metadata.type) + " Due",
+              start: date,
+            };
+          } else if (invoice.paid) {
+            let date = new Date(invoice.status_transitions.paid_at * 1000);
+            return {
+              title:
+                removeUnderscoresAndCapitalize(invoice.metadata.type) + " Paid",
+              start: date,
+            };
+          } else {
+            return { title: "", start: new Date() };
+          }
+        });
 
-      setDueDates(due_dates);
-    }).catch((error) => {
-      console.error("Error fetching invoices", error);
-      setAlertTitle("Error!");  
-      setAlertMessage(
-        "There was an error fetching invoices. Please try again."
-      );
-      setShowAlert(true);
-    });
+        setDueDates(due_dates);
+      })
+      .catch((error) => {
+        console.error("Error fetching invoices", error);
+        setAlertTitle("Error!");
+        setAlertMessage(
+          "There was an error fetching invoices. Please try again."
+        );
+        setShowAlert(true);
+      });
   }, []);
   const renderEventContent = (eventInfo) => {
     return (
       <>
-        <p>
-          {eventInfo.event.title}
-        </p>
+        <p>{eventInfo.event.title}</p>
         <br />
         <p>{eventInfo.timeText}</p>
       </>
     );
   };
   return (
-    <div>
-      <AlertModal 
+    <div data-testid={props.dataTestId ? props.dataTestId : "payment-calendar"}>
+      <AlertModal
         open={showAlert}
         onClick={() => setShowAlert(false)}
         title={alertTitle}

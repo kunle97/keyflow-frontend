@@ -8,6 +8,7 @@ const UIInput = (props) => {
     <div>
       <div className="form-group">
         <label
+          data-testId={props.dataTestId ? props.dataTestId+"-label" : ""}
           className="text-black mb-1"
           style={{ display: "block", ...props.labelStyles }}
         >
