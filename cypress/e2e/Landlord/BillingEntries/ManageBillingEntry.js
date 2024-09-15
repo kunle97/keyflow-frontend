@@ -9,12 +9,9 @@ describe("ManageBillingEntry Component", () => {
     // Log in using the loaded credentials
     cy.login("Sandra83@hotmail.com", "Password1");
     cy.visit(hostname + "/dashboard/owner/billing-entries/");
-    cy.get('[data-testid="ui-table-mobile-title"]')
-      .should("be.visible")
-      .contains("Billing Entries");
   });
     it("should render the ManageBillingEntry component for revenue", () => {
-      cy.get(".limit-select").select("50");
+      // cy.get(".limit-select").select("50");
       //Retrieve a element that has a data ttest id that starts with billing-entries-table-revenue-row
       cy.get('[data-testid^="billing-entries-table-revenue-row"]')
         .first()

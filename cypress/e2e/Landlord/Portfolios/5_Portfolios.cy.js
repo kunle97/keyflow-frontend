@@ -27,7 +27,7 @@ describe("Test all the portfolios feature", () => {
 
     cy.get('[data-testid="create-portfolio-description-textarea-label"]').should("be.visible");
     cy.get('[data-testid="create-portfolio-submit-button"]').should("be.visible").click();
-
+    cy.wait(3000);
     //Handle Alert Modal MEssages
     cy.get('[data-testid="alert-modal-title"]').should("be.visible").contains("Success");
     cy.get('[data-testid="alert-modal-message"]').should("be.visible").contains("Portfolio created successfully");
