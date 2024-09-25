@@ -1,4 +1,4 @@
-describe("Test the Bills functionality", () => {
+describe("Test the Dashboard functionality", () => {
     beforeEach(() => {
       // Log user out
       cy.viewport(1920, 1080);
@@ -8,8 +8,40 @@ describe("Test the Bills functionality", () => {
       cy.tenantLogin();
     });
   
-    it("Should navigate to bills page", () => {
+    it("Should navigate to dashboard", () => {
+        cy.visit("/dashboard/tenant/")
+        cy.get('.tenant-dashboard-container').should("be.visible");
+        cy.get('.d-sm-flex > .text-black').should("be.visible");
+        cy.get('.MuiCardContent-root').should("be.visible");
+        cy.get('.css-17goekv-MuiTypography-root > span').should("be.visible");
+        cy.get('.MuiCardContent-root > .MuiStack-root').should("be.visible");
+        cy.get('.MuiCardContent-root > .MuiStack-root').should("be.visible");
 
+        //cy.get('.PrivateSwitchBase-input').should("be.visible");
+        //check if clickable
+
+        //maintance request box
+        cy.get('.maintenance-request-card > .card > .card-body').should("be.visible");
+        cy.get('.css-1csbfby-JoyStack-root > .MuiStack-root > div').should("be.visible");
+        cy.get('b').should("be.visible");
+        cy.get('.card-text').should("be.visible");
+        cy.get('.css-k008qs').should("be.visible");
+
+        //calendar
+        cy.get('.col-lg-7 > .card > .card-body').should("be.visible");
+        cy.get('.fc').should("be.visible");
+        cy.get('#fc-dom-1').should("be.visible");
+        cy.get('.fc-header-toolbar').should("be.visible");
+        //Today Button (today button is disabled) 
+        cy.get('.fc-today-button').should("be.visible");
+        cy.get('.fc-today-button').should('be.disabled');
+    
+
+
+
+
+
+    
     });
 
     afterEach(() => {
