@@ -270,7 +270,7 @@ const OwnerMaintenanceRequestDetail = () => {
             open={showAlertModal}
             handleClose={() => setShowAlertModal(false)}
             onClick={() => {
-              if(alertRedirectURL){
+              if (alertRedirectURL) {
                 navigate(alertRedirectURL);
               }
               setShowAlertModal(false);
@@ -431,22 +431,22 @@ const OwnerMaintenanceRequestDetail = () => {
               </Stack>
             }
             subtitle={`Unit ${unit?.name} @ ${property?.name}`}
-            menuItems={
-              authUser.account_type === "owner" && [
-                {
-                  label: "Change Status",
-                  action: () => setChangeStatusDialogOpen(true),
-                },
-                {
-                  label: "Change Priority",
-                  action: () => setChangePriorityDialogOpen(true),
-                },
-                {
-                  label: "Delete Maintenance Request",
-                  action: () => setShowDeleteConfirm(true),
-                },
-              ]
-            }
+            menuItems={[
+              {
+                label: "Change Status",
+                action: () => setChangeStatusDialogOpen(true),
+                hidden: authUser.account_type === "tenant",
+              },
+              {
+                label: "Change Priority",
+                action: () => setChangePriorityDialogOpen(true),
+                hidden: authUser.account_type === "tenant",
+              },
+              {
+                label: "Delete Maintenance Request",
+                action: () => setShowDeleteConfirm(true),
+              },
+            ]}
           />
           <div className="row">
             <div className="col-md-4">

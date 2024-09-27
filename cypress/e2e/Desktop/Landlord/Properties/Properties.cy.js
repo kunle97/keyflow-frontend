@@ -101,10 +101,11 @@ describe("Test all basic functions of the property list page", () => {
 
     cy.get('[data-testid="update-property-save-button"]').should("be.visible").click();
 
-    cy.get('[data-testid="alert-modal-title"]').should('be.visible').contains('Success')
-    cy.get('[data-testid="alert-modal-message"]').should('be.visible').contains('Property updated')
-    cy.get('[data-testid="alert-modal-button"]').should('be.visible').contains('Ok').click()
+    cy.get('[data-testid="property-update-alert-modal-modal-title"]').should('be.visible').contains('Success')
+    cy.get('[data-testid="property-update-alert-modal-modal-message"]').should('be.visible').contains('Property updated')
+    cy.get('[data-testid="property-update-alert-modal-modal-button"]').should('be.visible').contains('Ok').click()
 
+    
     // //Verify visibility of portfolio dialog
     cy.get('[data-testid="ui-page-header-menu-button"]').should("be.visible").click();
     cy.get('[data-testid="ui-page-header-menu-item-2"]').should("be.visible").click();

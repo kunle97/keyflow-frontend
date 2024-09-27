@@ -63,7 +63,7 @@ const AlertModal = (props) => {
             id="modal-modal-title"
             variant="h6"
             component="h2"
-            data-testid="alert-modal-title"
+            data-testid={props.dataTestId ? props.dataTestId+"-modal-title" : `alert-modal-title`}
           >
             {props.title}
           </h5>

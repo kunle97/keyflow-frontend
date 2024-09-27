@@ -11,6 +11,7 @@ const UITableMiniCard = (props) => {
       titleStyle={props.titleStyle}
       dropDownOptions={props.dropDownOptions}
       onDropdownChange={props.onDropdownChange}
+      dataTestId={props.dataTestId}
     >
       <div style={props.tableStyle} >
         <UITableMini

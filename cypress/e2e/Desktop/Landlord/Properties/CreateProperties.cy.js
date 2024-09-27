@@ -124,9 +124,9 @@ describe("Test all basic functions of the property list page", () => {
     cy.get('[data-testid="ui-page-header-menu-item-3"]').should("be.visible").click();
     cy.get('[data-testid="confirm-modal-confirm-button"]').should("be.visible").click();
     //Check for success alert
-    cy.get('[data-testid="alert-modal-title"]').should("be.visible").contains("Success");
-    cy.get('[data-testid="alert-modal-message"]').should("be.visible").contains("All units deleted");
-    cy.get('[data-testid="alert-modal-button"]').should("be.visible").click();
+    cy.get('[data-testid="property-update-alert-modal-modal-title"]').should("be.visible").contains("Success");
+    cy.get('[data-testid="property-update-alert-modal-modal-message"]').should("be.visible").contains("All units deleted");
+    cy.get('[data-testid="property-update-alert-modal-modal-button"]').should("be.visible").click();
     cy.wait(3000);
     //Refresh page
     cy.reload();
