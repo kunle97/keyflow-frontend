@@ -28,7 +28,7 @@ const OwnerLogin = () => {
   const [redirectURL, setRedirectURL] = useState(null);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    email: process.env.REACT_APP_ENVIRONMENT === "development" ? "Ignacio62@yahoo.com" : "",
+    email: process.env.REACT_APP_ENVIRONMENT === "development" && process.env.REACT_APP_CYPRESS_TEST_USER_EMAIL ? process.env.REACT_APP_CYPRESS_TEST_USER_EMAIL : "",
     password:
       process.env.REACT_APP_ENVIRONMENT === "development" ? "Password1" : "",
   });
@@ -80,7 +80,7 @@ const OwnerLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-input",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -99,7 +99,7 @@ const OwnerLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-select",
       errorMessageDataTestId: "email-error",
     },
   ];

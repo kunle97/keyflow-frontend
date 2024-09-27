@@ -36,13 +36,19 @@ import UITabs from "../UIComponents/UITabs";
 import UISwitch from "../UIComponents/UISwitch";
 import { syncPreferences } from "../../../helpers/preferences";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
-import { validAnyString, validEmail, validName, validStrongPassword, validUserName } from "../../../constants/rexgex";
+import {
+  validAnyString,
+  validEmail,
+  validName,
+  validStrongPassword,
+  validUserName,
+} from "../../../constants/rexgex";
 const TenantMyAccount = () => {
   const { isMobile } = useScreen();
   const [tabPage, setTabPage] = useState(0);
   const [tabs, setTabs] = useState([
-    { label: "Basic Information" },
-    { label: "Notification Settings" },
+    { label: "Basic Information", dataTestId: "basic-information-tab" },
+    { label: "Notification Settings", dataTestId: "notification-settings-tab" },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [progressMessage, setProgressMessage] = useState(null);
@@ -81,8 +87,6 @@ const TenantMyAccount = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const accountFormInputs = [
@@ -105,7 +109,7 @@ const TenantMyAccount = () => {
         regex: validName,
         errorMessage: "Please enter a valid first name",
       },
-      dataTestId: "first-name",
+      dataTestId: "first-name-input",
       errorMessageDataTestId: "first-name-error",
     },
     {
@@ -127,7 +131,7 @@ const TenantMyAccount = () => {
         regex: validName,
         errorMessage: "Please enter a valid last name",
       },
-      dataTestId: "last-name",
+      dataTestId: "last-name-input",
       errorMessageDataTestId: "last-name-error",
     },
     {
@@ -150,7 +154,7 @@ const TenantMyAccount = () => {
         regex: validUserName,
         errorMessage: "Please enter a valid username",
       },
-      dataTestId: "username",
+      dataTestId: "username-input",
       errorMessageDataTestId: "username-error",
     },
     {
@@ -172,7 +176,7 @@ const TenantMyAccount = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email",
       },
-      dataTestId: "email",
+      dataTestId: "email-input",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -196,7 +200,7 @@ const TenantMyAccount = () => {
         regex: validAnyString,
         errorMessage: "Please enter your current password",
       },
-      dataTestId: "current-password",
+      dataTestId: "current-password-input",
       errorMessageDataTestId: "current-password-error",
     },
     {
@@ -215,12 +219,11 @@ const TenantMyAccount = () => {
       placeholder: "New Password",
       validations: {
         required: true,
-        regex:
-          validStrongPassword,
+        regex: validStrongPassword,
         errorMessage:
           "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
       },
-      dataTestId: "new-password",
+      dataTestId: "new-password-input",
       errorMessageDataTestId: "new-password-error",
     },
     {
@@ -246,7 +249,7 @@ const TenantMyAccount = () => {
           }
         },
       },
-      dataTestId: "repeat-password",
+      dataTestId: "repeat-password-input",
       errorMessageDataTestId: "repeat-password-error",
     },
   ];
@@ -254,49 +257,52 @@ const TenantMyAccount = () => {
   const onSubmitUpdateAccount = () => {
     setIsLoading(true);
     //Create a data object to send to the backend
-    updateUserData(accountFormData).then((res) => {
-
-      if (res.status === 200) {
-        setResponseTitle("Success");
-        setResponseMessage("Account updated successfully");
+    updateUserData(accountFormData)
+      .then((res) => {
+        if (res.status === 200) {
+          setResponseTitle("Success");
+          setResponseMessage("Account updated successfully");
+          setShowResponseModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating account: ", error);
+        setResponseTitle("Error");
+        setResponseMessage("Error updating account");
         setShowResponseModal(true);
-      }
-    }).catch((error) => {
-      console.error("Error updating account: ", error);
-      setResponseTitle("Error");
-      setResponseMessage("Error updating account");
-      setShowResponseModal(true);
-    }).finally(() => {
-      setIsLoading(false);
-    });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const onSubmitChangePassword = () => {
     setIsLoading(true);
     setProgressMessage("Changing password...");
-    changePassword(passwordFormData).then((res) => {
-
-      if (res.status === 200) {
-        setResponseTitle("Success");
-        setResponseMessage("Password changed successfully");
-        setShowResponseModal(true);
-      } else {
+    changePassword(passwordFormData)
+      .then((res) => {
+        if (res.status === 200) {
+          setResponseTitle("Success");
+          setResponseMessage("Password changed successfully");
+          setShowResponseModal(true);
+        } else {
+          setResponseTitle("Error");
+          setResponseMessage("Error changeing your password");
+          setShowResponseModal(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error changing password: ", error);
         setResponseTitle("Error");
-        setResponseMessage("Error changeing your password");
+        setResponseMessage("Error changing your password");
         setShowResponseModal(true);
-      }
-    }).catch((error) => {
-      console.error("Error changing password: ", error);
-      setResponseTitle("Error");
-      setResponseMessage("Error changing your password");
-      setShowResponseModal(true);
-    }).finally(() => {
-      setIsLoading(false);
-    });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
   const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
     getTenantDashboardData().then((res) => {
-
       let data = {};
       data.payment_method_id = paymentMethodId;
       data.user_id = authUser.id;
@@ -305,13 +311,11 @@ const TenantMyAccount = () => {
       data.lease_agreement_id = res.lease_agreement.id;
 
       setDefaultPaymentMethod(data).then((res) => {
-
         setResponseTitle("Alert");
         setResponseMessage("Payment method set as default");
         setShowResponseModal(true);
         //Get the payment methods for the user
         listStripePaymentMethods(`${authUser.id}`).then((res) => {
-
           setPaymentMethods(res.data);
         });
         navigate(0);
@@ -319,18 +323,15 @@ const TenantMyAccount = () => {
     });
   };
   const handlePaymentMethodDelete = (paymentMethodId) => {
-
     let data = {
       payment_method_id: paymentMethodId,
     };
     deleteStripePaymentMethod(data).then((res) => {
-
       setResponseTitle("Alert");
       setResponseMessage("Payment method deleted");
       setShowResponseModal(true);
       //Get the payment methods for the user
       listStripePaymentMethods(`${authUser.id}`).then((res) => {
-
         setPaymentMethods(res.data);
       });
     });
@@ -341,11 +342,9 @@ const TenantMyAccount = () => {
     setProgressMessage("Redirecting to billing portal...");
     createBillingPortalSession()
       .then((res) => {
-
         window.location.href = res.url;
       })
       .catch((error) => {
-
         setIsLoading(false);
       })
       .finally(() => {});
@@ -353,7 +352,6 @@ const TenantMyAccount = () => {
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
     if (inputType === "switch") {
-
       //Update the value of the preference and use setOwnerPreferences to update the state
       let newTenantPreferences = tenantPreferences.map((preference) => {
         if (preference.name === preferenceName) {
@@ -370,11 +368,8 @@ const TenantMyAccount = () => {
       let payload = {
         preferences: newTenantPreferences,
       };
-      updateTenantPreferences(payload).then((res) => {
-
-      });
+      updateTenantPreferences(payload).then((res) => {});
     } else {
-
     }
   };
 
@@ -383,16 +378,14 @@ const TenantMyAccount = () => {
   };
 
   useEffect(() => {
-    try{
+    try {
       syncPreferences();
       //Get the payment methods for the user
       listStripePaymentMethods(`${authUser.id}`).then((res) => {
-
         setPaymentMethods(res.data);
       });
       //Retrieve the users lease agreemetn
       getTenantDashboardData().then((res) => {
-
         setLeaseAgreement(res.lease_agreement);
       });
       retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
@@ -401,16 +394,14 @@ const TenantMyAccount = () => {
         }
       );
       getTenantPreferences().then((res) => {
-
         setTenantPreferences(res.preferences);
       });
-    }catch(e){
-
+    } catch (e) {
       setResponseTitle("Error");
       setResponseMessage("Error loading data");
       setShowResponseModal(true);
     }
-  },[]);
+  }, []);
 
   return (
     <div className="container">
@@ -462,6 +453,7 @@ const TenantMyAccount = () => {
             />
           </div>
           <Button
+            data-testId="change-photo"
             btnText="Change Photo"
             onClick={() => setUploadDialogOpen(true)}
             variant="text"
@@ -477,11 +469,18 @@ const TenantMyAccount = () => {
         </Stack>
 
         <div>
-          <h5 style={{ width: "100%", textAlign: "left", margin: "0" }}>
+          <h5
+            style={{ width: "100%", textAlign: "left", margin: "0" }}
+            data-testId="user-full-name"
+          >
             {authUser.first_name} {authUser.last_name}
           </h5>
           <div style={{ width: "100%", textAlign: "left" }}>
-            <a href={`mailto:${authUser.email}`} className="text-muted">
+            <a
+              href={`mailto:${authUser.email}`}
+              className="text-muted"
+              data-testId="user-email"
+            >
               {authUser.email}
             </a>
           </div>
@@ -505,7 +504,11 @@ const TenantMyAccount = () => {
             sx={{ mb: 2 }}
           >
             <h4>Account Information</h4>
-            <UIButton btnText="Manage Billing" onClick={manageBillingOnClick} />
+            <UIButton
+              btnText="Manage Billing"
+              onClick={manageBillingOnClick}
+              dataTestId="manage-billing-btn"
+            />
           </Stack>
           <div className="row mb-3">
             <div className="col">
@@ -520,9 +523,9 @@ const TenantMyAccount = () => {
                               <div
                                 className={`col-md-${input.colSpan} mb-3`}
                                 key={index}
-                                data-testId={`${input.dataTestId}`}
                               >
                                 <label
+                                  data-testId={`${input.dataTestId}-label`}
                                   className="form-label text-black"
                                   htmlFor={input.name}
                                 >
@@ -530,6 +533,7 @@ const TenantMyAccount = () => {
                                 </label>
 
                                 <input
+                                  data-testId={`${input.dataTestId}`}
                                   style={{
                                     background: uiGrey,
                                   }}
@@ -554,6 +558,7 @@ const TenantMyAccount = () => {
                         </div>
                         <div className="mb-3">
                           <UIButton
+                            dataTestId="update-account-button"
                             style={{ float: "right" }}
                             onClick={() => {
                               const { isValid, newErrors } = validateForm(
@@ -593,15 +598,16 @@ const TenantMyAccount = () => {
                             <div
                               className={`col-md-${input.colSpan} mb-3`}
                               key={index}
-                              data-testId={`${input.dataTestId}`}
                             >
                               <label
+                                data-testId={`${input.dataTestId}-label`}
                                 className="form-label text-black"
                                 htmlFor={input.name}
                               >
                                 {input.label}
                               </label>
                               <input
+                                data-testId={`${input.dataTestId}`}
                                 style={{
                                   background: uiGrey,
                                 }}
@@ -625,6 +631,7 @@ const TenantMyAccount = () => {
                         })}
                         <div className="mb-3">
                           <UIButton
+                            dataTestId="change-password-button"
                             style={{ float: "right" }}
                             onClick={() => {
                               const { isValid, newErrors } = validateForm(
@@ -677,24 +684,34 @@ const TenantMyAccount = () => {
                         >
                           <ListItemText
                             primary={
-                              <Typography sx={{ color: "black" }}>
+                              <Typography
+                                data-testId={`${preference.name}-label`}
+                                sx={{ color: "black" }}
+                              >
                                 {preference.label}
                               </Typography>
                             }
                             secondary={
-                              <React.Fragment>
+                              <span
+                                className="text-muted"
+                                data-testId={`${preference.name}-description`}
+                              >
                                 {preference.description}
-                              </React.Fragment>
+                              </span>
                             }
                           />
                           {preference.values.map((value) => {
                             return (
                               <>
-                                <span className="text-black">
+                                <span
+                                  className="text-black"
+                                  data-testId={`${preference.name}-${value.name}-label`}
+                                >
                                   {value.label}
                                 </span>
                                 {value.inputType === "switch" && (
                                   <UISwitch
+                                    data-testId={`${preference.name}-${value.name}-switch`}
                                     onChange={(e) =>
                                       handlePreferenceChange(
                                         e,

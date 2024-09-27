@@ -24,12 +24,11 @@ const TenantLogin = () => {
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     password:
-      process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
+      process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1*",
   });
 
   const handleCheckboxChange = (event) => {
     setRememberMe(event.target.checked);
-
   };
 
   const handleChange = (e, formInputs) => {
@@ -41,8 +40,6 @@ const TenantLogin = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const passwordInput = [
@@ -59,7 +56,7 @@ const TenantLogin = () => {
         //Create a regex patern to check that the field is not empty
         regex: /\S/,
       },
-      dataTestId: "password",
+      dataTestId: "password-input",
       errorMessageDataTestId: "password-error",
     },
   ];
@@ -77,7 +74,7 @@ const TenantLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-input",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -96,7 +93,7 @@ const TenantLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-select",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -117,7 +114,6 @@ const TenantLogin = () => {
       //Navigate to dashboard
       setOpen(true);
     } else {
-
       setErrMsg(response.message);
       setOpenError(true);
       setIsLoading(false);
@@ -132,7 +128,7 @@ const TenantLogin = () => {
         }
       });
     }
-  },[]);
+  }, []);
 
   return (
     <div
@@ -185,121 +181,56 @@ const TenantLogin = () => {
                 Tenant Login
               </Typography>
               <form className="user" onSubmit={onSubmit}>
-                {process.env.REACT_APP_ENVIRONMENT === "development" ? (
-                  <div>
-                    {selectFormInputs.map((input, index) => {
-                      return (
-                        <div
-                          className={`col-md-${input.colSpan} mb-3`}
-                          key={index}
-                          data-testId={`${input.dataTestId}`}
+                <div className="mb-3">
+                  {textformInputs.map((input, index) => {
+                    return (
+                      <div
+                        className={`col-md-${input.colSpan} mb-3`}
+                        key={index}
+                      >
+                        <label
+                          className="form-label text-black"
+                          htmlFor={input.name}
+                          data-testId={`${input.dataTestId}-label`}
                         >
-                          <label
-                            className="form-label text-black"
-                            htmlFor={input.name}
-                          >
-                            {input.label}
-                          </label>
-                          {input.type === "select" ? (
-                            <select
-                              style={{
-                                ...defaultWhiteInputStyle,
-                                background: uiGrey,
-                              }}
-                              type={input.type}
-                              name={input.name}
-                              onChange={input.onChange}
-                              onBlur={input.onChange}
-                              value={formData[input.name]}
-                            >
-                              <option value="" disabled selected>
-                                Select an Email
-                              </option>
-                              {input.options.map((option, index) => {
-                                return (
-                                  <option key={index} value={option}>
-                                    {option}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          ) : (
-                            <input
-                              style={{
-                                ...defaultWhiteInputStyle,
-                                background: uiGrey,
-                              }}
-                              type={input.type}
-                              name={input.name}
-                              onChange={input.onChange}
-                              onBlur={input.onChange}
-                            />
-                          )}
-                          {errors[input.name] && (
-                            <span
-                              data-testId={input.errorMessageDataTestId}
-                              style={{ ...validationMessageStyle }}
-                            >
-                              {errors[input.name]}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="mb-3">
-                    {textformInputs.map((input, index) => {
-                      return (
-                        <div
-                          className={`col-md-${input.colSpan} mb-3`}
-                          key={index}
+                          {input.label}
+                        </label>
+                        <input
                           data-testId={`${input.dataTestId}`}
-                        >
-                          <label
-                            className="form-label text-black"
-                            htmlFor={input.name}
+                          style={{
+                            ...defaultWhiteInputStyle,
+                            background: uiGrey,
+                          }}
+                          type={input.type}
+                          name={input.name}
+                          onChange={input.onChange}
+                          onBlur={input.onChange}
+                          value={formData[input.name]}
+                        />
+                        {errors[input.name] && (
+                          <span
+                            data-testId={input.errorMessageDataTestId}
+                            style={{ ...validationMessageStyle }}
                           >
-                            {input.label}
-                          </label>
-                          <input
-                            style={{
-                              ...defaultWhiteInputStyle,
-                              background: uiGrey,
-                            }}
-                            type={input.type}
-                            name={input.name}
-                            onChange={input.onChange}
-                            onBlur={input.onChange}
-                            value={formData[input.name]}
-                          />
-                          {errors[input.name] && (
-                            <span
-                              data-testId={input.errorMessageDataTestId}
-                              style={{ ...validationMessageStyle }}
-                            >
-                              {errors[input.name]}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                            {errors[input.name]}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
                 {passwordInput.map((input, index) => {
                   return (
-                    <div
-                      className={`col-md-${input.colSpan} mb-3`}
-                      key={index}
-                      data-testId={`${input.dataTestId}`}
-                    >
+                    <div className={`col-md-${input.colSpan} mb-3`} key={index}>
                       <label
                         className="form-label text-black"
                         htmlFor={input.name}
+                        data-testId={`${input.dataTestId}-label`}
                       >
                         {input.label}
                       </label>
                       <input
+                        data-testId={`${input.dataTestId}`}
                         style={{
                           ...defaultWhiteInputStyle,
                           background: uiGrey,
