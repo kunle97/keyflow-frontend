@@ -1,5 +1,3 @@
-const hostname = "http://localhost:3000";
-
 describe("ManageBillingEntry Component", () => {
   beforeEach(() => {
     // Log user out
@@ -8,7 +6,7 @@ describe("ManageBillingEntry Component", () => {
 
     // Log in using the loaded credentials
     cy.login("Sandra83@hotmail.com", "Password1");
-    cy.visit(hostname + "/dashboard/owner/billing-entries/");
+    cy.visit(Cypress.env("REACT_APP_HOSTNAME")  + "/dashboard/owner/billing-entries/");
   });
     it("should render the ManageBillingEntry component for revenue", () => {
       // cy.get(".limit-select").select("50");
@@ -167,7 +165,7 @@ describe("ManageBillingEntry Component", () => {
       // Log user out witht the cypress command logout
       cy.logout(auth.token);
       //Navigate to the homepage
-      cy.visit(hostname + "/");
+      cy.visit(Cypress.env("REACT_APP_HOSTNAME")  + "/");
     });
   });
 });

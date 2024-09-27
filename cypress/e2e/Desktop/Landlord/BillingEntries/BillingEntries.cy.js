@@ -84,7 +84,7 @@ describe("ManageBillingEntry Component", () => {
 
             
             //Click submit button
-            cy.get('[data-testid="create-billing-entry-`submit-button"]').should("be.visible").click();
+            cy.get('[data-testid="create-billing-entry-submit-button"]').should("be.visible").click();
 
             cy.wait(1500)
 

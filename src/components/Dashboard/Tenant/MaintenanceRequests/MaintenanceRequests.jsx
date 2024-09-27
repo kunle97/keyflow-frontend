@@ -229,6 +229,8 @@ const MaintenanceRequests = () => {
           ) : (
             <div className="maintenance-request-section-table">
               <UITable
+                dataTestId="maintenance-requests-table"
+                testRowIdentifier="maintenance-requests-table-row"
                 data={maintenanceRequests}
                 columns={columns}
                 options={options}

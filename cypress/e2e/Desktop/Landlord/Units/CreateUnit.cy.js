@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-const hostname = "http://localhost:3000";
 
 describe("CreateUnit Component", () => {
   beforeEach(() => {
