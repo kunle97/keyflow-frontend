@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import LeaseCancellationForm from "./LeaseCancellationForm";
 import UIDialog from "../../../UIComponents/Modals/UIDialog";
 import UIButton from "../../../UIComponents/UIButton";
 import ConfirmModal from "../../../UIComponents/Modals/ConfirmModal";
 import { uiRed } from "../../../../../constants";
 const LeaseCancellationDialog = (props) => {
+  const [leaseTerms, setLeaseTerms] = useState(null);
+  useEffect(() => {
+    setLeaseTerms(JSON.parse(props.leaseAgreement.rental_unit.lease_terms));
+  }, []);
   return (
     <>
       {props.isOwnerMode ? (
@@ -50,14 +54,18 @@ const LeaseCancellationDialog = (props) => {
                   <p className="text-black">
                     Please note that you will be charged a lease cancellation
                     fee of $
-                    {props.leaseTemplate &&
-                      props.leaseTemplate.lease_cancellation_fee}{" "}
-                    if you cancel your lease before the end of the lease term.
+                    {leaseTerms && leaseTerms.find
+                      ? leaseTerms.find(
+                          (term) => term.name === "lease_cancellation_fee"
+                        ).value
+                      : 0}{" "}if you cancel your lease before the end of the lease
+                    term.
                   </p>
                   <p className="text-black">
                     You will also be required to give a notice period of{" "}
-                    {props.leaseTemplate &&
-                      props.leaseTemplate.lease_cancellation_notice_period}{" "}
+                    {leaseTerms && leaseTerms.find(
+                      (term) => term.name === "lease_cancellation_notice_period"
+                    ).value}{" "}
                     month(s) before you can cancel your lease.
                   </p>
                   <p className="text-black">
@@ -65,6 +73,7 @@ const LeaseCancellationDialog = (props) => {
                     continue.
                   </p>
                   <UIButton
+                    dataTestId="lease-cancellation-request-dialog-continue-button"
                     btnText="Continue"
                     onClick={() => {
                       props.setShowLeaseCancellationForm(true);

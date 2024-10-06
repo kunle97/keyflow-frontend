@@ -23,6 +23,7 @@ const TenantLogin = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
+    email: process.env.REACT_APP_ENVIRONMENT === "development" && process.env.REACT_APP_CYPRESS_TEST_TENANT_USER_EMAIL ? process.env.REACT_APP_CYPRESS_TEST_TENANT_USER_EMAIL : "",
     password:
       process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1*",
   });
