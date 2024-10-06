@@ -22,6 +22,7 @@ const styles = (theme) => ({
 const UISwitch = withStyles(styles)(({ classes, ...props }) => (
   <Switch
     {...props}
+    data-testId={props.dataTestId}
     classes={{ root: classes.customSwitch }}
     checked={props.value} // Pass the value to control the switch state
     onChange={props.onChange}

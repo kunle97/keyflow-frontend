@@ -129,6 +129,7 @@ const UITableMini = (props) => {
           {results.length === 0 ? (
             <div>
               <UIPrompt
+                dataTestId="ui-table-mini-no-results-prompt"
                 title="Nothing to see here!"
                 message="Looks like there are no results to display.  This data will be populated once you get started."
                 hideBoxShadow={true}
@@ -162,15 +163,17 @@ const UITableMini = (props) => {
                 {isDrfFilterBackend ? (
                   <>
                     {" "}
-                    {results.map((row, index) => {
+                    {results.map((row, rowIndex) => {
                       return (
                         <tr>
-                          {props.columns.map((column) => {
+                          {props.columns.map((column, colIndex) => {
                             //Check if column has an option property with a function in it called customBodyRender
                             if (column.options) {
                               if (column.options.customBodyRender) {
                                 return (
-                                  <td>
+                                  <td
+                                  data-testId={`${props.dataTestId}-row-${rowIndex}-${column.name}`}
+                                  >
                                     {column.options.customBodyRender(
                                       row[column.name]
                                     )}
@@ -178,9 +181,15 @@ const UITableMini = (props) => {
                                 );
                               }
                             }
-                            return <td>{row[column.name]}</td>;
+                            return (
+                              <td
+                                data-testId={`${props.dataTestId}-row-${rowIndex}-${column.name}`}
+                              >
+                                {row[column.name]}
+                              </td>
+                            );
                           })}
-                          {props.showViewButton && (
+                        {props.showViewButton && (
                             <td>
                               <UIButton
                                 onClick={() => {
