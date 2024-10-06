@@ -241,6 +241,7 @@ const Topbar = (props) => {
                     <i
                       className="fas fa-bell fa-fw"
                       style={{ fontSize: "15pt" }}
+                      data-testid="bell-icon"
                     />
                   </Badge>
                 </a>

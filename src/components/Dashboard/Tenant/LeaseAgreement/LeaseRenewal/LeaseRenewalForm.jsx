@@ -94,8 +94,6 @@ const LeaseRenewalForm = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
   const step0FormInputs = [
     {
@@ -299,8 +297,6 @@ const LeaseRenewalForm = (props) => {
         return;
       }
     } else {
-
-
       let parsed_lease_terms = JSON.parse(selectedUnit.lease_terms);
       let lease_term = parsed_lease_terms.find(
         (term) => term.name === "term"
@@ -325,7 +321,6 @@ const LeaseRenewalForm = (props) => {
       .then((res) => {
         if (res.status === 201) {
           if (props.isOwnerMode) {
-
             //If the user is an owner, then redirect them to the lease documents page
             navigate(`/dashboard/owner/lease-renewal-requests/${res.data.id}`);
           } else {
@@ -370,19 +365,10 @@ const LeaseRenewalForm = (props) => {
         ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms)
         : null
     );
-    if (props.leaseAgreement) {
-      //Find only units that have the is_occopied property set to false
-      let unoccupied_units = props.leaseAgreement.rental_property.units.filter(
-        (unit) => unit.is_occupied === false
-      );
-      setUnits(unoccupied_units);
-    } else {
-      authenticatedInstance.get("/units/?is_occupied=False").then((res) => {
-
-        setUnits(res.data);
-      });
-      setLeaseMode("new_lease");
-    }
+    authenticatedInstance.get("/units/?is_occupied=False").then((res) => {
+      setUnits(res.data);
+    });
+    setLeaseMode("new_lease");
   }, [rentalUnitSearchQuery]);
 
   return (

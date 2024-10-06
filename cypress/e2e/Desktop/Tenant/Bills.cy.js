@@ -2,7 +2,7 @@ describe("Test the Bills functionality", () => {
   beforeEach(() => {
     // Log user out
     cy.viewport(1920, 1080);
-    //LOg the user in using the cypress command login
+    //Log the user in using the cypress command login
 
     // Log in using the loaded credentials
     cy.tenantLogin();
