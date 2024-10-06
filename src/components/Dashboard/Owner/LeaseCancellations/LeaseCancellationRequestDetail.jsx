@@ -73,7 +73,6 @@ const LeaseCancellationRequestDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-
   };
   const rent_payment_columns = [
     {
@@ -144,7 +143,6 @@ const LeaseCancellationRequestDetail = () => {
       lease_cancellation_request_id: leaseCancellationRequest.id,
     })
       .then((res) => {
-
         if (res.status === 204) {
           setAlertModalTitle("Success");
           setAlertModalMessage("Lease cancellation request accepted!");
@@ -163,10 +161,9 @@ const LeaseCancellationRequestDetail = () => {
       lease_agreement_id: leaseCancellationRequest.lease_agreement.id,
       lease_cancellation_request_id: leaseCancellationRequest.id,
     }).then((res) => {
-
       if (res.status === 204) {
         setAlertModalTitle("Success");
-        setAlertModalMessage("Lease cancellation request rejected!");
+        setAlertModalMessage("Lease cancellation request rejected.");
         setShowAlertModal(true);
       } else {
         setAlertModalTitle("Error");
@@ -180,7 +177,6 @@ const LeaseCancellationRequestDetail = () => {
     setIsLoading(true);
     getLeaseCancellationRequestById(id)
       .then((lease_cancellation_res) => {
-
         if (lease_cancellation_res.status === 200) {
           setLeaseCancellationRequest(lease_cancellation_res.data);
           setCurrentLeaseTerms(
@@ -189,29 +185,27 @@ const LeaseCancellationRequestDetail = () => {
 
           getTenantInvoices(lease_cancellation_res.data.tenant.id).then(
             (res) => {
-              setInvoices(res.invoices.data);
-
-              const due_dates = res.invoices.data.map((invoice) => {
-                if (!invoice.paid) {
-                  let date = new Date(invoice.due_date * 1000);
-                  return {
-                    amount: invoice.amount_due,
-                    title: "Rent Due",
-                    due_date: date.toLocaleDateString(),
-                    status: "Unpaid",
-                  };
-                } else if (invoice.paid) {
-                  let date = new Date(
-                    invoice.status_transitions.paid_at * 1000
-                  );
-                  return {
-                    amount: invoice.amount_due,
-                    title: "Rent Paid",
-                    due_date: date.toLocaleDateString(),
-                    status: "Paid",
-                  };
-                }
-              });
+              setInvoices(res.invoices);
+              //   if (!invoice.paid) {
+              //     let date = new Date(invoice.due_date * 1000);
+              //     return {
+              //       amount: invoice.amount_due,
+              //       title: "Rent Due",
+              //       due_date: date.toLocaleDateString(),
+              //       status: "Unpaid",
+              //     };
+              //   } else if (invoice.paid) {
+              //     let date = new Date(
+              //       invoice.status_transitions.paid_at * 1000
+              //     );
+              //     return {
+              //       amount: invoice.amount_due,
+              //       title: "Rent Paid",
+              //       due_date: date.toLocaleDateString(),
+              //       status: "Paid",
+              //     };
+              //   }
+              // });
             }
           );
         } else {
@@ -222,7 +216,6 @@ const LeaseCancellationRequestDetail = () => {
         }
       })
       .catch((err) => {
-
         setAlertModalTitle("Error");
         setAlertModalMessage("Something went wrong!");
         setShowAlertModal(true);
@@ -313,46 +306,76 @@ const LeaseCancellationRequestDetail = () => {
                   <div className="row">
                     {" "}
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testid="lease-cancellation-request-reason-heading"
+                      >
                         Reason
                       </h6>
-                      <span className="text-dark">
+                      <span
+                        className="text-dark"
+                        data-testid="lease-cancellation-request-reason-value"
+                      >
                         {leaseCancellationRequest.reason}
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testid="lease-cancellation-request-status-heading"
+                      >
                         Status
                       </h6>
-                      <span className="text-dark">
+                      <span
+                        className="text-dark"
+                        data-testid="lease-cancellation-request-status-value"
+                      >
                         {leaseCancellationRequest.status}
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testid="lease-cancellation-request-date-requested-heading"
+                      >
                         Date Requested
                       </h6>
-                      <span className="text-dark">
+                      <span
+                        className="text-dark"
+                        data-testId="lease-cancellation-request-date-requested-value"
+                      >
                         {new Date(
                           leaseCancellationRequest.request_date
                         ).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testId="lease-cancellation-request-date-submitted-heading"
+                      >
                         Date Submitted
                       </h6>
-                      <span className="text-dark">
+                      <span
+                        className="text-dark"
+                        data-testId="lease-cancellation-request-date-submitted-value"
+                      >
                         {new Date(
                           leaseCancellationRequest.created_at
                         ).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-12 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testid="lease-cancellation-request-comments-heading"
+                      >
                         Additional Comments
                       </h6>
-                      <span className="text-dark">
+                      <span
+                        className="text-dark"
+                        data-testid="lease-cancellation-request-comments-value"
+                      >
                         {leaseCancellationRequest.comments}
                       </span>
                     </div>
@@ -361,27 +384,54 @@ const LeaseCancellationRequestDetail = () => {
               </div>
             </div>
             <div className="col-md-6 current-lease-agreement-details-card">
-              <h5 className="mb-3">Current Lease Agreement Details</h5>
+              <h5
+                className="mb-3"
+                data-testId="current-lease-agreement-details-heading"
+              >
+                Current Lease Agreement Details
+              </h5>
               <div className="card">
                 <div className="card-body">
                   <div className="row">
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testId="current-lease-agreement-details-property-heading"
+                      >
                         Property
                       </h6>
-                      <span className="text-dark">
+                      <span
+                        className="text-dark"
+                        data-testId="current-lease-agreement-details-property-value"
+                      >
                         {leaseCancellationRequest.rental_property.name}
                       </span>
                     </div>{" "}
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">Unit</h6>
-                      <span className="text-dark">
+                      <h6
+                        className="info-heading"
+                        data-testId="current-lease-agreement-details-unit-heading"
+                      >
+                        Unit
+                      </h6>
+                      <span
+                        className="text-dark"
+                        data-testId="current-lease-agreement-details-unit-value"
+                      >
                         {leaseCancellationRequest.rental_unit.name}
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">Rent</h6>
-                      <span className="text-dark">
+                      <h6
+                        className="info-heading"
+                        data-testId="current-lease-agreement-details-rent-heading"
+                      >
+                        Rent
+                      </h6>
+                      <span
+                        className="text-dark"
+                        data-testId="current-lease-agreement-details-rent-value"
+                      >
                         $
                         {
                           currentLeaseTerms.find((term) => term.name === "rent")
@@ -390,8 +440,16 @@ const LeaseCancellationRequestDetail = () => {
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">Term</h6>
-                      <span className="text-dark">
+                      <h6
+                        className="info-heading"
+                        data-testId="current-lease-agreement-details-term-heading"
+                      >
+                        Term
+                      </h6>
+                      <span
+                        className="text-dark"
+                        data-testId="current-lease-agreement-details-term-value"
+                      >
                         {
                           currentLeaseTerms.find((term) => term.name === "term")
                             .value
@@ -405,21 +463,25 @@ const LeaseCancellationRequestDetail = () => {
                       </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="info-heading"
+                        data-testId="current-lease-agreement-details-lease-canellation-fee-heading"
+                      >
                         Lease Cancellation Fee
                       </h6>
-                      <span className="text-dark">{`$${
+                      <span
+                        className="text-dark"
+                        data-testId="current-lease-agreement-details-lease-canellation-fee-value"
+                      >{`$${
                         currentLeaseTerms.find(
                           (term) => term.name === "lease_cancellation_fee"
                         ).value
                       }`}</span>
                     </div>
-                    <div className="col-sm-12 col-md-6 mb-4">
-                      <h6 className="rental-application-lease-heading">
-                        Next Payment Date
-                      </h6>
-                      {/* <span className="text-dark">{nextPaymentDate}</span> */}
-                    </div>
+                    {/* <div className="col-sm-12 col-md-6 mb-4">
+                      <h6 className="info-heading">Next Payment Date</h6>
+                      <span className="text-dark">{nextPaymentDate}</span>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -516,13 +578,16 @@ const LeaseCancellationRequestDetail = () => {
           >
             <UIButton
               id="reject-lease-cancellation-button"
+              dataTestId="reject-lease-cancellation-button"
               onClick={setOpenRejectModal}
               variant="contained"
               style={{ backgroundColor: uiRed }}
+              confirmBtnStyle={{ backgroundColor: uiRed }}
               btnText="Reject"
             />
             <UIButton
               id="accept-lease-cancellation-button"
+              dataTestId="accept-lease-cancellation-button"
               onClick={setOpenAcceptModal}
               variant="contained"
               style={{ background: uiGreen }}

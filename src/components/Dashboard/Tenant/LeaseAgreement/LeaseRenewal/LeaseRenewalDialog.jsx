@@ -43,6 +43,7 @@ const LeaseRenewalDialog = (props) => {
                 </p>
               )}
               <UIButton
+                dataTestId="lease-renewal-request-dialog-continue-button"
                 btnText="Continue"
                 onClick={() => {
                   props.setShowLeaseRenewalForm(true);

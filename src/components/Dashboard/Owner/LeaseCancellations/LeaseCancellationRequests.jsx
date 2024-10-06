@@ -177,6 +177,7 @@ const LeaseCancellationRequests = () => {
 
       {isMobile ? (
         <UITableMobile
+          dataTestId="lease-cancellation-requests-table-mobile"
           endpoint={"/lease-cancellation-requests/"}
           tableTitle={"Lease Cancellation Requests"}
           createInfo={(row) =>
@@ -201,6 +202,7 @@ const LeaseCancellationRequests = () => {
       ) : (
         <div className="lease-cancellation-requests-table-container">
           <UITable
+            dataTestId="lease-cancellation-requests-table"
             columns={columns}
             options={options}
             endpoint={"/lease-cancellation-requests/"}
