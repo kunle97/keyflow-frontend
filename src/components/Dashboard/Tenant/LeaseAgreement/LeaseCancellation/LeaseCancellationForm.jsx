@@ -14,12 +14,6 @@ const LeaseCancellationForm = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
-  const [steps, setSteps] = useState([
-    "Reason for Cancellation",
-    "Desired Move Out Date",
-    "Comments",
-    "Submit",
-  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,8 +50,8 @@ const LeaseCancellationForm = (props) => {
         regex: validAnyString,
         errorMessage: "Please select a reason for the cancellation",
       },
-      dataTestId: "reason",
-      errorMessageDataTestId: "reason-error",
+      dataTestId: "reason-select",
+      errorMessageDataTestId: "reason-select-error",
     },
     {
       name: "moveOutDate",
@@ -72,8 +66,8 @@ const LeaseCancellationForm = (props) => {
         //Create a regeext property whoes value is a regex that matches the date format
         regex: validHTMLDateInput,
       },
-      dataTestId: "move-out-date",
-      errorMessageDataTestId: "move-out-date-error",
+      dataTestId: "move-out-date-input",
+      errorMessageDataTestId: "move-out-date-input-error",
     },
     {
       name: "comments",
@@ -83,12 +77,12 @@ const LeaseCancellationForm = (props) => {
       onChange: (e) => handleChange(e),
 
       validations: {
-        required: false,
+        required: true,
         regex:validAnyString,
-        errorMessage: "Please enter comments",
+        errorMessage: "Please enter a breif comment on your reason for cancellation",
       },
-      dataTestId: "comments",
-      errorMessageDataTestId: "comments-error",
+      dataTestId: "comments-textarea",
+      errorMessageDataTestId: "comments-textarea-error",
     },
   ];
 
@@ -174,8 +168,10 @@ const LeaseCancellationForm = (props) => {
                       id={input.name}
                       name={input.name}
                       onChange={input.onChange}
+                      onBlur={input.onChange}
                       data-testid={input.dataTestId}
-                    >
+                    > 
+                      <option value="">Select a reason</option>
                       {input.options.map((option, index) => {
                         return (
                           <option key={index} value={option}>
@@ -218,6 +214,7 @@ const LeaseCancellationForm = (props) => {
           })}
         </div>
         <UIButton
+        dataTestId="lease-cancellation-form-submit-button"
           btnText="Submit"
           onClick={() => {
             const { isValid, newErrors } = validateForm(formData, formInputs);

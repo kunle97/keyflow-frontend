@@ -1,0 +1,216 @@
+{
+  "ownerMenuItems": [
+    {
+      "label": "Dashboard",
+      "link": "/dashboard/owner",
+      "icon": "fas fa-tachometer-alt",
+      "muiIcon": "DashboardIcon",
+      "description": "View your dashboard",
+      "isSearchable": true,
+      "dataTestId": "owner-dashboard-menu-item"
+    },
+    {
+      "label": "Properties",
+      "link": "/dashboard/owner/properties",
+      "muiIcon": "HomeWorkIcon",
+      "description": "View your properties",
+      "icon": "fa fa-home",
+      "isSearchable": true,
+      "dataTestId": "owner-properties-menu-item",
+      "subMenuItems": [
+        {
+          "label": "Add New Property",
+          "link": "/dashboard/owner/properties/create",
+          "muiIcon": "HomeWorkIcon",
+          "description": "Add a new property",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-add-new-property-menu-item"
+        },
+        {
+          "label": "View Properties",
+          "link": "/dashboard/owner/properties",
+          "muiIcon": "HomeWorkIcon",
+          "description": "View your properties",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-view-properties-menu-item"
+        },
+        {
+          "label": "Units",
+          "link": "/dashboard/owner/units",
+          "muiIcon": "PeopleAltIcon",
+          "description": "View your units",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-units-menu-item"
+        },
+        {
+          "label": "Add New Unit",
+          "link": "/dashboard/owner/units/create",
+          "muiIcon": "PeopleAltIcon",
+          "description": "Add a new unit",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-add-new-unit-menu-item"
+        }
+      ]
+    },
+    {
+      "label": "Portfolios ",
+      "link": "/dashboard/owner/portfolios",
+      "muiIcon": "HomeWorkIcon",
+      "description": "Create a new portfolio",
+      "icon": "fa fa-home",
+      "isSearchable": true,
+      "dataTestId": "owner-portfolios-menu-item"
+    },
+    {
+      "label": "Tenants",
+      "icon": "fa fa-group",
+      "muiIcon": "PeopleAltIcon",
+      "description": "View your tenants",
+      "isSearchable": true,
+      "dataTestId": "owner-tenants-menu-item",
+      "subMenuItems": [
+        {
+          "label": "View Tenants",
+          "link": "/dashboard/owner/tenants",
+          "muiIcon": "PeopleAltIcon",
+          "description": "View your tenants",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-view-tenants-menu-item"
+        },
+        {
+          "label": "Tenant Invites",
+          "link": "/dashboard/owner/tenant-invites",
+          "muiIcon": "PeopleAltIcon",
+          "description": "View your tenant invites",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-tenant-invites-menu-item"
+        }
+      ]
+    },
+    {
+      "label": "Maintenance ",
+      "link": "/dashboard/owner/maintenance-requests",
+      "muiIcon": "HandymanIcon",
+      "description": "View all maintenance requests",
+      "icon": "fas fa-tools",
+      "isSearchable": true,
+      "dataTestId": "owner-maintenance-requests-menu-item"
+    },
+    {
+      "label": "Lease Agreements",
+      "link": "#",
+      "muiIcon": "DescriptionIcon",
+      "description": "View your lease terms",
+      "icon": "fas fa-user-circle",
+      "isSearchable": true,
+      "dataTestId": "owner-lease-agreements-dropdown-menu-item",
+      "subMenuItems": [
+        {
+          "label": "View Lease Agreements",
+          "link": "/dashboard/owner/lease-agreements",
+          "muiIcon": "DescriptionIcon",
+          "description": "View your lease agreements",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-lease-agreements-menu-item"
+        },
+        {
+          "label": "New Lease Template",
+          "link": "/dashboard/owner/lease-templates/create",
+          "muiIcon": "DescriptionIcon",
+          "description": "Create a new lease agreement",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-new-lease-template-menu-item"
+        },
+        {
+          "label": "Cancellation Requests",
+          "link": "/dashboard/owner/lease-cancellation-requests",
+          "muiIcon": "DescriptionIcon",
+          "description": "View your lease cancellation requests",
+          "icon": "fas fa-user-circle",
+          "isSearchable": true,
+          "dataTestId": "owner-lease-cancellation-requests-menu-item"
+        },
+        {
+          "label": "Renewal Requests",
+          "link": "/dashboard/owner/lease-renewal-requests",
+          "muiIcon": "DescriptionIcon",
+          "description": "View your lease renewal requests",
+          "icon": "fas fa-user-circle",
+          "isSearchable": true,
+          "dataTestId": "owner-lease-renewal-requests-menu-item"
+        }
+      ]
+    },
+    {
+      "label": "Lease Templates",
+      "link": "#",
+      "muiIcon": "DocumentScannerIcon",
+      "description": "View your lease terms",
+      "icon": "fas fa-user-circle",
+      "isSearchable": true,
+      "dataTestId": "owner-lease-templates-menu-item",
+      "subMenuItems": [
+        {
+          "label": "View Lease Templates",
+          "link": "/dashboard/owner/lease-templates",
+          "muiIcon": "DocumentScannerIcon",
+          "description": "View your lease templates",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-lease-templates-menu-item"
+        },
+        {
+          "label": "New Lease Template",
+          "link": "/dashboard/owner/lease-templates/create",
+          "muiIcon": "DocumentScannerIcon",
+          "description": "Create a new lease template",
+          "icon": "fas fa-tools",
+          "isSearchable": true,
+          "dataTestId": "owner-new-lease-template-menu-item"
+        }
+      ]
+    },
+    {
+      "label": "Rental Applications",
+      "link": "/dashboard/owner/rental-applications",
+      "muiIcon": "ReceiptLongIcon",
+      "description": "View your rental applications",
+      "icon": "fas fa-tachometer-alt",
+      "isSearchable": true,
+      "dataTestId": "owner-rental-applications-menu-item"
+    },
+    {
+      "label": "Announcements",
+      "link": "/dashboard/owner/announcements",
+      "muiIcon": "CampaignIcon",
+      "description": "View your Announcements",
+      "icon": "fas fa-tachometer-alt",
+      "isSearchable": true,
+      "dataTestId": "owner-announcements-menu-item"
+    },
+    {
+      "label": "Transactions",
+      "link": "/dashboard/owner/transactions",
+      "icon": "fas fa-tools",
+      "muiIcon": "CurrencyExchangeIcon",
+      "isSearchable": true,
+      "dataTestId": "owner-transactions-menu-item"
+    },
+    {
+      "label": "Billing Entries",
+      "link": "/dashboard/owner/billing-entries",
+      "icon": "fas fa-tools",
+      "muiIcon": "AttachMoneyIcon",
+      "isSearchable": true,
+      "dataTestId": "owner-billing-entries-menu-item"
+    }
+  ]
+}

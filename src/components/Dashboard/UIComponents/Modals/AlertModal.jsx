@@ -48,7 +48,7 @@ const AlertModal = (props) => {
       closeAfterTransition={false} // Prevent modal from closing on backdrop click
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
-      hideBackdrop={false}
+      hideBackdrop={false} 
       BackdropComponent={Backdrop}
       BackdropProps={{
         timeout: 500,
@@ -63,7 +63,7 @@ const AlertModal = (props) => {
             id="modal-modal-title"
             variant="h6"
             component="h2"
-            data-testid="alert-modal-title"
+            data-testid={props.dataTestId ? props.dataTestId+"-modal-title" : `alert-modal-title`}
           >
             {props.title}
           </h5>

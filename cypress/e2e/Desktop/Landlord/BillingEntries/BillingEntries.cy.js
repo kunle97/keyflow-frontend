@@ -90,7 +90,7 @@ describe("ManageBillingEntry Component", () => {
 
             //Handle The alert modal
             cy.get('[data-testid="create-billing-entry-alert-modal"]').should("be.visible");
-            cy.get('[data-testid="alert-modal-title"]').should("be.visible").contains("Success");
+            cy.get('[data-testid="create-billing-entry-alert-modal-modal-title"]').should("be.visible").contains("Success");
             cy.get('[data-testid="create-billing-entry-alert-modal-modal-message"]').should("be.visible").contains("Billing entry created successfully");
             cy.get('[data-testid="create-billing-entry-alert-modal-modal-button"]').should("be.visible").click();
 
