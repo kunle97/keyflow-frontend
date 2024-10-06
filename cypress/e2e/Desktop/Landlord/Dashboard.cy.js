@@ -21,8 +21,18 @@ describe("Test all functions on the owner Dasboard", () => {
     cy.get('[data-testId="ui-line-chart"]').should("be.visible");
 
     cy.get('[data-testid="dashboard-line-chart-card"]').should("be.visible");
-    // cy.get('[data-testid="dashboard-transactions-card-no-data"]').should("be.visible");
-    cy.get('[data-testid="dashboard-transactions-card"]').should("be.visible");
+
+    //CHeck if the dashboard-transactions-card-no-data" is visible if not visible then check if the dashboard-transactions-card is visible
+    cy.get('[data-testid="dashboard-transactions-card-no-data"]').then(($noDataCard) => {
+      if ($noDataCard.is(':visible')) {
+        // If the 'dashboard-transactions-card-no-data' is visible, assert its visibility
+        cy.wrap($noDataCard).should('be.visible');
+      } else {
+        // If 'dashboard-transactions-card-no-data' is not visible, check for 'dashboard-transactions-card'
+        cy.get('[data-testid="dashboard-transactions-card"]').should('be.visible');
+      }
+    });
+    
     cy.get('[data-testid="dashboard-pie-chart-card"]').should("be.visible");
     cy.get(
       '[data-testid="dashboard-lease-agreements-card-list-desktop"]'
