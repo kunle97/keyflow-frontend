@@ -308,7 +308,6 @@ const LeaseRenewalForm = (props) => {
         return;
       }
     } else {
-      console.log("lEase agreement does not exist: ");
       let parsed_lease_terms = JSON.parse(selectedUnit.lease_terms);
       let lease_term = parsed_lease_terms.find(
         (term) => term.name === "term"
