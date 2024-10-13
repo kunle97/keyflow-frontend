@@ -1,5 +1,5 @@
 import React from "react";
-import { uiGreen } from "../../../../../../../constants";
+import { dateDiffForHumans, uiGreen } from "../../../../../../../constants";
 import { Stack } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
@@ -28,35 +28,42 @@ const SubscriptionCard = (props) => {
         >
           {props.subscriptionName}
         </h6>
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={1}
-          sx={{
-            my: 1,
-          }}
-        >
-          <h3
-            className="card-subtitle mb-2 text-black text-bold"
-            style={{
-              fontSize: "33pt",
+        {props.isTrialMode === true ? (
+          <h3 className="mt-3 mb-4">
+            Free Trial {props.trialEnd ? <>(Ends {dateDiffForHumans(props.trialEnd)})</> : null}
+          </h3>
+        ) : (
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={1}
+            sx={{
+              my: 1,
             }}
           >
-            ${props.subscriptionPrice}
-          </h3>
-          <Stack
-            direction="column"
-            justifyContent="flex-start"
-            alignItems="baseline"
-            spacing={0}
-          >
-            {props.isPerUnit && (
-              <span className="text-black">per rental unit </span>
-            )}
-            <span className="text-black">per month</span>
+            <h3
+              className="card-subtitle mb-2 text-black text-bold"
+              style={{
+                fontSize: "33pt",
+              }}
+            >
+              ${props.subscriptionPrice}
+            </h3>
+            <Stack
+              direction="column"
+              justifyContent="flex-start"
+              alignItems="baseline"
+              spacing={0}
+            >
+              {props.isPerUnit && (
+                <span className="text-black">per rental unit </span>
+              )}
+              <span className="text-black">per month</span>
+            </Stack>
           </Stack>
-        </Stack>
+        )}
+
         <p className="card-text text-black">{props.subscriptionDescription}</p>
         <div
           className="row my-3"

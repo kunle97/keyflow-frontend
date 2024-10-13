@@ -5,6 +5,7 @@ import { uiGreen } from "../../../../constants";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import { freePlan } from "../../../../constants";
+
 const PlanSelectDialog = (props) => {
   return (
     <UIDialog open={props.open} onClose={props.onClose} maxWidth={"xxl"}>
@@ -36,7 +37,6 @@ const PlanSelectDialog = (props) => {
                   btnText="Select Plan"
                   onClick={() => {
                     props.setSelectedPlan(freePlan);
-
                     props.onClose();
                   }}
                 />
@@ -48,7 +48,7 @@ const PlanSelectDialog = (props) => {
                 >
                   <span className="text-black">This plan includes:</span>
                   {freePlan.features.map((feature) => (
-                    <span className="text-black">
+                    <span className="text-black" key={feature.name}>
                       <CheckCircleIcon
                         style={{ color: uiGreen, width: "15px" }}
                       />{" "}
@@ -61,7 +61,7 @@ const PlanSelectDialog = (props) => {
           </div>
         </div>
         {props.plans.map((plan) => (
-          <div className="col-md-6 col-sm-12 mb-3 py-3 ">
+          <div className="col-md-6 col-sm-12 mb-3 py-3" key={plan.product_id}>
             <div className="">
               <div className="card-body">
                 <h5>{plan.name}</h5>
@@ -73,7 +73,21 @@ const PlanSelectDialog = (props) => {
                     alignItems="center"
                     spacing={2}
                   >
-                    <h2 style={{ fontSize: "27pt" }}>${plan.price}</h2>
+                    {/* Cross out $1.50 and display $0 next to it for Enterprise Plan */}
+                    {plan.product_id ===
+                    process.env
+                      .REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID ? (
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <span style={{ fontSize: "27pt", textDecoration: "line-through", color: "black" }}>
+                          $1.50
+                        </span>
+                        <span style={{ fontSize: "27pt", color: "black" }}>
+                          $0
+                        </span>
+                      </Stack>
+                    ) : (
+                      <h2 style={{ fontSize: "27pt" }}>${plan.price}</h2>
+                    )}
                     <Stack
                       direction="column"
                       justifyContent="flex-start"
@@ -90,9 +104,11 @@ const PlanSelectDialog = (props) => {
                       )}
                       <span className="text-black">per month</span>
                     </Stack>
+
+                    {/* Show Best Value Chip for both Professional and Enterprise Plans */}
                     {plan.product_id ===
-                    process.env
-                      .REACT_APP_STRIPE_OWNER_PROFESSIONAL_PLAN_PRODUCT_ID ? (
+                      process.env
+                        .REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID ? (
                       <Chip
                         label="Best Value"
                         sx={{
@@ -115,12 +131,26 @@ const PlanSelectDialog = (props) => {
                     )}
                   </Stack>
 
+                  {/* Display "3 months FREE" message for Enterprise Plan */}
+                  {plan.product_id ===
+                    process.env
+                      .REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID && (
+                    <span
+                      style={{
+                        color: "black",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      First 3 months FREE
+                    </span>
+                  )}
+
                   <UIButton
                     style={{ width: "100%", margin: "10px 0" }}
                     btnText="Select Plan"
                     onClick={() => {
                       props.setSelectedPlan(plan);
-
                       props.onClose();
                     }}
                   />
@@ -132,7 +162,7 @@ const PlanSelectDialog = (props) => {
                   >
                     <span className="text-black">This plan includes:</span>
                     {plan.features.map((feature) => (
-                      <span className="text-black">
+                      <span className="text-black" key={feature.name}>
                         <CheckCircleIcon
                           style={{ color: uiGreen, width: "15px" }}
                         />{" "}
