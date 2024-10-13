@@ -462,7 +462,10 @@ export const fakeData = {
       ? ""
       : faker.finance.amount(),
 };
-export function dateDiffForHumans(targetDate) {
+export function dateDiffForHumans(timestamp) {
+  // Check if the timestamp is in seconds (10 digits) or milliseconds (13 digits)
+  const targetDate = timestamp.toString().length === 10 ? new Date(timestamp * 1000) : new Date(timestamp);
+  
   const currentDate = new Date();
   const timeDifference = targetDate - currentDate;
   const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -479,6 +482,7 @@ export function dateDiffForHumans(targetDate) {
     return `${-daysDifference} days ago`;
   }
 }
+
 
 export function addMonths(date, months) {
   const newDate = date.setMonth(date.getMonth() + months);
