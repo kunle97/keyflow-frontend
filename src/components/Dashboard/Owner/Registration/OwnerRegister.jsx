@@ -531,7 +531,8 @@ const OwnerRegister = () => {
                                   alignItems="center"
                                   spacing={1}
                                 >
-                                  <h2>${selectedPlan.price}</h2>
+                                  <h2>${selectedPlan.product_id === process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID ? "0": selectedPlan.price}
+                                  </h2>
                                   <Stack direction="row" spacing={0}>
                                     {selectedPlan.product_id ===
                                       process.env
