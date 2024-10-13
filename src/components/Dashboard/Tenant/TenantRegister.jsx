@@ -317,6 +317,7 @@ const TenantRegister = () => {
 
   //Veryfy that the lease agreement id and approval hash are valid on page load
   useEffect(() => {
+    preventPageReload();
     try {
       verifyTenantRegistrationCredentials({
         lease_agreement_id,
@@ -430,7 +431,7 @@ const TenantRegister = () => {
         "Invalid or expired registration link. Please contact your landlord."
       );
     }
-    preventPageReload(); //Warns user before leaving the page
+      //Warns user before leaving the page
   },[]);
   return (
     <div className="container-fluid">

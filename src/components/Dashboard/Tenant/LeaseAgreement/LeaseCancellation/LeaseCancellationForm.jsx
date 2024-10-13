@@ -9,7 +9,6 @@ import {
 } from "../../../../../helpers/formValidation";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 import { validAnyString, validHTMLDateInput } from "../../../../../constants/rexgex";
-import { preventPageReload } from "../../../../../helpers/utils";
 const LeaseCancellationForm = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
@@ -143,7 +142,7 @@ const LeaseCancellationForm = (props) => {
     }
   };
   useEffect(() => {
-    preventPageReload();
+     
   },[]);
   return (
     <div>

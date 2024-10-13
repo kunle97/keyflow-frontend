@@ -22,7 +22,6 @@ import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads"
 import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
 import useScreen from "../../hooks/useScreen";
-import { preventPageReload } from "../../helpers/utils";
 const CreateRentalApplication = () => {
   const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
@@ -442,7 +441,7 @@ const CreateRentalApplication = () => {
 
   useEffect(() => {
     // get unit data
-    preventPageReload();
+     
     getUnitUnauthenticated(unit_id)
       .then((unit_res) => {
         setIsLoading(true);
