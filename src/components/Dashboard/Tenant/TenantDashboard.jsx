@@ -42,7 +42,8 @@ const TenantDashboard = () => {
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] = useState(false);
+  const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
+    useState(false);
   const [tenantData, setTenantData] = useState(null); //TODO: Remove this and replace with [leaseAgreement, setLeaseAgreement
   const [currentBalance, setCurrentBalance] = useState(0);
   const [lateFees, setLateFees] = useState(0);
@@ -177,16 +178,18 @@ const TenantDashboard = () => {
     },
     limit: 5,
   };
-  const autoPaySwitchOnClick = () =>{
-    setConfirmModalTitle("Turn On Auto Pay")
-    setConfirmModalMessage("Are you sure you want to turn on auto pay?"+
-      "This will automatically pay your rent on the due date. You will also now be charged for any unpaid security deposits on the lease. "+
-      "In orderto turn it off you must contact your landlord.");
+  const autoPaySwitchOnClick = () => {
+    setConfirmModalTitle("Turn On Auto Pay");
+    setConfirmModalMessage(
+      "Are you sure you want to turn on auto pay?" +
+        "This will automatically pay your rent on the due date. You will also now be charged for any unpaid security deposits on the lease. " +
+        "In orderto turn it off you must contact your landlord."
+    );
     setConfirmButtonText("Turn On AutoPay");
     setCancelButtonText("Cancel");
     setConfirmAction(() => handleAutoPayChange);
     setShowConfirmModal(true);
-  }
+  };
   const handleAutoPayChange = async () => {
     try {
       setAutoPayIsLoading(true);
@@ -196,8 +199,10 @@ const TenantDashboard = () => {
           setAlertMessage("Auto pay has been turned off.");
           setAlertTitle("Success");
           setShowAlert(true);
-        }else{
-          setAlertMessage("An error occurred while turning off auto pay. Please try again.");
+        } else {
+          setAlertMessage(
+            "An error occurred while turning off auto pay. Please try again."
+          );
           setAlertTitle("Error");
           setShowAlert(true);
         }
@@ -207,8 +212,10 @@ const TenantDashboard = () => {
           setAlertMessage("Auto pay has been turned on.");
           setAlertTitle("Success");
           setShowAlert(true);
-        }else{
-          setAlertMessage("An error occurred while turning on auto pay. Please try again.");
+        } else {
+          setAlertMessage(
+            "An error occurred while turning on auto pay. Please try again."
+          );
           setAlertTitle("Error");
           setShowAlert(true);
         }
@@ -495,6 +502,7 @@ const TenantDashboard = () => {
                                   sx={{ mb: 2 }}
                                 >
                                   <UISwitch
+                                    dataTestId="auto-pay-switch"
                                     checked={leaseAgreement.auto_pay_is_enabled}
                                     onChange={autoPaySwitchOnClick}
                                   />
@@ -554,6 +562,7 @@ const TenantDashboard = () => {
                                 sx={{ mb: 2 }}
                               >
                                 <UISwitch
+                                  dataTestId="auto-pay-switch"
                                   value={leaseAgreement.auto_pay_is_enabled}
                                   onChange={autoPaySwitchOnClick}
                                 />
@@ -591,6 +600,7 @@ const TenantDashboard = () => {
               )}
               <div className="maintenance-request-card">
                 <UItableMiniCard
+                  dataTestId="maintenance-request-table"
                   cardStyle={{ background: "white", color: "black" }}
                   infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
                   titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
