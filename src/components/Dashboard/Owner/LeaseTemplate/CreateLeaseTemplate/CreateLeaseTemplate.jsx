@@ -23,7 +23,6 @@ import Joyride, {
   STATUS,
 } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
-import { preventPageReload } from "../../../../../helpers/utils";
 import { getOwnerSubscriptionPlanData } from "../../../../../api/owners";
 const CreateLeaseTemplate = (props) => {
   const { isMobile } = useScreen();
@@ -369,7 +368,7 @@ const CreateLeaseTemplate = (props) => {
         setShowResponseMessage(false);
       }
     });
-    preventPageReload();
+     
   }, [step, skipAdditionalChargesStep, skipAssignStep]);
   return (
     <div className="container lease-template-creation-page">

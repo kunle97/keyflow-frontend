@@ -22,7 +22,6 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { lettersNumbersAndSpecialCharacters, uppercaseAndLowercaseLetters } from "../../../../constants/rexgex";
-import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateMaintenanceRequest = () => {
   const [unit, setUnit] = useState(null);
@@ -132,7 +131,7 @@ const CreateMaintenanceRequest = () => {
   ];
 
   useEffect(() => {
-    preventPageReload();
+     
     //Retrieve the unit
     getTenantDashboardData().then((res) => {
 

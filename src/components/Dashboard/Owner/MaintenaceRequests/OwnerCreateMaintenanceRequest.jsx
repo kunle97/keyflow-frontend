@@ -24,7 +24,6 @@ import {
   uppercaseAndLowercaseLetters,
   validAnyString,
 } from "../../../../constants/rexgex";
-import { preventPageReload } from "../../../../helpers/utils";
 import { getAllUnits, getUnits } from "../../../../api/units";
 import { authenticatedInstance } from "../../../../api/api";
 import { useNavigate } from "react-router";

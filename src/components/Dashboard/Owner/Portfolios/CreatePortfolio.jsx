@@ -20,7 +20,6 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
-import { preventPageReload } from "../../../../helpers/utils";
 import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 const CreatePortfolio = () => {
   const navigate = useNavigate();
@@ -159,7 +158,7 @@ const CreatePortfolio = () => {
         setOpen(false);
       }
     });
-    preventPageReload();
+     
   },[]);
   return (
     <div

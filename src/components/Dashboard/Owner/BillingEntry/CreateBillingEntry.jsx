@@ -51,7 +51,6 @@ import {
 } from "../../../../constants/rexgex";
 import { useParams } from "react-router";
 import { getMaintenanceRequestById } from "../../../../api/maintenance_requests";
-import { preventPageReload } from "../../../../helpers/utils";
 
 const CreateBillingEntry = () => {
   const [tenants, setTenants] = useState([]);
@@ -479,7 +478,7 @@ const CreateBillingEntry = () => {
     }
   };
   useEffect(() => {
-    preventPageReload();
+     
     if (maintenance_request_id) {
       getMaintenanceRequestById(maintenance_request_id).then((res) => {
         setMaintenanceRequest(res.data);

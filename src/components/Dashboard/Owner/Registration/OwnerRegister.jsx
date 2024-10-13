@@ -355,7 +355,7 @@ const OwnerRegister = () => {
           setShowAlert(true);
         });
     }
-    preventPageReload();
+     
   }, [plans]);
 
   return (
