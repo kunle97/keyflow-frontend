@@ -35,7 +35,6 @@ import {
 } from "../../../../../constants/rexgex";
 import { authenticatedInstance } from "../../../../../api/api";
 import UIInput from "../../../UIComponents/UIInput";
-import { preventPageReload } from "../../../../../helpers/utils";
 const LeaseRenewalForm = (props) => {
   const [step, setStep] = useState(0);
   const [steps, setSteps] = useState([
@@ -84,6 +83,7 @@ const LeaseRenewalForm = (props) => {
 
   const handleChange = (e, formData, setFormData, formInputs) => {
     const { name, value } = e.target;
+    console.log("Name:", name, " - Value:", value);
     let newErrors = triggerValidation(
       name,
       value,
@@ -94,8 +94,6 @@ const LeaseRenewalForm = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
   const step0FormInputs = [
     {
@@ -109,8 +107,8 @@ const LeaseRenewalForm = (props) => {
         validHTMLDateInput,
         errorMessage: "Please enter a valid move in date",
       },
-      dataTestId: "move-in-date",
-      errorMessageDataTestId: "move-in-date-error",
+      dataTestId: "move-in-date-input",
+      errorMessageDataTestId: "move-in-date-input-error",
     },
   ];
   const step1FormInputs = [
@@ -125,8 +123,8 @@ const LeaseRenewalForm = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid lease term",
       },
-      dataTestId: "lease-term",
-      errorMessageDataTestId: "lease-term-error",
+      dataTestId: "lease-term-input",
+      errorMessageDataTestId: "lease-term-input-error",
     },
     {
       name: "rentFrequency",
@@ -146,8 +144,8 @@ const LeaseRenewalForm = (props) => {
         regex: validAnyString,
         errorMessage: "Please select a rent frequency",
       },
-      dataTestId: "rent-frequency",
-      errorMessageDataTestId: "rent-frequency-error",
+      dataTestId: "rent-frequency-select",
+      errorMessageDataTestId: "rent-frequency-select-error",
     },
   ];
   const step3FormInputs = [
@@ -163,8 +161,8 @@ const LeaseRenewalForm = (props) => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a comment",
       },
-      dataTestId: "comments",
-      errorMessageDataTestId: "comments-error",
+      dataTestId: "comments-textarea",
+      errorMessageDataTestId: "comments-textarea-error",
     },
   ];
 
@@ -234,6 +232,15 @@ const LeaseRenewalForm = (props) => {
   };
 
   const handleChangeLeaseMode = (event) => {
+    console.log("Lease Mode:", event.target.value);
+    console.log(
+      "Current Rent Frequency:",
+      "Current rent frequency: ",
+      JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
+        (term) => term.name === "rent_frequency"
+      ).value
+    );
+    console.log("New Rent Frequency:", );
     setLeaseMode(event.target.value); // Update selected unit
     setIsSameLeaseTerm(event.target.value === "current_lease");
   };
@@ -261,8 +268,10 @@ const LeaseRenewalForm = (props) => {
 
   const onSubmit = () => {
     setIsLoading(true);
+
     let payload = {};
     if (props.leaseAgreement) {
+      console.log("lEase agreement exists: ", props.leaseAgreement);
       payload = {
         move_in_date: step0FormData.moveInDate,
         lease_term:
@@ -276,7 +285,7 @@ const LeaseRenewalForm = (props) => {
             ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
                 (term) => term.name === "rent_frequency"
               ).value
-            : step1FormData.rent_frequency,
+            : step1FormData.rentFrequency,
         comments: step3FormData.comments,
         tenant: props.leaseAgreement.tenant.id,
         owner: props.leaseAgreement.owner.id,
@@ -299,8 +308,6 @@ const LeaseRenewalForm = (props) => {
         return;
       }
     } else {
-
-
       let parsed_lease_terms = JSON.parse(selectedUnit.lease_terms);
       let lease_term = parsed_lease_terms.find(
         (term) => term.name === "term"
@@ -320,12 +327,13 @@ const LeaseRenewalForm = (props) => {
         rental_property: selectedUnit.rental_property,
       };
     }
-
+    console.log("lease agreement rent frequency: ", payload.rent_frequency);
+    console.log("Set1FormData: ", step1FormData);
+    console.log("Lease Renewal Request Payload: ", payload);
     createLeaseRenewalRequest(payload)
       .then((res) => {
         if (res.status === 201) {
           if (props.isOwnerMode) {
-
             //If the user is an owner, then redirect them to the lease documents page
             navigate(`/dashboard/owner/lease-renewal-requests/${res.data.id}`);
           } else {
@@ -362,27 +370,23 @@ const LeaseRenewalForm = (props) => {
   };
 
   useEffect(() => {
-    preventPageReload();
+    console.log(
+      "Current rent frequency: ",
+      JSON.parse(props.leaseAgreement.rental_unit.lease_terms).find(
+        (term) => term.name === "rent_frequency"
+      ).value
+    );
+     
     handleSearchRentalUnits();
-
     setCurrentLeaseTerms(
       props.leaseAgreement
         ? JSON.parse(props.leaseAgreement.rental_unit.lease_terms)
         : null
     );
-    if (props.leaseAgreement) {
-      //Find only units that have the is_occopied property set to false
-      let unoccupied_units = props.leaseAgreement.rental_property.units.filter(
-        (unit) => unit.is_occupied === false
-      );
-      setUnits(unoccupied_units);
-    } else {
-      authenticatedInstance.get("/units/?is_occupied=False").then((res) => {
-
-        setUnits(res.data);
-      });
-      setLeaseMode("new_lease");
-    }
+    authenticatedInstance.get("/units/?is_occupied=False").then((res) => {
+      setUnits(res.data);
+    });
+    setLeaseMode("new_lease");
   }, [rentalUnitSearchQuery]);
 
   return (
@@ -408,7 +412,7 @@ const LeaseRenewalForm = (props) => {
                     </label>
                     <input
                       name={input.name}
-                      data-testId={`${input.dataTestId}-input`}
+                      data-testId={`${input.dataTestId}`}
                       className="form-control"
                       type={input.type}
                       onChange={input.onChange}
@@ -429,6 +433,7 @@ const LeaseRenewalForm = (props) => {
                       justifyContent={"flex-end"}
                     >
                       <UIButton
+                        dataTestId="step-0-next-button"
                         style={{ marginTop: "20px" }}
                         btnText="Next"
                         onClick={() => {
@@ -459,10 +464,12 @@ const LeaseRenewalForm = (props) => {
                       value: "current_lease",
                       label: "Current Lease Terms",
                       hidden: !props.leaseAgreement,
+                      dataTestId: "current-lease-radio",
                     },
                     {
                       value: "new_lease",
                       label: "New Lease Terms",
+                      dataTestId: "new-lease-radio",
                     },
                   ]}
                   value={leaseMode}
@@ -526,8 +533,11 @@ const LeaseRenewalForm = (props) => {
                   <>
                     <div className="row mt-3">
                       <div className="col-md-6">
-                        <h5>Term</h5>
-                        <p className="text-black">
+                        <h5 data-testId="current-lease-terms-label">Term</h5>
+                        <p
+                          className="text-black"
+                          data-testId="current-lease-terms-term-value"
+                        >
                           {
                             currentLeaseTerms.find(
                               (term) => term.name === "term"
@@ -537,8 +547,13 @@ const LeaseRenewalForm = (props) => {
                         </p>
                       </div>
                       <div className="col-md-6">
-                        <h5>Rent</h5>
-                        <p className="text-black">
+                        <h5 data-testId="current-lease-terms-rent-label">
+                          Rent
+                        </h5>
+                        <p
+                          className="text-black"
+                          data-testId="current-lease-terms-rent-value"
+                        >
                           $
                           {
                             currentLeaseTerms.find(
@@ -548,8 +563,13 @@ const LeaseRenewalForm = (props) => {
                         </p>
                       </div>
                       <div className="col-md-6">
-                        <h5>Late Fee</h5>
-                        <p className="text-black">
+                        <h5 data-testId="current-lease-terms-late-fee-label">
+                          Late Fee
+                        </h5>
+                        <p
+                          className="text-black"
+                          data-testId="current-lease-terms-late-fee-value"
+                        >
                           $
                           {
                             currentLeaseTerms.find(
@@ -559,8 +579,13 @@ const LeaseRenewalForm = (props) => {
                         </p>
                       </div>
                       <div className="col-md-6">
-                        <h5>Security Deposit</h5>
-                        <p className="text-black">
+                        <h5 data-testId="current-lease-terms-security-deposit-label">
+                          Security Deposit
+                        </h5>
+                        <p
+                          className="text-black"
+                          data-testId="current-lease-terms-security-deposit-value"
+                        >
                           $
                           {
                             currentLeaseTerms.find(
@@ -582,11 +607,13 @@ const LeaseRenewalForm = (props) => {
                   sx={{ marginTop: "20px" }}
                 >
                   <UIButton
+                    dataTestId="step-1-back-button"
                     btnText="Back"
                     onClick={handleBack}
                     sx={{ width: "100px" }}
                   />
                   <UIButton
+                    dataTestId="step-1-next-button"
                     btnText="Next"
                     onClick={() => {
                       if (leaseMode === "new_lease") {
@@ -620,10 +647,12 @@ const LeaseRenewalForm = (props) => {
                         value: "current_unit",
                         label: "Current Unit",
                         hidden: !props.leaseAgreement,
+                        dataTestId: "current-unit-radio",
                       },
                       {
                         value: "new_unit",
                         label: "New Unit",
+                        dataTestId: "new-unit-radio",
                       },
                     ]}
                     value={unitMode}
@@ -633,6 +662,7 @@ const LeaseRenewalForm = (props) => {
                   {unitMode === "new_unit" && (
                     <>
                       <UIInput
+                        dataTestId="rental-unit-search-input"
                         onChange={(e) => {
                           setRentalUnitSearchQuery(e.target.value);
                           handleSearchRentalUnits();
@@ -644,6 +674,7 @@ const LeaseRenewalForm = (props) => {
                         name="rental_unit_search"
                       />
                       <List
+                        data-testid="rental-unit-list"
                         sx={{
                           width: "100%",
                           maxWidth: "100%",
@@ -655,6 +686,7 @@ const LeaseRenewalForm = (props) => {
                       >
                         {units.map((unit, index) => (
                           <ListItem
+                            data-testid={`rental-unit-list-item-${index}`}
                             key={index}
                             alignItems="flex-start"
                             onClick={() => {
@@ -672,10 +704,21 @@ const LeaseRenewalForm = (props) => {
                               sx={{ width: "100%" }}
                             >
                               <ListItemText
-                                primary={`${unit.name} (${
-                                  unit.is_occupied ? "Occupied" : "Vacant"
-                                })`}
-                                secondary={`${unit.rental_property_name}`}
+                                primary={
+                                  <span data-testid={`unit-row-${index}-name`}>
+                                    {`${unit.name} (${
+                                      unit.is_occupied ? "Occupied" : "Vacant"
+                                    })`}
+                                  </span>
+                                }
+                                secondary={
+                                  <span
+                                    data-testid={`unit-row-${index}-property-name`}
+                                  >
+                                    {" "}
+                                    {`${unit.rental_property_name}`}
+                                  </span>
+                                }
                               />
                               <UIButton
                                 dataTestId={`select-unit-button-${index}`}
@@ -747,11 +790,13 @@ const LeaseRenewalForm = (props) => {
                     sx={{ marginTop: "20px" }}
                   >
                     <UIButton
+                      dataTestId="step-2-back-button"
                       btnText="Back"
                       onClick={handleBack}
                       sx={{ width: "100px" }}
                     />
                     <UIButton
+                      dataTestId="step-2-next-button"
                       btnText="Next"
                       onClick={handleNext}
                       sx={{ width: "100px" }}
@@ -820,11 +865,13 @@ const LeaseRenewalForm = (props) => {
                 sx={{ marginTop: "20px" }}
               >
                 <UIButton
+                  dataTestId="step-3-back-button"
                   btnText="Back"
                   onClick={handleBack}
                   sx={{ width: "100px" }}
                 />
                 <UIButton
+                  dataTestId="step-3-next-button"
                   btnText="Next"
                   onClick={() => {
                     const { isValid, newErrors } = validateForm(
@@ -858,12 +905,17 @@ const LeaseRenewalForm = (props) => {
                 }}
               />
               {props.isOwnerMode ? (
-                <h5>Renew Lease Agreement?</h5>
+                <h5 data-testId="confirmation-step-title">
+                  Renew Lease Agreement?
+                </h5>
               ) : (
-                <h5>Submit Lease Renewal Request?</h5>
+                <h5 data-testId="confirmation-step-title">
+                  Submit Lease Renewal Request?
+                </h5>
               )}
               {props.isOwnerMode ? (
                 <p
+                  data-testId="confirmation-step-message"
                   className="text-black"
                   style={{ textAlign: "center", marginBottom: "30px" }}
                 >
@@ -873,6 +925,7 @@ const LeaseRenewalForm = (props) => {
                 </p>
               ) : (
                 <p
+                  data-testId="confirmation-step-message"
                   className="text-black"
                   style={{ textAlign: "center", marginBottom: "30px" }}
                 >
@@ -889,11 +942,13 @@ const LeaseRenewalForm = (props) => {
           {step === steps.length - 1 && (
             <>
               <UIButton
+                dataTestId="step-4-back-button"
                 btnText="Back"
                 onClick={handleBack}
                 sx={{ width: "100px" }}
               />
               <UIButton
+                dataTestId="submit-button"
                 btnText="Submit"
                 onClick={() => {
                   //Validate all formData and form input opbjects using validateForm

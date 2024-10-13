@@ -993,7 +993,7 @@ const ManageUnit = () => {
     getOwnerSubscriptionPlanData().then((res) => {
       setOwnerSubscriptionPlanData(res);
     });
-    preventPageReload();
+     
     setIsLoadingPage(true);
     syncRentalUnitPreferences(unit_id);
     syncRentalUnitLeaseTerms(unit_id);

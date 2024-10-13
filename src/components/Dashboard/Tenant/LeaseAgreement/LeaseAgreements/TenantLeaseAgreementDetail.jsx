@@ -21,7 +21,6 @@ import { getLeaseAgreementById } from "../../../../../api/lease_agreements";
 import { authenticatedInstance } from "../../../../../api/api";
 import PaymentCalendar from "../../PaymentCalendar";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
-import { preventPageReload } from "../../../../../helpers/utils";
 const TenantLeaseAgreementDetail = () => {
   const { id } = useParams();
   const [unit, setUnit] = useState(null);
@@ -29,7 +28,6 @@ const TenantLeaseAgreementDetail = () => {
   const [unitPreferences, setUnitPreferences] = useState(null);
   const navigate = useNavigate();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [showLeaseCancellationDialog, setShowLeaseCancellationFormDialog] =
     useState(false);
   const [showLeaseCancellationForm, setShowLeaseCancellationForm] =
@@ -92,7 +90,7 @@ const TenantLeaseAgreementDetail = () => {
   };
   const openCancellationDialog = () => {
     let today = new Date();
-    let leaseTerms = JSON.parse(unit.lease_terms);
+    let leaseTerms = JSON.parse(leaseAgreement.lease_terms);
     let cancellationNoticePeriod = leaseTerms.find(
       (term) => term.name === "lease_cancellation_notice_period"
     ).value;
@@ -132,7 +130,7 @@ const TenantLeaseAgreementDetail = () => {
 
   const openRenewalDialog = () => {
     let today = new Date();
-    let leaseTerms = JSON.parse(unit.lease_terms);
+    let leaseTerms = JSON.parse(leaseAgreement.lease_terms);
     let renewalNoticePeriod = leaseTerms.find(
       (term) => term.name === "lease_renewal_notice_period"
     ).value;
@@ -233,8 +231,9 @@ const TenantLeaseAgreementDetail = () => {
       //Retrieve the unit
       getLeaseAgreementById(id).then((res) => {
         setLeaseAgreement(res.data);
-        setLeaseTemplate(res.data.lease_template);
+        console.log("lease agreement", res.data);
         setUnit(res.data.rental_unit);
+        console.log("unit", res.data.rental_unit);
         setAutoRenewalEnabled(res.data.auto_renew_lease_is_enabled);
         setUnitPreferences(JSON.parse(res.data.rental_unit.preferences));
       });
@@ -276,8 +275,8 @@ const TenantLeaseAgreementDetail = () => {
       );
       setShowAlertModal(true);
     }
-    preventPageReload();
-  }, []);
+    console.log("unit state variable", unit);
+  }, [unit]);
 
   return (
     <div className="container">
@@ -329,9 +328,7 @@ const TenantLeaseAgreementDetail = () => {
             />
           </Stack>
           <div className="col-md-4">
-            <div className="card mb-3 lease-agreement-overview-section"
-            
-              >
+            <div className="card mb-3 lease-agreement-overview-section">
               <div className="card-body">
                 <h4 className="card-title text-black ">
                   Lease Agreement Overview
@@ -398,7 +395,7 @@ const TenantLeaseAgreementDetail = () => {
                       <span data-testId="rent-value" className="text-black">
                         $
                         {
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
                             (term) => term.name === "rent"
                           ).value
                         }
@@ -413,12 +410,12 @@ const TenantLeaseAgreementDetail = () => {
                       </h6>
                       <span data-testId="lease-term-value">
                         {
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
                             (term) => term.name === "term"
                           ).value
                         }{" "}
                         {
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
                             (term) => term.name === "rent_frequency"
                           ).value
                         }
@@ -434,7 +431,7 @@ const TenantLeaseAgreementDetail = () => {
                       </h6>
                       <span className="text-black" data-testId="late-fee-value">
                         {`$${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
                             (term) => term.name === "late_fee"
                           ).value
                         }`}
@@ -452,7 +449,7 @@ const TenantLeaseAgreementDetail = () => {
                         data-testId="security-deposit-value"
                       >
                         {`$${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) => term.name === "security_deposit"
                           ).value
                         }`}
@@ -470,7 +467,7 @@ const TenantLeaseAgreementDetail = () => {
                         className="text-black"
                       >
                         {`${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) => term.name === "gas_included"
                           ).value
                             ? "Yes"
@@ -487,7 +484,7 @@ const TenantLeaseAgreementDetail = () => {
                       </h6>
                       <span data-testId="electric-included-value">
                         {`${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) => term.name === "electricity_included"
                           ).value
                             ? "Yes"
@@ -507,7 +504,7 @@ const TenantLeaseAgreementDetail = () => {
                         data-testId="water-included-value"
                       >
                         {`${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) => term.name === "water_included"
                           ).value
                             ? "Yes"
@@ -527,7 +524,7 @@ const TenantLeaseAgreementDetail = () => {
                         data-testId="lease-cancellation-fee-value"
                       >
                         {`$${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) => term.name === "lease_cancellation_fee"
                           ).value
                         }`}
@@ -545,7 +542,7 @@ const TenantLeaseAgreementDetail = () => {
                         data-testId="lease-cancellation-notice-period-value"
                       >
                         {`${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) =>
                               term.name === "lease_cancellation_notice_period"
                           ).value
@@ -562,9 +559,9 @@ const TenantLeaseAgreementDetail = () => {
                       <span
                         className="text-black"
                         data-testId="lease-renewal-fee-value"
-                      > 
+                      >
                         {`$${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) => term.name === "lease_renewal_fee"
                           ).value
                         }`}
@@ -582,7 +579,7 @@ const TenantLeaseAgreementDetail = () => {
                         data-testId="lease-renewal-notice-period-value"
                       >
                         {`${
-                          JSON.parse(unit.lease_terms).find(
+                          JSON.parse(leaseAgreement.lease_terms).find(
                             (term) =>
                               term.name === "lease_renewal_notice_period"
                           ).value
@@ -599,7 +596,9 @@ const TenantLeaseAgreementDetail = () => {
                       >
                         Lease Start Date
                       </h6>
-                      <span data-testId="lease-start-date-value">{leaseAgreement.start_date}</span>
+                      <span data-testId="lease-start-date-value">
+                        {leaseAgreement.start_date}
+                      </span>
                     </div>
                     <div
                       className="col-sm-12 col-md-6 mb-4 text-black"

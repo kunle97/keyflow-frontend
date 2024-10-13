@@ -170,23 +170,23 @@ const LeaseAgreementDetail = () => {
       .then((res) => {
         setLeaseAgreement(res.data);
         setRentalApplication(res.data.rental_application);
-        setRentalUnit(res.data.rental_unit);
+        setRentalUnit(res.data?.rental_unit);
         setRent(
-          JSON.parse(res.data.rental_unit.lease_terms).find(
+          JSON.parse(res.data.lease_terms).find(
             (term) => term.name === "rent"
           ).value
         );
         setRentFrequency(
-          JSON.parse(res.data.rental_unit.lease_terms).find(
+          JSON.parse(res.data.lease_terms).find(
             (term) => term.name === "rent_frequency"
           ).value
         );
         setTerm(
-          JSON.parse(res.data.rental_unit.lease_terms).find(
+          JSON.parse(res.data.lease_terms).find(
             (term) => term.name === "term"
           ).value
         );
-        getProperty(res.data.rental_unit.rental_property).then((res) => {
+        getProperty(res.data.rental_property).then((res) => {
           setRentalProperty(res);
         });
         setTenant(res.data.tenant);
@@ -270,30 +270,10 @@ const LeaseAgreementDetail = () => {
             backButtonPosition="bottom"
             backButtonURL="/dashboard/owner/lease-agreements"
           />
-          {/* <Stack
-            direction="row"
-            spacing={2}
-            alignContent={"center"}
-            alignItems={"center"}
-            sx={{ marginBottom: "14px" }}
-          >
-            <span className="text-black">Enable Auto Renewal </span>
-            <UISwitch
-              value={autoRenewalEnabled}
-              onChange={changeAutoRenewal}
-            />
-          </Stack> */}
           <div className="row">
             <div className="col-md-4 lease-agreement-details">
               <div className="row">
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <PeopleAltIcon sx={iconStyles} />
-                      <h5>Tenant</h5>
-                      <p className="text-black">{getTenantName()}</p>
-                    </div>
-                  </div> */}
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="tenant-detail-card"
@@ -303,57 +283,28 @@ const LeaseAgreementDetail = () => {
                   />
                 </div>
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <HomeIcon sx={iconStyles} />
-                      <h5>Property</h5>
-                      <p className="text-black">
-                        {leaseAgreement.rental_unit
-                          ? rentalUnit.rental_property_name
-                          : "N/A"}
-                      </p>
-                    </div>
-                  </div> */}
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="property-detail-card"
                     muiIcon={<HomeIcon sx={iconStyles} />}
                     title="Property"
                     info={
-                      leaseAgreement.rental_unit
+                      leaseAgreement?.rental_unit
                         ? rentalUnit.rental_property_name
                         : "N/A"
                     }
                   />
                 </div>
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <MeetingRoomIcon sx={iconStyles} />
-                      <h5>Rental Unit</h5>
-                      <p className="text-black">
-                        {leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
-                      </p>
-                    </div>
-                  </div> */}
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="unit-detail-card"
                     muiIcon={<MeetingRoomIcon sx={iconStyles} />}
                     title="Rental Unit"
-                    info={leaseAgreement.rental_unit ? rentalUnit.name : "N/A"}
+                    info={leaseAgreement?.rental_unit ? rentalUnit.name : "N/A"}
                   />
                 </div>
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <PaymentsIcon sx={iconStyles} />
-                      <h5>Rent</h5>
-                      <p className="text-black">
-                        ${rent}/{abbreviateRentFrequency(rentFrequency)}
-                      </p>
-                    </div>
-                  </div> */}
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="rent-detail-card"
@@ -363,19 +314,7 @@ const LeaseAgreementDetail = () => {
                   />
                 </div>
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <SensorsIcon sx={iconStyles} />
-                      <h5>Status</h5>
-                      <p className="text-black">
-                        {leaseAgreement.is_active ? (
-                          <span style={{ color: uiGreen }}>Active</span>
-                        ) : (
-                          <span style={{ color: uiRed }}>Inactive</span>
-                        )}
-                      </p>
-                    </div>
-                  </div> */}
+
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="status-detail-card"
@@ -392,21 +331,6 @@ const LeaseAgreementDetail = () => {
                 </div>
 
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <DrawIcon sx={iconStyles} />
-                      <h5>Sign Date</h5>
-                      <p className="text-black">
-                        {leaseAgreement.start_date ? (
-                          new Date(
-                            leaseAgreement.start_date
-                          ).toLocaleDateString()
-                        ) : (
-                          <span>N/A</span>
-                        )}
-                      </p>
-                    </div>
-                  </div> */}
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="sign-date-detail-card"
@@ -423,19 +347,6 @@ const LeaseAgreementDetail = () => {
                 </div>
 
                 <div className="col-6 col-md-6">
-                  {/* <div className="card mb-3">
-                    <div className="card-body">
-                      <CalendarMonthIcon sx={iconStyles} />
-                      <h5>End Date</h5>
-                      <p className="text-black">
-                        {leaseAgreement.end_date ? (
-                          new Date(leaseAgreement.end_date).toLocaleDateString()
-                        ) : (
-                          <span>N/A</span>
-                        )}
-                      </p>
-                    </div>
-                  </div> */}
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="lease-end-detail-card"
@@ -451,17 +362,6 @@ const LeaseAgreementDetail = () => {
                   />
                 </div>
                 <div className="col-6 col-md-6">
-                  {/* <div className="card">
-                    <div className="card-body">
-                      <AccessTimeIcon sx={iconStyles} />
-                      <h5>Term</h5>
-                      <span className="text-black">
-                        {" "}
-                        {term + " " + rentFrequency}(s)
-                      </span>
-                    </div>
-                  </div> */}
-
                   <UIDetailCard
                     style={{ marginBottom: "15px" }}
                     dataTestId="lease-term-detail-card"

@@ -41,7 +41,6 @@ import {
   getStripeAccountRequirements,
   getStripeOnboardingAccountLink,
 } from "../../../../api/owners";
-import { preventPageReload } from "../../../../helpers/utils";
 import UIPrompt from "../../UIComponents/UIPrompt";
 
 const CreateProperty = () => {
@@ -481,7 +480,7 @@ const CreateProperty = () => {
   };
 
   useEffect(() => {
-    preventPageReload();
+     
     try {
       retrieveSubscriptionPlan();
       getStripeOnboardingAccountLink().then((res) => {

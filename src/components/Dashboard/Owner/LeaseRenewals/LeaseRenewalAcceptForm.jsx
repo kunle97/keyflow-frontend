@@ -68,11 +68,8 @@ const LeaseRenewalAcceptForm = () => {
         leaseRenewalRequest.rental_unit.id,
         updateRentalUnitPayload
       ).then((res) => {
-
         if (res.id) {
-
         } else {
-
         }
       });
 
@@ -98,8 +95,6 @@ const LeaseRenewalAcceptForm = () => {
         document_title: `${leaseRenewalRequest.tenant.user.first_name} ${leaseRenewalRequest.tenant.user.last_name} Lease Agreement (Renewal) for unit ${leaseRenewalRequest.rental_unit.name}`,
         message: "Please sign the lease renewal agreement",
       };
-
-
 
       const sendDocResponse = await sendDocumentToUser(docPayload);
 
@@ -146,9 +141,7 @@ const LeaseRenewalAcceptForm = () => {
     } catch (error) {
       console.error(error);
       setAlertModalTitle("Error");
-      setAlertModalMessage(
-        `An error occurred. Please try again later.`
-      );
+      setAlertModalMessage(`An error occurred. Please try again later.`);
       //Update the lease renewal request status to pending
       const updateLeaseRenewalRequestPayload = {
         status: "pending",
@@ -195,7 +188,6 @@ const LeaseRenewalAcceptForm = () => {
     };
     await updateUnit(leaseRenewal.rental_unit.id, updateRentalUnitPayload)
       .then((res) => {
-
         if (res.status === 200) {
           setCurrentLeaseTerms(updatedUnitLeaseTerms);
 
@@ -208,7 +200,6 @@ const LeaseRenewalAcceptForm = () => {
           setAlertModalAction(() => setViewMode("submit_confirmation"));
           //Update the current lease terms to the updated lease terms
         } else {
-
           setAlertModalTitle("Error");
           setAlertModalMessage("Something went wrong!");
           setShowConfirmModal(false);
@@ -216,7 +207,6 @@ const LeaseRenewalAcceptForm = () => {
         }
       })
       .catch((err) => {
-
         setAlertModalTitle("Error");
         setAlertModalMessage("Something went wrong!");
         setShowAlertModal(true);
@@ -238,7 +228,7 @@ const LeaseRenewalAcceptForm = () => {
       if (parseInt(currentTermDuration) !== leaseRenewal.request_term) {
         setConfirmModalTitle("Lease Term Mismatch");
         setConfirmModalMessage(
-          "The Tenant chose a different lease term than the current lease template. " +
+          "The tenant chose a different lease term than the current lease template. " +
             `Unit ${
               leaseRenewal.rental_unit.name
             } will have the lease term automatically updated from ${currentTermDuration} ${
@@ -261,13 +251,11 @@ const LeaseRenewalAcceptForm = () => {
       setIsLoading(true);
       getLeaseRenewalRequestById(id)
         .then((lease_renewal_res) => {
-
           if (lease_renewal_res.status === 200) {
             setLeaseRenewalRequest(lease_renewal_res.data);
             if (!currentLeaseAgreement) {
               getLeaseAgreementsByTenant(lease_renewal_res.data.tenant.id)
                 .then((lease_agreements_res) => {
-
                   if (lease_agreements_res.status === 200) {
                     let lease_agreements = lease_agreements_res.data;
                     if (lease_agreements.length === 0) {
@@ -290,7 +278,7 @@ const LeaseRenewalAcceptForm = () => {
                       );
                       setCurrentLeaseTerms(
                         JSON.parse(
-                          current_lease_agreement.rental_unit.lease_terms
+                          current_lease_agreement.lease_terms
                         )
                       );
                     }
@@ -313,7 +301,6 @@ const LeaseRenewalAcceptForm = () => {
           }
         })
         .catch((err) => {
-
           setAlertModalTitle("Error");
           setAlertModalMessage("Something went wrong!");
           setShowAlertModal(true);
@@ -532,11 +519,13 @@ const LeaseRenewalAcceptForm = () => {
                 justifyContent={"space-between"}
               >
                 <UIButton
+                  dataTestId="update-lease-document-button"
                   btnText="Update Lease Document"
                   onClick={() => setViewMode("change_terms")}
                 />
                 <Stack direction="row" spacing={2}>
                   <UIButton
+                    dataTestId="back-button"
                     style={{
                       textTransform: "none",
                       backgroundColor: uiRed,
@@ -547,6 +536,7 @@ const LeaseRenewalAcceptForm = () => {
                     btnText={"Back"}
                   />
                   <UIButton
+                    dataTestId="accept-lease-renewal-request-button"
                     style={{
                       textTransform: "none",
                       background: uiGreen,
@@ -591,6 +581,7 @@ const LeaseRenewalAcceptForm = () => {
                     justifyContent={"space-between"}
                   >
                     <UIButton
+                      dataTestId="final-accept-no-button"
                       style={{
                         textTransform: "none",
                         backgroundColor: uiRed,
@@ -601,6 +592,7 @@ const LeaseRenewalAcceptForm = () => {
                       btnText={"No"}
                     />
                     <UIButton
+                      dataTestId="final-accept-yes-button"
                       style={{
                         textTransform: "none",
                         background: uiGreen,

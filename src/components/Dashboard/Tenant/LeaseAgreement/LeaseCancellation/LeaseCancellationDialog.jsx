@@ -5,9 +5,10 @@ import UIButton from "../../../UIComponents/UIButton";
 import ConfirmModal from "../../../UIComponents/Modals/ConfirmModal";
 import { uiRed } from "../../../../../constants";
 const LeaseCancellationDialog = (props) => {
-  const [leaseTerms, setLeaseTerms] = useState(null);
+  const [leaseTerms, setLeaseTerms] = useState({});
   useEffect(() => {
-    setLeaseTerms(JSON.parse(props.leaseAgreement.rental_unit.lease_terms));
+    console.log("lease ageeementt",props.leaseAgreement);
+    setLeaseTerms(JSON.parse(props.leaseAgreement.lease_terms));
   }, []);
   return (
     <>
@@ -54,18 +55,21 @@ const LeaseCancellationDialog = (props) => {
                   <p className="text-black">
                     Please note that you will be charged a lease cancellation
                     fee of $
-                    {leaseTerms && leaseTerms.find
+                    {Array.isArray(leaseTerms) && leaseTerms?.find
                       ? leaseTerms.find(
                           (term) => term.name === "lease_cancellation_fee"
-                        ).value
-                      : 0}{" "}if you cancel your lease before the end of the lease
-                    term.
+                        )?.value ?? 0
+                      : 0}{" "}
+                    if you cancel your lease before the end of the lease term.
                   </p>
                   <p className="text-black">
                     You will also be required to give a notice period of{" "}
-                    {leaseTerms && leaseTerms.find(
-                      (term) => term.name === "lease_cancellation_notice_period"
-                    ).value}{" "}
+                    {Array.isArray(leaseTerms)
+                      ? leaseTerms.find(
+                          (term) =>
+                            term.name === "lease_cancellation_notice_period"
+                        )?.value ?? 0
+                      : 0}{" "}
                     month(s) before you can cancel your lease.
                   </p>
                   <p className="text-black">

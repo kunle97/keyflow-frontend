@@ -38,7 +38,6 @@ import {
   uppercaseAndLowercaseLetters,
   validAnyString,
 } from "../../../../constants/rexgex";
-import { preventPageReload } from "../../../../helpers/utils";
 import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 
 const CreateAnnouncement = () => {
@@ -589,7 +588,7 @@ const CreateAnnouncement = () => {
         setAlertModalOpen(false);
       }
     });
-    preventPageReload();
+     
     handleSearchRentalUnits();
   }, [showOccupiedUnitsOnly, rentalUnitSearchQuery, rentalPropertyEndpoint]);
 

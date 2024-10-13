@@ -15,7 +15,7 @@ import ProgressModal from "../../../../../UIComponents/Modals/ProgressModal";
 import { useNavigate } from "react-router";
 
 const SubscriptionSection = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [progressTitle, setProgressTitle] = useState("Please Wait...");
   const [plans, setPlans] = useState([]);
@@ -80,19 +80,21 @@ const SubscriptionSection = () => {
           : null,
       })
         .then((res) => {
-
           if (res.status === 200) {
             setResponseTitle("Success");
             setResponseMessage("Subscription plan changed successfully");
             setShowResponseModal(true);
           } else {
             setResponseTitle("Error");
-            setResponseMessage(res.data?.message ? res.data.message : "Error changing subscription plan. Please try again later.");
+            setResponseMessage(
+              res.data?.message
+                ? res.data.message
+                : "Error changing subscription plan. Please try again later."
+            );
             setShowResponseModal(true);
           }
         })
         .catch((error) => {
-
           setResponseTitle("Error");
           setResponseMessage("Error changing subscription plan");
           setShowResponseModal(true);
@@ -107,21 +109,17 @@ const SubscriptionSection = () => {
     // Get subscription plans
     getSubscriptionPlanPrices()
       .then((res) => {
-
         setPlans(res.products);
       })
       .catch((error) => {
-
         setResponseTitle("Error");
         setResponseMessage("Error getting subscription plans");
         setShowResponseModal(true);
       });
     getUserStripeSubscriptions(authUser.id, token).then((res) => {
-
       setCurrentSubscriptionPlan(res.subscriptions ? res.subscriptions : null);
     });
     listOwnerStripePaymentMethods().then((res) => {
-
       setPaymentMethods(res.payment_methods.data);
     });
   }, []);
@@ -132,8 +130,8 @@ const SubscriptionSection = () => {
       <AlertModal
         open={showResponseModal}
         onClick={() => {
-            navigate(0)
-            setShowResponseModal(false)
+          navigate(0);
+          setShowResponseModal(false);
         }}
         title={responseTitle}
         message={responseMessage}
@@ -164,13 +162,11 @@ const SubscriptionSection = () => {
               plan_id: newSelectedSubscriptionPlan.product_id,
             })
               .then((res) => {
-
                 setResponseTitle("Success");
                 setResponseMessage("Subscription plan changed successfully");
                 setShowResponseModal(true);
               })
               .catch((error) => {
-
                 setResponseTitle("Error");
                 setResponseMessage("Error changing subscription plan");
                 setShowResponseModal(true);
@@ -217,32 +213,42 @@ const SubscriptionSection = () => {
             setShowChangePlanModal(true);
           }}
         />
-        {plans.map((plan) => (
-          <SubscriptionCard
-            key={plan.product_id}
-            subscriptionName={plan.name}
-            subscriptionPrice={plan.price}
-            subscriptionDescription={plan.description ? plan.description : null}
-            subscriptionFeatures={plan.features}
-            isPerUnit={
-              plan.product_id ===
-                process.env
-                  .REACT_APP_STRIPE_OWNER_PROFESSIONAL_PLAN_PRODUCT_ID ||
-              plan.product_id ===
-                process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID
-                ? true
-                : false
-            }
-            isCurrentPlan={
-              plan.product_id === currentSubscriptionPlan?.plan.product
-            }
-            selectPlanOnClick={() => {
-
-              setNewSelectedSubscriptionPlan(plan);
-              setShowChangePlanModal(true);
-            }}
-          />
-        ))}
+        {plans.map((plan) => {
+          let isTrialMode =false
+          if( currentSubscriptionPlan.status == "trialing" && plan.product_id === process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID){
+            isTrialMode = true
+          }
+          console.log(currentSubscriptionPlan)
+          return (
+            <SubscriptionCard
+              key={plan.product_id}
+              subscriptionName={plan.name}
+              subscriptionPrice={plan.price}
+              isTrialMode={isTrialMode}
+              trialEnd={currentSubscriptionPlan.trial_end}
+              subscriptionDescription={
+                plan.description ? plan.description : null
+              }
+              subscriptionFeatures={plan.features}
+              isPerUnit={
+                plan.product_id ===
+                  process.env
+                    .REACT_APP_STRIPE_OWNER_PROFESSIONAL_PLAN_PRODUCT_ID ||
+                plan.product_id ===
+                  process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID
+                  ? true
+                  : false
+              }
+              isCurrentPlan={
+                plan.product_id === currentSubscriptionPlan?.plan.product
+              }
+              selectPlanOnClick={() => {
+                setNewSelectedSubscriptionPlan(plan);
+                setShowChangePlanModal(true);
+              }}
+            />
+          );
+        })}
       </div>
     </>
   );

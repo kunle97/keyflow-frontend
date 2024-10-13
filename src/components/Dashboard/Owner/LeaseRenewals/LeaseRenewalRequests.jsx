@@ -148,11 +148,12 @@ const LeaseRenewalRequests = () => {
           setAlertModalOpen(true);
         });
     },
-    deleteOptions:{
+    deleteOptions: {
       label: "Reject",
       confirmTitle: "Reject Lease Renewal Request",
-      confirmMessage: "Are you sure you want to reject this lease renewal request?",
-    }
+      confirmMessage:
+        "Are you sure you want to reject this lease renewal request?",
+    },
   };
   return (
     <div className="container-fluid">
@@ -189,6 +190,7 @@ const LeaseRenewalRequests = () => {
       <div className="lease-renewal-requests-table-container">
         {isMobile ? (
           <UITableMobile
+            dataTestId="lease-renewal-requests-table"
             endpoint={"/lease-renewal-requests/"}
             tableTitle={"Lease Renewal Requests"}
             createInfo={(row) =>
@@ -215,6 +217,7 @@ const LeaseRenewalRequests = () => {
           />
         ) : (
           <UITable
+            dataTestId="lease-renewal-requests-table"
             columns={columns}
             options={options}
             endpoint={"/lease-renewal-requests/"}
