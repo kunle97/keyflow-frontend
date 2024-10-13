@@ -1,5 +1,3 @@
-import { Copyright } from "@mui/icons-material";
-
 describe("Test Lease renewal flow between owner and tenant", () => {
     ///Crewate a preperation function that runs before each test
     beforeEach(() => {
