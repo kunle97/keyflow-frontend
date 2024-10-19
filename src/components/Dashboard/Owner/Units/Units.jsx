@@ -35,6 +35,15 @@ const Units = () => {
       name: "is_occupied",
       options: { customBodyRender: (value) => (value ? "Yes" : "No") },
     },
+    {
+      label: "Created At",
+      name: "created_at",
+      options: {
+        customBodyRender: (value) => {
+          return new Date(value).toLocaleDateString();
+        },
+      },
+    },
   ];
 
   const options = {
@@ -216,6 +225,7 @@ const Units = () => {
       ) : (
         <div className="units-list-section" style={{ padding: "20px" }}>
           <UITable
+            dataTestId="units-table"
             testRowIdentifier="rental-unit"
             options={options}
             checked={checked}

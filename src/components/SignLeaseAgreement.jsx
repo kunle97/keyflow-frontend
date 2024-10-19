@@ -1,5 +1,5 @@
 import React from "react";
-import { uiGreen } from "../constants";
+import { isInDevMode, uiGreen } from "../constants";
 import { Stack } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
@@ -116,6 +116,7 @@ const SignLeaseAgreement = () => {
         } else {
           //On update success redirect to tenant registration page with approval_hash
           setSignResponseMessage(
+            isInDevMode ? redirectLink :
             "Lease Agreement Signed Successfully. Click the button below to create your account."
           );
           setShowSignResponse(true);
@@ -290,6 +291,13 @@ const SignLeaseAgreement = () => {
         }}
       />
       <ProgressModal open={isLoading} title={progressModalText} />
+      {signingLink && isInDevMode && (
+        <p 
+          data-testid="signing-link"
+         >
+          {signingLink}
+        </p>
+      )}
       {!displayError ? (
         <>
           {" "}
@@ -312,6 +320,7 @@ const SignLeaseAgreement = () => {
                 <div className="row">
                   <div className="col-md-12">
                     <iframe
+                      data-testid="signing-iframe"
                       src={signingLink}
                       className="card my-3"
                       style={{

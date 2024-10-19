@@ -23,7 +23,7 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-
+import 'cypress-iframe';
 // commands.js
 Cypress.Commands.add("login", () => {
   const API_HOST = Cypress.env("REACT_APP_API_HOSTNAME");
@@ -186,3 +186,8 @@ Cypress.Commands.add("clearAuth", () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("authUser");
 });
+
+// Create a command that gets an element by data-test attribute
+Cypress.Commands.add('getBySelLike', (selector, ...args) => {
+  return cy.get(`[data-test*=${selector}]`, ...args)
+})
