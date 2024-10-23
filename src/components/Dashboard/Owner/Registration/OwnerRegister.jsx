@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { uiGreen } from "../../../../constants";
+import { isInTestMode, uiGreen } from "../../../../constants";
 import { faker } from "@faker-js/faker";
 import { checkEmail, checkUsername, registerOwner } from "../../../../api/auth";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -52,12 +52,12 @@ const OwnerRegister = () => {
   const [tax, setTax] = useState(0.05);
   const [errors, setErrors] = useState({});
   const [firstName, setFirstName] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
+     process.env.REACT_APP_ENVIRONMENT !== "development" || isInTestMode
       ? ""
       : faker.person.firstName()
   );
   const [lastName, setLastName] = useState(
-    process.env.REACT_APP_ENVIRONMENT !== "development"
+     process.env.REACT_APP_ENVIRONMENT !== "development" || isInTestMode
       ? ""
       : faker.person.lastName()
   );
@@ -66,19 +66,19 @@ const OwnerRegister = () => {
     first_name: firstName,
     last_name: lastName,
     email:
-      process.env.REACT_APP_ENVIRONMENT !== "development"
+       process.env.REACT_APP_ENVIRONMENT !== "development" || isInTestMode
         ? ""
         : faker.internet.email({ firstName, lastName }),
     username:
-      process.env.REACT_APP_ENVIRONMENT !== "development"
+       process.env.REACT_APP_ENVIRONMENT !== "development" || isInTestMode
         ? ""
         : faker.internet.userName({ firstName, lastName }),
     password: "Password1",
     password_repeat: "Password1",
   });
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
-    let newErrors = triggerValidation(
+    let newErrors = await triggerValidation(
       name,
       value,
       formInputs.find((input) => input.name === name).validations
@@ -160,6 +160,7 @@ const OwnerRegister = () => {
       validations: {
         required: true,
         validate: async (val) => {
+          let validationMessage = ""
           let regex = validEmail;
 
           if (!regex.test(val)) {
@@ -167,7 +168,7 @@ const OwnerRegister = () => {
               ...prevErrors,
               email: "Please enter a valid email address",
             }));
-            return false;
+            validationMessage = "Please enter a valid email address";
           }
           await checkEmail(val).then((res) => {
             if (res.status === 400) {
@@ -175,9 +176,10 @@ const OwnerRegister = () => {
                 ...prevErrors,
                 email: "A user with this email already exists",
               }));
-              return false;
+              validationMessage = "A user with this email already exists";
             }
           });
+          return validationMessage;
         },
       },
       dataTestId: "email",
@@ -463,6 +465,7 @@ const OwnerRegister = () => {
                               </label>
 
                               <input
+                                data-testId={input.dataTestId}
                                 className="form-control"
                                 type={input.type}
                                 id={input.name}
@@ -499,6 +502,7 @@ const OwnerRegister = () => {
                           }}
                           style={{ width: "100%" }}
                           btnText="Next"
+                          dataTestId="page-1-next-button"
                         />
                       </div>
                     </div>

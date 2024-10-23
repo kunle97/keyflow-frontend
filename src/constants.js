@@ -11,6 +11,9 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+
+export const isInTestMode = process.env.REACT_APP_TEST_MODE == true
+
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
