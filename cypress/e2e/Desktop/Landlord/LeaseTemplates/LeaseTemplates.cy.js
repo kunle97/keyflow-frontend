@@ -8,15 +8,15 @@ describe("Test the fucntionality of the lease templates list page", () => {
     cy.login();
   });
   
-  // it("Should check if lease templates list page loads correctly", () => {
-  //   // Log user out visit this /dashboard/logout
-  //   cy.visit(Cypress.env("REACT_APP_HOSTNAME") + "/dashboard/owner/lease-templates");
-  //   cy.get('[data-testid="lease-templates-table"]').should("be.visible");
-  //   cy.get('[data-testid="lease-templates-table-title"]').should("be.visible").contains("Lease Templates");
-  //   cy.get('[data-testid="lease-templates-table-search-input"]').should("be.visible");
-  //   cy.get('[data-testid="ui-table-mobile-create-button"]').should("be.visible");
-  //   cy.wait(5000);
-  // });
+  it("Should check if lease templates list page loads correctly", () => {
+    // Log user out visit this /dashboard/logout
+    cy.visit(Cypress.env("REACT_APP_HOSTNAME") + "/dashboard/owner/lease-templates");
+    cy.get('[data-testid="lease-templates-table"]').should("be.visible");
+    cy.get('[data-testid="lease-templates-table-title"]').should("be.visible").contains("Lease Templates");
+    cy.get('[data-testid="lease-templates-table-search-input"]').should("be.visible");
+    cy.get('[data-testid="ui-table-mobile-create-button"]').should("be.visible");
+    cy.wait(5000);
+  });
   
   it("Should check the manage lease template page", () => {
     cy.visit(Cypress.env("REACT_APP_HOSTNAME") + "/dashboard/owner/lease-templates");
