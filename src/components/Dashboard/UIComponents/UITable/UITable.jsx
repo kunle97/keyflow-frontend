@@ -536,7 +536,7 @@ const UITable = (props) => {
             alignItems="center"
             spacing={2}
           >
-            <h3>
+            <h3 data-testid={props.dataTestId + "-title"}>
               {props.title}{" "}
               <span data-testId={props.dataTestId + "-result-count"}>
                 ({isDrfFilterBackend ? count : results.length})
@@ -567,7 +567,10 @@ const UITable = (props) => {
               </>
             )}{" "}
             {props.showCreate && (
-              <span className="ui-table-create-button">
+              <span
+                className="ui-table-create-button"
+                data-testid="ui-table-mobile-create-button"
+              >
                 <ButtonBase
                   style={{ color: uiGreen }}
                   onClick={() => {

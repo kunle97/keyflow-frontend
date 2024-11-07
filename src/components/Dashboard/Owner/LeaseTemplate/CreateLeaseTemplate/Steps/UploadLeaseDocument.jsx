@@ -205,6 +205,7 @@ const UploadLeaseDocument = (props) => {
                     }}
                   >
                     <input
+                      data-testid="file-upload-input"
                       {...getInputProps()}
                       onChange={(e) => {
                         setFile(e.target.files[0]);

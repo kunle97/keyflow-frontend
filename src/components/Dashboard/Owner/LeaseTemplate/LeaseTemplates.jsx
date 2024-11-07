@@ -208,6 +208,7 @@ const LeaseTemplates = () => {
       <div className="lease-template-table-container">
         {isMobile ? (
           <UITableMobile
+            dataTestId="lease-templates-table-mobile"
             tableTitle="Lease Templates"
             endpoint="/lease-templates/"
             createInfo={(row) => {
@@ -247,6 +248,8 @@ const LeaseTemplates = () => {
           />
         ) : (
           <UITable
+            dataTestId="lease-templates-table"
+            testRowIdentifier="lease-templates"
             columns={columns}
             options={options}
             endpoint="/lease-templates/"
