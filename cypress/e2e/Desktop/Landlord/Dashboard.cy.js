@@ -23,12 +23,12 @@ describe("Test all functions on the owner Dasboard", () => {
     cy.get('[data-testid="dashboard-line-chart-card"]').should("be.visible");
 
     //CHeck if the dashboard-transactions-card-no-data" is visible if not visible then check if the dashboard-transactions-card is visible
-    cy.get('[data-testid="dashboard-transactions-card-no-data"]').then(($noDataCard) => {
-      if ($noDataCard.is(':visible')) {
-        // If the 'dashboard-transactions-card-no-data' is visible, assert its visibility
+    cy.get('[data-testid="dashboard-transactions-card-no-data"]', { timeout: 0, log: false }).then(($noDataCard) => {
+      if ($noDataCard.length && $noDataCard.is(':visible')) {
+        // If 'dashboard-transactions-card-no-data' exists and is visible, assert its visibility
         cy.wrap($noDataCard).should('be.visible');
       } else {
-        // If 'dashboard-transactions-card-no-data' is not visible, check for 'dashboard-transactions-card'
+        // If 'dashboard-transactions-card-no-data' is not found or not visible, check for 'dashboard-transactions-card'
         cy.get('[data-testid="dashboard-transactions-card"]').should('be.visible');
       }
     });
@@ -37,33 +37,21 @@ describe("Test all functions on the owner Dasboard", () => {
     cy.get(
       '[data-testid="dashboard-lease-agreements-card-list-desktop"]'
     ).should("be.visible");
-    // cy.get(
-    //   '[data-testid="dashboard-lease-agreements-card-list-mobile"]'
-    // ).should("be.visible");
     cy.get(
       '[data-testid="dashboard-revenue-by-property-pie-chart-card"]'
     ).should("be.visible");
     cy.get(
       '[data-testid="dashboard-maintenance-requests-table-card-desktop"]'
     ).should("be.visible");
-    // cy.get(
-    //   '[data-testid="dashboard-maintenance-requests-card-list-mobile"]'
-    // ).should("be.visible");
     cy.get(
       '[data-testid="dashboard-lease-cancellation-requests-table-card-desktop"]'
     ).should("be.visible");
-    // cy.get(
-    //   '[data-testid="dashboard-lease-cancellation-requests-card-mobile"]'
-    // ).should("be.visible");
     cy.get(
       '[data-testid="dashboard-lease-cancellation-requests-pie-chart-card"]'
     ).should("be.visible");
     cy.get(
       '[data-testid="dashboard-lease-renewal-requests-table-card-desktop"]'
     ).should("be.visible");
-    // cy.get(
-    //   '[data-testid="dashboard-lease-renewal-requests-card-mobile"]'
-    // ).should("be.visible");
     cy.get(
       '[data-testid="dashboard-lease-renewal-requests-pie-chart-card"]'
     ).should("be.visible");
