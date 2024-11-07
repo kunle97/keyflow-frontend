@@ -1,7 +1,7 @@
 import { Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fakeData, uiGreen } from "../../constants";
+import { fakeData, isInDevMode, uiGreen } from "../../constants";
 import EmploymentHistorySection from "./ApplicationSections/EmploymentHistorySection";
 import RentalHistorySection from "./ApplicationSections/RentalHistorySection";
 import { faker } from "@faker-js/faker";
@@ -13,7 +13,7 @@ import { getPropertyUnauthenticated } from "../../api/properties";
 import { useParams } from "react-router-dom";
 import ProgressModal from "../Dashboard/UIComponents/Modals/ProgressModal";
 import AlertModal from "../Dashboard/UIComponents/Modals/AlertModal";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import BasicInfoSection from "./ApplicationSections/BasicInfoSection";
 import AdditionalInformationSection from "./ApplicationSections/AdditionalInformationSection";
 import UIButton from "../Dashboard/UIComponents/UIButton";
@@ -25,6 +25,7 @@ import useScreen from "../../hooks/useScreen";
 const CreateRentalApplication = () => {
   const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
+  const [rentalApplicationId, setRentalApplicationId] = useState(null);
   const [step, setStep] = useState(0); // step state
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
@@ -380,17 +381,21 @@ const CreateRentalApplication = () => {
     payload.unit_id = unit_id;
     payload.owner_id = owner_id;
     payload.comments = data.comments ? data.comments : "";
-
-
-
     const res = await createRentalApplication(payload);
     setIsLoading(true);
 
-    if (res.status == 200) {
+    console.log("Application Submitted Response", res);
+    setRentalApplicationId(res?.data?.id);
+
+    if (res.status == 201) {
       // show a success message
       setIsLoading(false);
       setSubmissionMessage(
-        "Application Submitted Successfully. You will be contacted directly upon submission approval."
+        isInDevMode
+          ? process.env.REACT_APP_HOSTNAME +
+              "/dashboard/owner/rental-applications/" +
+              res.data.id
+          : "Application Submitted Successfully. You will be contacted directly upon submission approval."
       );
       setShowSubmissionMessage(true);
       setSubmissionMessageLink("/");
@@ -441,7 +446,7 @@ const CreateRentalApplication = () => {
 
   useEffect(() => {
     // get unit data
-     
+
     getUnitUnauthenticated(unit_id)
       .then((unit_res) => {
         setIsLoading(true);
@@ -787,12 +792,14 @@ const CreateRentalApplication = () => {
                                 spacing={2}
                               >
                                 <UIButton
+                                  dataTestId="back-button"
                                   style={{ width: "100%" }}
                                   btnText="Back"
                                   onClick={() => setStep(3)}
                                   type="button"
                                 />
                                 <Button
+                                  data-testid="submit-button"
                                   variant="contained"
                                   sx={{
                                     color: "white",

@@ -87,8 +87,6 @@ const TenantRegister = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-
   };
 
   const step1FormInputs = [
@@ -233,7 +231,6 @@ const TenantRegister = () => {
     //Check if stripe elements are valid
     const { isValid, newErrors } = validateForm(formData, step1FormInputs);
     if (hasNoErrors(errors) && isValid) {
-
       let payload = {
         unit_id: unit_id,
         lease_agreement_id: lease_agreement_id,
@@ -256,7 +253,6 @@ const TenantRegister = () => {
 
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-
         setErrorMode(true);
         setMessage("Please enter a valid card number");
         setErrorModeMessage("Please enter a valid card number");
@@ -281,7 +277,6 @@ const TenantRegister = () => {
       }
 
       const response = await registerTenant(payload).then((res) => {
-
         if (res.status === 200) {
           setUserId(authUser.id);
 
@@ -310,7 +305,10 @@ const TenantRegister = () => {
         }
         return acc;
       }, {});
-      setAlertMessage("Please fill out all the following required fields correctly: " + Object.keys(filteredErrors).join(", "));
+      setAlertMessage(
+        "Please fill out all the following required fields correctly: " +
+          Object.keys(filteredErrors).join(", ")
+      );
       setShowAlert(true);
     }
   };
@@ -329,7 +327,6 @@ const TenantRegister = () => {
           }
         })
         .catch((err) => {
-
           setShowAlert(true);
           setAlertTitle("Error");
           setAlertMessage(
@@ -346,7 +343,6 @@ const TenantRegister = () => {
             if (res.rental_application) {
               //Retrieve users rental application data using the approval_hash
               getRentalApplicationByApprovalHash(approval_hash).then((res) => {
-
                 if (res.id) {
                   //Populate the form with the rental application data
                   const first_name = res.first_name;
@@ -416,7 +412,6 @@ const TenantRegister = () => {
           }
         })
         .catch((err) => {
-
           setShowAlert(true);
           setAlertTitle("Error");
           setAlertMessage(
@@ -424,15 +419,14 @@ const TenantRegister = () => {
           );
         });
     } catch (err) {
-
       setShowAlert(true);
       setAlertTitle("Error");
       setAlertMessage(
         "Invalid or expired registration link. Please contact your landlord."
       );
     }
-      //Warns user before leaving the page
-  },[]);
+    //Warns user before leaving the page
+  }, []);
   return (
     <div className="container-fluid">
       <ProgressModal
@@ -555,6 +549,7 @@ const TenantRegister = () => {
                     })}
 
                     <UIButton
+                      dataTestId="next-button"
                       type="button"
                       btnText="Next"
                       onClick={() => {

@@ -174,6 +174,7 @@ const AdditionalInformationSection = (props) => {
         className="mt-5"
       >
         <UIButton
+          dataTestId="back-button"
           style={{ width: "100%" }}
           btnText="Back"
           onClick={() => {
@@ -181,6 +182,7 @@ const AdditionalInformationSection = (props) => {
           }}
         />
         <UIButton
+          dataTestId="next-button"
           style={{ width: "100%" }}
           btnText="Next"
           onClick={() => {

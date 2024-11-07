@@ -700,6 +700,12 @@ const UITable = (props) => {
                     {props.columns.map((column) => {
                       return (
                         <th
+                          data-testid={
+                            props.testRowIdentifier
+                              ? `${props.testRowIdentifier}-table-header-${column.name}`
+                              : `${props.dataTestId}-table-header-${column.name}`
+                          }
+
                           style={{
                             maxWidth: maxTableCellWidth,
                             overflow: "hidden",

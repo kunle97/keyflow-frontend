@@ -201,12 +201,14 @@ const RentalHistorySection = (props) => {
         <>
           <Stack sx={{ marginTop: "20px" }} direction="row" gap={2}>
             <UIButton
+              dataTestId="back-button"
               style={{ width: "100%" }}
               btnText="Back"
               onClick={props.previousStep}
               type="button"
             />
             <UIButton
+              dataTestId="next-button"
               style={{ width: "100%" }}
               btnText="Next"
               onClick={() => {

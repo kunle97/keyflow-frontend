@@ -32,8 +32,8 @@ export async function createRentalApplication(data) {
       });
     return {
       message: "Rental app created successfully",
-      status: 200,
-      res: res,
+      status: res.status,
+      data: res.data,
     };
   } catch (error) {
 

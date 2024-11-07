@@ -1350,7 +1350,7 @@ const ManageUnit = () => {
             handleConfirm={() => {
               handleChangeLeaseTemplate(
                 leaseTemplates,
-                currentLeaseTemplate.id,
+                currentLeaseTemplate?.id,
                 unitLeaseTerms,
                 unit_id
               );
@@ -1756,6 +1756,7 @@ const ManageUnit = () => {
                     )}
                     {unit.template_id && (
                       <select
+                        data-testid="unit-lease-template-select" 
                         className="form-select"
                         style={{
                           width: "250px",
@@ -1948,6 +1949,7 @@ const ManageUnit = () => {
                                     <>
                                       <ListItem alignItems="flex-start">
                                         <ListItemText
+                                        data-testid={`lease-template-list-item-${index}`}
                                           primary={`${leaseTemplate.term} Month Lease @ $${leaseTemplate.rent}/mo`}
                                           secondary={
                                             <div>
@@ -2123,6 +2125,7 @@ const ManageUnit = () => {
                           </div>
                           {!isOccupied && (
                             <UIButton
+                            dataTestId="change-lease-template-button"
                               sx={{
                                 textTransform: "none",
                                 background: uiGreen,
