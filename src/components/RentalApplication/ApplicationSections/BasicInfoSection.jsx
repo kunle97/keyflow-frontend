@@ -186,6 +186,7 @@ const BasicInfoSection = (props) => {
         </div>
       </div>
       <UIButton
+        dataTestId="next-button"
         btnText="Next"
         onClick={() => {
           const { isValid, newErrors } = validateForm(

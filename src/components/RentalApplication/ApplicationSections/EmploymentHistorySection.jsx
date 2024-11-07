@@ -279,12 +279,14 @@ const EmploymentHistorySection = (props) => {
           spacing={2}
         >
           <UIButton
+            dataTestId="back-button"
             btnText="Back"
             onClick={props.previousStep}
             type="button"
             style={{ width: "100%" }}
           />
           <UIButton
+            dataTestId="next-button"
             style={{ width: "100%" }}
             btnText="Next"
             onClick={() => {

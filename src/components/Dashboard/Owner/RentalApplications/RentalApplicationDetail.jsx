@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Chip } from "@mui/material";
-import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
+import { isInDevMode, uiGreen, uiGrey2, uiRed } from "../../../../constants";
 import { useParams } from "react-router";
 import {
   approveRentalApplication,
@@ -14,11 +14,7 @@ import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITabs from "../../UIComponents/UITabs";
-import Joyride, {
-  ACTIONS,
-  EVENTS,
-  STATUS,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 const RentalApplicationDetail = () => {
@@ -93,8 +89,6 @@ const RentalApplicationDetail = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -118,7 +112,6 @@ const RentalApplicationDetail = () => {
   const handleAccept = async () => {
     setIsLoadingApplicationAction(true);
 
-
     //Check if unit has a template
     if (!unit.template_id && !unit.signed_lease_document_file) {
       setAlertModalTitle("An error occurred");
@@ -132,22 +125,21 @@ const RentalApplicationDetail = () => {
     try {
       // Approve and Archive this application
       const approvalResponse = await approveRentalApplication(id);
-
-
-      if (approvalResponse.status === 200) {
+      console.log("ZXZXApproval Response", approvalResponse);
+      if (approvalResponse.status == 200) {
         setOpenAcceptModal(false);
         setAlertModalTitle("Rental Application Approved");
         setAlertModalMessage(
-          "The Rental Application has been approved. The lease agreement has been sent to the applicant."
+          isInDevMode
+            ? approvalResponse.sign_link
+            : "The Rental Application has been approved. The lease agreement has been sent to the applicant."
         );
         setOpenAlertModal(true);
       } else {
-
         setAlertModalTitle("An error occurred");
         setOpenAlertModal(true);
       }
     } catch (error) {
-
       setAlertModalTitle("An error occurred");
       setOpenAlertModal(true);
     } finally {
@@ -163,14 +155,12 @@ const RentalApplicationDetail = () => {
     rejectRentalApplication(id)
       .then((res) => {
         if (res.status === 200) {
-
           setOpenRejectModal(false);
           //TODO: Delete this application
           setAlertModalTitle(res.message);
           setOpenAlertModal(true);
           setIsLoadingApplicationAction(false);
         } else {
-
           setAlertModalTitle("An error occured");
           setOpenAlertModal(true);
           setIsLoadingApplicationAction(false);
@@ -190,12 +180,10 @@ const RentalApplicationDetail = () => {
     revokeRentalApplication(id)
       .then((res) => {
         if (res.status === 200) {
-
           setOpenRevokeModal(false);
           setAlertModalTitle(res.message);
           setOpenAlertModal(true);
         } else {
-
           setAlertModalTitle("An error occured");
           setOpenAlertModal(true);
         }
@@ -218,7 +206,6 @@ const RentalApplicationDetail = () => {
     }
     return true;
   }
-  
 
   useEffect(() => {
     setIsLoading(true);
@@ -253,7 +240,7 @@ const RentalApplicationDetail = () => {
         );
         setOpenAlertModal(true);
       });
-  },[]);
+  }, []);
   return (
     <div className="container-fluid rental-application-detail-view">
       <AlertModal
@@ -387,7 +374,6 @@ const RentalApplicationDetail = () => {
                 action: () => {
                   archiveRentalApplication(id).then((res) => {
                     if (res.status === 200) {
-
                       setRentalApplicationIsArchived(true);
                     } else {
                       setAlertModalTitle("An error occurred");
@@ -402,7 +388,6 @@ const RentalApplicationDetail = () => {
                 action: () => {
                   unarchiveRentalApplication(id).then((res) => {
                     if (res.status === 200) {
-
                       setRentalApplicationIsArchived(false);
                     } else {
                       setAlertModalTitle("An error occurred");
@@ -414,7 +399,8 @@ const RentalApplicationDetail = () => {
               },
               {
                 label: "Revoke Rental Application",
-                hidden: !rentalApplication.is_approved && !rentalApplication.tenant,
+                hidden:
+                  !rentalApplication.is_approved && !rentalApplication.tenant,
                 action: () => {
                   setOpenRevokeModal(true);
                 },
