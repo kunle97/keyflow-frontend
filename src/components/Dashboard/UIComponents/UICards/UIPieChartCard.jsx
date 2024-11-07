@@ -37,38 +37,40 @@ const UIPieChartCard = (props) => {
     },
   };
   return (
-    <UIChartCard
-      info={props.info}
-      title={props.title}
-      cardStyle={props.cardStyle}
-      infoStyle={props.infoStyle}
-      titleStyle={props.titleStyle}
-      dropDownOptions={props.dropDownOptions}
-      onDropdownChange={props.onDropdownChange}
-      chartHeaderMode={true}
-    >
-      <div
-        style={{
-          width: "100%",
-          height: props.height,
-          ...props.chartContainerStyles,
-        }}
+    <div data-testId={props.dataTestId}  >
+      <UIChartCard
+        info={props.info}
+        title={props.title}
+        cardStyle={props.cardStyle}
+        infoStyle={props.infoStyle}
+        titleStyle={props.titleStyle}
+        dropDownOptions={props.dropDownOptions}
+        onDropdownChange={props.onDropdownChange}
+        chartHeaderMode={true}
       >
-        {props.data.length === 0 ? (
-          <Stack 
-            spacing={2} 
-            direction="column" 
-            alignItems="center" 
-            justifyContent="center" 
-            sx={{ height: "100%" }}
-          >
-            <h5>No data to display</h5>
-          </Stack>
-        ) : (
-          <Doughnut data-testId={props.dataTestId} options={options} data={data} />
-        )}
-      </div>
-    </UIChartCard>
+        <div
+          style={{
+            width: "100%",
+            height: props.height,
+            ...props.chartContainerStyles,
+          }}
+        >
+          {props.data.length === 0 ? (
+            <Stack
+              spacing={2}
+              direction="column"
+              alignItems="center"
+              justifyContent="center"
+              sx={{ height: "100%" }}
+            >
+              <h5>No data to display</h5>
+            </Stack>
+          ) : (
+            <Doughnut options={options} data={data} />
+          )}
+        </div>
+      </UIChartCard>
+    </div>
   );
 };
 
