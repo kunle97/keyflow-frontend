@@ -59,10 +59,10 @@ const ManageLeaseTemplate = () => {
   //TODO: Tabs for lease terms: Details, Additional Charges, Units Assigned, View (BoldSign) Document,
   const [tabPage, setTabPage] = useState(0);
   const tabs = [
-    { name: "details", label: "Details" },
-    { name: "additionalCharges", label: "Additional Charges" },
-    { name: "unitsAssigned", label: "Resources Assigned" },
-    { name: "editDocument", label: "Edit Document" },
+    { name: "details", label: "Details", dataTestId: "details-tab" },
+    { name: "additionalCharges", label: "Additional Charges", dataTestId: "additional-charges-tab" },
+    { name: "unitsAssigned", label: "Resources Assigned", dataTestId: "units-assigned-tab" },
+    { name: "editDocument", label: "Edit Document", dataTestId: "edit-document-tab" },
   ];
   const { isMobile } = useScreen();
   const [assignmentView, setAssignmentView] = useState("unit");
@@ -176,8 +176,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "rent",
-      errorMessageDataTestId: "rent-error",
+      dataTestId: "rent-input",
+      errorMessageDataTestId: "rent-input-error",
     },
     {
       name: "rent_frequency",
@@ -204,13 +204,13 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "rent-frequency",
-      errorMessageDataTestId: "rent-frequency-error",
+      dataTestId: "rent-frequency-select",
+      errorMessageDataTestId: "rent-frequency-select-error",
     },
     {
       name: "term",
       label: "Term",
-      type: "term",
+      type: "number",
       colSpan: 6,
       onChange: (e) =>
         handleChange(
@@ -225,8 +225,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "term",
-      errorMessageDataTestId: "term-error",
+      dataTestId: "term-input",
+      errorMessageDataTestId: "term-input-error",
     },
     {
       name: "late_fee",
@@ -246,8 +246,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "late-fee",
-      errorMessageDataTestId: "late-fee-error",
+      dataTestId: "late-fee-input",
+      errorMessageDataTestId: "late-fee-input-error",
     },
     {
       name: "security_deposit",
@@ -267,8 +267,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "security-deposit",
-      errorMessageDataTestId: "security-deposit-error",
+      dataTestId: "security-deposit-input",
+      errorMessageDataTestId: "security-deposit-input-error",
     },
     {
       name: "gas_included",
@@ -293,8 +293,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "gas-included",
-      errorMessageDataTestId: "gas-included-error",
+      dataTestId: "gas-included-select",
+      errorMessageDataTestId: "gas-included-select-error",
     },
     {
       name: "water_included",
@@ -319,8 +319,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "water-included",
-      errorMessageDataTestId: "water-included-error",
+      dataTestId: "water-included-select",
+      errorMessageDataTestId: "water-included-select-error",
     },
     {
       name: "electric_included",
@@ -345,8 +345,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "electric-included",
-      errorMessageDataTestId: "electric-included-error",
+      dataTestId: "electric-included-select",
+      errorMessageDataTestId: "electric-included-select-error",
     },
     {
       name: "repairs_included",
@@ -371,8 +371,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "repairs-included",
-      errorMessageDataTestId: "repairs-included-error",
+      dataTestId: "repairs-included-select",
+      errorMessageDataTestId: "repairs-included-select-error",
     },
     {
       name: "grace_period",
@@ -392,8 +392,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "grace-period",
-      errorMessageDataTestId: "grace-period-error",
+      dataTestId: "grace-period-input",
+      errorMessageDataTestId: "grace-period-input-error",
     },
 
     {
@@ -414,8 +414,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "lease-cancellation-notice-period",
-      errorMessageDataTestId: "lease-cancellation-notice-period-error",
+      dataTestId: "lease-cancellation-notice-period-input",
+      errorMessageDataTestId: "lease-cancellation-notice-period-input-error",
     },
     {
       name: "lease_cancellation_fee",
@@ -435,8 +435,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "lease-cancellation-fee",
-      errorMessageDataTestId: "lease-cancellation-fee-error",
+      dataTestId: "lease-cancellation-fee-input",
+      errorMessageDataTestId: "lease-cancellation-fee-input-error",
     },
     {
       name: "lease_renewal_notice_period",
@@ -456,8 +456,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "lease-renewal-notice-period",
-      errorMessageDataTestId: "lease-renewal-notice-period-error",
+      dataTestId: "lease-renewal-notice-period-input",
+      errorMessageDataTestId: "lease-renewal-notice-period-input-error",
     },
     {
       name: "lease_renewal_fee",
@@ -477,8 +477,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "lease-renewal-fee",
-      errorMessageDataTestId: "lease-renewal-fee-error",
+      dataTestId: "lease-renewal-fee-input",
+      errorMessageDataTestId: "lease-renewal-fee-input-error",
     },
   ];
 
@@ -899,11 +899,13 @@ const ManageLeaseTemplate = () => {
                         className="mb-2"
                         sx={{ color: uiGrey2, fontSize: "12pt" }}
                         htmlFor={input.name}
+                        data-testid={input.dataTestId+"-label"}
                       >
                         {input.label}
                       </Typography>
                       {input.type === "select" ? (
                         <select
+                          data-testid={input.dataTestId}                        
                           id={input.name}
                           name={input.name}
                           value={detailsFormData[input.name]}
@@ -919,6 +921,7 @@ const ManageLeaseTemplate = () => {
                         </select>
                       ) : (
                         <input
+                          data-testid={input.dataTestId}
                           id={input.name}
                           name={input.name}
                           type={input.type}
