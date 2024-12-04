@@ -429,7 +429,7 @@ const CreateLeaseTemplate = (props) => {
       <div className="card">
         <UIStepper steps={steps} step={step} style={{ margin: "30px 0" }} />
         <div className="card-body">
-          <form enctype="multipart/form-data">
+          <form encType="multipart/form-data">
             {step === 0 && (
               <UploadLeaseDocument
                 isLeaseRenewal={props.isLeaseRenewal}
