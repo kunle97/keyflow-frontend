@@ -1385,7 +1385,12 @@ const ManageProperty = () => {
                                   uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
                                   uploadButtonText="Upload CSV"
                                   fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                                  menuOptions={[
+                                  onRowClick={(row) => {
+                                    console.log("fiewubifubewif", row);
+                                    const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                                    navigate(navlink);
+                                  }}
+                                  menuOptions={[ 
                                     {
                                       name: "Manage",
                                       onClick: (row) => {

@@ -222,7 +222,7 @@ const Annoucements = () => {
             title="Announcements "
             columns={columns}
             options={options}
-            handleRowClick={handleRowClick}
+            onRowClick={handleRowClick}
             endpoint="/announcements/"
             menuOptions={[
               {

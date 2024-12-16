@@ -776,6 +776,10 @@ const ManagePortfolio = () => {
                     "zip_code",
                     "country",
                   ]}
+                  onRowClick={(row) => {
+                    const navlink = `/dashboard/owner/properties/${row.id}`;
+                    navigate(navlink);
+                  }}
                   menuOptions={[
                     {
                       name: "Manage",

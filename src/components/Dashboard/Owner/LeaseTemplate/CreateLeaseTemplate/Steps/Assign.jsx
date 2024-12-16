@@ -178,6 +178,10 @@ const Assign = (props) => {
                 checked={props.selectedAssignments}
                 setChecked={props.setSelectedAssignments}
                 hideShadow={props.hideShadow ? true : false}
+                onRowClick={(row) => {
+                  const navlink = `/dashboard/owner/units/${row.id}`;
+                  props.navigate(navlink);
+                }}
               />
             </>
           )}
@@ -296,7 +300,6 @@ const Assign = (props) => {
             props.setSkipAssignStep(true);
             if (props.skipAssignStep === false) {
               props.setSkipAssignStep(true);
-
             } else {
               props.handleNextStep();
             }

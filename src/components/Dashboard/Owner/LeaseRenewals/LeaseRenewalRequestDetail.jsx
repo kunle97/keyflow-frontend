@@ -202,9 +202,7 @@ const LeaseRenewalRequestDetail = () => {
                 );
                 setCurrentLeaseTerms(
                   current_lease_agreement
-                    ? JSON.parse(
-                        current_lease_agreement?.lease_terms
-                      )
+                    ? JSON.parse(current_lease_agreement?.lease_terms)
                     : []
                 );
                 getTenantInvoices(lease_renewal_res.data.tenant.id).then(
@@ -227,7 +225,7 @@ const LeaseRenewalRequestDetail = () => {
         setShowAlertModal(true);
       })
       .finally(() => setIsLoading(false));
-      console.log("currnt lease terms: ",currentLeaseTerms);
+    console.log("currnt lease terms: ", currentLeaseTerms);
   }, []);
 
   return (
@@ -549,6 +547,9 @@ const LeaseRenewalRequestDetail = () => {
                   title="Bills"
                   showCreate={false}
                   data={invoices}
+                  onRowClick={(row) => {
+                    navigate(`/dashboard/tenant/bills/${row.id}`);
+                  }}
                   menuOptions={[
                     {
                       name: "Details",

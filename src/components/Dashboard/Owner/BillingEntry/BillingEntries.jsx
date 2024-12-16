@@ -228,6 +228,7 @@ const BillingEntries = () => {
             columns={columns}
             endpoint="/billing-entries/"
             title="Billing Entries"
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "Manage",

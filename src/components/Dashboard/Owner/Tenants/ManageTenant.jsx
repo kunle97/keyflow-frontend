@@ -679,6 +679,7 @@ const ManageTenant = () => {
                   searchFields={["first_name", "last_name", "email"]}
                   columns={transaction_columns}
                   options={transaction_options}
+                  onRowClick={handleTransactionRowClick}
                 />
               )}
             </div>
@@ -731,6 +732,7 @@ const ManageTenant = () => {
                     searchFields={["first_name", "last_name", "email"]}
                     columns={maintenance_request_columns}
                     options={maintenance_request_options}
+                    onRowClick={handleRowClick}
                     menuOptions={[
                       {
                         name: "View",

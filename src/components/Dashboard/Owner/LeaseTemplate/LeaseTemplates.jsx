@@ -256,6 +256,7 @@ const LeaseTemplates = () => {
             title="Lease Templates"
             showCreate={true}
             createURL="/dashboard/owner/lease-templates/create"
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "Manage",

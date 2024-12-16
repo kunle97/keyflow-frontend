@@ -115,8 +115,8 @@ const TenantInvites = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/tenant-invitess/${rowData}/`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/tenant-invitess/${row.id}/`;
     navigate(navlink);
   };
   const options = {
@@ -213,6 +213,7 @@ const TenantInvites = () => {
                 options={options}
                 showCreate={true}
                 createURL="/dashboard/owner/tenant-invites/create"
+                onRowClick={handleRowClick} 
                 menuOptions={[
                   {
                     name: "Resend Invite",

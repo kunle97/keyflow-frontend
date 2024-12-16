@@ -553,6 +553,9 @@ const LeaseCancellationRequestDetail = () => {
                   title="Bills"
                   showCreate={false}
                   data={invoices}
+                  onRowClick={(row) => {
+                    navigate(`/dashboard/tenant/bills/${row.id}`);
+                  }}
                   menuOptions={[
                     {
                       name: "Details",

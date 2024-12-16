@@ -102,8 +102,8 @@ const ViewLeaseAgreements = () => {
     },
   ];
 
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/lease-agreements/${rowData}`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/lease-agreements/${row.id}`;
     navigate(navlink);
   };
 
@@ -181,10 +181,11 @@ const ViewLeaseAgreements = () => {
           <UITable
             testRowIdentifier={"lease-agreements-table-row"}
             dataTestId={"lease-agreements-table"}
-            columns={columns}
             endpoint={"/lease-agreements/"}
+            columns={columns}
             options={options}
             title={"Lease Agreements"}
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "View",

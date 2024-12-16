@@ -68,8 +68,8 @@ const Tenants = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/tenants/${rowData}/`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/tenants/${row.id}/`;
     navigate(navlink);
   };
   const options = {
@@ -232,6 +232,7 @@ const Tenants = () => {
                 searchFields={["first_name", "last_name", "email"]}
                 columns={columns}
                 options={options}
+                onRowClick={handleRowClick}
                 menuOptions={[
                   {
                     name: "Manage",

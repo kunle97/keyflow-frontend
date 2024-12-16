@@ -72,6 +72,9 @@ const Notifications = () => {
           options={options}
           defaultOrderingField="-timestamp"
           title="Notification Center"
+          onRowClick={(row) => {
+            navigate(`/dashboard/notifications/${row.id}`);
+          }}
           menuOptions={[
             {
               name: "Mark as Read",

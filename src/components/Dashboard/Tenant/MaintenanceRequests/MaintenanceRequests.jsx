@@ -92,9 +92,9 @@ const MaintenanceRequests = () => {
     },
   ];
 
-  const handleRowClick = (rowData, rowMeta) => {
-    // const navlink = `/dashboard/owner/`;
-    // navigate(navlink);
+  const handleRowClick = (row) => {
+    const navlink = `/dashboard/tenant/maintenance-requests/${row.id}`;
+    navigate(navlink);
   };
   const options = {
     filter: true,
@@ -241,6 +241,7 @@ const MaintenanceRequests = () => {
                 showResultLimit={true}
                 loadingTitle="Maintenance Requests"
                 loadingMessage="Loading your maintenance requests..."
+                onRowClick={handleRowClick}
                 menuOptions={[
                   {
                     name: "View",

@@ -60,9 +60,21 @@ const ManageLeaseTemplate = () => {
   const [tabPage, setTabPage] = useState(0);
   const tabs = [
     { name: "details", label: "Details", dataTestId: "details-tab" },
-    { name: "additionalCharges", label: "Additional Charges", dataTestId: "additional-charges-tab" },
-    { name: "unitsAssigned", label: "Resources Assigned", dataTestId: "units-assigned-tab" },
-    { name: "editDocument", label: "Edit Document", dataTestId: "edit-document-tab" },
+    {
+      name: "additionalCharges",
+      label: "Additional Charges",
+      dataTestId: "additional-charges-tab",
+    },
+    {
+      name: "unitsAssigned",
+      label: "Resources Assigned",
+      dataTestId: "units-assigned-tab",
+    },
+    {
+      name: "editDocument",
+      label: "Edit Document",
+      dataTestId: "edit-document-tab",
+    },
   ];
   const { isMobile } = useScreen();
   const [assignmentView, setAssignmentView] = useState("unit");
@@ -899,13 +911,13 @@ const ManageLeaseTemplate = () => {
                         className="mb-2"
                         sx={{ color: uiGrey2, fontSize: "12pt" }}
                         htmlFor={input.name}
-                        data-testid={input.dataTestId+"-label"}
+                        data-testid={input.dataTestId + "-label"}
                       >
                         {input.label}
                       </Typography>
                       {input.type === "select" ? (
                         <select
-                          data-testid={input.dataTestId}                        
+                          data-testid={input.dataTestId}
                           id={input.name}
                           name={input.name}
                           value={detailsFormData[input.name]}
@@ -1094,6 +1106,11 @@ const ManageLeaseTemplate = () => {
                         data={units}
                         columns={unit_columns}
                         options={unit_options}
+                        onRowClick={(row) => {
+                          let navlink = "/";
+                          navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                          navigate(navlink);
+                        }}
                         menuOptions={[
                           {
                             name: "View",
@@ -1151,6 +1168,10 @@ const ManageLeaseTemplate = () => {
                       ]}
                       options={{
                         isSelectable: false,
+                      }}
+                      onRowClick={(row) => {
+                        const navlink = `/dashboard/owner/properties/${row.id}`;
+                        navigate(navlink);
                       }}
                       menuOptions={[
                         {
@@ -1217,6 +1238,9 @@ const ManageLeaseTemplate = () => {
                       options={portfolio_options}
                       showCreate={true}
                       createURL="/dashboard/owner/portfolios/create"
+                      onRowClick={(row) => {
+                        navigate(`/dashboard/owner/portfolios/${row.id}`);
+                      }}
                       menuOptions={[
                         {
                           name: "View",

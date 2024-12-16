@@ -118,8 +118,8 @@ const ArchivedRentalApplications = () => {
       sortable: true,
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/rental-applications/${rowData}`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/rental-applications/${row.id}`;
     navigate(navlink);
   };
   const options = {
@@ -260,6 +260,7 @@ const ArchivedRentalApplications = () => {
           title="Archived Rental Applications"
           detailURL="/dashboard/owner/rental-applications/"
           showCreate={false}
+          onRowClick={handleRowClick}
           menuOptions={[
             {
               name: "View",

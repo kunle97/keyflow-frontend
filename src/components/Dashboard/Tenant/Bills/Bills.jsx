@@ -339,6 +339,7 @@ const Bills = () => {
                     title="Bills"
                     showCreate={false}
                     data={showAllInvoices ? invoices : [nextInvoice]}
+                    onRowClick={handleRowClick}
                     menuOptions={[
                       {
                         name: "Details",

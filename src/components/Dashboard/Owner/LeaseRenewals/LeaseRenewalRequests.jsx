@@ -222,6 +222,7 @@ const LeaseRenewalRequests = () => {
             options={options}
             endpoint={"/lease-renewal-requests/"}
             title={"Lease Renewal Requests"}
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "View",
