@@ -32,7 +32,7 @@ const LeaseCancellationRequestGeneratorForm = (props) => {
         data
       )
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           alert(`Successfully generated ${response.data.count} lease cancellations`);
           setIsLoading(false);

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -7,7 +7,7 @@ import FormLabel from "@mui/material/FormLabel";
 import { uiGreen } from "../../../constants";
 const UIBinaryRadioGroup = (props) => {
   const handleChange = (event) => {
-    console.log(event.target.value);
+
     props.onSet(event.target.value);
   };
 

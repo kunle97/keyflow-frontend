@@ -1,4 +1,3 @@
-import Checkbox from "@mui/material/Checkbox";
 import React, { useState } from "react";
 import { uiGreen, validationMessageStyle } from "../../../constants";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
@@ -7,7 +6,7 @@ import {
   triggerValidation,
   validateForm,
 } from "../../../helpers/formValidation";
-import { uppercaseAndLowercaseLetters, validAnyString, validEmail, validPhoneNumber } from "../../../constants/rexgex";
+import {  validAnyString, validEmail, validPhoneNumber } from "../../../constants/rexgex";
 
 const RentalHistorySection = (props) => {
   const {
@@ -29,8 +28,8 @@ const RentalHistorySection = (props) => {
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -51,8 +50,8 @@ const RentalHistorySection = (props) => {
       { ...residenceHistoryNode, [name]: value },
       ...props.residenceHistory.slice(props.index + 1),
     ]);
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -107,7 +106,7 @@ const RentalHistorySection = (props) => {
       validations: {
         required: true,
         errorMessage: "This is a required field",
-        regex: uppercaseAndLowercaseLetters,
+        regex: validAnyString,
       },
       dataTestId: "ownerName",
       errorMessageDataTestId: "ownerName-error",
@@ -202,12 +201,14 @@ const RentalHistorySection = (props) => {
         <>
           <Stack sx={{ marginTop: "20px" }} direction="row" gap={2}>
             <UIButton
+              dataTestId="back-button"
               style={{ width: "100%" }}
               btnText="Back"
               onClick={props.previousStep}
               type="button"
             />
             <UIButton
+              dataTestId="next-button"
               style={{ width: "100%" }}
               btnText="Next"
               onClick={() => {

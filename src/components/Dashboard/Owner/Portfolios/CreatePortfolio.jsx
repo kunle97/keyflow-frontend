@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { set, useForm } from "react-hook-form";
 import {
   authUser,
   defaultWhiteInputStyle,
@@ -8,7 +7,10 @@ import {
   validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
-import { createPortfolio, validatePortfolioName } from "../../../../api/portfolios";
+import {
+  createPortfolio,
+  validatePortfolioName,
+} from "../../../../api/portfolios";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import useScreen from "../../../../hooks/useScreen";
@@ -18,6 +20,7 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import { lettersNumbersAndSpecialCharacters } from "../../../../constants/rexgex";
+import { getOwnerSubscriptionPlanData } from "../../../../api/owners";
 const CreatePortfolio = () => {
   const navigate = useNavigate();
   const { isMobile, screenWidth, breakpoints } = useScreen();
@@ -25,6 +28,7 @@ const CreatePortfolio = () => {
   const [open, setOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
+  const [alertRedirect, setAlertRedirect] = useState(null);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
@@ -39,8 +43,8 @@ const CreatePortfolio = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -63,7 +67,7 @@ const CreatePortfolio = () => {
               name: "Please enter a valid name for the portfolio. No special characters allowed.",
             }));
             return false;
-          }else{
+          } else {
             setErrors((prevErrors) => ({
               ...prevErrors,
               name: "",
@@ -73,7 +77,7 @@ const CreatePortfolio = () => {
             name: value,
           };
           await validatePortfolioName(payload).then((res) => {
-            console.log(res);
+
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -84,8 +88,8 @@ const CreatePortfolio = () => {
           });
         },
       },
-      dataTestId: "portfolio-name",
-      errorMessageDataTestId: "portfolio-name-error",
+      dataTestId: "create-portfolio-name-input",
+      errorMessageDataTestId: "create-portfolio-name-input-error",
     },
     {
       name: "description",
@@ -99,8 +103,8 @@ const CreatePortfolio = () => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter a valid description for the portfolio",
       },
-      dataTestId: "portfolio-description",
-      errorMessageDataTestId: "portfolio-description-error",
+      dataTestId: "create-portfolio-description-textarea",
+      errorMessageDataTestId: "create-portfolio-description-textarea-error",
     },
   ];
   const onSubmit = () => {
@@ -110,32 +114,52 @@ const CreatePortfolio = () => {
       owner: authUser.owner_id,
     };
 
-    console.log(payload);
+
 
     createPortfolio(payload)
       .then((res) => {
+        
         console.log(res);
         if (res.status === 200 || res.status === 201) {
           setAlertTitle("Success");
           setAlertMessage("Portfolio created successfully");
           setOpen(true);
-          // navigate("/dashboard/owner/portfolios");
+          setAlertRedirect(`/dashboard/owner/portfolios/${res.data.id}`);
         } else {
-          setAlertTitle("Error");
-          setAlertMessage("Error Creating Portfolio");
+          setAlertTitle("Error Creating Portfolio");
+          setAlertMessage(
+            res.message ? res.message : "Error Creating Portfolio: "
+          );
           setOpen(true);
         }
       })
       .catch((err) => {
-        console.log(err);
-        setAlertTitle("Error");
-        setAlertMessage("Error Creating Portfolio. " + err.message);
+
+        setAlertTitle("Error Creating Portfolio");
+        setAlertMessage(
+          err.message ? err.message : "Error Creating Portfolio."
+        );
       })
       .finally(() => {
-        console.log("finally");
+
+        setIsLoading(false);
       });
   };
+  useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
 
+      if(!res.can_use_portfolios){
+        setAlertTitle("Subscription Plan Mismatch");
+        setAlertMessage("To create a portfolio, you need to upgrade your subscription plan to the Keyflow Owner Standard Plan or higher. ");
+        setOpen(true);
+      }else{
+        setAlertTitle("");
+        setAlertMessage("");
+        setOpen(false);
+      }
+    });
+     
+  },[]);
   return (
     <div
       className={`${screenWidth > breakpoints.md && "container-fluid "} pt-4`}
@@ -147,14 +171,19 @@ const CreatePortfolio = () => {
         title={alertTitle}
         message={alertMessage}
         btnText={"Ok"}
-        onClick={() => navigate("/dashboard/owner/portfolios")}
+        onClick={() => {
+          if (alertRedirect) {
+            navigate(alertRedirect);
+          }else{
+            navigate("/dashboard/owner/portfolios");
+          }
+          setOpen(false);
+        }}
       />
       <h4 data-testid="create-portfolio-title">Create Portfolio</h4>
       <div className="card">
         <div className="card-body">
-          <form
-            data-testid="create-portfolio-form"
-          >
+          <form data-testid="create-portfolio-form">
             {formInputs.map((input, index) => {
               return (
                 <div
@@ -162,7 +191,9 @@ const CreatePortfolio = () => {
                   key={index}
                   data-testId={`${input.dataTestId}`}
                 >
-                  <label className="form-label text-black" htmlFor={input.name}>
+                  <label className="form-label text-black" htmlFor={input.name}
+                    data-testId={`${input.dataTestId}-label`}
+                  >
                     {input.label}
                   </label>
                   {input.type === "textarea" ? (
@@ -203,7 +234,7 @@ const CreatePortfolio = () => {
                   formData,
                   formInputs
                 );
-                console.log(isValid);
+
                 if (isValid && hasNoErrors(errors)) {
                   setIsLoading(true);
                   onSubmit();

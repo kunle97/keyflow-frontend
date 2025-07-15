@@ -3,25 +3,33 @@ import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import UITable from "../../UIComponents/UITable/UITable";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import { useNavigate } from "react-router";
-import { uiGreen, uiRed } from "../../../../constants";
-import { getTenantInvoices } from "../../../../api/tenants";
-import UIButton from "../../UIComponents/UIButton";
+import { uiGreen, uiGrey2, uiRed } from "../../../../constants";
+import {
+  getTenantDashboardData,
+  getTenantInvoices,
+} from "../../../../api/tenants";
 import useScreen from "../../../../hooks/useScreen";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import UIPrompt from "../../UIComponents/UIPrompt";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import UIButton from "../../UIComponents/UIButton";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import { createBillingPortalSession } from "../../../../api/payment_methods";
+import { Stack } from "@mui/material";
+import UISwitch from "../../UIComponents/UISwitch";
 const Bills = () => {
-  const [isLoadingPage, setIsLoadingPage] = useState(true);
-  const [invoices, setInvoices] = useState([]);
-  const { isMobile } = useScreen();
   const navigate = useNavigate();
+  const { isMobile } = useScreen();
+  const [invoices, setInvoices] = useState([]);
+  const [nextInvoice, setNextInvoice] = useState({});
+  const [showAllInvoices, setShowAllInvoices] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [progressMessage, setProgressMessage] = useState("");
+  const [isLoadingPage, setIsLoadingPage] = useState(true);
+  const [leaseAgreement, setLeaseAgreement] = useState({});
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -54,7 +62,7 @@ const Bills = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -64,7 +72,6 @@ const Bills = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
   const handleRowClick = (row) => {
     navigate(`/dashboard/tenant/bills/${row.id}`);
@@ -75,7 +82,7 @@ const Bills = () => {
       name: "metadata",
       options: {
         customBodyRender: (value) => {
-          return removeUnderscoresAndCapitalize(value.type);
+          return removeUnderscoresAndCapitalize(value?.type);
         },
       },
     },
@@ -132,14 +139,58 @@ const Bills = () => {
   const options = {
     isSelectable: false,
   };
-  useEffect(() => {
-    getTenantInvoices()
+
+  const manageBillingOnClick = () => {
+    setIsRedirecting(true);
+    setProgressMessage("Redirecting to billing portal...");
+    createBillingPortalSession()
       .then((res) => {
-        //Reverse the array so the most recent invoices are shown first
-        setInvoices(res.invoices.data.reverse());
+        window.location.href = res.url;
+      })
+      .catch((error) => {
+        setIsRedirecting(false);
+      })
+      .finally(() => {});
+  };
+  //Create a function to get the invoice that is due in the nearest period
+  const getNearestDueInvoice = (invoices) => {
+    let nearestDueInvoice = null;
+    let nearestDueDate = null;
+    for (let i = 0; i < invoices.length; i++) {
+      if (nearestDueDate === null) {
+        nearestDueDate = invoices[i].due_date;
+        nearestDueInvoice = invoices[i];
+      } else {
+        if (invoices[i].due_date < nearestDueDate) {
+          nearestDueDate = invoices[i].due_date;
+          nearestDueInvoice = invoices[i];
+        }
+      }
+    }
+    return nearestDueInvoice;
+  };
+
+  useEffect(() => {
+    setIsLoadingPage(true);
+    getTenantDashboardData()
+      .then((res) => {
+        setLeaseAgreement(res.lease_agreement);
+        //Check if auto pay is enabled
+        if (res.lease_agreement.auto_pay_is_enabled === false) {
+          getTenantInvoices()
+            .then((res) => {
+              //Reverse the array so the most recent invoices are shown first
+              setInvoices(res.invoices.reverse());
+              setNextInvoice(getNearestDueInvoice(res.invoices));
+            })
+            .catch((err) => {
+              setAlertTitle("Error");
+              setAlertMessage("There was an error loading your bills");
+              setShowAlert(true);
+            });
+        }
       })
       .catch((err) => {
-        console.log(err);
         setAlertTitle("Error");
         setAlertMessage("There was an error loading your bills");
         setShowAlert(true);
@@ -159,6 +210,7 @@ const Bills = () => {
           setShowAlert(false);
         }}
       />
+      <ProgressModal open={isRedirecting} title={progressMessage} />
       {isLoadingPage ? (
         <UIProgressPrompt
           title="Loading Bills"
@@ -186,70 +238,125 @@ const Bills = () => {
               next: "Next",
               skip: "Skip",
             }}
-          />
-          {isMobile ? (
-            <UITableMobile
-              showCreate={false}
-              tableTitle="Bills"
-              data={invoices}
-              createInfo={(row) =>
-                `${removeUnderscoresAndCapitalize(row.metadata.type)}`
+          />{" "}
+          <span className="text-black">
+            Show Next Invoice Only
+            <UISwitch
+              data-testId="show-all-invoices-switch"
+              value={!showAllInvoices}
+              onChange={() => setShowAllInvoices(!showAllInvoices)}
+            />{" "}
+          </span>
+          {leaseAgreement?.auto_pay_is_enabled ? (
+            <UIPrompt
+              dataTestId="auto-pay-enabled-prompt"
+              icon={
+                <PaymentsIcon
+                  sx={{
+                    color: uiGreen,
+                    fontSize: "3rem",
+                  }}
+                />
               }
-              createSubtitle={(row) =>
-                `$${String(row.amount_due / 100).toLocaleString("en-US")}`
-              }
-              createTitle={(row) => {
-                return (
-                  <span
+              title="Auto Pay Enabled"
+              message="Your auto pay is enabled. Your bills will be paid automatically."
+              body={
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <UIButton
+                    btnText="Manage Billing"
+                    onClick={manageBillingOnClick}
                     style={{
-                      color: row.paid ? uiGreen : uiRed,
+                      backgroundColor: uiGrey2,
                     }}
-                  >
-                    {row.paid
-                      ? "Paid"
-                      : "Due " +
-                        new Date(row.due_date * 1000).toLocaleDateString()}
-                  </span>
-                );
-              }}
-              onRowClick={handleRowClick}
-              orderingFields={[
-                { field: "created_at", label: "Date Created (Ascending)" },
-                { field: "-created_at", label: "Date Created (Descending)" },
-                { field: "type", label: "Transaction Type (Ascending)" },
-                { field: "-type", label: "Transaction Type (Descending)" },
-                { field: "amount", label: "Amount (Ascending)" },
-                { field: "-amount", label: "Amount (Descending)" },
-              ]}
-              searchFields={[
-                "metadata.type",
-                "metadata.description",
-                "amount_due",
-              ]}
+                  />
+                  <UIButton
+                    btnText="Back to Dashboard"
+                    onClick={() => {
+                      navigate("/dashboard/tenant");
+                    }}
+                  />
+                </Stack>
+              }
             />
           ) : (
-            <div className="tenant-bills-table-container">
-              <UITable
-                columns={columns}
-                options={options}
-                title="Bills"
-                showCreate={false}
-                data={invoices}
-                menuOptions={[
-                  {
-                    name: "Details",
-                    onClick: (row) => {
-                      navigate(`/dashboard/tenant/bills/${row.id}`);
+            <>
+              {isMobile ? (
+                <UITableMobile
+                  dataTestId="tenant-bills-table-mobile"
+                  showCreate={false}
+                  tableTitle="Bills"
+                  data={showAllInvoices ? invoices : [nextInvoice]}
+                  createInfo={(row) =>
+                    `${removeUnderscoresAndCapitalize(row.metadata.type)}`
+                  }
+                  createSubtitle={(row) =>
+                    `$${String(row.amount_due / 100).toLocaleString("en-US")}`
+                  }
+                  createTitle={(row) => {
+                    return (
+                      <span
+                        style={{
+                          color: row.paid ? uiGreen : uiRed,
+                        }}
+                      >
+                        {row.paid
+                          ? "Paid"
+                          : "Due " +
+                            new Date(row.due_date * 1000).toLocaleDateString()}
+                      </span>
+                    );
+                  }}
+                  onRowClick={handleRowClick}
+                  orderingFields={[
+                    { field: "created_at", label: "Date Created (Ascending)" },
+                    {
+                      field: "-created_at",
+                      label: "Date Created (Descending)",
                     },
-                  },
-                ]}
-                searchFields={[
-                  "metadata.type",
-                  "metadata.description",
-                  "amount_due",
-                ]}
-              />
-            </div>
+                    { field: "type", label: "Transaction Type (Ascending)" },
+                    { field: "-type", label: "Transaction Type (Descending)" },
+                    { field: "amount", label: "Amount (Ascending)" },
+                    { field: "-amount", label: "Amount (Descending)" },
+                  ]}
+                  searchFields={[
+                    "metadata.type",
+                    "metadata.description",
+                    "amount_due",
+                  ]}
+                />
+              ) : (
+                <div className="tenant-bills-table-container">
+                  <UITable
+                    dataTestId="tenant-bills-table"
+                    testRowIdentifier="tenant-bills-table-row"
+                    columns={columns}
+                    options={options}
+                    title="Bills"
+                    showCreate={false}
+                    data={showAllInvoices ? invoices : [nextInvoice]}
+                    onRowClick={handleRowClick}
+                    menuOptions={[
+                      {
+                        name: "Details",
+                        onClick: (row) => {
+                          navigate(`/dashboard/tenant/bills/${row.id}`);
+                        },
+                      },
+                    ]}
+                    searchFields={[
+                      "metadata.type",
+                      "metadata.description",
+                      "amount_due",
+                    ]}
+                  />
+                </div>
+              )}
+            </>
           )}
           <UIHelpButton onClick={handleClickStart} />
         </div>

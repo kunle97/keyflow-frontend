@@ -14,7 +14,8 @@ export const uploadFile = async (data) => {
     );
     return response;
   } catch (error) {
-    console.log(error);
+
+    return { response: error.response, message: error.response.data.message, status: error.response.status };
   }
 };
 
@@ -29,7 +30,7 @@ export const retrievePresignedURL = async (file_key) => {
     );
     return response;
   } catch (error) {
-    console.log(error);
+
   }
 };
 
@@ -39,7 +40,7 @@ export const deleteFile = async (data) => {
     const response = await authenticatedInstance.post(`/s3-file-delete/`, data);
     return response;
   } catch (error) {
-    console.log(error);
+
   }
 };
 
@@ -54,8 +55,8 @@ export const retrieveFilesBySubfolder = async (subfolder, user_id) => {
     });
     return response;
   } catch (error) {
-    console.log(error);
-  }
+
+  } 
 };
 
 //Create a function that uses the unauthenticated instance to retrieve files by subfolder using a post to the endpoint /retrieve-images-by-subfolder/
@@ -69,6 +70,6 @@ export const retrieveUnauthenticatedFilesBySubfolder = async (subfolder) => {
     );
     return response;
   } catch (error) {
-    console.log(error);
+
   }
 };

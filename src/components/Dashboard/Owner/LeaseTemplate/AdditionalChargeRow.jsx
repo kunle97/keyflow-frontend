@@ -16,8 +16,8 @@ const AdditionalChargeRow = (props) => {
   });
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -34,8 +34,8 @@ const AdditionalChargeRow = (props) => {
       newCharges[props.index][name] = value;
       return newCharges;
     });
-    console.log("Form data ", formData);
-    console.log("Errors ", props.errors);
+
+
   };
 
   const formInputs = [
@@ -92,7 +92,7 @@ const AdditionalChargeRow = (props) => {
   useEffect(() => {
     const { newErrors } = validateForm(formData, formInputs);
     props.setErrors(newErrors);
-  }, []);
+  },[]);
   return (
     <div
       className="additional-charge-row row"

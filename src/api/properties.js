@@ -28,12 +28,12 @@ export async function createProperty(
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios create property response ", response);
+
         return response;
       });
     return { message: "Property created successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Create Property Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -42,7 +42,7 @@ export async function createProperty(
 export async function getProperties() {
   try {
     const res = await authenticatedInstance.get(`/properties/`).then((res) => {
-      console.log(res);
+
       if (res.status == 200 && res.data.length == 0) {
         return { data: [] };
       }
@@ -50,7 +50,7 @@ export async function getProperties() {
     });
     return res;
   } catch (error) {
-    console.log("Get Properties Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -61,12 +61,12 @@ export async function getPropertyFilters() {
     const res = await authenticatedInstance
       .get(`/properties/filters/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Property Filters Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -84,7 +84,7 @@ export async function getProperty(propertyId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Unit Error: ", error);
+
     return error.response;
   }
 }
@@ -95,7 +95,7 @@ export async function getPropertyUnauthenticated(propertyId) {
     const res = await unauthenticatedInstance
       .post(`/retrieve-property/`, { property_id: propertyId })
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -103,7 +103,7 @@ export async function getPropertyUnauthenticated(propertyId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Proprty Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -125,7 +125,7 @@ export async function updateProperty(propertyId, data) {
       message: "Property updated successfully",
     };
   } catch (error) {
-    console.log("Get Properties Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -145,7 +145,7 @@ export async function updatePropertyMedia(propertyId, data) {
       message: "Property updated successfully",
     };
   } catch (error) {
-    console.log("Get Properties Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -156,12 +156,12 @@ export async function updatePropertyPreferences(propertyId, data) {
     const res = await authenticatedMediaInstance
       .patch(`/properties/${propertyId}/update-preferences/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Update Property Preferences Error: ", error);
+
     return error.response;
   }
 }
@@ -174,12 +174,12 @@ export async function updatePropertyPortfolio(propertyId, portfolio) {
         portfolio: portfolio,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Update Property Portfolio Error: ", error);
+
     return error.response;
   }
 }
@@ -190,12 +190,12 @@ export async function updatePortfolioProperties(data) {
     const res = await authenticatedMediaInstance
       .patch(`/properties/update-portfolios/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Update Properties Portfolio Error: ", error);
+
     return error.response;
   }
 }
@@ -214,7 +214,7 @@ export async function deleteProperty(propertyId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get Properties Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -224,12 +224,12 @@ export async function removePropertyLeaseTemplate(propertyId) {
     const res = await authenticatedMediaInstance
       .patch(`/properties/${propertyId}/remove-lease-template/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Remove Lease Template Error: ", error);
+
     return error.response;
   }
 }
@@ -240,12 +240,30 @@ export async function validatePropertyName(data) {
     const res = await authenticatedMediaInstance
       .post(`/properties/validate-name/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Validate Property Name Error: ", error);
+
     return error.response;
   }
 }
+
+
+//Create a function called retrievePropertyUnits that retrieves all the units of a property using the api/properties/{id}/units endpoint
+export async function getPropertyUnits(propertyId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/properties/${propertyId}/units/`)
+      .then((res) => {
+
+        return res;
+      });
+    return res;
+  } catch (error) {
+
+    return error.response;
+  }
+}
+

@@ -20,7 +20,7 @@ export const NotificationDetail = () => {
     //retrieve notification by id from api
     getNotification(id)
       .then((res) => {
-        console.log("Notification Resposne ", res);
+
         setNotification(res);
       })
       .catch((error) => {
@@ -30,7 +30,7 @@ export const NotificationDetail = () => {
     //Mark notification as read
     markNotificationAsRead(id)
       .then((res) => {
-        console.log("Marked as read", res);
+
       })
       .catch((error) => {
         console.error("Error marking as read", error);
@@ -43,21 +43,15 @@ export const NotificationDetail = () => {
         <div className="col-md-5  offset-md-3">
           <BackButton to="/dashboard/notifications" />
           <div className="card">
-            {/* <center className="py-4 mt-3">
+            <center className="py-4 mt-3">
               <NotificationsNoneOutlinedIcon
                 style={{ fontSize: 50, color: uiGreen, marginBottom: 12 }}
               />
-            </center> */}
+            </center>
             <div className="card-body">
               <div className="row">
                 <div className="col-md-12 mb-3">
-                  <p
-                    className="text-black"
-                    style={{ fontSize: "14pt", color: uiGrey2 }}
-                  >
-                    <strong>Message:</strong>
-                  </p>{" "}
-                  <span style={{ color: uiGrey2 }}>{notification.message}</span>
+                  <span style={{ color: uiGrey2, fontSize:"14pt" }}>{notification.message}</span>
                 </div>
                 <div
                   className="col-md-12 mb-3"

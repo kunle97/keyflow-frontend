@@ -27,7 +27,7 @@ import TenantLogin from "./components/Dashboard/Tenant/TenantLogin";
 import TenantMyAccount from "./components/Dashboard/Tenant/TenantMyAccount";
 import CreateLeaseTemplate from "./components/Dashboard/Owner/LeaseTemplate/CreateLeaseTemplate/CreateLeaseTemplate";
 import LeaseTemplates from "./components/Dashboard/Owner/LeaseTemplate/LeaseTemplates";
-import ViewRentalApplication from "./components/Dashboard/Owner/RentalApplications/ViewRentalApplication";
+import RentalApplicationDetail from "./components/Dashboard/Owner/RentalApplications/RentalApplicationDetail";
 import CreateRentalApplication from "./components/RentalApplication/CreateRentalApplication";
 import RentalApplications from "./components/Dashboard/Owner/RentalApplications/RentalApplications";
 import SignLeaseAgreement from "./components/SignLeaseAgreement";
@@ -56,7 +56,6 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import {
   AddHomeOutlined,
   AddHomeWorkOutlined,
-  Category,
   HolidayVillageOutlined,
 } from "@mui/icons-material";
 import CampaignIcon from "@mui/icons-material/Campaign";
@@ -84,20 +83,19 @@ import ManageBillingEntry from "./components/Dashboard/Owner/BillingEntry/Manage
 import CreateBillingEntry from "./components/Dashboard/Owner/BillingEntry/CreateBillingEntry";
 import Bills from "./components/Dashboard/Tenant/Bills/Bills";
 import PayBill from "./components/Dashboard/Tenant/Bills/PayBill";
-import Annoucements from "./components/Dashboard/Owner/Annoucements/Annoucements";
+import Annoucements from "./components/Dashboard/Owner/Annoucements/Announcements";
 import ManageAnnouncement from "./components/Dashboard/Owner/Annoucements/ManageAnnouncement";
 import CreateAccouncement from "./components/Dashboard/Owner/Annoucements/CreateAnnouncement";
 
 //Prototype conponents
 import Accounts from "./components/Dashboard/UIComponents/Prototypes/Pages/Accounts";
-import WebsiteBuilder from "./components/Dashboard/UIComponents/Prototypes/Pages/WebsiteBuilder";
-import OccupancyProgress from "./components/Dashboard/UIComponents/Prototypes/Pages/OccupancyProgress";
 import BillDetail from "./components/Dashboard/Tenant/Bills/BillDetail";
 import TenantLeaseAgreements from "./components/Dashboard/Tenant/LeaseAgreement/LeaseAgreements/TenantLeaseAgreements";
 import ArchivedRentalApplications from "./components/Dashboard/Owner/RentalApplications/ArchivedRentalApplications";
 import TenantInvites from "./components/Dashboard/Owner/TenantInvites/TenantInvites";
 import ManageTenantInvite from "./components/Dashboard/Owner/TenantInvites/ManageTenantInvite";
 import CreateTenantInvite from "./components/Dashboard/Owner/TenantInvites/CreateTenantInvite";
+import OwnerCreateMaintenanceRequest from "./components/Dashboard/Owner/MaintenaceRequests/OwnerCreateMaintenanceRequest";
 
 //retrieve token from storage
 const token = localStorage.getItem("accessToken");
@@ -157,6 +155,16 @@ export const routes = [
   },
   {
     path: "/dashboard/owner/register",
+    element: (
+      <LoggedInRedirect token={token}>
+        <Elements stripe={stripePromise}>
+          <OwnerRegister />
+        </Elements>
+      </LoggedInRedirect>
+    ),
+  },
+  {
+    path: "/dashboard/owner/register/:plan_index",
     element: (
       <LoggedInRedirect token={token}>
         <Elements stripe={stripePromise}>
@@ -471,6 +479,19 @@ export const routes = [
     muiIcon: <HandymanOutlinedIcon />,
   },
   {
+    path: "/dashboard/owner/create-maintenance-request/",
+    element: withDashboardContainer(
+      <DashboardProtectedRoute token={token}>
+        <OwnerCreateMaintenanceRequest />
+      </DashboardProtectedRoute>
+    ),
+    isSearchable: true,
+    label: "Create Maintenance Request",
+    category: "Maintenance Requests",
+    description: "Create a new maintenance request",
+    
+  },
+  {
     path: "/dashboard/owner/maintenance-requests/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
@@ -691,7 +712,7 @@ export const routes = [
     path: "/dashboard/owner/rental-applications/:id",
     element: withDashboardContainer(
       <DashboardProtectedRoute token={token}>
-        <ViewRentalApplication />
+        <RentalApplicationDetail />
       </DashboardProtectedRoute>
     ),
   },

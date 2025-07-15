@@ -1,21 +1,13 @@
 import React from "react";
-import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Button } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { uiGreen } from "../../../constants";
-const BackButton = ({ to, style }) => {
+const BackButton = ({ to, style, dataTestId }) => {
   const navigate = useNavigate();
-  const handleClick = () => {
-    console.log("Back to ", to);
-    if (to !== undefined) {
-      navigate(-1);
-    } else {
-      navigate(to);
-    }
-  };
   return (
     <Button
+      data-testid={dataTestId ? dataTestId : "back-button"}
       startIcon={<ArrowBackIcon />}
       onClick={() => navigate(-1)}
       sx={{ color: uiGreen, textTransform: "none", ...style }}

@@ -6,12 +6,44 @@ export async function getOwnerPreferences() {
     const res = await authenticatedInstance
       .get(`/owners/${authUser.owner_id}/preferences/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Owner Preferences Error: ", error);
+
+    return error.response;
+  }
+}
+
+//Create a function to retrieve an owner's plan data using a GET request to the endpoint api/owners/{id}/subscription-plan-data
+export async function getOwnerSubscriptionPlanData() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/subscription-plan-data/`)
+      .then((res) => {
+
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+
+    return error.response;
+  }
+}
+
+//Create a function to retrieve an owner's usage stats using the endpoint api/owners/{id}/usage-stats
+export async function getOwnerUsageStats() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/owners/${authUser.owner_id}/usage-stats/`)
+      .then((res) => {
+
+        return res.data;
+      });
+    return res;
+  } catch (error) {
+
     return error.response;
   }
 }
@@ -22,12 +54,12 @@ export async function updateOwnerPreferences(data) {
     const res = await authenticatedInstance
       .post(`/owners/${authUser.owner_id}/update-preferences/`, data)
       .then((res) => {
-        console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Update Owner Preferences Error: ", error);
+
     return error.response;
   }
 }
@@ -39,12 +71,12 @@ export async function getStripeAccountLink() {
     const res = await authenticatedInstance
       .get(`/owners/${authUser.owner_id}/stripe-account-link/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Stripe Account Link Error: ", error);
+
     return error.response;
   }
 }
@@ -55,12 +87,12 @@ export async function getStripeOnboardingAccountLink() {
     const res = await authenticatedInstance
       .get(`/owners/${authUser.owner_id}/stripe-onboarding-account-link/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Stripe Account Link Error: ", error);
+
     return error.response;
   }
 }
@@ -71,12 +103,12 @@ export async function getStripeAccountRequirements() {
     const res = await authenticatedInstance
       .get(`/owners/${authUser.owner_id}/stripe-account-requirements/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Stripe Account Requirements Error: ", error);
+
     return error.response;
   }
 }
@@ -89,7 +121,7 @@ export async function getOwnerTenants() {
     const res = await authenticatedInstance
       .get(`/tenants/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -97,7 +129,7 @@ export async function getOwnerTenants() {
       });
     return res;
   } catch (error) {
-    console.log("Get Owner Tenants Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -108,7 +140,7 @@ export async function getOwnerTenant(tenantId) {
     const res = await authenticatedInstance
       .get(`/tenants/${tenantId}/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -116,7 +148,7 @@ export async function getOwnerTenant(tenantId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Owner Tenant Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -127,7 +159,7 @@ export async function getTenantUnit(tenantId) {
     const res = await authenticatedInstance
       .get(`/tenants/${tenantId}/unit/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -135,7 +167,7 @@ export async function getTenantUnit(tenantId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Tenant Unit Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

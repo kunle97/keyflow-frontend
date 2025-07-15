@@ -1,11 +1,10 @@
 import React from "react";
 import { useEffect } from "react";
 import {
+  deleteMaintenanceRequest,
   getMaintenanceRequestsByTenant,
-  getMaintenanceRequestsByUser,
 } from "../../../../api/maintenance_requests";
 import { useState } from "react";
-import MUIDataTable from "mui-datatables";
 import useScreen from "../../../../hooks/useScreen";
 import UITable from "../../UIComponents/UITable/UITable";
 import { getTenantDashboardData } from "../../../../api/tenants";
@@ -14,25 +13,18 @@ import { authUser, uiGreen } from "../../../../constants";
 import DescriptionIcon from "@mui/icons-material/Description";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import { useNavigate } from "react-router";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const MaintenanceRequests = () => {
   //Create a astate for the maintenance requests
   const [maintenanceRequests, setMaintenanceRequests] = useState([]);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [orderingField, setOrderingField] = useState("created_at");
-  const [searchField, setSearchField] = useState("");
-  const [limit, setLimit] = useState(10);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
@@ -69,7 +61,6 @@ const MaintenanceRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
   const columns = [
     { name: "description", label: "Issue" },
@@ -101,9 +92,9 @@ const MaintenanceRequests = () => {
     },
   ];
 
-  const handleRowClick = (rowData, rowMeta) => {
-    // const navlink = `/dashboard/owner/`;
-    // navigate(navlink);
+  const handleRowClick = (row) => {
+    const navlink = `/dashboard/tenant/maintenance-requests/${row.id}`;
+    navigate(navlink);
   };
   const options = {
     filter: true,
@@ -113,26 +104,57 @@ const MaintenanceRequests = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      deleteMaintenanceRequest(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertTitle("Success");
+            setAlertMessage("Maintenance request deleted successfully");
+            setShowAlert(true);
+          } else {
+            setAlertTitle("Error");
+            setAlertMessage(
+              "An error occurred while deleting the maintenance request"
+            );
+            setShowAlert(true);
+          }
+        })
+        .catch((err) => {
+          setAlertTitle("Error");
+          setAlertMessage(
+            "An error occurred while deleting the maintenance request"
+          );
+          setShowAlert(true);
+        });
+    },
+    deleteOptions: {
+      confirmTitle: "Delete Maintenance Request",
+      confirmMessage:
+        "Are you sure you want to delete this maintenance request?",
+    },
   };
 
   useEffect(() => {
     //Retrieve the maintenance requests
-    getTenantDashboardData().then((res) => {
-      //Check if lease agreement is active
-      console.log(res);
-      setLeaseAgreement(res.lease_agreement);
-      if (res.lease_agreement) {
-        getMaintenanceRequestsByTenant(authUser.tenant_id).then((res) => {
-          console.log(res);
-          setMaintenanceRequests(res.data);
-        });
-      }
-    }).catch((error) => {
-      console.log(error);
-      setShowAlert(true);
-      setAlertTitle("Error");
-      setAlertMessage("An error occurred while fetching maintenance requests");
-    });
+    getTenantDashboardData()
+      .then((res) => {
+        //Check if lease agreement is active
+
+        setLeaseAgreement(res.lease_agreement);
+        if (res.lease_agreement) {
+          getMaintenanceRequestsByTenant(authUser.tenant_id).then((res) => {
+            setMaintenanceRequests(res.data);
+          });
+        }
+      })
+      .catch((error) => {
+        setShowAlert(true);
+        setAlertTitle("Error");
+        setAlertMessage(
+          "An error occurred while fetching maintenance requests"
+        );
+      });
   }, []);
 
   return (
@@ -142,9 +164,10 @@ const MaintenanceRequests = () => {
         message={alertMessage}
         open={showAlert}
         onClick={() => {
-          setShowAlert(false);
+          navigate(0);
         }}
       />
+      <ProgressModal open={isLoading} title="Please Wait..." />
       <Joyride
         run={runTour}
         index={tourIndex}
@@ -195,30 +218,30 @@ const MaintenanceRequests = () => {
               ]}
               showResultLimit={false}
               tableTitle="Maintenance Requests"
-              loadingTitle="Maintenance Requests"              
+              loadingTitle="Maintenance Requests"
               loadingMessage="Loading your maintenance requests..."
-              searchFields={["description", "status","tenant__user__last_name"]}
+              searchFields={[
+                "description",
+                "status",
+                "tenant__user__last_name",
+              ]}
             />
           ) : (
             <div className="maintenance-request-section-table">
               <UITable
+                dataTestId="maintenance-requests-table"
+                testRowIdentifier="maintenance-requests-table-row"
                 data={maintenanceRequests}
                 columns={columns}
                 options={options}
                 title="Maintenance Requests"
+                showCreate={true}
+                createURL="/dashboard/tenant/maintenance-requests/create"
                 searchFields={["description", "status"]}
-                onSearch={(value) => {
-                  setSearchField(value);
-                }}
-                onOrderingChange={(value) => {
-                  setOrderingField(value);
-                }}
-                onResultLimitChange={(value) => {
-                  setLimit(value);
-                }}
                 showResultLimit={true}
                 loadingTitle="Maintenance Requests"
                 loadingMessage="Loading your maintenance requests..."
+                onRowClick={handleRowClick}
                 menuOptions={[
                   {
                     name: "View",
@@ -227,7 +250,6 @@ const MaintenanceRequests = () => {
                       navigate(navlink);
                     },
                   },
-                  { name: "Delete", onClick: () => console.log("Delete") },
                 ]}
               />
             </div>

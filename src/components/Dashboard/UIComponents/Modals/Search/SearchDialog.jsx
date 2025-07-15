@@ -4,7 +4,7 @@ import Slide from "@mui/material/Slide";
 import { Box, Button, Input } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@material-ui/core";
-import { authUser, uiGreen, uiGrey1, uiGrey2 } from "../../../../../constants";
+import { authUser, uiGreen } from "../../../../../constants";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import DescriptionIcon from "@mui/icons-material/Description";
 import WeekendIcon from "@mui/icons-material/Weekend";
@@ -16,10 +16,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import SearchResultCard from "./SearchResultCard";
 import { useCallback } from "react";
 import { authenticatedInstance } from "../../../../../api/api";
-import { getOwnerUnits } from "../../../../../api/units";
-
 import { getProperties } from "../../../../../api/properties";
-import { useNavigate } from "react-router-dom";
 import { routes } from "../../../../../routes";
 import {
   filterDashboardPages,
@@ -52,10 +49,7 @@ const SearchDialog = (props) => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
-  const [open, setOpen] = useState(false);
-  const [dashboardPages, setDashboardPages] = useState(routes);
   const [allProperties, setAllProperties] = useState([]);
-  const [allUnits, setAllUnits] = useState([]);
   const [tenants, setTenants] = useState([]);
   const [searchValue, setSearchValue] = useState(
     props.query ? props.query : null
@@ -142,13 +136,8 @@ const SearchDialog = (props) => {
       authenticatedInstance
         .get(`/owners/${authUser.owner_id}/tenants/`)
         .then((res) => {
-          console.log("Tenant REsponse: ", res);
           setTenants(res.data);
         });
-      console.log("SEARCH DIOALOIEHG Tenants:", tenants);
-      getOwnerUnits().then((res) => {
-        setAllUnits(res.data);
-      });
       getProperties().then((res) => {
         setAllProperties(res.data);
       });
@@ -227,7 +216,7 @@ const SearchDialog = (props) => {
           }
         });
     } catch (err) {
-      console.log("Error in search dialog", err);
+
       setShowAlert(true);
       setAlertTitle("Error");
       setAlertMessage("An error occurred while searching");
@@ -246,7 +235,6 @@ const SearchDialog = (props) => {
     return acc;
   }, {});
 
-  useEffect(() => {}, []);
   return (
     <div>
       <AlertModal
@@ -391,14 +379,14 @@ const SearchDialog = (props) => {
                           />
                         </>
                       )}
-                    {filterDashboardPages(dashboardPages, searchValue).length >
+                    {filterDashboardPages(routes, searchValue).length >
                       0 &&
                       tabPage === 0 && (
                         <div id="pages" style={{ overflow: "hidden" }}>
                           <h2 className="text-black">
                             Pages (
                             {
-                              dashboardPages.filter(
+                              routes.filter(
                                 (page) =>
                                   page.isSearchable &&
                                   page.label
@@ -409,7 +397,7 @@ const SearchDialog = (props) => {
                             )
                           </h2>
                           <div className="row">
-                            {filterDashboardPages(dashboardPages, searchValue)
+                            {filterDashboardPages(routes, searchValue)
                               .splice(0, searchResultLimit)
                               .map((page) => (
                                 <SearchResultCard

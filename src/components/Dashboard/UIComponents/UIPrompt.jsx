@@ -3,7 +3,11 @@ import React from "react";
 
 const UIPrompt = (props) => {
   return (
-    <div style={props.style} className={`${props.hideBoxShadow ? "" : "card"} mb-2`}>
+    <div
+      data-testId={props.dataTestId ? props.dataTestId : "prompt"}
+      style={props.style}
+      className={`${props.hideBoxShadow ? "" : "card"} mb-2`}
+    >
       <Stack
         direction={"column"}
         alignContent={"center"}
@@ -12,9 +16,24 @@ const UIPrompt = (props) => {
         spacing={2}
         sx={{ padding: "5rem 1rem", ...props.style }}
       >
-        <span>{props.icon}</span>
-        <h4>{props.title}</h4>
+        <span
+          data-testId={
+            props.dataTestId ? props.dataTestId + "-icon" : "prompt-icon"
+          }
+        >
+          {props.icon}
+        </span>
+        <h4
+          data-testId={
+            props.dataTestId ? props.dataTestId + "-title" : "prompt-title"
+          }
+        >
+          {props.title}
+        </h4>
         <p
+          data-testId={
+            props.dataTestId ? props.dataTestId + "-message" : "prompt-message"
+          }
           style={{
             textAlign: "center",
             padding: "0  10px",
@@ -23,7 +42,13 @@ const UIPrompt = (props) => {
         >
           {props.message}
         </p>
-        <div  >{props.body}</div>
+        <div
+          data-testId={
+            props.dataTestId ? props.dataTestId + "-body" : "prompt-body"
+          }
+        >
+          {props.body}
+        </div>
       </Stack>
     </div>
   );

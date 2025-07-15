@@ -1,14 +1,12 @@
-import { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { login } from "../../../api/auth";
-import AuthContext, { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import { uiGreen, uiGrey, defaultWhiteInputStyle } from "../../../constants";
-import { Input, Button, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import { validationMessageStyle } from "../../../constants";
-import { getTenantsEmails, getTenantsUsernames } from "../../../api/api";
+import { getTenantsEmails } from "../../../api/api";
 import {
   triggerValidation,
   validateForm,
@@ -19,24 +17,19 @@ const TenantLogin = () => {
   const [errMsg, setErrMsg] = useState(null);
   const [openError, setOpenError] = useState(false);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
-  const { authUser, setAuthUser, isLoggedIn, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
-  const [email, setEmail] = useState("");
   const [tenantsEmails, setTenantsEmails] = useState([]); //TODO: get usernames from db and set here
-  const [tenantsUsernames, setTenantsUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(true); //T
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
+    email: process.env.REACT_APP_ENVIRONMENT === "development" && process.env.REACT_APP_CYPRESS_TEST_TENANT_USER_EMAIL ? process.env.REACT_APP_CYPRESS_TEST_TENANT_USER_EMAIL : "",
     password:
-      process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
+      process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1*",
   });
 
   const handleCheckboxChange = (event) => {
     setRememberMe(event.target.checked);
-    console.log("Remember me state varaianble", rememberMe);
   };
 
   const handleChange = (e, formInputs) => {
@@ -48,8 +41,6 @@ const TenantLogin = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
   };
 
   const passwordInput = [
@@ -66,7 +57,7 @@ const TenantLogin = () => {
         //Create a regex patern to check that the field is not empty
         regex: /\S/,
       },
-      dataTestId: "password",
+      dataTestId: "password-input",
       errorMessageDataTestId: "password-error",
     },
   ];
@@ -84,7 +75,7 @@ const TenantLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-input",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -103,7 +94,7 @@ const TenantLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-select",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -119,17 +110,11 @@ const TenantLogin = () => {
     //if token is returned, set it in local storage
     if (response.token) {
       //Set authUser and isLoggedIn in context
-      // localStorage.setItem("accessToken", response.token);
-      //Save auth user in local storage
-      // localStorage.setItem("authUser", JSON.stringify(response.userData));
       setRedirectURL("/dashboard/tenant");
-      setAuthUser(response.userData);
-      setIsLoggedIn(true);
       setIsLoading(false);
       //Navigate to dashboard
       setOpen(true);
     } else {
-      console.log("Login Error: ", response);
       setErrMsg(response.message);
       setOpenError(true);
       setIsLoading(false);
@@ -141,11 +126,6 @@ const TenantLogin = () => {
       getTenantsEmails().then((res) => {
         if (res) {
           setTenantsEmails(res);
-        }
-      });
-      getTenantsUsernames().then((res) => {
-        if (res) {
-          setTenantsUsernames(res);
         }
       });
     }
@@ -202,123 +182,56 @@ const TenantLogin = () => {
                 Tenant Login
               </Typography>
               <form className="user" onSubmit={onSubmit}>
-                {process.env.REACT_APP_ENVIRONMENT === "development" ? (
-                  <div>
-                    {selectFormInputs.map((input, index) => {
-                      return (
-                        <div
-                          className={`col-md-${input.colSpan} mb-3`}
-                          key={index}
-                          data-testId={`${input.dataTestId}`}
+                <div className="mb-3">
+                  {textformInputs.map((input, index) => {
+                    return (
+                      <div
+                        className={`col-md-${input.colSpan} mb-3`}
+                        key={index}
+                      >
+                        <label
+                          className="form-label text-black"
+                          htmlFor={input.name}
+                          data-testId={`${input.dataTestId}-label`}
                         >
-                          <label
-                            className="form-label text-black"
-                            htmlFor={input.name}
-                          >
-                            {input.label}
-                          </label>
-                          {input.type === "select" ? (
-                            <select
-                              style={{
-                                ...defaultWhiteInputStyle,
-                                background: uiGrey,
-                              }}
-                              type={input.type}
-                              name={input.name}
-                              onChange={input.onChange}
-                              onBlur={input.onChange}
-                              value={formData[input.name]}
-                            >
-                              <option value="" disabled selected>
-                                Select an Email
-                              </option>
-                              {input.options.map((option, index) => {
-                                return (
-                                  <option key={index} value={option}>
-                                    {option}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          ) : (
-                            <input
-                              style={{
-                                ...defaultWhiteInputStyle,
-                                background: uiGrey,
-                              }}
-                              type={input.type}
-                              name={input.name}
-                              onChange={input.onChange}
-                              onBlur={input.onChange}
-                              // {...register(input.name, { required: true })}
-                            />
-                          )}
-                          {errors[input.name] && (
-                            <span
-                              data-testId={input.errorMessageDataTestId}
-                              style={{ ...validationMessageStyle }}
-                            >
-                              {errors[input.name]}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="mb-3">
-                    {textformInputs.map((input, index) => {
-                      return (
-                        <div
-                          className={`col-md-${input.colSpan} mb-3`}
-                          key={index}
+                          {input.label}
+                        </label>
+                        <input
                           data-testId={`${input.dataTestId}`}
-                        >
-                          <label
-                            className="form-label text-black"
-                            htmlFor={input.name}
+                          style={{
+                            ...defaultWhiteInputStyle,
+                            background: uiGrey,
+                          }}
+                          type={input.type}
+                          name={input.name}
+                          onChange={input.onChange}
+                          onBlur={input.onChange}
+                          value={formData[input.name]}
+                        />
+                        {errors[input.name] && (
+                          <span
+                            data-testId={input.errorMessageDataTestId}
+                            style={{ ...validationMessageStyle }}
                           >
-                            {input.label}
-                          </label>
-                          <input
-                            style={{
-                              ...defaultWhiteInputStyle,
-                              background: uiGrey,
-                            }}
-                            type={input.type}
-                            name={input.name}
-                            onChange={input.onChange}
-                            onBlur={input.onChange}
-                            value={formData[input.name]}
-                          />
-                          {errors[input.name] && (
-                            <span
-                              data-testId={input.errorMessageDataTestId}
-                              style={{ ...validationMessageStyle }}
-                            >
-                              {errors[input.name]}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
+                            {errors[input.name]}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
                 {passwordInput.map((input, index) => {
                   return (
-                    <div
-                      className={`col-md-${input.colSpan} mb-3`}
-                      key={index}
-                      data-testId={`${input.dataTestId}`}
-                    >
+                    <div className={`col-md-${input.colSpan} mb-3`} key={index}>
                       <label
                         className="form-label text-black"
                         htmlFor={input.name}
+                        data-testId={`${input.dataTestId}-label`}
                       >
                         {input.label}
                       </label>
                       <input
+                        data-testId={`${input.dataTestId}`}
                         style={{
                           ...defaultWhiteInputStyle,
                           background: uiGrey,
@@ -328,7 +241,6 @@ const TenantLogin = () => {
                         onChange={input.onChange}
                         onBlur={input.onChange}
                         value={formData[input.name]}
-                        // {...register(input.name, { required: true })}
                       />
                       {errors[input.name] && (
                         <span

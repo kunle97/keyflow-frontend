@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import CallToActionForm from "./CallToActionForm";
 const CallToAction = () => {

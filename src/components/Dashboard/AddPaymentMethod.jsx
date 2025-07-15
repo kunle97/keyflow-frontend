@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { CardElement } from "@stripe/react-stripe-js";
 import { useState } from "react";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
-import { addStripePaymentMethod } from "../../api/payment_methods";
-import { authUser, uiGreen, uiGrey1 } from "../../constants";
+import {
+  addStripePaymentMethod,
+} from "../../api/payment_methods";
+import { authUser, uiGreen } from "../../constants";
 import UIButton from "./UIComponents/UIButton";
 import ProgressModal from "./UIComponents/Modals/ProgressModal";
 import AlertModal from "./UIComponents/Modals/AlertModal";
@@ -13,8 +15,6 @@ const AddPaymentMethod = (props) => {
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState(null);
-  const [cardMode, setCardMode] = useState(true);
-  const [returnToken, setReturnToken] = useState(null); //Value of either the Stripe token or the Plaid token
   const [isLoading, setIsLoading] = useState(false);
   const [errorMode, setErrorMode] = useState(false); //If true, display error message
   const [successMode, setSuccessMode] = useState(false); //If true, display error message
@@ -32,39 +32,28 @@ const AddPaymentMethod = (props) => {
     const cardElement = elements.getElement(CardElement);
 
     try {
-      if (cardMode) {
-        const { paymentMethod } = await stripe.createPaymentMethod({
-          type: "card",
-          card: cardElement,
-        });
-        const { token } = await stripe.createToken(cardElement);
-        // You can now send paymentMethod.id to your server for further processing.
-        setReturnToken(token.id);
-        console.log("Return Token:", returnToken);
-        console.log("PaymentMethod:", paymentMethod);
-        const data = {
-          payment_method_id: paymentMethod.id,
-          user_id: authUser.id,
-        };
-        console.log(data);
-        addStripePaymentMethod(data).then((res) => {
-          console.log(res);
-          if (res.status === 200) {
-            setMessage(res.message);
-            setSuccessMode(true);
-            setIsLoading(false);
-            //If success redirect to dashboard
-          }
-        });
-      } else {
-      }
+      const { paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
+      // You can now send paymentMethod.id to your server for further processing.
+      const data = {
+        payment_method_id: paymentMethod.id,
+        user_id: authUser.id,
+      };
+
+      addStripePaymentMethod(data).then((res) => {
+
+        if (res.status === 200) {
+          setMessage(res.message);
+          setSuccessMode(true);
+          setIsLoading(false);
+          //If success redirect to dashboard
+        }
+      });
     } catch (err) {
-      console.log(err);
-      if (cardMode) {
-        setMessage("Please enter a valid card number");
-      } else {
-        setMessage("Error Adding your bank account");
-      }
+
+      setMessage("Please enter a valid card number");
       setErrorMode(true);
       setSuccessMode(false);
       setIsLoading(false);
@@ -73,8 +62,8 @@ const AddPaymentMethod = (props) => {
   };
 
   return (
-    <div className="container">
-      <BackButton />
+    <div className="container pb-4">
+      {props.hideBackButton ?? <BackButton />}
       <ProgressModal open={isLoading} />
       <AlertModal
         open={errorMode}
@@ -94,9 +83,9 @@ const AddPaymentMethod = (props) => {
         to={props.returnTo}
       />
 
-      <div className="card">
+      <div className={props.hideBoxShaddow ? "" : "card"}>
         <div className="card-body">
-          <h5 className="mb-3">Add A Payment Method</h5>
+          {props.hideTitle ?? <h5 className="mb-3">Add A Payment Method</h5>}
           <div className="stripeSection">
             <>
               {" "}

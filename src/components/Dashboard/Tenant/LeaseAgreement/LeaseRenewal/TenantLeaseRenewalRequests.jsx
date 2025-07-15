@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { getTenantLeaseRenewalRequests } from "../../../../../api/lease_renewal_requests";
+import {
+  getTenantLeaseRenewalRequests,
+  rejectLeaseRenewalRequest,
+} from "../../../../../api/lease_renewal_requests";
 import UITable from "../../../UIComponents/UITable/UITable";
 import { useNavigate } from "react-router";
 import UITableMobile from "../../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../../constants";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
+import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 const TenantLeaseRenewalRequests = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -44,7 +43,7 @@ const TenantLeaseRenewalRequests = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -54,7 +53,6 @@ const TenantLeaseRenewalRequests = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
   const columns = [
     {
@@ -97,7 +95,7 @@ const TenantLeaseRenewalRequests = () => {
     },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/tenant/lease-renewal-requests/${rowData}/`;
+    const navlink = `/dashboard/tenant/lease-renewal-requests/${rowData.id}/`;
     navigate(navlink);
   };
   const options = {
@@ -108,13 +106,38 @@ const TenantLeaseRenewalRequests = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
-    //CREate a function to handle the row delete
+    onRowDelete: (row) => {
+      rejectLeaseRenewalRequest({
+        lease_renewal_request_id: row.id,
+      })
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertTitle("Success");
+            setAlertMessage("Lease renewal request rejected!");
+            setShowAlert(true);
+          } else {
+            setAlertTitle("Error");
+            setAlertMessage("Something went wrong!");
+            setShowAlert(true);
+          }
+        })
+        .catch((error) => {
+          setAlertTitle("Error");
+          setAlertMessage("Something went wrong!");
+          setShowAlert(true);
+        });
+    },
+    deleteOptions: {
+      label: "Delete",
+      confirmTitle: "Reject Lease Renewal Request",
+      confirmMessage:
+        "Are you sure you want to deleteLease this lease renewal request?",
+    },
   };
   useEffect(() => {
     getTenantLeaseRenewalRequests()
       .then((res) => {
         setData(res.data);
-        console.log(res);
       })
       .catch((error) => {
         console.error("Error fetching lease renewal requests:", error);
@@ -135,6 +158,7 @@ const TenantLeaseRenewalRequests = () => {
           setShowAlert(false);
         }}
       />
+      <ProgressModal open={isLoading} title="Please wait..." />
       <Joyride
         run={runTour}
         index={tourIndex}
@@ -159,7 +183,6 @@ const TenantLeaseRenewalRequests = () => {
       <div className="lease-renewal-requests-table-container">
         {isMobile ? (
           <UITableMobile
-            // endpoint={"/lease-renewal-requests/"}
             data={data}
             tableTitle={"Lease Renewal Requests"}
             createInfo={(row) =>
@@ -189,6 +212,8 @@ const TenantLeaseRenewalRequests = () => {
             columns={columns}
             data={data}
             options={options}
+            onRowClick={handleRowClick}
+
             menuOptions={[
               {
                 name: "View",

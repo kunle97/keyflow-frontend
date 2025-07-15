@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   triggerValidation,
-  validateInput,
   validateForm,
 } from "../../../../helpers/formValidation";
 import { useNavigate } from "react-router";
@@ -15,6 +14,7 @@ import {
   authUser,
   uiGreen,
   uiGrey2,
+  uiRed,
   validationMessageStyle,
 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
@@ -23,16 +23,8 @@ import UIInput from "../../UIComponents/UIInput";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { useParams } from "react-router";
-import BackButton from "../../UIComponents/BackButton";
-import DeleteButton from "../../UIComponents/DeleteButton";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -41,7 +33,6 @@ import {
   uppercaseAndLowercaseLetters,
   validAnyString,
 } from "../../../../constants/rexgex";
-import { addUnderscoresAndLowercase } from "../../../../helpers/utils";
 import {
   Button,
   ButtonBase,
@@ -57,6 +48,7 @@ import ArrowBackOutlined from "@mui/icons-material/ArrowBackOutlined";
 const ManageAnnouncement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
   const [announcement, setAnnouncement] = useState({});
   const [targetObject, setTargetObject] = useState(null);
@@ -73,7 +65,6 @@ const ManageAnnouncement = () => {
     owner: authUser.owner_id,
   });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [progressModalMessage, setProgressModalMessage] = useState("");
   const [selectedTarget, setSelectedTarget] = useState("rental_unit"); //values rental_unit, rental_property, portfolio
   const [rentalUnits, setRentalUnits] = useState([]);
@@ -125,7 +116,7 @@ const ManageAnnouncement = () => {
           limit: 10,
         },
       });
-      console.log("Search res", res);
+
       setRentalUnits(res.data.results);
       setRentalUnitNextPage(res.data.next);
       setRentalUnitPreviousPage(res.data.previous);
@@ -263,13 +254,11 @@ const ManageAnnouncement = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -277,8 +266,6 @@ const ManageAnnouncement = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Errors ", errors);
-    console.log("Form Data ", formData);
   };
 
   const formInputs = [
@@ -484,17 +471,25 @@ const ManageAnnouncement = () => {
           const currentDate = new Date();
           currentDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
 
-          // // Allow selecting dates starting from today onwards, disallow past dates
-          // if (selectedDate < currentDate) {
-          //   setEndDateErrorMessage("End date cannot be in the past");
-          //   return "End date cannot be in the past";
-          // } else if (
-          //   formData.start_date &&
-          //   selectedDate < new Date(formData.start_date)
-          // ) {
-          //   setEndDateErrorMessage("End date cannot be before the start date");
-          //   return "End date cannot be less than the start date";
-          // }
+          // Allow selecting dates starting from today onwards, disallow past dates
+          if (selectedDate < currentDate) {
+            setEndDateErrorMessage("End date cannot be in the past");
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              end_date: "End date cannot be in the past",
+            }));
+            return "End date cannot be in the past";
+          } else if (
+            formData.start_date &&
+            selectedDate < new Date(formData.start_date)
+          ) {
+            setEndDateErrorMessage("End date cannot be before the start date");
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              end_date: "End date cannot be before the start date",
+            }));
+            return "End date cannot be less than the start date";
+          }
         },
       },
       dataTestId: "end-date",
@@ -518,16 +513,14 @@ const ManageAnnouncement = () => {
   ];
 
   const handleSubmit = async () => {
-    console.log("NEWWWWW Form data ", formData);
     const { isValid, newErrors } = validateForm(formData, formInputs);
-    console.log("isValid ", isValid);
-    console.log("newErrors ", newErrors);
+
     if (!isValid) {
       setErrors(newErrors);
       return;
     } else {
       setProgressModalMessage("Creating announcement...");
-      setLoading(true);
+      setIsLoading(true);
 
       //Remove rental_property, rental_unit, portfolio from form data
       delete formData.rental_property;
@@ -549,9 +542,8 @@ const ManageAnnouncement = () => {
       }
 
       const response = await updateAnnouncement(id, formData).then((res) => {
-        console.log("Response ", res);
         if (res.status === 200) {
-          setLoading(false);
+          setIsLoading(false);
           setFormData({});
           setErrors({});
           setAlertModalTitle("Success");
@@ -559,7 +551,7 @@ const ManageAnnouncement = () => {
           setAlertModalRedirect(0);
           setAlertModalOpen(true);
         } else {
-          setLoading(false);
+          setIsLoading(false);
           setAlertModalTitle("Error");
           setAlertModalMessage("An error occurred while updating announcement");
           setAlertModalRedirect("/dashboard/owner/announcements/" + id);
@@ -569,26 +561,19 @@ const ManageAnnouncement = () => {
     }
   };
 
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-
-    // Ensure month and day are two digits
-    month = month < 10 ? `0${month}` : month;
-    day = day < 10 ? `0${day}` : day;
-
-    return `${year}-${month}-${day}`;
+  const formatDateForInputValue = (dateString) => {
+    const date = new Date(dateString);
+    const isoString = date.toISOString();
+    // Extract the date part (yyyy-mm-dd)
+    const final_date = isoString.split('T')[0];
+    return final_date;
   };
 
   useEffect(() => {
     setLoadingPage(true);
     getAnnouncement(id)
       .then((res) => {
-        // Convert date strings to Date objects for date inputs
-        res.start_date = new Date(res.start_date);
-        res.end_date = new Date(res.end_date);
-
+        console.log(res)
         setAnnouncement(res);
         if (res.target_object) {
           setTargetObject(res.target_object);
@@ -1071,7 +1056,7 @@ const ManageAnnouncement = () => {
             ]}
           />
 
-          <ProgressModal open={loading} message={progressModalMessage} />
+          <ProgressModal open={isLoading} message={progressModalMessage} />
           <AlertModal
             open={alertModalOpen}
             title={alertModalTitle}
@@ -1091,13 +1076,40 @@ const ManageAnnouncement = () => {
             cancelBtnText="Cancel"
             handleCancel={() => setConfirmModalOpen(false)}
             confirmBtnText="Yes"
+            confirmBtnStyle={{ background: uiRed }}
             handleConfirm={() => {
               setConfirmModalOpen(false);
               // Call the delete function here
-              deleteAnnouncement(id).then((res) => {
-                console.log("Delete response ", res);
-                navigate("/dashboard/owner/announcements");
-              });
+              deleteAnnouncement(id)
+                .then((res) => {
+                  setIsLoading(true);
+                  setProgressModalMessage("Deleting announcement...");
+                  if (res.status === 204) {
+                    setAlertModalTitle("Error");
+                    setAlertModalMessage(
+                      "An error occurred while deleting announcement"
+                    );
+                    setAlertModalRedirect("/dashboard/owner/announcements/");
+                  } else {
+                    setAlertModalTitle("Error");
+                    setAlertModalMessage(
+                      "An error occurred while deleting announcement"
+                    );
+                    setAlertModalRedirect(0);
+                    setAlertModalOpen(true);
+                  }
+                })
+                .catch((error) => {
+                  setAlertModalTitle("Error");
+                  setAlertModalMessage(
+                    "An error occurred while deleting announcement"
+                  );
+                  setAlertModalRedirect(0);
+                  setAlertModalOpen(true);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                });
             }}
           />
           <div className="card manage-announcement-form">
@@ -1136,6 +1148,7 @@ const ManageAnnouncement = () => {
                               name={input.name}
                               className="form-control"
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               value={
                                 input.name === "target"
                                   ? targetObject?.datatype
@@ -1229,6 +1242,7 @@ const ManageAnnouncement = () => {
                               type={input.type}
                               placeholder={input.placeholder}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               value={formData[input.name]}
                               error={errors[input.name]}
                               dataTestId={input.dataTestId}
@@ -1267,7 +1281,12 @@ const ManageAnnouncement = () => {
                               type={input.type}
                               placeholder={input.placeholder}
                               onChange={input.onChange}
-                              value={formatDate(new Date(formData[input.name]))}
+                              onBlur={input.onChange}
+                              value={
+                                formData[input.name]
+                                  ? formatDateForInputValue(formData[input.name])
+                                  : ""
+                              }
                               error={errors[input.name]}
                               dataTestId={input.dataTestId}
                               errorMessageDataTestid={
@@ -1306,6 +1325,7 @@ const ManageAnnouncement = () => {
                               placeholder={input.placeholder}
                               value={formData[input.name]}
                               onChange={input.onChange}
+                              onBlur={input.onChange}
                               className="form-control"
                               style={{ height: "100px" }}
                             />

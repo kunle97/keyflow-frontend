@@ -1,16 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import { getOwnersEmails, getOwnersUsernames } from "../../../api/api";
+import { useEffect, useState } from "react";
+import { getOwnersEmails } from "../../../api/api";
 import { login } from "../../../api/auth";
-import { useAuth } from "../../../contexts/AuthContext";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import {
   defaultWhiteInputStyle,
   uiGreen,
   uiGrey,
-  uiGrey2,
   validationMessageStyle,
 } from "../../../constants";
-import { Input, Button, Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 import {
@@ -21,26 +19,22 @@ import UICheckbox from "../UIComponents/UICheckbox";
 import { validEmail } from "../../../constants/rexgex";
 
 const OwnerLogin = () => {
-  const [email, setEmail] = useState("");
   const [ownersEmails, setOwnersEmails] = useState([]);
-  const [ownerUsernames, setOwnerUsernames] = useState([]); //TODO: get usernames from db and set here
-  const [emailLoginMode, setEmailLoginMode] = useState(true); //Toggle to determine what login credentials to use
   const [errMsg, setErrMsg] = useState();
   const [open, setOpen] = useState(false);
   const [openError, setOpenError] = useState(false);
-  const { setAuthUser, setIsLoggedIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [redirectURL, setRedirectURL] = useState(null);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
+    email: process.env.REACT_APP_ENVIRONMENT === "development" && process.env.REACT_APP_CYPRESS_TEST_USER_EMAIL ? process.env.REACT_APP_CYPRESS_TEST_USER_EMAIL : "",
     password:
-      process.env.REACT_APP_ENVIRONMENT !== "development" ? "" : "Password1",
+      process.env.REACT_APP_ENVIRONMENT === "development" ? "Password1" : "",
   });
 
   const handleCheckboxChange = (event) => {
     setRememberMe(event.target.checked);
-    console.log("Remember me state varaianble", rememberMe);
   };
 
   const handleChange = (e, formInputs) => {
@@ -52,8 +46,6 @@ const OwnerLogin = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
   };
 
   const passwordInput = [
@@ -70,7 +62,7 @@ const OwnerLogin = () => {
         //Create a regex patern to check that the field is not empty
         regex: /\S/,
       },
-      dataTestId: "password",
+      dataTestId: "password-input",
       errorMessageDataTestId: "password-error",
     },
   ];
@@ -85,10 +77,10 @@ const OwnerLogin = () => {
       placeholder: "Email",
       validations: {
         required: true,
-        regex:  validEmail,
+        regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-input",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -107,7 +99,7 @@ const OwnerLogin = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email address",
       },
-      dataTestId: "email",
+      dataTestId: "email-select",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -120,15 +112,13 @@ const OwnerLogin = () => {
       password: formData.password,
       remember_me: rememberMe,
     };
-    console.log("Payload: ", payload);
+
     try {
       const response = await login(payload);
-      console.log("Login Response: ", response);
+
       // if token is returned, set it in local storage
       if (response.token) {
         setRedirectURL("/dashboard/owner");
-        setAuthUser(response.userData);
-        setIsLoggedIn(true);
         setIsLoading(false);
         // Navigate to dashboard
         setOpenError(false);
@@ -141,7 +131,6 @@ const OwnerLogin = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      setErrMsg("An error occurred. Please try again later");
       setIsLoading(false);
       setOpen(false);
       setOpenError(true);
@@ -149,29 +138,19 @@ const OwnerLogin = () => {
       setIsLoading(false);
     }
   };
-  
 
   useEffect(() => {
-    getOwnersEmails()
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          setOwnersEmails(res);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching owners emails:", error);
-      });
-    getOwnersUsernames()
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          setOwnerUsernames(res);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching owners usernames:", error);
-      });
+    if (process.env.REACT_APP_ENVIRONMENT === "development") {
+      getOwnersEmails()
+        .then((res) => {
+          if (res) {
+            setOwnersEmails(res);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching owners emails:", error);
+        });
+    }
   }, []);
 
   return (
@@ -231,109 +210,44 @@ const OwnerLogin = () => {
                   src="/assets/img/key-flow-logo-black-transparent.png"
                 />
                 <form className="user" onSubmit={onSubmit}>
-                  {process.env.REACT_APP_ENVIRONMENT === "development" ? (
-                    <div>
-                      {selectFormInputs.map((input, index) => (
-                        <div
-                          className={`col-md-${input.colSpan} mb-3`}
-                          key={index}
-                          data-testId={`${input.dataTestId}`}
+                  <div className="mb-3">
+                    {textformInputs.map((input, index) => (
+                      <div
+                        className={`col-md-${input.colSpan} mb-3`}
+                        key={index}
+                      >
+                        <label
+                          className="form-label text-black"
+                          htmlFor={input.name}
                         >
-                          <label
-                            className="form-label text-black"
-                            htmlFor={input.name}
-                          >
-                            {input.label}
-                          </label>
-                          {input.type === "select" ? (
-                            <select
-                              style={{
-                                ...defaultWhiteInputStyle,
-                                background: uiGrey,
-                              }}
-                              type={input.type}
-                              name={input.name}
-                              onChange={input.onChange}
-                              onBlur={input.onChange}
-                              value={formData[input.name]}
-                            >
-                              <option value="" disabled selected>
-                                Select an Email
-                              </option>
-                              {input.options.map((option, index) => (
-                                <option key={index} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                          ) : (
-                            <input
-                              style={{
-                                ...defaultWhiteInputStyle,
-                                background: uiGrey,
-                              }}
-                              type={input.type}
-                              name={input.name}
-                              onChange={input.onChange}
-                              onBlur={input.onChange}
-                              // {...register(input.name, { required: true })}
-                            />
-                          )}
-                          {errors[input.name] && (
-                            <span
-                              data-testId={input.errorMessageDataTestId}
-                              style={{ ...validationMessageStyle }}
-                            >
-                              {errors[input.name]}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="mb-3">
-                      {textformInputs.map((input, index) => (
-                        <div
-                          className={`col-md-${input.colSpan} mb-3`}
-                          key={index}
+                          {input.label}
+                        </label>
+                        <input
+                          style={{
+                            ...defaultWhiteInputStyle,
+                            background: uiGrey,
+                          }}
                           data-testId={`${input.dataTestId}`}
-                        >
-                          <label
-                            className="form-label text-black"
-                            htmlFor={input.name}
+                          type={input.type}
+                          name={input.name}
+                          onChange={input.onChange}
+                          onBlur={input.onChange}
+                          value={formData[input.name]}
+                        />
+                        {errors[input.name] && (
+                          <span
+                            data-testId={input.errorMessageDataTestId}
+                            style={{ ...validationMessageStyle }}
                           >
-                            {input.label}
-                          </label>
-                          <input
-                            style={{
-                              ...defaultWhiteInputStyle,
-                              background: uiGrey,
-                            }}
-                            type={input.type}
-                            name={input.name}
-                            onChange={input.onChange}
-                            onBlur={input.onChange}
-                            value={formData[input.name]}
-                          />
-                          {errors[input.name] && (
-                            <span
-                              data-testId={input.errorMessageDataTestId}
-                              style={{ ...validationMessageStyle }}
-                            >
-                              {errors[input.name]}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                            {errors[input.name]}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
 
                   {passwordInput.map((input, index) => (
-                    <div
-                      className={`col-md-${input.colSpan} mb-3`}
-                      key={index}
-                      data-testId={`${input.dataTestId}`}
-                    >
+                    <div className={`col-md-${input.colSpan} mb-3`} key={index}>
                       <label
                         className="form-label text-black"
                         htmlFor={input.name}
@@ -350,6 +264,7 @@ const OwnerLogin = () => {
                         onChange={input.onChange}
                         onBlur={input.onChange}
                         value={formData[input.name]}
+                        data-testId={`${input.dataTestId}`}
                         // {...register(input.name, { required: true })}
                       />
                       {errors[input.name] && (
@@ -455,7 +370,6 @@ const OwnerLogin = () => {
             </div>
           </Stack>
         </div>
-        {/* <div className="col-md-4 col-sm-12" style={{ padding: "0 15px" }}></div> */}
       </div>
     </div>
   );

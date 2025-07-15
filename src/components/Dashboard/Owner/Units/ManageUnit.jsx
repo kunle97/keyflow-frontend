@@ -11,28 +11,17 @@ import {
 } from "../../../../api/units";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { Link, useParams } from "react-router-dom";
-import BackButton from "../../UIComponents/BackButton";
 import {
-  Alert,
-  Box,
   Button,
-  CircularProgress,
-  ClickAwayListener,
   Divider,
-  Grow,
   IconButton,
   List,
   ListItem,
   ListItemText,
-  MenuItem,
-  MenuList,
   Modal,
-  Paper,
-  Popper,
   Stack,
   Typography,
 } from "@mui/material";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { authUser, token, uiGreen, uiRed } from "../../../../constants";
 import { uiGrey2 } from "../../../../constants";
 import { modalStyle } from "../../../../constants";
@@ -49,7 +38,6 @@ import {
   authenticatedInstance,
   authenticatedMediaInstance,
 } from "../../../../api/api";
-import EditIcon from "@mui/icons-material/Edit";
 import {
   deleteFile,
   retrieveFilesBySubfolder,
@@ -58,14 +46,15 @@ import {
 import UIPrompt from "../../UIComponents/UIPrompt";
 import useScreen from "../../../../hooks/useScreen";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import { getOwnerTenant } from "../../../../api/owners";
+import {
+  getOwnerSubscriptionPlanData,
+  getOwnerTenant,
+} from "../../../../api/owners";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
-import HomeIcon from "@mui/icons-material/Home";
 import HotelIcon from "@mui/icons-material/Hotel";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import TenantInviteForm from "../TenantInvites/TenantInviteForm";
-import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UIDropzone from "../../UIComponents/Modals/UploadDialog/UIDropzone";
 import {
   createBoldSignEmbeddedTemplateEditLink,
@@ -75,18 +64,15 @@ import {
   handleChangeLeaseTemplate,
   isValidFileExtension,
   isValidFileName,
+  preventPageReload,
 } from "../../../../helpers/utils";
 import UIRadioGroup from "../../UIComponents/UIRadioGroup";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import TaskIcon from "@mui/icons-material/Task";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
 import DescriptionIcon from "@mui/icons-material/Description";
 import UnitLeaseTerms from "./UnitLeaseTerms/UnitLeaseTerms";
 import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
-import RentPriceSuggestionModal from "../../UIComponents/Prototypes/Modals/RentPriceSuggestionModal";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ListUnitModal from "../../UIComponents/Prototypes/Modals/ListUnitModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UnitDocumentManager from "./UnitDocumentManager";
 import {
@@ -98,17 +84,12 @@ import {
   syncRentalUnitLeaseTerms,
   syncRentalUnitPreferences,
 } from "../../../../helpers/preferences";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { validAnyString, validWholeNumber } from "../../../../constants/rexgex";
 import AdditionalCharge from "../LeaseTemplate/CreateLeaseTemplate/Steps/AdditionalCharge";
+import { rejectRentalApplication } from "../../../../api/rental_applications";
 const ManageUnit = () => {
   const iconStyles = {
     color: uiGreen,
@@ -118,6 +99,9 @@ const ManageUnit = () => {
   const { isMobile } = useScreen();
   const [unit, setUnit] = useState({});
   const [unitPreferences, setUnitPreferences] = useState([]);
+  const [ownerSubscriptionPlanData, setOwnerSubscriptionPlanData] = useState(
+    {}
+  );
   const [tenant, setTenant] = useState({});
   const [editLink, setEditLink] = useState(null);
   const [signedLeaseViewLink, setSignedLeaseViewLink] = useState(null);
@@ -172,7 +156,6 @@ const ManageUnit = () => {
     useState(false);
   const [viewRentalApplicationModalOpen, setViewRentalApplicationModalOpen] =
     useState(false);
-  const [showListUnitModal, setShowListUnitModal] = useState(false);
   const [showResetLeaseTermsConfirmModal, setShowResetLeaseTermsConfirmModal] =
     useState(false);
   const [errors, setErrors] = useState({});
@@ -189,8 +172,6 @@ const ManageUnit = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-    console.log("Current Joyride data", data);
   };
 
   const handleClickStart = (event) => {
@@ -290,8 +271,7 @@ const ManageUnit = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -302,8 +282,6 @@ const ManageUnit = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
   };
 
   const formInputs = [
@@ -319,7 +297,7 @@ const ManageUnit = () => {
         regex: validAnyString,
         errorMessage: "Please enter a valid name for the unit",
       },
-      dataTestId: "unit-name",
+      dataTestId: "update-unit-name",
       errorMessageDataTestId: "unit-name-error",
     },
     {
@@ -333,8 +311,8 @@ const ManageUnit = () => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of beds",
       },
-      dataTestId: "unit-beds",
-      errorMessageDataTestId: "unit-beds-error",
+      dataTestId: "update-unit-bed",
+      errorMessageDataTestId: "update-unit-beds-error",
     },
     {
       name: "baths",
@@ -347,8 +325,8 @@ const ManageUnit = () => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of baths",
       },
-      dataTestId: "unit-baths",
-      errorMessageDataTestId: "unit-baths-error",
+      dataTestId: "update-unit-baths",
+      errorMessageDataTestId: "update-unit-baths-error",
     },
     {
       name: "size",
@@ -361,8 +339,8 @@ const ManageUnit = () => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid size",
       },
-      dataTestId: "unit-size",
-      errorMessageDataTestId: "unit-size-error",
+      dataTestId: "update-unit-size",
+      errorMessageDataTestId: "update-unit-size-error",
     },
   ];
 
@@ -433,8 +411,50 @@ const ManageUnit = () => {
 
   const rental_application_table_options = {
     isSelectable: false,
-    onRowClick: (row) => {
-      console.log(row);
+    onRowClick: (row) => {},
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      rejectRentalApplication(row.id)
+        .then((res) => {
+          if (res.status === 200) {
+            setAlertOpen(false);
+            setAlertTitle("Success");
+            setAlertMessage(
+              res.message
+                ? res.message
+                : "Rental application rejected successfully."
+            );
+            setAlertOpen(true);
+            setIsLoading(false);
+          } else {
+            setAlertTitle("An error occured");
+            setAlertMessage(
+              res.message
+                ? res.message
+                : "An error occurred while rejecting the rental application. Please try again."
+            );
+            setAlertOpen(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error rejecting rental application:", error);
+          setAlertTitle("An error occurred");
+          setAlertMessage(
+            error.message
+              ? error.message
+              : "An error occurred while rejecting the rental application. Please try again."
+          );
+          setAlertOpen(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      label: "Reject",
+      confirmTitle: "Reject Rental Application",
+      confirmMessage:
+        "Are you sure you want to reject this rental application?",
     },
   };
 
@@ -472,7 +492,6 @@ const ManageUnit = () => {
   //Create a function to handle the form submission to update unit information
   const onSubmitUnitBasicInfoUpdate = async () => {
     await updateUnit(unit_id, formData).then((res) => {
-      console.log(res);
       if (res.status == 200) {
         setAlertMessage("Unit updated successfully");
         setAlertTitle("Success");
@@ -546,12 +565,11 @@ const ManageUnit = () => {
   const retrieveEditLink = async (template_id) => {
     setIsLoading(true);
     setProgressModalTitle("Retrieving Lease Document...");
-    console.log("Tempalte ID:", unit.template_id);
+
     createBoldSignEmbeddedTemplateEditLink({
       template_id: template_id,
     })
       .then((res) => {
-        console.log(res);
         setEditLink(res.url);
       })
       .finally(() => {
@@ -583,7 +601,6 @@ const ManageUnit = () => {
       }
     });
     if (validFiles) {
-      console.log("dropzone file", acceptedFiles[0]);
       let accepted_file = acceptedFiles[0];
       const payload = {
         file: acceptedFiles[0],
@@ -597,20 +614,16 @@ const ManageUnit = () => {
       //Call the createBoldSignEmbeddedTemplateLink API
       await createBoldSignEmbeddedTemplateLink(payload)
         .then((res) => {
-          console.log("Create BoldSign SIgend EMbed Link: ", res);
           if (res.status === 201) {
             setCreateLink(res.url);
             setRenderIframe(true);
             setTemplateId(res.template_id);
             updateUnit(unit_id, { template_id: res.template_id }).then(
-              (res) => {
-                console.log(res);
-              }
+              (res) => {}
             );
           }
         })
         .catch((err) => {
-          console.log(err);
           setAlertTitle("Error");
           setAlertMessage("Something went wrong");
           setAlertOpen(true);
@@ -653,10 +666,8 @@ const ManageUnit = () => {
         "/signed_lease_documents/",
     };
     uploadFile(payload).then((res) => {
-      console.log(res);
       setIsLoading(false);
       if (res.status === 201) {
-        console.log(res);
         let file_id = res.data.id;
         let file = res.data;
         authenticatedMediaInstance
@@ -668,7 +679,6 @@ const ManageUnit = () => {
           })
           .then((res) => {
             if (res.status === 200) {
-              console.log("unit updated");
             } else {
               setAlertOpen(true);
               setAlertTitle("Error");
@@ -746,7 +756,7 @@ const ManageUnit = () => {
   const handleDeleteSignedLeaseDocument = () => {
     let file_id = unit.signed_lease_document_file.id;
     let file_key = unit.signed_lease_document_file.file_key;
-    console.log("Fole data", file_id, file_key);
+
     authenticatedMediaInstance
       .patch(`/units/${unit_id}/`, {
         signed_lease_document_file: null,
@@ -754,7 +764,6 @@ const ManageUnit = () => {
       })
       .then((res) => {
         if (res.status === 200) {
-          console.log("unit updated");
           deleteFile({ id: file_id, file_key })
             .then((res) => {
               if (res.status === 200) {
@@ -800,7 +809,6 @@ const ManageUnit = () => {
     setAdditionalCharges(newCharges);
   };
   const saveAdditionalCharges = async () => {
-    console.log("Saving additional charges");
     //Check if additional charges all have the same frequency
     const frequencies = additionalCharges.map((charge) => charge.frequency);
     const allFrequenciesEqual = frequencies.every(
@@ -808,7 +816,7 @@ const ManageUnit = () => {
     );
     if (!allFrequenciesEqual) {
       // Handle case where frequencies are not all the same
-      console.log("Additional charges have different frequencies");
+
       // Perform actions or show an error message to the user
       // You can return early, show an error message, or prevent form submission
       setIsLoading(false);
@@ -841,7 +849,6 @@ const ManageUnit = () => {
       additional_charges: additionalChargesString,
     })
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           setAlertOpen(true);
           setAlertTitle("Success");
@@ -852,9 +859,7 @@ const ManageUnit = () => {
           setAlertMessage("Something went wrong");
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   //Create a function to handle the deletion of a unit
@@ -872,15 +877,30 @@ const ManageUnit = () => {
       let payload = {
         unit_id: unit_id,
         rental_property: property_id,
-        product_id: currentSubscriptionPlan.plan.product,
-        subscription_id: currentSubscriptionPlan.id,
+        product_id: currentSubscriptionPlan?.plan?.product
+          ? currentSubscriptionPlan?.plan?.product
+          : null,
+        subscription_id: currentSubscriptionPlan?.id
+          ? currentSubscriptionPlan?.id
+          : null,
       };
       //Delete the unit with the api
-      deleteUnit(payload).then((res) => {
-        console.log(res);
-      });
-      //Redirect to the property page
-      window.location.href = `/dashboard/owner/properties/${property_id}`;
+      deleteUnit(payload)
+        .then((res) => {
+          //Redirect to the property page
+          if (res.status === 204) {
+            //Redirect to the property page
+            setAlertMessage("Unit has been deleted");
+            setAlertTitle("Success");
+            setAlertOpen(true);
+          } else {
+            //Display error message
+            setAlertMessage(res.message ? res.message : "An error occurred");
+            setAlertTitle("Error");
+            setAlertOpen(true);
+          }
+        })
+        .catch((err) => {});
     }
   };
 
@@ -915,7 +935,6 @@ const ManageUnit = () => {
     );
     //Update the value of the preference
     if (preference.inputType === "switch") {
-      console.log(event);
       // For switches, directly access event.target.checked
       preference.value = event.target.checked;
     } else {
@@ -971,31 +990,33 @@ const ManageUnit = () => {
   };
 
   useEffect(() => {
+    getOwnerSubscriptionPlanData().then((res) => {
+      setOwnerSubscriptionPlanData(res);
+    });
+     
     setIsLoadingPage(true);
     syncRentalUnitPreferences(unit_id);
     syncRentalUnitLeaseTerms(unit_id);
     try {
       //Retrieve Unit Information
       getUnit(unit_id).then((res) => {
-        if(res.status === 404){
+        if (res.status === 404) {
           //Navigate to properties page
           navigate("/dashboard/owner/units");
         }
-        console.log("REtrieve UNit REs", res);
+
         setUnit(res);
-        console.log("UNIT PREFENCESSSZZZ", JSON.parse(res.preferences));
+
         setUnitPreferences(JSON.parse(res.preferences));
         setUnitLeaseTerms(JSON.parse(res.lease_terms));
-        console.log("Additional Charges", JSON.parse(res.additional_charges));
+
         setAdditionalCharges(JSON.parse(res.additional_charges));
         if (res.signed_lease_document_file) {
           setSignedLeaseViewLink(res.signed_lease_document_file.file);
         }
 
-        console.log("lease_terms", JSON.parse(res.lease_terms));
         if (res.is_occupied) {
           getOwnerTenant(res.tenant).then((tenant_res) => {
-            console.log("Tenant", tenant_res.data);
             setTenant(tenant_res.data);
           });
         }
@@ -1009,7 +1030,6 @@ const ManageUnit = () => {
 
         if (res.lease_template) {
           getLeaseTemplateById(res.lease_template).then((res) => {
-            console.log("Lease Template", res);
             setCurrentLeaseTemplate(res);
           });
         }
@@ -1027,17 +1047,13 @@ const ManageUnit = () => {
           setunitMedia(res.data);
           setunitMediaCount(res.data.length);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
       authenticatedInstance
         .get(`/units/${unit_id}/rental-applications/`)
         .then((res) => {
-          console.log("Untius Rental APps", res);
           setRentalApplications(res.data);
         });
     } catch (err) {
-      console.log(err);
       setAlertOpen(true);
       setAlertTitle("Error");
       setAlertMessage("There was an error loading the unit information");
@@ -1119,14 +1135,14 @@ const ManageUnit = () => {
                             <div className={`col-md-${input.colSpan}`}>
                               <div>
                                 <label
-                                  data-testid={input.dataTestId}
+                                  data-testid={input.dataTestId + "-label"}
                                   className="form-label text-black"
                                   htmlFor={input.name}
                                 >
                                   <strong>{input.label}</strong>
                                 </label>
                                 <input
-                                  data-testid={input.dataTestId}
+                                  data-testid={input.dataTestId + "-input"}
                                   className="form-control text-black"
                                   type={input.type}
                                   id={input.name}
@@ -1177,7 +1193,6 @@ const ManageUnit = () => {
                           dataTestId="edit-unit-submit-button"
                           className="btn btn-primary ui-btn"
                           onClick={() => {
-                            console.log(formData);
                             const { isValid, newErrors } = validateForm(
                               formData,
                               formInputs
@@ -1267,13 +1282,11 @@ const ManageUnit = () => {
               setShowDeleteTemplateConfirmModal(false);
             }}
             handleConfirm={() => {
-              console.log("Template ID update");
               //update the unit to set the tempalate_id field to null
               updateUnit(unit_id, {
                 template_id: null,
               }).then((res) => {
                 if (res.status === 200) {
-                  console.log("unit updated");
                   setShowDeleteTemplateConfirmModal(false);
                   setAlertOpen(true);
                   setAlertTitle("Success");
@@ -1335,10 +1348,9 @@ const ManageUnit = () => {
               setShowLeaseTemplateChangeWarning(false);
             }}
             handleConfirm={() => {
-              console.log("signed_lease_document_file", unit);
               handleChangeLeaseTemplate(
                 leaseTemplates,
-                currentLeaseTemplate.id,
+                currentLeaseTemplate?.id,
                 unitLeaseTerms,
                 unit_id
               );
@@ -1564,7 +1576,9 @@ const ManageUnit = () => {
                 action: () => {
                   setViewRentalApplicationModalOpen(true);
                 },
-                hidden: isOccupied,
+                hidden:
+                  isOccupied ||
+                  !ownerSubscriptionPlanData.can_use_rental_applications,
               },
               {
                 label: "Delete Unit",
@@ -1742,6 +1756,7 @@ const ManageUnit = () => {
                     )}
                     {unit.template_id && (
                       <select
+                        data-testid="unit-lease-template-select" 
                         className="form-select"
                         style={{
                           width: "250px",
@@ -1754,7 +1769,6 @@ const ManageUnit = () => {
                             unit.signed_lease_document_file ||
                             unit.template_id
                           ) {
-                            console.log("Leasde AGreement Docuemtn set");
                             setCurrentLeaseTemplate(
                               leaseTemplates.find(
                                 (term) => term.id === lease_template_id
@@ -1762,7 +1776,6 @@ const ManageUnit = () => {
                             );
                             setShowLeaseTemplateChangeWarning(true);
                           } else {
-                            console.log("Leasde Agreement Docuemtn not set");
                             const res = handleChangeLeaseTemplate(
                               leaseTemplates,
                               lease_template_id,
@@ -1823,6 +1836,7 @@ const ManageUnit = () => {
                     <div className="card-body">
                       {additionalCharges.map((charge, index) => (
                         <AdditionalCharge
+                          dataTestId={`additional-charge-${index}`}
                           index={index}
                           setErrors={setErrors}
                           hideStepControl={true}
@@ -1843,6 +1857,7 @@ const ManageUnit = () => {
                 ) : (
                   <>
                     <UIPrompt
+                      dataTestId="no-additional-charges-prompt"
                       icon={<AttachMoneyIcon style={iconStyles} />}
                       title="No Additional Charges"
                       message="You have not added any additional charges to this unit. Click the button below to add additional charges."
@@ -1918,8 +1933,8 @@ const ManageUnit = () => {
                                 bgcolor: "white",
                               }}
                             >
-                              {leaseTemplates.map((leaseTemplate, index) => {
-                                if (leaseTemplates.length == 0) {
+                              {leaseTemplates?.map((leaseTemplate, index) => {
+                                if (leaseTemplates?.length == 0) {
                                   return (
                                     <>
                                       <ListItem alignItems="flex-start">
@@ -1934,6 +1949,7 @@ const ManageUnit = () => {
                                     <>
                                       <ListItem alignItems="flex-start">
                                         <ListItemText
+                                        data-testid={`lease-template-list-item-${index}`}
                                           primary={`${leaseTemplate.term} Month Lease @ $${leaseTemplate.rent}/mo`}
                                           secondary={
                                             <div>
@@ -2109,6 +2125,7 @@ const ManageUnit = () => {
                           </div>
                           {!isOccupied && (
                             <UIButton
+                            dataTestId="change-lease-template-button"
                               sx={{
                                 textTransform: "none",
                                 background: uiGreen,
@@ -2116,7 +2133,7 @@ const ManageUnit = () => {
                                 marginTop: "1rem",
                               }}
                               onClick={() => setShowLeaseTemplateSelector(true)}
-                              btnText="Assign Lease Template"
+                              btnText="Change Lease Template"
                             />
                           )}
                         </>
@@ -2142,7 +2159,7 @@ const ManageUnit = () => {
                                     onClick={() =>
                                       setShowLeaseTemplateSelector(true)
                                     }
-                                    btnText="Assign Lease Template"
+                                    btnText="Set Lease Template"
                                   />
                                 )}
                               </>
@@ -2200,11 +2217,16 @@ const ManageUnit = () => {
                         columns={rental_application_table_columns}
                         options={rental_application_table_options}
                         data={rentalApplications}
+                        onRowClick={(row) => {
+                          const navlink = `/dashboard/owner/rental-applications/${row.id}`;
+                          navigate(navlink);
+                        }
+                        }
                         menuOptions={[
                           {
                             name: "View",
-                            onClick: (rowData) => {
-                              const navlink = `/dashboard/owner/rental-applications/${rowData.id}`;
+                            onClick: (row) => {
+                              const navlink = `/dashboard/owner/rental-applications/${row.id}`;
                               navigate(navlink);
                             },
                           },

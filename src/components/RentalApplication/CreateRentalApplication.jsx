@@ -1,20 +1,19 @@
 import { Button, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fakeData, uiGreen } from "../../constants";
+import { fakeData, isInDevMode, uiGreen } from "../../constants";
 import EmploymentHistorySection from "./ApplicationSections/EmploymentHistorySection";
 import RentalHistorySection from "./ApplicationSections/RentalHistorySection";
 import { faker } from "@faker-js/faker";
 import { useEffect } from "react";
 import ImageGallery from "react-image-gallery";
 import { createRentalApplication } from "../../api/rental_applications";
-import { getLeaseTemplateByUnitId } from "../../api/units";
 import { getUnitUnauthenticated } from "../../api/units";
 import { getPropertyUnauthenticated } from "../../api/properties";
 import { useParams } from "react-router-dom";
 import ProgressModal from "../Dashboard/UIComponents/Modals/ProgressModal";
 import AlertModal from "../Dashboard/UIComponents/Modals/AlertModal";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import BasicInfoSection from "./ApplicationSections/BasicInfoSection";
 import AdditionalInformationSection from "./ApplicationSections/AdditionalInformationSection";
 import UIButton from "../Dashboard/UIComponents/UIButton";
@@ -23,17 +22,14 @@ import { retrieveUnauthenticatedFilesBySubfolder } from "../../api/file_uploads"
 import "react-image-gallery/styles/css/image-gallery.css";
 import LandingPageNavbar from "../Landing/LandingPageNavbar";
 import useScreen from "../../hooks/useScreen";
-import { triggerValidation } from "../../helpers/formValidation";
 const CreateRentalApplication = () => {
   const { unit_id, owner_id } = useParams();
   const { isMobile } = useScreen();
+  const [rentalApplicationId, setRentalApplicationId] = useState(null);
   const [step, setStep] = useState(0); // step state
-  const [step0IsValid, setStep0IsValid] = useState(false); // step 1 validation state
-  const [step1IsValid, setStep1IsValid] = useState(false); // step 2 validation state
   const [step2IsValid, setStep2IsValid] = useState(false); // step 3 validation state
   const [step3IsValid, setStep3IsValid] = useState(false); // step 4 validation state
   const [unit, setUnit] = useState({}); // unit data
-  const [unitPreferences, setUnitPreferences] = useState([]); // unit preferences data
   const [unitLeaseTerms, setUnitLeaseTerms] = useState([]); // unit preferences data
   const [property, setProperty] = useState({}); // property data
   const [submissionMessage, setSubmissionMessage] = useState(""); // submission message
@@ -45,7 +41,6 @@ const CreateRentalApplication = () => {
   const [alertTitle, setAlertTitle] = useState(""); // alert title state
   const [alertMessage, setAlertMessage] = useState("");
   const [alertModalRedirect, setAlertModalRedirect] = useState(""); // alert modal redirect state
-  const [leaseTemplate, setLeaseTemplate] = useState({}); // lease terms
   const navigate = useNavigate();
   const [unitImages, setUnitImages] = useState([]); // unit images state
   const [errorMode, setErrorMode] = useState(false); // error mode state
@@ -176,7 +171,13 @@ const CreateRentalApplication = () => {
           : "",
       companyAddress:
         process.env.REACT_APP_ENVIRONMENT == "development"
-          ? faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode()
+          ? faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode()
           : "",
       income:
         process.env.REACT_APP_ENVIRONMENT == "development"
@@ -210,7 +211,13 @@ const CreateRentalApplication = () => {
       address:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
+          : faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode(),
       residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -245,7 +252,7 @@ const CreateRentalApplication = () => {
     let realName = name.split("_")[0];
     const updatedHistory = [...employmentHistory];
     updatedHistory[index][realName] = value;
-    console.log("updated historm ", updatedHistory);
+
     setEmploymentHistory(updatedHistory);
   };
 
@@ -262,7 +269,13 @@ const CreateRentalApplication = () => {
       companyAddress:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
+          : faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode(),
       income:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -317,7 +330,13 @@ const CreateRentalApplication = () => {
       address:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
-          : faker.address.streetAddress() + ", " + faker.address.city() + ", " + faker.address.state() + ", " + faker.address.zipCode(),
+          : faker.address.streetAddress() +
+            ", " +
+            faker.address.city() +
+            ", " +
+            faker.address.state() +
+            ", " +
+            faker.address.zipCode(),
       residenceStartDate:
         process.env.REACT_APP_ENVIRONMENT !== "development"
           ? ""
@@ -362,17 +381,21 @@ const CreateRentalApplication = () => {
     payload.unit_id = unit_id;
     payload.owner_id = owner_id;
     payload.comments = data.comments ? data.comments : "";
-
-    console.log(payload);
-
     const res = await createRentalApplication(payload);
     setIsLoading(true);
-    console.log(res);
-    if (res.status == 200) {
+
+    console.log("Application Submitted Response", res);
+    setRentalApplicationId(res?.data?.id);
+
+    if (res.status == 201) {
       // show a success message
       setIsLoading(false);
       setSubmissionMessage(
-        "Application Submitted Successfully. You will be contacted directly upon submission approval."
+        isInDevMode
+          ? process.env.REACT_APP_HOSTNAME +
+              "/dashboard/owner/rental-applications/" +
+              res.data.id
+          : "Application Submitted Successfully. You will be contacted directly upon submission approval."
       );
       setShowSubmissionMessage(true);
       setSubmissionMessageLink("/");
@@ -387,10 +410,6 @@ const CreateRentalApplication = () => {
       setAlertButtonText("Try Again");
       setAlertTitle("Error Submitting Application");
     }
-  };
-
-  const handleOtherOccupants = (value) => {
-    setOtherOccupants(value);
   };
 
   const steps = [
@@ -426,13 +445,8 @@ const CreateRentalApplication = () => {
   };
 
   useEffect(() => {
-    /**
-     *
-     * TODO: Create a functioning checkbox for the employment history and residence history sections for current employment and current residence
-     *
-     * */
-
     // get unit data
+
     getUnitUnauthenticated(unit_id)
       .then((unit_res) => {
         setIsLoading(true);
@@ -440,7 +454,6 @@ const CreateRentalApplication = () => {
           setUnit(unit_res.data);
 
           setUnitLeaseTerms(JSON.parse(unit_res.data.lease_terms));
-          //Subfolder for : `properties/${unit_res.data.rental_property}/units/${unit_id}`
           retrieveUnauthenticatedFilesBySubfolder(
             `properties/${unit_res.data.rental_property}/units/${unit_id}`
           )
@@ -779,12 +792,14 @@ const CreateRentalApplication = () => {
                                 spacing={2}
                               >
                                 <UIButton
+                                  dataTestId="back-button"
                                   style={{ width: "100%" }}
                                   btnText="Back"
                                   onClick={() => setStep(3)}
                                   type="button"
                                 />
                                 <Button
+                                  data-testid="submit-button"
                                   variant="contained"
                                   sx={{
                                     color: "white",

@@ -12,42 +12,7 @@ export async function getMessages() {
     });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
-  }
-}
-//Create a function to get all messages for this user
-export async function getMessagesWithLimit(limit) {
-  try {
-    const res = await authenticatedInstance
-      .get(`/messages/?limit=${limit}`)
-      .then((res) => {
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
-    return res;
-  } catch (error) {
-    console.log("Get Messages Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
-  }
-}
 
-//Create a function to get a message by a specific recipient id
-export async function getMessageByRecipient() {
-  try {
-    const res = await authenticatedInstance
-      .get(`/messages/?recipient=${authUser.id}`)
-      .then((res) => {
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
-    return res;
-  } catch (error) {
-    console.log("Get Message By Recipient Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -59,12 +24,12 @@ export async function sendMessage(data) {
       .post(`/messages/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios send message response ", response);
+
         return response;
       });
     return { message: "Message sent successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Send Message Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -78,12 +43,12 @@ export async function editMessage(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios edit message response ", response);
+
         return response;
       });
     return { message: "Message edited successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Edit Message Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -97,31 +62,12 @@ export async function deleteMessage(data) {
       })
       .then((res) => {
         const response = res.data;
-        console.log("axios delete message response ", response);
+
         return response;
       });
     return { message: "Message deleted successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Delete Message Error: ", error);
-    return error.response ? error.response.data : { error: "Network Error" };
-  }
-}
 
-//Create a function to retrieve the users message threads /retrieve-user-threads/ using a get request
-export async function retrieveUserThreads() {
-  try {
-    const res = await authenticatedInstance
-      .get(`/retrieve-user-threads/`)
-      .then((res) => {
-        console.log(res);
-        if (res.status == 200 && res.data.length == 0) {
-          return { data: [] };
-        }
-        return { data: res.data };
-      });
-    return res;
-  } catch (error) {
-    console.log("Get Messages Error: ", error);
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -132,7 +78,7 @@ export async function retrieveUnreadMessagesCount() {
     const res = await authenticatedInstance
       .get(`/messages/retrieve-unread-messages-count/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -140,7 +86,7 @@ export async function retrieveUnreadMessagesCount() {
       });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -151,13 +97,46 @@ export async function setMessageThreadAsRead(data) {
     const res = await authenticatedInstance
       .patch(`/messages/set-messages-thread-as-read/`, data)
       .then((res) => {
-        console.log(res);
+
         return { data: res.data };
       });
     return res;
   } catch (error) {
-    console.log("Get Messages Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
 
+//Create a function to list all threads for the user
+export async function listThreads() {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/list-threads/`)
+      .then((res) => {
+        if (res.status === 200 && res.data.length === 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}
+
+//Create a function to list all messages in a thread
+export async function listThreadMessages(threadId) {
+  try {
+    const res = await authenticatedInstance
+      .get(`/messages/list-thread-messages/?thread_id=${threadId}`)
+      .then((res) => {
+        if (res.status === 200 && res.data.length === 0) {
+          return { data: [] };
+        }
+        return { data: res.data };
+      });
+    return res;
+  } catch (error) {
+    return error.response ? error.response.data : { error: "Network Error" };
+  }
+}

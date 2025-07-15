@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getOwnerTenants } from "../../../../api/owners";
 import { useNavigate } from "react-router-dom";
-import TitleCard from "../../UIComponents/TitleCard";
-import { authUser, uiGreen, uiGrey2 } from "../../../../constants";
+import { uiGreen, uiGrey2 } from "../../../../constants";
 import UITable from "../../UIComponents/UITable/UITable";
-import { defaultUserProfilePicture } from "../../../../constants";
 import UIInfoCard from "../../UIComponents/UICards/UIInfoCard";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { getAllLeaseRenewalRequests } from "../../../../api/lease_renewal_requests";
@@ -12,6 +10,8 @@ import { getAllLeaseCancellationRequests } from "../../../../api/lease_cancellat
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
+import Joyride, { STATUS } from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
 const Tenants = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -68,8 +68,8 @@ const Tenants = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/tenants/${rowData}/`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/tenants/${row.id}/`;
     navigate(navlink);
   };
   const options = {
@@ -81,22 +81,42 @@ const Tenants = () => {
       direction: "desc",
     },
   };
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".tenants-list-section",
+      content: "This is the list of all your tenants.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view more options for this tenant",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+  };
+
   useEffect(() => {
     try {
       getOwnerTenants().then((res) => {
-        console.log(res);
         setTenants(res.data);
-        console.log(tenants);
       });
       getAllLeaseRenewalRequests().then((res) => {
-        console.log(res);
         setLeaseRenewals(res.data);
-        console.log(leaseRenewals);
       });
       getAllLeaseCancellationRequests().then((res) => {
-        console.log(res);
         setLeaseCancellations(res.data);
-        console.log(leaseCancellations);
       });
     } catch (err) {
       console.error(err);
@@ -109,6 +129,27 @@ const Tenants = () => {
   }, []);
   return (
     <div className="container">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <AlertModal
         open={showAlert}
         onClick={() => setShowAlert(false)}
@@ -182,25 +223,31 @@ const Tenants = () => {
               searchFields={["first_name", "last_name", "email"]}
             />
           ) : (
-            <UITable
-              title="Tenants"
-              endpoint={`/tenants/`}
-              searchFields={["first_name", "last_name", "email"]}
-              columns={columns}
-              options={options}
-              menuOptions={[
-                {
-                  name: "Manage",
-                  onClick: (row) => {
-                    const navlink = `/dashboard/owner/tenants/${row.id}`;
-                    navigate(navlink);
+            <div className="tenants-list-section">
+              <UITable
+                dataTestId="tenants-table"
+                testRowIdentifier="tenant-row"
+                title="Tenants"
+                endpoint={`/tenants/`}
+                searchFields={["first_name", "last_name", "email"]}
+                columns={columns}
+                options={options}
+                onRowClick={handleRowClick}
+                menuOptions={[
+                  {
+                    name: "Manage",
+                    onClick: (row) => {
+                      const navlink = `/dashboard/owner/tenants/${row.id}`;
+                      navigate(navlink);
+                    },
                   },
-                },
-              ]}
-            />
+                ]}
+              />
+            </div>
           )}
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

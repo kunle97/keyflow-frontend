@@ -4,7 +4,6 @@ import {
   Checkbox,
   CircularProgress,
   ClickAwayListener,
-  FormControlLabel,
   Grow,
   IconButton,
   MenuItem,
@@ -17,7 +16,12 @@ import {
 import { ArrowBackOutlined, MoreVert } from "@mui/icons-material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, { useEffect } from "react";
-import { globalMaxFileSize, uiGreen, uiGrey2 } from "../../../../constants";
+import {
+  globalMaxFileSize,
+  uiGreen,
+  uiGrey2,
+  uiRed,
+} from "../../../../constants";
 import { useState } from "react";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import AddIcon from "@mui/icons-material/Add";
@@ -40,9 +44,10 @@ import {
 } from "../../../../helpers/utils";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import ProgressModal from "../Modals/ProgressModal";
+import ConfirmModal from "../Modals/ConfirmModal";
 const UITable = (props) => {
   const navigate = useNavigate();
-  const [maxTableCellWidth, setMaxTableCellWidth] = useState("200px");
+  const maxTableCellWidth = "200px";
   const [results, setResults] = useState([]);
   const [files, setFiles] = useState([]); //Create a files state to hold the files to be uploaded
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false); //THis will be used to tell if the DRFfilterbackend is being used
@@ -63,13 +68,21 @@ const UITable = (props) => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const [isUploading, setIsUploading] = useState(false); //Create a state to hold the value of the upload progress
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState("Delete Item");
+  const [confirmDeleteMessage, setConfirmDeleteMessage] = useState(
+    "Are you sure you want to delete this item?"
+  );
+  const [confirmDeleteAction, setConfirmDeleteAction] = useState(null);
 
   //DRF Filter Backend Variables
   const [limit, setLimit] = useState(10);
   const [query, setQuery] = useState(null);
   const [nextPageEndPoint, setNextPageEndPoint] = useState("/");
   const [previousPageEndPoint, setPreviousPageEndPoint] = useState("/");
-  const [orderby, setOrderBy] = useState("-created_at");
+  const [orderby, setOrderBy] = useState(
+    props.defaultOrderingField ? props.defaultOrderingField : "-created_at"
+  );
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const initialSelectedOptions = props.filters
@@ -111,8 +124,7 @@ const UITable = (props) => {
             ...props.additionalParams,
           },
         });
-        console.log("response", response.data);
-        console.log("additional params", props.additionalParams);
+
         return response.data;
       };
 
@@ -302,16 +314,13 @@ const UITable = (props) => {
       };
       newChecked.push(element);
     }
-    // newChecked[index].selected = selected;
     //Set the checked array to the newChecked array
     props.setChecked(newChecked);
-    console.log(props.checked);
+
     //Add support for a function that will be called when a row is selected
     if (props.options.onRowSelect) {
-      console.log("Row selected");
       props.options.onRowSelect();
     }
-    console.log("Checked rows", props.checked);
   };
 
   //Handles the select all checkbox in table header
@@ -371,7 +380,7 @@ const UITable = (props) => {
         preview: URL.createObjectURL(file),
       })
     );
-    console.log("updatedFiles", updatedFiles);
+
     setFiles(updatedFiles);
     setResponseMessage(null);
     setResponseTitle(null);
@@ -387,7 +396,6 @@ const UITable = (props) => {
     authenticatedMediaInstance
       .post(props.fileUploadEndpoint, formData)
       .then((res) => {
-        console.log("res", res);
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -395,7 +403,6 @@ const UITable = (props) => {
         setFiles([]); //Clear the files array
       })
       .catch((err) => {
-        console.log("err", err);
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(err.response.data.message);
@@ -415,6 +422,18 @@ const UITable = (props) => {
 
   useEffect(() => {
     refresh(currentPageEndPoint);
+    if (props.options.deleteOptions) {
+      setConfirmDeleteTitle(
+        props.options.deleteOptions?.confirmTitle
+          ? props.options.deleteOptions?.confirmTitle
+          : "Delete Item"
+      );
+      setConfirmDeleteMessage(
+        props.options.deleteOptions.confirmMessage
+          ? props.options.deleteOptions.confirmMessage
+          : "Are you sure you want to delete this item?"
+      );
+    }
   }, [props.data, searchTerm]);
 
   return (
@@ -469,6 +488,20 @@ const UITable = (props) => {
           setShowAlert(false);
         }}
       />
+      <ConfirmModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title={confirmDeleteTitle}
+        message={confirmDeleteMessage}
+        handleCancel={() => setShowDeleteConfirm(false)}
+        handleConfirm={() => {
+          confirmDeleteAction();
+          setShowDeleteConfirm(false);
+        }}
+        cancelBtnText="Cancel"
+        confirmBtnText="Delete"
+        confirmBtnStyle={{ background: uiRed }}
+      />
       <Stack
         direction="row"
         justifyContent="flex-end"
@@ -503,8 +536,11 @@ const UITable = (props) => {
             alignItems="center"
             spacing={2}
           >
-            <h3>
-              {props.title} ({isDrfFilterBackend ? count : results.length})
+            <h3 data-testid={props.dataTestId + "-title"}>
+              {props.title}{" "}
+              <span data-testId={props.dataTestId + "-result-count"}>
+                ({isDrfFilterBackend ? count : results.length})
+              </span>
             </h3>
           </Stack>
 
@@ -531,7 +567,10 @@ const UITable = (props) => {
               </>
             )}{" "}
             {props.showCreate && (
-              <span className="ui-table-create-button">
+              <span
+                className="ui-table-create-button"
+                data-testid="ui-table-mobile-create-button"
+              >
                 <ButtonBase
                   style={{ color: uiGreen }}
                   onClick={() => {
@@ -546,6 +585,7 @@ const UITable = (props) => {
               </span>
             )}
             <input
+              data-testid={props.dataTestId + "-search-input"}
               className="ui-table-search-input"
               style={{
                 background: "#efefef",
@@ -563,6 +603,7 @@ const UITable = (props) => {
               Show
             </span>
             <select
+              data-testid={props.dataTestId + "-result-limit-select"}
               className="form-select ui-table-result-limit-select"
               value={limit}
               onChange={(e) => {
@@ -604,6 +645,7 @@ const UITable = (props) => {
             {results.length === 0 ? (
               <>
                 <UIPrompt
+                  dataTestId={props.dataTestId + "-no-results-ui-prompt"}
                   icon={
                     <SearchOffIcon
                       style={{ fontSize: "5rem", color: uiGreen }}
@@ -616,7 +658,8 @@ const UITable = (props) => {
             ) : (
               <table
                 // id="ui-table"
-                className="styled-table "
+                data-testid={props.dataTestId}
+                className="styled-table"
                 style={{ width: "100%", padding: "0 35px" }}
               >
                 <thead>
@@ -657,6 +700,11 @@ const UITable = (props) => {
                     {props.columns.map((column) => {
                       return (
                         <th
+                          data-testid={
+                            props.testRowIdentifier
+                              ? `${props.testRowIdentifier}-table-header-${column.name}`
+                              : `${props.dataTestId}-table-header-${column.name}`
+                          }
                           style={{
                             maxWidth: maxTableCellWidth,
                             overflow: "hidden",
@@ -690,6 +738,16 @@ const UITable = (props) => {
                       {results.map((row, index) => {
                         return (
                           <tr
+                            onClick={
+                              props.onRowClick
+                                ? () => props.onRowClick(row)
+                                : () => {}
+                            }
+                            data-testid={
+                              props.testRowIdentifier
+                                ? `${props.testRowIdentifier}-table-row-${index}`
+                                : `${props.dataTestId}-table-row-${index}`
+                            }
                             style={{
                               backgroundColor: "white",
                               boxShadow: !props.hideShadow
@@ -725,6 +783,11 @@ const UITable = (props) => {
                                 if (column.options.customBodyRender) {
                                   return (
                                     <td
+                                      data-testid={
+                                        props.testRowIdentifier
+                                          ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                          : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                      }
                                       style={{
                                         maxWidth: maxTableCellWidth,
                                         overflow: "hidden",
@@ -741,6 +804,11 @@ const UITable = (props) => {
                               }
                               return (
                                 <td
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                      : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                  }
                                   style={{
                                     maxWidth: maxTableCellWidth,
                                     overflow: "hidden",
@@ -756,6 +824,11 @@ const UITable = (props) => {
                               <div className="ui-table-more-button">
                                 <IconButton
                                   id="ui-table-more-button"
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-more-button-${index}`
+                                      : `${props.dataTestId}-more-button-${index}`
+                                  }
                                   onClick={(event) =>
                                     handleMenuClick(event, index)
                                   }
@@ -785,20 +858,64 @@ const UITable = (props) => {
                                       >
                                         <MenuList>
                                           {props.menuOptions.map(
-                                            (option, index) => (
-                                              <MenuItem
-                                                key={index}
-                                                onClick={() =>
-                                                  option.onClick(row)
-                                                }
-                                                id="menu-list-grow"
-                                                onKeyDown={handleCloseMenu}
-                                              >
-                                                <Typography>
-                                                  {option.name}
-                                                </Typography>
-                                              </MenuItem>
-                                            )
+                                            (option, menuOptionIndex) => {
+                                              return (
+                                                <>
+                                                  {/* Ensure that hidden is called with row data */}
+                                                  {(!option.hidden ||
+                                                    !option.hidden(row)) && (
+                                                    <MenuItem
+                                                      key={menuOptionIndex}
+                                                      onClick={() =>
+                                                        option.onClick(row)
+                                                      }
+                                                      id="menu-list-grow"
+                                                      data-testid={
+                                                        props.testRowIdentifier
+                                                          ? `${props.testRowIdentifier}-${index}-menu-option-${menuOptionIndex}`
+                                                          : `${props.dataTestId}-${index}-menu-option-${menuOptionIndex}`
+                                                      }
+                                                      onKeyDown={
+                                                        handleCloseMenu
+                                                      }
+                                                    >
+                                                      <Typography>
+                                                        {option.name}
+                                                      </Typography>
+                                                    </MenuItem>
+                                                  )}
+                                                </>
+                                              );
+                                            }
+                                          )}
+
+                                          {props.options.onRowDelete && (
+                                            <MenuItem
+                                              onClick={() => {
+                                                // Set confirmDeleteAction to a function that calls onRowDelete
+                                                setConfirmDeleteAction(
+                                                  () => () => {
+                                                    props.options.onRowDelete(
+                                                      row
+                                                    );
+                                                  }
+                                                );
+
+                                                // Show the delete confirmation
+                                                setShowDeleteConfirm(true);
+
+                                                // Close the context menu
+                                                handleCloseMenu();
+                                              }}
+                                            >
+                                              <Typography>
+                                                {props.options?.deleteOptions
+                                                  ?.label
+                                                  ? props.options?.deleteOptions
+                                                      ?.label
+                                                  : "Delete"}
+                                              </Typography>
+                                            </MenuItem>
                                           )}
                                         </MenuList>
                                       </ClickAwayListener>
@@ -816,6 +933,16 @@ const UITable = (props) => {
                       {currentItems.map((row, index) => {
                         return (
                           <tr
+                            onClick={
+                              props.onRowClick
+                                ? () => props.onRowClick(row)
+                                : () => {}
+                            }
+                            data-testid={
+                              props.testRowIdentifier
+                                ? `${props.testRowIdentifier}-table-row-${index}`
+                                : `${props.dataTestId}-table-row-${index}`
+                            }
                             style={{
                               backgroundColor: "white",
                               boxShadow:
@@ -828,6 +955,11 @@ const UITable = (props) => {
                                 if (column.options.customBodyRender) {
                                   return (
                                     <td
+                                      data-testid={
+                                        props.testRowIdentifier
+                                          ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                          : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                      }
                                       style={{
                                         maxWidth: maxTableCellWidth,
                                         overflow: "hidden",
@@ -844,6 +976,11 @@ const UITable = (props) => {
                               }
                               return (
                                 <td
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-table-row-${index}-column-${column.name}`
+                                      : `${props.dataTestId}-table-row-${index}-column-${column.name}`
+                                  }
                                   style={{
                                     maxWidth: maxTableCellWidth,
                                     overflow: "hidden",
@@ -858,6 +995,11 @@ const UITable = (props) => {
                             {props.menuOptions && (
                               <td>
                                 <IconButton
+                                  data-testid={
+                                    props.testRowIdentifier
+                                      ? `${props.testRowIdentifier}-more-button-${index}`
+                                      : `${props.dataTestId}-more-button-${index}`
+                                  }
                                   onClick={(event) =>
                                     handleMenuClick(event, index)
                                   }
@@ -886,20 +1028,55 @@ const UITable = (props) => {
                                         >
                                           <MenuList>
                                             {props.menuOptions.map(
-                                              (option, index) => (
-                                                <MenuItem
-                                                  key={index}
-                                                  onClick={() =>
-                                                    option.onClick(row)
-                                                  }
-                                                  id="menu-list-grow"
-                                                  onKeyDown={handleCloseMenu}
-                                                >
-                                                  <Typography>
-                                                    {option.name}
-                                                  </Typography>
-                                                </MenuItem>
-                                              )
+                                              (option, menuOptionIndex) =>
+                                                !option.hidden ? (
+                                                  <MenuItem
+                                                    key={menuOptionIndex}
+                                                    onClick={() =>
+                                                      option.onClick(row)
+                                                    }
+                                                    id="menu-list-grow"
+                                                    data-testid={
+                                                      props.testRowIdentifier
+                                                        ? `${props.testRowIdentifier}-${index}-menu-option-${menuOptionIndex}`
+                                                        : `${props.dataTestId}-${index}-menu-option-${menuOptionIndex}`
+                                                    }
+                                                    onKeyDown={handleCloseMenu}
+                                                  >
+                                                    <Typography>
+                                                      {option.name}
+                                                    </Typography>
+                                                  </MenuItem>
+                                                ) : null
+                                            )}
+
+                                            {props.options.onRowDelete && (
+                                              <MenuItem
+                                                onClick={() => {
+                                                  // Set confirmDeleteAction to a function that calls onRowDelete
+                                                  setConfirmDeleteAction(
+                                                    () => () => {
+                                                      props.options.onRowDelete(
+                                                        row
+                                                      );
+                                                    }
+                                                  );
+
+                                                  // Show the delete confirmation
+                                                  setShowDeleteConfirm(true);
+
+                                                  // Close the context menu
+                                                  handleCloseMenu();
+                                                }}
+                                              >
+                                                <Typography>
+                                                  {props.options?.deleteOptions
+                                                    ?.label
+                                                    ? props.options
+                                                        .deleteOptions.label
+                                                    : "Delete"}
+                                                </Typography>
+                                              </MenuItem>
                                             )}
                                           </MenuList>
                                         </ClickAwayListener>

@@ -12,50 +12,36 @@ import {
   turnOffAutoPay,
   turnOnAutoPay,
 } from "../../../api/manage_subscriptions";
-import {
-  getTenantTransactionsByUser,
-  getTransactionsByTenant,
-} from "../../../api/transactions";
+import { getTransactionsByTenant } from "../../../api/transactions";
 import { listStripePaymentMethods } from "../../../api/payment_methods";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { getTenantDashboardData } from "../../../api/tenants";
 import AlertModal from "../UIComponents/Modals/AlertModal";
 import PaymentModal from "../UIComponents/Modals/PaymentModal";
 import ConfirmModal from "../UIComponents/Modals/ConfirmModal";
 import { useNavigate } from "react-router";
-import { Alert, AlertTitle, Stack } from "@mui/material";
-import UISwitch from "../UIComponents/UISwitch";
-import UITable from "../UIComponents/UITable/UITable";
+import { Alert, AlertTitle, CircularProgress, Stack } from "@mui/material";
 import UIPrompt from "../UIComponents/UIPrompt";
 import UIButton from "../UIComponents/UIButton";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { getTenantLeaseRenewalRequests } from "../../../api/lease_renewal_requests";
-import UICard from "../UIComponents/UICards/UICard";
-import UICardList from "../UIComponents/UICards/UICardList";
 import UItableMiniCard from "../UIComponents/UICards/UITableMiniCard";
 import { getTenantInvoices } from "../../../api/tenants";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../UIComponents/UIHelpButton";
 import UIProgressPrompt from "../UIComponents/UIProgressPrompt";
+import UISwitch from "../UIComponents/UISwitch";
+import ProgressModal from "../UIComponents/Modals/ProgressModal";
 const TenantDashboard = () => {
   const navigate = useNavigate();
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [autoRenewResonse, setAutoRenewResponse] = useState(null);
+  const [autoPayAllowed, setAutoPayAllowed] = useState(null);
   const [showSignConfirmModal, setShowSignConfirmModal] = useState(false);
   const [signLink, setSignLink] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
-  const [unit, setUnit] = useState(null);
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTemplate, setLeaseTemplate] = useState(null);
-  const [transactions, setTransactions] = useState([]);
   const [showAddPaymentMethodAlert, setShowAddPaymentMethodAlert] =
     useState(false);
   const [tenantData, setTenantData] = useState(null); //TODO: Remove this and replace with [leaseAgreement, setLeaseAgreement
@@ -152,21 +138,7 @@ const TenantDashboard = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
-  const columns = [
-    { name: "amount", label: "Amount" },
-    {
-      name: "created_at",
-      label: "Date",
-      options: {
-        customBodyRender: (value) => {
-          return <span>{new Date(value).toLocaleDateString()}</span>;
-        },
-      },
-    },
-  ];
-
   const maintenance_request_columns = [
     { name: "type", label: "Type" },
     {
@@ -206,40 +178,60 @@ const TenantDashboard = () => {
     },
     limit: 5,
   };
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/tenant/`;
-    navigate(navlink);
+  const autoPaySwitchOnClick = () => {
+    setConfirmModalTitle("Turn On Auto Pay");
+    setConfirmModalMessage(
+      "Are you sure you want to turn on auto pay?" +
+        "This will automatically pay your rent on the due date. You will also now be charged for any unpaid security deposits on the lease. " +
+        "In orderto turn it off you must contact your landlord."
+    );
+    setConfirmButtonText("Turn On AutoPay");
+    setCancelButtonText("Cancel");
+    setConfirmAction(() => handleAutoPayChange);
+    setShowConfirmModal(true);
   };
-
-  const handleAutoPayChange = () => {
-    setAutoPayIsLoading(true);
-    if (leaseAgreement && leaseAgreement.auto_pay_is_enabled) {
-      turnOffAutoPay().then((res) => {
-        console.log(res.data);
+  const handleAutoPayChange = async () => {
+    try {
+      setAutoPayIsLoading(true);
+      if (leaseAgreement && leaseAgreement.auto_pay_is_enabled) {
+        const res = await turnOffAutoPay();
         if (res.data && res.data.status === 200) {
-          navigate(0);
-          setAutoPayIsLoading(false);
+          setAlertMessage("Auto pay has been turned off.");
+          setAlertTitle("Success");
+          setShowAlert(true);
+        } else {
+          setAlertMessage(
+            "An error occurred while turning off auto pay. Please try again."
+          );
+          setAlertTitle("Error");
+          setShowAlert(true);
         }
-      });
-    } else {
-      turnOnAutoPay().then((res) => {
-        console.log(res.data);
+      } else {
+        const res = await turnOnAutoPay();
         if (res.data && res.data.status === 200) {
-          navigate(0);
-          setAutoPayIsLoading(false);
+          setAlertMessage("Auto pay has been turned on.");
+          setAlertTitle("Success");
+          setShowAlert(true);
+        } else {
+          setAlertMessage(
+            "An error occurred while turning on auto pay. Please try again."
+          );
+          setAlertTitle("Error");
+          setShowAlert(true);
         }
-      });
+      }
+    } catch (e) {
+      console.error(e);
+      setAlertMessage(
+        "An error occurred while turning on/off auto pay. Please try again."
+      );
+      setAlertTitle("Error");
+      setShowAlert(true);
+    } finally {
+      setAutoPayIsLoading(false);
     }
   };
-  const options = {
-    filter: true,
-    sort: true,
-    onRowClick: handleRowClick,
-    sortOrder: {
-      name: "created_at",
-      direction: "desc",
-    },
-  };
+
   //Create a function to retrieve the invoices that are past due or are within 31 days of the due date
   const getDueInvoices = (invoices) => {
     return invoices.filter((invoice) => {
@@ -267,95 +259,87 @@ const TenantDashboard = () => {
           setIsLoadingPaymentMethods(false);
         } else {
           setPaymentMethods(res.data);
-          console.log(res.data);
+
           setIsLoadingPaymentMethods(false);
         }
       });
-      //Retrieve Tenant Transactions
-      getTransactionsByTenant(authUser.tenant_id).then((res) => {
-        setTransactions(res.data);
-      });
-        //Retrieve the unit
-        getTenantDashboardData()
-          .then((res) => {
-            console.log("Tenant Dashboard Data", res);
-            setTenantData(res);
-            setUnit(res.unit);
-            setLeaseAgreement(res.lease_agreement);
-            setCurrentBalance(res.current_balance);
-            setLateFees(res.late_fees);
-            setAnnouncements(res.announcements);
-            if (res.auto_renew_response) {
-              setAutoRenewResponse(res.auto_renew_response);
-              if (res.auto_renew_response.keyflow_sign_link) {
-                setSignLink(res.auto_renew_response.keyflow_sign_link);
-                setShowSignConfirmModal(true);
-              }
+      //Retrieve the unit
+      getTenantDashboardData()
+        .then((res) => {
+          setTenantData(res);
+          setLeaseAgreement(res.lease_agreement);
+          setCurrentBalance(res.current_balance);
+          setAutoPayAllowed(res.auto_pay_is_allowed);
+          setLateFees(res.late_fees);
+          setAnnouncements(res.announcements);
+          if (res.auto_renew_response) {
+            setAutoRenewResponse(res.auto_renew_response);
+            if (res.auto_renew_response.keyflow_sign_link) {
+              setSignLink(res.auto_renew_response.keyflow_sign_link);
+              setShowSignConfirmModal(true);
             }
-            //Check if lease agreement endate is in 2 months or less, if so show confirm modal
-            if (res.lease_agreement) {
-              const endDate = new Date(res.lease_agreement.end_date);
-              const today = new Date();
-              const diffTime = Math.abs(endDate - today);
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              getTenantLeaseRenewalRequests()
-                .then((res) => {
-                  let lease_renewal_requests = res.data;
+          }
+          //Check if lease agreement endate is in 2 months or less, if so show confirm modal
+          if (res.lease_agreement) {
+            const endDate = new Date(res.lease_agreement.end_date);
+            const today = new Date();
+            const diffTime = Math.abs(endDate - today);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            getTenantLeaseRenewalRequests()
+              .then((res) => {
+                let lease_renewal_requests = res.data;
 
-                  let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
-                    (lease_renewal_request) => {
-                      let lease_renewal_request_created_at = new Date(
-                        lease_renewal_request.move_in_date
-                      );
-                      return lease_renewal_request_created_at > endDate;
-                    }
-                  );
-
-                  if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
-                    setConfirmModalTitle("Lease Renewal");
-                    setConfirmModalMessage(
-                      "Your lease agreement is about to expire. Would you like to renew your lease?"
+                let hasValidLeaseRenewalRequest = lease_renewal_requests.some(
+                  (lease_renewal_request) => {
+                    let lease_renewal_request_created_at = new Date(
+                      lease_renewal_request.move_in_date
                     );
-                    setConfirmButtonText("Renew Lease");
-                    setCancelButtonText("Not Now");
-                    //Set confirm action to a function that will navigate
-                    const handleConfirmAction = () => {
-                      navigate("/dashboard/tenant/lease-agreements/");
-                    };
-                    setConfirmAction(() => handleConfirmAction);
-                    setShowConfirmModal(true);
+                    return lease_renewal_request_created_at > endDate;
                   }
-                })
-                .catch((error) => {
-                  // Handle any errors from getTenantLeaseRenewalRequests()
-                  console.error(error);
-                });
-            }
+                );
 
-            setLeaseTemplate(res.lease_template);
-            if (res.lease_agreement) {
-              //Retrieve next payment date
-              getNextPaymentDate(authUser.id).then((res) => {
-                console.log("nExt pay date data", res);
-                setNextPaymentDate(res.data.next_payment_date);
+                if (!hasValidLeaseRenewalRequest && diffDays <= 70) {
+                  setConfirmModalTitle("Lease Renewal");
+                  setConfirmModalMessage(
+                    "Your lease agreement is about to expire. Would you like to renew your lease?"
+                  );
+                  setConfirmButtonText("Renew Lease");
+                  setCancelButtonText("Not Now");
+                  //Set confirm action to a function that will navigate
+                  const handleConfirmAction = () => {
+                    navigate("/dashboard/tenant/lease-agreements/");
+                  };
+                  setConfirmAction(() => handleConfirmAction);
+                  setShowConfirmModal(true);
+                }
+              })
+              .catch((error) => {
+                // Handle any errors from getTenantLeaseRenewalRequests()
+                console.error(error);
               });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-            setAlertMessage(
-              "An error occurred while fetching data. Please try again."
-            );
-            setAlertTitle("Error");
-            setShowAlert(true);
-          })
-          .finally(() => {
-            setIsLoadingPage(false);
-          });
-      //Retrieve invoices
+          }
+          if (res.lease_agreement) {
+            //Retrieve next payment date
+            getNextPaymentDate(authUser.id).then((res) => {
+              setNextPaymentDate(res.data.next_payment_date);
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          setAlertMessage(
+            "An error occurred while fetching data. Please try again."
+          );
+          setAlertTitle("Error");
+          setShowAlert(true);
+        })
+        .finally(() => {
+          setIsLoadingPage(false);
+        });
+      // Retrieve invoices
       getTenantInvoices().then((res) => {
-        let invoicesDue = getDueInvoices(res.invoices.data.reverse());
-        console.log("Invoices Due", invoicesDue);
+        let invoicesDue = getDueInvoices(res.invoices.reverse());
+
         setInvoices(invoicesDue);
         let amount_due =
           invoicesDue.reduce((acc, invoice) => {
@@ -386,12 +370,13 @@ const TenantDashboard = () => {
           <AlertModal
             open={showAlert}
             onClick={() => {
-              setShowAlert(false);
+              navigate(0);
             }}
             title={alertTitle}
             message={alertMessage}
             btnText="Okay"
           />
+          <ProgressModal open={autoPayIsLoading} title="Updating Auto Pay" />
           <Joyride
             run={runTour}
             index={tourIndex}
@@ -507,91 +492,115 @@ const TenantDashboard = () => {
                               due in{" "}
                               {dateDiffForHumans(new Date(nextPaymentDate))}
                             </Typography>
-                            <Box
-                              sx={
-                                {
-                                  // display: "flex",
-                                  // justifyContent: "flex-start",
-                                  // alignItems: "flex-start",
-                                }
-                              }
-                            >
-                              <Button
-                                onClick={() =>
-                                  navigate("/dashboard/tenant/bills")
-                                }
-                                sx={{
-                                  color: "white",
-                                  textTransform: "none",
-                                  backgroundColor: uiGreen,
-                                }}
-                                btnText="View Bills"
-                                to="#"
-                                variant="contained"
-                              >
-                                View Bills
-                              </Button>
-                            </Box>
+                            {autoPayAllowed && (
+                              <Box>
+                                <Stack
+                                  direction="row"
+                                  justifyContent={"flex-start"}
+                                  alignItems={"center"}
+                                  spacing={1}
+                                  sx={{ mb: 2 }}
+                                >
+                                  <UISwitch
+                                    dataTestId="auto-pay-switch"
+                                    checked={leaseAgreement.auto_pay_is_enabled}
+                                    onChange={autoPaySwitchOnClick}
+                                  />
+                                  {leaseAgreement.auto_pay_is_enabled ? (
+                                    <Typography
+                                      sx={{ fontSize: 16 }}
+                                      gutterBottom
+                                    >
+                                      Turn off Auto Pay
+                                    </Typography>
+                                  ) : (
+                                    <Typography
+                                      sx={{ fontSize: 16 }}
+                                      gutterBottom
+                                    >
+                                      Turn On Auto Pay
+                                    </Typography>
+                                  )}
+                                  {autoPayIsLoading && (
+                                    <CircularProgress
+                                      size={20}
+                                      sx={{
+                                        color: uiGreen,
+                                      }}
+                                    />
+                                  )}
+                                </Stack>
+                                <Button
+                                  onClick={() =>
+                                    navigate("/dashboard/tenant/bills")
+                                  }
+                                  sx={{
+                                    color: "white",
+                                    textTransform: "none",
+                                    backgroundColor: uiGreen,
+                                  }}
+                                  btnText="View Bills"
+                                  to="#"
+                                  variant="contained"
+                                >
+                                  View Bills
+                                </Button>
+                              </Box>
+                            )}
                           </div>
                         ) : (
-                          <Typography sx={{ fontSize: 20 }} gutterBottom>
-                            <span>You have no outstanding balance</span>{" "}
-                          </Typography>
+                          <>
+                            <Typography sx={{ fontSize: 20 }} gutterBottom>
+                              <span>You have no outstanding balance</span>{" "}
+                            </Typography>
+                            {autoPayAllowed && (
+                              <Stack
+                                direction="row"
+                                justifyContent={"flex-start"}
+                                alignItems={"center"}
+                                spacing={1}
+                                sx={{ mb: 2 }}
+                              >
+                                <UISwitch
+                                  dataTestId="auto-pay-switch"
+                                  value={leaseAgreement.auto_pay_is_enabled}
+                                  onChange={autoPaySwitchOnClick}
+                                />
+                                {leaseAgreement.auto_pay_is_enabled ? (
+                                  <Typography
+                                    sx={{ fontSize: 16 }}
+                                    gutterBottom
+                                  >
+                                    Turn off Auto Pay
+                                  </Typography>
+                                ) : (
+                                  <Typography
+                                    sx={{ fontSize: 16 }}
+                                    gutterBottom
+                                  >
+                                    Turn On Auto Pay
+                                  </Typography>
+                                )}
+                                {autoPayIsLoading && (
+                                  <CircularProgress
+                                    size={20}
+                                    sx={{
+                                      color: uiGreen,
+                                    }}
+                                  />
+                                )}
+                              </Stack>
+                            )}
+                          </>
                         )}
                       </CardContent>
                     </>
                   </div>
                 </Box>
               )}
-              {/* TODO: Insert a better Maintenance Requests Component Here */}
-              {/* <MaintenanceRequests /> */}
-              {transactions.length === 0 ? (
-                <>
-                  {/* <UICard cardStyle={{ height: "478px" }}>
-                <Stack
-                  direction={"column"}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                  spacing={2}
-                  sx={{ height: "400px", textAlign: "center", color: "black" }}
-                >
-                  <h4>Seems like you're new around here...</h4>
-                  <p>There are no transactions to display.</p>
-                </Stack>
-              </UICard> */}
-                </>
-              ) : (
-                <>
-                  {/* <UICardList
-                cardStyle={{ background: "white", color: "black" }}
-                infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
-                titleStyle={{ color: uiGrey2, fontSize: "12pt" }}
-                title={""}
-                info={"Recent Transactions"}
-                onInfoClick={() => navigate("/dashboard/owner/transactions")}
-                //Create Transaction list items using the transaction data with this object format:  {type:"revenur", amount:1909, created_at: "2021-10-12T00:00:00.000Z"}
-                items={transactions
-                  .map((transaction) => ({
-                    primary: transaction.description,
-                    secondary: new Date(
-                      transaction.timestamp
-                    ).toLocaleDateString(),
-                    tertiary: `${
-                      transaction.type === "revenue" ||
-                      transaction.type === "rent_payment" ||
-                      transaction.type === "security_deposit"
-                        ? "+"
-                        : "-"
-                    }$${transaction.amount}`,
-                    icon: <AttachMoneyIcon />,
-                  }))
-                  .slice(0, 4)}
-                tertiaryStyles={{ color: uiGreen }}
-              /> */}
-                </>
-              )}
               <div className="maintenance-request-card">
                 <UItableMiniCard
+                  dataTestId="maintenance-request-table"
                   cardStyle={{ background: "white", color: "black" }}
                   infoStyle={{ color: uiGrey2, fontSize: "16pt" }}
                   titleStyle={{ color: uiGrey2, fontSize: "12pt" }}

@@ -8,7 +8,7 @@ const RevenueChart = ({ data }) => {
   let filteredData = data; // Default to full data
 
   const handlePeriodChange = (event) => {
-    console.log(filteredData);
+
     setSelectedPeriod(event.target.value);
   };
   if (selectedPeriod === "pastMonth") {

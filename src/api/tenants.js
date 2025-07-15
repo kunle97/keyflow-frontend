@@ -6,12 +6,12 @@ export async function makePayment(data) {
     const res = await authenticatedInstance
       .post(`/tenants-v1/${authUser.id}/make-payment/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Make Payment Error: ", error);
+
     return error.response;
   }
 }
@@ -21,12 +21,12 @@ export async function getTenantDashboardData() {
     const res = await authenticatedInstance
       .post(`/retrieve-tenant-dashboard-data/`, { user_id: authUser.id })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Tenant Dashboard Data Error: ", error);
+
     return error.response;
   }
 }
@@ -39,12 +39,12 @@ export async function getTenantInvoice(invoiceId) {
         invoice_id: invoiceId,
       })
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Tenant Invoice Error: ", error);
+
     return error.response;
   }
 }
@@ -59,12 +59,12 @@ export async function getTenantInvoices(tenant_id) {
     const res = await authenticatedInstance
       .post(endpoint)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Tenant Invoices Error: ", error);
+
     return error.response;
   }
 }
@@ -75,12 +75,12 @@ export async function payTenantInvoice(data) {
     const res = await authenticatedInstance
       .post(`/tenants/${authUser.tenant_id}/pay-invoice/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Pay Tenant Invoice Error: ", error);
+
     return error.response;
   }
 }
@@ -93,12 +93,12 @@ export async function verifyTenantRegistrationCredentials(data) {
     const res = await unauthenticatedInstance
       .post(`/auth/tenant/register/verify/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Sign Lease Agreement Error: ", error);
+
     return error.response;
   }
 }
@@ -107,12 +107,12 @@ export async function verifyTenantInviteRegistrationCredentials(data) {
     const res = await unauthenticatedInstance
       .post(`/auth/tenant/invite/register/verify/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Sign Lease Agreement Error: ", error);
+
     return error.response;
   }
 }
@@ -124,12 +124,12 @@ export async function getTenantPreferences() {
     const res = await authenticatedInstance
       .get(`/tenants/${authUser.tenant_id}/preferences/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Get Tenant Preferences Error: ", error);
+
     return error.response;
   }
 }
@@ -140,12 +140,12 @@ export async function updateTenantPreferences(data) {
     const res = await authenticatedInstance
       .post(`/tenants/${authUser.tenant_id}/update-preferences/`, data)
       .then((res) => {
-        console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Update Tenant Preferences Error: ", error);
+
     return error.response;
   }
 }
@@ -156,27 +156,43 @@ export async function updateTenantAutoRenewStatus(data) {
     const res = await authenticatedInstance
       .post(`/tenants/${data.tenant_id}/update-auto-renew-status/`, data)
       .then((res) => {
-        console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Update Tenant Auto Renew Status Error: ", error);
+
     return error.response;
   }
 }
+//Create a function that allows an owner to update a tenant's auto pay status using the endpoint /tenants/{tenant_id}/update-auto-pay-status/
+export async function updateTenantAutoPayStatus(data) {
+  try {
+    const res = await authenticatedInstance
+      .post(`/tenants/${data.tenant_id}/update-auto-pay-status/`, data)
+      .then((res) => {
+
+        return res;
+      });
+    return res;
+  } catch (error) {
+
+    return error.response;
+  }
+}
+
 //Create a function that creates invoices for a tenant after signing a lease agreement using the endpoint /tenants/create-invoices-for-renewal/ 
 export async function createInvoicesForRenewal(data) {
   try {
     const res = await authenticatedInstance
       .post(`/create-rent-invoices-for-tenant-renewal/`, data)
       .then((res) => {
-        console.log(res);
+
         return res;
       });
     return res;
   } catch (error) {
-    console.log("Create Invoices For Renewal Error: ", error);
+
     return error.response;
   }
 }

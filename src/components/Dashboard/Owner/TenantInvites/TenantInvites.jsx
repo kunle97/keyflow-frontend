@@ -6,6 +6,10 @@ import useScreen from "../../../../hooks/useScreen";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { deleteTenantInvite } from "../../../../api/tenant_invite";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
+import Joyride, { STATUS } from "react-joyride";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import { uiGreen } from "../../../../constants";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const TenantInvites = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progressModalMessage, setProgressModalMessage] =
@@ -13,17 +17,46 @@ const TenantInvites = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
-  const [leaseRenewals, setLeaseRenewals] = useState([]);
-  const [leaseCancellations, setLeaseCancellations] = useState([]);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmModalTitle, setConfirmModalTitle] = useState("");
   const [confirmModalMessage, setConfirmModalMessage] = useState("");
   const [confirmModalConfirmAction, setConfirmModalConfirmAction] = useState(
     () => {}
   );
-
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      target: ".tenant-invites-list",
+      content: "This is the list of all your tenant invites.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-search-input",
+      content: "Use the search bar to search for a specific tenant invite.",
+    },
+    {
+      target: ".ui-table-result-limit-select",
+      content: "Use this to change the number of results per page.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view tenant invite details.",
+    },
+  ];
+  const handleJoyrideCallback = (data) => {
+    const { status } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+  };
   const handleResendTenantInvite = () => {
-    console.log("Resend Tenant Invite");
     setIsLoading(true);
     setProgressModalMessage("Resending tenant invite...");
   };
@@ -33,7 +66,6 @@ const TenantInvites = () => {
     setProgressModalMessage("Revoking tenant invite...");
     deleteTenantInvite(id)
       .then((res) => {
-        console.log("TENANT INVITE REVOKE RES", res);
         if (res.status === 204) {
           setAlertTitle("Tenant Invite Revoked");
           setAlertMessage("The tenant invite revoked successfully.");
@@ -43,7 +75,6 @@ const TenantInvites = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setAlertTitle("Error!");
         setAlertMessage(
           "There was an error revoking tenant invite. Please try again."
@@ -84,22 +115,52 @@ const TenantInvites = () => {
       },
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/tenant-invitess/${rowData}/`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/tenant-invitess/${row.id}/`;
     navigate(navlink);
   };
   const options = {
     filter: true,
     sort: true,
     onRowClick: handleRowClick,
+    onRowDelete: (row) => handleRevokeTenantInvite(row.id),
+    deleteOptions: {
+      label: "Revoke Tenant Invite",
+      confirmTitle: "Revoke Tenant Invite",
+      confirmMessage:
+        "Are you sure you want to revoke this tenant invite? " +
+        "The tenant invite will be deleted and the recipient will no longer be able to accept it. " +
+        "The lease agreement document will also be voided.",
+    },
     sortOrder: {
       name: "created_at",
       direction: "desc",
     },
   };
-  useEffect(() => {}, []);
   return (
     <div className="container">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
+      <ProgressModal open={isLoading} title={progressModalMessage} />
       <AlertModal
         open={showAlert}
         onClick={() => {
@@ -143,48 +204,37 @@ const TenantInvites = () => {
               searchFields={["first_name", "last_name", "email"]}
             />
           ) : (
-            <UITable
-              title="Tenant Invites"
-              endpoint={`/tenant-invites/`}
-              searchFields={["first_name", "last_name", "email"]}
-              columns={columns}
-              options={options}
-              showCreate={true}
-              createURL="/dashboard/owner/tenant-invites/create"
-              menuOptions={[
-                {
-                  name: "Resend Invite",
-                  onClick: (row) => {
-                    setConfirmModalTitle("Resend Tenant Invite");
-                    setConfirmModalMessage(
-                      "Are you sure you want to resend this tenant invite?"
-                    );
-                    setConfirmModalOpen(true);
-                    setConfirmModalConfirmAction(
-                      () => () => handleResendTenantInvite(row.id)
-                    );
+            <div className="tenant-invites-list">
+              <UITable
+                title="Tenant Invites"
+                endpoint={`/tenant-invites/`}
+                searchFields={["first_name", "last_name", "email"]}
+                columns={columns}
+                options={options}
+                showCreate={true}
+                createURL="/dashboard/owner/tenant-invites/create"
+                onRowClick={handleRowClick} 
+                menuOptions={[
+                  {
+                    name: "Resend Invite",
+                    onClick: (row) => {
+                      setConfirmModalTitle("Resend Tenant Invite");
+                      setConfirmModalMessage(
+                        "Are you sure you want to resend this tenant invite?"
+                      );
+                      setConfirmModalOpen(true);
+                      setConfirmModalConfirmAction(
+                        () => () => handleResendTenantInvite(row.id)
+                      );
+                    },
                   },
-                },
-                {
-                  name: "Revoke Tenant Invite",
-                  onClick: (row) => {
-                    setConfirmModalTitle("Revoke Tenant Invite");
-                    setConfirmModalMessage(
-                      "Are you sure you want to revoke this tenant invite? " +
-                        "The tenant invite will be deleted and the recipient will no longer be able to accept it. " +
-                        "The lease agreement document will also be voided."
-                    );
-                    setConfirmModalOpen(true);
-                    setConfirmModalConfirmAction(
-                      () => () => handleRevokeTenantInvite(row.id)
-                    );
-                  },
-                },
-              ]}
-            />
+                ]}
+              />
+            </div>
           )}
         </div>
       </div>
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

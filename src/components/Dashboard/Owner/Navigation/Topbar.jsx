@@ -3,10 +3,8 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Link, useNavigate } from "react-router-dom";
 import {
   authUser,
-  dateDiffForHumans,
   defaultWhiteInputStyle,
   uiGreen,
-  uiRed,
 } from "../../../../constants";
 import { Badge, IconButton, Stack } from "@mui/material";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
@@ -49,7 +47,7 @@ const Topbar = (props) => {
     let response = await logout()
       .then((res) => {
         if (res.status === 200) {
-          console.log("User was logged out successfully");
+
           setOpen(true);
         } else {
           console.error("Error logging user out");
@@ -75,34 +73,23 @@ const Topbar = (props) => {
         return "/assets/img/avatars/default-user-profile-picture.png";
       }
     } catch (error) {
-      console.log(error);
+
       return "/assets/img/avatars/default-user-profile-picture.png";
     }
   };
-  const fetchProfilePictures = async () => {
-    const pictures = {};
-    for (const thread of props.messageThreads || []) {
-      const user_id = thread.recipient_id;
-      const picture = await getProfilePicture(user_id);
-      pictures[user_id] = picture;
-    }
-    setProfilePictures(pictures);
-  };
+
   //REtrieve user notifications
   useEffect(() => {
     try {
-      // retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
-      //   (res) => {
-      //     setProfilePictureFile(res.data[0]);
-      //   }
-      // );
-      // if (!profilePictures) {
-      //   fetchProfilePictures();
-      // }
+      retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
+        (res) => {
+          setProfilePictureFile(res.data[0]);
+        }
+      );
     } catch (error) {
-      console.log(error);
+
     } finally {
-      console.log("Done");
+
     }
   }, [profilePictures, screenWidth]);
   return (
@@ -254,6 +241,7 @@ const Topbar = (props) => {
                     <i
                       className="fas fa-bell fa-fw"
                       style={{ fontSize: "15pt" }}
+                      data-testid="bell-icon"
                     />
                   </Badge>
                 </a>

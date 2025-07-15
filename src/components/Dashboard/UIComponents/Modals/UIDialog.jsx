@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Dialog, Slide, Stack } from "@mui/material";
-import { uiGreen, uiGrey1 } from "../../../../constants";
+import { uiGreen } from "../../../../constants";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import useScreen from "../../../../hooks/useScreen";
@@ -59,7 +59,7 @@ const UIDialog = ({
             onClick={onClose}
             style={{ float: "right", color: uiGreen }}
           >
-            <CloseIcon />
+            <CloseIcon data-testId="ui-dialog-close-icon"  />
           </IconButton>
         </Stack>
       </div>

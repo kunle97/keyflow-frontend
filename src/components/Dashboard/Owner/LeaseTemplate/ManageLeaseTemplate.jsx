@@ -1,7 +1,6 @@
-import { Button, Input, Stack, Tooltip, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import React from "react";
 import {
-  muiIconStyle,
   uiGreen,
   uiGrey2,
   uiRed,
@@ -11,32 +10,22 @@ import { useParams } from "react-router";
 import { useEffect } from "react";
 import { authenticatedInstance } from "../../../../api/api";
 import { useState } from "react";
-import { Delete, HelpOutline } from "@mui/icons-material";
 import UITabs from "../../UIComponents/UITabs";
 import BackButton from "../../UIComponents/BackButton";
 import UIButton from "../../UIComponents/UIButton";
 import UITable from "../../UIComponents/UITable/UITable";
-import { getUnit } from "../../../../api/units";
 import { useNavigate } from "react-router";
 import { createBoldSignEmbeddedTemplateEditLink } from "../../../../api/boldsign";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import PriceChangeOutlinedIcon from "@mui/icons-material/PriceChangeOutlined";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import UIInput from "../../UIComponents/UIInput";
 import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import AdditionalChargeRow from "./AdditionalChargeRow";
@@ -48,10 +37,8 @@ import {
   removeLeaseTemplateFromAssignedResources,
 } from "../../../../api/lease_templates";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
-import DeleteButton from "../../UIComponents/DeleteButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
-import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import {
   numberUpTo2DecimalPlaces,
   uppercaseAndLowercaseLetters,
@@ -72,10 +59,22 @@ const ManageLeaseTemplate = () => {
   //TODO: Tabs for lease terms: Details, Additional Charges, Units Assigned, View (BoldSign) Document,
   const [tabPage, setTabPage] = useState(0);
   const tabs = [
-    { name: "details", label: "Details" },
-    { name: "additionalCharges", label: "Additional Charges" },
-    { name: "unitsAssigned", label: "Resources Assigned" },
-    { name: "editDocument", label: "Edit Document" },
+    { name: "details", label: "Details", dataTestId: "details-tab" },
+    {
+      name: "additionalCharges",
+      label: "Additional Charges",
+      dataTestId: "additional-charges-tab",
+    },
+    {
+      name: "unitsAssigned",
+      label: "Resources Assigned",
+      dataTestId: "units-assigned-tab",
+    },
+    {
+      name: "editDocument",
+      label: "Edit Document",
+      dataTestId: "edit-document-tab",
+    },
   ];
   const { isMobile } = useScreen();
   const [assignmentView, setAssignmentView] = useState("unit");
@@ -88,7 +87,6 @@ const ManageLeaseTemplate = () => {
   const [alertModalIsOpen, setAlertModalIsOpen] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
-  const [chargesValid, setChargesValid] = useState(false);
   const [additionalCharges, setAdditionalCharges] = useState(null);
   const [openLeaseTemplateRemovePrompt, setOpenLeaseTemplateRemovePrompt] =
     useState(false);
@@ -138,8 +136,6 @@ const ManageLeaseTemplate = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-    console.log("Current Joyride data", data);
   };
   const handleClickStart = (event) => {
     event.preventDefault();
@@ -155,7 +151,6 @@ const ManageLeaseTemplate = () => {
       setTourIndex(5);
     }
     setRunTour(true);
-    console.log(runTour);
   };
 
   const handleChange = (e, formData, setFormData, formInputs, setErrors) => {
@@ -170,7 +165,6 @@ const ManageLeaseTemplate = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
   };
 
   const [detailsErrors, setDetailsErrors] = useState({});
@@ -194,8 +188,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "rent",
-      errorMessageDataTestId: "rent-error",
+      dataTestId: "rent-input",
+      errorMessageDataTestId: "rent-input-error",
     },
     {
       name: "rent_frequency",
@@ -222,13 +216,13 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "rent-frequency",
-      errorMessageDataTestId: "rent-frequency-error",
+      dataTestId: "rent-frequency-select",
+      errorMessageDataTestId: "rent-frequency-select-error",
     },
     {
       name: "term",
       label: "Term",
-      type: "term",
+      type: "number",
       colSpan: 6,
       onChange: (e) =>
         handleChange(
@@ -243,8 +237,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "term",
-      errorMessageDataTestId: "term-error",
+      dataTestId: "term-input",
+      errorMessageDataTestId: "term-input-error",
     },
     {
       name: "late_fee",
@@ -264,8 +258,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "late-fee",
-      errorMessageDataTestId: "late-fee-error",
+      dataTestId: "late-fee-input",
+      errorMessageDataTestId: "late-fee-input-error",
     },
     {
       name: "security_deposit",
@@ -285,8 +279,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "security-deposit",
-      errorMessageDataTestId: "security-deposit-error",
+      dataTestId: "security-deposit-input",
+      errorMessageDataTestId: "security-deposit-input-error",
     },
     {
       name: "gas_included",
@@ -311,8 +305,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "gas-included",
-      errorMessageDataTestId: "gas-included-error",
+      dataTestId: "gas-included-select",
+      errorMessageDataTestId: "gas-included-select-error",
     },
     {
       name: "water_included",
@@ -337,8 +331,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "water-included",
-      errorMessageDataTestId: "water-included-error",
+      dataTestId: "water-included-select",
+      errorMessageDataTestId: "water-included-select-error",
     },
     {
       name: "electric_included",
@@ -363,8 +357,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "electric-included",
-      errorMessageDataTestId: "electric-included-error",
+      dataTestId: "electric-included-select",
+      errorMessageDataTestId: "electric-included-select-error",
     },
     {
       name: "repairs_included",
@@ -389,8 +383,8 @@ const ManageLeaseTemplate = () => {
         regex: uppercaseAndLowercaseLetters,
         errorMessage: "This field is required",
       },
-      dataTestId: "repairs-included",
-      errorMessageDataTestId: "repairs-included-error",
+      dataTestId: "repairs-included-select",
+      errorMessageDataTestId: "repairs-included-select-error",
     },
     {
       name: "grace_period",
@@ -410,8 +404,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "grace-period",
-      errorMessageDataTestId: "grace-period-error",
+      dataTestId: "grace-period-input",
+      errorMessageDataTestId: "grace-period-input-error",
     },
 
     {
@@ -432,8 +426,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "lease-cancellation-notice-period",
-      errorMessageDataTestId: "lease-cancellation-notice-period-error",
+      dataTestId: "lease-cancellation-notice-period-input",
+      errorMessageDataTestId: "lease-cancellation-notice-period-input-error",
     },
     {
       name: "lease_cancellation_fee",
@@ -453,8 +447,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "lease-cancellation-fee",
-      errorMessageDataTestId: "lease-cancellation-fee-error",
+      dataTestId: "lease-cancellation-fee-input",
+      errorMessageDataTestId: "lease-cancellation-fee-input-error",
     },
     {
       name: "lease_renewal_notice_period",
@@ -474,8 +468,8 @@ const ManageLeaseTemplate = () => {
         regex: validWholeNumber,
         errorMessage: "This field is required",
       },
-      dataTestId: "lease-renewal-notice-period",
-      errorMessageDataTestId: "lease-renewal-notice-period-error",
+      dataTestId: "lease-renewal-notice-period-input",
+      errorMessageDataTestId: "lease-renewal-notice-period-input-error",
     },
     {
       name: "lease_renewal_fee",
@@ -495,8 +489,8 @@ const ManageLeaseTemplate = () => {
         regex: numberUpTo2DecimalPlaces,
         errorMessage: "Please enter a valid number",
       },
-      dataTestId: "lease-renewal-fee",
-      errorMessageDataTestId: "lease-renewal-fee-error",
+      dataTestId: "lease-renewal-fee-input",
+      errorMessageDataTestId: "lease-renewal-fee-input-error",
     },
   ];
 
@@ -526,10 +520,6 @@ const ManageLeaseTemplate = () => {
     );
     if (!allFrequenciesEqual) {
       // Handle case where frequencies are not all the same
-      console.log(
-        "Additional charges have different frequencies",
-        additionalCharges
-      );
       // Perform actions or show an error message to the user
       // You can return early, show an error message, or prevent form submission
       setIsLoading(false);
@@ -567,7 +557,6 @@ const ManageLeaseTemplate = () => {
           additional_charges: JSON.stringify(chargesWithNumericAmount),
         })
         .then((res) => {
-          console.log(res);
           if (res.status === 200) {
             setAlertModalIsOpen(true);
             setAlertModalTitle("Success");
@@ -600,7 +589,6 @@ const ManageLeaseTemplate = () => {
       selected_assignments: JSON.stringify(selectedAssignments),
     };
     await assignLeaseTemplate(data).then((res) => {
-      console.log(res);
       if (res.status === 200) {
         setAlertModalIsOpen(true);
         setAlertModalTitle("Success");
@@ -620,7 +608,6 @@ const ManageLeaseTemplate = () => {
     await authenticatedInstance
       .patch(`/lease-templates/${id}/`, detailsFormData)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           setAlertModalIsOpen(true);
           setAlertModalTitle("Success");
@@ -647,6 +634,7 @@ const ManageLeaseTemplate = () => {
     authenticatedInstance
       .get(`/lease-templates/${id}/`)
       .then((res) => {
+        console.log(res);
         setLeaseTemplate(res.data);
         setDetailsFormData({
           rent: res.data.rent,
@@ -690,7 +678,6 @@ const ManageLeaseTemplate = () => {
       template_id: leaseTemplate.template_id,
     })
       .then((res) => {
-        console.log(res);
         setEditLink(res.url);
       })
       .finally(() => {
@@ -800,7 +787,6 @@ const ManageLeaseTemplate = () => {
               removeLeaseTemplateFromAssignedResources({
                 lease_template_id: id,
               }).then((res) => {
-                console.log(res);
                 if (res.status === 200) {
                   setAlertModalIsOpen(true);
                   setAlertModalTitle("Success");
@@ -829,7 +815,6 @@ const ManageLeaseTemplate = () => {
             handleConfirm={() => {
               deleteLeaseTemplate(id)
                 .then((res) => {
-                  console.log(res);
                   setAlertModalIsOpen(true);
                   setAlertModalTitle("Lease Template Deleted");
                   setAlertModalMessage("");
@@ -926,11 +911,13 @@ const ManageLeaseTemplate = () => {
                         className="mb-2"
                         sx={{ color: uiGrey2, fontSize: "12pt" }}
                         htmlFor={input.name}
+                        data-testid={input.dataTestId + "-label"}
                       >
                         {input.label}
                       </Typography>
                       {input.type === "select" ? (
                         <select
+                          data-testid={input.dataTestId}
                           id={input.name}
                           name={input.name}
                           value={detailsFormData[input.name]}
@@ -946,6 +933,7 @@ const ManageLeaseTemplate = () => {
                         </select>
                       ) : (
                         <input
+                          data-testid={input.dataTestId}
                           id={input.name}
                           name={input.name}
                           type={input.type}
@@ -1097,20 +1085,6 @@ const ManageLeaseTemplate = () => {
                       createSubtitle={(row) =>
                         `Beds: ${row.beds} | Baths: ${row.baths}`
                       }
-                      // createURL={`/dashboard/owner/lease-templates/units/create/${id}`}
-                      // showCreate={true}
-                      // getImage={(row) => {
-                      //   retrieveFilesBySubfolder(
-                      //     `properties/${property.id}/units/${row.id}`,
-                      //     authUser.id
-                      //   ).then((res) => {
-                      //     if (res.data.length > 0) {
-                      //       return res.data[0].file;
-                      //     } else {
-                      //       return "https://picsum.photos/200";
-                      //     }
-                      //   });
-                      // }}
                       onRowClick={(row) => {
                         const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
                         navigate(navlink);
@@ -1132,11 +1106,16 @@ const ManageLeaseTemplate = () => {
                         data={units}
                         columns={unit_columns}
                         options={unit_options}
+                        onRowClick={(row) => {
+                          let navlink = "/";
+                          navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                          navigate(navlink);
+                        }}
                         menuOptions={[
                           {
                             name: "View",
                             onClick: (row) => {
-                              const navlink = `/dashboard/owner/units/${row.rental_property.id}/${row.id}`;
+                              const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property_id}`;
                               navigate(navlink);
                             },
                           },
@@ -1183,16 +1162,16 @@ const ManageLeaseTemplate = () => {
                       data={properties}
                       columns={[
                         { label: "Name", name: "name" },
-                        {
-                          label: "Units",
-                          name: "units",
-                          options: {
-                            customBodyRender: (value) => value.length,
-                          },
-                        },
+                        { label: "Street", name: "street" },
+                        { label: "City", name: "city" },
+                        { label: "State", name: "state" },
                       ]}
                       options={{
                         isSelectable: false,
+                      }}
+                      onRowClick={(row) => {
+                        const navlink = `/dashboard/owner/properties/${row.id}`;
+                        navigate(navlink);
                       }}
                       menuOptions={[
                         {
@@ -1259,6 +1238,9 @@ const ManageLeaseTemplate = () => {
                       options={portfolio_options}
                       showCreate={true}
                       createURL="/dashboard/owner/portfolios/create"
+                      onRowClick={(row) => {
+                        navigate(`/dashboard/owner/portfolios/${row.id}`);
+                      }}
                       menuOptions={[
                         {
                           name: "View",
@@ -1280,6 +1262,7 @@ const ManageLeaseTemplate = () => {
                   src={editLink}
                   height={isMobile ? "500px" : "1200px"}
                   width="100%"
+                  title="Edit Lease Template"
                 />
               </div>
             </>

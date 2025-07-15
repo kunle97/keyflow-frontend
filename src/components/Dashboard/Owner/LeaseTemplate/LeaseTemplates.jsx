@@ -19,20 +19,19 @@ import Joyride, {
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const LeaseTemplates = () => {
-  const [leaseTemplates, setLeaseTemplates] = useState([]);
-  const [units, setUnits] = useState([]);
+  const navigate = useNavigate();
+  const { isMobile } = useScreen();
+  const [isLoading, setIsLoading] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [alertModalTitle, setAlertModalTitle] = useState("");
-  const { isMobile } = useScreen();
-  const navigate = useNavigate();
-
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const tourSteps = [
     {
-      target: ".lease-agreements-page",
+      target: ".lease-template-page",
       content:
         "This is the lease template page where you can view all your lease templates. A lease template is a pre-made lease agreement document and set of terms that you can use to apply to multiple units.",
       disableBeacon: true,
@@ -69,13 +68,10 @@ const LeaseTemplates = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-    console.log("Current Joyride data", data);
   };
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
 
   const columns = [
@@ -126,37 +122,6 @@ const LeaseTemplates = () => {
     },
   ];
 
-  function deleteLeaseTemplatesIfNotUsed(leaseTemplates, unitsToCheck) {
-    const leaseTemplateIdsToDelete = [];
-    const leaseTemplateIdsToOmit = [];
-    let leaseTemplatesInUse = 0;
-    for (const leaseTemplate of leaseTemplates) {
-      // Check if the lease term is associated with any units
-      const isUsedByUnits = unitsToCheck.some(
-        (unit) => unit.lease_template === leaseTemplate.id
-      );
-
-      // If not used by any units, add its ID to the list of IDs to be deleted
-      if (!isUsedByUnits) {
-        leaseTemplateIdsToDelete.push(leaseTemplate.id);
-      } else {
-        leaseTemplatesInUse++;
-        leaseTemplateIdsToOmit.push(leaseTemplate.id);
-      }
-    }
-
-    // Remove the lease terms from the original array
-    const updatedLeaseTemplates = leaseTemplates.filter(
-      (leaseTemplate) => !leaseTemplateIdsToDelete.includes(leaseTemplate.id)
-    );
-
-    return {
-      leaseTemplateIdsToDelete,
-      leaseTemplateIdsToOmit,
-      leaseTemplatesInUse,
-    };
-  }
-
   const handleRowClick = (row) => {
     const navlink = `/dashboard/owner/lease-templates/${row.id}`;
     navigate(navlink);
@@ -171,73 +136,41 @@ const LeaseTemplates = () => {
     },
     onRowClick: handleRowClick,
     //CREate a function to handle the row delete
-    onRowsDelete: (rowsDeleted, data) => {
-      const leaseTemplateIdsSelected = [];
-      //Place the selected rows into an array
-      const selectedRows = rowsDeleted.data.map((row) => {
-        leaseTemplateIdsSelected.push(leaseTemplates[row.dataIndex]);
-      });
-      const filteredLeaseTemplates = deleteLeaseTemplatesIfNotUsed(
-        leaseTemplateIdsSelected,
-        units
-      );
-      if (filteredLeaseTemplates.leaseTemplatesInUse > 0) {
-        setAlertModalTitle("Error");
-        setAlertModalMessage(
-          "Some of the selected lease terms are currently in use by units. Please remove them from the units before deleting them."
-        );
-        setShowAlertModal(true);
-      } else {
-        setAlertModalTitle("Success");
-        setAlertModalMessage(
-          "The selected lease terms have been deleted successfully."
-        );
-        setShowAlertModal(true);
-      }
-      filteredLeaseTemplates.leaseTemplateIdsToDelete.map((id) => {
-        deleteLeaseTemplate(id)
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            setAlertModalMessage(err.response.data.message);
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      deleteLeaseTemplate(row.id)
+        .then((res) => {
+          if (res.status === 204) {
+            setAlertModalTitle("Success");
+            setAlertModalMessage("Lease template deleted successfully");
             setShowAlertModal(true);
-          });
-      });
+          } else {
+            setAlertModalTitle("Error");
+            setAlertModalMessage(
+              "An error occurred while deleting the lease template"
+            );
+            setShowAlertModal(true);
+          }
+        })
+        .catch((error) => {
+          setAlertModalTitle("Error");
+          setAlertModalMessage(
+            error.message
+              ? error.message
+              : "An error occurred while deleting the lease template"
+          );
+          setShowAlertModal(true);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    deleteOptions: {
+      confirmTitle: "Delete Lease Template",
+      confirmMessage: "Are you sure you want to delete this lease template?",
     },
   };
 
-  //Retrieve user's lease terms
-  useEffect(() => {
-    //retrieve lease terms that the user has created
-    getLeaseTemplatesByUser()
-      .then((res) => {
-        setLeaseTemplates(res.data);
-        console.log(res);
-      })
-      .catch((error) => {
-        console.error("Error fetching lease templates:", error);
-        setAlertModalTitle("Error");
-        setAlertModalMessage(
-          "There was an error fetching your lease templates. Please try again."
-        );
-        setShowAlertModal(true);
-      });
-    //Retrieve the user's units
-    getOwnerUnits()
-      .then((res) => {
-        setUnits(res.data);
-        console.log(res);
-      })
-      .catch((error) => {
-        console.error("Error fetching units:", error);
-        setAlertModalTitle("Error");
-        setAlertModalMessage(
-          "There was an error fetching your units. Please try again."
-        );
-        setShowAlertModal(true);
-      });
-  }, []);
   return (
     <div className="container-fluid lease-template-page">
       <Joyride
@@ -261,19 +194,21 @@ const LeaseTemplates = () => {
           skip: "Skip",
         }}
       />
+      <ProgressModal open={showAlertModal} title="Please Wait..." />
       <AlertModal
         open={showAlertModal}
         title={alertModalTitle}
         message={alertModalMessage}
         btnText="Ok"
         onClick={() => {
-          setShowAlertModal(false);
+          navigate(0);
         }}
       />
       <div className="card" style={{ overflow: "hidden" }}></div>
       <div className="lease-template-table-container">
         {isMobile ? (
           <UITableMobile
+            dataTestId="lease-templates-table-mobile"
             tableTitle="Lease Templates"
             endpoint="/lease-templates/"
             createInfo={(row) => {
@@ -313,12 +248,15 @@ const LeaseTemplates = () => {
           />
         ) : (
           <UITable
+            dataTestId="lease-templates-table"
+            testRowIdentifier="lease-templates"
             columns={columns}
             options={options}
             endpoint="/lease-templates/"
             title="Lease Templates"
             showCreate={true}
             createURL="/dashboard/owner/lease-templates/create"
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "Manage",

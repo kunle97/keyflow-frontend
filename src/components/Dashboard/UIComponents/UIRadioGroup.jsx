@@ -3,7 +3,6 @@ import { uiGreen } from "../../../constants";
 import {
   FormControl,
   FormControlLabel,
-  FormLabel,
   Radio,
   RadioGroup,
 } from "@mui/material";
@@ -47,6 +46,7 @@ const UIRadioGroup = (props) => {
             return (
               !option.hidden && ( // if option.hidden is false, then render the radio button
                 <FormControlLabel
+                  data-testId={option.dataTestId}
                   key={index} // Adding key for list items
                   value={option.value}
                   control={<Radio />}

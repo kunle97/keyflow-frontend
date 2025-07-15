@@ -4,7 +4,7 @@ import { createBoldSignEmbeddedTemplateLink } from "../../../../../../api/boldsi
 import UIButton from "../../../../UIComponents/UIButton";
 import Dropzone from "react-dropzone";
 import { Stack } from "@mui/material";
-import { uiGreen, authUser, uiGrey2 } from "../../../../../../constants";
+import { uiGreen, authUser } from "../../../../../../constants";
 import ProgressModal from "../../../../UIComponents/Modals/ProgressModal";
 import { useEffect } from "react";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
@@ -12,6 +12,11 @@ import UIRadioGroup from "../../../../UIComponents/UIRadioGroup";
 import useScreen from "../../../../../../hooks/useScreen";
 const UploadLeaseDocument = (props) => {
   const [file, setFile] = useState(null); //TODO: Change to array of files
+  const [acceptedFileTypes, setAcceptedFileTypes] = useState(
+    ".pdf,.doc,.docx,.png,.jpg,.jpeg"
+  );
+  const [maxFileSize, setMaxFileSize] = useState(3145728);
+  const [minFileSize, setMinFileSize] = useState(1024);
   const [renderIframe, setRenderIframe] = useState(false);
   const [iframeUrl, setIframeUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,9 +81,33 @@ const UploadLeaseDocument = (props) => {
 
   const handleDrop = async (acceptedFiles) => {
     setIsLoading(true);
-    
-    console.log("dropzone file", acceptedFiles[0]);
+
     let accepted_file = acceptedFiles[0];
+    let file_extension = accepted_file.name.split(".").pop();
+    console.log("Accepted file:", accepted_file);
+
+    //Check the extension of the file matches in the accepted file types variable
+    if (!acceptedFileTypes.includes(file_extension)) {
+      setAlertTitle("Invalid File Type");
+      setAlertMessage(
+        "The file you uploaded is not a valid file type. Please upload a .pdf, .doc, .docx, .png, .jpg, or .jpeg file."
+      );
+      setAlertOpen(true);
+      setIsLoading(false);
+      return;
+    }
+
+    //Check if the file size is smaller than the max file size variable and  greater than the min file size variable
+    if (accepted_file.size > maxFileSize || accepted_file.size < minFileSize) {
+      setAlertTitle("Invalid File Size");
+      setAlertMessage(
+        "The file you uploaded is not a valid file size. Please upload a file that is less than 3MB."
+      );
+      setAlertOpen(true);
+      setIsLoading(false);
+      return;
+    }
+
     const payload = {
       file: acceptedFiles[0],
       template_title: accepted_file.name + " Lease Agreement",
@@ -89,27 +118,28 @@ const UploadLeaseDocument = (props) => {
       owner_email: authUser.email,
     };
     //Call the createBoldSignEmbeddedTemplateLink API
-    await createBoldSignEmbeddedTemplateLink(payload).then((res) => {
-      console.log(res);
-      if (res.status === 201) {
-        setIframeUrl(res.url);
-        props.setTemplateId(res.template_id);
-        setRenderIframe(true);
-        setAlertTitle("Signature Field Notice");
+    await createBoldSignEmbeddedTemplateLink(payload)
+      .then((res) => {
+        if (res.status === 201) {
+          setIframeUrl(res.url);
+          props.setTemplateId(res.template_id);
+          setRenderIframe(true);
+          setAlertTitle("Signature Field Notice");
+          setAlertMessage(
+            "When editing the document, please ensure that you add a signature for both yourself (the owner) and the tenant. Failing to do so will result in an unuseable lease agreement document"
+          );
+          setAlertOpen(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating template link:", error);
+        setAlertTitle("Error");
         setAlertMessage(
-          "When editing the document, please ensure that you add a signature for both yourself (the owner) and the tenant. Failing to do so will result in an unuseable lease agreement document"
+          "An error occurred while creating the lease agreement template. Please try again."
         );
         setAlertOpen(true);
-      }
-    }).catch((error) => {
-      console.error("Error creating template link:", error);
-      setAlertTitle("Error");
-      setAlertMessage(
-        "An error occurred while creating the lease agreement template. Please try again."
-      );
-      setAlertOpen(true);
-      setIsLoading(false);
-    });
+        setIsLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -142,12 +172,6 @@ const UploadLeaseDocument = (props) => {
             height={isMobile ? "500px" : "900px"}
             onLoad={() => setIsLoading(false)}
           />
-          {/* <StepControl
-            step={props.step}
-            steps={props.steps}
-            handlePreviousStep={props.handlePreviousStep}
-            handleNextStep={props.handleNextStep}
-          /> */}
         </div>
       ) : (
         <div>
@@ -157,7 +181,6 @@ const UploadLeaseDocument = (props) => {
               name="lease_template_options"
               value={props.documentMode}
               onChange={(e) => {
-                console.log(props.templateId);
                 props.setDocumentMode(e.target.value);
               }}
               direction="row"
@@ -177,8 +200,8 @@ const UploadLeaseDocument = (props) => {
             <Dropzone
               onDrop={handleDrop}
               accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-              minSize={1024}
-              maxSize={3145728}
+              minSize={minFileSize}
+              maxSize={maxFileSize}
               maxFiles={1}
             >
               {({
@@ -211,11 +234,11 @@ const UploadLeaseDocument = (props) => {
                     }}
                   >
                     <input
+                      data-testid="file-upload-input"
                       {...getInputProps()}
                       onChange={(e) => {
                         setFile(e.target.files[0]);
-                        console.log("onChange file", e.target.files[0]);
-                        console.log("onCHange state file", file);
+
                         handleDrop([e.target.files[0]]);
                       }}
                       type="file"

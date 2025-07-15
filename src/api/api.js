@@ -63,8 +63,8 @@ authenticatedMediaInstance.interceptors.request.use(
 );
 
 // Apply the error handler to the authenticated instances
-addErrorHandler(authenticatedInstance);
-addErrorHandler(authenticatedMediaInstance);
+// addErrorHandler(authenticatedInstance);
+// addErrorHandler(authenticatedMediaInstance);
 
 export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
@@ -78,7 +78,7 @@ addErrorHandler(unauthenticatedInstance);
 const getCredentials = async (endpoint) => {
   try {
     const res = await unauthenticatedInstance.get(endpoint);
-    console.log(res);
+
     return res.data;
   } catch (error) {
     console.error("API Error:", error);
@@ -87,7 +87,6 @@ const getCredentials = async (endpoint) => {
 };
 
 export const getOwnersEmails = () => getCredentials("/owners-emails/");
-export const getOwnersUsernames = () =>
-  getCredentials("/owners-usernames/");
+export const getOwnersUsernames = () => getCredentials("/owners-usernames/");
 export const getTenantsEmails = () => getCredentials("/tenants-emails/");
 export const getTenantsUsernames = () => getCredentials("/tenants-usernames/");

@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import useScreen from "../../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import { uiGreen, uiRed } from "../../../../../constants";
 import UITable from "../../../UIComponents/UITable/UITable";
 import UITableMobile from "../../../UIComponents/UITable/UITableMobile";
@@ -54,7 +48,6 @@ const TenantLeaseAgreements = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
   const columns = [
     {
@@ -112,7 +105,7 @@ const TenantLeaseAgreements = () => {
   ];
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/lease-agreements/${rowData}`;
+    const navlink = `/dashboard/owner/lease-agreements/${rowData.id}`;
     navigate(navlink);
   };
 
@@ -152,6 +145,7 @@ const TenantLeaseAgreements = () => {
       <div className="lease-agreements-table-container">
         {isMobile ? (
           <UITableMobile
+            dataTestId="lease-agreements-table-mobile"
             tableTitle={"Lease Agreements"}
             endpoint={"/lease-agreements/"}
             createInfo={(row) =>
@@ -188,10 +182,13 @@ const TenantLeaseAgreements = () => {
           />
         ) : (
           <UITable
+          
+            dataTestId="lease-agreements-table"
             columns={columns}
             endpoint={"/lease-agreements/"}
             options={options}
             title={"Lease Agreements"}
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "View",

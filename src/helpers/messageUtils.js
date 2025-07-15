@@ -1,9 +1,7 @@
-import { retrieveFilesBySubfolder } from "../api/file_uploads";
-import { authUser, defaultUserProfilePicture } from "../constants";
+import { authUser } from "../constants";
 
 export const createThreads = (messages) => {
   const threadsMap = {};
-  let recipient_profile_picture_url = null;
 
   // Group messages by sender and recipient pairs
   messages.forEach((message) => {

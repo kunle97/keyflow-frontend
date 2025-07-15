@@ -11,6 +11,7 @@ import { tenantData } from "../../../constants";
 import ProgressModal from "../UIComponents/Modals/ProgressModal";
 const NewMessageDialog = (props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [alertRedirectURL, setAlertRedirectURL] = useState("");
   const [tenants, setTenants] = useState(null);
   const [selectedRecipient, setSelectedRecipient] = useState(null); // [id, name
   const [body, setBody] = useState(""); // [id, name
@@ -60,7 +61,7 @@ const NewMessageDialog = (props) => {
   };
 
   useEffect(() => {
-    if (authUser.account_type == "owner" && !tenants) {
+    if (authUser.account_type == "owner" && !tenants && props.open) {
       getOwnerTenants()
         .then((res) => {
           setTenants(res.data);
@@ -77,9 +78,8 @@ const NewMessageDialog = (props) => {
     if (authUser.account_type === "tenant") {
       setTenants([]);
       setSelectedRecipient(authUser.owner_id);
-      console.log(authUser, "tenantData.owner_id");
     }
-  }, [tenants]);
+  }, [tenants,props.open]);
   return (
     <div>
       <ProgressModal open={isLoading} />

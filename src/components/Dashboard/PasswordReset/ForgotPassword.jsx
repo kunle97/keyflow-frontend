@@ -29,8 +29,8 @@ const ForgotPassword = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -51,10 +51,6 @@ const ForgotPassword = () => {
     },
   ];
 
-  // emailjs.init(process.env.REACT_APP_EMAIL_JS_API_KEY);
-  //TODO: Add form validation
-  //TODO: Create PasswordResetToken
-  //TODO: Send email to user with link to reset password (using SendGrid
   const navigate = useNavigate();
 
   const onSubmit = () => {
@@ -65,7 +61,7 @@ const ForgotPassword = () => {
     };
     sendPasswordResetEmail(payload)
       .then((res) => {
-        console.log(res);
+
         setAlertTitle("Password Reset Link Sent");
         setAlertMessage(
           `A password reset link has been sent to your email address. Please check your email and follow the instructions to reset your password`

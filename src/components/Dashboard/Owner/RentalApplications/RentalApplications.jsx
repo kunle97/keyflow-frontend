@@ -1,31 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { getRentalApplicationsByUser } from "../../../../api/rental_applications";
 import { useNavigate } from "react-router";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import useScreen from "../../../../hooks/useScreen";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import { uiGreen } from "../../../../constants";
-import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
+import { rejectRentalApplication } from "../../../../api/rental_applications";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
+import AlertModal from "../../UIComponents/Modals/AlertModal";
 const RentalApplications = () => {
-  const [rentalApplications, setRentalApplications] = useState([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertTitle, setAlertTitle] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { isMobile } = useScreen();
   const [runTour, setRunTour] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openAlertModal, setOpenAlertModal] = useState(false);
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+
   const tourSteps = [
     {
       target: ".rental-application-list",
@@ -47,7 +42,7 @@ const RentalApplications = () => {
     },
   ];
   const handleJoyrideCallback = (data) => {
-    const { action, index, status, type } = data;
+    const { status } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Need to set our running state to false, so we can restart if we click start again.
       setTourIndex(0);
@@ -57,7 +52,6 @@ const RentalApplications = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
   const columns = [
     {
@@ -119,8 +113,8 @@ const RentalApplications = () => {
       sortable: true,
     },
   ];
-  const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/rental-applications/${rowData}`;
+  const handleRowClick = (row, rowMeta) => {
+    const navlink = `/dashboard/owner/rental-applications/${row.id}`;
     navigate(navlink);
   };
   const options = {
@@ -131,40 +125,48 @@ const RentalApplications = () => {
       direction: "desc",
     },
     onRowClick: handleRowClick,
-  };
-
-  useEffect(() => {
-    getRentalApplicationsByUser()
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          //Create a new array that only holds data with the is_arhived property set to false
-          // const filteredData = res.data.filter((data) => {
-          //   return data.is_archived === false;
-          // });
-          setRentalApplications(res.data);
+    onRowDelete: (row) => {
+      setIsLoading(true);
+      rejectRentalApplication(row.id)
+        .then((res) => {
+          if (res.status === 200) {
+            setOpenAlertModal(false);
+            setAlertModalTitle("Success");
+            setAlertModalMessage(res.message? res.message: "Rental application rejected successfully."); 
+            setOpenAlertModal(true);
+            setIsLoading(false);
+          } else {
+            setAlertModalTitle("An error occured");
+            setAlertModalMessage(
+              res.message
+                ? res.message
+                : "An error occurred while rejecting the rental application. Please try again."
+            );
+            setOpenAlertModal(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error rejecting rental application:", error);
+          setAlertModalTitle("An error occurred");
+          setAlertModalMessage(
+            error.message
+              ? error.message
+              : "An error occurred while rejecting the rental application. Please try again."
+          );
+          setOpenAlertModal(true);
+        })
+        .finally(() => {
           setIsLoading(false);
-        }
-        console.log("Rental Applications: ", rentalApplications);
-      })
-      .catch((error) => {
-        console.error("Error getting rental applications:", error);
-        setAlertTitle("Error");
-        setAlertMessage(
-          "An error occurred while fetching rental applications. Please try again."
-        );
-        setShowAlert(true);
-      });
-  }, []);
+        });
+    },
+    deleteOptions: {
+      label: "Reject",
+      confirmTitle: "Reject Rental Application",
+      confirmMessage: "Are you sure you want to reject this rental application?",
+    },
+  };
   return (
     <div className="container-fluid rental-application-list">
-      <AlertModal
-        open={showAlert}
-        onClick={() => setShowAlert(false)}
-        title={alertTitle}
-        message={alertMessage}
-        btnText="Okay"
-      />
       <Joyride
         run={runTour}
         index={tourIndex}
@@ -185,6 +187,14 @@ const RentalApplications = () => {
           next: "Next",
           skip: "Skip",
         }}
+      />
+      <ProgressModal open={isLoading} title="Please wait..." />
+      <AlertModal
+        open={openAlertModal}
+        setOpen={setOpenAlertModal}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onClick={() => navigate(0)}
       />
       {isMobile ? (
         <UITableMobile
@@ -224,6 +234,7 @@ const RentalApplications = () => {
           title="Rental Applications"
           detailURL="/dashboard/owner/rental-applications/"
           showCreate={false}
+          onRowClick={handleRowClick}
           menuOptions={[
             {
               name: "View",

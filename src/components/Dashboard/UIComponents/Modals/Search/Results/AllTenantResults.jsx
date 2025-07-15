@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { filterTenants } from "../../../../../../helpers/utils";
 import { useEffect } from "react";
-import { getOwnerTenants } from "../../../../../../api/owners";
 import SearchResultCard from "../SearchResultCard";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import UIPrompt from "../../../UIPrompt";
@@ -47,7 +45,7 @@ const AllTenantResults = (props) => {
         setPreviousPageEndPoint(response.data.previous);
       })
       .catch((error) => {
-        console.log(error);
+
         setAlertTitle("Error");
         setAlertMessage(
           "An error occured retrieving properties: " + error.message

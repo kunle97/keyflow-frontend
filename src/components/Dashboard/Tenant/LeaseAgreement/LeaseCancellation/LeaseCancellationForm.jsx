@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import UIButton from "../../../UIComponents/UIButton";
 import { useState } from "react";
 import { authUser, validationMessageStyle } from "../../../../../constants";
@@ -13,12 +13,6 @@ const LeaseCancellationForm = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
-  const [steps, setSteps] = useState([
-    "Reason for Cancellation",
-    "Desired Move Out Date",
-    "Comments",
-    "Submit",
-  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,8 +26,8 @@ const LeaseCancellationForm = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -55,8 +49,8 @@ const LeaseCancellationForm = (props) => {
         regex: validAnyString,
         errorMessage: "Please select a reason for the cancellation",
       },
-      dataTestId: "reason",
-      errorMessageDataTestId: "reason-error",
+      dataTestId: "reason-select",
+      errorMessageDataTestId: "reason-select-error",
     },
     {
       name: "moveOutDate",
@@ -71,8 +65,8 @@ const LeaseCancellationForm = (props) => {
         //Create a regeext property whoes value is a regex that matches the date format
         regex: validHTMLDateInput,
       },
-      dataTestId: "move-out-date",
-      errorMessageDataTestId: "move-out-date-error",
+      dataTestId: "move-out-date-input",
+      errorMessageDataTestId: "move-out-date-input-error",
     },
     {
       name: "comments",
@@ -82,12 +76,12 @@ const LeaseCancellationForm = (props) => {
       onChange: (e) => handleChange(e),
 
       validations: {
-        required: false,
+        required: true,
         regex:validAnyString,
-        errorMessage: "Please enter comments",
+        errorMessage: "Please enter a breif comment on your reason for cancellation",
       },
-      dataTestId: "comments",
-      errorMessageDataTestId: "comments-error",
+      dataTestId: "comments-textarea",
+      errorMessageDataTestId: "comments-textarea-error",
     },
   ];
 
@@ -95,7 +89,7 @@ const LeaseCancellationForm = (props) => {
     setIsLoading(true);
     // Check that the move out date is not before the end of the lease agreement end date
     const moveOutDate = new Date(formData.moveOutDate);
-    const leaseEndDate = new Date(props.leaseAgreement.end_date);
+    const leaseEndDate = new Date(props.leaseAgreement?.end_date);
     if (moveOutDate > leaseEndDate) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -111,14 +105,14 @@ const LeaseCancellationForm = (props) => {
       request_date: formData.moveOutDate,
       comments: formData.comments,
       tenant: authUser.id,
-      owner: props.leaseAgreement.owner.id,
-      rental_unit: props.leaseAgreement.rental_unit.id,
-      rental_property: props.leaseAgreement.rental_unit.rental_property,
-      lease_agreement: props.leaseAgreement.id,
+      owner: props.leaseAgreement?.owner.id,
+      rental_unit: props.leaseAgreement?.rental_unit.id,
+      rental_property: props.leaseAgreement?.rental_unit.rental_property,
+      lease_agreement: props.leaseAgreement?.id,
     };
     try {
       createLeaseCancellationRequest(payload).then((res) => {
-        console.log(res);
+
         if (res.status === 201) {
           props.setShowLeaseCancellationFormDialog(false);
           props.setAlertModalTitle("Lease Cancellation Request Created");
@@ -127,7 +121,7 @@ const LeaseCancellationForm = (props) => {
           );
           props.setShowAlertModal(true);
         } else {
-          console.log("Error creating lease cancellation request", res);
+
           props.setShowLeaseCancellationFormDialog(false);
           props.setAlertModalTitle("Error");
           props.setAlertModalMessage(
@@ -147,6 +141,9 @@ const LeaseCancellationForm = (props) => {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+     
+  },[]);
   return (
     <div>
       <ProgressModal open={isLoading} title="Creating Lease Cancellation Request..." />
@@ -170,8 +167,10 @@ const LeaseCancellationForm = (props) => {
                       id={input.name}
                       name={input.name}
                       onChange={input.onChange}
+                      onBlur={input.onChange}
                       data-testid={input.dataTestId}
-                    >
+                    > 
+                      <option value="">Select a reason</option>
                       {input.options.map((option, index) => {
                         return (
                           <option key={index} value={option}>
@@ -214,6 +213,7 @@ const LeaseCancellationForm = (props) => {
           })}
         </div>
         <UIButton
+        dataTestId="lease-cancellation-form-submit-button"
           btnText="Submit"
           onClick={() => {
             const { isValid, newErrors } = validateForm(formData, formInputs);

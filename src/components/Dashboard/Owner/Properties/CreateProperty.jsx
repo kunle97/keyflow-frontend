@@ -9,7 +9,6 @@ import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { faker } from "@faker-js/faker";
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router";
-import { set, useForm } from "react-hook-form";
 import {
   authUser,
   token,
@@ -18,6 +17,7 @@ import {
   validationMessageStyle,
 } from "../../../../constants";
 import UIStepper from "../../UIComponents/UIStepper";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import UIButton from "../../UIComponents/UIButton";
 import UnitRow from "./UnitRow";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
@@ -31,7 +31,6 @@ import {
 } from "../../../../helpers/formValidation";
 import Joyride, {
   ACTIONS,
-  CallBackProps,
   EVENTS,
   STATUS,
   Step,
@@ -42,6 +41,7 @@ import {
   getStripeAccountRequirements,
   getStripeOnboardingAccountLink,
 } from "../../../../api/owners";
+import UIPrompt from "../../UIComponents/UIPrompt";
 
 const CreateProperty = () => {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ const CreateProperty = () => {
     },
     {
       target: "button[data-testid='create-property-next-button']",
-      content: "Click this button to continue tothe next step",
+      content: "Click this button to continue to add units to the property",
       spotlightClicks: true,
     },
     {
@@ -88,22 +88,22 @@ const CreateProperty = () => {
         "Here is where you add units to your property. Click the add unit button to add a new unit and the remove button to remove a unit",
     },
     {
-      target: 'input[name="name"]:first-of-type',
+      target: 'input[data-testid="unit-name"]:first-of-type',
       content: "In this textbox, enter the name of the unit you want to add.",
       placement: "bottom",
     },
     {
-      target: 'input[name="beds"]:first-of-type',
+      target: 'input[data-testid="unit-beds"]:first-of-type',
       content: "In this textbox, enter the number of bedrooms in the unit.",
       placement: "bottom",
     },
     {
-      target: 'input[name="baths"]:first-of-type',
+      target: 'input[data-testid="unit-baths"]:first-of-type',
       content: "In this textbox, enter the number of bathrooms in the unit.",
       placement: "bottom",
     },
     {
-      target: 'input[name="size"]:first-of-type',
+      target: 'input[data-testid="unit-size"]:first-of-type',
       content: "In this textbox, enter the size of the unit in square feet.",
       placement: "bottom",
     },
@@ -137,17 +137,17 @@ const CreateProperty = () => {
       setTourIndex(nextStepIndex);
     }
 
-    console.log("Current Joyride data", data);
+
   };
   const handleClickStart = (event) => {
     event.preventDefault();
     if (step === 0) {
       setTourIndex(0);
     } else if (step === 1) {
-      setTourIndex(1);
+      setTourIndex(3);
     }
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const handleChange = (e) => {
@@ -159,8 +159,8 @@ const CreateProperty = () => {
     );
     setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -188,7 +188,7 @@ const CreateProperty = () => {
             name: value,
           };
           await validatePropertyName(payload).then((res) => {
-            console.log(res);
+
             if (res.status === 400) {
               setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -229,7 +229,7 @@ const CreateProperty = () => {
       validations: {
         required: true,
         regex: /^[a-zA-Z0-9\s,'-]*$/,
-        errorMessage: "Must be at least 3 characters long",
+        errorMessage: "This field must be at least 3 characters long",
       },
       dataTestId: "create-property-city-input",
       errorMessageDataTestId: "create-property-city-error-message",
@@ -298,7 +298,7 @@ const CreateProperty = () => {
       validations: {
         required: true,
         regex: /^[a-zA-Z0-9\s,'-]*$/,
-        errorMessage: "Must be at least 3 characters long",
+        errorMessage: "This field is required",
       },
       dataTestId: "create-property-state-input",
       errorMessageDataTestId: "create-property-state-error-message",
@@ -336,31 +336,7 @@ const CreateProperty = () => {
       errorMessageDataTestId: "create-property-country-error-message",
     },
   ];
-  const [units, setUnits] = useState([
-    {
-      name: `${
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.string.alpha()
-      }${
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.finance.accountNumber(1)
-      }`,
-      beds:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 4, max: 10 }),
-      baths:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 4, max: 6 }),
-      size:
-        process.env.REACT_APP_ENVIRONMENT !== "development"
-          ? ""
-          : faker.number.int({ min: 500, max: 1500 }),
-    },
-  ]);
+  const [units, setUnits] = useState([]);
 
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
@@ -414,55 +390,79 @@ const CreateProperty = () => {
     // check if errors and unitValidationErrors have values that are all undefined
     if (hasNoErrors(errors) && hasNoErrors(unitValidationErrors)) {
       try {
-        const res = await createProperty(
+        await createProperty(
           formData.name,
           formData.street,
           formData.city,
           formData.state,
           formData.zipcode,
           formData.country
-        );
-        console.log(res);
-        const newPropertyId = res.res.id;
-        if (res.status === 200) {
-          let payload = {};
-          payload.units = JSON.stringify(units);
-          payload.rental_property = newPropertyId;
-          payload.subscription_id = currentSubscriptionPlan.id;
-          payload.product_id = currentSubscriptionPlan.plan.product;
-          payload.user = authUser.id;
-          payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
+        )
+          .then((res) => {
 
-          const res = await createUnit(payload);
-          console.log(res);
-          if (res.status === 200) {
-            setIsLoading(false);
-            navigate(`/dashboard/owner/properties/${newPropertyId}`);
-          } else {
+            const newPropertyId = res.res.id;
+            if (res.status === 200) {
+              if (units.length === 0) {
+                navigate(`/dashboard/owner/properties/${newPropertyId}`);
+              } else {
+                let payload = {};
+                payload.units = JSON.stringify(units);
+                payload.rental_property = newPropertyId;
+                payload.subscription_id = currentSubscriptionPlan
+                  ? currentSubscriptionPlan.id
+                  : null;
+                payload.product_id = currentSubscriptionPlan
+                  ? currentSubscriptionPlan.plan.product
+                  : null;
+                payload.user = authUser.id;
+                payload.lease_terms = JSON.stringify(
+                  defaultRentalUnitLeaseTerms
+                );
+
+                createUnit(payload).then((res) => {
+
+                  if (res.status === 200) {
+                    setIsLoading(false);
+                    navigate(`/dashboard/owner/properties/${newPropertyId}`);
+                  } else {
+                    setUnitCreateError(true);
+                    setErrorMessage(
+                      res.message
+                        ? res.message
+                        : "There was an error creating your property."
+                    );
+                    setIsLoading(false);
+                  }
+                });
+              }
+            } else {
+              setUnitCreateError(true);
+              setErrorMessage(
+                res.message
+                  ? res.message
+                  : "There was an error creating your property."
+              );
+              setIsLoading(false);
+            }
+          })
+          .catch((error) => {
+
             setUnitCreateError(true);
-            setErrorMessage(
-              "There was an error creating your property" + res.message
-            );
+            setErrorMessage("Error creating property");
             setIsLoading(false);
-          }
-        } else {
-          setUnitCreateError(true);
-          setErrorMessage(
-            "There was an error creating your property" + res.message
-          );
-          setIsLoading(false);
-        }
+          });
       } catch (error) {
-        console.log("Error creating property: ", error);
+
         setUnitCreateError(true);
         setErrorMessage("Error creating property");
         setIsLoading(false);
       }
     } else {
-      console.log("Cannot submit");
+
+      setIsLoading(false);
     }
-    console.log("DAta: ", data);
-    console.log("Form Data: ", formData);
+
+
     setIsLoading(true);
   };
 
@@ -472,7 +472,7 @@ const CreateProperty = () => {
         setCurrentSubscriptionPlan(res.subscriptions);
       })
       .catch((error) => {
-        console.log("Error retrieving subscription plan: ", error);
+
         setErrorMessage("Error retrieving subscription plan");
         setUnitCreateError(true);
       });
@@ -480,21 +480,22 @@ const CreateProperty = () => {
   };
 
   useEffect(() => {
+     
     try {
       retrieveSubscriptionPlan();
       getStripeOnboardingAccountLink().then((res) => {
-        console.log("Stripe ACcount link res: ", res);
+
         setStripeAccountLink(res.account_link);
       });
       getStripeAccountRequirements().then((res) => {
-        console.log("Stripe Account Requirements: ", res);
+
         setStripeAccountRequirements(res.requirements);
         setStripeOnboardingPromptOpen(
           res.requirements.currently_due.length > 0
         );
       });
     } catch (error) {
-      console.log("Error getting stripe account link: ", error);
+
     }
   }, []);
 
@@ -601,6 +602,7 @@ const CreateProperty = () => {
                             <>
                               <select
                                 onChange={input.onChange}
+                                onBlur={input.onChange}
                                 data-testId={`create-property-${input.name}-input`}
                                 name={input.name}
                                 className="form-select"
@@ -644,7 +646,7 @@ const CreateProperty = () => {
                       spacing={2}
                     >
                       <UIButton
-                        dataTestId="create-property-next-button"
+                        dataTestId="create-property-add-units-button"
                         type="button"
                         // style={{ float: "right" }}
                         btnText="Add Units"
@@ -671,38 +673,72 @@ const CreateProperty = () => {
                 )}
                 {step === 1 && (
                   <div className="units-section">
-                    {units.map((unit, index) => {
-                      return (
-                        <UnitRow
-                          units={units}
-                          errors={unitValidationErrors}
-                          setErrors={setUnitValidationErrors}
-                          style={{ marginBottom: "20px" }}
-                          key={index}
-                          id={index}
-                          unitNameErrors={errors[`unitName_${index}`]}
-                          unitBedsErrors={errors[`unitBeds_${index}`]}
-                          unitBathsErrors={errors[`unitBaths_${index}`]}
-                          unitSizeErrors={errors[`unitSize_${index}`]}
-                          unit={unit}
-                          onUnitChange={(e) => handleUnitChange(e, index)}
-                          addUnit={addUnit}
-                          removeBtn={
-                            index !== 0 && (
+                    {units.length > 0 ? (
+                      units.map((unit, unitIndex) => {
+                        return (
+                          <UnitRow
+                            units={units}
+                            errors={unitValidationErrors}
+                            setErrors={setUnitValidationErrors}
+                            style={{ marginBottom: "20px" }}
+                            key={unitIndex}
+                            id={unitIndex}
+                            dataTestId={`unit-row-${unitIndex}`}
+                            unitNameErrors={errors[`unitName_${unitIndex}`]}
+                            unitBedsErrors={errors[`unitBeds_${unitIndex}`]}
+                            unitBathsErrors={errors[`unitBaths_${unitIndex}`]}
+                            unitSizeErrors={errors[`unitSize_${unitIndex}`]}
+                            unit={unit}
+                            onUnitChange={(e) => handleUnitChange(e, unitIndex)}
+                            addUnit={addUnit}
+                            removeBtn={
                               <Button
+                                data-testId={`remove-unit-${unitIndex}-button`}
                                 sx={{
                                   color: uiRed,
                                   textTransform: "none",
                                 }}
-                                onClick={() => removeUnit(index)}
+                                onClick={() => removeUnit(unitIndex)}
                               >
                                 Delete
                               </Button>
-                            )
+                            }
+                          />
+                        );
+                      })
+                    ) : (
+                      <>
+                        <UIPrompt
+                          hideBoxShadow={true}
+                          title={"No Units Created"}
+                          icon={
+                            <MeetingRoomIcon
+                              style={{ fontSize: "32pt", color: uiGreen }}
+                            />
+                          }
+                          message={
+                            "You have not created any units for this property. Would you like to create one now?"
+                          }
+                          btnText={"Create Unit"}
+                          body={
+                            <Stack
+                              direction="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                              spacing={2}
+                            >
+                              <UIButton
+                              dataTestId="initial-create-unit-button"
+                                btnText={"Create Unit"}
+                                onClick={() => {
+                                  addUnit();
+                                }}
+                              />
+                            </Stack>
                           }
                         />
-                      );
-                    })}
+                      </>
+                    )}
 
                     <Stack
                       direction="row"

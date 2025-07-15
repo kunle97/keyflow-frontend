@@ -22,11 +22,7 @@ import { defaultRentalUnitLeaseTerms } from "../../../../constants/lease_terms";
 import UIButton from "../../UIComponents/UIButton";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import { hasNoErrors } from "../../../../helpers/formValidation";
 const CreateUnit = () => {
@@ -82,6 +78,8 @@ const CreateUnit = () => {
         "Once you are finished adding units, click this button to create the units.",
     },
   ];
+  const [showPropertyErrorMessages, setShowPropertyErrorMessages] =
+    useState(false);
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data;
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
@@ -93,7 +91,7 @@ const CreateUnit = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
   const [units, setUnits] = useState([
     {
@@ -121,7 +119,6 @@ const CreateUnit = () => {
     },
   ]);
 
-
   //Create a function to handle unit information change
   const handleUnitChange = (e, index) => {
     const { name, value } = e.target;
@@ -129,7 +126,7 @@ const CreateUnit = () => {
     const list = [...units];
     list[index][realName] = value;
     setUnits(list);
-    console.log(units);
+
   };
 
   //Create a function to add a new unit
@@ -172,22 +169,36 @@ const CreateUnit = () => {
   //Call the create unit api function and pass the form data
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setProgressModalTitle("Creating Unit...");
+    setProgressModalTitle("Creating Units...");
+
+    //Check if a property has been selected
+    if (!selectedPropertyId) {
+      setIsLoading(false);
+      setShowPropertyErrorMessages(true);
+      return;
+    }else{
+      setShowPropertyErrorMessages(false);
+    }
+
     let payload = {};
     payload.units = JSON.stringify(units);
     payload.rental_property = selectedPropertyId;
-    payload.subscription_id = currentSubscriptionPlan.id;
-    payload.product_id = currentSubscriptionPlan.plan.product;
+    payload.subscription_id = currentSubscriptionPlan
+      ? currentSubscriptionPlan.id
+      : null;
+    payload.product_id = currentSubscriptionPlan
+      ? currentSubscriptionPlan.plan.product
+      : null;
     payload.user = authUser.id;
     payload.lease_terms = JSON.stringify(defaultRentalUnitLeaseTerms);
 
-    console.log("Data ", data);
-    console.log("Pay load ", payload);
-    console.log("UNits ", units);
+
+
+
 
     const response = await createUnit(payload)
       .then((res) => {
-        console.log(res);
+
         if (res.status === 200) {
           setIsLoading(false);
           navigate(`/dashboard/owner/properties/${selectedPropertyId}`);
@@ -214,7 +225,7 @@ const CreateUnit = () => {
   //Create a function to handle the property select change
   const handlePropertySelectChange = (e) => {
     setSelectedPropertyId(e.target.value);
-    console.log(e.target.value);
+
   };
   const retrieveSubscriptionPlan = async () => {
     setIsLoading(true);
@@ -237,6 +248,7 @@ const CreateUnit = () => {
   };
 
   useEffect(() => {
+     
     //Retrieve all users properties
     getProperties()
       .then((res) => {
@@ -291,9 +303,7 @@ const CreateUnit = () => {
             <BackButton />
             <div className="card shadow my-3">
               <div className="card-body">
-                <form
-                  data-testid="create-unit-form"
-                >
+                <form data-testid="create-unit-form">
                   <Stack
                     direction="row"
                     alignItems="center"
@@ -306,7 +316,9 @@ const CreateUnit = () => {
                     >
                       Add Unit(s)
                     </h6>
-                    <div>
+                    <div style={{
+                      maxWidth: "260px",
+                    }} >
                       <select
                         data-testid="create-unit-property-select"
                         name="rental_property"
@@ -333,6 +345,11 @@ const CreateUnit = () => {
                           );
                         })}
                       </select>{" "}
+                      {showPropertyErrorMessages && (
+                        <span style={validationMessageStyle}>
+                          Please select a property to add the unit(s) to.
+                        </span>
+                      )}
                     </div>
                   </Stack>
 
@@ -372,14 +389,17 @@ const CreateUnit = () => {
                   <div className="text-end my-3 ">
                     <span className="submit-create-unit-button">
                       <UIButton
-                        data-testid="create-unit-submit-button"
+                        dataTestId="create-unit-submit-button"
                         className="btn btn-primary ui-btn "
                         onClick={() => {
                           if (hasNoErrors(unitValidationErrors)) {
                             setIsLoading(true);
                             onSubmit();
                           } else {
-                            console.log("Errors ", unitValidationErrors);
+                            setErrorMessage(
+                              "Please fix all errors before submitting."
+                            );
+                            setUnitCreateError(true);
                           }
                         }}
                         btnText="Create Unit(s)"

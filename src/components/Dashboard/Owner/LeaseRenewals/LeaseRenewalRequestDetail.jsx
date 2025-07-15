@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { uiGreen, uiRed, uiGrey2, uiGrey } from "../../../../constants";
+import { uiGreen, uiRed, uiGrey2 } from "../../../../constants";
 import UIButton from "../../UIComponents/UIButton";
 import { Stack } from "@mui/material";
 import {
@@ -17,21 +17,13 @@ import useScreen from "../../../../hooks/useScreen";
 import { getTenantInvoices } from "../../../../api/tenants";
 import { removeUnderscoresAndCapitalize } from "../../../../helpers/utils";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 const LeaseRenewalRequestDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [leaseRenewalRequest, setLeaseRenewalRequest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [transactions, setTransactions] = useState([]);
-  const [nextPaymentDate, setNextPaymentDate] = useState(null); //TODO: get next payment date from db and set here
   const [dueDates, setDueDates] = useState([]);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertModalTitle, setAlertModalTitle] = useState("");
@@ -39,7 +31,6 @@ const LeaseRenewalRequestDetail = () => {
   const [currentLeaseAgreement, setCurrentLeaseAgreement] = useState(null); //TODO: get current lease agreement from db and set here
   const [currentLeaseTemplate, setCurrentLeaseTemplate] = useState(null); //TODO: get current lease template from db and set here
   const [currentLeaseTerms, setCurrentLeaseTerms] = useState(null);
-  const [openAcceptModal, setOpenAcceptModal] = useState(false);
   const [openRejectModal, setOpenRejectModal] = useState(false);
   const [invoices, setInvoices] = useState([]);
   const [runTour, setRunTour] = useState(false);
@@ -80,7 +71,6 @@ const LeaseRenewalRequestDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
 
   const rent_payment_columns = [
@@ -150,10 +140,9 @@ const LeaseRenewalRequestDetail = () => {
       lease_renewal_request_id: leaseRenewalRequest.id,
     })
       .then((res) => {
-        console.log(res);
         if (res.status === 204) {
           setAlertModalTitle("Success");
-          setAlertModalMessage("Lease renewal request rejected!");
+          setAlertModalMessage("Lease renewal request rejected.");
           setShowAlertModal(true);
         } else {
           setAlertModalTitle("Error");
@@ -202,8 +191,8 @@ const LeaseRenewalRequestDetail = () => {
           if (!currentLeaseAgreement || !currentLeaseTemplate) {
             getLeaseAgreementsByTenant(lease_renewal_res.data.tenant.id).then(
               (res) => {
-                console.log("Tenant's Lease agreements ", res);
                 const lease_agreements = res.data;
+                console.log("tenant lease agreements: ", lease_agreements);
                 const current_lease_agreement = lease_agreements.find(
                   (lease_agreement) => lease_agreement.is_active === true
                 );
@@ -213,40 +202,12 @@ const LeaseRenewalRequestDetail = () => {
                 );
                 setCurrentLeaseTerms(
                   current_lease_agreement
-                    ? JSON.parse(
-                        current_lease_agreement?.rental_unit.lease_terms
-                      )
+                    ? JSON.parse(current_lease_agreement?.lease_terms)
                     : []
                 );
-
-                console.log("Current Lease Agreement", current_lease_agreement);
                 getTenantInvoices(lease_renewal_res.data.tenant.id).then(
                   (res) => {
-                    setInvoices(res.invoices.data);
-                    console.log(res.invoices.data);
-                    const due_dates = res.invoices.data.map((invoice) => {
-                      if (!invoice.paid) {
-                        let date = new Date(invoice.due_date * 1000);
-                        return {
-                          amount: invoice.amount_due,
-                          title: "Rent Due",
-                          due_date: date.toLocaleDateString(),
-                          status: "Unpaid",
-                        };
-                      } else if (invoice.paid) {
-                        let date = new Date(
-                          invoice.status_transitions.paid_at * 1000
-                        );
-                        return {
-                          amount: invoice.amount_due,
-                          title: "Rent Paid",
-                          due_date: date.toLocaleDateString(),
-                          status: "Paid",
-                        };
-                      }
-                    });
-                    console.log(due_dates);
-                    setDueDates(due_dates);
+                    setInvoices(res.invoices);
                   }
                 );
               }
@@ -259,12 +220,12 @@ const LeaseRenewalRequestDetail = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
         setAlertModalTitle("Error");
         setAlertModalMessage("Something went wrong. Please try again later.");
         setShowAlertModal(true);
       })
       .finally(() => setIsLoading(false));
+    console.log("currnt lease terms: ", currentLeaseTerms);
   }, []);
 
   return (
@@ -332,9 +293,6 @@ const LeaseRenewalRequestDetail = () => {
               {leaseRenewalRequest?.tenant.user.last_name}'s Lease Renewal
               Request ({leaseRenewalRequest?.status})
             </h4>
-            {/* {leaseRenewalRequest.status !== "approved" &&
-              !isMobile &&
-              actionStack} */}
           </Stack>
 
           <div className="row">
@@ -343,64 +301,102 @@ const LeaseRenewalRequestDetail = () => {
                 <div className="card mb-3  current-lease-agreement-details-card">
                   <div className="card-body">
                     <div className="row">
-                      <h5 className="mb-3">Current Lease Agreement Details</h5>
+                      <h5
+                        className="mb-3"
+                        data-testId="current-lease-agreement-heading"
+                      >
+                        Current Lease Agreement Details
+                      </h5>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Current Unit
+                        <h6
+                          className="rental-application-lease-heading"
+                          data-testId="current-lease-agreement-unit-heading"
+                        >
+                          Unit
                         </h6>
-                        {currentLeaseAgreement?.rental_unit.name}
+
+                        <span data-testId="current-lease-agreement-unit-value">
+                          {currentLeaseAgreement?.rental_unit.name}
+                        </span>
                       </div>{" "}
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
-                          Curent Term
+                        <h6
+                          className="rental-application-lease-heading"
+                          data-testId="current-lease-agreement-term-heading"
+                        >
+                          Term
                         </h6>
-                        {
-                          currentLeaseTerms?.find(
-                            (term) => term.name === "term"
-                          ).value
-                        }{" "}
-                        {
-                          currentLeaseTerms?.find(
-                            (term) => term.name === "rent_frequency"
-                          ).value
-                        }
+                        <span data-testId="current-lease-agreement-term-value">
+                          {
+                            currentLeaseTerms?.find(
+                              (term) => term.name === "term"
+                            ).value
+                          }{" "}
+                        </span>
+                        <span data-testId="current-lease-agreement-rent-frequency-value">
+                          {
+                            currentLeaseTerms?.find(
+                              (term) => term.name === "rent_frequency"
+                            ).value
+                          }
+                        </span>
                         (s)
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
+                        <h6
+                          className="rental-application-lease-heading"
+                          data-testId="current-lease-agreement-property-heading"
+                        >
                           Property
                         </h6>
-                        {
-                          currentLeaseAgreement?.rental_unit
-                            .rental_property_name
-                        }
+                        <span data-testId="current-lease-agreement-property-value">
+                          {
+                            currentLeaseAgreement?.rental_unit
+                              .rental_property_name
+                          }
+                        </span>
                       </div>{" "}
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
+                        <h6
+                          className="rental-application-lease-heading"
+                          data-testId="current-lease-agreement-rent-heading"
+                        >
                           Rent
                         </h6>
-                        $
-                        {
-                          currentLeaseTerms?.find(
-                            (term) => term.name === "rent"
-                          ).value
-                        }
+                        <span data-testId="current-lease-agreement-rent-value">
+                          $
+                          {
+                            currentLeaseTerms?.find(
+                              (term) => term.name === "rent"
+                            ).value
+                          }
+                        </span>
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
+                        <h6
+                          className="rental-application-lease-heading"
+                          data-testId="current-lease-agreement-start-date-heading"
+                        >
                           Lease Start Date
                         </h6>
-                        {new Date(
-                          currentLeaseAgreement?.start_date
-                        ).toLocaleDateString()}
+                        <span data-testId="current-lease-agreement-start-date-value">
+                          {new Date(
+                            currentLeaseAgreement?.start_date
+                          ).toLocaleDateString()}
+                        </span>
                       </div>
                       <div className="col-sm-12 col-md-6 mb-4 text-black">
-                        <h6 className="rental-application-lease-heading">
+                        <h6
+                          className="rental-application-lease-heading"
+                          data-testId="current-lease-agreement-end-date-heading"
+                        >
                           Lease End Date
                         </h6>
-                        {new Date(
-                          currentLeaseAgreement?.end_date
-                        ).toLocaleDateString()}
+                        <span data-testId="current-lease-agreement-end-date-value">
+                          {new Date(
+                            currentLeaseAgreement?.end_date
+                          ).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -415,41 +411,74 @@ const LeaseRenewalRequestDetail = () => {
               <div className="card mb-3 lease-renewal-request-details-card">
                 <div className="card-body">
                   <div className="row">
-                    <h5 className="mb-3">Lease Renewal Request Details</h5>{" "}
+                    <h5
+                      className="mb-3"
+                      data-testId="lease-renewal-request-details-heading"
+                    >
+                      Lease Renewal Request Details
+                    </h5>{" "}
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-request-unit-heading"
+                      >
                         Requested Unit
                       </h6>
-                      {leaseRenewalRequest?.rental_unit.name}
+                      <span data-testId="lease-renewal-request-unit-value">
+                        {leaseRenewalRequest?.rental_unit.name}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-request-term-heading"
+                      >
                         Requested Lease Term
                       </h6>
-                      {leaseRenewalRequest?.request_term}{" "}
-                      {leaseRenewalRequest?.rent_frequency}(s)
+                      <span data-testId="lease-renewal-request-term-value">
+                        {leaseRenewalRequest?.request_term}{" "}
+                      </span>
+                      <span data-testId="lease-renewal-request-rent-frequency-value">
+                        {leaseRenewalRequest?.rent_frequency}
+                      </span>
+                      (s)
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-request-desired-move-in-date-heading"
+                      >
                         Desired Move In Date
                       </h6>
-                      {new Date(
-                        leaseRenewalRequest?.move_in_date
-                      ).toLocaleDateString()}
+                      <span data-testId="lease-renewal-request-desired-move-in-date-value">
+                        {new Date(
+                          leaseRenewalRequest?.move_in_date
+                        ).toLocaleDateString()}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-request-date-submitted-heading"
+                      >
                         Date Submitted
                       </h6>
-                      {new Date(
-                        leaseRenewalRequest?.request_date
-                      ).toLocaleDateString()}
+                      <span data-testId="lease-renewal-request-date-submitted-value">
+                        {new Date(
+                          leaseRenewalRequest?.request_date
+                        ).toLocaleDateString()}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-12 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-request-additional-comments-heading"
+                      >
                         Additional Comments
                       </h6>
-                      {leaseRenewalRequest?.comments}
+                      <span data-testId="lease-renewal-request-additional-comments-value">
+                        {leaseRenewalRequest?.comments}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -510,6 +539,7 @@ const LeaseRenewalRequestDetail = () => {
                 />
               ) : (
                 <UITable
+                  dataTestId="tenant-bills-list"
                   columns={rent_payment_columns}
                   options={{
                     isSelectable: false,
@@ -517,6 +547,9 @@ const LeaseRenewalRequestDetail = () => {
                   title="Bills"
                   showCreate={false}
                   data={invoices}
+                  onRowClick={(row) => {
+                    navigate(`/dashboard/tenant/bills/${row.id}`);
+                  }}
                   menuOptions={[
                     {
                       name: "Details",

@@ -54,7 +54,7 @@ const RentalApplicationGeneratorForm = (props) => {
         payload
       )
       .then((response) => {
-        console.log("Response ", response);
+
         if (response.data.status === 201) {
           alert(`Successfully generated ${numberOfItems} rental-applications`);
           setIsLoading(false);

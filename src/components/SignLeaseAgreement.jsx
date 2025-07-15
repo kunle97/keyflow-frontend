@@ -1,34 +1,29 @@
 import React from "react";
-import { addMonths, uiGreen } from "../constants";
-import { Stack, Typography } from "@mui/material";
+import { isInDevMode, uiGreen } from "../constants";
+import { Stack } from "@mui/material";
 import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
 import {
   getLeaseAgreementByIdAndApprovalHash,
   signLeaseAgreement,
 } from "../api/lease_agreements";
-import { getLeaseTemplateByIdAndApprovalHash } from "../api/lease_templates";
 import { useState } from "react";
 import AlertModal from "./Dashboard/UIComponents/Modals/AlertModal";
-import ConfirmModal from "./Dashboard/UIComponents/Modals/ConfirmModal";
 import { generateSigningLink } from "../api/boldsign";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import ProgressModal from "./Dashboard/UIComponents/Modals/ProgressModal";
 import UIPrompt from "./Dashboard/UIComponents/UIPrompt";
-import { Link } from "react-router-dom";
 import LandingPageNavbar from "./Landing/LandingPageNavbar";
 import useScreen from "../hooks/useScreen";
 import { createInvoicesForRenewal } from "../api/tenants";
 const SignLeaseAgreement = () => {
   const { lease_agreement_id, approval_hash } = useParams();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [displayError, setDisplayError] = useState(false);
   const [showSignConfirmation, setShowSignConfirmation] = useState(false);
   const [signResponseMessage, setSignResponseMessage] = useState("");
   const [showSignResponse, setShowSignResponse] = useState(false);
   const [redirectLink, setRedirectLink] = useState("");
-  const [redirectMessage, setRedirectMessage] = useState("");
   const [renewalMode, setRenewalMode] = useState(false);
   const [signingLink, setSigningLink] = useState(null);
   const [signingLinkIsValid, setSigningLinkIsValid] = useState(false);
@@ -100,27 +95,28 @@ const SignLeaseAgreement = () => {
             lease_agreement_id: leaseAgreement.id,
             tenant_id: leaseAgreement.tenant.id,
           };
-          createInvoicesForRenewal(payload).then((res) => {
-            console.log(res);
-            if(res.status === 200){
-              console.log("Invoices created successfully")
-              setSignResponseMessage(
-                "Lease Renewal Agreement Signed Successfully. Click the button below to  be redirected back to your dashboard."
-              );
-              //REdirect to the tenant dashboard
-              setRedirectLink(
-                process.env.REACT_APP_HOSTNAME + "/dashboard/tenant/"
-              );
+          createInvoicesForRenewal(payload)
+            .then((res) => {
+              if (res.status === 200) {
+                setSignResponseMessage(
+                  "Lease Renewal Agreement Signed Successfully. Click the button below to  be redirected back to your dashboard."
+                );
+                //REdirect to the tenant dashboard
+                setRedirectLink(
+                  process.env.REACT_APP_HOSTNAME + "/dashboard/tenant/"
+                );
+                setIsLoading(false);
+              }
+            })
+            .finally(() => {
               setIsLoading(false);
-            }
-          }).finally(() => {
-            setIsLoading(false);
-            setShowSignResponse(true);
-            setShowSignConfirmation(false);
-          });
+              setShowSignResponse(true);
+              setShowSignConfirmation(false);
+            });
         } else {
           //On update success redirect to tenant registration page with approval_hash
           setSignResponseMessage(
+            isInDevMode ? redirectLink :
             "Lease Agreement Signed Successfully. Click the button below to create your account."
           );
           setShowSignResponse(true);
@@ -192,6 +188,7 @@ const SignLeaseAgreement = () => {
   };
 
   useEffect(() => {
+     
     setIsLoading(true);
     if (!leaseAgreement) {
       try {
@@ -206,9 +203,6 @@ const SignLeaseAgreement = () => {
               setUnitLeaseTerms(
                 JSON.parse(lease_agreement_res.rental_unit.lease_terms)
               );
-              console.log(
-                JSON.parse(lease_agreement_res.rental_unit.lease_terms)
-              );
               let redirectLink =
                 process.env.REACT_APP_HOSTNAME +
                 "/dashboard/tenant/register" +
@@ -218,6 +212,7 @@ const SignLeaseAgreement = () => {
                 lease_agreement_res.rental_unit.id +
                 "/" +
                 lease_agreement_res.approval_hash;
+                console.log("REDIRECT lInK: ",redirectLink);
               setRedirectLink(redirectLink);
               let payload = {};
               if (lease_agreement_res.tenant) {
@@ -241,7 +236,6 @@ const SignLeaseAgreement = () => {
               }
               if (!signingLink) {
                 generateSigningLink(payload).then((res) => {
-                  console.log(res);
                   if (res.data.status === 200) {
                     //Set the src of the iframe to the signing link
                     setSigningLink(res.data.data.signLink);
@@ -267,12 +261,10 @@ const SignLeaseAgreement = () => {
             }
           })
           .catch((err) => {
-            console.log(err);
             setDisplayError(true);
           });
         setIsLoading(false);
       } catch (err) {
-        console.log(err);
       } finally {
       }
     }
@@ -299,6 +291,13 @@ const SignLeaseAgreement = () => {
         }}
       />
       <ProgressModal open={isLoading} title={progressModalText} />
+      {signingLink && isInDevMode && (
+        <p 
+          data-testid="signing-link"
+         >
+          {signingLink}
+        </p>
+      )}
       {!displayError ? (
         <>
           {" "}
@@ -319,139 +318,9 @@ const SignLeaseAgreement = () => {
                   {leaseAgreement.rental_unit.rental_property_name}{" "}
                 </h2>
                 <div className="row">
-                  {/* <div className="col-md-4">
-                    <div className="card my-3">
-                      <div className="card-body">
-                        <h6 className="card-title text-black">
-                          Lease Agreement Overview
-                        </h6>
-                        <div className="row">
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Rent
-                            </h6>
-                            $
-                            {getUnitPreferenceValueByName(
-                              "rent",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Term
-                            </h6>
-                            {getUnitPreferenceValueByName(
-                              "term",
-                              unitLeaseTerms
-                            )}{" "}
-                            {getUnitPreferenceValueByName(
-                              "rent_frequency",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Late Fee
-                            </h6>
-                            $
-                            {getUnitPreferenceValueByName(
-                              "late_fee",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Security Deposit
-                            </h6>
-                            $
-                            {getUnitPreferenceValueByName(
-                              "security_deposit",
-                              unitLeaseTerms
-                            )}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Gas Included?
-                            </h6>
-                            {`${
-                              getUnitPreferenceValueByName(
-                                "gas_included",
-                                unitLeaseTerms
-                              )
-                                ? "Yes"
-                                : "No"
-                            }`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Electric Included?
-                            </h6>
-                            {`${
-                              getUnitPreferenceValueByName(
-                                "electric_included",
-                                unitLeaseTerms
-                              )
-                                ? "Yes"
-                                : "No"
-                            }`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Water Included?
-                            </h6>
-                            {`${
-                              getUnitPreferenceValueByName(
-                                "water_included",
-                                unitLeaseTerms
-                              )
-                                ? "Yes"
-                                : "No"
-                            }`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Lease Cancellation Fee
-                            </h6>
-                            {`$${getUnitPreferenceValueByName(
-                              "lease_cancellation_fee",
-                              unitLeaseTerms
-                            )}`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Lease Cancellation Notice period
-                            </h6>
-                            {`${getUnitPreferenceValueByName(
-                              "lease_cancellation_notice_period",
-                              unitLeaseTerms
-                            )} Month(s)`}
-                          </div>
-                          <div className="col-sm-6 col-md-6 mb-4 text-black">
-                            <h6 className="rental-application-lease-heading">
-                              Grace period
-                            </h6>
-                            {`${getUnitPreferenceValueByName(
-                              "grace_period",
-                              unitLeaseTerms
-                            )} Month(s)`}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Typography sx={{ color: "black" }}>
-                        Powered by{" "}
-                        <Link to="/">
-                          <img
-                            src="/assets/img/key-flow-logo-black-transparent.png"
-                            width={150}
-                          />
-                        </Link>
-                      </Typography>
-                    </div>
-                  </div> */}
                   <div className="col-md-12">
                     <iframe
+                      data-testid="signing-iframe"
                       src={signingLink}
                       className="card my-3"
                       style={{

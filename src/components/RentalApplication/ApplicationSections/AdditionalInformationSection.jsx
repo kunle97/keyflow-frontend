@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { validationMessageStyle } from "../../../constants";
 import { Stack } from "@mui/material";
 import UIButton from "../../Dashboard/UIComponents/UIButton";
@@ -19,8 +19,8 @@ const AdditionalInformationSection = (props) => {
       [name]: newErrors[name],
     }));
     props.setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", props.formData);
-    console.log("Errors ", props.errors);
+
+
   };
 
   const formInputs = [
@@ -174,6 +174,7 @@ const AdditionalInformationSection = (props) => {
         className="mt-5"
       >
         <UIButton
+          dataTestId="back-button"
           style={{ width: "100%" }}
           btnText="Back"
           onClick={() => {
@@ -181,6 +182,7 @@ const AdditionalInformationSection = (props) => {
           }}
         />
         <UIButton
+          dataTestId="next-button"
           style={{ width: "100%" }}
           btnText="Next"
           onClick={() => {

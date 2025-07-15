@@ -2,7 +2,6 @@ import {
   authenticatedMediaInstance,
   unauthenticatedInstance,
 } from "../api/api";
-import { updateUnit } from "../api/units";
 import DashboardContainer from "../components/Dashboard/DashboardContainer";
 
 //Create a fucntion to surround a component with the DashboardContainer
@@ -143,8 +142,6 @@ export const generateSimilarColor = (baseColor) => {
   return `rgb(${randomR}, ${randomG}, ${randomB})`;
 };
 export const generateVariedColors = (baseColor, numberOfColors) => {
-  const [r, g, b] = baseColor.match(/\w\w/g).map((x) => parseInt(x, 16));
-
   const colors = [];
   const hueIncrement = 360 / numberOfColors;
   const lightnessIncrement = 20;
@@ -212,24 +209,19 @@ export const addUnderscoresAndLowercase = (value) => {
     .replace(/\s/g, "_")
     .replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toLowerCase()));
   return newValue;
-}
+};
 
 //Create a function to check if file name is valid. It is only valid if it contains numbers, letters, underscores, and dashes. No special characters
 export const isValidFileName = (file_name) => {
-  console.log("File Name:", file_name); // Log the file name
   const regex = /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9]+)?$/;
   const isValid = regex.test(file_name);
-  console.log("isValid name", isValid);
   return isValid;
 };
 
 //Create a function that checks the props.acceptedFileTypes array to see if the file extension is valid
 export const isValidFileExtension = (file_name, acceptedFileTypes) => {
-  console.log("File Name:", file_name); // Log the file name
   const file_extension = file_name.split(".").pop();
-  console.log("File Extension:", file_extension); // Log the file extension
   const isValid = acceptedFileTypes.includes("." + file_extension);
-  console.log("isValid extension", isValid);
   return isValid;
 };
 
@@ -271,19 +263,16 @@ export const handleChangeLeaseTemplate = (
         additional_charges: leaseTemplate.additional_charges,
       })
       .then((res) => {
-        console.log(res);
-        if (res.status == 200) {
+        if (res.status === 200) {
           changeResponse = true;
           return changeResponse;
         }
       })
       .catch((error) => {
-        console.log(error);
         changeResponse = false;
         return changeResponse;
       });
   } catch (err) {
-    console.log("An error occured trying to change the lease template", err);
     changeResponse = false;
     return changeResponse;
   }
@@ -335,7 +324,6 @@ export const validateToken = async () => {
     const res = await unauthenticatedInstance.post("/auth/validate-token/", {
       token: localStorage.getItem("accessToken"),
     });
-    console.log(res);
     isValid = res.data.isValid;
     return res;
   } catch (error) {
@@ -343,7 +331,6 @@ export const validateToken = async () => {
     return error.response;
   }
 };
-
 
 //Create a function taht abbrieveiates rent frequescies for example "monthly" to "mo" and "yearly" to "yr" etc
 export const abbreviateRentFrequency = (frequency) => {
@@ -365,11 +352,10 @@ export const abbreviateRentFrequency = (frequency) => {
   }
 };
 
-//A function to warn the user before leaving/refreshing the page
-export const preventPageReload = (e) => {
+// A function to warn the user before leaving/refreshing the page
+export const preventPageReload = () => {
   const handleBeforeUnload = (event) => {
-    const message =
-      "Are you sure you want to leave? You may lose unsaved changes.";
+    const message = "Are you sure you want to leave? You may lose unsaved changes.";
     event.returnValue = message; // Standard way of setting a warning message
     return message; // Some browsers may use this
   };
@@ -383,4 +369,38 @@ export const preventPageReload = (e) => {
 
 export const formatDateToMMDDYYYY = (date) => {
   return new Date(date).toLocaleDateString("en-US");
-}
+};
+
+export const isValidStripePaymentMethod = (paymentMethod) => {
+  // Check if the payment method is a card
+  if (paymentMethod.type !== "card") {
+    return false;
+  }
+
+  const { card } = paymentMethod;
+  const { exp_month, exp_year, checks, three_d_secure_usage } = card;
+
+  // Check if the card is expired
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1; // getMonth() is zero-based
+
+  if (
+    exp_year < currentYear ||
+    (exp_year === currentYear && exp_month < currentMonth)
+  ) {
+    return false;
+  }
+
+  // Check if CVC is checked
+  if (checks.cvc_check !== "pass") {
+    return false;
+  }
+
+  // Check if 3D Secure is supported
+  if (!three_d_secure_usage.supported) {
+    return false;
+  }
+
+  return true;
+};

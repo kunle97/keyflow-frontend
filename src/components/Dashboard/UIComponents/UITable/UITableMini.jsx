@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import { authenticatedInstance } from "../../../../api/api";
-import { CircularProgress, Box, ButtonBase, Alert } from "@mui/material";
+import { CircularProgress, Box } from "@mui/material";
 import { uiGreen } from "../../../../constants";
 import UIButton from "../UIButton";
 import UIPrompt from "../UIPrompt";
 import AlertModal from "../Modals/AlertModal";
 
 const UITableMini = (props) => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [query, setQuery] = useState("");
   const [isDrfFilterBackend, setIsDrfFilterBackend] = useState(false);
   const [currentPageEndPoint, setCurrentPageEndPoint] = useState(
     props.endpoint
   );
   const [nextPageEndPoint, setNextPageEndPoint] = useState(null);
   const [previousPageEndPoint, setPreviousPageEndPoint] = useState(null);
-  const [count, setCount] = useState(null);
   const [limit, setLimit] = useState(10);
-  const [filteredData, setFilteredData] = useState([]);
   const [alertTitle, setAlertTitle] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -30,14 +25,12 @@ const UITableMini = (props) => {
     try {
       if (props.data) {
         setResults(props.data);
-        setFilteredData(props.data);
         setIsDrfFilterBackend(false);
         setIsLoading(false);
       } else {
         await authenticatedInstance
           .get(endpoint, {
             params: {
-              search: query,
               limit: props.options.limit ? props.options.limit : limit,
               ordering: props.options.sortOrder.desc
                 ? "-" + props.options.sortOrder.name
@@ -50,7 +43,6 @@ const UITableMini = (props) => {
               setResults(res.data.results);
               setNextPageEndPoint(res.data.next);
               setPreviousPageEndPoint(res.data.previous);
-              setCount(res.data.count);
               setIsLoading(false);
               if (props.options.isSelectable) {
                 let newChecked = [];
@@ -80,10 +72,8 @@ const UITableMini = (props) => {
             } else {
               setIsDrfFilterBackend(false);
               setResults(res.data);
-              setFilteredData(res.data);
               setNextPageEndPoint(null);
               setPreviousPageEndPoint(null);
-              setCount(null);
               setLimit(null);
               setIsLoading(false);
               if (props.options.isSelectable) {
@@ -110,7 +100,7 @@ const UITableMini = (props) => {
       setAlertTitle("Error");
       setAlertMessage("An error occurred while fetching the data");
       setShowAlert(true);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -139,7 +129,8 @@ const UITableMini = (props) => {
           {results.length === 0 ? (
             <div>
               <UIPrompt
-                title="Uh Oh!"
+                dataTestId="ui-table-mini-no-results-prompt"
+                title="Nothing to see here!"
                 message="Looks like there are no results to display.  This data will be populated once you get started."
                 hideBoxShadow={true}
               />
@@ -172,15 +163,17 @@ const UITableMini = (props) => {
                 {isDrfFilterBackend ? (
                   <>
                     {" "}
-                    {results.map((row, index) => {
+                    {results.map((row, rowIndex) => {
                       return (
                         <tr>
-                          {props.columns.map((column) => {
+                          {props.columns.map((column, colIndex) => {
                             //Check if column has an option property with a function in it called customBodyRender
                             if (column.options) {
                               if (column.options.customBodyRender) {
                                 return (
-                                  <td>
+                                  <td
+                                  data-testId={`${props.dataTestId}-row-${rowIndex}-${column.name}`}
+                                  >
                                     {column.options.customBodyRender(
                                       row[column.name]
                                     )}
@@ -188,9 +181,15 @@ const UITableMini = (props) => {
                                 );
                               }
                             }
-                            return <td>{row[column.name]}</td>;
+                            return (
+                              <td
+                                data-testId={`${props.dataTestId}-row-${rowIndex}-${column.name}`}
+                              >
+                                {row[column.name]}
+                              </td>
+                            );
                           })}
-                          {props.showViewButton && (
+                        {props.showViewButton && (
                             <td>
                               <UIButton
                                 onClick={() => {
@@ -200,11 +199,6 @@ const UITableMini = (props) => {
                               />
                             </td>
                           )}
-                          {/* {props.options.actionEnabled && (
-                            <td>
-                              <UIButton btnText={props.options.actionText} />
-                            </td>
-                          )} */}
                         </tr>
                       );
                     })}
@@ -235,7 +229,6 @@ const UITableMini = (props) => {
                               <UIButton
                                 variant="text"
                                 onClick={() => {
-                                  // navigate(`${props.detailURL}${row.id}`);
                                   props.options.onRowClick(row.id);
                                 }}
                                 btnText={

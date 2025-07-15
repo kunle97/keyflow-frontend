@@ -11,6 +11,8 @@ import AlertModal from "../../UIComponents/Modals/AlertModal";
 import { Stack } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
 import { getStripeAccountLink } from "../../../../api/owners";
+import UIHelpButton from "../../UIComponents/UIHelpButton";
+import Joyride, { STATUS } from "react-joyride";
 const OwnerTransactions = () => {
   let revenueData = [];
   const [showAlert, setShowAlert] = useState(false);
@@ -24,26 +26,39 @@ const OwnerTransactions = () => {
   const [revenueChartData, setRevenueChartData] = useState([{ x: 0, y: 0 }]);
   const barChartHeight = "430px";
   const pieChartHeight = "468px";
-  const data = [
+  const [runTour, setRunTour] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
     {
-      id: "money",
-      data: [
-        { x: "2023-09-01", y: 1250 },
-        { x: "2023-09-02", y: 3225 },
-        { x: "2023-09-03", y: 2300 },
-        { x: "2023-10-01", y: 1105 },
-        { x: "2023-10-02", y: 150 },
-        { x: "2023-10-03", y: 2030 },
-        { x: "2023-11-01", y: 1200 },
-        { x: "2023-11-02", y: 1450 },
-        { x: "2023-11-03", y: 2050 },
-        { x: "2023-12-01", y: 1040 },
-        { x: "2023-12-02", y: 3050 },
-        { x: "2023-12-03", y: 4400 },
-        // Add more data points here
-      ],
+      target: ".transactions-list",
+      content: "This is the list of all your transactions.",
+      disableBeacon: true,
+    },
+    {
+      target: ".ui-table-search-input",
+      content: "Use the search bar to search for a specific transaction.",
+    },
+    {
+      target: ".ui-table-result-limit-select",
+      content: "Use this to change the number of results per page.",
+    },
+    {
+      target: ".ui-table-more-button:first-of-type",
+      content: "Click here to view transaction details.",
     },
   ];
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      // Need to set our running state to false, so we can restart if we click start again.
+      setTourIndex(0);
+      setRunTour(false);
+    }
+  };
+  const handleClickStart = (event) => {
+    event.preventDefault();
+    setRunTour(true);
+  };
 
   //Create a function to calculate the total revenue for all transactions
   const calculateTotalRevenue = () => {
@@ -120,8 +135,6 @@ const OwnerTransactions = () => {
           }
         });
         setRevenueChartData(revenueData);
-        console.log(revenueData);
-        console.log(data[0].data);
       })
       .catch((error) => {
         console.error("Error fetching transactions", error);
@@ -132,18 +145,32 @@ const OwnerTransactions = () => {
         setShowAlert(true);
       });
     getStripeAccountLink().then((res) => {
-      console.log("Stripe ACcount link res: ", res);
       setStripeAccountLink(res.account_link);
     });
   }, []);
-  console.log([
-    {
-      id: "revenue",
-      data: revenueChartData,
-    },
-  ]);
   return (
     <div className="container-fluid">
+      <Joyride
+        run={runTour}
+        index={tourIndex}
+        steps={tourSteps}
+        callback={handleJoyrideCallback}
+        continuous={true}
+        showProgress={true}
+        showSkipButton={true}
+        styles={{
+          options: {
+            primaryColor: uiGreen,
+          },
+        }}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+      />
       <AlertModal
         open={showAlert}
         onClick={() => setShowAlert(false)}
@@ -158,6 +185,7 @@ const OwnerTransactions = () => {
         spacing={2}
       >
         <UIButton
+          dataTestId="stripe-dashboard-button"
           btnText="Stripe Dashboard"
           onClick={() => {
             window.open(stripeAccountLink, "_blank");
@@ -196,23 +224,28 @@ const OwnerTransactions = () => {
               searchFields={["type", "amount", "timestamp"]}
             />
           ) : (
-            <UITable
-              columns={columns}
-              options={options}
-              endpoint="/transactions/"
-              title="Transactions"
-              detailURL="/dashboard/owner/transactions/"
-              showCreate={false}
-              menuOptions={[
-                {
-                  name: "View",
-                  onClick: (row) => {
-                    const navlink = `/dashboard/owner/transactions/${row.id}`;
-                    navigate(navlink);
+            <div className="transactions-list">
+              <UITable
+                dataTestId="transactions-table"
+                testRowIdentifier="transactions-table-row"
+                columns={columns}
+                options={options}
+                endpoint="/transactions/"
+                title="Transactions"
+                detailURL="/dashboard/owner/transactions/"
+                showCreate={false}
+                onRowClick={handleRowClick}
+                menuOptions={[
+                  {
+                    name: "View",
+                    onClick: (row) => {
+                      const navlink = `/dashboard/owner/transactions/${row.id}`;
+                      navigate(navlink);
+                    },
                   },
-                },
-              ]}
-            />
+                ]}
+              />
+            </div>
           )}
         </>
       )}
@@ -290,6 +323,7 @@ const OwnerTransactions = () => {
           </div>
         </>
       )}
+      <UIHelpButton onClick={handleClickStart} />
     </div>
   );
 };

@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import UIButton from "../Dashboard/UIComponents/UIButton";
 import useScreen from "../../hooks/useScreen";
 const LandingPageNavbar = (props) => {
   const [scrollPosition, setScrollPosition] = useState(0);
-  //Retrieve screen width
-  const [width, setWidth] = useState(window.innerWidth);
-  const breakpoint = 768;
   const { isMobile } = useScreen();
   const handleScroll = () => {
     const currentPosition = window.pageYOffset;

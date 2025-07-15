@@ -2,13 +2,13 @@ import { authenticatedInstance } from "./api";
 
 //Create a function to call the API endpoint /annoucements/ to make a POST request to create a new announcement using the authenticatedInstance
 export async function createAnnouncement(data) {
-  console.log("create announcement data: ", data);
+
   try {
     const res = await authenticatedInstance
       .post(`/announcements/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios create announcement response ", response);
+
         return response;
       });
     return {
@@ -17,7 +17,7 @@ export async function createAnnouncement(data) {
       res: res,
     };
   } catch (error) {
-    console.log("Create announcement error Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -28,7 +28,7 @@ export async function getAnnouncements() {
     const res = await authenticatedInstance
       .get(`/announcements/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -36,7 +36,7 @@ export async function getAnnouncements() {
       });
     return res;
   } catch (error) {
-    console.log("Get announcements Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -54,7 +54,7 @@ export async function getAnnouncement(announcementId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get announcement Error: ", error);
+
     return error.response;
   }
 }
@@ -73,7 +73,7 @@ export async function getUnitAnnouncements(unitId) {
       });
     return res;
   } catch (error) {
-    console.log("Get unit announcements Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -90,7 +90,7 @@ export async function updateAnnouncement(announcementId, data) {
       });
     return res;
   } catch (error) {
-    console.log("Update announcement Error: ", error);
+
     return error.response;
   }
 }
@@ -102,13 +102,13 @@ export async function deleteAnnouncement(announcementId) {
       .delete(`/announcements/${announcementId}/`)
       .then((res) => {
         if (res.status == 204) {
-          return { data: res.data };
+          return res;
         }
         return { data: [] };
       });
-    return res.data;
+    return res;
   } catch (error) {
-    console.log("Delete announcement Error: ", error);
+
     return error.response;
   }
 }

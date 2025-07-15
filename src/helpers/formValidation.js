@@ -1,13 +1,5 @@
 export const validateInput = (name, value, validations) => {
   let errors = { ...validations.errorMessage };
-  console.log(
-    "Name ",
-    name,
-    " Value ",
-    value,
-    " Required",
-    validations.required
-  );
 
   if (validations.required) {
     if (

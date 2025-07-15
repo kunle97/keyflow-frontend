@@ -16,8 +16,8 @@ const UnitRow = (props) => {
   const [errors, setErrors] = useState({});
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("Name ", name);
-    console.log("Value ", value);
+
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -32,8 +32,8 @@ const UnitRow = (props) => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
+
+
   };
 
   const formInputs = [
@@ -62,7 +62,7 @@ const UnitRow = (props) => {
             rental_property: parseInt(props.property_id),
           }
           await validateUnitName(payload).then((res) => {
-            console.log(res)
+
             if (res.status === 400) {
               props.setErrors((prevErrors) => ({
                 ...prevErrors,
@@ -72,8 +72,8 @@ const UnitRow = (props) => {
           });
         },
       },
-      dataTestId: "unit-name",
-      errorMessageDataTestId: "unit-name-error",
+      dataTestId: `${props.dataTestId}-name-input`,
+      errorMessageDataTestId: `${props.dataTestId}-name-input-error`,
     },
     {
       name: "beds",
@@ -86,8 +86,8 @@ const UnitRow = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of beds",
       },
-      dataTestId: "unit-beds",
-      errorMessageDataTestId: "unit-beds-error",
+      dataTestId: `${props.dataTestId}-beds-input`,
+      errorMessageDataTestId: `${props.dataTestId}-beds-input-error`,
     },
     {
       name: "baths",
@@ -100,8 +100,8 @@ const UnitRow = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid number of baths",
       },
-      dataTestId: "unit-baths",
-      errorMessageDataTestId: "unit-baths-error",
+      dataTestId: `${props.dataTestId}-baths-input`,
+      errorMessageDataTestId: `${props.dataTestId}-baths-input-error`,
     },
     {
       name: "size",
@@ -114,8 +114,8 @@ const UnitRow = (props) => {
         regex: validWholeNumber,
         errorMessage: "Please enter a valid size",
       },
-      dataTestId: "unit-size",
-      errorMessageDataTestId: "unit-size-error",
+      dataTestId: `${props.dataTestId}-size-input`,
+      errorMessageDataTestId: `${props.dataTestId}-size-input-error`,
     },
   ];
 
@@ -174,8 +174,8 @@ const UnitRow = (props) => {
           onClick={() => {
             //Check if all the values in the array are undefined'
 
-            console.log("Erorossxzz ", errors);
-            console.log("Errors ", hasNoErrors(errors));
+
+
             if (hasNoErrors(errors)) {
               props.addUnit();
             }

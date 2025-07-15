@@ -16,7 +16,7 @@ export async function createMaintenanceRequestEvent(data) {
       data: res,
     };
   } catch (error) {
-    console.log("Create Maintenance Request Event Error: ", error);
+
     return {
       response: error.response,
       message:
@@ -31,7 +31,7 @@ export async function getMaintenanceRequestEvents(maintenanceRequestId) {
     const res = await authenticatedInstance
       .get(`/maintenance-requests/${maintenanceRequestId}/maintenance-request-events/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -39,7 +39,7 @@ export async function getMaintenanceRequestEvents(maintenanceRequestId) {
       });
     return res;
   } catch (error) {
-    console.log("Get Maintenance Request Events Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

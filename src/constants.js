@@ -11,6 +11,7 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+export const isInDevMode = process.env.REACT_APP_ENVIRONMENT === "development";
 export const authUser = localStorage.getItem("authUser")
   ? JSON.parse(localStorage.getItem("authUser"))
   : {};
@@ -33,6 +34,17 @@ export const stripe_onboarding_link = localStorage.getItem(
 )
   ? localStorage.getItem("stripe_onboarding_link")
   : {};
+export const freePlan = {
+  name: "Free Plan",
+  price: 0,
+  product_id: null,
+  features: [
+    { name: "Accept online rent payments" },
+    { name: "Manage Up to 4 rental units" },
+    { name: "Communicate directly with tenants" },
+    { name: "Manage maintenance requests" },
+  ],
+};
 //Colors - probably should use tailwind colors
 export const uiGreen = "#3aaf5c"; //alt: "#06b474";
 export const uiRed = "#FF4040";
@@ -303,6 +315,7 @@ export const tenantMenuItems = [
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
     muiIcon: <DashboardIcon sx={muiIconStyle} />,
+    dataTestId: "tenant-dashboard-menu-item",
   },
   {
     label: "Bills",
@@ -310,23 +323,27 @@ export const tenantMenuItems = [
     icon: "fas fa-tachometer-alt",
     isSearchable: true,
     muiIcon: <AttachMoneyIcon sx={muiIconStyle} />,
+    dataTestId: "tenant-bills-menu-item",
   },
   {
     label: "Maintenance Requests",
     link: "#",
     muiIcon: <HandymanIcon sx={muiIconStyle} />,
+    dataTestId: "tenant-maintenance-requests-dropdown-menu-item",
     subMenuItems: [
       {
         label: "Create New",
         link: "/dashboard/tenant/maintenance-requests/create",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "tenant-create-new-maintenance-request-menu-item",
       },
       {
         label: "View All",
         link: "/dashboard/tenant/maintenance-requests/",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "tenant-view-all-maintenance-requests-menu-item",
       },
     ],
     icon: "fas fa-tools",
@@ -336,24 +353,28 @@ export const tenantMenuItems = [
     link: "#",
     icon: "fas fa-user-circle",
     muiIcon: <DescriptionIcon sx={muiIconStyle} />,
+    dataTestId: "tenant-lease-agreements-dropdown-menu-item",
     subMenuItems: [
       {
         label: "View Lease Agreements",
         link: "/dashboard/tenant/lease-agreements",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "tenant-view-lease-agreements-menu-item",
       },
       {
         label: "Lease Cancellation Requests",
         link: "/dashboard/tenant/lease-cancellation-requests",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "tenant-lease-cancellation-requests-menu-item",
       },
       {
         label: "Lease Renewal Requests",
         link: "/dashboard/tenant/lease-renewal-requests",
         icon: "fas fa-tools",
         isSearchable: true,
+        dataTestId: "tenant-lease-renewal-requests-menu-item",
       },
     ],
     isSearchable: true,
@@ -442,7 +463,10 @@ export const fakeData = {
       ? ""
       : faker.finance.amount(),
 };
-export function dateDiffForHumans(targetDate) {
+export function dateDiffForHumans(timestamp) {
+  // Check if the timestamp is in seconds (10 digits) or milliseconds (13 digits)
+  const targetDate = timestamp.toString().length === 10 ? new Date(timestamp * 1000) : new Date(timestamp);
+  
   const currentDate = new Date();
   const timeDifference = targetDate - currentDate;
   const daysDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -459,6 +483,7 @@ export function dateDiffForHumans(targetDate) {
     return `${-daysDifference} days ago`;
   }
 }
+
 
 export function addMonths(date, months) {
   const newDate = date.setMonth(date.getMonth() + months);

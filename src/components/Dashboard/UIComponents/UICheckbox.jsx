@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { uiGreen } from "../../../constants";
 import { Checkbox, FormControlLabel } from "@mui/material";
 
@@ -9,6 +9,7 @@ const UICheckbox = (props) => {
         value="end"
         control={
           <Checkbox
+            data-testId={props.dataTestId}
             checked={props.checked}
             onChange={props.onChange}
             sx={{

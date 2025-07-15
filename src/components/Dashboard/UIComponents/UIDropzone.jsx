@@ -1,15 +1,14 @@
 import { Stack } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import Dropzone from "react-dropzone";
 import { uiGreen } from "../../../constants";
 import UIButton from "./UIButton";
 import { useEffect } from "react";
 const UIDropzone = (props) => {
-  const [fileNames, setFileNames] = useState([]);
   const handleDrop = (acceptedFiles) => {
-    console.log("dropzone file", acceptedFiles[0]);
+
     props.setFile(acceptedFiles[0]);
-    console.log("state file", props.file);
+
   };
   useEffect(() => {}, [props.file]);
   return (
@@ -53,8 +52,8 @@ const UIDropzone = (props) => {
                 {...getInputProps()}
                 onChange={(e) => {
                   props.setFile(e.target.files[0]);
-                  console.log("dropzone file", e.target.files[0]);
-                  console.log("state file", props.file);
+
+
                 }}
                 type="file"
                 name="file"

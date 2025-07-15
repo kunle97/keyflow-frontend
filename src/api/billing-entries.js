@@ -2,22 +2,22 @@ import { authenticatedInstance, authenticatedMediaInstance } from "./api";
 
 //Create a function to call the API endpoint /billing-entries/ to make a POST request to create a new tenant invite using the authenticatedInstance
 export async function createBillingEntry(data) {
-  console.log("create unit data: ", data);
+
   try {
     const res = await authenticatedMediaInstance
       .post(`/billing-entries/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios create unit response ", response);
+
         return response;
       });
     return {
       message: "Tenant invite created successfully",
       status: 201,
-      data: res,
+      data: res.data,
     };
   } catch (error) {
-    console.log("Create tenant invite error Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -28,7 +28,7 @@ export async function getBillingEntries() {
     const res = await authenticatedInstance
       .get(`/billing-entries/`)
       .then((res) => {
-        console.log(res);
+
         if (res.status == 200 && res.data.length == 0) {
           return { data: [] };
         }
@@ -36,7 +36,7 @@ export async function getBillingEntries() {
       });
     return res;
   } catch (error) {
-    console.log("Get tenant invites Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -54,7 +54,7 @@ export async function getBillingEntry(billingEntryId) {
       });
     return res.data;
   } catch (error) {
-    console.log("Get tenant invite Error: ", error);
+
     return error.response;
   }
 }
@@ -72,7 +72,7 @@ export async function updateBillingEntry(billingEntryId, data) {
       });
     return res.data;
   } catch (error) {
-    console.log("Update tenant invite Error: ", error);
+
     return error.response;
   }
 }
@@ -90,7 +90,7 @@ export async function deleteBillingEntry(billingEntryId) {
       });
     return { data: res.data, status: res.status };
   } catch (error) {
-    console.log("Delete tenant invite Error: ", error);
+
     return error.response;
   }
 }

@@ -1,27 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
   authUser,
-  token,
   uiGreen,
   uiGrey,
-  uiRed,
   validationMessageStyle,
 } from "../../../../constants";
-import {
-  createBillingPortalSession,
-  deleteStripePaymentMethod,
-  listOwnerStripePaymentMethods,
-  setOwnerDefaultPaymentMethod,
-} from "../../../../api/payment_methods";
+import { createBillingPortalSession } from "../../../../api/payment_methods";
 import { changePassword } from "../../../../api/passwords";
-import { getSubscriptionPlanPrices } from "../../../../api/manage_subscriptions";
-import {
-  getUserStripeSubscriptions,
-  updateUserData,
-} from "../../../../api/auth";
+import { updateUserData } from "../../../../api/auth";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import {
-  Box,
   Button,
   List,
   ListItem,
@@ -30,10 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import UIButton from "../../UIComponents/UIButton";
-import { useNavigate } from "react-router";
-import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UITabs from "../../UIComponents/UITabs";
-import PlanChangeDialog from "./PlanChangeDialog";
 import UploadDialog from "../../UIComponents/Modals/UploadDialog/UploadDialog";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UISwitch from "../../UIComponents/UISwitch";
@@ -50,7 +35,6 @@ import { syncPreferences } from "../../../../helpers/preferences";
 import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 import { getStripeAccountLink } from "../../../../api/owners";
 
-import AddCardIcon from "@mui/icons-material/AddCard";
 import {
   lettersNumbersAndSpecialCharacters,
   validEmail,
@@ -58,35 +42,24 @@ import {
   validStrongPassword,
   validUserName,
 } from "../../../../constants/rexgex";
+import BillingSubscriptionsSection from "./BillingSubscriptionsSection/BillingSubscriptionsSection";
 const MyAccount = () => {
   const { isMobile } = useScreen();
   const [isLoading, setIsLoading] = useState(false);
   const [progressMessage, setProgressMessage] = useState(null);
   const [tabPage, setTabPage] = useState(0);
   const [tabs, setTabs] = useState([
-    { label: "Account" },
-    { label: "Notification Settings" },
-    // { label: "Payment Methods" },
-    // { label: "Manage Subscription" },
+    { label: "Account", dataTestId: "account-tab" },
+    { label: "Billing & Subsciptions", dataTestId: "billing-tab" },
+    { label: "Notification Settings", dataTestId: "notification-tab" },
   ]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [plans, setPlans] = useState([]);
-  const [showChangePlanModal, setShowChangePlanModal] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
   const [responseTitle, setResponseTitle] = useState(null);
   const [responseMessage, setResponseMessage] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [paymentMethodDeleteId, setPaymentMethodDeleteId] = useState(null);
-  const [showDefaultConfirm, setShowDefaultConfirm] = useState(false);
-  const [paymentMethodDefaultId, setPaymentMethodDefaultId] = useState(null);
-  const [updatedDefaultPaymentMethod, setUpdatedDefaultPaymentMethod] =
-    useState(null);
   const [stripeAccountLink, setStripeAccountLink] = useState(null);
-  const [currentSubscriptionPlan, setCurrentSubscriptionPlan] = useState(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [ownerPreferences, setOwnerPreferences] = useState([]);
-  const navigate = useNavigate();
   const [accountFormData, setAccountFormData] = useState({
     username: authUser.username,
     email: authUser.email,
@@ -112,8 +85,6 @@ const MyAccount = () => {
       [name]: newErrors[name],
     }));
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
   };
 
   const accountFormInputs = [
@@ -136,7 +107,7 @@ const MyAccount = () => {
         regex: validName,
         errorMessage: "Please enter a valid first name",
       },
-      dataTestId: "first-name",
+      dataTestId: "first-name-account-imput",
       errorMessageDataTestId: "first-name-error",
     },
     {
@@ -158,7 +129,7 @@ const MyAccount = () => {
         regex: validName,
         errorMessage: "Please enter a valid last name",
       },
-      dataTestId: "last-name",
+      dataTestId: "last-name-account-imput",
       errorMessageDataTestId: "last-name-error",
     },
     {
@@ -181,7 +152,7 @@ const MyAccount = () => {
         regex: validUserName,
         errorMessage: "Please enter a valid username",
       },
-      dataTestId: "username",
+      dataTestId: "username-account-imput",
       errorMessageDataTestId: "username-error",
     },
     {
@@ -203,7 +174,7 @@ const MyAccount = () => {
         regex: validEmail,
         errorMessage: "Please enter a valid email",
       },
-      dataTestId: "email",
+      dataTestId: "email-account-imput",
       errorMessageDataTestId: "email-error",
     },
   ];
@@ -227,7 +198,7 @@ const MyAccount = () => {
         regex: lettersNumbersAndSpecialCharacters,
         errorMessage: "Please enter your current password",
       },
-      dataTestId: "current-password",
+      dataTestId: "current-password-input",
       errorMessageDataTestId: "current-password-error",
     },
     {
@@ -250,7 +221,7 @@ const MyAccount = () => {
         errorMessage:
           "Your password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character",
       },
-      dataTestId: "new-password",
+      dataTestId: "new-password-input",
       errorMessageDataTestId: "new-password-error",
     },
     {
@@ -276,65 +247,14 @@ const MyAccount = () => {
           }
         },
       },
-      dataTestId: "repeat-password",
+      dataTestId: "repeat-password-input",
       errorMessageDataTestId: "repeat-password-error",
     },
   ];
 
-  const handleSetDefaultPaymentMethod = async (paymentMethodId) => {
-    setIsLoading(true);
-    setProgressMessage("Setting as default payment method...");
-    console.log("Set as default PM: ", paymentMethodId);
-    let data = {};
-    data.payment_method_id = paymentMethodId;
-    data.user_id = authUser.id;
-    setOwnerDefaultPaymentMethod(data)
-      .then((res) => {
-        console.log(res);
-        if (res.status === 200) {
-          setResponseTitle("Alert");
-          setResponseMessage("Payment method set as default");
-          //Get the payment methods for the user
-          listOwnerStripePaymentMethods(`${authUser.id}`).then((res) => {
-            setPaymentMethods(res.payment_methods.data);
-          });
-          setPaymentMethodDefaultId(paymentMethodId);
-        } else {
-          setResponseTitle("Error");
-          setResponseMessage("Error setting payment method as default");
-        }
-      })
-      .catch((error) => {
-        setResponseTitle("Error");
-        setResponseMessage("Error setting payment method as default");
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setShowResponseModal(true);
-      });
-  };
-  const handlePaymentMethodDelete = (paymentMethodId) => {
-    console.log("Deleted PM: ", paymentMethodId);
-    let data = {
-      payment_method_id: paymentMethodId,
-    };
-    deleteStripePaymentMethod(data).then((res) => {
-      console.log(res);
-      setResponseTitle("Alert");
-      setResponseMessage("Payment method deleted");
-      setShowResponseModal(true);
-      //Get the payment methods for the user
-      listOwnerStripePaymentMethods(`${authUser.id}`).then((res) => {
-        console.log(res.data);
-        setPaymentMethods(res.payment_methods.data);
-      });
-    });
-  };
-
   const onAccountUpdateSubmit = () => {
     //Create a data object to send to the backend
     updateUserData(accountFormData).then((res) => {
-      console.log(res);
       if (res.status === 200) {
         setResponseTitle("Success");
         setResponseMessage("Account updated successfully");
@@ -345,7 +265,6 @@ const MyAccount = () => {
 
   const onSubmitChangePassword = () => {
     changePassword(passwordFormData).then((res) => {
-      console.log(res);
       if (res.status === 200) {
         setResponseTitle("Success");
         setResponseMessage("Password changed successfully");
@@ -365,7 +284,6 @@ const MyAccount = () => {
   //Create a function that handle the change of the value of a preference
   const handlePreferenceChange = (e, inputType, preferenceName, valueName) => {
     if (inputType === "switch") {
-      console.log(e.target.checked);
       //Update the value of the preference and use setOwnerPreferences to update the state
       let newOwnerPreferences = ownerPreferences.map((preference) => {
         if (preference.name === preferenceName) {
@@ -377,16 +295,13 @@ const MyAccount = () => {
         }
         return preference;
       });
-      console.log("New Owner Preferences ", newOwnerPreferences);
+
       setOwnerPreferences(newOwnerPreferences);
       let payload = {
         preferences: newOwnerPreferences,
       };
-      updateOwnerPreferences(payload).then((res) => {
-        console.log(res);
-      });
+      updateOwnerPreferences(payload).then((res) => {});
     } else {
-      console.log(e.target.value);
     }
   };
 
@@ -395,11 +310,9 @@ const MyAccount = () => {
     setProgressMessage("Redirecting to billing portal...");
     createBillingPortalSession()
       .then((res) => {
-        console.log(res);
         window.location.href = res.url;
       })
       .catch((error) => {
-        console.log("Error creating billing portal session: ", error);
         setIsLoading(false);
       })
       .finally(() => {});
@@ -409,32 +322,7 @@ const MyAccount = () => {
     try {
       syncPreferences();
       getStripeAccountLink().then((res) => {
-        console.log("Stripe ACcount link res: ", res);
         setStripeAccountLink(res.account_link);
-      });
-      //Get the payment methods for the user
-      listOwnerStripePaymentMethods(`${authUser.id}`)
-        .then((res) => {
-          console.log("PAyment M3th0Ds Response: ", res);
-          setPaymentMethods(res.payment_methods.data);
-          setPaymentMethodDefaultId(res.default_payment_method);
-        })
-        .catch((error) => {
-          console.log("Error getting payment methods: ", error);
-          setPaymentMethods([]);
-        });
-      getSubscriptionPlanPrices()
-        .then((res) => {
-          setPlans(res.products);
-        })
-        .catch((error) => {
-          console.log("Error getting subscription plans: ", error);
-          setResponseTitle("Error");
-          setResponseMessage("Error getting subscription plans");
-          setShowResponseModal(true);
-        });
-      getUserStripeSubscriptions(authUser.id, token).then((res) => {
-        setCurrentSubscriptionPlan(res.subscriptions);
       });
       retrieveFilesBySubfolder("user_profile_picture", authUser.id).then(
         (res) => {
@@ -445,7 +333,6 @@ const MyAccount = () => {
         setOwnerPreferences(res.preferences);
       });
     } catch (e) {
-      console.log(e);
       setResponseTitle("Error");
       setResponseMessage("Error getting user data");
       setShowResponseModal(true);
@@ -502,6 +389,7 @@ const MyAccount = () => {
               />
             </div>
             <Button
+              data-testId="change-photo"
               btnText="Change Photo"
               onClick={() => setUploadDialogOpen(true)}
               variant="text"
@@ -517,11 +405,18 @@ const MyAccount = () => {
           </Stack>
 
           <div>
-            <h5 style={{ width: "100%", textAlign: "left", margin: "0" }}>
+            <h5
+              style={{ width: "100%", textAlign: "left", margin: "0" }}
+              data-testId="user-full-name"
+            >
               {authUser.first_name} {authUser.last_name}
             </h5>
             <div style={{ width: "100%", textAlign: "left" }}>
-              <a href={`mailto:${authUser.email}`} className="text-muted">
+              <a
+                href={`mailto:${authUser.email}`}
+                className="text-muted"
+                data-testId="user-email"
+              >
                 {authUser.email}
               </a>
             </div>
@@ -529,6 +424,7 @@ const MyAccount = () => {
         </Stack>
 
         <UIButton
+          dataTestId="stripe-dashboard-btn"
           btnText="Stripe Dashboard"
           onClick={() => {
             window.open(stripeAccountLink, "_blank");
@@ -562,6 +458,7 @@ const MyAccount = () => {
             >
               <h4>Account Information</h4>
               <UIButton
+                dataTestId="manage-billing-btn"
                 btnText="Manage Billing"
                 onClick={manageBillingOnClick}
               />
@@ -576,9 +473,9 @@ const MyAccount = () => {
                           <div
                             className={`col-md-${input.colSpan} mb-3`}
                             key={index}
-                            data-testId={`${input.dataTestId}`}
                           >
                             <label
+                              data-testId={`${input.dataTestId}-label`}
                               className="form-label text-black"
                               htmlFor={input.name}
                             >
@@ -586,6 +483,7 @@ const MyAccount = () => {
                             </label>
 
                             <input
+                              data-testId={`${input.dataTestId}`}
                               style={{
                                 background: uiGrey,
                               }}
@@ -610,6 +508,7 @@ const MyAccount = () => {
                     </div>
                     <div className="mb-3">
                       <UIButton
+                        dataTestId="update-account-button"
                         style={{ float: "right" }}
                         onClick={() => {
                           const { isValid, newErrors } = validateForm(
@@ -649,15 +548,16 @@ const MyAccount = () => {
                         <div
                           className={`col-md-${input.colSpan} mb-3`}
                           key={index}
-                          data-testId={`${input.dataTestId}`}
                         >
                           <label
+                            data-testId={`${input.dataTestId}-label`}
                             className="form-label text-black"
                             htmlFor={input.name}
                           >
                             {input.label}
                           </label>
                           <input
+                            data-testId={`${input.dataTestId}`}
                             style={{
                               background: uiGrey,
                             }}
@@ -681,6 +581,7 @@ const MyAccount = () => {
                     })}
                     <div className="mb-3">
                       <UIButton
+                        dataTestId="change-password-button"
                         style={{ float: "right" }}
                         onClick={() => {
                           const { isValid, newErrors } = validateForm(
@@ -703,7 +604,8 @@ const MyAccount = () => {
           </div>
         </>
       )}
-      {tabPage === 1 && (
+      {tabPage === 1 && <BillingSubscriptionsSection />}
+      {tabPage === 2 && (
         <div className={isMobile && "container-fluid"}>
           <div className="row">
             <div className="col-md-12">
@@ -773,191 +675,6 @@ const MyAccount = () => {
           </div>
         </div>
       )}
-      {/* {tabPage === 2 && (
-        <>
-          <div className="mb-3" style={{ overflow: "auto" }}>
-            <UIButton
-              style={{ float: "right" }}
-              onClick={() => {
-                navigate("/dashboard/add-payment-method");
-              }}
-              btnText="Add New"
-            />
-          </div>
-          <div className="row">
-            <ConfirmModal
-              open={showDefaultConfirm}
-              handleClose={() => setShowDefaultConfirm(false)}
-              title="Set As Default Payment Method"
-              message="Are you sure you want to set this as your default payment method?"
-              cancelBtnText="Cancel"
-              confirmBtnText="Set As Default"
-              handleConfirm={() => {
-                handleSetDefaultPaymentMethod(updatedDefaultPaymentMethod);
-                setShowDefaultConfirm(false);
-              }}
-              handleCancel={() => setShowDefaultConfirm(false)}
-            />
-
-            <ConfirmModal
-              open={showDeleteConfirm}
-              handleClose={() => setShowDeleteConfirm(false)}
-              title="Delete Payment Method"
-              message="Are you sure you want to delete this payment method?"
-              cancelBtnText="Cancel"
-              confirmBtnText="Delete"
-              confirmBtnStyle={{ backgroundColor: uiRed }}
-              cancelBtnStyle={{ backgroundColor: uiGreen }}
-              handleConfirm={() => {
-                handlePaymentMethodDelete(paymentMethodDeleteId);
-                setShowDeleteConfirm(false);
-              }}
-              handleCancel={() => setShowDeleteConfirm(false)}
-            />
-            {paymentMethods ? (
-              paymentMethods.map((paymentMethod) => {
-                return (
-                  <div className="col-sm-12 col-md-6  mb-3">
-                    <div className="card" style={{ width: "100%" }}>
-                      <div className="card-body">
-                        <Box sx={{ display: "flex" }}>
-                          <Box sx={{ flex: "2" }}>
-                            <Typography className="text-black">
-                              {paymentMethod.card.brand} ending in{" "}
-                              {paymentMethod.card.last4}
-                            </Typography>
-                            <Typography
-                              sx={{ fontSize: "10pt" }}
-                              className="text-black"
-                            >
-                              Expires {paymentMethod.card.exp_month}/
-                              {paymentMethod.card.exp_year}
-                              {paymentMethod.id === paymentMethodDefaultId ? (
-                                <Typography
-                                  sx={{ fontSize: "10pt", color: uiGreen }}
-                                >
-                                  Default Payment Method
-                                </Typography>
-                              ) : (
-                                <>
-                                  <br />
-                                  <UIButton
-                                    sx={{
-                                      color: uiGreen,
-                                      textTransform: "none",
-                                      display: "block",
-                                      fontSize: "6pt",
-                                    }}
-                                    onClick={() => {
-                                      setUpdatedDefaultPaymentMethod(
-                                        paymentMethod.id
-                                      );
-                                      setShowDefaultConfirm(true);
-                                    }}
-                                    btnText="Set As Default"
-                                  />
-                                </>
-                              )}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Button
-                              sx={{ color: uiRed, textTransform: "none" }}
-                              onClick={() => {
-                                setPaymentMethodDeleteId(paymentMethod.id);
-                                setShowDeleteConfirm(true);
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </Box>
-                        </Box>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <UIPrompt
-                icon={<AddCardIcon sx={{ fontSize: "30pt", color: uiGreen }} />}
-                title="No payment methods found"
-                message="You have not added any payment methods yet"
-                body={
-                  <UIButton
-                    onClick={() => navigate("/dashboard/add-payment-method")}
-                    btnText="Add Payment Method"
-                  />
-                }
-              />
-            )}
-          </div>
-        </>
-      )}
-      {tabPage === 3 && (
-        <div className="row">
-          <PlanChangeDialog
-            open={showChangePlanModal}
-            onClose={() => setShowChangePlanModal(false)}
-            plans={plans}
-          />
-          <div className="col-md-6">
-            <div className="card shadow mb-3">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      {plans.map((plan) => {
-                        if (
-                          plan.product_id ===
-                          currentSubscriptionPlan.items.data[0].plan.product
-                        ) {
-                          return (
-                            <Stack>
-                              <h5 className="text-black">{plan.name}</h5>
-                              <Stack
-                                direction="row"
-                                justifyContent="flex-start"
-                                alignItems="center"
-                                spacing={2}
-                              >
-                                <h4 style={{ fontSize: "25pt" }}>
-                                  ${plan.price}
-                                </h4>
-                                <Stack
-                                  direction="column"
-                                  justifyContent="flex-start"
-                                  alignItems="baseline"
-                                  spacing={0}
-                                >
-                                  {currentSubscriptionPlan.items.data[0].plan
-                                    .product ===
-                                    process.env
-                                      .REACT_APP_STRIPE_PRO_PLAN_PRODUCT_ID && (
-                                    <span>per Rental Unit</span>
-                                  )}
-                                  <span>per month</span>
-                                </Stack>
-                              </Stack>
-                            </Stack>
-                          );
-                        }
-                      })}
-                    </div>
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <UIButton
-                    onClick={() => {
-                      setShowChangePlanModal(true);
-                    }}
-                    btnText="Change Plan"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

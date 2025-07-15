@@ -125,12 +125,12 @@ const UnitDocumentManager = (props) => {
   const retrieveEditLink = async (template_id) => {
     setIsLoading(true);
     setProgressModalTitle("Retrieving Lease Document...");
-    console.log("Tempalte ID:", unit.template_id);
+
     createBoldSignEmbeddedTemplateEditLink({
       template_id: template_id,
     })
       .then((res) => {
-        console.log(res);
+
         setEditLink(res.url);
         if (res.status !== 201) {
           setAlertOpen(true);
@@ -176,7 +176,7 @@ const UnitDocumentManager = (props) => {
       }
     });
     if (validFiles) {
-      console.log("dropzone file", acceptedFiles[0]);
+
       let accepted_file = acceptedFiles[0];
       const payload = {
         file: acceptedFiles[0],
@@ -189,14 +189,14 @@ const UnitDocumentManager = (props) => {
       };
       //Call the createBoldSignEmbeddedTemplateLink API
       await createBoldSignEmbeddedTemplateLink(payload).then((res) => {
-        console.log(res);
+
         if (res.status === 201) {
           setCreateLink(res.url);
           setRenderIframe(true);
           setTemplateId(res.template_id);
           updateUnit(unit_id, { template_id: res.template_id })
             .then((res) => {
-              console.log(res);
+
             })
             .catch((error) => {
               setAlertTitle("Error");
@@ -205,7 +205,7 @@ const UnitDocumentManager = (props) => {
               );
               setAlertOpen(true);
             });
-          console.log(iframeUrl);
+
           setIsLoadingIframe(false);
         } else {
           setAlertTitle("Error");
@@ -246,10 +246,10 @@ const UnitDocumentManager = (props) => {
     };
     uploadFile(payload)
       .then((res) => {
-        console.log(res);
+
         setIsLoading(false);
         if (res.status === 201) {
-          console.log(res);
+
           let file_id = res.data.id;
           let file = res.data;
           authenticatedMediaInstance
@@ -261,7 +261,7 @@ const UnitDocumentManager = (props) => {
             })
             .then((res) => {
               if (res.status === 200) {
-                console.log("unit updated");
+
               } else {
                 setAlertOpen(true);
                 setAlertTitle("Error");
@@ -396,13 +396,13 @@ const UnitDocumentManager = (props) => {
           setShowDeleteTemplateConfirmModal(false);
         }}
         handleConfirm={() => {
-          console.log("Template ID update");
+
           //update the unit to set the tempalate_id field to null
           updateUnit(unit_id, {
             template_id: null,
           }).then((res) => {
             if (res.status === 200) {
-              console.log("unit updated");
+
               setShowDeleteTemplateConfirmModal(false);
               setAlertOpen(true);
               setAlertTitle("Success");

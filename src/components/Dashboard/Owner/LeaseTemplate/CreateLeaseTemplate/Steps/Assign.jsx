@@ -5,9 +5,7 @@ import UITabs from "../../../../UIComponents/UITabs";
 import AlertModal from "../../../../UIComponents/Modals/AlertModal";
 import useScreen from "../../../../../../hooks/useScreen";
 import UITableMobile from "../../../../UIComponents/UITable/UITableMobile";
-import { fa } from "@faker-js/faker";
 const Assign = (props) => {
-  const [checked, setChecked] = useState(props.selectedAssignments);
   const [showAssignError, setShowAssignError] = useState(false);
   const [tabPage, setTabPage] = useState(0);
   const { isMobile } = useScreen();
@@ -180,6 +178,10 @@ const Assign = (props) => {
                 checked={props.selectedAssignments}
                 setChecked={props.setSelectedAssignments}
                 hideShadow={props.hideShadow ? true : false}
+                onRowClick={(row) => {
+                  const navlink = `/dashboard/owner/units/${row.id}`;
+                  props.navigate(navlink);
+                }}
               />
             </>
           )}
@@ -298,7 +300,6 @@ const Assign = (props) => {
             props.setSkipAssignStep(true);
             if (props.skipAssignStep === false) {
               props.setSkipAssignStep(true);
-              console.log("Skip assign", props.skipAssignStep);
             } else {
               props.handleNextStep();
             }

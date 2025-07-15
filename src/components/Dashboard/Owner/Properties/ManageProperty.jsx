@@ -2,34 +2,23 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import { deleteUnit } from "../../../../api/units";
 import {
-  Alert,
-  Avatar,
   Button,
   CircularProgress,
-  ClickAwayListener,
   Divider,
-  Grow,
-  IconButton,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemText,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
 import {
   deleteProperty,
-  updateProperty,
   getProperty,
   updatePropertyMedia,
   updatePropertyPreferences,
   updatePropertyPortfolio,
   removePropertyLeaseTemplate,
+  getPropertyUnits,
 } from "../../../../api/properties";
 import { useNavigate } from "react-router";
 import { Box } from "@mui/material";
@@ -43,15 +32,11 @@ import {
   uiRed,
   validationMessageStyle,
 } from "../../../../constants";
-import { set, useForm } from "react-hook-form";
 import AlertModal from "../../UIComponents/Modals/AlertModal";
 import UITable from "../../UIComponents/UITable/UITable";
 import UITabs from "../../UIComponents/UITabs";
 import UIPrompt from "../../UIComponents/UIPrompt";
-import {
-  authenticatedInstance,
-  authenticatedMediaInstance,
-} from "../../../../api/api";
+import { authenticatedMediaInstance } from "../../../../api/api";
 import FileManagerView from "../../UIComponents/FileManagerView";
 import { retrieveFilesBySubfolder } from "../../../../api/file_uploads";
 import UIProgressPrompt from "../../UIComponents/UIProgressPrompt";
@@ -63,35 +48,25 @@ import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import UITableMobile from "../../UIComponents/UITable/UITableMobile";
 import UIDialog from "../../UIComponents/Modals/UIDialog";
 import { getPortfolios } from "../../../../api/portfolios";
-import UIPreferenceRow from "../../UIComponents/UIPreferenceRow";
 import UIDropzone from "../../UIComponents/Modals/UploadDialog/UIDropzone";
 import {
   isValidFileExtension,
   isValidFileName,
 } from "../../../../helpers/utils";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import { MoreVert } from "@mui/icons-material";
 import {
   triggerValidation,
   validateForm,
 } from "../../../../helpers/formValidation";
 import UISwitch from "../../UIComponents/UISwitch";
-import {
-  syncPortfolioPreferences,
-  syncPropertyPreferences,
-} from "../../../../helpers/preferences";
+import { syncPropertyPreferences } from "../../../../helpers/preferences";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import ConfirmModal from "../../UIComponents/Modals/ConfirmModal";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
 import { getUserStripeSubscriptions } from "../../../../api/auth";
 import { validAnyString } from "../../../../constants/rexgex";
+import ProgressModal from "../../UIComponents/Modals/ProgressModal";
 const ManageProperty = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
@@ -102,6 +77,7 @@ const ManageProperty = () => {
   const [selectPortfolioDialogOpen, setSelectPortfolioDialogOpen] =
     useState(false); //Create a state to hold the select portfolio dialog open state
   const [units, setUnits] = useState([]);
+  const [isLoadingUnits, setIsLoadingUnits] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [unitCount, setUnitCount] = useState(0); //Create a state to hold the number of units in the property
   const [updateAlertTitle, setUpdateAlertTitle] = useState("Success"); //Create a state to hold the update alert title
@@ -117,9 +93,12 @@ const ManageProperty = () => {
   const [deleteAlertMessage, setDeleteAlertMessage] = useState("");
   const [deleteAlertAction, setDeleteAlertAction] = useState(() => {});
   const [showDeleteError, setShowDeleteError] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const [tabPage, setTabPage] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
-  const [file, setFile] = useState(null); //Create a file state to hold the file to be uploaded
   const [propertyMedia, setPropertyMedia] = useState([]); //Create a propertyMedia state to hold the property media files
   const [propertyMediaCount, setPropertyMediaCount] = useState(0); //Create a propertyMediaCount state to hold the number of property media files
   const { isMobile, breakpoints, screenWidth } = useScreen();
@@ -151,8 +130,6 @@ const ManageProperty = () => {
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
       setTourIndex(nextStepIndex);
     }
-
-    console.log("Current Joyride data", data);
   };
 
   const handleClickStart = (event) => {
@@ -219,8 +196,6 @@ const ManageProperty = () => {
     const newValue = e.target.type === "select-one" ? e.target.value : value;
 
     setFormData((prevData) => ({ ...prevData, [name]: newValue }));
-    console.log("Form data ", formData);
-    console.log("Errors ", errors);
   };
 
   const formInputs = [
@@ -420,6 +395,40 @@ const ManageProperty = () => {
       navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
       navigate(navlink);
     },
+    onRowDelete: (row) => {
+      setIsProcessing(true);
+      let payload = {
+        unit_id: row.id,
+        rental_property: row.rental_property,
+        product_id: currentSubscriptionPlan?.plan?.product
+          ? currentSubscriptionPlan?.plan?.product
+          : null,
+        subscription_id: currentSubscriptionPlan?.id
+          ? currentSubscriptionPlan?.id
+          : null,
+      };
+      //Delete the unit with the api
+      deleteUnit(payload)
+        .then((res) => {
+          if (res.status === 204) {
+            //Redirect to the property page
+            setAlertMessage("Unit has been deleted");
+            setAlertTitle("Success");
+            setShowAlertModal(true);
+          } else {
+            //Display error message
+            setErrorMessage(res.message ? res.message : "An error occurred");
+            setShowDeleteError(true);
+          }
+        })
+        .catch((err) => {
+          setErrorMessage(err.message ? err.message : "An error occurred");
+          setShowDeleteError(true);
+        })
+        .finally(() => {
+          setIsProcessing(false);
+        });
+    },
   };
 
   const tabs = [
@@ -487,7 +496,7 @@ const ManageProperty = () => {
         preview: URL.createObjectURL(file),
       })
     );
-    console.log("updatedFiles", updatedFiles);
+
     setCsvFiles(updatedFiles);
     setResponseMessage(null);
     setResponseTitle(null);
@@ -503,7 +512,6 @@ const ManageProperty = () => {
     authenticatedMediaInstance
       .post(`/properties/${id}/upload-csv-units/`, updloadFormData)
       .then((res) => {
-        console.log("res", res);
         setResponseTitle("File Upload Success");
         setResponseMessage("File(s) uploaded successfully");
         setShowFileUploadAlert(true);
@@ -511,7 +519,6 @@ const ManageProperty = () => {
         setCsvFiles([]); //Clear the files array
       })
       .catch((err) => {
-        console.log("MANAGEPROPERTY.JSX err", err);
         setResponseTitle("File Upload Error");
         if (err.response.data.error_type === "duplicate_name_error") {
           setResponseMessage(
@@ -535,7 +542,6 @@ const ManageProperty = () => {
   const onSubmit = async () => {
     const response = await updatePropertyMedia(id, formData)
       .then((res) => {
-        console.log("Property Details submit res ", res);
         if (res.status === 200) {
           setUpdateAlertTitle("Success");
           setUpdateAlertMessage("Property updated");
@@ -563,7 +569,6 @@ const ManageProperty = () => {
     );
     updatePropertyPortfolio(property.id, selected_portfolio_id)
       .then((res) => {
-        console.log("Portfolio Change Res", res);
         if (res.status === 200) {
           setUpdateAlertTitle("Portfolio Updated");
           setUpdateAlertMessage("The property's portfolio has been updated");
@@ -628,9 +633,7 @@ const ManageProperty = () => {
             product_id: currentSubscriptionPlan.plan.product,
             subscription_id: currentSubscriptionPlan.id,
           };
-          deleteUnit(payload).then((res) => {
-            console.log("Unit delete res", res);
-          });
+          deleteUnit(payload).then((res) => {});
         });
         //Show success alert
         setUpdateAlertTitle("Success");
@@ -644,6 +647,37 @@ const ManageProperty = () => {
       setUpdateAlertMessage("Something went wrong");
       setUpdateAlertIsOpen(true);
     }
+  };
+
+  const getUnits = async () => {
+    setIsLoadingUnits(true);
+    getPropertyUnits(id)
+      .then((res) => {
+        console.log("property units", res);
+        if (res.status === 200) {
+          setUnits(res.data);
+          setUnitCount(res.data.length);
+          setBedsCount(
+            res.data.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
+          );
+          setBathsCount(
+            res.data.map((unit) => unit.baths).reduce((a, b) => a + b, 0)
+          );
+        } else {
+          setUpdateAlertTitle("Error");
+          setUpdateAlertMessage("Something went wrong");
+          setUpdateAlertIsOpen(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving units", error);
+        setUpdateAlertTitle("Error");
+        setUpdateAlertMessage("Something went wrong");
+        setUpdateAlertIsOpen(true);
+      })
+      .finally(() => {
+        setIsLoadingUnits(false);
+      });
   };
 
   //Create a function that handle the change of the value of a preference
@@ -670,7 +704,6 @@ const ManageProperty = () => {
     try {
       if (!property || !formData) {
         getProperty(id).then((res) => {
-          console.log("Property RES", res);
           if (res.status === 404) {
             //Navigate to properties page
             navigate("/dashboard/owner/properties");
@@ -678,7 +711,7 @@ const ManageProperty = () => {
             retrieveSubscriptionPlan();
             syncPropertyPreferences(id);
             setProperty(res.data);
-            console.log("Property", res.data);
+
             if (res.data.preferences) {
               setPropertyPreferences(JSON.parse(res.data.preferences));
             }
@@ -690,16 +723,6 @@ const ManageProperty = () => {
               zip_code: res.data.zip_code,
               country: res.data.country,
             });
-            setUnits(res.data.units);
-            setUnitCount(res.data.units.length);
-            setBedsCount(
-              res.data.units.map((unit) => unit.beds).reduce((a, b) => a + b, 0)
-            );
-            setBathsCount(
-              res.data.units
-                .map((unit) => unit.baths)
-                .reduce((a, b) => a + b, 0)
-            );
             getPortfolios()
               .then((portfolio_res) => {
                 if (portfolio_res.status === 200) {
@@ -727,7 +750,7 @@ const ManageProperty = () => {
             retrieveFilesBySubfolder(`properties/${id}`, authUser.id)
               .then((res) => {
                 setPropertyMedia(res.data);
-                console.log(res.data);
+
                 setPropertyMediaCount(res.data.length);
               })
               .catch((error) => {
@@ -747,15 +770,17 @@ const ManageProperty = () => {
           }
         });
       }
+      if (!units || units.length === 0) {
+        getUnits();
+      }
     } catch (error) {
-      console.log("Get Unit Error: ", error);
       return error.response;
     }
   }, [property, formData]);
 
   return (
     <>
-      {isLoading ? (
+      {isLoading || isLoadingUnits ? (
         <UIProgressPrompt
           dataTestId="property-loading-progress-prompt"
           title="Loading Property"
@@ -789,6 +814,21 @@ const ManageProperty = () => {
               skip: "Skip",
             }}
           />
+          <AlertModal
+            dataTestId="unit-delete-alert-modal"
+            open={showAlertModal}
+            title={alertTitle}
+            message={alertMessage}
+            btnText={"Ok"}
+            onClick={() => {
+              navigate(0);
+            }}
+          />
+          <ProgressModal
+            dataTestId="unit-delete-progress-modal"
+            open={isProcessing}
+            title="Please wait..."
+          />
           <ConfirmModal
             open={showResetLeaseTemplateConfirmModal}
             title="Remove Lease Template"
@@ -809,7 +849,6 @@ const ManageProperty = () => {
             handleConfirm={() => {
               removePropertyLeaseTemplate(id)
                 .then((res) => {
-                  console.log("Remove Lease Template Res", res);
                   if (res.status === 200) {
                     setUpdateAlertTitle("Success");
                     setUpdateAlertMessage(
@@ -958,7 +997,7 @@ const ManageProperty = () => {
                       </div>
                       <div className="text-end mb-3">
                         <UIButton
-                          dataTestId="property-edit-dialog-save-button"
+                          dataTestId="update-property-save-button"
                           className="btn btn-primary btn-sm ui-btn"
                           onClick={() => {
                             const { isValid, newErrors } = validateForm(
@@ -1210,6 +1249,10 @@ const ManageProperty = () => {
                               btnText={"Ok"}
                               onClick={() => setShowFileUploadAlert(false)}
                             />
+                            <ProgressModal
+                              open={isUploading}
+                              title="Uploading File..."
+                            />
                             <UIDialog
                               open={showCsvFileUploadDialog}
                               onClose={() => setShowCsvFileUploadDialog(false)}
@@ -1289,74 +1332,76 @@ const ManageProperty = () => {
                           </>
                         ) : (
                           <div className="units-list">
-                            {" "}
-                            {isMobile ? (
-                              <UITableMobile
-                                testRowIdentifier="rental-unit"
-                                tableTitle="Units"
-                                data={units}
-                                infoProperty="name"
-                                createTitle={(row) =>
-                                  `Occupied: ${row.is_occupied ? `Yes` : "No"} `
-                                }
-                                createSubtitle={(row) =>
-                                  `Beds: ${row.beds} | Baths: ${row.baths}`
-                                }
-                                createURL={`/dashboard/owner/units/create/${id}`}
-                                showCreate={true}
-                                acceptedFileTypes={[".csv"]}
-                                showUpload={true}
-                                uploadButtonText="Upload CSV"
-                                uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
-                                fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                                onRowClick={(row) => {
-                                  const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                                  navigate(navlink);
-                                }}
-                                orderingFields={[
-                                  { field: "name", label: "Name (Ascending)" },
-                                  {
-                                    field: "-name",
-                                    label: "Name (Descending)",
-                                  },
-                                ]}
-                                searchFields={["name", "beds", "baths"]}
-                              />
-                            ) : (
-                              <UITable
-                                testRowIdentifier="rental-unit"
-                                title="Rental Units"
-                                columns={unit_columns}
-                                data={units}
-                                options={unit_options}
-                                showCreate={true}
-                                createURL={`/dashboard/owner/units/create/${id}`}
-                                acceptedFileTypes={[".csv"]}
-                                showUpload={true}
-                                uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
-                                uploadButtonText="Upload CSV"
-                                fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
-                                menuOptions={[
-                                  {
-                                    name: "Manage",
-                                    onClick: (row) => {
-                                      const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
-                                      navigate(navlink);
+
+                            <>
+                              {isMobile ? (
+                                <UITableMobile
+                                  testRowIdentifier="rental-unit"
+                                  tableTitle="Units"
+                                  data={units}
+                                  infoProperty="name"
+                                  createTitle={(row) =>
+                                    `Occupied: ${
+                                      row.is_occupied ? `Yes` : "No"
+                                    } `
+                                  }
+                                  createSubtitle={(row) =>
+                                    `Beds: ${row.beds} | Baths: ${row.baths}`
+                                  }
+                                  createURL={`/dashboard/owner/units/create/${id}`}
+                                  showCreate={true}
+                                  acceptedFileTypes={[".csv"]}
+                                  showUpload={true}
+                                  uploadButtonText="Upload CSV"
+                                  uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                                  fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
+                                  onRowClick={(row) => {
+                                    const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                                    navigate(navlink);
+                                  }}
+                                  orderingFields={[
+                                    {
+                                      field: "name",
+                                      label: "Name (Ascending)",
                                     },
-                                  },
-                                  // {
-                                  //   name: "Delete",
-                                  //   onClick: (row) => {
-                                  //     deleteUnit(row.id).then((res) => {
-                                  //       if (res) {
-                                  //         setUnits(res.data);
-                                  //       }
-                                  //     });
-                                  //   },
-                                  // },
-                                ]}
-                              />
-                            )}
+                                    {
+                                      field: "-name",
+                                      label: "Name (Descending)",
+                                    },
+                                  ]}
+                                  searchFields={["name", "beds", "baths"]}
+                                />
+                              ) : (
+                                <UITable
+                                  testRowIdentifier="rental-unit"
+                                  title="Rental Units"
+                                  columns={unit_columns}
+                                  data={units}
+                                  options={unit_options}
+                                  showCreate={true}
+                                  createURL={`/dashboard/owner/units/create/${id}`}
+                                  acceptedFileTypes={[".csv"]}
+                                  showUpload={true}
+                                  uploadHelpText="CSV file must contain the following columns: name, beds, baths, size. All lowercase and no spaces."
+                                  uploadButtonText="Upload CSV"
+                                  fileUploadEndpoint={`/properties/${id}/upload-csv-units/`}
+                                  onRowClick={(row) => {
+                                    console.log("fiewubifubewif", row);
+                                    const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                                    navigate(navlink);
+                                  }}
+                                  menuOptions={[ 
+                                    {
+                                      name: "Manage",
+                                      onClick: (row) => {
+                                        const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+                                        navigate(navlink);
+                                      },
+                                    },
+                                  ]}
+                                />
+                              )}
+                            </>
                           </div>
                         )}
                       </>

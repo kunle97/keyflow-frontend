@@ -18,11 +18,7 @@ import {
   validateForm,
 } from "../../../../helpers/formValidation";
 import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
   STATUS,
-  Step,
 } from "react-joyride";
 import UIHelpButton from "../../UIComponents/UIHelpButton";
 import UIPageHeader from "../../UIComponents/UIPageHeader";
@@ -82,7 +78,7 @@ const ManageBillingEntry = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
+
   };
 
   const formInputs = [
@@ -163,7 +159,6 @@ const ManageBillingEntry = () => {
       name: "rental_unit",
       type: "text_display",
       customRender: (unit) => {
-        console.log("unit cusotm renedsedr", unit);
         return unit
           ? "Unit " + unit.name + " (" + unit.rental_property_name + ")"
           : "";
@@ -274,7 +269,7 @@ const ManageBillingEntry = () => {
           );
           setAlertOpen(true);
         }
-        console.log(formData);
+
         setIsLoading(false);
       },
       validations: {
@@ -312,7 +307,7 @@ const ManageBillingEntry = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("name", name, "value", value);
+
     let newErrors = triggerValidation(
       name,
       value,
@@ -362,8 +357,8 @@ const ManageBillingEntry = () => {
   };
 
   const handleDelete = () => {
-    setIsLoading(true);
     setLoadingText("Deleting billing entry...");
+    setIsLoading(true);
     deleteBillingEntry(id)
       .then((res) => {
         if (res.status === 204) {
@@ -601,7 +596,20 @@ const ManageBillingEntry = () => {
                     alignItems="center"
                     style={{ margin: "20px 0" }}
                   >
-                    <span className="delete-billing-entry-wrapper"></span>
+                    <span className="delete-billing-entry-wrapper">
+                      <DeleteButton
+                        onClick={() => {
+                          setConfirmTitle("Delete Billing Entry");
+                          setConfirmMessage(
+                            "Are you sure you want to delete this billing entry? The invoice will be voided and the billing entry will be deleted. This action cannot be undone."
+                          );
+                          setConfirmAction(() => handleDelete);
+                          setConfirmModelOpen(true);
+                        }}
+                        dataTestId="delete-billing-entry-button"
+                        btnText="Delete Billing Entry"
+                      />
+                    </span>
                     <span className="update-billing-entry-wrapper">
                       <UIButton
                         type="submit"

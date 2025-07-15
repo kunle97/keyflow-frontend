@@ -7,12 +7,12 @@ export async function createPortfolio(data) {
       .post(`/portfolios/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios create portfolio response ", response);
+
         return response;
       });
-    return { message: "Portfolio created successfully", status: 200, res: res };
+    return { message: "Portfolio created successfully", status: 200, data: res };
   } catch (error) {
-    console.log("Create Portfolio Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -24,7 +24,7 @@ export async function getPortfolio(id) {
       .get(`/portfolios/${id}/`)
       .then((res) => {
         const response = res.data;
-        console.log("axios get portfolio response ", response);
+
         return response;
       });
     return {
@@ -33,7 +33,7 @@ export async function getPortfolio(id) {
       data: res,
     };
   } catch (error) {
-    console.log("Get Portfolio Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -53,7 +53,7 @@ export async function getPortfolios() {
     });
     return res;
   } catch (error) {
-    console.log("Get Portfolios Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -65,12 +65,12 @@ export async function updatePortfolio(id, data) {
       .patch(`/portfolios/${id}/`, data)
       .then((res) => {
         const response = res.data;
-        console.log("axios update portfolio response ", response);
+
         return response;
       });
     return { message: "Portfolio updated successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Update Portfolio Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -81,12 +81,12 @@ export async function updatePortfolioPreferences(id, data) {
     const res = await authenticatedInstance
       .patch(`/portfolios/${id}/update-preferences/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Update Portfolio Preferences Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -97,12 +97,12 @@ export async function deletePortfolio(id) {
       .delete(`/portfolios/${id}/`)
       .then((res) => {
         const response = res.data;
-        console.log("axios delete portfolio response ", response);
+
         return response;
       });
     return { message: "Portfolio deleted successfully", status: 200, res: res };
   } catch (error) {
-    console.log("Delete Portfolio Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -112,12 +112,12 @@ export async function removePortfolioLeaseTemplate(id) {
     const res = await authenticatedInstance
       .patch(`/portfolios/${id}/remove-lease-template/`)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Remove Portfolio Lease Template Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }
@@ -128,12 +128,12 @@ export async function validatePortfolioName(data) {
     const res = await authenticatedInstance
       .post(`/portfolios/validate-name/`, data)
       .then((res) => {
-        console.log(res);
+
         return res.data;
       });
     return res;
   } catch (error) {
-    console.log("Validate Portfolio Name Error: ", error);
+
     return error.response ? error.response.data : { error: "Network Error" };
   }
 }

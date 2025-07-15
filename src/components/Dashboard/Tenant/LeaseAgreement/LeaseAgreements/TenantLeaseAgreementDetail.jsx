@@ -1,9 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import {
-  getTenantDashboardData,
-  updateTenantAutoRenewStatus,
-} from "../../../../../api/tenants";
+import { updateTenantAutoRenewStatus } from "../../../../../api/tenants";
 import { useEffect } from "react";
 import UIButton from "../../../UIComponents/UIButton";
 import AlertModal from "../../../UIComponents/Modals/AlertModal";
@@ -17,19 +14,11 @@ import { getTenantLeaseCancellationRequests } from "../../../../../api/lease_can
 import { getTenantLeaseRenewalRequests } from "../../../../../api/lease_renewal_requests";
 import { getTenantInvoices } from "../../../../../api/tenants";
 import { useNavigate } from "react-router";
-import Joyride, {
-  ACTIONS,
-  CallBackProps,
-  EVENTS,
-  STATUS,
-  Step,
-} from "react-joyride";
+import Joyride, { STATUS } from "react-joyride";
 import UIHelpButton from "../../../UIComponents/UIHelpButton";
-import UISwitch from "../../../UIComponents/UISwitch";
 import { useParams } from "react-router";
 import { getLeaseAgreementById } from "../../../../../api/lease_agreements";
 import { authenticatedInstance } from "../../../../../api/api";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
 import PaymentCalendar from "../../PaymentCalendar";
 import ProgressModal from "../../../UIComponents/Modals/ProgressModal";
 const TenantLeaseAgreementDetail = () => {
@@ -39,7 +28,6 @@ const TenantLeaseAgreementDetail = () => {
   const [unitPreferences, setUnitPreferences] = useState(null);
   const navigate = useNavigate();
   const [leaseAgreement, setLeaseAgreement] = useState(null);
-  const [leaseTemplate, setLeaseTemplate] = useState(null);
   const [showLeaseCancellationDialog, setShowLeaseCancellationFormDialog] =
     useState(false);
   const [showLeaseCancellationForm, setShowLeaseCancellationForm] =
@@ -49,7 +37,6 @@ const TenantLeaseAgreementDetail = () => {
   const [alertModalTitle, setAlertModalTitle] = useState("");
   const [alertModalMessage, setAlertModalMessage] = useState("");
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
   const [autoRenewalEnabled, setAutoRenewalEnabled] = useState(false);
   const [
     hasExistingLeaseCancellationRequest,
@@ -57,7 +44,6 @@ const TenantLeaseAgreementDetail = () => {
   ] = useState(false);
   const [hasExistingLeaseRenewalRequest, setHasExistingLeaseRenewalRequest] =
     useState(false);
-  const [invoices, setInvoices] = useState([]);
   const [totalAmountDue, setTotalAmountDue] = useState(0);
   const [totalAmountPaid, setTotalAmountPaid] = useState(0);
   const [runTour, setRunTour] = useState(false);
@@ -101,11 +87,10 @@ const TenantLeaseAgreementDetail = () => {
   const handleClickStart = (event) => {
     event.preventDefault();
     setRunTour(true);
-    console.log(runTour);
   };
   const openCancellationDialog = () => {
     let today = new Date();
-    let leaseTerms = JSON.parse(unit.lease_terms);
+    let leaseTerms = JSON.parse(leaseAgreement.lease_terms);
     let cancellationNoticePeriod = leaseTerms.find(
       (term) => term.name === "lease_cancellation_notice_period"
     ).value;
@@ -117,9 +102,6 @@ const TenantLeaseAgreementDetail = () => {
       noticePeriodBeforeEndDate.getMonth() - cancellationNoticePeriod
     );
 
-    console.log("Today: ", today);
-    console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
-
     // Check if today is before the notice period starts
     if (today < noticePeriodBeforeEndDate) {
       setAlertModalTitle("Lease Cancellation Notice Period");
@@ -127,7 +109,6 @@ const TenantLeaseAgreementDetail = () => {
         `You cannot cancel your lease at this time. Please try again after ${cancellationNoticePeriod} month(s) before the end of your lease.`
       );
       setShowAlertModal(true);
-      console.log("You cannot cancel your lease at this time");
     } else if (hasExistingLeaseCancellationRequest) {
       setShowLeaseCancellationFormDialog(false);
       setAlertModalTitle("Existing Lease Cancellation Request");
@@ -135,7 +116,6 @@ const TenantLeaseAgreementDetail = () => {
         "You already have an existing lease cancellation request. You will be notified when the property manager responds."
       );
       setShowAlertModal(true);
-      console.log("You cannot cancel your lease at this time");
     } else if (hasExistingLeaseRenewalRequest) {
       setShowLeaseCancellationFormDialog(false);
       setAlertModalTitle("Existing Lease Renewal Request");
@@ -143,7 +123,6 @@ const TenantLeaseAgreementDetail = () => {
         "You cannot cancel your lease at this time. You already have an existing lease renewal request. You will be notified when the property manager responds."
       );
       setShowAlertModal(true);
-      console.log("You cannot cancel your lease at this time");
     } else {
       setShowLeaseCancellationFormDialog(true);
     }
@@ -151,7 +130,7 @@ const TenantLeaseAgreementDetail = () => {
 
   const openRenewalDialog = () => {
     let today = new Date();
-    let leaseTerms = JSON.parse(unit.lease_terms);
+    let leaseTerms = JSON.parse(leaseAgreement.lease_terms);
     let renewalNoticePeriod = leaseTerms.find(
       (term) => term.name === "lease_renewal_notice_period"
     ).value;
@@ -162,9 +141,6 @@ const TenantLeaseAgreementDetail = () => {
     noticePeriodBeforeEndDate.setMonth(
       noticePeriodBeforeEndDate.getMonth() - renewalNoticePeriod
     );
-
-    console.log("Today: ", today);
-    console.log("Notice Period Before End Date: ", noticePeriodBeforeEndDate);
 
     // Check if today's date is within the notice period threshold before the end of the lease
     if (today < noticePeriodBeforeEndDate) {
@@ -199,7 +175,6 @@ const TenantLeaseAgreementDetail = () => {
       tenant_id: leaseAgreement.tenant.id,
     })
       .then((res) => {
-        console.log(res);
         if (res.status !== 200) {
           setAlertModalTitle("Error");
           setAlertModalMessage(
@@ -225,7 +200,7 @@ const TenantLeaseAgreementDetail = () => {
         { document_id: leaseAgreement.document_id },
         { responseType: "blob" } // This is important to handle binary data
       );
-      console.log("Response: ", response);
+
       if (response.status !== 200) {
         throw new Error("Error downloading document");
       }
@@ -234,7 +209,6 @@ const TenantLeaseAgreementDetail = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      setPdfUrl(url);
       link.setAttribute("download", "lease_agreement.pdf");
       document.body.appendChild(link);
       link.click();
@@ -257,8 +231,9 @@ const TenantLeaseAgreementDetail = () => {
       //Retrieve the unit
       getLeaseAgreementById(id).then((res) => {
         setLeaseAgreement(res.data);
-        setLeaseTemplate(res.data.lease_template);
+        console.log("lease agreement", res.data);
         setUnit(res.data.rental_unit);
+        console.log("unit", res.data.rental_unit);
         setAutoRenewalEnabled(res.data.auto_renew_lease_is_enabled);
         setUnitPreferences(JSON.parse(res.data.rental_unit.preferences));
       });
@@ -282,16 +257,13 @@ const TenantLeaseAgreementDetail = () => {
         }
       });
       getTenantInvoices().then((res) => {
-        //Reverse the array so the most recent invoices are shown first
-        setInvoices(res.invoices.data.reverse());
         let amountDue = 0;
         let amountPaid = 0;
-        res.invoices.data.forEach((invoice) => {
+        res?.invoices?.data?.forEach((invoice) => {
           amountDue += invoice.amount_remaining;
           amountPaid += invoice.amount_paid;
         });
-        console.log("Amount Due: ", amountDue);
-        console.log("Amount Paid: ", amountPaid);
+
         setTotalAmountDue(amountDue / 100);
         setTotalAmountPaid(amountPaid / 100);
       });
@@ -303,7 +275,8 @@ const TenantLeaseAgreementDetail = () => {
       );
       setShowAlertModal(true);
     }
-  }, []);
+    console.log("unit state variable", unit);
+  }, [unit]);
 
   return (
     <div className="container">
@@ -339,6 +312,7 @@ const TenantLeaseAgreementDetail = () => {
         btnText="Okay"
       />
       <ProgressModal open={isPreparingDownload} title="Preparing download..." />
+
       {leaseAgreement ? (
         <div className="row lease-agreement-page">
           <Stack
@@ -378,161 +352,267 @@ const TenantLeaseAgreementDetail = () => {
                 )} */}
                 <div className="row">
                   <div className="col-sm-12 col-md-6 mb-4 text-black">
-                    <h6 className="rental-application-lease-heading">
+                    <h6
+                      className="rental-application-lease-heading"
+                      data-testId="total-amount-paid-label"
+                    >
                       Total Amount Paid
                     </h6>
-                    ${totalAmountPaid.toLocaleString()}
+                    <span data-testId="total-amount-paid-value">
+                      ${totalAmountPaid.toLocaleString()}
+                    </span>
                   </div>
                   <div className="col-sm-12 col-md-6 mb-4 text-black">
-                    <h6 className="rental-application-lease-heading">
+                    <h6
+                      className="rental-application-lease-heading"
+                      data-testId="total-amount-due-label"
+                    >
                       Total Amount Due
                     </h6>
-                    ${totalAmountDue.toLocaleString()}
+                    <span data-testId="total-amount-due-value">
+                      ${totalAmountDue.toLocaleString()}
+                    </span>
                   </div>
                 </div>
                 {unit && (
                   <div className="row">
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">Unit</h6>
-                      {unit.name}
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="unit-name-label"
+                      >
+                        Unit
+                      </h6>
+                      <span data-testId="unit-name-value">{unit.name}</span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">Rent</h6>
-                      $
-                      {
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "rent"
-                        ).value
-                      }
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="rent-label"
+                      >
+                        Rent
+                      </h6>
+                      <span data-testId="rent-value" className="text-black">
+                        $
+                        {
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
+                            (term) => term.name === "rent"
+                          ).value
+                        }
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">Term</h6>
-                      {
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "term"
-                        ).value
-                      }{" "}
-                      {
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "rent_frequency"
-                        ).value
-                      }
-                      s
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-term-label"
+                      >
+                        Term
+                      </h6>
+                      <span data-testId="lease-term-value">
+                        {
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
+                            (term) => term.name === "term"
+                          ).value
+                        }{" "}
+                        {
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
+                            (term) => term.name === "rent_frequency"
+                          ).value
+                        }
+                        s
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="late-fee-label"
+                      >
                         Late Fee
                       </h6>
-                      {`$${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "late_fee"
-                        ).value
-                      }`}
+                      <span className="text-black" data-testId="late-fee-value">
+                        {`$${
+                          JSON.parse(leaseAgreement.lease_terms)?.find(
+                            (term) => term.name === "late_fee"
+                          ).value
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="security-deposit-label"
+                      >
                         Security Deposit
                       </h6>
-                      {`$${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "security_deposit"
-                        ).value
-                      }`}
+                      <span
+                        className="text-black"
+                        data-testId="security-deposit-value"
+                      >
+                        {`$${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) => term.name === "security_deposit"
+                          ).value
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="gas-included-label"
+                      >
                         Gas Included?
                       </h6>
-                      {`${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "gas_included"
-                        ).value
-                          ? "Yes"
-                          : "No"
-                      }`}
+                      <span
+                        data-testId="gas-included-value"
+                        className="text-black"
+                      >
+                        {`${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) => term.name === "gas_included"
+                          ).value
+                            ? "Yes"
+                            : "No"
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="electric-included-label"
+                      >
                         Electric Included?
                       </h6>
-                      {`${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "electricity_included"
-                        ).value
-                          ? "Yes"
-                          : "No"
-                      }`}
+                      <span data-testId="electric-included-value">
+                        {`${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) => term.name === "electricity_included"
+                          ).value
+                            ? "Yes"
+                            : "No"
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="water-included-label"
+                      >
                         Water Included?
                       </h6>
-                      {`${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "water_included"
-                        ).value
-                          ? "Yes"
-                          : "No"
-                      }`}
+                      <span
+                        className="text-black"
+                        data-testId="water-included-value"
+                      >
+                        {`${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) => term.name === "water_included"
+                          ).value
+                            ? "Yes"
+                            : "No"
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-cancellation-fee-label"
+                      >
                         Lease Cancellation Fee
                       </h6>
-                      {`$${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "lease_cancellation_fee"
-                        ).value
-                      }`}
+                      <span
+                        className="text-black"
+                        data-testId="lease-cancellation-fee-value"
+                      >
+                        {`$${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) => term.name === "lease_cancellation_fee"
+                          ).value
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-cancellation-notice-period-label"
+                      >
                         Lease Cancellation Notice period
                       </h6>
-                      {`${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) =>
-                            term.name === "lease_cancellation_notice_period"
-                        ).value
-                      } months`}
+                      <span
+                        className="text-black"
+                        data-testId="lease-cancellation-notice-period-value"
+                      >
+                        {`${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) =>
+                              term.name === "lease_cancellation_notice_period"
+                          ).value
+                        } months`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-fee-label"
+                      >
                         Lease Renewal Fee
                       </h6>
-                      {`$${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "lease_renewal_fee"
-                        ).value
-                      }`}
+                      <span
+                        className="text-black"
+                        data-testId="lease-renewal-fee-value"
+                      >
+                        {`$${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) => term.name === "lease_renewal_fee"
+                          ).value
+                        }`}
+                      </span>
                     </div>
                     <div className="col-sm-12 col-md-6 mb-4 text-black">
-                      <h6 className="rental-application-lease-heading">
-                        Lease Renewal Notice period
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-renewal-notice-period-label"
+                      >
+                        Lease Renewal Notice Period
                       </h6>
-                      {`${
-                        JSON.parse(unit.lease_terms).find(
-                          (term) => term.name === "lease_renewal_notice_period"
-                        ).value
-                      } months`}
+                      <span
+                        className="text-black"
+                        data-testId="lease-renewal-notice-period-value"
+                      >
+                        {`${
+                          JSON.parse(leaseAgreement.lease_terms).find(
+                            (term) =>
+                              term.name === "lease_renewal_notice_period"
+                          ).value
+                        } months`}
+                      </span>
                     </div>
                     <div
                       className="col-sm-12 col-md-6 mb-4 text-black"
                       style={{ marginTop: "20px" }}
                     >
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-start-date-label"
+                      >
                         Lease Start Date
                       </h6>
-                      {leaseAgreement.start_date}
+                      <span data-testId="lease-start-date-value">
+                        {leaseAgreement.start_date}
+                      </span>
                     </div>
                     <div
                       className="col-sm-12 col-md-6 mb-4 text-black"
                       style={{ marginTop: "20px" }}
                     >
-                      <h6 className="rental-application-lease-heading">
+                      <h6
+                        className="rental-application-lease-heading"
+                        data-testId="lease-end-date-label"
+                      >
                         Lease End Date
                       </h6>
-                      {leaseAgreement.end_date}
+                      <span data-testId="lease-end-date-value">
+                        {leaseAgreement.end_date}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -545,7 +625,7 @@ const TenantLeaseAgreementDetail = () => {
               style={{ color: "white" }}
             >
               <div className="card-body ">
-                <PaymentCalendar />
+                <PaymentCalendar dataTestId="lease-agreement-payment-calendar-card" />
               </div>
             </div>
             <Stack direction="row" spacing={2}>
@@ -567,6 +647,7 @@ const TenantLeaseAgreementDetail = () => {
                     setShowAlertModal={setShowAlertModal}
                   />
                   <UIButton
+                    dataTestId="lease-cancellation-button"
                     btnText="Request Cancellation"
                     onClick={openCancellationDialog}
                   />
@@ -588,6 +669,7 @@ const TenantLeaseAgreementDetail = () => {
                     setShowAlertModal={setShowAlertModal}
                   />
                   <UIButton
+                    dataTestId="lease-renewal-button"
                     btnText="Request Renewal"
                     onClick={openRenewalDialog}
                   />
