@@ -89,7 +89,7 @@ const LeaseCancellationForm = (props) => {
     setIsLoading(true);
     // Check that the move out date is not before the end of the lease agreement end date
     const moveOutDate = new Date(formData.moveOutDate);
-    const leaseEndDate = new Date(props.leaseAgreement.end_date);
+    const leaseEndDate = new Date(props.leaseAgreement?.end_date);
     if (moveOutDate > leaseEndDate) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -105,10 +105,10 @@ const LeaseCancellationForm = (props) => {
       request_date: formData.moveOutDate,
       comments: formData.comments,
       tenant: authUser.id,
-      owner: props.leaseAgreement.owner.id,
-      rental_unit: props.leaseAgreement.rental_unit.id,
-      rental_property: props.leaseAgreement.rental_unit.rental_property,
-      lease_agreement: props.leaseAgreement.id,
+      owner: props.leaseAgreement?.owner.id,
+      rental_unit: props.leaseAgreement?.rental_unit.id,
+      rental_property: props.leaseAgreement?.rental_unit.rental_property,
+      lease_agreement: props.leaseAgreement?.id,
     };
     try {
       createLeaseCancellationRequest(payload).then((res) => {

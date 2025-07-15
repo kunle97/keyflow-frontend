@@ -12,7 +12,6 @@ import {
   getNextPaymentDate,
   getPaymentDates,
 } from "../../../../api/manage_subscriptions";
-import { getProperty } from "../../../../api/properties";
 import {
   cancelLeaseAgreement,
   getLeaseAgreementsByTenant,
@@ -360,6 +359,7 @@ const ManageTenant = () => {
               setUnit(unit_res.data);
               getLeaseAgreementsByTenant(tenant_res.data.id).then((res) => {
                 setLease(res.data[0]);
+                console.log("lease", res);
               });
               getTransactionsByTenant(tenant_res.data.id).then((res) => {
                 setTransactions(res.data);

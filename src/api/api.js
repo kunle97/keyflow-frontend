@@ -63,8 +63,8 @@ authenticatedMediaInstance.interceptors.request.use(
 );
 
 // Apply the error handler to the authenticated instances
-addErrorHandler(authenticatedInstance);
-addErrorHandler(authenticatedMediaInstance);
+// addErrorHandler(authenticatedInstance);
+// addErrorHandler(authenticatedMediaInstance);
 
 export const unauthenticatedInstance = axios.create({
   baseURL: API_HOST,
