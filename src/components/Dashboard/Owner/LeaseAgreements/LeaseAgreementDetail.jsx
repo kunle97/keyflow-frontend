@@ -94,9 +94,9 @@ const LeaseAgreementDetail = () => {
 
   const getTenantName = () => {
     if (leaseAgreement.tenant) {
-      return `${tenant.user.first_name} ${tenant.user.last_name}`;
+      return `${tenant.user?.first_name} ${tenant.user?.last_name}`;
     } else if (rentalApplication) {
-      return `${rentalApplication.first_name} ${rentalApplication.last_name}`;
+      return `${rentalApplication?.first_name} ${rentalApplication?.last_name}`;
     } else {
       return "N/A";
     }
@@ -175,7 +175,7 @@ const LeaseAgreementDetail = () => {
           JSON.parse(res.data.lease_terms).find(
             (term) => term.name === "rent"
           ).value
-        );
+        ); 
         setRentFrequency(
           JSON.parse(res.data.lease_terms).find(
             (term) => term.name === "rent_frequency"

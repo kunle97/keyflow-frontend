@@ -2217,11 +2217,16 @@ const ManageUnit = () => {
                         columns={rental_application_table_columns}
                         options={rental_application_table_options}
                         data={rentalApplications}
+                        onRowClick={(row) => {
+                          const navlink = `/dashboard/owner/rental-applications/${row.id}`;
+                          navigate(navlink);
+                        }
+                        }
                         menuOptions={[
                           {
                             name: "View",
-                            onClick: (rowData) => {
-                              const navlink = `/dashboard/owner/rental-applications/${rowData.id}`;
+                            onClick: (row) => {
+                              const navlink = `/dashboard/owner/rental-applications/${row.id}`;
                               navigate(navlink);
                             },
                           },

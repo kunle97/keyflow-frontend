@@ -207,6 +207,7 @@ const LeaseCancellationRequests = () => {
             options={options}
             endpoint={"/lease-cancellation-requests/"}
             title={"Lease Cancellation Requests"}
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "View",

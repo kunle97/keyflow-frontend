@@ -215,7 +215,7 @@ const SubscriptionSection = () => {
         />
         {plans.map((plan) => {
           let isTrialMode =false
-          if( currentSubscriptionPlan.status == "trialing" && plan.product_id === process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID){
+          if( currentSubscriptionPlan?.status == "trialing" && plan.product_id === process.env.REACT_APP_STRIPE_OWNER_ENTERPRISE_PLAN_PRODUCT_ID){
             isTrialMode = true
           }
           console.log(currentSubscriptionPlan)
@@ -225,7 +225,7 @@ const SubscriptionSection = () => {
               subscriptionName={plan.name}
               subscriptionPrice={plan.price}
               isTrialMode={isTrialMode}
-              trialEnd={currentSubscriptionPlan.trial_end}
+              trialEnd={currentSubscriptionPlan?.trial_end}
               subscriptionDescription={
                 plan.description ? plan.description : null
               }

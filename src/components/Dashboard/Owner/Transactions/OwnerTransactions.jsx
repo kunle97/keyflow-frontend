@@ -234,6 +234,7 @@ const OwnerTransactions = () => {
                 title="Transactions"
                 detailURL="/dashboard/owner/transactions/"
                 showCreate={false}
+                onRowClick={handleRowClick}
                 menuOptions={[
                   {
                     name: "View",

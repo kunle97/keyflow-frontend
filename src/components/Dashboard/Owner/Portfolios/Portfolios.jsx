@@ -209,11 +209,14 @@ const Portfolios = () => {
           options={portfolio_options}
           showCreate={true}
           createURL="/dashboard/owner/portfolios/create"
+          onRowClick={(row) => {
+            navigate(`/dashboard/owner/portfolios/${row.id}`);
+          }}
           menuOptions={[
             {
               name: "View",
               onClick: (row) => {
-                navigate(`/dashboard/owner/portfolios/${row.id}`);
+                navigate(`/dashboard/owner/portfolios/${row.id }`);
               },
             },
           ]}

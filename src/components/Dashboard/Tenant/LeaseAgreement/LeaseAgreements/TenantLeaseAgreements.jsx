@@ -105,7 +105,7 @@ const TenantLeaseAgreements = () => {
   ];
 
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/owner/lease-agreements/${rowData}`;
+    const navlink = `/dashboard/owner/lease-agreements/${rowData.id}`;
     navigate(navlink);
   };
 
@@ -188,6 +188,7 @@ const TenantLeaseAgreements = () => {
             endpoint={"/lease-agreements/"}
             options={options}
             title={"Lease Agreements"}
+            onRowClick={handleRowClick}
             menuOptions={[
               {
                 name: "View",

@@ -8,7 +8,7 @@ const LeaseCancellationDialog = (props) => {
   const [leaseTerms, setLeaseTerms] = useState({});
   useEffect(() => {
     console.log("lease ageeementt",props.leaseAgreement);
-    setLeaseTerms(JSON.parse(props.leaseAgreement.lease_terms));
+    setLeaseTerms(JSON.parse(props.leaseAgreement?.lease_terms));
   }, []);
   return (
     <>

@@ -95,7 +95,7 @@ const TenantLeaseRenewalRequests = () => {
     },
   ];
   const handleRowClick = (rowData, rowMeta) => {
-    const navlink = `/dashboard/tenant/lease-renewal-requests/${rowData}/`;
+    const navlink = `/dashboard/tenant/lease-renewal-requests/${rowData.id}/`;
     navigate(navlink);
   };
   const options = {
@@ -212,6 +212,8 @@ const TenantLeaseRenewalRequests = () => {
             columns={columns}
             data={data}
             options={options}
+            onRowClick={handleRowClick}
+
             menuOptions={[
               {
                 name: "View",

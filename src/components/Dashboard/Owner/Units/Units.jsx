@@ -233,6 +233,10 @@ const Units = () => {
             setChecked={setChecked}
             endpoint={"/units/"}
             searchFields={["name", "rental_property_name"]}
+            onRowClick={(row) => {
+              const navlink = `/dashboard/owner/units/${row.id}/${row.rental_property}`;
+              navigate(navlink);
+            }}
             menuOptions={[
               {
                 name: "View",

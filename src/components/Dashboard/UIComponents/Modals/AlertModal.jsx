@@ -38,17 +38,16 @@ const AlertModal = (props) => {
   const classes = useStyles();
   const handleDisableChange = (event) => {
     setDisabled(event.target.checked);
-
   };
   return (
     <Modal
-      data-testId={props.dataTestId? props.dataTestId : "alert-modal"}
+      data-testId={props.dataTestId ? props.dataTestId : "alert-modal"}
       className={classes.modal}
       open={props.open}
       closeAfterTransition={false} // Prevent modal from closing on backdrop click
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
-      hideBackdrop={false} 
+      hideBackdrop={false}
       BackdropComponent={Backdrop}
       BackdropProps={{
         timeout: 500,
@@ -63,14 +62,22 @@ const AlertModal = (props) => {
             id="modal-modal-title"
             variant="h6"
             component="h2"
-            data-testid={props.dataTestId ? props.dataTestId+"-modal-title" : `alert-modal-title`}
+            data-testid={
+              props.dataTestId
+                ? props.dataTestId + "-modal-title"
+                : `alert-modal-title`
+            }
           >
             {props.title}
           </h5>
           <p
             id="modal-modal-description"
-            sx={{ mt: 2 }}
-            data-testid={props.dataTestId ? props.dataTestId+"-modal-message" : `alert-modal-message`}
+            style={{ mt: 2, maxWidth: "100%", wordWrap: "break-word" }}
+            data-testid={
+              props.dataTestId
+                ? props.dataTestId + "-modal-message"
+                : `alert-modal-message`
+            }
           >
             {props.message}
           </p>
@@ -93,7 +100,11 @@ const AlertModal = (props) => {
                     id="modal-modal-button"
                     className={classes.button}
                     variant="contained"
-                    data-testid={props.dataTestId ? props.dataTestId+"-modal-button" : `alert-modal-button`}
+                    data-testid={
+                      props.dataTestId
+                        ? props.dataTestId + "-modal-button"
+                        : `alert-modal-button`
+                    }
                   >
                     {props.btnText ? props.btnText : "Okay"}
                   </Button>
@@ -104,11 +115,15 @@ const AlertModal = (props) => {
                   onClick={() => {
                     if (!disabled) {
                       props.onClick();
-                    } 
+                    }
                   }}
                   className={classes.button}
                   variant="contained"
-                  data-testid={props.dataTestId ? props.dataTestId+"-modal-button" : `alert-modal-button`}
+                  data-testid={
+                    props.dataTestId
+                      ? props.dataTestId + "-modal-button"
+                      : `alert-modal-button`
+                  }
                 >
                   {props.btnText ? props.btnText : "Okay"}
                 </Button>

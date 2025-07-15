@@ -202,6 +202,10 @@ const Properties = () => {
                 },
               },
             ]}
+            onRowClick={(row) => {
+              const navlink = `/dashboard/owner/properties/${row.id}`;
+              navigate(navlink);
+            }}
             title="Properties"
             showCreate={true}
             createURL="/dashboard/owner/properties/create"

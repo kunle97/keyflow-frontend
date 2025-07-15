@@ -47,7 +47,9 @@ const CreateLeaseTemplate = (props) => {
   ]);
   const [selectedAssignments, setSelectedAssignments] = useState([
     // { id: 1, selected: true },
-  ]); //Array holding ids and boolean values of the selected properties or units
+  ]); 
+  
+  //Array holding ids and boolean values of the selected properties or units
   const [assignmentMode, setAssignmentMode] = useState("unit"); //portfolio, property or unit
   const [templateId, setTemplateId] = useState("");
   const [skipAdditionalChargesStep, setSkipAdditionalChargesStep] = useState(false);
@@ -86,6 +88,7 @@ const CreateLeaseTemplate = (props) => {
         "Here you can assign the lease agreement template to units, properties, or portfolios. You can assign the lease agreement to multiple units, properties, or portfolios.",
     },
   ];
+
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data;
 
@@ -97,8 +100,8 @@ const CreateLeaseTemplate = (props) => {
       setTourIndex(nextStepIndex);
     }
 
-
   };
+
   const handleClickStart = (event) => {
     event.preventDefault();
     if (step === 0) {
@@ -113,7 +116,6 @@ const CreateLeaseTemplate = (props) => {
       setTourIndex(5);
     }
     setRunTour(true);
-
   };
 
   const {
@@ -184,6 +186,7 @@ const CreateLeaseTemplate = (props) => {
         : "",
     },
   });
+
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     rent:
@@ -429,7 +432,7 @@ const CreateLeaseTemplate = (props) => {
       <div className="card">
         <UIStepper steps={steps} step={step} style={{ margin: "30px 0" }} />
         <div className="card-body">
-          <form enctype="multipart/form-data">
+          <form encType="multipart/form-data">
             {step === 0 && (
               <UploadLeaseDocument
                 isLeaseRenewal={props.isLeaseRenewal}

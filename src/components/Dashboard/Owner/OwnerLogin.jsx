@@ -131,7 +131,6 @@ const OwnerLogin = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      setErrMsg("An error occurred. Please try again later");
       setIsLoading(false);
       setOpen(false);
       setOpenError(true);

@@ -705,7 +705,6 @@ const UITable = (props) => {
                               ? `${props.testRowIdentifier}-table-header-${column.name}`
                               : `${props.dataTestId}-table-header-${column.name}`
                           }
-
                           style={{
                             maxWidth: maxTableCellWidth,
                             overflow: "hidden",
@@ -739,6 +738,11 @@ const UITable = (props) => {
                       {results.map((row, index) => {
                         return (
                           <tr
+                            onClick={
+                              props.onRowClick
+                                ? () => props.onRowClick(row)
+                                : () => {}
+                            }
                             data-testid={
                               props.testRowIdentifier
                                 ? `${props.testRowIdentifier}-table-row-${index}`
@@ -929,6 +933,11 @@ const UITable = (props) => {
                       {currentItems.map((row, index) => {
                         return (
                           <tr
+                            onClick={
+                              props.onRowClick
+                                ? () => props.onRowClick(row)
+                                : () => {}
+                            }
                             data-testid={
                               props.testRowIdentifier
                                 ? `${props.testRowIdentifier}-table-row-${index}`
