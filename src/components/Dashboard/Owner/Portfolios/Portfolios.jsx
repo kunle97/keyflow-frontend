@@ -168,7 +168,7 @@ const Portfolios = () => {
         message={alertModalMessage}
         btnText={"Ok"}
         onClick={() => {
-          navigate(0);
+          navigate(alertModalRedirect);
         }}
       />
       {isMobile ? (
